@@ -12,12 +12,14 @@ use strict;
 
 use App::Recoil::Log;
 use App::Recoil::FileDiscovery;
+use App::Recoil::Utils;
 
 use Exporter;
 our @ISA    = qw( Exporter );
 our @EXPORT = qw( 
 
                 red_protocols_process
+                red_exec_protocol
                 
                 );
 
@@ -78,7 +80,7 @@ sub red_exec_protocol
 
   my $cr = red_get_protocol( $name );
   
-  
+  $cr->() if $cr;
 }
 
 ### EOF ######################################################################

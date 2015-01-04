@@ -1,7 +1,9 @@
-package App::Recoil::Protocols::proto::try;
+package App::Recoil::Protocols::try;
 use strict;
 
 sub main
 {
  print "***************** HELLO TRY PROTO\n";
 }
+
+1;

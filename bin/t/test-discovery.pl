@@ -17,6 +17,7 @@ use lib $FindBin::Bin . "/../../lib";
 use Data::Dumper;
 use App::Recoil::Env;
 use App::Recoil::FileDiscovery;
+use App::Recoil::Protocols;
 
 $RED_APP_NAME = 'app1';
 red_file_find_rescan();
@@ -24,5 +25,7 @@ red_file_find_rescan();
 print STDERR Dumper( \%App::Recoil::FileDiscovery::RED_FILE_DISCOVERY_CACHE, [ red_file_find_modules_list() ] );
 
 red_file_find( 'try.proto.def', 'app', 'modules::', '::' );
+
+red_exec_protocol( 'try' );
 
 
