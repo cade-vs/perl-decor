@@ -21,6 +21,9 @@ our @EXPORT = qw(
                 
                 );
 
+our %RED_PROTOCOLS_CACHE;
+
+
 ##############################################################################
 
 sub red_protocols_process
@@ -30,36 +33,52 @@ sub red_protocols_process
 
 sub red_get_protocol
 {
-  my $name = shift;
+  my $name = lc shift;
 
   red_check_name_boom( $name );
 
-  # FIXME: caching!
-  
-  my @proto_defs;
-  if( $APP_NAME )
+  if( exists $RED_PROTOCOLS_CACHE{ $name } )
     {
-    push @proto_defs, "$ROOT/apps/$APP_NAME/protocols/$name.proto.def";
-    for my $mod_name ( sort glob_tree( "$ROOT/apps/$APP_NAME/modules" ) )
-      {
-      push @proto_defs, "$mod_name/protocols/$name.proto.def";
-      }
+    return $RED_PROTOCOLS_CACHE{ $name };
     }
-  push @proto_defs, "$ROOT/protocols/$name.proto.def";
 
+  my $proto_def = red_file_find( "$name.proto.def", 'app', 'modules::', '::' );                             
+  my $proto_pm  = red_file_def2pm( $proto_def );
 
+  my $pp = 'App::Recoil::Protocols::' . $name; # proto package
+
+  eval
+    {
+    require $proto_pm;
+    };
+  if( ! $@ )  
+    {
+    red_log_debug( "debug: loaded protocol [$name] from [$proto_pm]" );
+    my $cr = \&{ "${pp}::main" }; # call/function reference
+    $RED_PROTOCOLS_CACHE{ $name } = $cr;
+    return $cr;
+    }
+  elsif( $@ =~ /Can't locate $proto_pm/)
+    {
+    print STDERR "NOT FOUND: action: $pp: $proto_pm\n";
+    }
+  else
+    {
+    print STDERR "ERROR LOADING: action: $pp: $@\n";
+    }  
   
-  my $proto_def = red_find_file( 
-                                 "$ROOT/protocols/$name.proto.def", 
-                                 "$ROOT/$APP_NAME/protocols/$name.proto.def", 
-                               );
-  my $proto_pm  = red_find_file( 
-                                 "$ROOT/protocols/$name.proto.pm", 
-                                 "$ROOT/$APP_NAME/protocols/$name.proto.pm", 
-                               );
-                               
-                               
-                               
+  return undef;
+}
+
+sub red_exec_protocol
+{
+  my $name = lc shift;
+
+  red_check_name_boom( $name );
+
+  my $cr = red_get_protocol( $name );
+  
+  
 }
 
 ### EOF ######################################################################

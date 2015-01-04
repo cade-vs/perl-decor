@@ -24,6 +24,7 @@ our @EXPORT = qw(
                 red_file_find_rescan
                 
                 red_file_find_modules_list
+                red_file_def2pm
                 
                 );
 
@@ -33,15 +34,14 @@ our %RED_FILE_DISCOVERY_CACHE;
 
 sub red_file_find
 {
-  my $type  = lc shift;
   my $fname = lc shift; # file name
-  my @loc   = @_; # location ( core/global, app or in modules )        
+  my @loc   = map { $_ eq 'modules::' ? red_file_find_modules_list() : $_ } @_; # location ( core/global, app or in modules )        
 
   while( @loc )
     {
     my $loc = lc shift @loc;
-    next unless exists $RED_FILE_DISCOVERY_CACHE{ $type }{ $loc }{ $fname };
-    return $RED_FILE_DISCOVERY_CACHE{ $type }{ $loc }{ $fname };
+    next unless exists $RED_FILE_DISCOVERY_CACHE{ $loc }{ $fname };
+    return $RED_FILE_DISCOVERY_CACHE{ $loc }{ $fname };
     }
   return undef;
 }
@@ -50,37 +50,46 @@ sub red_file_find
 
 sub red_file_find_modules_list
 {
-  my @modules = map { s/module:://; $_ } grep { /^module::/ } keys %RED_FILE_DISCOVERY_CACHE;  
+  my @modules = grep { /^module::/ } keys %RED_FILE_DISCOVERY_CACHE;  
   
   return @modules;
+}
+
+sub red_file_def2pm
+{
+  my $fname = shift;
+  
+  $fname =~ s/\.def$/.pm/;
+  
+  return $fname;
 }
 
 ##############################################################################
 
 sub red_file_find_rescan
 {
-  for my $type ( qw( proto class menu ) )
+  for my $dir ( qw( proto class menu ) )
     {
-    __red_ff_rescan_type( $type );
+    __red_ff_rescan_dir( $dir );
     }
 }
 
-sub __red_ff_rescan_type
+sub __red_ff_rescan_dir
 {
-  my $type = lc shift;
+  my $dir = lc shift;
   
   my @paths;
   if( $RED_APP_NAME )
     {
-    __red_ff_rescan_cache_fill( "app", "$RED_ROOT/apps/$RED_APP_NAME/$type" );
+    __red_ff_rescan_cache_fill( "app", "$RED_ROOT/apps/$RED_APP_NAME/$dir" );
     for my $mod_path ( sort glob( "$RED_ROOT/apps/$RED_APP_NAME/modules/*" ) )
       {
       my $mod_name = $1 if $mod_path =~ /\/([^\/]+)$/;
       red_check_name_boom( $mod_name );
-      __red_ff_rescan_cache_fill( "module::$mod_name", "$RED_ROOT/apps/$RED_APP_NAME/modules/$mod_name/$type" );
+      __red_ff_rescan_cache_fill( "module::$mod_name", "$RED_ROOT/apps/$RED_APP_NAME/modules/$mod_name/$dir" );
       }
     }
-  __red_ff_rescan_cache_fill( '::', "$RED_ROOT/$type" );
+  __red_ff_rescan_cache_fill( '::', "$RED_ROOT/$dir" );
  
 }
 
@@ -93,7 +102,6 @@ sub __red_ff_rescan_cache_fill
   
   my @files;
   push @files, glob_tree( "$path/*.def" );
-  push @files, glob_tree( "$path/*.pm" );
   
   for my $file ( @files )
     {

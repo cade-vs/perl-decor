@@ -23,4 +23,6 @@ red_file_find_rescan();
 
 print STDERR Dumper( \%App::Recoil::FileDiscovery::RED_FILE_DISCOVERY_CACHE, [ red_file_find_modules_list() ] );
 
+red_file_find( 'try.proto.def', 'app', 'modules::', '::' );
+
 
