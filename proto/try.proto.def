@@ -1,1 +1,10 @@
-0
+
+allow all
+
+=ID
+
+  type int
+  
+=STATUS
+
+  type int
