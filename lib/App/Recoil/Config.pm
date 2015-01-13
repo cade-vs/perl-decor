@@ -10,6 +10,7 @@
 package App::Recoil::Config;
 use strict;
 
+use Data::Dumper;
 use Data::Tools 1.07;
 use Exception::Sink;
 use App::Recoil::Env;
@@ -33,16 +34,14 @@ sub red_config_merge
   my $config = shift; # config hash ref
   my $name   = shift;
   my $dirs   = shift; # array reference
-  my $label  = shift;
   
   red_check_name( $name  ) or boom "invalid NAME: [$name]";
-  red_check_name( $label ) or boom "invalid NAME:LABEL: [$label]";
   
-  my @files = __red_resolve_config_files( $name, $dirs, $label );
+  my @files = __red_resolve_config_files( $name, $dirs );
   
   for my $file ( @files )
     {
-    __red_merge_config_file( $config, $file );
+    __red_merge_config_file( $config, $file, $dirs );
     }
   
   
@@ -53,10 +52,9 @@ sub red_config_load
 {
   my $name  = lc shift;
   my $dirs  =    shift; # array reference
-  my $label = lc shift;
 
   my $config = {};
-  red_config_merge( $config, $name, $dirs, $label );
+  red_config_merge( $config, $name, $dirs );
   
   return $config;
 }
@@ -65,13 +63,10 @@ sub __red_resolve_config_files
 {
   my $name  = lc shift;
   my $dirs  =    shift; # array reference
-  my $label = lc shift;
 
   my @files;
-
-  $label .= '.' if $label;
   
-  push @files, glob_tree( "$_/$name.${label}def" ) for @$dirs;
+  push @files, glob_tree( "$_/$name.def" ) for @$dirs;
 
   return @files;
 }
@@ -80,6 +75,7 @@ sub __red_merge_config_file
 {
   my $config = shift; # config hash ref
   my $file   = shift;
+  my $dirs  =    shift; # array reference
   
   my $inf;
   open( $inf, $file ) or return;
@@ -87,6 +83,7 @@ sub __red_merge_config_file
 print STDERR "config: open: $file\n";  
 
   my $sect_name = '@';
+  $config->{ $sect_name } ||= {};
   
   my $ln; # line number
   while( my $line = <$inf> )
@@ -126,8 +123,10 @@ print STDERR "       =sect: [$sect_name]\n";
       
 print STDERR "        isa:  [$name][$opts]\n";  
 
-      my $isa = red_config_load( $name );
-      my @opts = split /[\s,]*/, uc $opts;
+      my $isa = red_config_load( $name, $dirs );
+      my @opts = split /[\s,]+/, uc $opts;
+
+print STDERR "        isa:  DUMP: ".Dumper($isa)."\n";  
       
       for my $opt ( @opts )
         {

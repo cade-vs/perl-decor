@@ -1,5 +1,9 @@
 
+@isa base ow
+
 
 =DES
 
   type char 128
+  
+  
