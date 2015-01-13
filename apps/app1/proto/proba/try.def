@@ -1,6 +1,9 @@
 
 @isa base ow
 
+=ID
+
+  readonly
 
 =DES
 

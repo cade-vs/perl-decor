@@ -110,7 +110,8 @@ print STDERR "       =sect: [$sect_name]\n";
       
       if( $RED_DEBUG )
         {
-        $config->{ $sect_name }{ 'DEBUG::ORIGIN' } = $origin;
+        $config->{ $sect_name }{ 'DEBUG::ORIGIN' } ||= [];
+        push @{ $config->{ $sect_name }{ 'DEBUG::ORIGIN' } }, $origin;
         }
 
       next;

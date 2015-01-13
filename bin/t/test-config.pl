@@ -20,6 +20,8 @@ use App::Recoil::Config;
 
 my $root = shift;
 
+$RED_DEBUG = 1;
+
 my @dirs = (
            "$root/proto",
            "$root/apps/app1/modules/testmod/proto",
