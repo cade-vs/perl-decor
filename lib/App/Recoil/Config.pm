@@ -22,6 +22,8 @@ our @EXPORT = qw(
 
                 red_config_merge
                 red_config_load
+                
+                red_merge_config_file
 
                 );
 
@@ -41,7 +43,7 @@ sub red_config_merge
   
   for my $file ( @files )
     {
-    __red_merge_config_file( $config, $file, $dirs );
+    red_merge_config_file( $config, $file, $dirs );
     }
   
   
@@ -59,10 +61,22 @@ sub red_config_load
   return $config;
 }
 
+sub red_config_load_file
+{
+  my $fname = shift;
+
+  my $config = {};
+  red_merge_config_file( $config, $fname );
+  
+  return $config;
+}
+
 sub __red_resolve_config_files
 {
   my $name  = lc shift;
   my $dirs  =    shift; # array reference
+
+  return () unless $dirs and @$dirs > 0;
 
   my @files;
   
@@ -71,16 +85,16 @@ sub __red_resolve_config_files
   return @files;
 }
 
-sub __red_merge_config_file
+sub red_merge_config_file
 {
   my $config = shift; # config hash ref
-  my $file   = shift;
-  my $dirs  =    shift; # array reference
+  my $fname  = shift;
+  my $dirs   = shift; # array reference
   
   my $inf;
-  open( $inf, $file ) or return;
+  open( $inf, $fname ) or return;
 
-print STDERR "config: open: $file\n";  
+print STDERR "config: open: $fname\n";  
 
   my $sect_name = '@';
   $config->{ $sect_name } ||= {};
@@ -89,7 +103,7 @@ print STDERR "config: open: $file\n";
   while( my $line = <$inf> )
     {
     $ln++;
-    my $origin = "$file:$ln"; # localize $origin from the outer one
+    my $origin = "$fname:$ln"; # localize $origin from the outer one
 
     chomp( $line );
     $line =~ s/^\s*//;
@@ -121,6 +135,8 @@ print STDERR "       =sect: [$sect_name]\n";
       {
       my $name = $2;
       my $opts = $3; # fixme: upcase/locase?
+  
+      next unless $dirs and @$dirs > 0;
       
 print STDERR "        isa:  [$name][$opts]\n";  
 

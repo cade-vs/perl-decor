@@ -28,7 +28,7 @@ my @dirs = (
            "$root/apps/app1/proto",
            );
 
-my $cfg = red_config_load( 'try', \@dirs, 'proto' );
+my $cfg = red_config_load( 'try', \@dirs );
 
 print STDERR Dumper( $cfg );
 

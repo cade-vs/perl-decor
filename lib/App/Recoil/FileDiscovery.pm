@@ -20,13 +20,118 @@ use Exporter;
 our @ISA    = qw( Exporter );
 our @EXPORT = qw( 
 
+                red_app_modules_list
+                
+                red_dir_list_by_type
+                red_files_list_by_fname_type
+                red_file_find_by_fname_type_order
+                
+                );
+
+##############################################################################
+
+my $RED_APP_MODULES_LIST_CACHED;
+my @RED_APP_MODULES_LIST_CACHE;
+
+sub red_app_modules_list
+{
+  return @RED_APP_MODULES_LIST_CACHE if $RED_APP_MODULES_LIST_CACHED;
+
+  red_check_name_boom( $RED_APP_NAME );
+  
+  my $mod_dir = "$RED_ROOT/apps/$RED_APP_NAME/modules";
+  opendir( my $dir, "$mod_dir/." );
+  @RED_APP_MODULES_LIST_CACHE = sort grep { -d "$mod_dir/$_" } grep { !/^\./ } readdir $dir;
+  closedir( $dir );
+  
+  $RED_APP_MODULES_LIST_CACHED = 1;
+  return @RED_APP_MODULES_LIST_CACHE;
+}
+
+##############################################################################
+
+sub red_dir_list_by_type_order
+{
+  my $type  = lc shift;
+  my $order = shift; # array ref with order
+
+  red_check_name_boom( $type );
+  
+  my @order = @$order;
+  boom "zero order list" unless @order > 0;
+
+  my @dirs;
+  
+  for my $ord ( @order )
+    {
+    if( $ord eq 'root' )
+      {
+      push @dirs, "$ROOT/$type";
+      }
+    elsif( $ord eq 'mod' )
+      {
+      next unless $RED_APP_NAME;
+      my @mods = red_app_modules_list();
+      push @dirs, "$ROOT/apps/$RED_APP_NAME/modules/$_/$type" for @mods;
+      }
+    elsif( $ord eq 'app' )
+      {
+      next unless $RED_APP_NAME;
+      push @dirs, "$ROOT/apps/$RED_APP_NAME/$type";
+      }
+    else
+      {
+      boom "invalid order name [$ord]";
+      }  
+    }
+
+  return @dirs;
+}
+
+##############################################################################
+
+sub red_files_list_by_fname_type_order
+{
+  my $fname = lc shift;
+  my $type  = lc shift;
+  my $order = shift; # array ref with order
+
+  my @dirs = red_dir_list_by_type( $type, $order );
+  my @files;
+  
+  push @files, glob_tree( "$_/$fname" ) for @dirs;
+
+  return @files;
+}
+
+##############################################################################
+
+sub red_file_find_by_fname_type_order
+{
+  my $fname = lc shift;
+  my $type  = lc shift;
+  my $order = shift; # array ref with order
+
+  my @dirs = red_dir_list_by_type( $type, $order );
+
+  for my $dir ( @dirs )
+    {
+    my @files = glob_tree( "$_/$fname" );
+    return shift @files if @files > 0;
+    }
+
+  return undef;
+}
+
+##############################################################################
+
+=pod
+
                 red_file_find
                 red_file_find_rescan
                 
                 red_file_find_modules_list
                 red_file_def2pm
-                
-                );
 
 our %RED_FILE_DISCOVERY_CACHE;
 
@@ -118,6 +223,9 @@ sub __red_ff_rescan_cache_fill
       }
     }
 }
+
+=cut
+
 
 ### EOF ######################################################################
 1;

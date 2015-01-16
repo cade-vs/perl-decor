@@ -25,7 +25,6 @@ our @EXPORT = qw(
 
 our %RED_PROTOCOLS_CACHE;
 
-
 ##############################################################################
 
 sub red_protocols_process
@@ -72,15 +71,31 @@ sub red_get_protocol
   return undef;
 }
 
+sub red_get_protocol_config
+{
+  my $name = lc shift;
+
+  red_check_name_boom( $name );
+
+  my @proto_dirs = red_dir_list_by_type_order( 'proto', [ 'root', 'mod', 'app' ] );
+
+  my $proto_config = red_config_load( $name, \@proto_dirs );
+  
+  return $proto_config;
+}
+
 sub red_exec_protocol
 {
   my $name = lc shift;
 
   red_check_name_boom( $name );
 
-  my $cr = red_get_protocol( $name );
+  my $proto_config = red_get_protocol_config( $name );
+
+  my $proto_code_ref = red_get_protocol( $name );
   
-  $cr->() if $cr;
+  # FIXME error if !$proto_code_ref
+  $proto_code_ref->() if $proto_code_ref;
 }
 
 ### EOF ######################################################################
