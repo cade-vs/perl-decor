@@ -10,6 +10,7 @@
 package App::Recoil::Log;
 use strict;
 
+use Data::Dumper;
 use App::Recoil::Env;
 
 use Exporter;

@@ -16,7 +16,7 @@ use lib $FindBin::Bin . "/../../lib";
 
 use Data::Tools;
 use App::Recoil::Env;
-use App::Recoil::FileDiscovery;
+use App::Recoil::Files;
 use App::Recoil::Protocols;
 use Data::Dumper;
 

@@ -11,7 +11,7 @@ package App::Recoil::Protocols;
 use strict;
 
 use App::Recoil::Log;
-use App::Recoil::FileDiscovery;
+use App::Recoil::Files;
 use App::Recoil::Utils;
 use App::Recoil::Config;
 
@@ -44,12 +44,15 @@ sub red_get_protocol
     return ( $RED_PROTOCOLS_CACHE{ $name }{ 'CONFIG' }, $RED_PROTOCOLS_CACHE{ $name }{ 'CODEREF' } );
     }
 
-  my $proto_def_fname = red_file_find_first_by_fname_type_order( "$name.def", 'proto', [ 'app', 'mod', 'root' ] );                             
-  my $proto_pm_fname  = red_file_def2pm_fname( $proto_def_fname );
 
-  my $proto_config = red_config_load_file( $proto_def_fname );
+  my @proto_config_dirs = red_dir_list_by_type_order( 'proto', [ 'core', 'mod', 'app' ] );
+
+  my $proto_config = red_config_load( $name, \@proto_config_dirs );
+  my $proto_pm_fname = red_file_find_first_by_fname_type_order( "$name.pm", 'proto', [ 'app', 'mod', 'core' ] );
 
   my $proto_package = 'App::Recoil::Protocols::' . $name;
+
+  red_log_dumper( "debug: protocol [$name] config: ", $proto_config );
 
   eval
     {

@@ -11,7 +11,7 @@
 ##  network daemon
 ##
 ##############################################################################
-package App::Recoil::NetworkDaemon;
+package App::Recoil::Network;
 use strict;
 
 use POSIX ":sys_wait_h";

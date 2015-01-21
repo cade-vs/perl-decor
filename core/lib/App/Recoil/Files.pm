@@ -7,7 +7,7 @@
 ##  LICENSE: GPLv2
 ##
 ##############################################################################
-package App::Recoil::FileDiscovery;
+package App::Recoil::Files;
 use strict;
 
 use Exception::Sink;
@@ -22,7 +22,7 @@ our @EXPORT = qw(
 
                 red_app_modules_list
                 
-                red_dir_list_by_type
+                red_dir_list_by_type_order
                 red_file_find_all_by_fname_type
                 red_file_find_first_by_fname_type_order
                 
@@ -66,7 +66,7 @@ sub red_dir_list_by_type_order
   
   for my $ord ( @order )
     {
-    if( $ord eq 'root' )
+    if( $ord eq 'core' )
       {
       push @dirs, "$RED_ROOT/$type";
       }
@@ -98,7 +98,7 @@ sub red_file_find_all_by_fname_type_order
   my $type  = lc shift;
   my $order = shift; # array ref with order
 
-  my @dirs = red_dir_list_by_type( $type, $order );
+  my @dirs = red_dir_list_by_type_order( $type, $order );
   my @files;
   
   push @files, glob_tree( "$_/$fname" ) for @dirs;
