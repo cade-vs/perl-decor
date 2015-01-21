@@ -1,4 +1,7 @@
 
+-- "share" commong directory
+
+
 -- session expire time
 
 -- session atime delay

@@ -13,6 +13,7 @@ use strict;
 use App::Recoil::Log;
 use App::Recoil::FileDiscovery;
 use App::Recoil::Utils;
+use App::Recoil::Config;
 
 use Exporter;
 our @ISA    = qw( Exporter );
@@ -40,48 +41,39 @@ sub red_get_protocol
 
   if( exists $RED_PROTOCOLS_CACHE{ $name } )
     {
-    return $RED_PROTOCOLS_CACHE{ $name };
+    return ( $RED_PROTOCOLS_CACHE{ $name }{ 'CONFIG' }, $RED_PROTOCOLS_CACHE{ $name }{ 'CODEREF' } );
     }
 
-  my $proto_def = red_file_find( "$name.proto.def", 'app', 'modules::', '::' );                             
-  my $proto_pm  = red_file_def2pm( $proto_def );
+  my $proto_def_fname = red_file_find_first_by_fname_type_order( "$name.def", 'proto', [ 'app', 'mod', 'root' ] );                             
+  my $proto_pm_fname  = red_file_def2pm_fname( $proto_def_fname );
 
-  my $pp = 'App::Recoil::Protocols::' . $name; # proto package
+  my $proto_config = red_config_load_file( $proto_def_fname );
+
+  my $proto_package = 'App::Recoil::Protocols::' . $name;
 
   eval
     {
-    require $proto_pm;
+    red_log_debug( "debug: about to load protocol package [$name] from [$proto_pm_fname]" );
+    require $proto_pm_fname;
     };
   if( ! $@ )  
     {
-    red_log_debug( "debug: loaded protocol [$name] from [$proto_pm]" );
-    my $cr = \&{ "${pp}::main" }; # call/function reference
-    $RED_PROTOCOLS_CACHE{ $name } = $cr;
-    return $cr;
+    red_log_debug( "debug: loaded protocol [$name] from [$proto_pm_fname]" );
+    my $proto_coderef = \&{ "${proto_package}::main" }; # call/function reference
+    $RED_PROTOCOLS_CACHE{ $name }{ 'CONFIG'  } = $proto_config;
+    $RED_PROTOCOLS_CACHE{ $name }{ 'CODEREF' } = $proto_coderef;
+    return ( $proto_config, $proto_coderef );
     }
-  elsif( $@ =~ /Can't locate $proto_pm/)
+  elsif( $@ =~ /Can't locate $proto_pm_fname/)
     {
-    print STDERR "NOT FOUND: action: $pp: $proto_pm\n";
+    print STDERR "NOT FOUND: action: [$proto_package] $proto_pm_fname\n";
     }
   else
     {
-    print STDERR "ERROR LOADING: action: $pp: $@\n";
+    print STDERR "ERROR LOADING: action: [$proto_package] $@\n";
     }  
   
   return undef;
-}
-
-sub red_get_protocol_config
-{
-  my $name = lc shift;
-
-  red_check_name_boom( $name );
-
-  my @proto_dirs = red_dir_list_by_type_order( 'proto', [ 'root', 'mod', 'app' ] );
-
-  my $proto_config = red_config_load( $name, \@proto_dirs );
-  
-  return $proto_config;
 }
 
 sub red_exec_protocol
@@ -90,9 +82,9 @@ sub red_exec_protocol
 
   red_check_name_boom( $name );
 
-  my $proto_config = red_get_protocol_config( $name );
+  my ( $proto_config, $proto_code_ref ) = red_get_protocol( $name );
 
-  my $proto_code_ref = red_get_protocol( $name );
+  red_log_debug( "debug: exec protocol [$name] = ( $proto_config, $proto_code_ref )" );
   
   # FIXME error if !$proto_code_ref
   $proto_code_ref->() if $proto_code_ref;

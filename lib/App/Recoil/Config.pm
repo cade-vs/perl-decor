@@ -22,6 +22,7 @@ our @EXPORT = qw(
 
                 red_config_merge
                 red_config_load
+                red_config_load_file
                 
                 red_merge_config_file
 

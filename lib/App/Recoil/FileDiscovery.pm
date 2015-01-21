@@ -23,8 +23,10 @@ our @EXPORT = qw(
                 red_app_modules_list
                 
                 red_dir_list_by_type
-                red_files_list_by_fname_type
-                red_file_find_by_fname_type_order
+                red_file_find_all_by_fname_type
+                red_file_find_first_by_fname_type_order
+                
+                red_file_def2pm_fname
                 
                 );
 
@@ -66,18 +68,18 @@ sub red_dir_list_by_type_order
     {
     if( $ord eq 'root' )
       {
-      push @dirs, "$ROOT/$type";
+      push @dirs, "$RED_ROOT/$type";
       }
     elsif( $ord eq 'mod' )
       {
       next unless $RED_APP_NAME;
       my @mods = red_app_modules_list();
-      push @dirs, "$ROOT/apps/$RED_APP_NAME/modules/$_/$type" for @mods;
+      push @dirs, "$RED_ROOT/apps/$RED_APP_NAME/modules/$_/$type" for @mods;
       }
     elsif( $ord eq 'app' )
       {
       next unless $RED_APP_NAME;
-      push @dirs, "$ROOT/apps/$RED_APP_NAME/$type";
+      push @dirs, "$RED_ROOT/apps/$RED_APP_NAME/$type";
       }
     else
       {
@@ -90,7 +92,7 @@ sub red_dir_list_by_type_order
 
 ##############################################################################
 
-sub red_files_list_by_fname_type_order
+sub red_file_find_all_by_fname_type_order
 {
   my $fname = lc shift;
   my $type  = lc shift;
@@ -106,21 +108,33 @@ sub red_files_list_by_fname_type_order
 
 ##############################################################################
 
-sub red_file_find_by_fname_type_order
+sub red_file_find_first_by_fname_type_order
 {
   my $fname = lc shift;
   my $type  = lc shift;
   my $order = shift; # array ref with order
 
-  my @dirs = red_dir_list_by_type( $type, $order );
+  my @dirs = red_dir_list_by_type_order( $type, $order );
 
   for my $dir ( @dirs )
     {
-    my @files = glob_tree( "$_/$fname" );
+    my @files = glob_tree( "$dir/$fname" );
+
     return shift @files if @files > 0;
     }
 
   return undef;
+}
+
+##############################################################################
+
+sub red_file_def2pm_fname
+{
+  my $fname = shift;
+  
+  $fname =~ s/\.def$/.pm/;
+  
+  return $fname;
 }
 
 ##############################################################################
@@ -160,7 +174,7 @@ sub red_file_find_modules_list
   return @modules;
 }
 
-sub red_file_def2pm
+sub red_file_def2pm_fname
 {
   my $fname = shift;
   
