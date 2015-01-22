@@ -68,7 +68,7 @@ sub red_dir_list_by_type_order
     {
     if( $ord eq 'core' )
       {
-      push @dirs, "$RED_ROOT/$type";
+      push @dirs, "$RED_ROOT/core/$type";
       }
     elsif( $ord eq 'mod' )
       {

@@ -30,8 +30,12 @@ our %RED_PROTOCOLS_CACHE;
 
 sub red_protocols_process
 {
+  my $client_socket = shift;
+
   red_log_debug( 'debug: *********** PROTOCOLS PROCESS' );
 }
+
+##############################################################################
 
 sub red_get_protocol
 {
@@ -43,7 +47,6 @@ sub red_get_protocol
     {
     return ( $RED_PROTOCOLS_CACHE{ $name }{ 'CONFIG' }, $RED_PROTOCOLS_CACHE{ $name }{ 'CODEREF' } );
     }
-
 
   my @proto_config_dirs = red_dir_list_by_type_order( 'proto', [ 'core', 'mod', 'app' ] );
 
@@ -79,18 +82,34 @@ sub red_get_protocol
   return undef;
 }
 
+##############################################################################
+
 sub red_exec_protocol
 {
   my $name = lc shift;
+  my $hi   = shift;
+  my $ho   = shift;
 
   red_check_name_boom( $name );
 
   my ( $proto_config, $proto_code_ref ) = red_get_protocol( $name );
 
   red_log_debug( "debug: exec protocol [$name] = ( $proto_config, $proto_code_ref )" );
+
+  # todo: check if logged in required
+  die "EPROTO_NEEDS_LOGIN: protocol [$name] needs login first";
+
+  # todo: check permissions
+  # die "EACCESS: protocol [$name] access denied" unless red_access_protocol( $proto_config );
+  #
   
-  # FIXME error if !$proto_code_ref
-  $proto_code_ref->() if $proto_code_ref;
+  # todo: check protocol description, import
+  
+  %$ho = ();
+  if( $proto_code_ref )
+    {
+    $proto_code_ref->( $hi, $ho );
+    }
 }
 
 ### EOF ######################################################################

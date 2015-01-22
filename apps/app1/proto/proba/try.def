@@ -1,12 +1,18 @@
 
+  needs_login
+
 @isa base ow
 
 =ID
 
+  value  re  \d+
   readonly
 
 =DES
 
-  type char 128
-  
-  
+  value  re  .*
+
+=FIELDS_
+
+  name   re  F:[A-Z_0-9]+
+  value  re  .*

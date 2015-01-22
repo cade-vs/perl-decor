@@ -41,6 +41,8 @@ sub red_config_merge
   red_check_name( $name  ) or boom "invalid NAME: [$name]";
   
   my @files = __red_resolve_config_files( $name, $dirs );
+ 
+  return undef unless @files > 0;
   
   for my $file ( @files )
     {
@@ -48,7 +50,7 @@ sub red_config_merge
     }
   
   
-  return $config; # FIXME return error?
+  return 1;
 }
 
 sub red_config_load
@@ -57,9 +59,9 @@ sub red_config_load
   my $dirs  =    shift; # array reference
 
   my $config = {};
-  red_config_merge( $config, $name, $dirs );
+  my $res = red_config_merge( $config, $name, $dirs );
   
-  return $config;
+  return $res ? $config : undef;
 }
 
 sub red_config_load_file
@@ -142,6 +144,9 @@ print STDERR "       =sect: [$sect_name]\n";
 print STDERR "        isa:  [$name][$opts]\n";  
 
       my $isa = red_config_load( $name, $dirs );
+
+      boom "isa/include error: cannot load config [$name] from (@$dirs)" unless $isa;
+
       my @opts = split /[\s,]+/, uc $opts;
 
 print STDERR "        isa:  DUMP: ".Dumper($isa)."\n";  
