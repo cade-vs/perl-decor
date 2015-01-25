@@ -1,18 +1,17 @@
 
   needs_login
+  value_re     .*
 
 @isa base ow
 
 =ID
 
-  value  re  \d+
-  readonly
+  value_re  \d+
 
 =DES
 
-  value  re  .*
 
 =FIELDS_
 
-  name   re  F:[A-Z_0-9]+
-  value  re  .*
+  name_re   F:[A-Z_0-9]+
+  value_re  .*

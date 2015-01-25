@@ -35,8 +35,9 @@ sub red_check_name
 sub red_check_name_boom
 {
   my $name = shift;
+  my $msg  = shift || "invalid NAME: [$name]";
   
-  red_check_name( $name ) or boom "invalid NAME: [$name]";
+  red_check_name( $name ) or boom $msg;
 }
 
 sub red_reload_config
