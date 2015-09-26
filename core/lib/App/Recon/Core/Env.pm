@@ -1,13 +1,13 @@
 ##############################################################################
 ##
-##  App::Recoil application machinery server
-##  2014 (c) Vladi Belperchinov-Shabanski "Cade"
+##  App::Recon application machinery core
+##  2014-2015 (c) Vladi Belperchinov-Shabanski "Cade"
 ##  <cade@bis.bg> <cade@biscom.net> <cade@cpan.org>
 ##
 ##  LICENSE: GPLv2
 ##
 ##############################################################################
-package App::Recoil::Env;
+package App::Recon::Core::Env;
 use strict;
 
 use Data::Lock qw( dlock );
@@ -16,7 +16,7 @@ use Exporter;
 our @ISA    = qw( Exporter );
 our @EXPORT = qw( 
 
-                $VERSION
+                $RED_VERSION
                 
                 $RED_ROOT
                 
@@ -49,9 +49,11 @@ our @EXPORT = qw(
                 );
 
 
-our $VERSION = '1.0';
 
-our $RED_ROOT = '/usr/local/recoil';
+our $RED_VERSION = '1.0';
+
+our $RED_ROOT = $ENV{ 'RECON_ROOT' } || '/usr/local/recon';
+unshift @INC, "$RED_ROOT/core/lib";
 
 our %RED_CONFIG;
 our @RED_CONFIG_FILES;
@@ -79,6 +81,48 @@ our $RED_FOREGROUND;
 our $RED_USE_LOG_FILES;
 our $RED_DUP_LOG_STDERR;
 
+### PRIVATE ##################################################################
+
+our %RE_STATIC_CONFIG;
+our %RE_USER_SESSION;
+our %RE_RUNTIME_SESSION;
+
+__init_ev();
+
+sub __init_ev
+{
+  %RE_STATIC_CONFIG   = ();
+  %RE_USER_SESSION    = ();
+  %RE_RUNTIME_SESSION = ();
+  
+  $RE_STATIC_CONFIG{ 'VERSION' } = 1.00;
+  $RE_STATIC_CONFIG{ 'ROOT'    } = $ENV{ 'RECON_ROOT' } || '/usr/local/recon';
+  unshift @INC, $RE_STATIC_CONFIG{ 'ROOT' } . '/core/lib';
+}
+
+### PUBLIC ###################################################################
+
+sub rev_version
+{
+  return $RE_STATIC_CONFIG{ 'VERSION' };
+}
+
+sub rev_root
+{
+  return $RE_STATIC_CONFIG{ 'ROOT' };
+}
+
+sub rev_set_debug
+{
+  my $level  = shift;
+  $RE_STATIC_CONFIG{ 'DEBUG' } = $level;
+  return $level;
+}
+
+sub rev_debug
+{
+  return $RE_STATIC_CONFIG{ 'DEBUG' };
+}
 
 ### EOF ######################################################################
 1;

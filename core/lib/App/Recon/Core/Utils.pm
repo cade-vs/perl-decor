@@ -1,48 +1,47 @@
 ##############################################################################
 ##
-##  App::Recoil application machinery server
-##  2014 (c) Vladi Belperchinov-Shabanski "Cade"
+##  App::Recon application machinery core
+##  2014-2015 (c) Vladi Belperchinov-Shabanski "Cade"
 ##  <cade@bis.bg> <cade@biscom.net> <cade@cpan.org>
 ##
 ##  LICENSE: GPLv2
 ##
 ##############################################################################
-package App::Recoil::Utils;
+package App::Recon::Core::Utils;
 use strict;
 
 use Exception::Sink;
-use App::Recoil::Env;
+use App::Recon::Core::Env;
 
 use Exporter;
 our @ISA    = qw( Exporter );
 our @EXPORT = qw( 
 
-                red_check_name
-                red_check_name_boom
-                red_reload_config
+                reu_check_name
+                reu_check_name_boom
+                reu_reload_config
 
                 );
 
 ##############################################################################
 
-sub red_check_name
+sub reu_check_name
 {
   my $name = shift;
   
   return $name =~ /^[a-zA-Z_0-9]+$/ ? 1 : 0;
 }
 
-sub red_check_name_boom
+sub reu_check_name_boom
 {
   my $name = shift;
   my $msg  = shift || "invalid NAME: [$name]";
   
-  red_check_name( $name ) or boom $msg;
+  reu_check_name( $name ) or boom $msg;
 }
 
-sub red_reload_config
+sub reu_reload_config
 {
-
   %RED_CONFIG = ();
   if( @RED_CONFIG_FILES > 0 )
     {
@@ -51,7 +50,6 @@ sub red_reload_config
   else
     {
     red_merge_config( $_ ) for sort glob "$RED_ROOT/etc/env*.def";
-    red_merge_config( $_ ) for sort glob "$ENV{HOME}/.recoil/etc/env*.def";
     if( $RED_APP_NAME )
       {
       red_merge_config( $_ ) for sort glob "$RED_ROOT/apps/$RED_APP_NAME/etc/env*.def";

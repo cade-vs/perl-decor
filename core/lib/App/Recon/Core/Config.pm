@@ -1,30 +1,30 @@
 ##############################################################################
 ##
-##  App::Recoil application machinery server
-##  2014 (c) Vladi Belperchinov-Shabanski "Cade"
+##  App::Recon application machinery core
+##  2014-2015 (c) Vladi Belperchinov-Shabanski "Cade"
 ##  <cade@bis.bg> <cade@biscom.net> <cade@cpan.org>
 ##
 ##  LICENSE: GPLv2
 ##
 ##############################################################################
-package App::Recoil::Config;
+package App::Recon::Core::Config;
 use strict;
 
 use Data::Dumper;
 use Data::Tools 1.07;
 use Exception::Sink;
-use App::Recoil::Env;
-use App::Recoil::Utils;
+use App::Recon::Core::Env;
+use App::Recon::Core::Utils;
 
 use Exporter;
 our @ISA    = qw( Exporter );
 our @EXPORT = qw( 
 
-                red_config_merge
-                red_config_load
-                red_config_load_file
-                
-                red_merge_config_file
+                re_config_load
+                re_config_merge
+
+                re_config_load_file
+                re_config_merge_file
 
                 );
 
@@ -32,49 +32,48 @@ our @EXPORT = qw(
 
 ##############################################################################
 
-sub red_config_merge
+sub re_config_merge
 {
-  my $config = shift; # config hash ref
-  my $name   = shift;
-  my $dirs   = shift; # array reference
+  my $config =    shift; # config hash ref
+  my $name   = lc shift; # file name (config name) to look for
+  my $dirs   =    shift; # array reference with dir names
   
-  red_check_name( $name  ) or boom "invalid NAME: [$name]";
+  reu_check_name( $name  ) or boom "invalid NAME: [$name]";
   
-  my @files = __red_resolve_config_files( $name, $dirs );
+  my @files = __re_resolve_config_files( $name, $dirs );
  
   return undef unless @files > 0;
   
   for my $file ( @files )
     {
-    red_merge_config_file( $config, $file, $dirs );
+    re_config_merge_file( $config, $file, $dirs );
     }
-  
   
   return 1;
 }
 
-sub red_config_load
+sub re_config_load
 {
   my $name  = lc shift;
   my $dirs  =    shift; # array reference
 
   my $config = {};
-  my $res = red_config_merge( $config, $name, $dirs );
+  my $res = re_config_merge( $config, $name, $dirs );
   
   return $res ? $config : undef;
 }
 
-sub red_config_load_file
+sub re_config_load_file
 {
   my $fname = shift;
 
   my $config = {};
-  red_merge_config_file( $config, $fname );
+  re_config_merge_file( $config, $fname );
   
   return $config;
 }
 
-sub __red_resolve_config_files
+sub __re_resolve_config_files
 {
   my $name  = lc shift;
   my $dirs  =    shift; # array reference
@@ -88,7 +87,7 @@ sub __red_resolve_config_files
   return @files;
 }
 
-sub red_merge_config_file
+sub re_config_merge_file
 {
   my $config = shift; # config hash ref
   my $fname  = shift;
@@ -143,7 +142,7 @@ print STDERR "       =sect: [$sect_name]\n";
       
 print STDERR "        isa:  [$name][$opts]\n";  
 
-      my $isa = red_config_load( $name, $dirs );
+      my $isa = re_config_load( $name, $dirs );
 
       boom "isa/include error: cannot load config [$name] from (@$dirs)" unless $isa;
 

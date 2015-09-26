@@ -1,18 +1,19 @@
 ##############################################################################
 ##
-##  App::Recoil application machinery server
-##  2014 (c) Vladi Belperchinov-Shabanski "Cade"
+##  App::Recon application machinery core
+##  2014-2015 (c) Vladi Belperchinov-Shabanski "Cade"
 ##  <cade@bis.bg> <cade@biscom.net> <cade@cpan.org>
 ##
 ##  LICENSE: GPLv2
 ##
 ##############################################################################
-package App::Recoil::Access;
+package App::Recon::Core::Access;
 use strict;
 
 use Exception::Sink;
-use App::Recoil::Env;
-use App::Recoil::Utils;
+
+use App::Recon::Core::Env;
+use App::Recon::Core::Utils;
 
 use Exporter;
 our @ISA    = qw( Exporter );

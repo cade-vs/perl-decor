@@ -1,0 +1,41 @@
+           select
+               table_name              as "table"    ,
+               owner                   as "schema"   ,
+               column_name             as "column"   , 
+               data_type               as "type"     ,
+               data_length             as "len"      ,
+               data_precision          as "precision",
+               data_scale              as "scale"    ,
+               (Select USER From Dual) as "default_schema"
+           from
+               sys.all_tab_columns 
+where table_name = 'RS_USERS'
+           order by
+               table_name 
+
+
+
+
+        select
+           table_name              as "table"    ,
+           owner                   as "schema"   ,
+           column_name             as "column"   , 
+           data_type               as "type"     ,
+           data_length             as "len"      ,
+           data_precision          as "precision",
+           data_scale              as "scale"
+        from
+           sys.all_tab_columns 
+where table_name = 'RS_USERS'           
+        order by
+           table_name 
+
+
+
+        select
+            index_name as "iname", 
+            table_name as "table", 
+            owner      as "ischema"
+        from
+            sys.all_indexes
+where table_name = 'RS_USERS'           

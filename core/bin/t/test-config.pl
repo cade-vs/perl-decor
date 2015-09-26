@@ -11,14 +11,14 @@
 use strict;
 
 use FindBin;
-use lib '/usr/local/recoil/lib';
+use lib '/usr/local/recon/core/lib';
 use lib $FindBin::Bin . "/../../lib";
 
 use Data::Dumper;
-use App::Recoil::Env;
-use App::Recoil::Config;
+use App::Recon::Core::Env;
+use App::Recon::Core::Config;
 
-my $root = shift;
+my $root = $RED_ROOT;
 
 $RED_DEBUG = 1;
 
@@ -28,7 +28,9 @@ my @dirs = (
            "$root/apps/app1/proto",
            );
 
-my $cfg = red_config_load( 'try', \@dirs );
+print "@dirs";
+
+my $cfg = re_config_load( 'try', \@dirs );
 
 print STDERR Dumper( $cfg );
 
