@@ -19,12 +19,11 @@ use Exporter;
 our @ISA    = qw( Exporter );
 our @EXPORT = qw( 
 
-                red_access_set_user_groups
-                red_access_add_user_groups
-                red_access_del_user_groups
-                red_access_get_user_groups
-
-                red_access_protocol
+                rs_access_set_user_groups
+                rs_access_add_user_groups
+                rs_access_del_user_groups
+                rs_access_get_user_groups
+                rs_access_clr_user_groups
 
                 );
 
@@ -34,25 +33,25 @@ my %USER_GROUPS;
 
 ##############################################################################
 
-sub red_access_set_user_groups
+sub rs_access_set_user_groups
 {
-  red_access_del_user_groups( '*' );
-  red_access_add_user_groups( @_  );
+  rs_access_clr_user_groups();
+  rs_access_add_user_groups( @_  );
 }
 
-sub red_access_add_user_groups
+sub rs_access_add_user_groups
 {
   my @groups = @_;
   
   for my $group ( @groups )
     {
     $group = lc $group;
-    red_check_name_boom( $group, "invalid group name [$group]" );
+    rs_check_name_boom( $group, "invalid group name [$group]" );
     $USER_GROUPS{ $group } = 1; # fixme: group classes/types
     }
 }
 
-sub red_access_del_user_groups
+sub rs_access_del_user_groups
 {
   my @groups = @_;
   
@@ -60,30 +59,23 @@ sub red_access_del_user_groups
     {
     if( $group eq '*' )
       {
-      %USER_GROUPS = ();
+      rs_access_clr_user_groups();
       return;
       }
     $group = lc $group;
-    red_check_name_boom( $group, "invalid group name [$group]" );
+    rs_check_name_boom( $group, "invalid group name [$group]" );
     delete $USER_GROUPS{ lc $group };
     }
 }
 
-sub red_access_get_user_groups
+sub rs_access_get_user_groups
 {
   return %USER_GROUPS;
 }
 
-
-##############################################################################
-
-sub red_access_protocol
+sub rs_access_clr_user_groups
 {
-  my $proto_config = shift;
-
-
-  
-  return $name =~ /^[a-zA-Z_0-9]+$/ ? 1 : 0;
+  %USER_GROUPS = ();
 }
 
 ### EOF ######################################################################

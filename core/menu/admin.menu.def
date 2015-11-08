@@ -1,2 +1,9 @@
 
-menu admin
+=new user
+
+  type new res_users
+
+=active users
+
+  type list res_users
+

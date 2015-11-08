@@ -5,3 +5,9 @@
 -- session expire time
 
 -- session atime delay
+
+-- table/classes types
+
+-- table/classes file def mtime to automate dev on-demand alter
+
+-- alter should be a function()

@@ -1,29 +1,29 @@
 ##############################################################################
 ##
-##  App::Recon application machinery core
+##  Decor application machinery core
 ##  2014-2015 (c) Vladi Belperchinov-Shabanski "Cade"
 ##  <cade@bis.bg> <cade@biscom.net> <cade@cpan.org>
 ##
 ##  LICENSE: GPLv2
 ##
 ##############################################################################
-package App::Recon::Core::Log;
+package Decor::Core::Log;
 use strict;
 
 use Data::Dumper;
-use App::Recoil::Env;
+use Decor::Env;
 
 use Exporter;
 our @ISA    = qw( Exporter );
 our @EXPORT = qw( 
 
-                rc_set_log_prefix
-                rc_log
-                rc_log_debug
-                rc_log_stack
-                rc_log_dumper
+                de_set_log_prefix
+                de_log
+                de_log_debug
+                de_log_stack
+                de_log_dumper
                 
-                rc_reopen_logs
+                de_reopen_logs
 
                 );
 
@@ -32,14 +32,14 @@ our @EXPORT = qw(
 
 my $RECON_LOG_PREFIX = 'recon';
 
-sub rc_set_log_prefix
+sub de_set_log_prefix
 {
   my $prefix = shift;
   
   $RECON_LOG_PREFIX = $prefix;
 }
 
-sub rc_log
+sub de_log
 {
   my @args = @_;
   
@@ -48,7 +48,7 @@ sub rc_log
   print STDERR "$RECON_LOG_PREFIX [$$]: $_\n" for @args;
 }
 
-sub rc_log_debug
+sub de_log_debug
 {
   return unless $RECON_DEBUG;
 
@@ -56,21 +56,21 @@ sub rc_log_debug
   chomp( @args );
   my $msg = join( "\n", @args );
   $msg = "debug: $msg" unless $msg =~ /^debug:/i;
-  rc_log( $msg );
+  de_log( $msg );
 }
 
-sub rc_log_stack
+sub de_log_stack
 {
-  rc_log_debug( @_, "\n", Exception::Sink::get_stack_trace() );
+  de_log_debug( @_, "\n", Exception::Sink::get_stack_trace() );
 }
 
-sub rc_log_dumper
+sub de_log_dumper
 {
   return unless $RECON_DEBUG;
-  rc_log_debug( Dumper( @_ ) );
+  de_log_debug( Dumper( @_ ) );
 }
 
-sub rc_reopen_logs
+sub de_reopen_logs
 {
   1; # fixme: nothing yet
 }
