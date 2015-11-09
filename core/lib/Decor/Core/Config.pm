@@ -10,9 +10,11 @@
 package Decor::Core::Config;
 use strict;
 
+use Tie::IxHash;
 use Data::Dumper;
-use Data::Tools 1.07;
+use Data::Tools 1.09;
 use Exception::Sink;
+
 use Decor::Core::Env;
 use Decor::Core::Utils;
 
@@ -38,10 +40,10 @@ sub de_config_merge
   my $name   = lc shift; # file name (config name) to look for
   my $dirs   =    shift; # array reference with dir names
   
-  reu_check_name( $name  ) or boom "invalid NAME: [$name]";
+  de_check_name( $name  ) or boom "invalid NAME: [$name]";
   
   my @files = __de_resolve_config_files( $name, $dirs );
- 
+
   return undef unless @files > 0;
   
   for my $file ( @files )
@@ -58,6 +60,8 @@ sub de_config_load
   my $dirs  =    shift; # array reference
 
   my $config = {};
+  tie %$config, 'Tie::IxHash';
+  
   my $res = de_config_merge( $config, $name, $dirs );
   
   return $res ? $config : undef;

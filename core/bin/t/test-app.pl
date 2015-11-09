@@ -19,13 +19,21 @@ use Decor::Core::Env;
 use Decor::Core::Config;
 use Decor::Core::Application;
 
+$Data::Dumper::Indent = 3;
+
 my $root = de_root();
 
 de_set_debug( 1 );
 
-my $app = Decor::Core::Application->new( ROOT => $root );
+my $app = Decor::Core::Application->new( 'app1' );
+$app->init( $root );
 
 print STDERR Dumper( $app );
+
+my $des = $app->describe_table( 'test1' );
+
+print STDERR Dumper( $des );
+
 
 
 
