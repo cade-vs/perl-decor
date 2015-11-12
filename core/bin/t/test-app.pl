@@ -1,8 +1,8 @@
 #!/usr/bin/perl
 ##############################################################################
 ##
-##  App::Recoil application machinery server
-##  2014 (c) Vladi Belperchinov-Shabanski "Cade"
+##  Decor application machinery core
+##  2014-2015 (c) Vladi Belperchinov-Shabanski "Cade"
 ##  <cade@bis.bg> <cade@biscom.net> <cade@cpan.org>
 ##
 ##  LICENSE: GPLv2
@@ -31,8 +31,16 @@ $app->init( $root );
 print STDERR Dumper( $app );
 
 my $des = $app->describe_table( 'test1' );
+my $des = $app->describe_table( 'test1' );
+
+my $fields = $des->{ 'CACHE' }{ 'TEST1' };
+
+print STDERR '='x80;
 
 print STDERR Dumper( $des );
+print STDERR Dumper( [ $des->fields() ] );
+print STDERR Dumper( $des->get_table_des() );
+print STDERR Dumper( $des->get_field_des( 'NAME' ) );
 
 
 

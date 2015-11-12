@@ -137,7 +137,7 @@ sub __get_cache_storage
   my $self = shift;
   my $key  = shift;
   
-  $self->{ 'CACHE_STORAGE' }{ $key } ||= [];
+  $self->{ 'CACHE_STORAGE' }{ $key } ||= {};
   return $self->{ 'CACHE_STORAGE' }{ $key };
 }
 

@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 ##############################################################################
 ##
-##  App::Recon application machinery core
+##  Decor application machinery core
 ##  2014-2015 (c) Vladi Belperchinov-Shabanski "Cade"
 ##  <cade@bis.bg> <cade@biscom.net> <cade@cpan.org>
 ##
@@ -9,7 +9,7 @@
 ##
 ##############################################################################
 use strict;
-use lib ( $ENV{ 'RECON_CORE_ROOT' } || '/usr/local/recon' );
+use lib ( $ENV{ 'DECOR_CORE_ROOT' } || '/usr/local/decor' );
 
 
 print "$_\n" for @INC;

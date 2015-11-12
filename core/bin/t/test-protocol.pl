@@ -1,8 +1,8 @@
 #!/usr/bin/perl
 ##############################################################################
 ##
-##  App::Recoil application machinery server
-##  2014 (c) Vladi Belperchinov-Shabanski "Cade"
+##  Decor application machinery core
+##  2014-2015 (c) Vladi Belperchinov-Shabanski "Cade"
 ##  <cade@bis.bg> <cade@biscom.net> <cade@cpan.org>
 ##
 ##  LICENSE: GPLv2
@@ -11,7 +11,7 @@
 use strict;
 
 use FindBin;
-use lib '/usr/local/recoil/lib';
+use lib '/usr/local/decor/lib';
 use lib $FindBin::Bin . "/../../lib";
 
 use Data::Tools;

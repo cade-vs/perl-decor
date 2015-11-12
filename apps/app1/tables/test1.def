@@ -1,6 +1,14 @@
 
 label My funny table
 
+=NAME
+
+  type char 1024
+
 =CTIME
 
-	type utime
+  type utime
+
+=SUMA
+
+  type real .4

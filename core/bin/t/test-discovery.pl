@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 ##############################################################################
 ##
-##  App::Recoil application machinery server
+##  Decor application machinery core
 ##  2014 (c) Vladi Belperchinov-Shabanski "Cade"
 ##  <cade@bis.bg> <cade@biscom.net> <cade@cpan.org>
 ##
