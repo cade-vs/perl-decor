@@ -164,6 +164,15 @@ sub get_des
   return $des;
 }
 
+sub table_access
+{
+}
+
+sub field_access
+{
+}
+
+
 
 
 ### EOF ######################################################################
