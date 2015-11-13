@@ -22,6 +22,10 @@ our @EXPORT = qw(
                 de_reload_config
 
                 de_obj_add_debug_info
+                
+                de_check_ref
+                de_check_ref_hash
+                de_check_ref_array
                 );
 
 ##############################################################################
@@ -71,6 +75,18 @@ sub de_obj_add_debug_info
   my ( $pack, $file, $line, $subname ) = caller( 1 );
   $obj->{ 'DEBUG_ORIGIN' } = "$file:$line:$subname";
 }
+
+sub de_check_ref
+{
+  my $ref   = shift;
+  my $class = shift;
+  
+  my $got = ref( $ref );
+  boom "expected reference of class [$class] got [$got]" unless $got eq $class;
+}
+
+sub de_check_ref_hash  { return de_check_ref( $_[0], 'HASH'  ); }
+sub de_check_ref_array { return de_check_ref( $_[0], 'ARRAY' ); }
 
 ### EOF ######################################################################
 1;

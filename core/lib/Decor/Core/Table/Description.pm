@@ -155,7 +155,7 @@ sub get_field_des
 
 sub get_des
 {
-  my $self  =    shift;
+  my $self = shift;
   
   # FIXME: load on create/new and avoid checks here?
   my $des = $self->{ 'DES' };
@@ -164,8 +164,20 @@ sub get_des
   return $des;
 }
 
+### access ###################################################################
+
+
+
+
 sub table_access
 {
+  my $self = shift;
+
+  my $user = shift; # user record
+  
+  de_check_ref( $user, 'Decor::User' );
+  
+  
 }
 
 sub field_access
