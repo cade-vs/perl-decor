@@ -1,13 +1,13 @@
 ##############################################################################
 ##
-##  Decor application machinery core
+##  Decor stagelication machinery core
 ##  2014-2015 (c) Vladi Belperchinov-Shabanski "Cade"
 ##  <cade@bis.bg> <cade@biscom.net> <cade@cpan.org>
 ##
 ##  LICENSE: GPLv2
 ##
 ##############################################################################
-package Decor::Core::Application;
+package Decor::Core::Stage;
 use strict;
 
 use Data::Dumper;
@@ -20,11 +20,11 @@ use Decor::Core::Log;
 use Decor::Core::Config;
 use Decor::Core::Table::Description;
 
-my %DE_APP_VALIDATE = (
+my %DE_STAGE_VALIDATE = (
                       ROOT => '-d',
                       );
 
-my %DE_APP_DEFAULTS = (
+my %DE_STAGE_DEFAULTS = (
                       ROOT => '',
                       );
 
@@ -33,11 +33,11 @@ sub new
   my $class = shift;
   $class = ref( $class ) || $class;
   
-  my $app_name = shift;
-  boom "invalid APP_NAME application name [$app_name]" unless de_check_name( $app_name );
+  my $stage_name = shift;
+  boom "invalid STAGE_NAME stagelication name [$stage_name]" unless de_check_name( $stage_name );
   
   my $self = {
-             APP_NAME => $app_name,
+             STAGE_NAME => $stage_name,
              };
   bless $self, $class;
   
@@ -53,19 +53,22 @@ sub init
 
   $self->{ 'ROOT' } = $root;
   
-  my $app_name = $self->{ 'APP_NAME' };
-  
-  my $cfg = de_config_load_file( "$root/apps/$app_name/etc/app.cfg" );
+  my $stage_name = $self->{ 'STAGE_NAME' };
+  my $stage_path = "$root/apps/$stage_name";
+
+  boom "cannot find/access stage path [$stage_path]" unless -d $stage_path;
+
+  my $cfg = de_config_load_file( "$stage_path/etc/stage.cfg" );
 
   my @modules = sort split /[\s\,]+/, $cfg->{ '@' }{ 'MODULES' };
   
-  unshift @modules, sort ( read_dir_entries( "$root/apps/$app_name/modules" ) );
+  unshift @modules, sort ( read_dir_entries( "$stage_path/modules" ) );
   
   my @modules_dirs;
   for my $module ( @modules )
     {
     my $found;
-    for my $mod_dir ( ( "$root/apps/$app_name/modules", "$root/modules" ) )
+    for my $mod_dir ( ( "$stage_path/modules", "$root/modules" ) )
       {
       if( -d "$mod_dir/$module" )
         {
@@ -96,11 +99,11 @@ sub get_root_dir
   return $self->{ 'ROOT' };
 }
 
-sub get_app_name
+sub get_stage_name
 {
   my $self  = shift;
 
-  return $self->{ 'APP_NAME' };
+  return $self->{ 'STAGE_NAME' };
 }
 
 sub get_modules
@@ -124,8 +127,17 @@ sub describe_table
   my $self  = shift;
   my $table = shift;
 
-  my $des = Decor::Core::Table::Description->new( APP => $self );
+  my $cache = $self->__get_cache_storage( 'TABLE_DES' );
+  if( exists $cache->{ $table } )
+    {
+    # FIXME: boom if ref() is not HASH
+    #de_log( "status: table description cache hit for [$table]" );
+    return $cache->{ $table };
+    }
+
+  my $des = Decor::Core::Table::Description->new( STAGE => $self );
   $des->load( $table );
+  $cache->{ $table } = $des;
   
   return $des;
 }

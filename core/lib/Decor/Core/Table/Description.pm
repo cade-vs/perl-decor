@@ -10,6 +10,8 @@
 package Decor::Core::Table::Description;
 use strict;
 
+use parent 'Decor::Core::Base';
+
 use Data::Dumper;
 use Exception::Sink;
 use Data::Tools;
@@ -18,27 +20,25 @@ use Decor::Core::Log;
 use Decor::Core::Utils;
 use Decor::Core::Config;
 
-sub new
-{
-  my $class = shift;
-  $class = ref( $class ) || $class;
-  
-  my %args = @_;
-  
-  my $app = $args{ 'APP' };
-  boom "invalid APP ref [$app]" unless ref( $app ) eq 'Decor::Core::Application';
+##############################################################################
 
-  my $cache = $app->__get_cache_storage( 'TABLE_DESCRIPTIONS' );
-  
-  my $self = {
-             APP   => $app,
-             CACHE => $cache,
-             };
-  bless $self, $class;
-  
-  de_obj_add_debug_info( $self );   # FIXME: usually called from factory?
-  return $self;
-}
+my @TABLE_ATTRS = qw(
+                      LABEL
+                    );
+                    
+my @FIELD_ATTRS = qw(
+                      LABEL
+                      TYPE
+                      TYPE_LEN
+                      TYPE_DOT
+                    );
+
+my %TABLE_ATTRS = map { $_ => 1 } @TABLE_ATTRS;
+hash_lock_recursive( \%TABLE_ATTRS );
+my %FIELD_ATTRS = map { $_ => 1 } @FIELD_ATTRS;
+hash_lock_recursive( \%FIELD_ATTRS );
+
+##############################################################################
 
 sub load
 {
@@ -49,24 +49,16 @@ sub load
 
   $self->{ 'TABLE' } = $table;
 
-  if( exists $self->{ 'CACHE' }{ $table } )
-    {
-    # FIXME: boom if ref() is not HASH
-    de_log( "status: table description cache hit for [$table]" );
-    my $des = $self->{ 'DES' } = $self->{ 'CACHE' }{ $table };
-    return $des;
-    }
-
-  my $app = $self->{ 'APP' };
+  my $stage = $self->get_stage();
   
-  my $root         = $app->get_root_dir();
-  my $app_name     = $app->get_app_name();
-  my @modules_dirs = $app->get_modules_dirs();
+  my $root         = $stage->get_root_dir();
+  my $stage_name   = $stage->get_stage_name();
+  my @modules_dirs = $stage->get_modules_dirs();
   
   my @dirs;
   push @dirs, "$root/core/tables";
   push @dirs, "$_/tables" for reverse @modules_dirs;
-  push @dirs, "$root/apps/$app_name/tables";
+  push @dirs, "$root/apps/$stage_name/tables";
 
   print STDERR 'TABLE DES DIRS:' . Dumper( \@dirs );
 
@@ -108,7 +100,22 @@ sub load
     # --- allow ---------------------------------------------
     
 
+    # add empty keys to fields description before locking
+    for my $attr ( @FIELD_ATTRS )
+      {
+      next if exists $des->{ $field }{ $attr };
+      $des->{ $field }{ $attr } = undef;
+      }
     }
+
+
+  # add empty keys to table description before locking
+  for my $attr ( @TABLE_ATTRS )
+    {
+    next if exists $des->{ '@' }{ $attr };
+    $des->{ '@' }{ $attr } = undef;
+    }
+
 
   print STDERR "TABLE DES POST PROCESSSED [$table]:" . Dumper( $des );
 
@@ -146,8 +153,9 @@ sub get_field_des
   
   # FIXME: load on create/new and avoid checks here?
   my $table = $self->{ 'TABLE' };
-  my $des   = $self->{ 'DES' };
-  boom "empty table description content" unless ref( $des ) eq 'HASH';
+  my $des   = $self->{ 'DES'   };
+  
+  de_check_ref_hash( $des, "empty table description content" );
   boom "unknown field [$field] for table [$table]" unless exists $des->{ $field };
 
   return $des->{ $field };
@@ -163,29 +171,6 @@ sub get_des
 
   return $des;
 }
-
-### access ###################################################################
-
-
-
-
-sub table_access
-{
-  my $self = shift;
-
-  my $user = shift; # user record
-  
-  de_check_ref( $user, 'Decor::User' );
-  
-  
-}
-
-sub field_access
-{
-}
-
-
-
 
 ### EOF ######################################################################
 1;

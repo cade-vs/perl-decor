@@ -1,5 +1,6 @@
 
 label My funny table
+update admin
 
 =NAME
 
@@ -12,3 +13,4 @@ label My funny table
 =SUMA
 
   type real .4
+  update admin

@@ -34,7 +34,7 @@ sub de_check_name
 {
   my $name = shift;
   
-  return $name =~ /^[a-zA-Z_0-9]+$/ ? 1 : 0;
+  return $name =~ /^[a-zA-Z_0-9]+$/o ? 1 : 0;
 }
 
 sub de_check_name_boom
@@ -50,21 +50,6 @@ sub de_reload_config
 
 die 'de_reload_config: is not implemented';
 
-=pod
-  %DE_CONFIG = ();
-  if( @DE_CONFIG_FILES > 0 )
-    {
-    red_merge_config( $_ ) for @RED_CONFIG_FILES;
-    }
-  else
-    {
-    red_merge_config( $_ ) for sort glob "$RED_ROOT/etc/env*.def";
-    if( $RED_APP_NAME )
-      {
-      red_merge_config( $_ ) for sort glob "$RED_ROOT/apps/$RED_APP_NAME/etc/env*.def";
-      }
-    }
-=cut    
 };
 
 sub de_obj_add_debug_info
@@ -80,13 +65,15 @@ sub de_check_ref
 {
   my $ref   = shift;
   my $class = shift;
+  my $msg   = shift;
   
   my $got = ref( $ref );
-  boom "expected reference of class [$class] got [$got]" unless $got eq $class;
+  $msg ||= "expected reference of class [$class] got [$got]";
+  boom $msg unless $got eq $class;
 }
 
-sub de_check_ref_hash  { return de_check_ref( $_[0], 'HASH'  ); }
-sub de_check_ref_array { return de_check_ref( $_[0], 'ARRAY' ); }
+sub de_check_ref_hash  { return de_check_ref( $_[0], 'HASH',  $_[1] ); }
+sub de_check_ref_array { return de_check_ref( $_[0], 'ARRAY', $_[1] ); }
 
 ### EOF ######################################################################
 1;
