@@ -107,7 +107,7 @@ sub de_config_merge_file
   my $inf;
   open( $inf, $fname ) or return;
 
-print STDERR "config: open: $fname\n";  
+  print STDERR "config: open: $fname\n" if $opt->{ 'DEBUG' };  
 
   my $sect_name = '@';
   $config->{ $sect_name } ||= {};
@@ -129,14 +129,14 @@ print STDERR "config: open: $fname\n";
     $line =~ s/\s*$//;
     next unless $line =~ /\S/;
     next if $line =~ /^([#;]|\/\/)/;
-print STDERR "        line: [$line]\n";  
+    print STDERR "        line: [$line]\n" if $opt->{ 'DEBUG' };  
 
     if( $line =~ /^=([a-zA-Z_0-9\:]+)\s*(.*?)\s*$/ )
       {
          $sect_name = uc $1;
       my $sect_opts =    $2; # fixme: upcase/locase?
 
-print STDERR "       =sect: [$sect_name]\n";  
+      print STDERR "       =sect: [$sect_name]\n" if $opt->{ 'DEBUG' };  
       
       $config->{ $sect_name } ||= {};
       %{ $config->{ $sect_name } } = ( %{ $config->{ $sect_name } }, %{ $config->{ '@' } } );
@@ -158,7 +158,7 @@ print STDERR "       =sect: [$sect_name]\n";
   
       next unless $dirs and @$dirs > 0;
       
-print STDERR "        isa:  [$name][$opts]\n";  
+      print STDERR "        isa:  [$name][$opts]\n" if $opt->{ 'DEBUG' };  
 
       my $isa = de_config_load( $name, $dirs );
 
@@ -166,7 +166,7 @@ print STDERR "        isa:  [$name][$opts]\n";
 
       my @opts = split /[\s,]+/, uc $opts;
 
-print STDERR "        isa:  DUMP: ".Dumper($isa)."\n";  
+      print STDERR "        isa:  DUMP: ".Dumper($isa)."\n" if $opt->{ 'DEBUG' };  
       
       for my $opt ( @opts )
         {
@@ -185,7 +185,7 @@ print STDERR "        isa:  DUMP: ".Dumper($isa)."\n";
 
       $value = 1 if $value eq '';
 
-print STDERR "            key:  [$sect_name]:[$key]=[$value]\n";  
+      print STDERR "            key:  [$sect_name]:[$key]=[$value]\n" if $opt->{ 'DEBUG' };  
 
       $config->{ $sect_name }{ $key } = $value;
       
