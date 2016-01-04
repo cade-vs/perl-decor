@@ -39,6 +39,7 @@ sub de_config_merge
   my $config =    shift; # config hash ref
   my $name   = lc shift; # file name (config name) to look for
   my $dirs   =    shift; # array reference with dir names
+  my $opt    = shift || {};
   
   de_check_name( $name  ) or boom "invalid NAME: [$name]";
   
@@ -48,7 +49,7 @@ sub de_config_merge
   
   for my $file ( @files )
     {
-    de_config_merge_file( $config, $file, $dirs );
+    de_config_merge_file( $config, $file, $dirs, $opt );
     }
   
   return 1;
@@ -58,11 +59,12 @@ sub de_config_load
 {
   my $name  = lc shift;
   my $dirs  =    shift; # array reference
+  my $opt   = shift || {};
 
   my $config = {};
   tie %$config, 'Tie::IxHash';
   
-  my $res = de_config_merge( $config, $name, $dirs );
+  my $res = de_config_merge( $config, $name, $dirs, $opt );
   
   return $res ? $config : undef;
 }
@@ -70,9 +72,11 @@ sub de_config_load
 sub de_config_load_file
 {
   my $fname = shift;
+  my $dirs  = shift || []; # array reference
+  my $opt   = shift || {};
 
   my $config = {};
-  de_config_merge_file( $config, $fname );
+  de_config_merge_file( $config, $fname, [], $opt );
   
   return $config;
 }
@@ -96,6 +100,9 @@ sub de_config_merge_file
   my $config = shift; # config hash ref
   my $fname  = shift;
   my $dirs   = shift; # array reference
+  my $opt    = shift || {};
+
+  my $order = 0;
   
   my $inf;
   open( $inf, $fname ) or return;
@@ -104,9 +111,11 @@ print STDERR "config: open: $fname\n";
 
   my $sect_name = '@';
   $config->{ $sect_name } ||= {};
-  if( $config->{ $sect_name }{ 'MTIME' } < file_mtime( $fname ) )
+  my $file_mtime = file_mtime( $fname );
+  if( $config->{ $sect_name }{ '_MTIME' } < $file_mtime )
     {
-    $config->{ $sect_name }{ 'MTIME' } = file_mtime( $fname );
+    # of all files merged, keep only the latest modification time
+    $config->{ $sect_name }{ '_MTIME' } = $file_mtime;
     }
   
   my $ln; # line number
@@ -131,6 +140,7 @@ print STDERR "       =sect: [$sect_name]\n";
       
       $config->{ $sect_name } ||= {};
       %{ $config->{ $sect_name } } = ( %{ $config->{ $sect_name } }, %{ $config->{ '@' } } );
+      $config->{ $sect_name }{ '_ORDER' } = $opt->{ '_ORDER' }++;
       
       if( de_debug() ) # FIXME: move to const var?
         {

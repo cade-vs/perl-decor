@@ -22,7 +22,8 @@ use Decor::Core::Config;
 use Decor::Core::Stage;
 use Decor::Core::Role;
 
-$Data::Dumper::Indent = 3;
+$Data::Dumper::Sortkeys = 1;
+$Data::Dumper::Indent   = 3;
 
 my $root = de_root();
 
@@ -36,24 +37,28 @@ print STDERR Dumper( $stage );
 my $des = $stage->describe_table( 'test1' );
 my $des = $stage->describe_table( 'test1' );
 
-my $fields = $des->{ 'CACHE' }{ 'TEST1' };
-
 print STDERR '='x80;
 
 print STDERR Dumper( $des );
 print STDERR Dumper( [ $des->fields() ] );
-print STDERR Dumper( $des->get_table_des() );
+#print STDERR Dumper( $des->get_table_des() );
 
+die;
 
 my $role = new Decor::Core::Role( STAGE => $stage );
 $role->add_groups( qw( admin1 root user 1342 ) );
 print STDERR Dumper( $role );
 
+my %TMP_DES;
+my %TMP_ROLE;
+$TMP_DES{ 'test1' }{ '@' }{ 'update' } = 'admin';
+%TMP_ROLE = map { $_ => 1 } qw( admin1 root user 1342 );
+
 my $s = gethrtime();
 
-for( 1..1000 )
+for( 1..1000_000 )
   {
-  print "YES ACCESS\n" if $role->access_table( 'test1', 'update' );
+  print "YES ACCESS ROLE\n" if $role->access_table( 'test1', 'update' );
   }
 
 my $d = gethrtime() - $s;
@@ -61,4 +66,16 @@ my $d = gethrtime() - $s;
 print $d / 1000_000_000;
 print " secs\n";
 
+my $s = gethrtime();
+
+my $gr = $TMP_DES{ 'test1' }{ '@' }{ 'update' };
+for( 1..1000_000 )
+  {
+  print "YES ACCESS HASH\n" if exists $TMP_ROLE{ $gr } and $TMP_ROLE{ $gr } > 0;
+  }
+
+my $d = gethrtime() - $s;
+
+print $d / 1000_000_000;
+print " secs\n";
 

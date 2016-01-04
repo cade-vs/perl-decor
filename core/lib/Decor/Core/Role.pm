@@ -103,15 +103,17 @@ sub access_table
   my $table = uc $_[0];
   my $right = uc $_[1];
   
-  my $des = $self->get_stage()->describe_table( $table );
+#  my $des = $self->get_stage()->describe_table( $table );
+  my $des = $self->{ 'STAGE' }{ 'TABLE_DES_CACHE' }{ $table };
   
-  my $table_des = $des->get_table_des();
+  #my $table_des = $des->get_des();
 
-  my $group = $table_des->{ $right };
+  my $group = $des->{ '@' }{ $right };
 
 #use Data::Dumper;
 #print "+++++++++++++++$table $group $des\n" . Dumper( $table_des );
   
+  return 1 if $self->{ 'GROUPS' }{ $group } > 0;
   return 1 if exists $self->{ 'GROUPS' }{ $group } and $self->{ 'GROUPS' }{ $group } > 0;
 }
 
