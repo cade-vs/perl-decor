@@ -139,7 +139,9 @@ sub de_config_merge_file
       print STDERR "       =sect: [$sect_name]\n" if $opt->{ 'DEBUG' };  
       
       $config->{ $sect_name } ||= {};
-      %{ $config->{ $sect_name } } = ( %{ $config->{ $sect_name } }, %{ $config->{ '@' } } );
+      $config->{ $sect_name }{ 'LABEL' } ||= $sect_name;
+      # FIXME: URGENT: copy only listed keys! no all
+      %{ $config->{ $sect_name } } = ( %{ $config->{ '@' } }, %{ $config->{ $sect_name } } );
       $config->{ $sect_name }{ '_ORDER' } = $opt->{ '_ORDER' }++;
       
       if( de_debug() ) # FIXME: move to const var?

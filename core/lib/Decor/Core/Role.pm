@@ -85,8 +85,6 @@ sub clear_groups
 
 ### ACCESS CHECKS ############################################################
 
-
-
 sub access
 {
   my $self = shift;
@@ -113,8 +111,8 @@ sub access_table
 #use Data::Dumper;
 #print "+++++++++++++++$table $group $des\n" . Dumper( $table_des );
   
-  return 1 if $self->{ 'GROUPS' }{ $group } > 0;
   return 1 if exists $self->{ 'GROUPS' }{ $group } and $self->{ 'GROUPS' }{ $group } > 0;
+  return 0;
 }
 
 ### EOF ######################################################################

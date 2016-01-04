@@ -43,8 +43,6 @@ print STDERR Dumper( $des );
 print STDERR Dumper( [ $des->fields() ] );
 #print STDERR Dumper( $des->get_table_des() );
 
-die;
-
 my $role = new Decor::Core::Role( STAGE => $stage );
 $role->add_groups( qw( admin1 root user 1342 ) );
 print STDERR Dumper( $role );
