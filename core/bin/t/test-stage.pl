@@ -73,7 +73,13 @@ for( 1..1000_000 )
   }
 
 my $d = gethrtime() - $s;
-
 print $d / 1000_000_000;
 print " secs\n";
 
+my $s = gethrtime();
+my @res;
+
+@res = grep { /^[:@]/ } qw( 123 qwe 13 sdf dfg dfg dfk  iu hgiu ib giuh nh  hsdf sf sdf sdf sdf w erwerf we wer wer wer wer wer wer we rw er wer wer wer wer wer wer  wer  ) for 1..1000;
+my $d = gethrtime() - $s;
+print $d / 1000_000_000;
+print " secs\n";

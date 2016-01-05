@@ -109,7 +109,7 @@ sub de_config_merge_file
 
   print STDERR "config: open: $fname\n" if $opt->{ 'DEBUG' };  
 
-  my $sect_name = '@';
+  my $sect_name = '@'; # self :) should be more like 0
   $config->{ $sect_name } ||= {};
   my $file_mtime = file_mtime( $fname );
   if( $config->{ $sect_name }{ '_MTIME' } < $file_mtime )
@@ -156,7 +156,7 @@ sub de_config_merge_file
     if( $line =~ /^@(isa|include)\s*([a-zA-Z_0-9]+)\s*(.*?)\s*$/ )
       {
       my $name = $2;
-      my $opts = $3; # fixme: upcase/locase?
+      my $opts = $3; # options/arguments, FIXME: upcase/locase?
   
       next unless $dirs and @$dirs > 0;
       

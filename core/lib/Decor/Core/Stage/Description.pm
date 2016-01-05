@@ -14,119 +14,14 @@ use Data::Dumper;
 use Exception::Sink;
 use Data::Tools 1.09;
 
-# including extensions
-use Decor::Core::Stage::Description;
-
 use Decor::Core::Env;
 use Decor::Core::Utils;
 use Decor::Core::Log;
 use Decor::Core::Config;
+use Decor::Core::Table::Description;
 
-my %DE_STAGE_VALIDATE = (
-                      ROOT => '-d',
-                      );
-
-my %DE_STAGE_DEFAULTS = (
-                      ROOT => '',
-                      );
-
-sub new
-{
-  my $class = shift;
-  $class = ref( $class ) || $class;
-  
-  my $stage_name = shift;
-  boom "invalid STAGE_NAME stagelication name [$stage_name]" unless de_check_name( $stage_name );
-  
-  my $self = {
-             STAGE_NAME      => $stage_name,
-             TABLE_DES_CACHE => {},
-             };
-  bless $self, $class;
-
-  $self->{ 'CACHE_STORAGE' }{ 'TABLE_DES' } = {};  
-
-  de_obj_add_debug_info( $self );  
-  return $self;
-}
-
-sub init
-{
-  my $self = shift;
-  my $root = shift;
-  boom "invalid ROOT directory [$root]" unless $root ne '' and -d $root;
-
-  $self->{ 'ROOT' } = $root;
-  
-  my $stage_name = $self->{ 'STAGE_NAME' };
-  my $stage_path = "$root/apps/$stage_name";
-
-  boom "cannot find/access stage path [$stage_path]" unless -d $stage_path;
-
-  my $cfg = de_config_load_file( "$stage_path/etc/stage.cfg" );
-
-  my @modules = sort split /[\s\,]+/, $cfg->{ '@' }{ 'MODULES' };
-  
-  unshift @modules, sort ( read_dir_entries( "$stage_path/modules" ) );
-  
-  my @modules_dirs;
-  for my $module ( @modules )
-    {
-    my $found;
-    for my $mod_dir ( ( "$stage_path/modules", "$root/modules" ) )
-      {
-      if( -d "$mod_dir/$module" )
-        {
-        push @modules_dirs, "$mod_dir/$module";
-        $found = 1;
-        last;
-        }
-      }
-    if( ! $found )  
-      {
-      boom( "error: module not found [$module]" );
-      }
-    }
-
-  $self->{ 'MODULES'      } = \@modules;
-  $self->{ 'MODULES_DIRS' } = \@modules_dirs;
-  
-  print STDERR 'CONFIG:' . Dumper( $cfg, \@modules, \@modules_dirs );
-
-}
-
-### ##########################################################################
-
-sub get_root_dir
-{
-  my $self  = shift;
-
-  return $self->{ 'ROOT' };
-}
-
-sub get_stage_name
-{
-  my $self  = shift;
-
-  return $self->{ 'STAGE_NAME' };
-}
-
-sub get_modules
-{
-  my $self  = shift;
-
-  return @{ $self->{ 'MODULES'      } };
-}
-
-sub get_modules_dirs
-{
-  my $self  = shift;
-
-  return @{ $self->{ 'MODULES_DIRS' } };
-}
 
 ### TABLE DESCRIPTIONS #######################################################
-=pod
 
 my @TABLE_ATTRS = qw(
                       LABEL
@@ -249,17 +144,6 @@ sub describe_table
   $cache->{ $table } = $des;
   
   return $des;
-}
-=cut
-### INTERNALS ################################################################
-
-sub __get_cache_storage
-{
-  my $self = shift;
-  my $key  = shift;
-  
-  $self->{ 'CACHE_STORAGE' }{ $key } ||= {};
-  return $self->{ 'CACHE_STORAGE' }{ $key };
 }
 
 ### EOF ######################################################################

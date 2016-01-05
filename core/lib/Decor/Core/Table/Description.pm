@@ -24,9 +24,9 @@ use Decor::Core::Config;
 
 sub fields
 {
-  my $self  =    shift;
+  my $self = shift;
   
-  return grep { $_ ne '@' } keys %$self;
+  return $self->{ '@' }{ '_FIELDS_LIST' };
 }
 
 sub get_table_des

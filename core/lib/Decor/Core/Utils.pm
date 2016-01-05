@@ -1,6 +1,6 @@
 ##############################################################################
 ##
-##  Decor application machinery core
+##  Decor stagelication machinery core
 ##  2014-2015 (c) Vladi Belperchinov-Shabanski "Cade"
 ##  <cade@bis.bg> <cade@biscom.net> <cade@cpan.org>
 ##
