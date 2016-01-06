@@ -10,6 +10,8 @@
 package Decor::Core::Stage;
 use strict;
 
+use DBI;
+
 ### DATA SOURCE NAMES SUPPORT AND DB HANDLERS ################################
 
 sub __dsn_parse_config
@@ -27,9 +29,41 @@ sub __dsn_dbh_connect
   my $usr = $self->{ 'DSN' }{ $name }{ 'USER' };
   my $pwd = $self->{ 'DSN' }{ $name }{ 'PASS' };
 
-  my $dbh; # FIXME: TODO: DBI CONNECT HERE
+  my $dbh;
+  my $timeout_reached;
+  eval
+    {
+    my $sig_handler = set_sig_handler( 'ALRM', sub { $timeout_reached = 1; die 'ECONNECT' } );
+    alarm(4); # connect timeout, default 4 seconds, TODO: get from config
 
-  return $dbh;
+    $dbh = DBI->connect( 
+                         $dsn, 
+                         $user, 
+                         $pass,
+                         { 
+                           # standard sane set, alpha-sorted
+                           'AutoCommit'         => 0,
+                           'ChopBlanks'         => 1,
+                           'FetchHashKeyName'   => 'NAME_uc',
+                           'PrintError'         => 0,
+                           'RaiseError'         => 1,
+                           'ShowErrorStatement' => 1,
+                         } 
+                       );
+    
+    $dbh->{ 'LongReadLen' } = 4096; # FIXME: TODO: get from config
+    };
+  alarm(0); # reset alarm
+
+  if( $@ )
+    {
+    my $alarm_msg = " connect timeout reached" if $timeout_reached;
+    $self->log( "error: connect failed: DBI=[$DBI::errstr] Exception=[$@] $alarm_msg" );
+    }
+  else
+    {
+    return $dbh;
+    }
 }
 
 sub dsn_get_dbh_by_name
