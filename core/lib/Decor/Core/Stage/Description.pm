@@ -130,8 +130,8 @@ sub describe_table
   my $self  = shift;
   my $table = shift;
 
-  #my $cache = $self->__get_cache_storage( 'TABLE_DES' );
-  my $cache = $self->{ 'TABLE_DES_CACHE' };
+  my $cache = $self->__get_cache_storage( 'TABLE_DES' );
+  #my $cache = $self->{ 'TABLE_DES_CACHE' };
   if( exists $cache->{ $table } )
     {
     # FIXME: boom if ref() is not HASH

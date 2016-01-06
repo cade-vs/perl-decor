@@ -44,7 +44,7 @@ sub new
              };
   bless $self, $class;
 
-  $self->{ 'CACHE_STORAGE' }{ 'TABLE_DES' } = {};  
+#  $self->{ 'CACHE_STORAGE' }{ 'TABLE_DES' } = {};  
 
   de_obj_add_debug_info( $self );  
   return $self;
