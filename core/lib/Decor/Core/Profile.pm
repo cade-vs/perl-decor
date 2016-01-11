@@ -1,13 +1,13 @@
 ##############################################################################
 ##
-##  Decor stagelication machinery core
+##  Decor application machinery core
 ##  2014-2015 (c) Vladi Belperchinov-Shabanski "Cade"
 ##  <cade@bis.bg> <cade@biscom.net> <cade@cpan.org>
 ##
 ##  LICENSE: GPLv2
 ##
 ##############################################################################
-package Decor::Core::Role;
+package Decor::Core::Profile;
 use strict;
 
 use parent 'Decor::Core::Base';
@@ -50,7 +50,7 @@ sub add_groups
     }
 }
 
-sub del_groups
+sub remove_groups
 {
   my $self = shift;
 

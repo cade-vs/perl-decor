@@ -20,7 +20,7 @@ use Data::Dumper;
 use Decor::Core::Env;
 use Decor::Core::Config;
 use Decor::Core::Stage;
-use Decor::Core::Role;
+use Decor::Core::Profile;
 
 $Data::Dumper::Sortkeys = 1;
 $Data::Dumper::Indent   = 3;
@@ -43,20 +43,20 @@ print STDERR Dumper( $des );
 print STDERR Dumper( [ $des->fields() ] );
 #print STDERR Dumper( $des->get_table_des() );
 
-my $role = new Decor::Core::Role( STAGE => $stage );
-$role->add_groups( qw( admin1 root user 1342 ) );
-print STDERR Dumper( $role );
+my $profile = new Decor::Core::Profile( STAGE => $stage );
+$profile->add_groups( qw( admin1 root user 1342 ) );
+print STDERR Dumper( $profile );
 
 my %TMP_DES;
-my %TMP_ROLE;
+my %TMP_PROFILE;
 $TMP_DES{ 'test1' }{ '@' }{ 'update' } = 'admin';
-%TMP_ROLE = map { $_ => 1 } qw( admin1 root user 1342 );
+%TMP_PROFILE = map { $_ => 1 } qw( admin1 root user 1342 );
 
 my $s = gethrtime();
 
 for( 1..1000_000 )
   {
-  print "YES ACCESS ROLE\n" if $role->access_table( 'test1', 'update' );
+  print "YES ACCESS PROFILE\n" if $profile->access_table( 'test1', 'update' );
   }
 
 my $d = gethrtime() - $s;
@@ -69,7 +69,7 @@ my $s = gethrtime();
 my $gr = $TMP_DES{ 'test1' }{ '@' }{ 'update' };
 for( 1..1000_000 )
   {
-  print "YES ACCESS HASH\n" if exists $TMP_ROLE{ $gr } and $TMP_ROLE{ $gr } > 0;
+  print "YES ACCESS HASH\n" if exists $TMP_PROFILE{ $gr } and $TMP_PROFILE{ $gr } > 0;
   }
 
 my $d = gethrtime() - $s;
