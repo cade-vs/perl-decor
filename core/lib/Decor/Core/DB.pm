@@ -45,5 +45,12 @@ sub set_profile_locked
   $self->{ 'PROFILE_LOCKED' } = 1;
 }
 
+sub __get_profile
+{
+  my $self    = shift;
+
+  return $self->{ 'PROFILE' };
+}
+
 ### EOF ######################################################################
 1;

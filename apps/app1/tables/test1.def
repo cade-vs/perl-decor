@@ -2,12 +2,12 @@
 label My funny table
 update admin
 
-allow update or insert to admin or monitor
-allow update insert to admin, monitor
-allow update, insert | admin | monitor
-allow update insert / admin / monitor + users
-allow update insert ; admin ; monitor + users
 
+#allow update or insert to admin or monitor
+#allow update insert to admin, monitor
+#allow update, insert | admin | monitor
+#allow update insert / admin / monitor + users
+allow update, insert, delete ; admin ; monitor + users + !root
 
 
 =NAME

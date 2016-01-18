@@ -10,6 +10,7 @@
 package Decor::Core::Config;
 use strict;
 
+use Storable qw( dclone );
 use Tie::IxHash;
 use Data::Dumper;
 use Data::Tools 1.09;
@@ -102,6 +103,8 @@ sub de_config_merge_file
   my $dirs   = shift; # array reference
   my $opt    = shift || {};
 
+  my $key_types = $opt->{ 'KEY_TYPES' } || {};
+
   my $order = 0;
   
   my $inf;
@@ -141,7 +144,7 @@ sub de_config_merge_file
       $config->{ $sect_name } ||= {};
       $config->{ $sect_name }{ 'LABEL' } ||= $sect_name;
       # FIXME: URGENT: copy only listed keys! no all
-      %{ $config->{ $sect_name } } = ( %{ $config->{ '@' } }, %{ $config->{ $sect_name } } );
+      %{ $config->{ $sect_name } } = ( %{ dclone( $config->{ '@' } ) }, %{ $config->{ $sect_name } } );
       $config->{ $sect_name }{ '_ORDER' } = $opt->{ '_ORDER' }++;
       
       if( de_debug() ) # FIXME: move to const var?
@@ -174,7 +177,7 @@ sub de_config_merge_file
         {
         boom "isa/include error: non existing key [$opt] in [$name]" unless exists $isa->{ $opt };
         $config->{ $opt } ||= {};
-        %{ $config->{ $opt } } = ( %{ $config->{ $opt } }, %{ $isa->{ $opt } } );
+        %{ $config->{ $opt } } = ( %{ $config->{ $opt } }, %{ dclone( $isa->{ $opt } ) } );
         }
       
       next;
@@ -189,7 +192,15 @@ sub de_config_merge_file
 
       print STDERR "            key:  [$sect_name]:[$key]=[$value]\n" if $opt->{ 'DEBUG' };  
 
-      $config->{ $sect_name }{ $key } = $value;
+      if( $key_types->{ $key } eq '@' )
+        {
+        $config->{ $sect_name }{ $key } ||= [];
+        push @{ $config->{ $sect_name }{ $key } }, $value;
+        }
+      else
+        {  
+        $config->{ $sect_name }{ $key } = $value;
+        }
       
       next;
       }

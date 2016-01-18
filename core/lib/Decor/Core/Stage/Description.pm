@@ -23,8 +23,15 @@ use Decor::Core::Table::Description;
 
 ### TABLE DESCRIPTIONS #######################################################
 
+my %DES_KEY_TYPES = (
+                      'ALLOW' => '@',
+                      'DENY'  => '@',
+                    );
+
 my @TABLE_ATTRS = qw(
                       LABEL
+                      ALLOW
+                      DENY
                     );
                     
 my @FIELD_ATTRS = qw(
@@ -32,6 +39,8 @@ my @FIELD_ATTRS = qw(
                       TYPE
                       TYPE_LEN
                       TYPE_DOT
+                      ALLOW
+                      DENY
                     );
 
 my %TABLE_ATTRS = map { $_ => 1 } @TABLE_ATTRS;
@@ -59,7 +68,7 @@ sub __load_table_des_hash
 
   print STDERR 'TABLE DES DIRS:' . Dumper( \@dirs );
 
-  my $des = de_config_load( "$table", \@dirs );
+  my $des = de_config_load( "$table", \@dirs, { KEY_TYPES => \%DES_KEY_TYPES } );
 
   print STDERR "TABLE DES RAW [$table]:" . Dumper( $des );
   
@@ -94,8 +103,8 @@ sub __load_table_des_hash
         }
       }
 
-    # --- allow ---------------------------------------------
-    
+    # convert allow/deny list to access tree
+    __preprocess_allow_deny( $des->{ $field } );
 
     # add empty keys to fields description before locking
     for my $attr ( @FIELD_ATTRS )
@@ -104,6 +113,9 @@ sub __load_table_des_hash
       $des->{ $field }{ $attr } = undef;
       }
     }
+
+  # convert allow/deny list to access tree
+  __preprocess_allow_deny( $des->{ '@' } );
 
   # add empty keys to table description before locking
   for my $attr ( @TABLE_ATTRS )
@@ -128,7 +140,7 @@ sub __load_table_des_hash
 sub describe_table
 {
   my $self  = shift;
-  my $table = shift;
+  my $table = uc shift;
 
   my $cache = $self->__get_cache_storage( 'TABLE_DES' );
   #my $cache = $self->{ 'TABLE_DES_CACHE' };
@@ -144,6 +156,51 @@ sub describe_table
   $cache->{ $table } = $des;
   
   return $des;
+}
+
+sub __preprocess_allow_deny
+{
+  my $hr = shift;
+
+  for my $allow_deny ( qw( ALLOW DENY ) )
+    {
+    $hr->{ $allow_deny } ||= [];
+    my %access;
+    for my $line ( @{ $hr->{ $allow_deny } } )
+      {
+      my %a = __describe_parse_access_line( $line );
+      %access = ( %access, %a );
+      }
+    $hr->{ $allow_deny } = \%access;
+    }
+}
+
+sub __describe_parse_access_line
+{
+  my $line = lc shift;
+  
+  $line =~ s/^\s*//;
+  $line =~ s/\s*$//;
+
+#print "ACCESS DEBUG LINE [$line]\n";
+  boom "invalid access line, keywords must not be separated by whitespace [$line]" if $line =~ /[a-z_0-9]\s+[a-z_0-9]/i;
+
+  $line =~ s/\s*//g;
+#print "ACCESS DEBUG LINE [$line]\n";
+
+  my @line = split /;/, $line;
+
+  my $ops = shift @line;
+  my @ops = split /[,]+/, $ops;
+
+  my %access;
+  
+  for my $op ( @ops )
+    {
+    $access{ uc $op } = [ map { [ split /[\s\+]+/ ] } @line ];
+    }
+  
+  return %access;
 }
 
 ### EOF ######################################################################

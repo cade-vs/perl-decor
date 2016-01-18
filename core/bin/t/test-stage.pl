@@ -44,7 +44,7 @@ print STDERR Dumper( [ $des->fields() ] );
 #print STDERR Dumper( $des->get_table_des() );
 
 my $profile = new Decor::Core::Profile( STAGE => $stage );
-$profile->add_groups( qw( admin1 root user 1342 ) );
+$profile->add_groups( qw( admin1 root monitor users 1342 ) );
 print STDERR Dumper( $profile );
 
 my %TMP_DES;
@@ -52,18 +52,26 @@ my %TMP_PROFILE;
 $TMP_DES{ 'test1' }{ '@' }{ 'update' } = 'admin';
 %TMP_PROFILE = map { $_ => 1 } qw( admin1 root user 1342 );
 
+print "-------------------------------------------------access test-----\n";
+
+$profile->set_groups( qw( admin1 root1 monitor users 1342 ) );
+print "YES ACCESS PROFILE\n" if $profile->access_table( 'test1', 'update' );
+
+
 my $s = gethrtime();
 
-for( 1..1000_000 )
+my $c;
+for( 1..100_000 )
   {
-  print "YES ACCESS PROFILE\n" if $profile->access_table( 'test1', 'update' );
+  $c++ if $profile->access_table( 'update', 'test1' );
   }
 
 my $d = gethrtime() - $s;
 
 print $d / 1000_000_000;
-print " secs\n";
+print " secs c[$c]\n";
 
+=pod
 my $s = gethrtime();
 
 my $gr = $TMP_DES{ 'test1' }{ '@' }{ 'update' };
@@ -83,3 +91,4 @@ my @res;
 my $d = gethrtime() - $s;
 print $d / 1000_000_000;
 print " secs\n";
+=cut

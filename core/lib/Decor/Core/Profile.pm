@@ -13,6 +13,8 @@ use strict;
 use parent 'Decor::Core::Base';
 use Exception::Sink;
 
+use Data::Dumper;
+
 use Decor::Core::Utils;
 
 ##############################################################################
@@ -42,6 +44,7 @@ sub add_groups
   
   my @groups = @_;
   
+  $self->{ 'ACCESS_CACHE' } = {};
   for my $group ( @groups )
     {
     $group = lc $group;
@@ -56,6 +59,7 @@ sub remove_groups
 
   my @groups = @_;
   
+  $self->{ 'ACCESS_CACHE' } = {};
   for my $group ( @groups )
     {
     if( $group eq '*' )
@@ -80,6 +84,7 @@ sub clear_groups
 {
   my $self = shift;
 
+  $self->{ 'ACCESS_CACHE' } = {};
   $self->{ 'GROUPS' } = {};
 }
 
@@ -98,20 +103,76 @@ sub access_table
 {
   my $self = shift;
 
-  my $table = uc $_[0];
-  my $right = uc $_[1];
-  
-#  my $des = $self->get_stage()->describe_table( $table );
-  my $des = $self->{ 'STAGE' }{ 'TABLE_DES_CACHE' }{ $table };
-  
-  #my $table_des = $des->get_des();
+  my $oper  = uc $_[0];
+  my $table = uc $_[1];
 
-  my $group = $des->{ '@' }{ $right };
+  return $self->access_table_field( $oper, $table, '@' );
+}
 
-#use Data::Dumper;
-#print "+++++++++++++++$table $group $des\n" . Dumper( $table_des );
+sub access_table_field
+{
+  my $self = shift;
+
+  my $oper  = uc $_[0];
+  my $table = uc $_[1];
+  my $field = uc $_[2];
   
-  return 1 if exists $self->{ 'GROUPS' }{ $group } and $self->{ 'GROUPS' }{ $group } > 0;
+  if( exists $self->{ 'ACCESS_CACHE' }{ $field }{ $oper } )
+    {
+    return $self->{ 'ACCESS_CACHE' }{ $field }{ $oper };
+    }
+  
+  #my $des = $self->{ 'STAGE' }{ 'CACHE_STORAGE' }{ 'TABLE_DES' }{ $table };
+  my $des = $self->{ 'STAGE' }->describe_table( $table );
+
+#print "profile access des\n" . Dumper( $des );  
+  
+  if( $self->__check_access_tree( $oper, $des->{ $field }{ 'DENY'  } ) )
+    {
+    $self->{ 'ACCESS_CACHE' }{ $field }{ $oper } = 0;
+    return 0;
+    }
+    
+  if( $self->__check_access_tree( $oper, $des->{ $field }{ 'ALLOW' } ) )
+    {
+    $self->{ 'ACCESS_CACHE' }{ $field }{ $oper } = 1;
+    return 1;
+    }
+  
+  $self->{ 'ACCESS_CACHE' }{ $field }{ $oper } = 0;
+  return 0;
+}
+
+sub __check_access_tree
+{
+  my $self = shift;
+
+  my $oper = shift;
+  my $tree = shift;
+
+#print "profile access exists check: [$oper]\n" . Dumper( $tree );  
+
+  return 0 unless exists $tree->{ $oper };
+  
+  for my $sets ( @{ $tree->{ $oper } } )
+    {
+    my $c = 0;
+    for my $group ( @$sets )
+      {
+      if( $group =~ /^!(.+)$/ )
+        {
+        my $group = $1;
+#print "profile access ! check: [$group]\n";  
+        $c++ if ! exists $self->{ 'GROUPS' }{ $group } or ! ( $self->{ 'GROUPS' }{ $group } > 0 );
+        }
+      else
+        {
+#print "profile access   check: [$group]\n";  
+        $c++ if   exists $self->{ 'GROUPS' }{ $group } and  ( $self->{ 'GROUPS' }{ $group } > 0 );
+        }  
+      }  
+    return 1 if $c == @$sets;
+    }
   return 0;
 }
 
