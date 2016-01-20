@@ -76,7 +76,7 @@ sub __dsn_dbh_connect
   if( $@ )
     {
     my $alarm_msg = " connect timeout reached" if $timeout_reached;
-    $self->log( "error: connect failed: DBI=[$DBI::errstr] Exception=[$@] $alarm_msg" );
+    boom( "fatal: connect failed: DBI=[$DBI::errstr] Exception=[$@] $alarm_msg" );
     }
   else
     {
