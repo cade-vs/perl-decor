@@ -23,8 +23,11 @@ sub __init
 {
   my $self = shift;
   
-  $self->{ 'GROUPS' } = {};
+  $self->{ 'GROUPS'       } = {};
+  $self->{ 'ACCESS_CACHE' } = {};
+  $self->{ 'VAR'          } = {};
   
+  $self->__lock_self_keys();
   1;
 }
 
@@ -116,30 +119,32 @@ sub access_table_field
   my $oper  = uc $_[0];
   my $table = uc $_[1];
   my $field = uc $_[2];
-  
-  if( exists $self->{ 'ACCESS_CACHE' }{ $field }{ $oper } )
+
+  $self->{ 'ACCESS_CACHE' }{ $field } ||= {};
+  my $cache = $self->{ 'ACCESS_CACHE' }{ $field };
+
+  if( $cache and exists $cache->{ $oper } )
     {
+    return $cache->{ $oper };
+    $self->{ 'VAR' }{ 'CACHE_HITS' }++;
     return $self->{ 'ACCESS_CACHE' }{ $field }{ $oper };
     }
   
-  #my $des = $self->{ 'STAGE' }{ 'CACHE_STORAGE' }{ 'TABLE_DES' }{ $table };
   my $des = $self->{ 'STAGE' }->describe_table( $table );
 
-#print "profile access des\n" . Dumper( $des );  
-  
   if( $self->__check_access_tree( $oper, $des->{ $field }{ 'DENY'  } ) )
     {
-    $self->{ 'ACCESS_CACHE' }{ $field }{ $oper } = 0;
+    $cache->{ $oper } = 0;
     return 0;
     }
     
   if( $self->__check_access_tree( $oper, $des->{ $field }{ 'ALLOW' } ) )
     {
-    $self->{ 'ACCESS_CACHE' }{ $field }{ $oper } = 1;
+    $cache->{ $oper } = 1;
     return 1;
     }
   
-  $self->{ 'ACCESS_CACHE' }{ $field }{ $oper } = 0;
+  $cache->{ $oper } = 0;
   return 0;
 }
 

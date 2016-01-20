@@ -1,0 +1,12 @@
+
+=MAIN
+
+DSN   dbi:Pg:dbname=decor
+USER  cade
+PASS  ''
+
+=OTHER
+
+DSN   dbi:Pg:dbname=decor_other
+USER  cade
+PASS  ''

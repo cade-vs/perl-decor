@@ -10,6 +10,9 @@
 package Decor::Core::Base;
 use strict;
 
+use Hash::Util qw( lock_ref_keys );
+use Data::Tools;
+
 use Decor::Core::Utils;
 use Exception::Sink;
 
@@ -50,7 +53,7 @@ sub __lock_self_keys
     next if exists $self->{ $key };
     $self->{ $key } = undef;
     }
-  hash_keys_lock_recursive( $self );  
+  lock_ref_keys( $self );  
 }
 
 sub get_stage

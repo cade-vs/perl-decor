@@ -15,6 +15,7 @@ use Exception::Sink;
 use Data::Tools 1.09;
 
 # including extensions
+use Decor::Core::Stage::DSN;
 use Decor::Core::Stage::Description;
 
 use Decor::Core::Env;
@@ -251,6 +252,14 @@ sub describe_table
   return $des;
 }
 =cut
+
+sub log
+{
+  my $self = shift;
+
+  de_log( @_ );
+}
+
 ### INTERNALS ################################################################
 
 sub __get_cache_storage

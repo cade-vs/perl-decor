@@ -61,7 +61,7 @@ print "YES ACCESS PROFILE\n" if $profile->access_table( 'test1', 'update' );
 my $s = gethrtime();
 
 my $c;
-for( 1..100_000 )
+for( 1..200_000 )
   {
   $c++ if $profile->access_table( 'update', 'test1' );
   }
@@ -69,7 +69,7 @@ for( 1..100_000 )
 my $d = gethrtime() - $s;
 
 print $d / 1000_000_000;
-print " secs c[$c]\n";
+print " secs c[$c]\n", Dumper( $profile->{ 'VAR' }, $profile->{ 'ACCESS_CACHE' } );
 
 =pod
 my $s = gethrtime();

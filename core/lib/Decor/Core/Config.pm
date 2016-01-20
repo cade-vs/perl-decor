@@ -188,7 +188,14 @@ sub de_config_merge_file
       my $key   = uc $1;
       my $value =    $2;
 
-      $value = 1 if $value eq '';
+      if( $value =~ /^(['"])(.*?)\1/ )
+        {
+        $value = $2;
+        }
+      elsif( $value eq '' )
+        {
+        $value = 1;
+        }
 
       print STDERR "            key:  [$sect_name]:[$key]=[$value]\n" if $opt->{ 'DEBUG' };  
 
