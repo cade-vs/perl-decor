@@ -11,3 +11,7 @@
 -- table/classes file def mtime to automate dev on-demand alter
 
 -- alter should be a function()
+
+-- debug stack trace of calls sent over the comm between core/web/etc.
+
+-- debug stack on low-level calls (DB::IO)

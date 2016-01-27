@@ -48,15 +48,12 @@ hash_lock_recursive( \%TABLE_ATTRS );
 my %FIELD_ATTRS = map { $_ => 1 } @FIELD_ATTRS;
 hash_lock_recursive( \%FIELD_ATTRS );
 
-sub __load_table_des_hash
+sub __get_tables_dirs
 {
   my $self  =    shift;
-  my $table = uc shift;
-
-  boom "invalid TABLE name [$table]" unless de_check_name( $table );
-
-  $self->{ 'TABLE' } = $table;
-
+  
+  return $self->{ 'CACHE' }{ 'TABLES_DIRS_AR' } if exists $self->{ 'CACHE' }{ 'TABLES_DIRS_AR' };
+  
   my $root         = $self->get_root_dir();
   my $stage_name   = $self->get_stage_name();
   my @modules_dirs = $self->get_modules_dirs();
@@ -66,9 +63,51 @@ sub __load_table_des_hash
   push @dirs, "$_/tables" for reverse @modules_dirs;
   push @dirs, "$root/apps/$stage_name/tables";
 
-  print STDERR 'TABLE DES DIRS:' . Dumper( \@dirs );
+  $self->{ 'CACHE' }{ 'TABLES_DIRS_HR' } = \@dirs;
 
-  my $des = de_config_load( "$table", \@dirs, { KEY_TYPES => \%DES_KEY_TYPES } );
+  return \@dirs;
+}
+
+sub get_tables_list
+{
+  my $self  =    shift;
+
+  return $self->{ 'CACHE' }{ 'TABLES_LIST_AR' } if exists $self->{ 'CACHE' }{ 'TABLES_LIST_AR' };
+
+  my $tables_dirs = $self->__get_tables_dirs();
+
+  print STDERR 'TABLE DES DIRS:' . Dumper( $tables_dirs );
+  
+  my @tables;
+  
+  for my $dir ( @$tables_dirs )
+    {
+    print STDERR "$dir/*.def\n";
+    push @tables, ( sort( glob_tree( "$dir/*.def" ) ) );
+    }
+
+  s/^.*?\/([^\/]+)\.def$/uc($1)/ie for @tables;
+  @tables = keys %{ { map { $_ => 1 } @tables } };
+
+  $self->{ 'CACHE' }{ 'TABLES_LIST_AR' } = \@tables;
+
+  return \@tables;
+}
+
+sub __load_table_des_hash
+{
+  my $self  =    shift;
+  my $table = uc shift;
+
+  boom "invalid TABLE name [$table]" unless de_check_name( $table );
+
+  $self->{ 'TABLE' } = $table;
+
+  my $tables_dirs = $self->__get_tables_dirs();
+
+  print STDERR 'TABLE DES DIRS:' . Dumper( $tables_dirs );
+
+  my $des = de_config_load( "$table", $tables_dirs, { KEY_TYPES => \%DES_KEY_TYPES } );
 
   print STDERR "TABLE DES RAW [$table]:" . Dumper( $des );
   
@@ -135,6 +174,7 @@ sub __load_table_des_hash
   
   return $des;
 }
+
 
 
 sub describe_table
