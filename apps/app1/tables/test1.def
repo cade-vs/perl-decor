@@ -13,6 +13,11 @@ allow update, insert, delete ; admin ; monitor + users + !root
 =NAME
 
   type char 1024
+  
+  unique
+  required
+  
+  options uniq req
 
 =CTIME
 

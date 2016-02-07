@@ -43,12 +43,32 @@ sub get_field_des
 
   if( ! exists $self->{ $field } )
     {
-    my $table = $self->{ '@' }{ 'TABLE_NAME' };
+    my $table = $self->{ '@' }{ '_TABLE_NAME' };
     boom "unknown field [$field] for table [$table]";
     }
 
   return $self->{ $field };
 }
+
+sub get_dsn_name
+{
+  my $self  =    shift;
+
+  return $self->{ '@' }{ 'DSN' };
+}
+
+=pod
+sub get_table_dbh
+{
+  my $self  =    shift;
+
+  my $table = $self->{ '@' }{ '_TABLE_NAME' };
+  
+  print Dumper( $self );
+  
+  return $self->get_stage()->dsn_get_dbh_by_table( $table );
+}
+=cut
 
 ### EOF ######################################################################
 1;

@@ -28,8 +28,26 @@ sub __dsn_parse_config
   
   my $dsn = de_config_load_file( $dsn_file );
 
-  print Dumper( $dsn );
+  for my $name ( keys %$dsn )
+    {
+    next if $name eq '@';
+    my $dh = $dsn->{ $name };
+    
+    if( $dh->{ 'DSN' } =~ /^dbi:([a-z]+)/i )
+      {
+      $dh->{ 'DB_NAME' } = $1;
+      }
+    else
+      {
+      # FIXME: print subset of hash, skipping sensitive things, passwords, etc.
+      boom "cannot find DSN DB_NAME for: " . Dumper( $dh );
+      }  
+    }
+
+  print Dumper( "DSN PARSE CONFIG: ", $dsn );
   
+  hash_lock_recursive( $dsn );
+
   $self->{ 'DSN' } = $dsn;
   return $dsn;
 }
@@ -113,12 +131,32 @@ sub dsn_get_dbh_by_table
     }
   
   my $des = $self->describe_table( $table );
-  my $dsn = $self->{ '@' }{ 'DSN' } || 'MAIN';
+  my $dsn = $des->{ '@' }{ 'DSN' };
   
   my $dbh = $self->dsn_get_dbh_by_name( $dsn );
   $cache->{ $table } = $dbh;
   
   return $dbh;
+}
+
+sub dsn_get
+{
+  my $self  =    shift;
+  my $name  = uc shift;
+  
+  boom "unknown DSN NAME [$name]" unless exists $self->{ 'DSN' }{ $name };
+  
+  return $self->{ 'DSN' }{ $name };
+}
+
+sub dsn_get_db_name
+{
+  my $self  =    shift;
+  my $name  = uc shift;
+  
+  my $dsn = $self->dsn_get( $name );
+  
+  return $dsn->{ 'DB_NAME' };
 }
 
 sub dsn_reset

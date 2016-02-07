@@ -48,6 +48,8 @@ hash_lock_recursive( \%TABLE_ATTRS );
 my %FIELD_ATTRS = map { $_ => 1 } @FIELD_ATTRS;
 hash_lock_recursive( \%FIELD_ATTRS );
 
+#-----------------------------------------------------------------------------
+
 sub __get_tables_dirs
 {
   my $self  =    shift;
@@ -68,6 +70,8 @@ sub __get_tables_dirs
   return \@dirs;
 }
 
+#-----------------------------------------------------------------------------
+
 sub get_tables_list
 {
   my $self  =    shift;
@@ -76,7 +80,7 @@ sub get_tables_list
 
   my $tables_dirs = $self->__get_tables_dirs();
 
-  print STDERR 'TABLE DES DIRS:' . Dumper( $tables_dirs );
+  #print STDERR 'TABLE DES DIRS:' . Dumper( $tables_dirs );
   
   my @tables;
   
@@ -94,6 +98,8 @@ sub get_tables_list
   return \@tables;
 }
 
+#-----------------------------------------------------------------------------
+
 sub __load_table_des_hash
 {
   my $self  =    shift;
@@ -105,11 +111,11 @@ sub __load_table_des_hash
 
   my $tables_dirs = $self->__get_tables_dirs();
 
-  print STDERR 'TABLE DES DIRS:' . Dumper( $tables_dirs );
+  #print STDERR 'TABLE DES DIRS:' . Dumper( $tables_dirs );
 
   my $des = de_config_load( "$table", $tables_dirs, { KEY_TYPES => \%DES_KEY_TYPES } );
 
-  print STDERR "TABLE DES RAW [$table]:" . Dumper( $des );
+  #print STDERR "TABLE DES RAW [$table]:" . Dumper( $des );
   
   # postprocessing
   for my $field ( keys %$des )
@@ -166,8 +172,9 @@ sub __load_table_des_hash
   # more postprocessing work
   $des->{ '@' }{ '_TABLE_NAME'  } = $table;
   $des->{ '@' }{ '_FIELDS_LIST' } = [ grep /[^:@]/, keys %$des ];
+  $des->{ '@' }{ 'DSN'          } = uc( $des->{ '@' }{ 'DSN' } ) || 'MAIN';
 
-  print STDERR "TABLE DES POST PROCESSSED [$table]:" . Dumper( $des );
+  #print STDERR "TABLE DES POST PROCESSSED [$table]:" . Dumper( $des );
 
   bless $des, 'Decor::Core::Table::Description';
   hash_lock_recursive( $des );
@@ -175,7 +182,7 @@ sub __load_table_des_hash
   return $des;
 }
 
-
+#-----------------------------------------------------------------------------
 
 sub describe_table
 {
@@ -198,6 +205,8 @@ sub describe_table
   return $des;
 }
 
+#-----------------------------------------------------------------------------
+
 sub __preprocess_allow_deny
 {
   my $hr = shift;
@@ -214,6 +223,8 @@ sub __preprocess_allow_deny
     $hr->{ $allow_deny } = \%access;
     }
 }
+
+#-----------------------------------------------------------------------------
 
 sub __describe_parse_access_line
 {

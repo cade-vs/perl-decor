@@ -1,0 +1,20 @@
+
+label   System users
+options system
+
+=NAME
+
+  label Login name
+  type  char  128
+
+=PASS
+  
+  label Password
+  type  char  512
+    
+=LAST_LTIME
+
+  label Last login time
+  type  utime
+  
+
