@@ -13,15 +13,19 @@ use strict;
 use Data::Dumper;
 use Exception::Sink;
 use Data::Tools 1.09;
+
+use DateTime;
+
 use Date::Format;
-use Date::Parse;
 use Date::Calc;
 use Time::JulianDay;
+use DateTime::Format::Strptime;
+use Hash::Util qw( lock_hashref unlock_hashref lock_ref_keys );
 
 my %DEFAULT_FORMATS = (
                         'DATE'  => "%Y.%m.%d",
                         'TIME'  => "%H:%M:%S",
-                        'UTIME' => "%Y.%m.%d %H:%M:%S",
+                        'UTIME' => "%Y.%m.%d %H:%M:%S %z",
                         'TZ'    => '', # local machine TZ if empty
                       );
 sub new
@@ -68,8 +72,8 @@ sub reset_formats
 {
   my $self = shift;
 
-  $self->{ 'FORMATS' } => { %DEFAULT_FORMATS },
-  hashref_lock_keys( $self->{ 'FORMATS' } );
+  $self->{ 'FORMATS' } = { %DEFAULT_FORMATS },
+  lock_ref_keys( $self->{ 'FORMATS' } );
 
   return 1;
 }
@@ -98,11 +102,11 @@ sub format
      return 'n/a';
      }
    }
-  elsif ( $type eq "TIME" )
+  elsif ( $type_name eq "TIME" )
    {
    if ( $data >= 0 )
      {
-     my $h = int( ( $data / ( 60 * 60 ) );
+     my $h = int( ( $data / ( 60 * 60 ) ) );
      my $m = int( ( $data % ( 60 * 60 ) ) / 60 );
      my $s =        $data %   60;
 
@@ -115,23 +119,22 @@ sub format
      return 'n/a';
      }
    }
-  elsif ( $type eq "UTIME" )
+  elsif ( $type_name eq "UTIME" )
    {
    if ( $data >= 0 )
      {
-  
      my @t = localtime( $data );
     
-     my $tz = $self->{ 'FORMATS' }{ 'TZ' };
+     my $tz = $type->{ 'TZ' } || $self->{ 'FORMATS' }{ 'TZ' };
 
-     return strftime( "%d.%m.%Y %H:%M:%S", @t, $tz );
+     return strftime( $self->{ 'FORMATS' }{ 'UTIME' }, @t, $tz );
      }
    else
      {
      return 'n/a';
      }
    }  
-  elsif ( $type eq "REAL" )
+  elsif ( $type_name eq "REAL" )
    {
    return undef unless $data =~ /^([-+])?(\d+)?(\.(\d+)?)?$/o;
    
@@ -148,7 +151,7 @@ sub format
    my $dd = $frac eq '' ? '' : '.';
    return "$sign$int$dd$frac";
    }
-  elsif ( $type eq 'INT' )
+  elsif ( $type_name eq 'INT' )
    {
    return int( $data );
    }
