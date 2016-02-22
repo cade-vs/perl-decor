@@ -51,6 +51,8 @@ for my $table ( @tables )
 
   print Dumper( $des, $db_name );
   
+  my $table_db_
+  
   }
 
 

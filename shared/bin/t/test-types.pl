@@ -22,7 +22,7 @@ use Decor::Shared::Types::Native;
 
 my $t = new Decor::Shared::Types::Native;
 
-$t->set_format( { NAME => 'UTIME' }, '%d.%m.%Y %H:%M:%S %Z' );
+$t->set_format( { NAME => 'UTIME' }, '%d.%m.%Y %H:%M:%S %z %Z' );
 
 my $now = time();
 
@@ -34,8 +34,8 @@ my $now_s = $t->format( $now, { NAME => 'UTIME' } );
 print "$now_s (local)\n";
 my $now_s = $t->format( $now, { NAME => 'UTIME', TZ => 'EET' } );
 print "$now_s (EET)\n";
-#my $now_s = $t->format( $now, { NAME => 'UTIME', TZ => 'GMT' } );
-#print "$now_s (GMT)\n";
+my $now_s = $t->format( $now, { NAME => 'UTIME', TZ => 'GMT' } );
+print "$now_s (GMT)\n";
 #}
 
 my $e = ( gethrtime() - $s ) / 1000_000_000;

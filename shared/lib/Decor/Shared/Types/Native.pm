@@ -22,12 +22,109 @@ use Time::JulianDay;
 use DateTime::Format::Strptime;
 use Hash::Util qw( lock_hashref unlock_hashref lock_ref_keys );
 
-my %DEFAULT_FORMATS = (
-                        'DATE'  => "%Y.%m.%d",
-                        'TIME'  => "%H:%M:%S",
-                        'UTIME' => "%Y.%m.%d %H:%M:%S %z",
+my $FMT_DATE_DMY = '%d.%m.%Y';
+my $FMT_DATE_MDY = '%m.%d.%Y';
+my $FMT_DATE_YMD = '%Y.%m.%d';
+
+my $FMT_TIME_24  = '%H:%M:%S';
+my $FMT_TIME_12  = '%I:%M:%S %p';
+
+my $FMT_TZ       = '%z %Z';
+
+my $REX_DATE_DMY  = '(?<day>\d\d?)[\.\/](?<month>\d\d?)[\.\/](?<year>\d\d\d\d)';
+my $REX_DATE_MDY  = '(?<month>\d\d?)[\.\/](?<day>\d\d?)[\.\/](?<year>\d\d\d\d)';
+my $REX_DATE_YMD  = '(?<year>\d\d\d\d)[\.\/](?<month>\d\d?)[\.\/](?<day>\d\d?)';
+
+my $REX_TIME_24   = '(?<hours>\d+)[\.\/](?<minutes>\d\d?)[\.\/](?<seconds>\d\d?)';
+my $REX_TIME_12   = "$REX_TIME_24\s*(\s+(?<ampm>AM|PM))";
+
+my $REX_TZ        = '(?<tzoffset>[-+]\d\d\d\d)(\s+(?<tzname>[A-Z]+))?';
+
+my %FORMATS_SPECS = (
+                    'DATE' => {
+                              'DMY'  => {
+                                        FMT => $FMT_DATE_DMY,
+                                        REX => $REX_DATE_DMY,
+                                        },
+                              'MDY'  => {
+                                        FMT => $FMT_DATE_MDY,
+                                        REX => $REX_DATE_MDY,
+                                        },
+                              'YMD'  => {
+                                        FMT => $FMT_DATE_YMD,
+                                        REX => $REX_DATE_YMD,
+                                        },
+                              },
+                    'TIME' => {
+                              '24'   => {
+                                        FMT => $FMT_TIME_24,
+                                        REX => $REX_TIME_24,
+                                        },
+                              '12'   => {
+                                        FMT => $FMT_TIME_12,
+                                        REX => $REX_TIME_12,
+                                        },
+                              },
+                   'UTIME' => {
+                              'DMY24'  => {
+                                        FMT => "$FMT_DATE_DMY $FMT_TIME_24",
+                                        REX => "$REX_DATE_DMY\s+$REX_TIME_24",
+                                        },
+                              'MDY24'  => {
+                                        FMT => "$FMT_DATE_MDY $FMT_TIME_24",
+                                        REX => "$REX_DATE_MDY\s+$REX_TIME_24",
+                                        },
+                              'YMD24'  => {
+                                        FMT => "$FMT_DATE_YMD $FMT_TIME_24",
+                                        REX => "$REX_DATE_YMD\s+$REX_TIME_24",
+                                        },
+                              'DMY12'  => {
+                                        FMT => "$FMT_DATE_DMY $FMT_TIME_12",
+                                        REX => "$REX_DATE_DMY\s+$REX_TIME_12",
+                                        },
+                              'MDY12'  => {
+                                        FMT => "$FMT_DATE_MDY $FMT_TIME_12",
+                                        REX => "$REX_DATE_MDY\s+$REX_TIME_12",
+                                        },
+                              'YMD12'  => {
+                                        FMT => "$FMT_DATE_YMD $FMT_TIME_12",
+                                        REX => "$REX_DATE_YMD\s+$REX_TIME_12",
+                                        },
+                              'DMY24Z' => {
+                                        FMT => "$FMT_DATE_DMY $FMT_TIME_24 $FMT_TZ",
+                                        REX => "$REX_DATE_DMY\s+$REX_TIME_24",
+                                        },
+                              'MDY24Z' => {
+                                        FMT => "$FMT_DATE_MDY $FMT_TIME_24 $FMT_TZ",
+                                        REX => "$REX_DATE_MDY\s+$REX_TIME_24",
+                                        },
+                              'YMD24Z' => {
+                                        FMT => "$FMT_DATE_YMD $FMT_TIME_24 $FMT_TZ",
+                                        REX => "$REX_DATE_YMD\s+$REX_TIME_24",
+                                        },
+                              'DMY12Z' => {
+                                        FMT => "$FMT_DATE_DMY $FMT_TIME_12 $FMT_TZ",
+                                        REX => "$REX_DATE_DMY\s+$REX_TIME_12\s+$REX_TZ",
+                                        },
+                              'MDY12Z' => {
+                                        FMT => "$FMT_DATE_MDY $FMT_TIME_12 $FMT_TZ",
+                                        REX => "$REX_DATE_MDY\s+$REX_TIME_12\s+$REX_TZ",
+                                        },
+                              'YMD12Z' => {
+                                        FMT => "$FMT_DATE_YMD $FMT_TIME_12 $FMT_TZ",
+                                        REX => "$REX_DATE_YMD\s+$REX_TIME_12\s+$REX_TZ",
+                                        },
+                              },
+                    );                      
+
+my %FORMATS_DEFAULTS = (
+                        'DATE'  => 'YMD',
+                        'TIME'  => '24',
+                        'UTIME' => 'YMD24Z',
                         'TZ'    => '', # local machine TZ if empty
                       );
+                      
+                      
 sub new
 {
   my $class = shift;
@@ -72,7 +169,7 @@ sub reset_formats
 {
   my $self = shift;
 
-  $self->{ 'FORMATS' } = { %DEFAULT_FORMATS },
+  $self->{ 'FORMATS' } = { %FORMATS_DEFAULTS },
   lock_ref_keys( $self->{ 'FORMATS' } );
 
   return 1;
