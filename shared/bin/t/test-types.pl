@@ -22,7 +22,7 @@ use Decor::Shared::Types::Native;
 
 my $t = new Decor::Shared::Types::Native;
 
-$t->set_format( { NAME => 'UTIME' }, '%d.%m.%Y %H:%M:%S %z %Z' );
+$t->set_format( { NAME => 'UTIME' }, 'MDY12Z' );
 
 my $now = time();
 

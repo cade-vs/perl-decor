@@ -31,16 +31,16 @@ my $FMT_TIME_12  = '%I:%M:%S %p';
 
 my $FMT_TZ       = '%z %Z';
 
-my $REX_DATE_DMY  = '(?<day>\d\d?)[\.\/](?<month>\d\d?)[\.\/](?<year>\d\d\d\d)';
-my $REX_DATE_MDY  = '(?<month>\d\d?)[\.\/](?<day>\d\d?)[\.\/](?<year>\d\d\d\d)';
-my $REX_DATE_YMD  = '(?<year>\d\d\d\d)[\.\/](?<month>\d\d?)[\.\/](?<day>\d\d?)';
+my $REX_DATE_DMY  = '(?<day>\d\d?)[\.\/\-](?<month>\d\d?)[\.\/\-](?<year>\d\d\d\d)';
+my $REX_DATE_MDY  = '(?<month>\d\d?)[\.\/\-](?<day>\d\d?)[\.\/\-](?<year>\d\d\d\d)';
+my $REX_DATE_YMD  = '(?<year>\d\d\d\d)[\.\/\-](?<month>\d\d?)[\.\/\-](?<day>\d\d?)';
 
-my $REX_TIME_24   = '(?<hours>\d+)[\.\/](?<minutes>\d\d?)[\.\/](?<seconds>\d\d?)';
+my $REX_TIME_24   = '(?<hours>\d+)[:\.\/](?<minutes>\d\d?)[:\.\/](?<seconds>\d\d?)';
 my $REX_TIME_12   = "$REX_TIME_24\s*(\s+(?<ampm>AM|PM))";
 
 my $REX_TZ        = '(?<tzoffset>[-+]\d\d\d\d)(\s+(?<tzname>[A-Z]+))?';
 
-my %FORMATS_SPECS = (
+my %FORMAT_SPECS = (
                     'DATE' => {
                               'DMY'  => {
                                         FMT => $FMT_DATE_DMY,
@@ -117,7 +117,7 @@ my %FORMATS_SPECS = (
                               },
                     );                      
 
-my %FORMATS_DEFAULTS = (
+my %FORMAT_DEFAULTS = (
                         'DATE'  => 'YMD',
                         'TIME'  => '24',
                         'UTIME' => 'YMD24Z',
@@ -149,6 +149,9 @@ sub set_format
   my $fmt  = shift; # format string
   
   my $type_name = $type->{ 'NAME' };
+
+  boom "unknown type [$type_name]" unless exists $FORMAT_SPECS{ $type_name };
+  boom "unknown format [$fmt] for type [$type_name]" unless exists $FORMAT_SPECS{ $type_name }{ $fmt };
   
   $self->{ 'FORMATS' }{ $type_name } = $fmt;
   
@@ -169,7 +172,7 @@ sub reset_formats
 {
   my $self = shift;
 
-  $self->{ 'FORMATS' } = { %FORMATS_DEFAULTS },
+  $self->{ 'FORMATS' } = { %FORMAT_DEFAULTS },
   lock_ref_keys( $self->{ 'FORMATS' } );
 
   return 1;
@@ -192,7 +195,8 @@ sub format
 
      my @t = ( undef, undef, undef, $d, $m - 1, $y - 1900 );
 
-     return strftime( $self->{ 'FORMATS' }{ 'DATE' }, @t );
+     my $fmt = $FORMAT_SPECS{ 'DATE' }{ $self->{ 'FORMATS' }{ 'DATE' } }{ 'FMT' };
+     return strftime( $fmt, @t );
      }
    else
      {
@@ -209,7 +213,8 @@ sub format
 
      my @t = ( $s, $m, $h );
 
-     return strftime( $self->{ 'FORMATS' }{ 'TIME' }, @t );
+     my $fmt = $FORMAT_SPECS{ 'TIME' }{ $self->{ 'FORMATS' }{ 'TIME' } }{ 'FMT' };
+     return strftime( $fmt, @t );
      }
    else
      {
@@ -224,7 +229,8 @@ sub format
     
      my $tz = $type->{ 'TZ' } || $self->{ 'FORMATS' }{ 'TZ' };
 
-     return strftime( $self->{ 'FORMATS' }{ 'UTIME' }, @t, $tz );
+     my $fmt = $FORMAT_SPECS{ 'UTIME' }{ $self->{ 'FORMATS' }{ 'UTIME' } }{ 'FMT' };
+     return strftime( $fmt, @t, $tz );
      }
    else
      {
@@ -258,9 +264,83 @@ sub format
    }
 }
 
+sub __canonize_date_str
+{
+  my $date     = shift;
+  my $fmt_name = shift;
+
+  if( $fmt_name =~ /^DMY/ )
+    {
+    $date =~ s/^(\d\d?)([\.\/\-])(\d\d?)([\.\/\-])(\d\d\d\d)/$5$4$3$2$1/;
+    }
+  elsif( $fmt_name =~ /^MDY/ )
+    {
+    $date =~ s/^(\d\d?)([\.\/\-])(\d\d?)([\.\/\-])(\d\d\d\d)/$5$4$1$2$3/;
+    }  
+  
+  return $date;
+}
+
 # converts from human/visible format to internal data 
 sub revert
 {
+  my $self = shift;
+  my $data = shift;
+  my $type = shift; # hashref with type args
+
+  my $type_name = $type->{ 'NAME' };
+
+  if( $type_name eq "DATE" )
+    {
+    my $fmt_name = $self->{ 'FORMATS' }{ 'DATE' };
+    $data = __canonize_date_str( $data, $fmt_name );
+
+    my ( $y, $m, $d ) = ( $1, $2, $3 ) if $data =~ /^(\d\d\d\d)[\.\/\-](\d\d?)[\.\/\-](\d\d?)$/o;
+
+    return undef if $y == 0 or $m == 0 or $y == 0;
+    return julian_day( $y, $m, $d );
+    }
+  elsif ( $type_name eq "TIME" )
+    {
+    $data =~ /^(\d+):(\d\d?)(:(\d\d?))?(\s+(AM|PM))?$/o || return undef;
+    my $h = $1;
+    my $m = $2;
+    my $s = 4;
+    my $ampm = uc $6;
+
+    if( $ampm )
+      {
+      $h -= 12 if $ampm eq 'AM' and $h == 12;
+      $h += 12 if $ampm eq 'PM' and $h != 12;
+      }
+
+    return $h*60*60 + $m*60 + $s;
+    }
+  elsif ( $type_name eq "UTIME" )
+    {
+    my $fmt_name = $self->{ 'FORMATS' }{ 'DATE' };
+    $data = __canonize_date_str( $data, $fmt_name );
+
+    return str2time( $data );
+    }  
+    elsif ( $type_name eq "REAL" )
+    {
+    return undef if $data eq '';
+    $data =~ s/[\s_\'\`]//go; # '
+    return undef unless $data =~ /^[\-\+]?\d*(\.(\d+)?)?$/o;
+    return $data;
+    }
+  elsif ( $type_name eq 'INT' )
+    {
+    return undef if $data eq '';
+    $data =~ s/[\s_\'\`]//go; # '
+    return undef unless $data =~ /^([\-\+]?\d*)(\.(\d+)?)?$/o;
+    return $1;
+    }
+  else
+    {
+    return $data;
+    }
 }
 
 # convert decor internal data from one type to another
