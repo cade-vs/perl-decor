@@ -18,11 +18,13 @@ use Time::HR;
 
 use Date::Parse;
 use Data::Dumper;
+use Time::JulianDay;
 use Decor::Shared::Types::Native;
 
 my $t = new Decor::Shared::Types::Native;
 
 $t->set_format( { NAME => 'UTIME' }, 'MDY12Z' );
+$t->set_format( { NAME => 'DATE'  }, 'MDY' );
 
 my $now = time();
 
@@ -44,4 +46,12 @@ print "elapsed $e\n";
 
 my $then = str2time( $now_s );
 
-print " now: $now\nthen: $then\n";
+print " now: $now\nthen: $then\n-----------------------------\n\n";
+
+my $time = $t->revert( '11:44 pm', { NAME => 'TIME' } );
+my $time_str = $t->format( $time, { NAME => 'TIME' });
+print "res time=[$time] $time_str\n";
+
+my $date = $t->revert( '14.3.2016', { NAME => 'DATE' } );
+my $date_str = $t->format( $date, { NAME => 'DATE' });
+print "res date=[$date] $date_str\n";

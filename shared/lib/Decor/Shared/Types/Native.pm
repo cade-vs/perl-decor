@@ -268,7 +268,7 @@ sub __canonize_date_str
 {
   my $date     = shift;
   my $fmt_name = shift;
-
+print "canonize date in [$date] fmt name [$fmt_name]\n";
   if( $fmt_name =~ /^DMY/ )
     {
     $date =~ s/^(\d\d?)([\.\/\-])(\d\d?)([\.\/\-])(\d\d\d\d)/$5$4$3$2$1/;
@@ -278,6 +278,7 @@ sub __canonize_date_str
     $date =~ s/^(\d\d?)([\.\/\-])(\d\d?)([\.\/\-])(\d\d\d\d)/$5$4$1$2$3/;
     }  
   
+print "canonize date out [$date]\n";
   return $date;
 }
 
@@ -302,14 +303,15 @@ sub revert
     }
   elsif ( $type_name eq "TIME" )
     {
-    $data =~ /^(\d+):(\d\d?)(:(\d\d?))?(\s+(AM|PM))?$/o || return undef;
+    $data =~ /^(\d+):(\d\d?)(:(\d\d?))?(\s*(AM|PM))?$/io || return undef;
     my $h = $1;
     my $m = $2;
-    my $s = 4;
+    my $s = $4;
     my $ampm = uc $6;
 
     if( $ampm )
       {
+      return undef if $h > 12;
       $h -= 12 if $ampm eq 'AM' and $h == 12;
       $h += 12 if $ampm eq 'PM' and $h != 12;
       }
