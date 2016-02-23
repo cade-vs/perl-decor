@@ -23,7 +23,7 @@ use Decor::Shared::Types::Native;
 
 my $t = new Decor::Shared::Types::Native;
 
-$t->set_format( { NAME => 'UTIME' }, 'MDY12Z' );
+$t->set_format( { NAME => 'UTIME' }, 'MDY24Z' );
 $t->set_format( { NAME => 'DATE'  }, 'MDY' );
 
 my $now = time();
@@ -55,3 +55,8 @@ print "res time=[$time] $time_str\n";
 my $date = $t->revert( '14.3.2016', { NAME => 'DATE' } );
 my $date_str = $t->format( $date, { NAME => 'DATE' });
 print "res date=[$date] $date_str\n";
+
+
+my $utime = $t->revert( '1.3.2016 11:11 pm +0000', { NAME => 'UTIME' } );
+my $utime_str = $t->format( $utime, { NAME => 'UTIME', TZ => 'EET' } );
+print "res date=[$utime] $utime_str\n";

@@ -17,9 +17,10 @@ use Data::Tools 1.09;
 use DateTime;
 
 use Date::Format;
-use Date::Calc;
+use Date::Parse;
+#use Date::Calc;
 use Time::JulianDay;
-use DateTime::Format::Strptime;
+#use DateTime::Format::Strptime;
 use Hash::Util qw( lock_hashref unlock_hashref lock_ref_keys );
 
 my $FMT_DATE_DMY = '%d.%m.%Y';
