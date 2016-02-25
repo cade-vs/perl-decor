@@ -20,6 +20,7 @@ use Decor::Core::Env;
 use Decor::Core::Config;
 use Decor::Core::Stage;
 use Decor::Core::Profile;
+use Decor::Core::Utils;
 
 $Data::Dumper::Sortkeys = 1;
 $Data::Dumper::Indent   = 3;
@@ -47,34 +48,37 @@ for my $table ( @tables )
   my $dbh = $stage->dsn_get_dbh_by_table( $table );
   my $db_name = $stage->dsn_get_db_name( $des->get_dsn_name() );
 
-  my $rebuild = get_rebuild_obj( $db_name );
+  my $rebuild = get_rebuild_obj( $des->get_dsn_name(), $db_name, $dbh );
 
   print Dumper( $des, $db_name );
   
-  my $table_db_
+  $rebuild->rebuild( $des );
   
   }
 
 
 #-----------------------------------------------------------------------------
 
-my %REBUILD_OBJ;
+my %REBUILD_OBJ_CACHE;
 
 sub get_rebuild_obj
 {
-  my $db_name = shift;
+  my $dsn_name = shift;
+  my $db_name  = shift;
+  my $dbh      = shift;
 
-  de_check_name_boom( $db_name, "invalid DB NAME [$db_name]" );
+  de_check_name_boom( $dsn_name, "invalid DSN NAME [$dsn_name]" );
+  de_check_name_boom( $db_name,  "invalid DB  NAME [$db_name]" );
   
-  return $REBUILD_OBJ{ $db_name } if exists $REBUILD_OBJ{ $db_name };
+  return $REBUILD_OBJ_CACHE{ $dsn_name } if exists $REBUILD_OBJ_CACHE{ $dsn_name };
 
   my $rebuild_class_name = "Decor::System::Table::Rebuild::$db_name";
   
-  my $rebuild = new $rebuild_class_name;
+  my $rebuild = $rebuild_class_name->new( $dbh );
   
   print Dumper( $db_name, $rebuild_class_name );
   
-  $REBUILD_OBJ{ $db_name } = $rebuild;
+  $REBUILD_OBJ_CACHE{ $dsn_name } = $rebuild;
   
   return $rebuild;
 }

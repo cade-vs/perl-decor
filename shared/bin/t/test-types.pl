@@ -60,3 +60,16 @@ print "res date=[$date] $date_str\n";
 my $utime = $t->revert( '1.3.2016 11:11 pm +0000', { NAME => 'UTIME' } );
 my $utime_str = $t->format( $utime, { NAME => 'UTIME', TZ => 'EET' } );
 print "res date=[$utime] $utime_str\n";
+
+
+my $s = gethrtime();
+
+for( 1..10000)
+{
+my $utime = $t->revert( '1.3.2016 11:11 pm +0000', { NAME => 'UTIME' } );
+my $utime_str = $t->format( $utime, { NAME => 'UTIME', TZ => 'EET' } );
+}
+
+my $e = ( gethrtime() - $s ) / 1000_000_000;
+
+print "revert/format: elapsed $e\n";

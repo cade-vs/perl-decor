@@ -22,7 +22,14 @@ use Decor::Core::Config;
 
 ##############################################################################
 
-sub fields
+sub get_table_name
+{
+  my $self = shift;
+  
+  return $self->{ '@' }{ '_TABLE_NAME' };
+}
+
+sub get_fields_list
 {
   my $self = shift;
   
@@ -43,7 +50,7 @@ sub get_field_des
 
   if( ! exists $self->{ $field } )
     {
-    my $table = $self->{ '@' }{ '_TABLE_NAME' };
+    my $table = $self->get_table_name();
     boom "unknown field [$field] for table [$table]";
     }
 
