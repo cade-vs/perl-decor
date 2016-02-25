@@ -72,8 +72,10 @@ sub get_rebuild_obj
   
   return $REBUILD_OBJ_CACHE{ $dsn_name } if exists $REBUILD_OBJ_CACHE{ $dsn_name };
 
-  my $rebuild_class_name = "Decor::System::Table::Rebuild::$db_name";
+  my $rebuild_class_name = "Decor::Core::System::Table::Rebuild::$db_name";
   
+  my $rebuild_file_name = perl_package_to_file( $rebuild_class_name );
+  require $rebuild_file_name;
   my $rebuild = $rebuild_class_name->new( $dbh );
   
   print Dumper( $db_name, $rebuild_class_name );

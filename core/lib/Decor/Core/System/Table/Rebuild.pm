@@ -8,7 +8,7 @@
 ##  LICENSE: GPLv2
 ##
 ##############################################################################
-package Decor::Core::Table::Rebuild;
+package Decor::Core::System::Table::Rebuild;
 use strict;
 use Exception::Sink;
 use Data::Dumper;
@@ -61,3 +61,5 @@ sub get_dbh
 
   return $self->{ 'DBH' };
 }
+
+1;

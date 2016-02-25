@@ -29,6 +29,7 @@ my %DES_KEY_TYPES = (
                     );
 
 my @TABLE_ATTRS = qw(
+                      SCHEMA
                       LABEL
                       ALLOW
                       DENY

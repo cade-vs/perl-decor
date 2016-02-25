@@ -26,6 +26,8 @@ our @EXPORT = qw(
                 de_check_ref
                 de_check_ref_hash
                 de_check_ref_array
+                
+                perl_package_to_file
                 );
 
 ##############################################################################
@@ -74,6 +76,15 @@ sub de_check_ref
 
 sub de_check_ref_hash  { return de_check_ref( $_[0], 'HASH',  $_[1] ); }
 sub de_check_ref_array { return de_check_ref( $_[0], 'ARRAY', $_[1] ); }
+
+sub perl_package_to_file
+{
+  my $s = shift;
+  $s =~ s/::/\//g;
+  $s .= '.pm';
+  return $s;
+}
+
 
 ### EOF ######################################################################
 1;
