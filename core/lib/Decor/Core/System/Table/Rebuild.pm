@@ -44,8 +44,10 @@ sub rebuild
   my $fields = $des->get_fields_list();
   
   my $table_db_des = $self->describe_db_table( $table, $schema );
+  my $index_db_des = $self->describe_db_indexes( $table, $schema );
+  my $seq_db_des   = $self->describe_db_sequences( $schema );
   
-  print Dumper( $table_db_des );
+  print Dumper( $table, $schema, $table_db_des, $index_db_des, $seq_db_des );
 }
 
 sub describe_db_table
@@ -53,6 +55,20 @@ sub describe_db_table
   my $self = shift;
   
   boom "cannot call describe_db_table() from a base class";
+}
+
+sub describe_db_index
+{
+  my $self = shift;
+  
+  boom "cannot call describe_db_index() from a base class";
+}
+
+sub describe_db_sequences
+{
+  my $self = shift;
+  
+  boom "cannot call describe_db_sequences() from a base class";
 }
 
 sub get_dbh
