@@ -27,7 +27,7 @@ $Data::Dumper::Indent   = 3;
 
 my $root = de_root();
 
-de_set_debug( 1 );
+de_debug_inc();
 
 my $stage = Decor::Core::Stage->new( 'app1' );
 $stage->init( $root );
@@ -40,7 +40,7 @@ my $des = $stage->describe_table( 'test1' );
 print STDERR '='x80;
 
 print STDERR Dumper( $des );
-print STDERR Dumper( [ $des->fields() ] );
+print STDERR Dumper( $des->get_fields_list() );
 #print STDERR Dumper( $des->get_table_des() );
 
 my $profile = new Decor::Core::Profile( STAGE => $stage );

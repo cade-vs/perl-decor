@@ -69,7 +69,7 @@ sub describe_db_table
   while( my $hr = $sth->fetchrow_hashref() )
     {
     $db_des ||= {};
-    my $column  = uc $hr->{ 'COLUMN'    };
+    my $column  = uc $hr->{ 'COLUMN' };
     
     $db_des->{ $column } = $hr;
     }
@@ -147,15 +147,18 @@ sub describe_db_indexes
 
 #-----------------------------------------------------------------------------
 
-sub describe_db_sequences
+sub describe_db_sequence
 {
   my $self       = shift;
+  my $table      = shift;
   my $schema     = shift;
   
   my $dbh = $self->get_dbh();
 
   my $where_schema;
   my @where_bind;
+
+  push @where_bind, lc $table;
 
   if( $schema )
     {
@@ -169,13 +172,14 @@ sub describe_db_sequences
   
   my $des_stmt = qq(
             select 
-                sequence_name,  
+                sequence_name,
                 sequence_schema as "schema",
                 start_value
             from 
                 information_schema.sequences
             where
-                $where_schema
+                    sequence_name = ?
+                and $where_schema
             order by        
                 sequence_name
                 
@@ -199,6 +203,31 @@ sub describe_db_sequences
   return $seq_des;  
 }
 
+#-----------------------------------------------------------------------------
+
+sub sequence_get_current_value
+{
+  my $self = shift;
+  my $name = shift;
+
+  my $dbh = $self->get_dbh();
+  
+  boom "cannot call describe_db_sequences() from a base class";
+}
+
+sub sequence_create
+{
+  my $self = shift;
+  
+  boom "cannot call describe_db_sequences() from a base class";
+}
+
+sub sequence_reset
+{
+  my $self = shift;
+  
+  boom "cannot call describe_db_sequences() from a base class";
+}
 
 ##############################################################################
 1;

@@ -50,7 +50,7 @@ sub de_log
 
 sub de_log_debug
 {
-  return unless de_debug(); # FIXME: or const var
+  return unless de_debug();
 
   my @args = @_;
   chomp( @args );
@@ -66,7 +66,7 @@ sub de_log_stack
 
 sub de_log_dumper
 {
-  return unless de_debug(); # FIXME: or const var
+  return unless de_debug();
   de_log_debug( Dumper( @_ ) );
 }
 

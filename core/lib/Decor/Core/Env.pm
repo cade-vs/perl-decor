@@ -10,7 +10,7 @@
 package Decor::Core::Env;
 use strict;
 
-use Data::Lock qw( dlock );
+# use Data::Lock qw( dlock );
 
 use Exporter;
 our @ISA    = qw( Exporter );
@@ -19,47 +19,54 @@ our @EXPORT = qw(
                 de_version
                 de_root
                 de_debug
-                de_set_debug
+                de_debug_set
+                de_debug_inc
+                de_debug_off
 
                 );
 
 ### PRIVATE ##################################################################
 
-my %DE_CONFIG;
+my $VERSION = '1.00';
+my $ROOT    = $ENV{ 'DECOR_ROOT' } || '/usr/local/decor';
+my $DEBUG   = 0;
 
-__init_ev();
-
-sub __init_ev
-{
-  %DE_CONFIG = ();
-  
-  $DE_CONFIG{ 'VERSION' } = 1.00;
-  $DE_CONFIG{ 'ROOT'    } = $ENV{ 'DECOR_ROOT' } || '/usr/local/decor';
-  unshift @INC, $DE_CONFIG{ 'ROOT' } . '/core/lib';
-}
+unshift @INC, $ROOT . '/core/lib';
 
 ### PUBLIC ###################################################################
 
 sub de_version
 {
-  return $DE_CONFIG{ 'VERSION' };
+  return $VERSION;
 }
 
 sub de_root
 {
-  return $DE_CONFIG{ 'ROOT' };
+  return $ROOT;
 }
 
-sub de_set_debug
+sub de_debug_set
 {
   my $level  = shift;
-  $DE_CONFIG{ 'DEBUG' } = $level;
-  return $level;
+  $DEBUG = $level;
+  return $DEBUG;
+}
+
+sub de_debug_inc
+{
+  $DEBUG++;
+  return $DEBUG;
+}
+
+sub de_debug_off
+{
+  $DEBUG = undef;
+  return $DEBUG;
 }
 
 sub de_debug
 {
-  return $DE_CONFIG{ 'DEBUG' };
+  return $DEBUG;
 }
 
 ### EOF ######################################################################
