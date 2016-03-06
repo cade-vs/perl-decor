@@ -115,7 +115,10 @@ sub __load_table_des_hash
 
   #print STDERR 'TABLE DES DIRS:' . Dumper( $tables_dirs );
 
-  my $des = de_config_load( "$table", $tables_dirs, { KEY_TYPES => \%DES_KEY_TYPES, DEFAULT_CATEGORY => 'FIELD' } );
+  my $des = de_config_load( "$table", $tables_dirs, { KEY_TYPES        => \%DES_KEY_TYPES, 
+                                                      DEFAULT_CATEGORY => 'FIELD',
+                                                      CATEGORIES       => { '@' => 1, 'FIELD' => 1, 'INDEX' => 1 },
+                                                    } );
 
   print STDERR "TABLE DES RAW [$table]:" . Dumper( $des );
   

@@ -18,6 +18,7 @@ use Exception::Sink;
 
 use Decor::Core::Env;
 use Decor::Core::Utils;
+use Decor::Core::Log;
 
 use Exporter;
 our @ISA    = qw( Exporter );
@@ -103,14 +104,15 @@ sub de_config_merge_file
   my $dirs   = shift; # array reference
   my $opt    = shift || {};
 
-  my $key_types = $opt->{ 'KEY_TYPES' } || {};
+  my $key_types  = $opt->{ 'KEY_TYPES'  } || {};
+  my $categories = $opt->{ 'CATEGORIES' };
 
   my $order = 0;
   
   my $inf;
-  open( $inf, $fname ) or return;
+  open( $inf, $fname ) or boom "cannot open config file [$fname]";
 
-  print STDERR "config: open: $fname\n" if $opt->{ 'DEBUG' };  
+  de_log_debug( "config: open: $fname" );  
 
   my $sect_name = '@'; # self :) should be more like 0
   my $category  = '@';
@@ -133,15 +135,17 @@ sub de_config_merge_file
     $line =~ s/\s*$//;
     next unless $line =~ /\S/;
     next if $line =~ /^([#;]|\/\/)/;
-    print STDERR "        line: [$line]\n" if $opt->{ 'DEBUG' };  
+    de_log_debug( "        line: [$line]" );  
 
-    if( $line =~ /^=(([a-zA-Z_][a-zA-Z_0-9]*):)?([a-zA-Z_][a-zA-Z_0-9]*)\s*(.*?)\s*$/ )
+    if( $line =~ /^=(([a-zA-Z_][a-zA-Z_0-9]*):\s*)?([a-zA-Z_][a-zA-Z_0-9]*)\s*(.*?)\s*$/ )
       {
          $category  = uc( $2 || $opt->{ 'DEFAULT_CATEGORY' } || '*' );    
          $sect_name = uc( $3 );
       my $sect_opts =     $4; # fixme: upcase/locase?
 
-      print STDERR "       =sect: [$category:$sect_name]\n" if $opt->{ 'DEBUG' };  
+      boom "invalid category [$category] at [$fname:$ln]" if $categories and ! exists $categories->{ $category };
+
+      de_log_debug( "       =sect: [$category:$sect_name]" );  
       
       $config->{ $category }{ $sect_name } ||= {};
       $config->{ $category }{ $sect_name }{ 'LABEL' } ||= $sect_name;
@@ -165,15 +169,15 @@ sub de_config_merge_file
   
       next unless $dirs and @$dirs > 0;
       
-      print STDERR "        isa:  [$name][$opts]\n" if $opt->{ 'DEBUG' };  
+      de_log_debug( "        isa:  [$name][$opts]" );  
 
       my $isa = de_config_load( $name, $dirs );
 
-      boom "isa/include error: cannot load config [$name] from (@$dirs)" unless $isa;
+      boom "isa/include error: cannot load config [$name] from (@$dirs) at [$fname:$ln]" unless $isa;
 
       my @opts = split /[\s,]+/, uc $opts;
 
-      print STDERR "        isa:  DUMP: ".Dumper($isa)."\n" if $opt->{ 'DEBUG' };  
+      de_log_debug( "        isa:  DUMP: " . Dumper($isa) );  
       
       for my $opt ( @opts )
         {
@@ -186,13 +190,13 @@ sub de_config_merge_file
           }
         else
           {
-          boom "isa/include error: invalid key [$opt] in [$name]";
+          boom "isa/include error: invalid key [$opt] in [$name] at [$fname:$ln]";
           }  
         if( $category ne $isa_category )  
           {
-          boom "isa/include error: cannot inherit kyes from different categories, got [$isa_category] expected [$category] key [$opt] in [$name]";
+          boom "isa/include error: cannot inherit kyes from different categories, got [$isa_category] expected [$category] key [$opt] in [$name] at [$fname:$ln]";
           }
-        boom "isa/include error: non existing key [$opt] in [$name]" if ! exists $isa->{ $isa_category } or ! exists $isa->{ $isa_category }{ $isa_sect_name };
+        boom "isa/include error: non existing key [$opt] in [$name] at [$fname:$ln]" if ! exists $isa->{ $isa_category } or ! exists $isa->{ $isa_category }{ $isa_sect_name };
         $config->{ $category }{ $sect_name } ||= {};
         %{ $config->{ $category }{ $sect_name } } = ( %{ $config->{ $category }{ $sect_name } }, %{ dclone( $isa->{ $isa_category }{ $isa_sect_name } ) } );
         }
@@ -214,7 +218,7 @@ sub de_config_merge_file
         $value = 1;
         }
 
-      print STDERR "            key:  [$sect_name]:[$key]=[$value]\n" if $opt->{ 'DEBUG' };  
+      de_log_debug( "            key:  [$sect_name]:[$key]=[$value]" );
 
       if( $key_types->{ $key } eq '@' )
         {
