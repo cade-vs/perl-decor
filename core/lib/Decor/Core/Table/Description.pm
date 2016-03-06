@@ -48,13 +48,13 @@ sub get_field_des
   my $self  =    shift;
   my $field = uc shift;
 
-  if( ! exists $self->{ $field } )
+  if( ! exists $self->{ 'FIELD' }{ $field } )
     {
     my $table = $self->get_table_name();
     boom "unknown field [$field] for table [$table]";
     }
 
-  return $self->{ $field };
+  return $self->{ 'FIELD' }{ $field };
 }
 
 sub get_dsn_name
