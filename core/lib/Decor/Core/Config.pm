@@ -113,12 +113,13 @@ sub de_config_merge_file
   print STDERR "config: open: $fname\n" if $opt->{ 'DEBUG' };  
 
   my $sect_name = '@'; # self :) should be more like 0
-  $config->{ $sect_name } ||= {};
+  my $category  = '@';
+  $config->{ $category }{ $sect_name } ||= {};
   my $file_mtime = file_mtime( $fname );
-  if( $config->{ $sect_name }{ '_MTIME' } < $file_mtime )
+  if( $config->{ $category }{ $sect_name }{ '_MTIME' } < $file_mtime )
     {
     # of all files merged, keep only the latest modification time
-    $config->{ $sect_name }{ '_MTIME' } = $file_mtime;
+    $config->{ $category }{ $sect_name }{ '_MTIME' } = $file_mtime;
     }
   
   my $ln; # line number
@@ -134,23 +135,24 @@ sub de_config_merge_file
     next if $line =~ /^([#;]|\/\/)/;
     print STDERR "        line: [$line]\n" if $opt->{ 'DEBUG' };  
 
-    if( $line =~ /^=([a-zA-Z_0-9\:]+)\s*(.*?)\s*$/ )
+    if( $line =~ /^=(([a-zA-Z_][a-zA-Z_0-9]*):)?([a-zA-Z_][a-zA-Z_0-9]*)\s*(.*?)\s*$/ )
       {
-         $sect_name = uc $1;
-      my $sect_opts =    $2; # fixme: upcase/locase?
+         $category  = uc( $2 || $opt->{ 'DEFAULT_CATEGORY' } || '*' );    
+         $sect_name = uc( $3 );
+      my $sect_opts =     $4; # fixme: upcase/locase?
 
-      print STDERR "       =sect: [$sect_name]\n" if $opt->{ 'DEBUG' };  
+      print STDERR "       =sect: [$category:$sect_name]\n" if $opt->{ 'DEBUG' };  
       
-      $config->{ $sect_name } ||= {};
-      $config->{ $sect_name }{ 'LABEL' } ||= $sect_name;
+      $config->{ $category }{ $sect_name } ||= {};
+      $config->{ $category }{ $sect_name }{ 'LABEL' } ||= $sect_name;
       # FIXME: URGENT: copy only listed keys! no all
-      %{ $config->{ $sect_name } } = ( %{ dclone( $config->{ '@' } ) }, %{ $config->{ $sect_name } } );
-      $config->{ $sect_name }{ '_ORDER' } = $opt->{ '_ORDER' }++;
+      %{ $config->{ $category }{ $sect_name } } = ( %{ dclone( $config->{ '@' }{ '@' } ) }, %{ $config->{ $category }{ $sect_name } } );
+      $config->{ $category }{ $sect_name }{ '_ORDER' } = $opt->{ '_ORDER' }++;
       
       if( de_debug() ) # FIXME: move to const var?
         {
-        $config->{ $sect_name }{ 'DEBUG::ORIGIN' } ||= [];
-        push @{ $config->{ $sect_name }{ 'DEBUG::ORIGIN' } }, $origin;
+        $config->{ $category }{ $sect_name }{ 'DEBUG::ORIGIN' } ||= [];
+        push @{ $config->{ $category }{ $sect_name }{ 'DEBUG::ORIGIN' } }, $origin;
         }
 
       next;
@@ -159,7 +161,7 @@ sub de_config_merge_file
     if( $line =~ /^@(isa|include)\s*([a-zA-Z_0-9]+)\s*(.*?)\s*$/ )
       {
       my $name = $2;
-      my $opts = $3; # options/arguments, FIXME: upcase/locase?
+      my $opts = $3; # options/arguments, FIXME: upcase/lowcase?
   
       next unless $dirs and @$dirs > 0;
       
@@ -175,9 +177,24 @@ sub de_config_merge_file
       
       for my $opt ( @opts )
         {
-        boom "isa/include error: non existing key [$opt] in [$name]" unless exists $isa->{ $opt };
-        $config->{ $opt } ||= {};
-        %{ $config->{ $opt } } = ( %{ $config->{ $opt } }, %{ dclone( $isa->{ $opt } ) } );
+        my $isa_category;
+        my $isa_sect_name;
+        if( $opt =~ /(([a-zA-Z_][a-zA-Z_0-9]*):)?([a-zA-Z_][a-zA-Z_0-9]*)/ )
+          {
+          $isa_category  = uc( $2 || $opt->{ 'DEFAULT_CATEGORY' } || '*' );
+          $isa_sect_name = uc( $3 );
+          }
+        else
+          {
+          boom "isa/include error: invalid key [$opt] in [$name]";
+          }  
+        if( $category ne $isa_category )  
+          {
+          boom "isa/include error: cannot inherit kyes from different categories, got [$isa_category] expected [$category] key [$opt] in [$name]";
+          }
+        boom "isa/include error: non existing key [$opt] in [$name]" if ! exists $isa->{ $isa_category } or ! exists $isa->{ $isa_category }{ $isa_sect_name };
+        $config->{ $category }{ $sect_name } ||= {};
+        %{ $config->{ $category }{ $sect_name } } = ( %{ $config->{ $category }{ $sect_name } }, %{ dclone( $isa->{ $isa_category }{ $isa_sect_name } ) } );
         }
       
       next;
@@ -201,12 +218,12 @@ sub de_config_merge_file
 
       if( $key_types->{ $key } eq '@' )
         {
-        $config->{ $sect_name }{ $key } ||= [];
-        push @{ $config->{ $sect_name }{ $key } }, $value;
+        $config->{ $category }{ $sect_name }{ $key } ||= [];
+        push @{ $config->{ $category }{ $sect_name }{ $key } }, $value;
         }
       else
         {  
-        $config->{ $sect_name }{ $key } = $value;
+        $config->{ $category }{ $sect_name }{ $key } = $value;
         }
       
       next;

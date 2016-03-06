@@ -28,13 +28,5 @@ allow update, insert, delete ; admin ; monitor + users + !root
   type real .4
   update admin
 
-@INDEX
-
-@INDEX TEST_INDEX
-
-[INDEX TEST]
-
-
 =INDEX:TEST
 
-@INDEX

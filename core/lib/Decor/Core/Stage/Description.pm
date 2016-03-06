@@ -35,6 +35,7 @@ my @TABLE_ATTRS = qw(
                       DENY
                     );
                     
+# FIXME: more categories INDEX: ACTION: etc.
 my @FIELD_ATTRS = qw(
                       LABEL
                       TYPE
@@ -114,28 +115,29 @@ sub __load_table_des_hash
 
   #print STDERR 'TABLE DES DIRS:' . Dumper( $tables_dirs );
 
-  my $des = de_config_load( "$table", $tables_dirs, { KEY_TYPES => \%DES_KEY_TYPES } );
+  my $des = de_config_load( "$table", $tables_dirs, { KEY_TYPES => \%DES_KEY_TYPES, DEFAULT_CATEGORY => 'FIELD' } );
 
-  #print STDERR "TABLE DES RAW [$table]:" . Dumper( $des );
+  print STDERR "TABLE DES RAW [$table]:" . Dumper( $des );
+  
+  my @fields = keys %{ $des->{ 'FIELD' } };
   
   # postprocessing
-  for my $field ( keys %$des )
+  for my $field ( @fields )
     {
-    next if $field eq '@'; # self
-
+    my $fld_des = $des->{ 'FIELD' }{ $field };
     # --- type ---------------------------------------------
-    my @type = split /[,\s]+/, uc $des->{ $field }{ 'TYPE' };
+    my @type = split /[,\s]+/, uc $fld_des->{ 'TYPE' };
     my $type = shift @type;
-    $des->{ $field }{ 'TYPE' } = $type;
+    $fld_des->{ 'TYPE' } = $type;
     if( $type eq 'CHAR' )
       {
       my $len = shift( @type ) || 256;
-      $des->{ $field }{ 'TYPE_LEN' } = $len;
+      $fld_des->{ 'TYPE_LEN' } = $len;
       }
     elsif( $type eq 'INT' )  
       {
       my $len = shift( @type );
-      $des->{ $field }{ 'TYPE_LEN' } = $len if $len > 0;
+      $fld_des->{ 'TYPE_LEN' } = $len if $len > 0;
       }
     elsif( $type eq 'REAL' )  
       {
@@ -144,21 +146,25 @@ sub __load_table_des_hash
         {
         my $len = $1;
         my $dot = $3;
-        $des->{ $field }{ 'TYPE_LEN' } = $len if $len > 0;
-        $des->{ $field }{ 'TYPE_DOT' } = $dot if $dot ne '';
+        $fld_des->{ 'TYPE_LEN' } = $len if $len > 0;
+        $fld_des->{ 'TYPE_DOT' } = $dot if $dot ne '';
         }
       }
 
     # convert allow/deny list to access tree
-    __preprocess_allow_deny( $des->{ $field } );
+    __preprocess_allow_deny( $des->{ 'FIELD' }{ $field } );
 
+    # FIXME: more categories INDEX: ACTION: etc.
     # add empty keys to fields description before locking
     for my $attr ( @FIELD_ATTRS )
       {
-      next if exists $des->{ $field }{ $attr };
-      $des->{ $field }{ $attr } = undef;
+      next if exists $des->{ 'FIELD' }{ $field }{ $attr };
+      $des->{ 'FIELD' }{ $field }{ $attr } = undef;
       }
     }
+
+  # move table config in more comfortable location
+  $des->{ '@' } = $des->{ '@' }{ '@' };
 
   # convert allow/deny list to access tree
   __preprocess_allow_deny( $des->{ '@' } );
@@ -172,7 +178,7 @@ sub __load_table_des_hash
     
   # more postprocessing work
   $des->{ '@' }{ '_TABLE_NAME'  } = $table;
-  $des->{ '@' }{ '_FIELDS_LIST' } = [ grep /[^:@]/, keys %$des ];
+  $des->{ '@' }{ '_FIELDS_LIST' } = \@fields;
   $des->{ '@' }{ 'DSN'          } = uc( $des->{ '@' }{ 'DSN' } ) || 'MAIN';
 
   #print STDERR "TABLE DES POST PROCESSSED [$table]:" . Dumper( $des );
