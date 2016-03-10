@@ -128,10 +128,13 @@ sub __load_table_des_hash
   for my $field ( @fields )
     {
     my $fld_des = $des->{ 'FIELD' }{ $field };
+    my $type_des = {};
     # --- type ---------------------------------------------
     my @type = split /[,\s]+/, uc $fld_des->{ 'TYPE' };
     my $type = shift @type;
-    $fld_des->{ 'TYPE' } = $type;
+    
+    # FIXME: check if type is allowed!
+    $type_des->{ 'NAME' } = $type;
     if( $type eq 'CHAR' )
       {
       my $len = shift( @type ) || 256;

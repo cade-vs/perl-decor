@@ -23,6 +23,8 @@ use Time::JulianDay;
 #use DateTime::Format::Strptime;
 use Hash::Util qw( lock_hashref unlock_hashref lock_ref_keys );
 
+my %TYPE_NAMES   = map { $_ => 1 } qw( INT REAL CHAR DATE TIME UTIME );
+
 my $FMT_DATE_DMY = '%d.%m.%Y';
 my $FMT_DATE_MDY = '%m.%d.%Y';
 my $FMT_DATE_YMD = '%Y.%m.%d';
@@ -322,6 +324,11 @@ sub revert
 # convert decor internal data from one type to another
 sub convert
 {
+}
+
+sub type_check_name
+{
+  return exists $TYPE_NAMES{ $_[0] };
 }
 
 ### EOF ######################################################################

@@ -154,7 +154,6 @@ sub get_rebuild_obj
 
 sub rebuild_table
 {
-  my $self = shift;
   my $dbo  = shift;
   my $des  = shift;
   
@@ -162,11 +161,8 @@ sub rebuild_table
   my $table_des = $des->get_table_des();
   my $schema    = $table_des->{ 'SCHEMA' };
   
-  my $fields = $des->get_fields_list();
-  
+  # handle tables
   my $table_db_des = $dbo->describe_db_tables( $table, $schema );
-  my $seq_db_des   = $dbo->describe_db_sequence( $table, $schema );
-  my $index_db_des = $dbo->describe_db_indexes( $table, $schema );
 
   if( ! $table_db_des )
     {
@@ -178,6 +174,12 @@ sub rebuild_table
     # table does exist, try to alter
     table_alter( $dbo, $des );
     }  
+
+  # handle table indexes
+  my $index_db_des = $dbo->describe_db_indexes( $table, $schema );
+
+  # handle table sequence
+  my $seq_db_des   = $dbo->describe_db_sequence( $table, $schema );
 
   if( ! $seq_db_des )
     {
@@ -193,6 +195,44 @@ sub rebuild_table
   
   
   print Dumper( $table, $schema, $table_db_des, $index_db_des, $seq_db_des );
+}
+
+#-----------------------------------------------------------------------------
+
+sub table_create
+{
+  my $dbo  = shift;
+  my $des  = shift;
+  
+  my $table     = $des->get_table_name();
+  my $table_des = $des->get_table_des();
+  my $schema    = $table_des->{ 'SCHEMA' };
+
+  my $fields = $des->get_fields_list();
+  
+  my $dbh = $dbo->get_dbh();
+
+  my $db_table = "$schema.$table";
+  my $db_seq   = "$schema.SQ_$table";
+  
+  print "DROP: table: $t \t=> $db_table\n";
+  $dbh->exec( "drop table $db_table" );
+  $dbh->exec( "drop sequence $db_seq" );
+
+  for my $field ( @$fields )
+    {
+    my $fld_des = $des->get_field_des( $field );
+
+    my $type  = $fld_des->{ 'TYPE'      };
+    my $len   = $fld_des->{ 'LEN'       };
+    my $opt   = $fld_des->{ 'OPTIONS'   };
+    my $prec  = $DB_DB_DES{ $db_t }{ $f }{ 'PRECISION' };
+    my $scale = $DB_DB_DES{ $db_t }{ $f }{ 'SCALE'     };
+    my $def   = $DB_DB_DES{ $db_t }{ $f }{ 'DEFAULT'   }; # FIXME: ???
+
+    $def =~ s/^\s*//;
+    $def =~ s/\s*$//;
+    }
 }
 
 #-----------------------------------------------------------------------------
