@@ -11,6 +11,7 @@ package Decor::Core::Log;
 use strict;
 
 use Data::Dumper;
+
 use Decor::Core::Env;
 
 use Exporter;

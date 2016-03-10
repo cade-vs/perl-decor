@@ -11,7 +11,6 @@ package Decor::Core::Utils;
 use strict;
 
 use Exception::Sink;
-use Decor::Core::Env;
 
 use Exporter;
 our @ISA    = qw( Exporter );
@@ -28,6 +27,7 @@ our @EXPORT = qw(
                 de_check_ref_array
                 
                 perl_package_to_file
+
                 );
 
 ##############################################################################

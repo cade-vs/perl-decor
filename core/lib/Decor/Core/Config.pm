@@ -10,16 +10,6 @@
 package Decor::Core::Config;
 use strict;
 
-use Storable qw( dclone );
-use Tie::IxHash;
-use Data::Dumper;
-use Data::Tools 1.09;
-use Exception::Sink;
-
-use Decor::Core::Env;
-use Decor::Core::Utils;
-use Decor::Core::Log;
-
 use Exporter;
 our @ISA    = qw( Exporter );
 our @EXPORT = qw( 
@@ -31,6 +21,17 @@ our @EXPORT = qw(
                 de_config_merge_file
 
                 );
+
+use Storable qw( dclone );
+use Tie::IxHash;
+use Data::Dumper;
+use Data::Tools 1.09;
+use Exception::Sink;
+
+use Decor::Core::Env;
+use Decor::Core::Utils;
+use Decor::Core::Log;
+
 
 # FIXME catch nesting loops
 

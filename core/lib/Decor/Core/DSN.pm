@@ -7,24 +7,51 @@
 ##  LICENSE: GPLv2
 ##
 ##############################################################################
-package Decor::Core::Stage;
+package Decor::Core::DSN;
 use strict;
 
 use DBI;
 use Sys::SigAction qw( set_sig_handler );
 
 use Data::Dumper;
+use Decor::Core::Env;
 use Decor::Core::Config;
+
+use Exporter;
+our @ISA    = qw( Exporter );
+our @EXPORT = qw( 
+
+                dsn_reset
+                
+                dsn_get_dbh_by_name
+                dsn_get_dbh_by_table
+                dsn_get
+                dsn_get_db_name
+                
+                );
 
 ### DATA SOURCE NAMES SUPPORT AND DB HANDLERS ################################
 
+my $DSN;
+my %DSN_DBH_CACHE;
+my %DSN_TABLE_DBH_CACHE;
+
+sub dsn_reset
+{
+  dunlock $DSN = undef;
+  
+  %DSN_DBH_CACHE = ();
+  %DSN_TABLE_DBH_CACHE = ();
+  
+  return 1;
+}
+
 sub __dsn_parse_config
 {
-  my $self  =    shift;
-
-  my $root         = $self->get_root_dir();
-  my $stage_name   = $self->get_stage_name();
-  my $dsn_file     = "$root/apps/$stage_name/etc/dsn.def";
+  my $root         = de_root();
+  my $stage_name   = de_app_name();
+  my $app_path     = de_app_path();
+  my $dsn_file     = "$app_path/etc/dsn.def";
   
   my $dsn = de_config_load_file( $dsn_file );
 
@@ -48,8 +75,8 @@ sub __dsn_parse_config
   
   hash_lock_recursive( $dsn );
 
-  $self->{ 'DSN' } = $dsn;
-  return $dsn;
+  dlock $DSN = $dsn;
+  return $DSN;
 }
 
 sub __dsn_dbh_connect
@@ -57,13 +84,13 @@ sub __dsn_dbh_connect
   my $self  =    shift;
   my $name  = uc shift;
 
-  __dsn_parse_config() unless exists $self->{ 'DSN' };
+  __dsn_parse_config() unless exists $DSN;
 
-  boom "invalid DSN (NAME)" unless exists $self->{ 'DSN' }{ $name };
+  boom "invalid DSN (NAME)" unless exists $DSN->{ $name };
   
-  my $dsn = $self->{ 'DSN' }{ $name }{ 'DSN'  };
-  my $usr = $self->{ 'DSN' }{ $name }{ 'USER' };
-  my $pwd = $self->{ 'DSN' }{ $name }{ 'PASS' };
+  my $dsn = $DSN->{ $name }{ 'DSN'  };
+  my $usr = $DSN->{ $name }{ 'USER' };
+  my $pwd = $DSN->{ $name }{ 'PASS' };
 
   my $dbh;
   my $timeout_reached;
@@ -104,54 +131,48 @@ sub __dsn_dbh_connect
 
 sub dsn_get_dbh_by_name
 {
-  my $self  =    shift;
   my $name  = uc shift;
 
-  my $cache = $self->__get_cache_storage( 'DSN_DBH' );
-  if( exists $cache->{ $name } )
+  if( exists $DSN_DBH_CACHE{ $name } )
     {
-    return $cache->{ $name };
+    return $DSN_DBH_CACHE{ $name };
     }
 
   my $dbh = $self->__dsn_dbh_connect( $name );
 
-  $cache->{ $name } = $dbh;
+  $DSN_DBH_CACHE{ $name } = $dbh;
   return $dbh;
 }
 
 sub dsn_get_dbh_by_table
 {
-  my $self  =    shift;
   my $table = uc shift;
 
-  my $cache = $self->__get_cache_storage( 'TABLE_DBH' );
-  if( exists $cache->{ $table } )
+  if( exists $DSN_TABLE_DBH_CACHE{ $table } )
     {
-    return $cache->{ $table };
+    return $DSN_TABLE_DBH_CACHE{ $table };
     }
   
   my $des = $self->describe_table( $table );
   my $dsn = $des->{ '@' }{ 'DSN' };
   
-  my $dbh = $self->dsn_get_dbh_by_name( $dsn );
-  $cache->{ $table } = $dbh;
+  my $dbh = dsn_get_dbh_by_name( $dsn );
+  $DSN_TABLE_DBH_CACHE{ $table } = $dbh;
   
   return $dbh;
 }
 
 sub dsn_get
 {
-  my $self  =    shift;
   my $name  = uc shift;
   
-  boom "unknown DSN NAME [$name]" unless exists $self->{ 'DSN' }{ $name };
+  boom "unknown DSN NAME [$name]" unless exists $DSN->{ $name };
   
-  return $self->{ 'DSN' }{ $name };
+  return $DSN->{ $name };
 }
 
 sub dsn_get_db_name
 {
-  my $self  =    shift;
   my $name  = uc shift;
   
   my $dsn = $self->dsn_get( $name );
@@ -159,17 +180,6 @@ sub dsn_get_db_name
   return $dsn->{ 'DB_NAME' };
 }
 
-sub dsn_reset
-{
-  my $self  =    shift;
-
-  my $cache = $self->__get_cache_storage( 'DSN_DBH' );
-  %$cache = ();
-  my $cache = $self->__get_cache_storage( 'TABLE_DBH' );
-  %$cache = ();
-  
-  return;
-}
 
 ### EOF ######################################################################
 1;
