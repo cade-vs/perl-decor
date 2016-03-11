@@ -19,6 +19,8 @@ our @EXPORT = qw(
                 de_init
                 de_app_name
                 de_app_path
+                de_modules
+                de_modules_dirs
                 
                 de_version
                 de_root
@@ -111,6 +113,16 @@ sub de_app_path
 {
   boom "call de_init() first to initialize environment!" unless $_INIT_OK;
   return "$ROOT/apps/$APP_NAME";
+}
+
+sub de_modules
+{
+  return \@MODULES;
+}
+
+sub de_modules_dirs
+{
+  return \@MODULES_DIRS;
 }
 
 sub de_version
