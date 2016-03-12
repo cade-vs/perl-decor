@@ -45,17 +45,32 @@ my @TABLE_ATTRS = qw(
                     );
                     
 # FIXME: more categories INDEX: ACTION: etc.
-my @FIELD_ATTRS = qw(
-                      LABEL
-                      TYPE
-                      ALLOW
-                      DENY
-                    );
+my %DES_ATTRS = (
+                  '@' => {
+                           SCHEMA => 1,
+                           LABEL  => 1,
+                           ALLOW  => 1,
+                           DENY   => 1,
+                         },
+                  'FIELD' => {
+                           TYPE   => 1,
+                           LABEL  => 1,
+                           ALLOW  => 1,
+                           DENY   => 1,
+                         },
+                );
 
-my %TABLE_ATTRS = map { $_ => 1 } @TABLE_ATTRS;
-hash_lock_recursive( \%TABLE_ATTRS );
-my %FIELD_ATTRS = map { $_ => 1 } @FIELD_ATTRS;
-hash_lock_recursive( \%FIELD_ATTRS );
+my %DES_LINK_ATTRS = (
+                  'FIELD' => {
+                           ALLOW  => 1,
+                           DENY   => 1,
+                         },
+                );
+               
+#my %TABLE_ATTRS = map { $_ => 1 } @TABLE_ATTRS;
+#hash_lock_recursive( \%TABLE_ATTRS );
+#my %FIELD_ATTRS = map { $_ => 1 } @FIELD_ATTRS;
+#hash_lock_recursive( \%FIELD_ATTRS );
 
 #-----------------------------------------------------------------------------
 
@@ -135,13 +150,34 @@ sub __load_table_des_hash
                             } 
                           );
 
-  print STDERR "TABLE DES RAW [$table]:" . Dumper( $des );
+###  print STDERR "TABLE DES RAW [$table]:" . Dumper( $des );
   
   boom "unknown table [$table]" unless $des;
   
+  # postprocessing TABLE (self) ---------------------------------------------
   my @fields = keys %{ $des->{ 'FIELD' } };
+
+  # move table config in more comfortable location
+  $des->{ '@' } = $des->{ '@' }{ '@' };
+
+  # convert allow/deny list to access tree
+  __preprocess_allow_deny( $des->{ '@' } );
+
+  # add empty keys to table description before locking
+  for my $attr ( keys %{ $DES_ATTRS{ '@' } } )
+    {
+    next if exists $des->{ '@' }{ $attr };
+    $des->{ '@' }{ $attr } = undef;
+    }
+    
+  # more postprocessing work
+  $des->{ '@' }{ '_TABLE_NAME'  } = $table;
+  $des->{ '@' }{ '_FIELDS_LIST' } = \@fields;
+  $des->{ '@' }{ 'DSN'          } = uc( $des->{ '@' }{ 'DSN' } ) || 'MAIN';
+
+###  print STDERR "TABLE DES AFTER SELF PP [$table]:" . Dumper( $des );
+  # postprocessing FIELDs ---------------------------------------------------
   
-  # postprocessing
   for my $field ( @fields )
     {
     my $fld_des = $des->{ 'FIELD' }{ $field };
@@ -179,31 +215,20 @@ sub __load_table_des_hash
     __preprocess_allow_deny( $des->{ 'FIELD' }{ $field } );
 
     # FIXME: more categories INDEX: ACTION: etc.
+    # inherit empty keys
+    for my $attr ( keys %{ $DES_LINK_ATTRS{ 'FIELD' } } )
+      {
+      next if exists $des->{ 'FIELD' }{ $field }{ $attr };
+      # link missing attributes to self
+      $des->{ 'FIELD' }{ $field }{ $attr } = $des->{ '@' }{ $attr };
+      }
     # add empty keys to fields description before locking
-    for my $attr ( @FIELD_ATTRS )
+    for my $attr ( keys %{ $DES_ATTRS{ 'FIELD' } } )
       {
       next if exists $des->{ 'FIELD' }{ $field }{ $attr };
       $des->{ 'FIELD' }{ $field }{ $attr } = undef;
       }
     }
-
-  # move table config in more comfortable location
-  $des->{ '@' } = $des->{ '@' }{ '@' };
-
-  # convert allow/deny list to access tree
-  __preprocess_allow_deny( $des->{ '@' } );
-
-  # add empty keys to table description before locking
-  for my $attr ( @TABLE_ATTRS )
-    {
-    next if exists $des->{ '@' }{ $attr };
-    $des->{ '@' }{ $attr } = undef;
-    }
-    
-  # more postprocessing work
-  $des->{ '@' }{ '_TABLE_NAME'  } = $table;
-  $des->{ '@' }{ '_FIELDS_LIST' } = \@fields;
-  $des->{ '@' }{ 'DSN'          } = uc( $des->{ '@' }{ 'DSN' } ) || 'MAIN';
 
   #print STDERR "TABLE DES POST PROCESSSED [$table]:" . Dumper( $des );
 
@@ -241,7 +266,8 @@ sub __preprocess_allow_deny
 
   for my $allow_deny ( qw( ALLOW DENY ) )
     {
-    $hr->{ $allow_deny } ||= [];
+    next unless exists $hr->{ $allow_deny };
+    # $hr->{ $allow_deny } ||= [];
     my $access;
     for my $line ( @{ $hr->{ $allow_deny } } )
       {

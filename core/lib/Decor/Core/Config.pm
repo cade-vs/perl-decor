@@ -151,7 +151,7 @@ sub de_config_merge_file
       $config->{ $category }{ $sect_name } ||= {};
       $config->{ $category }{ $sect_name }{ 'LABEL' } ||= $sect_name;
       # FIXME: URGENT: copy only listed keys! no all
-      %{ $config->{ $category }{ $sect_name } } = ( %{ dclone( $config->{ '@' }{ '@' } ) }, %{ $config->{ $category }{ $sect_name } } );
+###      %{ $config->{ $category }{ $sect_name } } = ( %{ dclone( $config->{ '@' }{ '@' } ) }, %{ $config->{ $category }{ $sect_name } } );
       $config->{ $category }{ $sect_name }{ '_ORDER' } = $opt->{ '_ORDER' }++;
       
       if( de_debug() ) # FIXME: move to const var?
