@@ -223,12 +223,11 @@ sub table_create
     {
     my $fld_des = $des->get_field_des( $field );
 
-    my $type  = $fld_des->{ 'TYPE'      };
-    my $len   = $fld_des->{ 'LEN'       };
-    my $opt   = $fld_des->{ 'OPTIONS'   };
-    my $prec  = $DB_DB_DES{ $db_t }{ $f }{ 'PRECISION' };
-    my $scale = $DB_DB_DES{ $db_t }{ $f }{ 'SCALE'     };
-    my $def   = $DB_DB_DES{ $db_t }{ $f }{ 'DEFAULT'   }; # FIXME: ???
+    my $type = $fld_des->{ 'TYPE' }{ 'NAME' };
+    my $len  = $fld_des->{ 'TYPE' }{ 'LEN'  };
+    my $dot  = $fld_des->{ 'TYPE' }{ 'DOT'  };
+    my $opt  = $fld_des->{ 'OPTIONS'   };
+    my $def  = $fld_des->{ 'DEFAULT'   };
 
     $def =~ s/^\s*//;
     $def =~ s/\s*$//;

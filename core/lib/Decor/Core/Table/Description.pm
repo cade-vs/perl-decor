@@ -64,18 +64,14 @@ sub get_dsn_name
   return $self->{ '@' }{ 'DSN' };
 }
 
-=pod
 sub get_table_dbh
 {
   my $self  =    shift;
 
   my $table = $self->{ '@' }{ '_TABLE_NAME' };
   
-  print Dumper( $self );
-  
-  return $self->get_stage()->dsn_get_dbh_by_table( $table );
+  return dsn_get_dbh_by_table( $table );
 }
-=cut
 
 ### EOF ######################################################################
 1;
