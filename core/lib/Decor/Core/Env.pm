@@ -28,7 +28,8 @@ our @EXPORT = qw(
                 de_debug_set
                 de_debug_inc
                 de_debug_off
-
+                
+                de_types
                 );
 }
 
@@ -40,18 +41,19 @@ use Data::Tools 1.09;
 use Decor::Core::Config;
 use Decor::Core::Utils;
 
-
 ### PRIVATE ##################################################################
 
 my $VERSION = '1.00';
 my $ROOT    = $ENV{ 'DECOR_ROOT' } || '/usr/local/decor';
 my $DEBUG   = 0;
 
-unshift @INC, $ROOT . '/core/lib';
+unshift @INC, $ROOT . '/core/lib',  $ROOT . '/shared/lib';
 
 my $APP_NAME;
 my @MODULES;
 my @MODULES_DIRS;
+
+my $TYPES;
 
 ### PUBLIC ###################################################################
 
@@ -101,6 +103,9 @@ sub de_init
   dlock \@MODULES_DIRS;
   
   print STDERR 'CONFIG:' . Dumper( $cfg, \@MODULES, \@MODULES_DIRS );
+  
+  require Decor::Shared::Types::Native;
+  $TYPES = new Decor::Shared::Types::Native;
 }
 
 sub de_app_name
@@ -159,6 +164,12 @@ sub de_debug
 {
   return $DEBUG;
 }
+
+sub de_types
+{
+  return $TYPES;
+}
+
 
 ### EOF ######################################################################
 1;

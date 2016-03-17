@@ -18,7 +18,8 @@ use lib $FindBin::Bin . "/../lib";
 use Data::Dumper;
 use Decor::Core::Env;
 use Decor::Core::Config;
-use Decor::Core::Stage;
+use Decor::Core::Describe;
+use Decor::Core::DSN;
 use Decor::Core::Profile;
 use Decor::Core::Utils;
 
@@ -27,7 +28,7 @@ $Data::Dumper::Indent   = 3;
 
 #-----------------------------------------------------------------------------
 
-my $opt_application_name;
+my $opt_app_name;
 my $opt_recreate = 0;
 my $opt_confirm_first = 0;
 
@@ -78,11 +79,11 @@ while( @ARGV )
   push @args, $_;
   }
 
-my $opt_application_name = shift @args;
+my $opt_app_name = shift @args;
 
 print "option: database objects to handle: @args\n" if @args;
 print "info: ALL database objects will be handled\n" unless @args;
-print "info: application name in use [$opt_application_name]\n" if $opt_application_name;
+print "info: application name in use [$opt_app_name]\n" if $opt_app_name;
 
 if( $opt_confirm_first )
   {
@@ -93,15 +94,14 @@ if( $opt_confirm_first )
 
 #-----------------------------------------------------------------------------
 
+de_init( APP_NAME => $opt_app_name );
+
 my $root = de_root();
 
-my $stage = Decor::Core::Stage->new( $opt_application_name );
-$stage->init( $root );
-
-$stage->__dsn_parse_config();
+Decor::Core::DSN::__dsn_parse_config();
 
 my @tables = @ARGV;
-@tables = @{ $stage->get_tables_list() } unless @tables > 0;
+@tables = @{ des_get_tables_list() } unless @tables > 0;
 
 $_ = uc $_ for @tables;
 
@@ -109,15 +109,15 @@ print "rebuilding tables: @tables\n";
 
 for my $table ( @tables )
   {
-  my $des = $stage->describe_table( $table );
-  my $dbh = $stage->dsn_get_dbh_by_table( $table );
-  my $db_name = $stage->dsn_get_db_name( $des->get_dsn_name() );
+  my $des = describe_table( $table );
+  my $dbh = dsn_get_dbh_by_table( $table );
+  my $db_name = dsn_get_db_name( $des->get_dsn_name() );
 
   my $dbo = get_rebuild_obj( $des->get_dsn_name(), $db_name, $dbh );
 
   print Dumper( $des, $db_name );
   
-  rebuild_table( $rebuild_obj, $des );
+  rebuild_table( $dbo, $des );
   }
 
 
@@ -162,7 +162,7 @@ sub rebuild_table
   my $schema    = $table_des->{ 'SCHEMA' };
   
   # handle tables
-  my $table_db_des = $dbo->describe_db_tables( $table, $schema );
+  my $table_db_des = $dbo->describe_db_table( $table, $schema );
 
   if( ! $table_db_des )
     {
@@ -212,12 +212,14 @@ sub table_create
   
   my $dbh = $dbo->get_dbh();
 
-  my $db_table = "$schema.$table";
-  my $db_seq   = "$schema.SQ_$table";
+  $schema = "$schema." if $schema;
+
+  my $db_table = "${schema}$table";
+  my $db_seq   = "${schema}SQ_$table";
   
-  print "DROP: table: $t \t=> $db_table\n";
-  $dbh->exec( "drop table $db_table" );
-  $dbh->exec( "drop sequence $db_seq" );
+  #print "DROP: table: $table \t=> $db_table\n";
+  #$dbh->do( "drop table $db_table" );
+  #$dbh->do( "drop sequence $db_seq" );
 
   for my $field ( @$fields )
     {
@@ -226,12 +228,35 @@ sub table_create
     my $type = $fld_des->{ 'TYPE' }{ 'NAME' };
     my $len  = $fld_des->{ 'TYPE' }{ 'LEN'  };
     my $dot  = $fld_des->{ 'TYPE' }{ 'DOT'  };
-    my $opt  = $fld_des->{ 'OPTIONS'   };
-    my $def  = $fld_des->{ 'DEFAULT'   };
+#    my $opt  = $fld_des->{ 'OPTIONS'   };
+#    my $def  = $fld_des->{ 'DEFAULT'   };
 
-    $def =~ s/^\s*//;
-    $def =~ s/\s*$//;
+#    $def =~ s/^\s*//;
+#    $def =~ s/\s*$//;
+    
+    my $native_type = $dbo->get_native_type( $fld_des->{ 'TYPE' } );
+    
+    print Dumper( $fld_des->{ 'TYPE' }, $native_type );
+    
     }
+}
+
+sub table_alter
+{
+  my $dbo  = shift;
+  my $des  = shift;
+  
+  my $table     = $des->get_table_name();
+  my $table_des = $des->get_table_des();
+  my $schema    = $table_des->{ 'SCHEMA' };
+}
+
+sub sequence_create
+{
+}
+
+sub sequence_alter
+{
 }
 
 #-----------------------------------------------------------------------------

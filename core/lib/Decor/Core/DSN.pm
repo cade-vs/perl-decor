@@ -12,10 +12,14 @@ use strict;
 
 use DBI;
 use Sys::SigAction qw( set_sig_handler );
+use Exception::Sink;
+use Data::Tools 1.09;
+use Data::Lock qw( dlock dunlock );
 
 use Data::Dumper;
 use Decor::Core::Env;
 use Decor::Core::Config;
+use Decor::Core::Describe;
 
 use Exporter;
 our @ISA    = qw( Exporter );
@@ -54,6 +58,8 @@ sub __dsn_parse_config
   my $dsn_file     = "$app_path/etc/dsn.def";
   
   my $dsn = de_config_load_file( $dsn_file );
+  $dsn = $dsn->{ '*' };
+  print Dumper( "DSN PARSE CONFIG: ", $dsn );
 
   for my $name ( keys %$dsn )
     {
@@ -81,12 +87,11 @@ sub __dsn_parse_config
 
 sub __dsn_dbh_connect
 {
-  my $self  =    shift;
   my $name  = uc shift;
 
-  __dsn_parse_config() unless exists $DSN;
+  __dsn_parse_config() unless $DSN;
 
-  boom "invalid DSN (NAME)" unless exists $DSN->{ $name };
+  boom "invalid DSN name [$name]" unless exists $DSN->{ $name };
   
   my $dsn = $DSN->{ $name }{ 'DSN'  };
   my $usr = $DSN->{ $name }{ 'USER' };
@@ -138,7 +143,7 @@ sub dsn_get_dbh_by_name
     return $DSN_DBH_CACHE{ $name };
     }
 
-  my $dbh = $self->__dsn_dbh_connect( $name );
+  my $dbh = __dsn_dbh_connect( $name );
 
   $DSN_DBH_CACHE{ $name } = $dbh;
   return $dbh;
@@ -153,9 +158,9 @@ sub dsn_get_dbh_by_table
     return $DSN_TABLE_DBH_CACHE{ $table };
     }
   
-  my $des = $self->describe_table( $table );
+  my $des = describe_table( $table );
   my $dsn = $des->{ '@' }{ 'DSN' };
-  
+
   my $dbh = dsn_get_dbh_by_name( $dsn );
   $DSN_TABLE_DBH_CACHE{ $table } = $dbh;
   
@@ -175,7 +180,7 @@ sub dsn_get_db_name
 {
   my $name  = uc shift;
   
-  my $dsn = $self->dsn_get( $name );
+  my $dsn = dsn_get( $name );
   
   return $dsn->{ 'DB_NAME' };
 }

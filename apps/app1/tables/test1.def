@@ -30,3 +30,12 @@ allow update, insert, delete ; admin ; monitor + users + !root
 
 =INDEX: TEST
 
+  fields CTIME SUMA
+  
+=DES
+
+  type char 0
+
+=CNT
+
+  type int

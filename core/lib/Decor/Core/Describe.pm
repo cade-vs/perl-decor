@@ -1,6 +1,6 @@
 ##############################################################################
 ##
-##  Decor stagelication machinery core
+##  Decor application machinery core
 ##  2014-2016 (c) Vladi Belperchinov-Shabanski "Cade"
 ##  <cade@bis.bg> <cade@biscom.net> <cade@cpan.org>
 ##
@@ -26,11 +26,18 @@ our @EXPORT = qw(
 
                 des_reset
                 
+                des_get_tables_list
                 describe_table 
                 
                 );
 
 ### TABLE DESCRIPTIONS #######################################################
+
+my %TYPE_ATTRS = (
+                      'NAME' => undef,
+                      'LEN'  => undef,
+                      'DOT'  => undef,
+                 );
 
 my %DES_KEY_TYPES = (
                       'ALLOW' => '@',
@@ -105,7 +112,7 @@ sub __get_tables_dirs
 
 #-----------------------------------------------------------------------------
 
-sub get_tables_list
+sub des_get_tables_list
 {
   return $DES_CACHE{ 'TABLES_LIST_AR' } if exists $DES_CACHE{ 'TABLES_LIST_AR' };
 
@@ -181,7 +188,7 @@ sub __load_table_des_hash
   for my $field ( @fields )
     {
     my $fld_des = $des->{ 'FIELD' }{ $field };
-    my $type_des = {};
+    my $type_des = { %TYPE_ATTRS };
     # --- type ---------------------------------------------
     my @type = split /[,\s]+/, uc $fld_des->{ 'TYPE' };
     my $type = shift @type;
@@ -190,7 +197,8 @@ sub __load_table_des_hash
     $type_des->{ 'NAME' } = $type;
     if( $type eq 'CHAR' )
       {
-      my $len = shift( @type ) || 256;
+      my $len = shift( @type );
+      $len = 256 if $len eq '';
       $type_des->{ 'LEN' } = $len;
       }
     elsif( $type eq 'INT' )  

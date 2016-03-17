@@ -80,4 +80,20 @@ sub get_dbh
   return $self->{ 'DBH' };
 }
 
+sub get_native_type
+{
+  my $self = shift;
+
+  boom "cannot call get_native_type() from a base class";
+  
+}
+
+sub get_decor_type
+{
+  my $self = shift;
+
+  boom "cannot call get_decor_type() from a base class";
+  
+}
+
 1;

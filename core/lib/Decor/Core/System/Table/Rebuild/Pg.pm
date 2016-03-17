@@ -229,5 +229,82 @@ sub sequence_reset
   boom "cannot call describe_db_sequences() from a base class";
 }
 
+#-----------------------------------------------------------------------------
+
+my %NATIVE_TYPES = (
+                   'INT'   => 'integer',
+                   'DATE'  => 'integer',
+                   'TIME'  => 'integer',
+                   'UTIME' => 'integer',
+                   );
+
+sub get_native_type
+{
+  my $self = shift;
+  my $type = shift;
+
+  my $name = $type->{ 'NAME' };
+  my $len  = $type->{ 'LEN'  };
+  my $dot  = $type->{ 'DOT'  };
+  
+
+  my $native;
+  if( $name eq 'INT' )
+    {
+    if( $len > 0 and $len <= 4 )
+      {
+      $native = "smallint";
+      }
+    elsif( $len > 9 )
+      {
+      $native = "bigint";
+      }
+    else
+      {
+      $native = "integer";
+      }  
+    }
+  elsif( $name eq 'CHAR' )
+    {
+    if( $len > 0 )
+      {
+      $native = "varchar($len)";
+      }
+    else
+      {
+      $native = "text";
+      }  
+    }
+  elsif ( $name eq 'REAL' )
+    {
+    boom "scale [$dot] cannot be larger than precision [$len]" unless $dot <= $len;
+    if( $len > 0 and $dot > 0 )
+      {
+      $native = "numeric( $len, $dot )";
+      }
+    else
+      {
+      $native = "numeric";
+      }  
+    }
+  else
+    {
+    $native = $NATIVE_TYPES{ $name };
+    }
+
+  boom "cannot find native type for decor type [$name]" unless $native;
+  return $native;
+}
+
+
+
+sub get_decor_type
+{
+  my $self = shift;
+
+  boom "cannot call get_decor_type() from a base class";
+  
+}
+
 ##############################################################################
 1;
