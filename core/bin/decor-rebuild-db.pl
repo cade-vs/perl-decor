@@ -236,7 +236,7 @@ sub table_create
     
     my $native_type = $dbo->get_native_type( $fld_des->{ 'TYPE' } );
     
-    print Dumper( $fld_des->{ 'TYPE' }, $native_type );
+    print Dumper( $field, $fld_des->{ 'TYPE' }, $native_type );
     
     }
 }

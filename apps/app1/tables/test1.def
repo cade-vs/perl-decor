@@ -39,3 +39,7 @@ allow update, insert, delete ; admin ; monitor + users + !root
 =CNT
 
   type int
+  
+=AMOUNT1
+
+  type real .2  

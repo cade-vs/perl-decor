@@ -7,12 +7,13 @@
 ##  LICENSE: GPLv2
 ##
 ##############################################################################
-package Decor::Shared::Types::Native;
+package Decor::Shared::Types;
 use strict;
 
 use Data::Dumper;
 use Exception::Sink;
 use Data::Tools 1.09;
+use Data::Lock qw( dlock dunlock );
 
 use DateTime;
 
@@ -101,27 +102,11 @@ my %FORMAT_DEFAULTS = (
                         'TZ'    => '', # local machine TZ if empty
                       );
                       
+
+my %FORMATS = %FORMAT_DEFAULTS;
                       
-sub new
+sub type_set_format
 {
-  my $class = shift;
-  $class = ref( $class ) || $class;
-  
-  my %args = @_;
-  
-  my $self = {
-             };
-  bless $self, $class;
-
-  $self->reset_formats();
-  
-#  de_obj_add_debug_info( $self );
-  return $self;
-}
-
-sub set_format
-{
-  my $self = shift;
   my $type = shift; # hashref with type args
   my $fmt  = shift; # format string
   
@@ -130,35 +115,30 @@ sub set_format
   boom "unknown type [$type_name]" unless exists $FORMAT_SPECS{ $type_name };
   boom "unknown format [$fmt] for type [$type_name]" unless exists $FORMAT_SPECS{ $type_name }{ $fmt };
   
-  $self->{ 'FORMATS' }{ $type_name } = $fmt;
+  $FORMATS{ $type_name } = $fmt;
   
   return $fmt;
 }
 
-sub get_format
+sub type_get_format
 {
-  my $self = shift;
   my $type = shift; # hashref with type args
 
   my $type_name = $type->{ 'NAME' };
   
-  return $self->{ 'FORMATS' }{ $type_name };
+  return $FORMATS{ $type_name };
 }
 
-sub reset_formats
+sub type_reset_formats
 {
-  my $self = shift;
-
-  $self->{ 'FORMATS' } = { %FORMAT_DEFAULTS },
-  lock_ref_keys( $self->{ 'FORMATS' } );
+  %FORMATS = %FORMAT_DEFAULTS;
 
   return 1;
 }
 
 # converts from decor internal data to human/visible format
-sub format
+sub type_format
 {
-  my $self = shift;
   my $data = shift;
   my $type = shift; # hashref with type args
 
@@ -172,7 +152,7 @@ sub format
 
      my @t = ( undef, undef, undef, $d, $m - 1, $y - 1900 );
 
-     my $fmt = $FORMAT_SPECS{ 'DATE' }{ $self->{ 'FORMATS' }{ 'DATE' } }{ 'FMT' };
+     my $fmt = $FORMAT_SPECS{ 'DATE' }{ $FORMATS{ 'DATE' } }{ 'FMT' };
      return strftime( $fmt, @t );
      }
    else
@@ -190,7 +170,7 @@ sub format
 
      my @t = ( $s, $m, $h );
 
-     my $fmt = $FORMAT_SPECS{ 'TIME' }{ $self->{ 'FORMATS' }{ 'TIME' } }{ 'FMT' };
+     my $fmt = $FORMAT_SPECS{ 'TIME' }{ $FORMATS{ 'TIME' } }{ 'FMT' };
      return strftime( $fmt, @t );
      }
    else
@@ -204,9 +184,9 @@ sub format
      {
      my @t = localtime( $data );
     
-     my $tz = $type->{ 'TZ' } || $self->{ 'FORMATS' }{ 'TZ' };
+     my $tz = $type->{ 'TZ' } || $FORMATS{ 'TZ' };
 
-     my $fmt = $FORMAT_SPECS{ 'UTIME' }{ $self->{ 'FORMATS' }{ 'UTIME' } }{ 'FMT' };
+     my $fmt = $FORMAT_SPECS{ 'UTIME' }{ $FORMATS{ 'UTIME' } }{ 'FMT' };
      return strftime( $fmt, @t, $tz );
      }
    else
@@ -259,9 +239,8 @@ sub __canonize_date_str
 }
 
 # converts from human/visible format to internal data 
-sub revert
+sub type_revert
 {
-  my $self = shift;
   my $data = shift;
   my $type = shift; # hashref with type args
 
@@ -269,7 +248,7 @@ sub revert
 
   if( $type_name eq "DATE" )
     {
-    my $fmt_name = $self->{ 'FORMATS' }{ 'DATE' };
+    my $fmt_name = $FORMATS{ 'DATE' };
     $data = __canonize_date_str( $data, $fmt_name );
 
     my ( $y, $m, $d ) = ( $1, $2, $3 ) if $data =~ /^(\d\d\d\d)[\.\/\-](\d\d?)[\.\/\-](\d\d?)$/o;
@@ -296,7 +275,7 @@ sub revert
     }
   elsif ( $type_name eq "UTIME" )
     {
-    my $fmt_name = $self->{ 'FORMATS' }{ 'DATE' };
+    my $fmt_name = $FORMATS{ 'DATE' };
     $data = __canonize_date_str( $data, $fmt_name );
 
     return str2time( $data );
@@ -322,7 +301,7 @@ sub revert
 }
 
 # convert decor internal data from one type to another
-sub convert
+sub type_convert
 {
 }
 

@@ -213,6 +213,7 @@ sub __load_table_des_hash
         {
         my $len = $1;
         my $dot = $3;
+        $len = 18 + $dot if $dot > 0 and $len == 0;
         $type_des->{ 'LEN' } = $len if $len > 0;
         $type_des->{ 'DOT' } = $dot if $dot ne '';
         }
