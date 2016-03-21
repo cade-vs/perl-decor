@@ -14,14 +14,16 @@ use lib ( $ENV{ 'DECOR_CORE_ROOT' } || '/usr/local/decor' );
 use FindBin;
 use lib '/usr/local/decor/core/lib';
 use lib $FindBin::Bin . "/../lib";
+use Exception::Sink;
 
 use Data::Dumper;
 use Decor::Core::Env;
-use Decor::Core::Config;
+#use Decor::Core::Config;
 use Decor::Core::Describe;
 use Decor::Core::DSN;
 use Decor::Core::Profile;
 use Decor::Core::Utils;
+use Decor::Core::Log;
 
 $Data::Dumper::Sortkeys = 1;
 $Data::Dumper::Indent   = 3;
@@ -98,7 +100,7 @@ de_init( APP_NAME => $opt_app_name );
 
 my $root = de_root();
 
-Decor::Core::DSN::__dsn_parse_config();
+#Decor::Core::DSN::__dsn_parse_config();
 
 my @tables = @args;
 @tables = @{ des_get_tables_list() } unless @tables > 0;
@@ -115,11 +117,12 @@ for my $table ( @tables )
 
   my $dbo = get_rebuild_obj( $des->get_dsn_name(), $db_name, $dbh );
 
-  print Dumper( $des, $db_name );
+  #print Dumper( $des, $db_name );
   
   rebuild_table( $dbo, $des );
   }
 
+dsn_commit();
 
 #-----------------------------------------------------------------------------
 
@@ -142,7 +145,7 @@ sub get_rebuild_obj
   require $rebuild_file_name;
   my $rebuild = $rebuild_class_name->new( $dbh );
   
-  print Dumper( $db_name, $rebuild_class_name );
+  #print Dumper( $db_name, $rebuild_class_name );
   
   $REBUILD_OBJ_CACHE{ $dsn_name } = $rebuild;
   
@@ -164,6 +167,12 @@ sub rebuild_table
   # handle tables
   my $table_db_des = $dbo->describe_db_table( $table, $schema );
 
+  if( $opt_recreate and $table_db_des )
+    {
+    table_drop( $dbo, $des );
+    $table_db_des = undef;
+    }
+
   if( ! $table_db_des )
     {
     # table does not exist
@@ -172,7 +181,7 @@ sub rebuild_table
   else
     {
     # table does exist, try to alter
-    table_alter( $dbo, $des );
+    table_alter( $dbo, $des, $table_db_des );
     }  
 
   # handle table indexes
@@ -194,35 +203,37 @@ sub rebuild_table
   
   
   
-  print Dumper( $table, $schema, $table_db_des, $index_db_des, $seq_db_des );
+  #print Dumper( $table, $schema, $table_db_des, $index_db_des, $seq_db_des );
 }
 
-#-----------------------------------------------------------------------------
+#--- tables ------------------------------------------------------------------
+
+sub table_drop
+{
+  my $dbo  = shift;
+  my $des  = shift;
+  
+  my $table    = $des->get_table_name();
+  my $db_table = $des->get_db_table_name();
+  
+  my $dbh = $dbo->get_dbh();
+  my $sql_stmt = "drop table $db_table";
+  de_log( "info: drop table [$table] db table [$db_table]" );
+  de_log_debug( "debug: sql: [$sql_stmt]" );
+  $dbh->do( $sql_stmt );
+}
 
 sub table_create
 {
   my $dbo  = shift;
   my $des  = shift;
   
-  my $table     = $des->get_table_name();
-  my $table_des = $des->get_table_des();
-  my $schema    = $table_des->{ 'SCHEMA' };
-
-  my $fields = $des->get_fields_list();
-  
-  my $dbh = $dbo->get_dbh();
-
-  $schema = "$schema." if $schema;
-
-  my $db_table = "${schema}$table";
-  my $db_seq   = "${schema}SQ_$table";
-  
-  #print "DROP: table: $table \t=> $db_table\n";
-  #$dbh->do( "drop table $db_table" );
-  #$dbh->do( "drop sequence $db_seq" );
+  my $table    = $des->get_table_name();
+  my $db_table = $des->get_db_table_name();
 
   my @sql_columns;
 
+  my $fields = $des->get_fields_list();
   for my $field ( @$fields )
     {
     my $fld_des = $des->get_field_des( $field );
@@ -230,11 +241,6 @@ sub table_create
     my $type = $fld_des->{ 'TYPE' }{ 'NAME' };
     my $len  = $fld_des->{ 'TYPE' }{ 'LEN'  };
     my $dot  = $fld_des->{ 'TYPE' }{ 'DOT'  };
-#    my $opt  = $fld_des->{ 'OPTIONS'   };
-#    my $def  = $fld_des->{ 'DEFAULT'   };
-
-#    $def =~ s/^\s*//;
-#    $def =~ s/\s*$//;
 
     my $column_args;
     
@@ -253,18 +259,101 @@ sub table_create
 
   my $sql_stmt = "CREATE TABLE $db_table ( $sql_columns )";
   
-  print Dumper( "SQL STATEMENT: $sql_stmt" );
+  de_log( "info: create table [$table] db table [$db_table]" );
+  de_log_debug( "debug: sql: [$sql_stmt]" );
   
+  my $dbh = $dbo->get_dbh();
+  $dbh->do( $sql_stmt );
 }
 
 sub table_alter
 {
   my $dbo  = shift;
   my $des  = shift;
+  my $table_db_des = shift;
   
-  my $table     = $des->get_table_name();
-  my $table_des = $des->get_table_des();
-  my $schema    = $table_des->{ 'SCHEMA' };
+  print Dumper( $table_db_des );
+  
+  my $table    = $des->get_table_name();
+  my $db_table = $des->get_db_table_name();
+
+  my @sql_columns;
+
+  my $fields = $des->get_fields_list();
+  my $add_columns = 0;
+  for my $field ( @$fields )
+    {
+    my $fld_des = $des->get_field_des( $field );
+
+    my $type      = $fld_des->{ 'TYPE' };
+    my $type_name = $type->{ 'NAME' };
+    my $len       = $type->{ 'LEN'  };
+    my $dot       = $type->{ 'DOT'  };
+
+    my ( $native_type, $base_type ) = $dbo->get_native_type( $type );
+
+    if( exists $table_db_des->{ $field } )
+      {
+      my $field_db_des = $table_db_des->{ $field };
+      my $in_type = $field_db_des->{ 'TYPE' };
+      if( $in_type ne $base_type )
+        {
+        de_log( "error: incompatible field/column [$field] type [$type_name] change, got [$in_type] expected [$base_type]" );
+        # FIXME: handle column types change?
+        }
+      next;
+      }
+
+    my $column_args;
+    
+    $column_args .= " PRIMARY KEY" if $fld_des->{ 'PRIMARY_KEY' };
+    $column_args .= " NOT NULL"    if $fld_des->{ 'REQUIRED' };
+    $column_args .= " UNIQUE"      if $fld_des->{ 'UNIQUE' };
+    
+    
+    #print Dumper( $field, $fld_des->{ 'TYPE' }, $native_type );
+    
+    push @sql_columns, "ADD COLUMN $field $native_type $column_args";
+    $add_columns++;
+    }
+
+  if( $add_columns > 0 )
+    {
+    de_log( "info: alter table [$table] db table [$db_table] added columns [$add_columns]" );
+    }
+  else
+    {
+    de_log( "info: alter table [$table] db table [$db_table] no changes found" );
+    return 0;
+    }  
+    
+  my $sql_columns = join ', ', @sql_columns;
+
+  my $sql_stmt = "ALTER TABLE $db_table $sql_columns";
+  
+  de_log_debug( "debug: sql: [$sql_stmt]" );
+  
+  my $dbh = $dbo->get_dbh();
+  $dbh->do( $sql_stmt );
+  
+  return 1;
+}
+
+#--- sequences ---------------------------------------------------------------
+
+sub sequence_drop
+{
+  my $dbo  = shift;
+  my $des  = shift;
+  
+  my $table    = $des->get_table_name();
+  my $db_seq   = $des->get_db_sequence_name();
+  
+  my $dbh = $dbo->get_dbh();
+  my $sql_stmt = "drop sequence $db_seq";
+  de_log( "info: drop sequence for table [$table] db sequence [$db_seq]" );
+  de_log_debug( "debug: sql: [$sql_stmt]" );
+  $dbh->do( $sql_stmt );
 }
 
 sub sequence_create
@@ -274,6 +363,8 @@ sub sequence_create
 sub sequence_alter
 {
 }
+
+#--- indexes -----------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
 

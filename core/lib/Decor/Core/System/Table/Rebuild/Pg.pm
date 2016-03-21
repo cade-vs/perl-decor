@@ -12,10 +12,15 @@ package Decor::Core::System::Table::Rebuild::Pg;
 use strict;
 use Data::Dumper;
 use Exception::Sink;
+use Data::Lock qw( dlock dunlock );
 
 use parent 'Decor::Core::System::Table::Rebuild';
 
 ##############################################################################
+
+my %MAP_DB_TYPES = (
+                     'character varying' => 'varchar',
+                   );
 
 sub describe_db_table
 {
@@ -59,7 +64,7 @@ sub describe_db_table
                table_name 
   );
   
-  print Dumper( $des_stmt, \@where_bind );
+  #print Dumper( $des_stmt, \@where_bind );
   
   my $sth = $dbh->prepare( $des_stmt );
   $sth->execute( @where_bind ) or die "[$des_stmt] exec failed: " . $sth->errstr;
@@ -70,11 +75,13 @@ sub describe_db_table
     {
     $db_des ||= {};
     my $column  = uc $hr->{ 'COLUMN' };
-    
+  
+    $hr->{ 'TYPE' } = $MAP_DB_TYPES{ $hr->{ 'TYPE' } } if exists $MAP_DB_TYPES{ $hr->{ 'TYPE' } };
     $db_des->{ $column } = $hr;
     }
 
-  print Dumper( $db_des );
+  #print Dumper( $db_des );
+  dlock $db_des;
     
   return $db_des;  
 }
@@ -127,7 +134,7 @@ sub describe_db_indexes
 
   );
   
-  print Dumper( $des_stmt, \@where_bind );
+  #print Dumper( $des_stmt, \@where_bind );
   
   my $sth = $dbh->prepare( $des_stmt );
   $sth->execute( @where_bind ) or die "[$des_stmt] exec failed: " . $sth->errstr;
@@ -142,6 +149,8 @@ sub describe_db_indexes
     $idx_des->{ $name } = $hr;
     }
 
+  dlock $idx_des;
+  
   return $idx_des;  
 }
 
@@ -185,7 +194,7 @@ sub describe_db_sequence
                 
   );
   
-  print Dumper( $des_stmt, \@where_bind );
+  #print Dumper( $des_stmt, \@where_bind );
   
   my $sth = $dbh->prepare( $des_stmt );
   $sth->execute( @where_bind ) or die "[$des_stmt] exec failed: " . $sth->errstr;
@@ -199,6 +208,8 @@ sub describe_db_sequence
     
     $seq_des->{ $name } = $hr;
     }
+
+  dlock $seq_des;
 
   return $seq_des;  
 }
@@ -249,6 +260,7 @@ sub get_native_type
   
 
   my $native;
+  my $base;
   if( $name eq 'INT' )
     {
     if( $len > 0 and $len <= 4 )
@@ -268,7 +280,8 @@ sub get_native_type
     {
     if( $len > 0 )
       {
-      $native = "varchar($len)";
+      $base = "varchar";
+      $native = "$base($len)";
       }
     else
       {
@@ -280,7 +293,8 @@ sub get_native_type
     boom "scale [$dot] cannot be larger than precision [$len]" unless $dot <= $len;
     if( $len > 0 and $dot > 0 )
       {
-      $native = "numeric( $len, $dot )";
+      $base = "numeric";
+      $native = "$base( $len, $dot )";
       }
     else
       {
@@ -293,17 +307,8 @@ sub get_native_type
     }
 
   boom "cannot find native type for decor type [$name]" unless $native;
-  return $native;
-}
-
-
-
-sub get_decor_type
-{
-  my $self = shift;
-
-  boom "cannot call get_decor_type() from a base class";
-  
+  $base = $native unless $base;
+  return wantarray ? ( $native, $base ) : $native;
 }
 
 ##############################################################################

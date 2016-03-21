@@ -1,6 +1,6 @@
 ##############################################################################
 ##
-##  Decor stagelication machinery core
+##  Decor application machinery core
 ##  2014-2016 (c) Vladi Belperchinov-Shabanski "Cade"
 ##  <cade@bis.bg> <cade@biscom.net> <cade@cpan.org>
 ##
@@ -20,6 +20,7 @@ use Data::Dumper;
 use Decor::Core::Env;
 use Decor::Core::Config;
 use Decor::Core::Describe;
+use Decor::Core::Log;
 
 use Exporter;
 our @ISA    = qw( Exporter );
@@ -31,7 +32,11 @@ our @EXPORT = qw(
                 dsn_get_dbh_by_table
                 dsn_get
                 dsn_get_db_name
-                
+
+                dsn_commit
+                dsn_savepoint
+                dsn_rollback_to_savepoint
+                dsn_rollback
                 );
 
 ### DATA SOURCE NAMES SUPPORT AND DB HANDLERS ################################
@@ -130,6 +135,7 @@ sub __dsn_dbh_connect
     }
   else
     {
+    de_log_debug( "debug: DBH connected for DSN name [$name]" );
     return $dbh;
     }
 }
@@ -183,6 +189,64 @@ sub dsn_get_db_name
   my $dsn = dsn_get( $name );
   
   return $dsn->{ 'DB_NAME' };
+}
+
+#-----------------------------------------------------------------------------
+
+sub dsn_commit
+{
+  # NOTE: commit should be global (for all DSNs)
+  my $skip_second_main;
+  for my $name ( ( 'MAIN', keys %DSN_DBH_CACHE ) )
+    {
+    next if $name eq 'MAIN' and $skip_second_main++;
+    my $dbh = $DSN_DBH_CACHE{ $name };
+    $dbh->commit();
+    }
+}
+
+sub dsn_savepoint
+{
+  my $sp_name = shift;
+  
+  boom "missing save point name" unless $sp_name; # cannot be '0'
+
+  # FIXME: savepoint only for specific DSN
+  my $skip_second_main;
+  for my $name ( ( 'MAIN', keys %DSN_DBH_CACHE ) )
+    {
+    next if $name eq 'MAIN' and $skip_second_main++;
+    my $dbh = $DSN_DBH_CACHE{ $name };
+    $dbh->do("SAVEPOINT sp_$sp_name");
+    }
+}
+
+sub dsn_rollback_to_savepoint
+{
+  my $sp_name = shift;
+  
+  boom "missing save point name" unless $sp_name; # cannot be '0'
+
+  # FIXME: savepoint only for specific DSN
+  my $skip_second_main;
+  for my $name ( ( 'MAIN', keys %DSN_DBH_CACHE ) )
+    {
+    next if $name eq 'MAIN' and $skip_second_main++;
+    my $dbh = $DSN_DBH_CACHE{ $name };
+    $dbh->do("ROLLBACK TO sp_$sp_name");
+    }
+}
+
+sub dsn_rollback
+{
+  # NOTE: commit should be global (for all DSNs)
+  my $skip_second_main;
+  for my $name ( ( 'MAIN', keys %DSN_DBH_CACHE ) )
+    {
+    next if $name eq 'MAIN' and $skip_second_main++;
+    my $dbh = $DSN_DBH_CACHE{ $name };
+    $dbh->rollback();
+    }
 }
 
 

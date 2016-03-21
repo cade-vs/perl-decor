@@ -43,3 +43,7 @@ allow update, insert, delete ; admin ; monitor + users + !root
 =AMOUNT2
 
   type real
+
+=AMOUNT3
+
+  type real 10.5

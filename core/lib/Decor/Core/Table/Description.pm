@@ -73,5 +73,34 @@ sub get_table_dbh
   return dsn_get_dbh_by_table( $table );
 }
 
+sub get_table_schema
+{
+  my $self = shift;
+
+  return $self->{ '@' }{ 'SCHEMA' };
+}
+
+sub get_db_table_name
+{
+  my $self = shift;
+
+  my $table  = $self->get_table_name();
+  my $schema = $self->get_table_schema();
+  $schema = "$schema." if $schema;
+
+  return "${schema}$table";
+}
+
+sub get_db_sequence_name
+{
+  my $self = shift;
+
+  my $table  = $self->get_table_name();
+  my $schema = $self->get_table_schema();
+  $schema = "$schema." if $schema;
+
+  return "${schema}$table";
+}
+
 ### EOF ######################################################################
 1;

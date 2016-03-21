@@ -46,6 +46,7 @@ my %DES_KEY_TYPES  = (
                     );
 
 my %DES_KEY_SHORTCUTS = (
+                        'PKEY' => 'PRIMARY_KEY',
                         'REQ'  => 'REQUIRED',
                         'UNIQ' => 'UNIQUE',
                         );
