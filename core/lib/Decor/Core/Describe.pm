@@ -13,11 +13,12 @@ use strict;
 use Data::Dumper;
 use Exception::Sink;
 use Data::Tools 1.09;
+use Tie::IxHash;
 
 use Decor::Core::Env;
 use Decor::Core::Utils;
 use Decor::Core::Log;
-use Decor::Core::Config;
+#use Decor::Core::Config;
 use Decor::Core::Table::Description;
 
 use Exporter;
@@ -39,10 +40,22 @@ my %TYPE_ATTRS = (
                       'DOT'  => undef,
                  );
 
-my %DES_KEY_TYPES = (
+my %DES_KEY_TYPES  = (
                       'ALLOW' => '@',
                       'DENY'  => '@',
                     );
+
+my %DES_KEY_SHORTCUTS = (
+                        'REQ'  => 'REQUIRED',
+                        'UNIQ' => 'UNIQUE',
+                        );
+                    
+my %DES_CATEGORIES = ( 
+                       '@'     => 1, 
+                       'FIELD' => 1,  
+                       'INDEX' => 1 
+                     );
+
 
 my @TABLE_ATTRS = qw(
                       SCHEMA
@@ -50,7 +63,7 @@ my @TABLE_ATTRS = qw(
                       ALLOW
                       DENY
                     );
-                    
+
 # FIXME: more categories INDEX: ACTION: etc.
 my %DES_ATTRS = (
                   '@' => {
@@ -60,10 +73,16 @@ my %DES_ATTRS = (
                            DENY   => 1,
                          },
                   'FIELD' => {
-                           TYPE   => 1,
-                           LABEL  => 1,
-                           ALLOW  => 1,
-                           DENY   => 1,
+                           TYPE        => 1,
+                           LABEL       => 1,
+                           ALLOW       => 1,
+                           DENY        => 1,
+                           PRIMARY_KEY => 1,
+                           REQUIRED    => 1,
+                           UNIQUE      => 1,
+                         },
+                  'INDEX' => {
+                           FIELDS      => 1,
                          },
                 );
 
@@ -138,8 +157,150 @@ sub des_get_tables_list
 
 #-----------------------------------------------------------------------------
 
-sub __load_table_des_hash
+sub __merge_table_des_file
 {
+  my $des    = shift; # config hash ref
+  my $table  = shift;
+  my $fname  = shift;
+  my $opt    = shift || {};
+
+  my $order = 0;
+  
+  my $inf;
+  open( $inf, $fname ) or boom "cannot open table description file [$fname]";
+
+  de_log_debug( "table description open file: [$fname]" );  
+
+  my $sect_name = '@'; # self :) should be more like 0
+  my $category  = '@';
+  $des->{ $category }{ $sect_name } ||= {};
+  my $file_mtime = file_mtime( $fname );
+  if( $des->{ $category }{ $sect_name }{ '_MTIME' } < $file_mtime )
+    {
+    # of all files merged, keep only the latest modification time
+    $des->{ $category }{ $sect_name }{ '_MTIME' } = $file_mtime;
+    }
+  
+  my $ln; # line number
+  while( my $line = <$inf> )
+    {
+    $ln++;
+    my $origin = "$fname:$ln"; # localize $origin from the outer one
+
+    chomp( $line );
+    $line =~ s/^\s*//;
+    $line =~ s/\s*$//;
+    next unless $line =~ /\S/;
+    next if $line =~ /^([#;]|\/\/)/;
+    de_log_debug( "        line: [$line]" );  
+
+    if( $line =~ /^=(([a-zA-Z_][a-zA-Z_0-9]*):\s*)?([a-zA-Z_][a-zA-Z_0-9]*)\s*(.*?)\s*$/ )
+      {
+         $category  = uc( $2 || 'FIELD' );    
+         $sect_name = uc( $3 );
+      my $sect_opts =     $4; # fixme: upcase/locase?
+
+      boom "invalid category [$category] at [$fname:$ln]" unless exists $DES_CATEGORIES{ $category };
+
+      de_log_debug( "       =sect: [$category:$sect_name]" );  
+      
+      $des->{ $category }{ $sect_name } ||= {};
+      $des->{ $category }{ $sect_name }{ 'LABEL' } ||= $sect_name;
+      # FIXME: URGENT: copy only listed keys! no all
+###      %{ $config->{ $category }{ $sect_name } } = ( %{ dclone( $config->{ '@' }{ '@' } ) }, %{ $config->{ $category }{ $sect_name } } );
+      $des->{ $category }{ $sect_name }{ '_ORDER' } = ++ $opt->{ '_ORDER' };
+      
+      if( de_debug() )
+        {
+        $des->{ $category }{ $sect_name }{ 'DEBUG::ORIGIN' } ||= [];
+        push @{ $des->{ $category }{ $sect_name }{ 'DEBUG::ORIGIN' } }, $origin;
+        }
+
+      next;
+      }
+
+    if( $line =~ /^@(isa|include)\s*([a-zA-Z_0-9]+)\s*(.*?)\s*$/ )
+      {
+      my $name = $2;
+      my $opts = $3; # options/arguments, FIXME: upcase/lowcase?
+  
+      de_log_debug( "        isa:  [$name][$opts]" );  
+
+      my $isa = __load_table_des_hash( $name );
+
+      boom "isa/include error: cannot load config [$name] at [$fname:$ln]" unless $isa;
+
+      my @opts = split /[\s,]+/, uc $opts;
+
+      de_log_debug( "        isa:  DUMP: " . Dumper($isa) );  
+      
+      for my $opt ( @opts ) # FIXME: covers arg $opt
+        {
+        my $isa_category;
+        my $isa_sect_name;
+        if( $opt =~ /(([a-zA-Z_][a-zA-Z_0-9]*):)?([a-zA-Z_][a-zA-Z_0-9]*)/ )
+          {
+          $isa_category  = uc( $2 || $opt->{ 'DEFAULT_CATEGORY' } || '*' );
+          $isa_sect_name = uc( $3 );
+          }
+        else
+          {
+          boom "isa/include error: invalid key [$opt] in [$name] at [$fname:$ln]";
+          }  
+        if( $category ne $isa_category )  
+          {
+          boom "isa/include error: cannot inherit kyes from different categories, got [$isa_category] expected [$category] key [$opt] in [$name] at [$fname:$ln]";
+          }
+        boom "isa/include error: non existing key [$opt] in [$name] at [$fname:$ln]" if ! exists $isa->{ $isa_category } or ! exists $isa->{ $isa_category }{ $isa_sect_name };
+        $des->{ $category }{ $sect_name } ||= {};
+        %{ $des->{ $category }{ $sect_name } } = ( %{ $des->{ $category }{ $sect_name } }, %{ dclone( $isa->{ $isa_category }{ $isa_sect_name } ) } );
+        }
+      
+      next;
+      }
+
+    if( $line =~ /^([a-zA-Z_0-9\:]+)\s*(.*?)\s*$/ )
+      {
+      my $key   = uc $1;
+      my $value =    $2;
+
+      $key = $DES_KEY_SHORTCUTS{ $key } if exists $DES_KEY_SHORTCUTS{ $key };
+      boom "unknown attribute key [$key] for table [$table] category [$category] section [$sect_name] at [$fname:$ln]" unless exists $DES_ATTRS{ $category }{ $key };
+
+      if( $value =~ /^(['"])(.*?)\1/ )
+        {
+        $value = $2;
+        }
+      elsif( $value eq '' )
+        {
+        $value = 1;
+        }
+
+      de_log_debug( "            key:  [$sect_name]:[$key]=[$value]" );
+
+      if( $DES_KEY_TYPES{ $key } eq '@' )
+        {
+        $des->{ $category }{ $sect_name }{ $key } ||= [];
+        push @{ $des->{ $category }{ $sect_name }{ $key } }, $value;
+        }
+      else
+        {  
+        $des->{ $category }{ $sect_name }{ $key } = $value;
+        }
+      
+      next;
+      }
+
+
+    }
+  close( $inf );
+  
+  return 1;
+}
+
+sub __merge_table_des_hash
+{
+  my $des   = shift;
   my $table = uc shift;
 
   boom "invalid TABLE name [$table]" unless de_check_name( $table );
@@ -148,18 +309,28 @@ sub __load_table_des_hash
 
   #print STDERR 'TABLE DES DIRS:' . Dumper( $tables_dirs );
 
-  my $des = de_config_load( $table, 
-                            $tables_dirs, 
-                            { 
-                              KEY_TYPES        => \%DES_KEY_TYPES, 
-                              DEFAULT_CATEGORY => 'FIELD',
-                              CATEGORIES       => { '@' => 1, 'FIELD' => 1, 'INDEX' => 1 },
-                            } 
-                          );
+  my $table_fname = lc $table;
+  my @table_files;
+  push @table_files, glob_tree( "$_/$table_fname.def" ) for @$tables_dirs;
 
+
+  boom "cannot find description table files for table [$table] from dirs [@$tables_dirs]" unless @table_files > 0;
+
+  for my $file ( @table_files )
+    {
+    __merge_table_des_file( $des, $table, $file, {} );
+    }
+
+  return $des;
+}
+
+sub __postprocess_table_des_hash
+{
+  my $des   = shift;
+  my $table = uc shift;
 ###  print STDERR "TABLE DES RAW [$table]:" . Dumper( $des );
   
-  boom "unknown table [$table]" unless $des;
+  boom "missing description (load error) for table [$table]" unless $des;
   
   # postprocessing TABLE (self) ---------------------------------------------
   my @fields = keys %{ $des->{ 'FIELD' } };
@@ -213,7 +384,18 @@ sub __load_table_des_hash
         {
         my $len = $1;
         my $dot = $3;
-        $len = 18 + $dot if $dot > 0 and $len == 0;
+        if( $len == 0 )
+          {
+          if( $dot > 0 )
+            {
+            $len = 18 + $dot;
+            }
+          else
+            {
+            $len = 18 + 18;
+            $dot =      18;
+            }  
+          }
         $type_des->{ 'LEN' } = $len if $len > 0;
         $type_des->{ 'DOT' } = $dot if $dot ne '';
         }
@@ -260,7 +442,12 @@ sub describe_table
     return $DES_CACHE{ 'TABLE_DES' }{ $table };
     }
 
-  my $des = __load_table_des_hash( $table );
+  my $des = {};
+  tie %$des, 'Tie::IxHash';
+  
+  __merge_table_des_hash( $des, '_DE_UNIVERSAL' );
+  __merge_table_des_hash( $des, $table );
+  __postprocess_table_des_hash( $des, $table );
 
   $DES_CACHE{ 'TABLE_DES' }{ $table } = $des;
   

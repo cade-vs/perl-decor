@@ -1,6 +1,5 @@
 
 label My funny table
-update admin
 
 
 #allow update or insert to admin or monitor
@@ -16,8 +15,6 @@ allow update, insert, delete ; admin ; monitor + users + !root
   
   unique
   required
-  
-  options uniq req
 
 =CTIME
 
@@ -26,7 +23,6 @@ allow update, insert, delete ; admin ; monitor + users + !root
 =SUMA
 
   type real .4
-  update admin
 
 =INDEX: TEST
 
@@ -43,3 +39,7 @@ allow update, insert, delete ; admin ; monitor + users + !root
 =AMOUNT1
 
   type real .2  
+
+=AMOUNT2
+
+  type real

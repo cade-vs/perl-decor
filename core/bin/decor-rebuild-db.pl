@@ -100,7 +100,7 @@ my $root = de_root();
 
 Decor::Core::DSN::__dsn_parse_config();
 
-my @tables = @ARGV;
+my @tables = @args;
 @tables = @{ des_get_tables_list() } unless @tables > 0;
 
 $_ = uc $_ for @tables;
@@ -221,6 +221,8 @@ sub table_create
   #$dbh->do( "drop table $db_table" );
   #$dbh->do( "drop sequence $db_seq" );
 
+  my @sql_columns;
+
   for my $field ( @$fields )
     {
     my $fld_des = $des->get_field_des( $field );
@@ -233,12 +235,26 @@ sub table_create
 
 #    $def =~ s/^\s*//;
 #    $def =~ s/\s*$//;
+
+    my $column_args;
+    
+    $column_args .= " PRIMARY KEY" if $fld_des->{ 'PRIMARY_KEY' };
+    $column_args .= " NOT NULL"    if $fld_des->{ 'REQUIRED' };
+    $column_args .= " UNIQUE"      if $fld_des->{ 'UNIQUE' };
     
     my $native_type = $dbo->get_native_type( $fld_des->{ 'TYPE' } );
     
-    print Dumper( $field, $fld_des->{ 'TYPE' }, $native_type );
+    #print Dumper( $field, $fld_des->{ 'TYPE' }, $native_type );
     
+    push @sql_columns, "$field $native_type $column_args";
     }
+    
+  my $sql_columns = join ', ', @sql_columns;
+
+  my $sql_stmt = "CREATE TABLE $db_table ( $sql_columns )";
+  
+  print Dumper( "SQL STATEMENT: $sql_stmt" );
+  
 }
 
 sub table_alter
