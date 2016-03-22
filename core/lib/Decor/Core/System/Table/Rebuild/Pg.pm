@@ -167,7 +167,7 @@ sub describe_db_sequence
   my $where_schema;
   my @where_bind;
 
-  push @where_bind, lc $table;
+  push @where_bind, 'de_sq_' . lc $table;
 
   if( $schema )
     {
@@ -205,7 +205,7 @@ sub describe_db_sequence
     {
     $seq_des ||= {};
     my $name  = uc $hr->{ 'SEQUENCE_NAME' };
-    
+
     $seq_des->{ $name } = $hr;
     }
 
@@ -216,28 +216,21 @@ sub describe_db_sequence
 
 #-----------------------------------------------------------------------------
 
+sub sequence_create_sql
+{
+  my $self   = shift;
+  my $db_seq = shift;
+  my $start  = shift || 1;
+  
+  return "CREATE SEQUENCE $db_seq INCREMENT 1 START WITH $start";
+}
+
 sub sequence_get_current_value
 {
-  my $self = shift;
-  my $name = shift;
-
-  my $dbh = $self->get_dbh();
+  my $self   = shift;
+  my $db_seq = shift;
   
-  boom "cannot call describe_db_sequences() from a base class";
-}
-
-sub sequence_create
-{
-  my $self = shift;
-  
-  boom "cannot call describe_db_sequences() from a base class";
-}
-
-sub sequence_reset
-{
-  my $self = shift;
-  
-  boom "cannot call describe_db_sequences() from a base class";
+  return $self->select_field_first1( $db_seq, "LAST_VALUE" );
 }
 
 #-----------------------------------------------------------------------------

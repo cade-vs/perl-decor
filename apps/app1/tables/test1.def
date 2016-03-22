@@ -27,6 +27,7 @@ allow update, insert, delete ; admin ; monitor + users + !root
 =INDEX: TEST
 
   fields CTIME SUMA
+  unique
   
 =DES
 
@@ -47,3 +48,5 @@ allow update, insert, delete ; admin ; monitor + users + !root
 =AMOUNT3
 
   type real 10.5
+  index
+  unique

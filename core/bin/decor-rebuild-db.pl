@@ -161,11 +161,14 @@ sub rebuild_table
   my $des  = shift;
   
   my $table     = $des->get_table_name();
+  my $db_table  = $des->get_db_table_name();
   my $table_des = $des->get_table_des();
   my $schema    = $table_des->{ 'SCHEMA' };
   
-  # handle tables
+  # handle tables -------------------------------
   my $table_db_des = $dbo->describe_db_table( $table, $schema );
+
+  print Dumper( 'TABLE DB DES:', $table, $schema, $table_db_des );
 
   if( $opt_recreate and $table_db_des )
     {
@@ -184,26 +187,76 @@ sub rebuild_table
     table_alter( $dbo, $des, $table_db_des );
     }  
 
-  # handle table indexes
-  my $index_db_des = $dbo->describe_db_indexes( $table, $schema );
-
-  # handle table sequence
+  # handle table sequence -------------------------------
   my $seq_db_des   = $dbo->describe_db_sequence( $table, $schema );
+
+  print Dumper( 'SEQUENCE DB DES:', $table, $schema, $seq_db_des );
+
+  my $max_id = $dbo->get_table_max_id( $db_table );
+  my $start_with = $max_id < 10001 ? 10001 : $max_id + 1;
 
   if( ! $seq_db_des )
     {
-    # sequence does not exist
-    sequence_create( $dbo, $des );
+    # create, sequence does not exist
+    sequence_create( $dbo, $des, $start_with );
     }
   else
     {
     # sequence does exist, try to sync
-    sequence_alter( $dbo, $des );
+    sequence_alter( $dbo, $des, $start_with );
     }  
   
-  
-  
-  #print Dumper( $table, $schema, $table_db_des, $index_db_des, $seq_db_des );
+  # handle table indexes -------------------------------
+  my $index_db_des = $dbo->describe_db_indexes( $table, $schema );
+
+  print Dumper( 'INDEX DB DES:', $table, $schema, $index_db_des );
+
+  my $dbh = $dbo->get_dbh();
+  my $fields = $des->get_fields_list();
+  for my $field ( @$fields )
+    {
+    my $fld_des = $des->get_field_des( $field );
+    my $index  = uc $fld_des->{ 'INDEX'  };
+    my $unique =    $fld_des->{ 'UNIQUE' };
+
+    next unless $index;  # no index required
+    next if     $unique; # unique index required, but it is already created in table definition
+    
+    my $dx_name = "DE_FX_$field";
+    
+    if( ! exists $index_db_des->{ $dx_name } )
+      {
+      my $unique_str = 'UNIQUE' if $unique; # no op for now, already in table creation
+      my $sql_stmt = "CREATE $unique_str INDEX $dx_name ON $db_table ( $field )";
+      de_log( "info: creating $unique_str index [$dx_name] on table [$table] db table [$db_table] field [$field]" );
+      de_log_debug( "debug: sql: [$sql_stmt]" );
+      $dbh->do( $sql_stmt );
+      }
+    }
+
+  my $indexes = $des->get_indexes_list();
+  for my $index ( @$indexes )
+    {
+    my $idx_des = $des->get_index_des( $index );
+    my $unique =    $idx_des->{ 'UNIQUE' };
+    my $fields = uc $idx_des->{ 'FIELDS' };
+    
+    my @fields = split /[\s,]+/, $fields;
+    # FIXME: check if $fields are already known in this table
+    $fields = join ',', @fields;
+
+    my $dx_name = "DE_IX_$index";
+    
+    if( ! exists $index_db_des->{ $dx_name } )
+      {
+      my $unique_str = 'UNIQUE' if $unique; # no op for now, already in table creation
+      my $sql_stmt = "CREATE $unique_str INDEX $dx_name ON $db_table ( $fields )";
+      de_log( "info: creating $unique_str index [$dx_name] on table [$table] db table [$db_table] fields [$fields]" );
+      de_log_debug( "debug: sql: [$sql_stmt]" );
+      $dbh->do( $sql_stmt );
+      }
+    }
+
 }
 
 #--- tables ------------------------------------------------------------------
@@ -217,7 +270,7 @@ sub table_drop
   my $db_table = $des->get_db_table_name();
   
   my $dbh = $dbo->get_dbh();
-  my $sql_stmt = "drop table $db_table";
+  my $sql_stmt = "DROP TABLE $db_table";
   de_log( "info: drop table [$table] db table [$db_table]" );
   de_log_debug( "debug: sql: [$sql_stmt]" );
   $dbh->do( $sql_stmt );
@@ -350,18 +403,56 @@ sub sequence_drop
   my $db_seq   = $des->get_db_sequence_name();
   
   my $dbh = $dbo->get_dbh();
-  my $sql_stmt = "drop sequence $db_seq";
+  my $sql_stmt = "DROP SEQUENCE $db_seq";
   de_log( "info: drop sequence for table [$table] db sequence [$db_seq]" );
   de_log_debug( "debug: sql: [$sql_stmt]" );
   $dbh->do( $sql_stmt );
+
+  return 1;
 }
 
 sub sequence_create
 {
+  my $dbo  = shift;
+  my $des  = shift;
+  my $start_with = shift;
+  
+  my $table    = $des->get_table_name();
+  my $db_table = $des->get_db_table_name();
+  my $db_seq   = $des->get_db_sequence_name();
+
+  my $dbh = $dbo->get_dbh();
+  
+  my $sql_stmt = $dbo->sequence_create_sql( $db_seq, $start_with );
+  de_log( "info: create sequence for table [$table] db sequence [$db_seq] start with [$start_with]" );
+  de_log_debug( "debug: sql: [$sql_stmt]" );
+  $dbh->do( $sql_stmt );
+  
+  return 1;
 }
 
 sub sequence_alter
 {
+  my $dbo  = shift;
+  my $des  = shift;
+  my $start_with = shift;
+
+  my $table    = $des->get_table_name();
+  my $db_seq   = $des->get_db_sequence_name();
+
+  my $current = $dbo->sequence_get_current_value( $db_seq );
+  
+  if( $current >= $start_with )
+    {
+    de_log( "info: alter sequence [$db_seq] for table [$table] current value [$current] no change needed" );
+    return 0;
+    }
+
+  de_log( "info: alter sequence [$db_seq] for table [$table] current value [$current] needs to be restarted with [$start_with]" );
+  sequence_drop( $dbo, $des );
+  sequence_create( $dbo, $des, $start_with );
+  
+  return 1;
 }
 
 #--- indexes -----------------------------------------------------------------

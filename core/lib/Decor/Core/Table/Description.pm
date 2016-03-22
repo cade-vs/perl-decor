@@ -36,6 +36,13 @@ sub get_fields_list
   return $self->{ '@' }{ '_FIELDS_LIST' };
 }
 
+sub get_indexes_list
+{
+  my $self = shift;
+  
+  return $self->{ '@' }{ '_INDEXES_LIST' };
+}
+
 sub get_table_des
 {
   my $self  =    shift;
@@ -55,6 +62,20 @@ sub get_field_des
     }
 
   return $self->{ 'FIELD' }{ $field };
+}
+
+sub get_index_des
+{
+  my $self  =    shift;
+  my $index = uc shift;
+
+  if( ! exists $self->{ 'INDEX' }{ $index } )
+    {
+    my $table = $self->get_table_name();
+    boom "unknown index [$index] for table [$table]";
+    }
+
+  return $self->{ 'INDEX' }{ $index };
 }
 
 sub get_dsn_name
@@ -99,7 +120,7 @@ sub get_db_sequence_name
   my $schema = $self->get_table_schema();
   $schema = "$schema." if $schema;
 
-  return "${schema}$table";
+  return "${schema}DE_SQ_$table";
 }
 
 ### EOF ######################################################################

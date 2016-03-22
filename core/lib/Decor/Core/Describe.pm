@@ -14,6 +14,7 @@ use Data::Dumper;
 use Exception::Sink;
 use Data::Tools 1.09;
 use Tie::IxHash;
+use Data::Lock qw( dlock dunlock );
 
 use Decor::Core::Env;
 use Decor::Core::Utils;
@@ -72,17 +73,22 @@ my %DES_ATTRS = (
                            LABEL  => 1,
                            ALLOW  => 1,
                            DENY   => 1,
+                           SYSTEM => 1,
                          },
                   'FIELD' => {
                            TYPE        => 1,
                            LABEL       => 1,
                            ALLOW       => 1,
                            DENY        => 1,
+                           SYSTEM      => 1,
                            PRIMARY_KEY => 1,
                            REQUIRED    => 1,
                            UNIQUE      => 1,
+                           INDEX       => 1,
                          },
                   'INDEX' => {
+                           FIELDS      => 1,
+                           UNIQUE      => 1,
                            FIELDS      => 1,
                          },
                 );
@@ -149,7 +155,7 @@ sub des_get_tables_list
     }
 
   s/^.*?\/([^\/]+)\.def$/uc($1)/ie for @tables;
-  @tables = keys %{ { map { $_ => 1 } @tables } };
+  @tables = keys %{ { map { $_ => 1 } grep { ! /^_+/ } @tables } };
 
   $DES_CACHE{ 'TABLES_LIST_AR' } = \@tables;
 
@@ -334,7 +340,8 @@ sub __postprocess_table_des_hash
   boom "missing description (load error) for table [$table]" unless $des;
   
   # postprocessing TABLE (self) ---------------------------------------------
-  my @fields = keys %{ $des->{ 'FIELD' } };
+  my @fields  = keys %{ $des->{ 'FIELD' } };
+  my @indexes = keys %{ $des->{ 'INDEX' } };
 
   # move table config in more comfortable location
   $des->{ '@' } = $des->{ '@' }{ '@' };
@@ -350,9 +357,10 @@ sub __postprocess_table_des_hash
     }
     
   # more postprocessing work
-  $des->{ '@' }{ '_TABLE_NAME'  } = $table;
-  $des->{ '@' }{ '_FIELDS_LIST' } = \@fields;
-  $des->{ '@' }{ 'DSN'          } = uc( $des->{ '@' }{ 'DSN' } ) || 'MAIN';
+  $des->{ '@' }{ '_TABLE_NAME'   } = $table;
+  $des->{ '@' }{ '_FIELDS_LIST'  } = \@fields;
+  $des->{ '@' }{ '_INDEXES_LIST' } = \@indexes;
+  $des->{ '@' }{ 'DSN'           } = uc( $des->{ '@' }{ 'DSN' } ) || 'MAIN';
 
 ###  print STDERR "TABLE DES AFTER SELF PP [$table]:" . Dumper( $des );
   # postprocessing FIELDs ---------------------------------------------------
@@ -414,18 +422,26 @@ sub __postprocess_table_des_hash
       # link missing attributes to self
       $des->{ 'FIELD' }{ $field }{ $attr } = $des->{ '@' }{ $attr };
       }
-    # add empty keys to fields description before locking
-    for my $attr ( keys %{ $DES_ATTRS{ 'FIELD' } } )
-      {
-      next if exists $des->{ 'FIELD' }{ $field }{ $attr };
-      $des->{ 'FIELD' }{ $field }{ $attr } = undef;
-      }
     }
 
-  #print STDERR "TABLE DES POST PROCESSSED [$table]:" . Dumper( $des );
+  # add empty keys to fields description before locking
+  for my $category ( qw( FIELD INDEX ) )
+    {
+    for my $key ( keys %{ $des->{ $category } })
+      {
+      for my $attr ( keys %{ $DES_ATTRS{ $category } } )
+        {
+        next if exists $des->{ $category }{ $key }{ $attr };
+        $des->{ $category }{ $key }{ $attr } = undef;
+        }
+      }  
+    }  
+
+  print STDERR "TABLE DES POST PROCESSSED [$table]:" . Dumper( $des );
 
   bless $des, 'Decor::Core::Table::Description';
-  hash_lock_recursive( $des );
+  dlock $des;
+  #hash_lock_recursive( $des );
   
   return $des;
 }

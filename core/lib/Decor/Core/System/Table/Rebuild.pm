@@ -31,6 +31,8 @@ sub new
   return $self;
 }
 
+### FOR REIMPLEMENTATION ##################################################### 
+
 sub describe_db_table
 {
   my $self = shift;
@@ -59,14 +61,7 @@ sub sequence_get_current_value
   boom "cannot call describe_db_sequences() from a base class";
 }
 
-sub sequence_create
-{
-  my $self = shift;
-  
-  boom "cannot call describe_db_sequences() from a base class";
-}
-
-sub sequence_reset
+sub sequence_create_sql
 {
   my $self = shift;
   
@@ -88,12 +83,29 @@ sub get_native_type
   
 }
 
-sub get_decor_type
-{
-  my $self = shift;
+############################################################################## 
 
-  boom "cannot call get_decor_type() from a base class";
+sub select_field_first1
+{
+  my $self     = shift;
+  my $db_table = shift;
+  my $field    = shift;
+
+  my $dbh   = $self->get_dbh();
   
+  my $ar = $dbh->selectrow_arrayref( "SELECT $field FROM $db_table" );
+
+  return undef unless $ar;
+  return $ar->[ 0 ];
 }
 
+sub get_table_max_id
+{
+  my $self  = shift;
+  my $db_table = shift;
+
+  return $self->select_field_first1( $db_table, "MAX(ID)" );
+}
+
+###EOF######################################################################## 
 1;
