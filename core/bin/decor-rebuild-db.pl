@@ -363,10 +363,9 @@ sub table_alter
     $column_args .= " NOT NULL"    if $fld_des->{ 'REQUIRED' };
     $column_args .= " UNIQUE"      if $fld_des->{ 'UNIQUE' };
     
-    
     #print Dumper( $field, $fld_des->{ 'TYPE' }, $native_type );
     
-    push @sql_columns, "ADD COLUMN $field $native_type $column_args";
+    push @sql_columns, "$field $native_type $column_args";
     $add_columns++;
     }
 
@@ -380,9 +379,7 @@ sub table_alter
     return 0;
     }  
     
-  my $sql_columns = join ', ', @sql_columns;
-
-  my $sql_stmt = "ALTER TABLE $db_table $sql_columns";
+  my $sql_stmt = $dbo->table_alter_sql( $db_table, \@sql_columns );
   
   de_log_debug( "debug: sql: [$sql_stmt]" );
   
@@ -423,7 +420,7 @@ sub sequence_create
 
   my $dbh = $dbo->get_dbh();
   
-  my $sql_stmt = $dbo->sequence_create_sql( $db_seq, $start_with );
+  my $sql_stmt = $dbo->sequence_create_sql( $des, $start_with );
   de_log( "info: create sequence for table [$table] db sequence [$db_seq] start with [$start_with]" );
   de_log_debug( "debug: sql: [$sql_stmt]" );
   $dbh->do( $sql_stmt );
@@ -440,7 +437,7 @@ sub sequence_alter
   my $table    = $des->get_table_name();
   my $db_seq   = $des->get_db_sequence_name();
 
-  my $current = $dbo->sequence_get_current_value( $db_seq );
+  my $current = $dbo->sequence_get_current_value( $des );
   
   if( $current >= $start_with )
     {

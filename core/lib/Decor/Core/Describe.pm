@@ -340,8 +340,8 @@ sub __postprocess_table_des_hash
   boom "missing description (load error) for table [$table]" unless $des;
   
   # postprocessing TABLE (self) ---------------------------------------------
-  my @fields  = keys %{ $des->{ 'FIELD' } };
-  my @indexes = keys %{ $des->{ 'INDEX' } };
+  my @fields  = sort { $des->{ 'FIELD' }{ $a }{ '_ORDER' } <=> $des->{ 'FIELD' }{ $b }{ '_ORDER' } } keys %{ $des->{ 'FIELD' } };
+  my @indexes = sort { $des->{ 'INDEX' }{ $a }{ '_ORDER' } <=> $des->{ 'INDEX' }{ $b }{ '_ORDER' } } keys %{ $des->{ 'INDEX' } };
 
   # move table config in more comfortable location
   $des->{ '@' } = $des->{ '@' }{ '@' };

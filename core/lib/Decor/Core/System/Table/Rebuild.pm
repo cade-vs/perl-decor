@@ -80,7 +80,6 @@ sub get_native_type
   my $self = shift;
 
   boom "cannot call get_native_type() from a base class";
-  
 }
 
 ############################################################################## 
@@ -105,6 +104,13 @@ sub get_table_max_id
   my $db_table = shift;
 
   return $self->select_field_first1( $db_table, "MAX(ID)" );
+}
+
+#--- syntax specifics --------------------------------------------------------
+
+sub table_alter_sql
+{
+  boom "cannot call table_alter_sql() from a base class";
 }
 
 ###EOF######################################################################## 

@@ -8,7 +8,7 @@
 ##  LICENSE: GPLv2
 ##
 ##############################################################################
-package Decor::Core::System::Table::Rebuild::Pg;
+package Decor::Core::System::Table::Rebuild::Oracle;
 use strict;
 use Data::Dumper;
 use Exception::Sink;
@@ -19,7 +19,6 @@ use parent 'Decor::Core::System::Table::Rebuild';
 ##############################################################################
 
 my %MAP_DB_TYPES = (
-                     'character varying' => 'varchar',
                    );
 
 sub describe_db_table
@@ -33,35 +32,36 @@ sub describe_db_table
   my $where_schema;
   my @where_bind;
 
-  push @where_bind, lc $table;
+  push @where_bind, uc $table;
   
   if( $schema )
     {
-    $where_schema = "table_schema = ?";
+    $where_schema = "owner = ?";
     push @where_bind, lc $schema;
     }
   else
     {
-    $where_schema = "table_schema = ( select current_schema() )";
+    $where_schema = "owner = ( select USER from dual )";
     }  
   
   my $des_stmt = qq(
 
            select
-               table_name                  as "table",
-               table_schema                as "schema",
-               column_name                 as "column",
-               data_type                   as "type",
-               character_maximum_length    as "len",
-               numeric_precision           as "precision",
-               numeric_scale               as "scale",
-               ( select current_schema() ) as "default_schema"
+               table_name              as "table",
+               owner                   as "schema",
+               column_name             as "column",
+               data_type               as "type",
+               data_length             as "len",
+               data_precision          as "precision",
+               data_scale              as "scale",
+               (select USER from dual) as "default_schema"
            from
-               information_schema.columns
+               sys.all_tab_columns 
            where
                table_name = ? AND $where_schema
            order by
-               table_name 
+               table_name
+
   );
   
   #print Dumper( $des_stmt, \@where_bind );
@@ -75,7 +75,9 @@ sub describe_db_table
     {
     $db_des ||= {};
     my $column  = uc $hr->{ 'COLUMN' };
-  
+    
+    $hr->{ 'TYPE' } = lc $hr->{ 'TYPE' };
+    
     $hr->{ 'TYPE' } = $MAP_DB_TYPES{ $hr->{ 'TYPE' } } if exists $MAP_DB_TYPES{ $hr->{ 'TYPE' } };
     $db_des->{ $column } = $hr;
     }
@@ -99,42 +101,35 @@ sub describe_db_indexes
   my $where_schema;
   my @where_bind;
 
-  push @where_bind, lc $table;
+  push @where_bind, uc $table;
   
   if( $schema )
     {
-    $where_schema = "s.nspname = ?";
+    $where_schema = "owner = ?";
     push @where_bind, lc $schema;
     }
   else
     {
-    $where_schema = "s.nspname = ( select current_schema() )";
+    $where_schema = "owner = ( select USER from dual )";
     }  
   
   my $des_stmt = qq(
 
             select
-                i.relname as "index_name", 
-                t.relname as "table", 
-                s.nspname as "index_schema",
-               ( select current_schema() ) as "default_schema"
-            from                                                                  
-                pg_index,
-                pg_class i,
-                pg_class t,
-                pg_namespace s
-            where             
-                    pg_index.indexrelid = i.oid
-                and pg_index.indrelid   = t.oid
-                and t.relnamespace      = s.oid
-                and t.relname           = ?
-                and $where_schema
+                index_name as "index_name", 
+                table_name as "table", 
+                owner      as "index_schema",
+                ( select USER from dual ) as "default_schema"
+            from
+                sys.all_indexes
+            where
+                table_name = ? and $where_schema    
             order by                           
-                i.relname
+                index_name
 
   );
   
-  #print Dumper( $des_stmt, \@where_bind );
+  print Dumper( $des_stmt, \@where_bind );
   
   my $sth = $dbh->prepare( $des_stmt );
   $sth->execute( @where_bind ) or die "[$des_stmt] exec failed: " . $sth->errstr;
@@ -149,6 +144,7 @@ sub describe_db_indexes
     $idx_des->{ $name } = $hr;
     }
 
+  print Dumper( $idx_des );
   dlock $idx_des;
   
   return $idx_des;  
@@ -167,29 +163,30 @@ sub describe_db_sequence
   my $where_schema;
   my @where_bind;
 
-  push @where_bind, 'de_sq_' . lc $table;
+  push @where_bind, uc 'de_sq_' . lc $table;
 
   if( $schema )
     {
-    $where_schema = "sequence_schema = ?";
+    $where_schema = "sequence_owner = ?";
     push @where_bind, lc $schema;
     }
   else
     {
-    $where_schema = "sequence_schema = ( select current_schema() )";
+    $where_schema = "sequence_owner = ( select USER from dual )";
     }  
   
   my $des_stmt = qq(
-            select 
-                sequence_name,
-                sequence_schema as "schema",
-                start_value
-            from 
-                information_schema.sequences
+
+            select
+                sequence_name   as "sequence_name",
+                sequence_owner  as "schema",
+                min_value       as "start_value",
+                last_number     as "last_number"
+            from
+                sys.all_sequences
             where
-                    sequence_name = ?
-                and $where_schema
-            order by        
+                sequence_name = ? and $where_schema
+            order by
                 sequence_name
                 
   );
@@ -209,6 +206,7 @@ sub describe_db_sequence
     $seq_des->{ $name } = $hr;
     }
 
+  #print Dumper( $seq_des );
   dlock $seq_des;
 
   return $seq_des;  
@@ -224,7 +222,7 @@ sub sequence_create_sql
 
   my $db_seq   = $des->get_db_sequence_name();
   
-  return "CREATE SEQUENCE $db_seq INCREMENT 1 START WITH $start";
+  return "CREATE SEQUENCE $db_seq INCREMENT BY 1 START WITH $start ORDER";
 }
 
 sub sequence_get_current_value
@@ -232,18 +230,22 @@ sub sequence_get_current_value
   my $self   = shift;
   my $des    = shift;
 
+  my $table     = $des->get_table_name();
+  my $table_des = $des->get_table_des();
   my $db_seq   = $des->get_db_sequence_name();
-  
-  return $self->select_field_first1( $db_seq, "LAST_VALUE" );
+  my $schema    = $table_des->{ 'SCHEMA' };
+
+  my $seq_db_des = $self->describe_db_sequence( $table, $schema );
+
+  return $seq_db_des->{ $db_seq }{ 'LAST_NUMBER' };
 }
 
 #-----------------------------------------------------------------------------
 
 my %NATIVE_TYPES = (
-                   'INT'   => 'integer',
-                   'DATE'  => 'integer',
-                   'TIME'  => 'integer',
-                   'UTIME' => 'integer',
+                   'DATE'  => [ 'number', 'number(38)' ],
+                   'TIME'  => [ 'number', 'number(38)' ],
+                   'UTIME' => [ 'number', 'number(38)' ],
                    );
 
 sub get_native_type
@@ -260,29 +262,27 @@ sub get_native_type
   my $base;
   if( $name eq 'INT' )
     {
-    if( $len > 0 and $len <= 4 )
-      {
-      $native = "smallint";
-      }
-    elsif( $len > 9 )
-      {
-      $native = "bigint";
-      }
-    else
-      {
-      $native = "integer";
-      }  
-    }
-  elsif( $name eq 'CHAR' )
-    {
     if( $len > 0 )
       {
-      $base = "varchar";
+      $base = "number";
       $native = "$base($len)";
       }
     else
       {
-      $native = "text";
+      $base = "number";
+      $native = "$base(38)"; # as described in oracle docs
+      }  
+    }
+  elsif( $name eq 'CHAR' )
+    {
+    if( $len > 0 and $len < 4000 ) # TODO: unicode support?
+      {
+      $base = "varchar2";
+      $native = "$base($len)";
+      }
+    else
+      {
+      $native = "clob";
       }  
     }
   elsif ( $name eq 'REAL' )
@@ -290,17 +290,17 @@ sub get_native_type
     boom "scale [$dot] cannot be larger than precision [$len]" unless $dot <= $len;
     if( $len > 0 and $dot > 0 )
       {
-      $base = "numeric";
+      $base = "number";
       $native = "$base( $len, $dot )";
       }
     else
       {
-      $native = "numeric";
+      $native = "number";
       }  
     }
   else
     {
-    $native = $NATIVE_TYPES{ $name };
+    ( $base, $native ) = @{ $NATIVE_TYPES{ $name } };
     }
 
   boom "cannot find native type for decor type [$name]" unless $native;
@@ -312,12 +312,13 @@ sub get_native_type
 
 sub table_alter_sql
 {
+  my $self     = shift;
   my $db_table = shift;
   my $columns  = shift;
 
-  my $sql_columns = join ', ', map { "ADD COLUMN " } @$columns;
+  my $sql_columns = join ', ', @$columns;
   
-  my $sql_stmt = "ALTER TABLE $db_table $sql_columns";
+  my $sql_stmt = "ALTER TABLE $db_table ADD ( $sql_columns )";
 
   return $sql_stmt;
 }

@@ -5,8 +5,20 @@ DSN   dbi:Pg:dbname=decor
 USER  cade
 PASS  ''
 
+DSN   dbi:Oracle:
+USER  decor/decor@(DESCRIPTION=(ADDRESS=(PROTOCOL=tcp)(HOST=kate)(PORT=1521)))
+PASS  ''
+
 =OTHER
 
 DSN   dbi:Pg:dbname=decor_other
 USER  cade
 PASS  ''
+
+=ORATEST
+
+DSN   dbi:Oracle:
+USER  decor/decor@(DESCRIPTION=(ADDRESS=(PROTOCOL=tcp)(HOST=kate)(PORT=1521)))
+PASS
+
+
