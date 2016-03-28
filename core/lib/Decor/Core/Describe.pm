@@ -30,6 +30,7 @@ our @EXPORT = qw(
                 
                 des_get_tables_list
                 describe_table 
+                preload_all_tables_descriptions
                 
                 );
 
@@ -108,10 +109,12 @@ my %DES_LINK_ATTRS = (
 #-----------------------------------------------------------------------------
 
 my %DES_CACHE;
+my $DES_CACHE_PRELOADED;
 
 sub des_reset
 {
   %DES_CACHE = ();
+  $DES_CACHE_PRELOADED = 0;
   
   return 1;
 }
@@ -320,7 +323,6 @@ sub __merge_table_des_hash
   my @table_files;
   push @table_files, glob_tree( "$_/$table_fname.def" ) for @$tables_dirs;
 
-
   boom "cannot find description table files for table [$table] from dirs [@$tables_dirs]" unless @table_files > 0;
 
   for my $file ( @table_files )
@@ -458,6 +460,10 @@ sub describe_table
     #de_log( "status: table description cache hit for [$table]" );
     return $DES_CACHE{ 'TABLE_DES' }{ $table };
     }
+  elsif( $DES_CACHE_PRELOADED )  
+    {
+    boom "cannot describe unknown table [$table]";
+    }
 
   my $des = {};
   tie %$des, 'Tie::IxHash';
@@ -469,6 +475,19 @@ sub describe_table
   $DES_CACHE{ 'TABLE_DES' }{ $table } = $des;
   
   return $des;
+}
+
+sub preload_all_table_descriptions
+{
+  my $tables = des_get_tables_list();
+
+  for my $table ( @$tables )
+    {
+    de_log_debug( "preloading description for table [$table]" );
+    describe_table( $_ );
+    };
+
+  $DES_CACHE_PRELOADED = 1;
 }
 
 #-----------------------------------------------------------------------------
