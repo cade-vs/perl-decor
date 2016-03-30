@@ -66,6 +66,12 @@ sub select
     {
     @fields = split /[\s,]+/, $fields;
     }  
+  
+  
+  for my $field ( @fields )
+    {
+    
+    }
     
   ...  
   

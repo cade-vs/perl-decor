@@ -374,6 +374,24 @@ sub __postprocess_table_des_hash
     # --- type ---------------------------------------------
     my @type = split /[,\s]+/, uc $fld_des->{ 'TYPE' };
     my $type = shift @type;
+
+    # "high" level types
+    if( $type eq 'LINK' )
+      {
+      $fld_des->{ 'LINKED_TABLE' } = shift @type;
+      $fld_des->{ 'LINKED_FIELD' } = shift @type;
+
+      $type = 'INT';
+      @type = qw( 32 ); # length
+      }
+    elsif( $type eq 'BACKLINK' )
+      {
+      $fld_des->{ 'BACKLINKED_TABLE' } = shift @type;
+      $fld_des->{ 'BACKLINKED_KEY'   } = shift @type;
+
+      $type = 'INT';
+      @type = qw( 32 ); # length
+      }
     
     # FIXME: check if type is allowed!
     $type_des->{ 'NAME' } = $type;
