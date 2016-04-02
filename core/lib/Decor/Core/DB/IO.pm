@@ -104,7 +104,7 @@ sub select
 
   my $select_tables = join ",\n  ", keys %{ $self->{ 'SELECT' }{ 'TABLES' } };
   my $select_fields = join ",\n  ", @select_fields;
-  my $select_where  = join ",\n  ", @where;
+  my $select_where  = "WHERE " . join( "\n AND ", @where );
   
   my $sql_stmt = "SELECT\n $distinct_clause $select_fields\nFROM\n  $select_tables\n$select_where\n$limit_clause\n$offset_clause\n$locking_clause\n";
   
@@ -242,20 +242,18 @@ sub insert
     my $field_type_name = $fld_des->{ 'TYPE' }{ 'NAME' };
     
     my $value = 0 if $field_type_name ne 'CHAR' and $value == 0;
-    $columns = "$field,";
-    $values  = "?,";
+    $columns .= "$field,";
+    $values  .= "?,";
     push @values, $value;
     }
   chop( $columns );
   chop( $values  );
 
-  # FIXME: $self->get_sth();
-  my $sth = $self->{ 'SELECT' }{ 'STH' };
-  boom "missing SELECT::STH! call select() before fetch()" unless $sth;
 
   my $db_table = $table_des->get_db_table();
   my $sql_stmt = "INSERT INTO $db_table ( $columns ) values ( $values )";
 
+  my $dbh = dsn_get_dbh_by_table( $table );
   my $rc = $sth->do( $sql_stmt, {}, @values );
 
   return $rc ? $data->{ "ID" } : 0;
@@ -269,7 +267,50 @@ sub update
   my $table = shift;
   my $data  = shift; # hashref with { field => value }
   my $where = shift;
+  my $opts  = shift;
 
+
+  my @where;
+  my @bind;
+
+  my $table_des = describe_table( $table );
+  my $db_table  = $table_des->get_db_table();
+
+  my $id = exists $data->{ 'ID' } ? $data->{ 'ID' } : undef;
+  if( ! $where and $id )
+    {
+    push @where, "$db_table.ID = ?" ;
+    push @bind, $id;
+    }
+
+  # TODO: check if @columns + @values is faster or equal
+  my $columns;
+  my @values;
+  while( my ( $field, $value ) = each %$data )
+    {
+    $field = uc $field;
+    my $fld_des = $table_des->get_field_des( $field );
+    my $field_type_name = $fld_des->{ 'TYPE' }{ 'NAME' };
+    
+    my $value = 0 if $field_type_name ne 'CHAR' and $value == 0;
+    $columns .= "$field=?,";
+    push @values, $value;
+    }
+  chop( $columns );
+
+  my $where_clause;
+  if( @where )
+    {
+    $where_clause = "WHERE " . join( ' AND ', @where );
+    }
+
+  my $db_table = $table_des->get_db_table();
+  my $sql_stmt = "UPDATE $db_table SET $columns $where_clause";
+
+  my $dbh = dsn_get_dbh_by_table( $table );
+  my $rc = $sth->do( $sql_stmt, {}, ( @values, @bind ) );
+
+  return $rc ? $rc : 0;
 }
 
 #-----------------------------------------------------------------------------
@@ -280,6 +321,7 @@ sub update_id
   my $table = shift;
   my $data  = shift; # hashref with { field => value }
   my $id    = shift;
+  my $opts  = shift;
 
   return $self->update( $table, $data, '.ID = ?', BIND => [ $id ] );
 }
@@ -291,8 +333,8 @@ sub get_next_sequence
   my $self   = shift;
   my $db_seq = shift; # db sequence name
   
+  boom "cannot be called from the base class";
   # must be reimplemented inside IO::*
-  
 }
 
 #-----------------------------------------------------------------------------
