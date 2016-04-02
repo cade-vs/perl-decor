@@ -30,6 +30,7 @@ our @EXPORT = qw(
                 
                 des_get_tables_list
                 describe_table 
+                describe_table_field
                 preload_all_tables_descriptions
                 
                 );
@@ -506,6 +507,15 @@ sub preload_all_table_descriptions
     };
 
   $DES_CACHE_PRELOADED = 1;
+}
+
+sub describe_table_field
+{
+  my $table = shift;
+  my $field = shift;
+  
+  my $des = describe_table( $table );
+  return $des->get_field_des( $field );
 }
 
 #-----------------------------------------------------------------------------
