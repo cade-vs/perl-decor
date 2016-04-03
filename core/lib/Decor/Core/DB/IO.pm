@@ -88,6 +88,8 @@ sub select
   # FIXME: ORDERBY  
   # FIXME: GROUPBY
   
+  # FIXME: use inner or left outer joins, instead of simple where join
+  # FIXME: add option for inner, outer or full joins!
   push @where, keys %{ $self->{ 'SELECT' }{ 'RESOLVE_WHERE' } };
   delete $self->{ 'SELECT' }{ 'RESOLVE_WHERE' };
   
@@ -157,6 +159,9 @@ sub __select_resolve_field
      
      $db_table_next = describe_table( $table_next )->get_db_table();
      $self->{ 'SELECT' }{ 'TABLES' }{ "$db_table_next $alias_next" }++;
+
+     # FIXME: use inner or left outer joins, instead of simple where join
+     # FIXME: add option for inner, outer or full joins!
      $self->{ 'SELECT' }{ 'RESOLVE_WHERE' }{ "$alias_now.$field_now = $alias_next.ID" }++;
      
      $table_now = $table_next;
