@@ -362,6 +362,9 @@ sub get_next_sequence
 {
   my $self   = shift;
   my $db_seq = shift; # db sequence name
+  my $dsn    = shift || 'MAIN';
+
+# FIXME: DSN DBH?
   
   boom "cannot be called from the base class";
   # must be reimplemented inside IO::*
@@ -378,8 +381,9 @@ sub get_next_table_id
 
   my $des    = describe_table( $table );
   my $db_seq = $des->get_db_sequence_name();
+  my $dsn    = $des->get_dsn_name();
   
-  return $self->get_next_sequence( $db_seq );
+  return $self->get_next_sequence( $db_seq, $dsn );
 }
 
 ### EOF ######################################################################
