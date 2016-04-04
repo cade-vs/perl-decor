@@ -371,7 +371,7 @@ sub table_alter
 
   if( $add_columns > 0 )
     {
-    de_log( "info: alter table [$table] db table [$db_table] added columns [$add_columns]" );
+    de_log( "info: alter table [$table] db table [$db_table] added columns [$add_columns] (@sql_columns)" );
     }
   else
     {

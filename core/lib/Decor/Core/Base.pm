@@ -23,14 +23,7 @@ sub new
   
   my %args = @_;
   
-  my $stage = $args{ 'STAGE' };
-  de_check_ref( $stage, 'Decor::Core::Stage', "invalid or missing STAGE reference, got [$stage]" );
-  
-  my $cache = $stage->__get_cache_storage( $class );
-  
   my $self = {
-             STAGE => $stage,
-             CACHE => $cache,
              };
   bless $self, $class;
   
@@ -54,13 +47,6 @@ sub __lock_self_keys
     $self->{ $key } = undef;
     }
   lock_ref_keys( $self );  
-}
-
-sub get_stage
-{
-  my $self = shift;
-  
-  return $self->{ 'STAGE' };
 }
 
 ### EOF ######################################################################

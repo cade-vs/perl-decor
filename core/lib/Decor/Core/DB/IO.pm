@@ -14,9 +14,11 @@ use parent 'Decor::Core::DB';
 use Exception::Sink;
 use Data::Lock qw( dlock );
 
+use Decor::Core::DSN;
 use Decor::Core::Utils;
 use Decor::Core::Describe;
 use Decor::Core::Log;
+use Decor::Core::Utils;
 
 ##############################################################################
 
@@ -39,6 +41,24 @@ sub reset
 
 # this module handles low-level database io sql statements and data
 
+sub __reshape
+{
+  my $self   = shift;
+  my $table  = shift;
+  
+  my $db_name = dsn_get_db_name_by_table( $table );
+  my $reshape_class_name = "Decor::Core::DB::IO::$db_name";
+
+  return 0 if ref( $self ) eq $reshape_class_name;
+  
+  de_log_debug( "$self reshaped as '$reshape_class_name'" );
+  my $reshape_file_name = perl_package_to_file( $reshape_class_name );
+  require $reshape_file_name;
+  bless $self, $reshape_class_name;
+  
+  1;
+}
+
 ##############################################################################
 
 sub select
@@ -48,6 +68,8 @@ sub select
   my $fields = shift; # can be string, array ref or hash ref
   my $where  = shift;
   my $opts   = shift; 
+
+  $self->__reshape( $table );
 
   $self->finish();
   
@@ -111,7 +133,7 @@ sub select
   my $sql_stmt = "SELECT\n $distinct_clause $select_fields\nFROM\n  $select_tables\n$select_where\n$limit_clause\n$offset_clause\n$locking_clause\n";
   
   my $dbh = $self->{ 'SELECT' }{ 'DBH' } = dsn_get_dbh_by_table( $table );
-  my $sth = $self->{ 'SELECT' }{ 'STH' } = $dbh->prepare( $stmt );
+  my $sth = $self->{ 'SELECT' }{ 'STH' } = $dbh->prepare( $sql_stmt );
   
   my $retval = $sth->execute( @bind );
   $retval = ( $sth->rows() or '0E0' ) if $retval;
@@ -140,14 +162,15 @@ sub __select_resolve_field
    my $field_now = shift @field;
    my $alias_now = $table_now;
    my $alias_key;
+   my $alias_next;
    
    while( @field )
      {
      my $fld_des    = describe_table_field( $table_now, $field );
      my $table_next = $fld_des->{ 'LINKED_TABLE' };
      boom "cannot resolve field, current position is [$table_now:$field]" unless $table_next;
-     
-     $self->{ 'SELECT' }{ 'TABLES' }
+
+     # FIXME: check for cross-DSN links
      
      $alias_key .= "$field.";
      $alias_next = $self->{ 'SELECT' }{ 'TABLES_ALIASES' }{ $alias_key };
@@ -157,7 +180,7 @@ sub __select_resolve_field
                   = "TA_" . ++$self->{ 'SELECT' }{ 'TABLES_ALIASES_COUNT' };
        }
      
-     $db_table_next = describe_table( $table_next )->get_db_table();
+     my $db_table_next = describe_table( $table_next )->get_db_table();
      $self->{ 'SELECT' }{ 'TABLES' }{ "$db_table_next $alias_next" }++;
 
      # FIXME: use inner or left outer joins, instead of simple where join
@@ -166,7 +189,7 @@ sub __select_resolve_field
      
      $table_now = $table_next;
      $alias_now = $alias_next;
-     $field_now = shift @fields;
+     $field_now = shift @field;
      }
 
    return ( $alias_now, $table_now, $field_now );
@@ -189,7 +212,7 @@ sub fetch
   
   my %data;
   my $c = 0;
-  for( @$select_fields )
+  for my $field ( @$select_fields )
     {
     $data{ $field } = $data[ $c++ ];
     }
@@ -232,6 +255,8 @@ sub insert
   my $data  = shift; # hashref with { field => value }
   my $opts  = shift;
 
+  $self->__reshape( $table );
+
   my $table_des = describe_table( $table );
 
   $data->{ "ID" } ||= $self->get_next_table_id( $table );
@@ -254,12 +279,11 @@ sub insert
   chop( $columns );
   chop( $values  );
 
-
   my $db_table = $table_des->get_db_table();
   my $sql_stmt = "INSERT INTO $db_table ( $columns ) values ( $values )";
 
   my $dbh = dsn_get_dbh_by_table( $table );
-  my $rc = $sth->do( $sql_stmt, {}, @values );
+  my $rc = $dbh->do( $sql_stmt, {}, @values );
 
   return $rc ? $data->{ "ID" } : 0;
 }
@@ -274,6 +298,7 @@ sub update
   my $where = shift;
   my $opts  = shift;
 
+  $self->__reshape( $table );
 
   my @where;
   my @bind;
@@ -313,7 +338,7 @@ sub update
   my $sql_stmt = "UPDATE $db_table SET $columns $where_clause";
 
   my $dbh = dsn_get_dbh_by_table( $table );
-  my $rc = $sth->do( $sql_stmt, {}, ( @values, @bind ) );
+  my $rc = $dbh->do( $sql_stmt, {}, ( @values, @bind ) );
 
   return $rc ? $rc : 0;
 }
@@ -348,6 +373,8 @@ sub get_next_table_id
 {
   my $self  = shift;
   my $table = shift;
+
+  $self->__reshape( $table );
 
   my $des    = describe_table( $table );
   my $db_seq = $des->get_db_sequence_name();

@@ -32,6 +32,7 @@ our @EXPORT = qw(
                 dsn_get_dbh_by_table
                 dsn_get
                 dsn_get_db_name
+                dsn_get_db_name_by_table
 
                 dsn_commit
                 dsn_savepoint
@@ -44,6 +45,7 @@ our @EXPORT = qw(
 my $DSN;
 my %DSN_DBH_CACHE;
 my %DSN_TABLE_DBH_CACHE;
+my %DSN_TABLE_DB_NAME_CACHE;
 
 sub dsn_reset
 {
@@ -51,6 +53,7 @@ sub dsn_reset
   
   %DSN_DBH_CACHE = ();
   %DSN_TABLE_DBH_CACHE = ();
+  %DSN_TABLE_DB_NAME_CACHE = ();
   
   return 1;
 }
@@ -173,10 +176,29 @@ sub dsn_get_dbh_by_table
   return $dbh;
 }
 
+sub dsn_get_db_name_by_table
+{
+  my $table = uc shift;
+
+  if( exists $DSN_TABLE_DB_NAME_CACHE{ $table } )
+    {
+    return $DSN_TABLE_DB_NAME_CACHE{ $table };
+    }
+  
+  my $des = describe_table( $table );
+  my $db_name = dsn_get_db_name( $des->get_dsn_name() );
+
+  $DSN_TABLE_DB_NAME_CACHE{ $table } = $db_name;
+  
+  return $db_name;
+}
+
 sub dsn_get
 {
   my $name  = uc shift;
   
+  __dsn_parse_config() unless $DSN;
+
   boom "unknown DSN NAME [$name]" unless exists $DSN->{ $name };
   
   return $DSN->{ $name };

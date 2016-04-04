@@ -312,10 +312,11 @@ sub get_native_type
 
 sub table_alter_sql
 {
+  my $self     = shift;
   my $db_table = shift;
   my $columns  = shift;
 
-  my $sql_columns = join ', ', map { "ADD COLUMN " } @$columns;
+  my $sql_columns = join ', ', map { "ADD COLUMN $_" } @$columns;
   
   my $sql_stmt = "ALTER TABLE $db_table $sql_columns";
 

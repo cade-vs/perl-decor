@@ -10,8 +10,9 @@
 package Decor::Core::DB::IO::Pg;
 use strict;
 
-use parent 'Decor::Core::DB::IO';
 use Exception::Sink;
+
+use parent 'Decor::Core::DB::IO';
 
 
 ### PostgreSQL Specifics #####################################################

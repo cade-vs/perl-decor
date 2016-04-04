@@ -12,6 +12,8 @@ use strict;
 
 use Exception::Sink;
 
+use Decor::Core::Log;
+
 use Exporter;
 our @ISA    = qw( Exporter );
 our @EXPORT = qw( 
@@ -56,7 +58,7 @@ die 'de_reload_config: is not implemented';
 
 sub de_obj_add_debug_info
 {
-  return unless de_debug();
+  return unless de_log_debug();
   my $obj = shift;
 
   my ( $pack, $file, $line, $subname ) = caller( 1 );
