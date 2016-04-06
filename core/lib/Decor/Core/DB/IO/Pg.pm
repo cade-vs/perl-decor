@@ -14,6 +14,8 @@ use Exception::Sink;
 
 use parent 'Decor::Core::DB::IO';
 
+use Decor::Core::DSN;
+use Decor::Core::Log;
 
 ### PostgreSQL Specifics #####################################################
 
@@ -39,7 +41,9 @@ sub get_next_sequence
   my $hr = $dbh->selectrow_hashref( $sth );
   if ( $hr and $hr->{ "NEXTVAL" } )
     {
-    return $hr->{ "NEXTVAL" };
+    my $nextval = $hr->{ "NEXTVAL" };
+    de_log_debug( "debug: get_next_sequence: for sequence [$db_seq] new val [$nextval]" );
+    return $nextval;
     }
   else
     {
