@@ -13,6 +13,8 @@ use strict;
 use parent 'Decor::Core::DB::IO';
 use Exception::Sink;
 
+use Decor::Core::DSN;
+use Decor::Core::Log;
 
 ### Oracle Specifics #########################################################
 
@@ -31,14 +33,16 @@ sub get_next_sequence
 
   my $dbh = dsn_get_dbh_by_name( $dsn );
 
-  my $sql_stmt = "select $seq_name.nextval FROM dual";
+  my $sql_stmt = "select $db_seq.nextval FROM dual";
 
-  my $sth = $dbh->prepare_cached($stmt);
+  my $sth = $dbh->prepare_cached( $sql_stmt );
 
   my $hr = $dbh->selectrow_hashref( $sth );
   if ( $hr and $hr->{ "NEXTVAL" } )
     {
-    return $hr->{ "NEXTVAL" };
+    my $nextval = $hr->{ "NEXTVAL" };
+    de_log_debug( "debug: get_next_sequence: for sequence [$db_seq] new val [$nextval]" );
+    return $nextval;
     }
   else
     {
