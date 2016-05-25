@@ -9,14 +9,12 @@
 ##
 ##############################################################################
 use strict;
-use lib ( $ENV{ 'DECOR_CORE_ROOT' } || '/usr/local/decor' );
+use lib ( $ENV{ 'DECOR_ROOT' } || '/usr/local/decor' ) . '/core/lib';
+use lib ( $ENV{ 'DECOR_ROOT' } || '/usr/local/decor' ) . '/shared/lib';
 
-use FindBin;
-use lib '/usr/local/decor/core/lib';
-use lib $FindBin::Bin . "/../lib";
 use Exception::Sink;
-
 use Data::Dumper;
+
 use Decor::Core::Env;
 #use Decor::Core::Config;
 use Decor::Core::Describe;

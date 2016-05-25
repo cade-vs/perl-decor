@@ -10,6 +10,15 @@
 package Decor::Shared::Types;
 use strict;
 
+use Exporter;
+our @ISA    = qw( Exporter );
+our @EXPORT = qw(
+                  type_set_format
+                  type_get_format
+                  type_format
+                  type_revert
+                );
+
 use Data::Dumper;
 use Exception::Sink;
 use Data::Tools 1.09;
