@@ -32,7 +32,8 @@ our @EXPORT = qw(
                 describe_table 
                 describe_table_field
                 preload_all_tables_descriptions
-                
+
+                des_exists
                 );
 
 ### TABLE DESCRIPTIONS #######################################################
@@ -324,14 +325,14 @@ sub __merge_table_des_hash
   my @table_files;
   push @table_files, glob_tree( "$_/$table_fname.def" ) for @$tables_dirs;
 
-  boom "cannot find description table files for table [$table] from dirs [@$tables_dirs]" unless @table_files > 0;
-
+  my $c = 0;
   for my $file ( @table_files )
     {
+    $c++;
     __merge_table_des_file( $des, $table, $file, {} );
     }
 
-  return $des;
+  return $c;
 }
 
 sub __postprocess_table_des_hash
@@ -469,7 +470,7 @@ sub __postprocess_table_des_hash
 
 #-----------------------------------------------------------------------------
 
-sub describe_table
+sub __load_table_description
 {
   my $table = uc shift;
 
@@ -481,17 +482,35 @@ sub describe_table
     }
   elsif( $DES_CACHE_PRELOADED )  
     {
-    boom "cannot describe unknown table [$table]";
+    return undef;
     }
 
   my $des = {};
   tie %$des, 'Tie::IxHash';
-  
-  __merge_table_des_hash( $des, '_DE_UNIVERSAL' );
-  __merge_table_des_hash( $des, $table );
+
+  my $rc;
+  $rc = __merge_table_des_hash( $des, '_DE_UNIVERSAL' );
+  # zero $rc for UNIVERSAL is ok
+  $rc = __merge_table_des_hash( $des, $table );
+  return undef unless $rc > 0;
   __postprocess_table_des_hash( $des, $table );
 
   $DES_CACHE{ 'TABLE_DES' }{ $table } = $des;
+  
+  return $des;
+}
+
+sub describe_table
+{
+  my $table = uc shift;
+
+  my $des = __load_table_description( $table );
+
+  if( ! $des )
+    {
+    my $tables_dirs = __get_tables_dirs();
+    boom "cannot find/load description for table [$table] dirs [@$tables_dirs]";
+    }
   
   return $des;
 }
@@ -567,6 +586,60 @@ sub __describe_parse_access_line
     }
   
   return %access;
+}
+
+#-----------------------------------------------------------------------------
+
+sub des_exists
+{
+  boom "invalid number of arguments, expected (table,field,attr)" unless @_ > 0 and @_ < 4;
+
+  my $table = $_[0];
+  
+  # check/load table
+  if( exists $DES_CACHE{ 'TABLE_DES' }{ $table } )
+    {
+    # table exists and is loaded, no fields given
+    return 1 if @_ == 1;
+    }
+  elsif( $DES_CACHE_PRELOADED )  
+    {
+    # table does not exists and all tables are loaded already
+    return 0;
+    }
+  else
+    {
+    # table not loaded, unsure if exists
+    my $des = __load_table_description( $table );
+    return 1 if   $des and @_ == 1;
+    return 0 if ! $des;
+    }  
+
+  # table exists, but field check is expected
+  my $field = $_[1];
+  
+  if( exists $DES_CACHE{ 'TABLE_DES' }{ $table }{ $field } )
+    {
+    return 2 if @_ == 2;
+    }
+  else
+    {
+    return 0;
+    }  
+  
+  # table and field exist, but attribute check is expected
+  my $attr = $_[2];
+
+  if( exists $DES_CACHE{ 'TABLE_DES' }{ $table }{ $field }{ $attr } )
+    {
+    return 3 if @_ == 3;
+    }
+  else
+    {
+    return 0;
+    }  
+
+  return 0; # catch-all, should be unreachable
 }
 
 ### EOF ######################################################################

@@ -51,7 +51,7 @@ sub __get_base_table_fields
 
   my $base_table = $self->{ 'BASE_TABLE' };
   
-  my $des = describe_table();
+  my $des = describe_table( $base_table );
   return $des->get_fields_list();
 }
 
@@ -64,7 +64,7 @@ sub read
   my @res;
   for my $field ( @_ )
     {
-    my ( $dst_table, $dst_id, $dst_field ) = $self->resolve_field( $field );
+    my ( $dst_table, $dst_id, $dst_field ) = $self->__resolve_field( $field );
     
     push @res, $self->{ 'RECORD_DATA' }{ $dst_table }{ $dst_id }{ $dst_field };
     }
@@ -88,7 +88,7 @@ sub read_hash
   my @res;
   for my $field ( @_ )
     {
-    my ( $dst_table, $dst_id, $dst_field ) = $self->resolve_field( $field );
+    my ( $dst_table, $dst_id, $dst_field ) = $self->__resolve_field( $field );
     
     push @res, $field;
     push @res, $self->{ 'RECORD_DATA' }{ $dst_table }{ $dst_id }{ $dst_field };
@@ -117,7 +117,7 @@ sub write
     my $field = shift( @data );
     my $value = shift( @data );
 
-    my ( $dst_table, $dst_id, $dst_field ) = $self->resolve_field( $field, WRITE => 1 );
+    my ( $dst_table, $dst_id, $dst_field ) = $self->__resolve_field( $field, WRITE => 1 );
 
     # FIXME: check for number values
     next if $self->{ 'RECORD_DATA' }{ $dst_table }{ $dst_id }{ $dst_field } eq $value;
@@ -131,6 +131,38 @@ sub write
     }
 
   return $mods_count;
+}
+
+sub __resolve_field
+{
+  my $self = shift;
+  
+  my $field = uc shift;
+  
+  my $base_table = $self->{ 'BASE_TABLE' };
+  my $base_id    = $self->{ 'BASE_ID'    };
+  
+  if( $field !~ /\./ ) # if no path was given, i.e. field.field.field
+    {
+    boom "cannot resolve table/field [$base_table/$field]" unless des_exists( $base_table, $field );
+    return ( $base_table, $field, $base_id );
+    }
+
+  my @fields = split /\./, $field;
+  
+  my $current_table = $base_table;
+  my $current_field = shift @fields;
+  my $current_id    = $base_id;
+  while( @fields )
+    {
+    my $field_des = describe_table_field( $current_table, $current_field );
+    
+    
+    }
+
+#  my $des = describe_table( $base_table );
+  
+  
 }
 
 ### EOF ######################################################################
