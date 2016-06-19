@@ -41,6 +41,44 @@ sub is_empty
   return 1;
 }
 
+sub create
+{
+  my $self  = shift;
+  
+  my $table = shift;
+
+  boom "invalid TABLE name [$table]" unless des_exists( $table );
+
+  $self->reset();
+
+  $self->{ 'BASE_TABLE' } = $table;
+
+  my $new_id = $self->__create_empty_data( $table );
+  
+  
+}
+
+sub load
+{
+  my $self  = shift;
+  
+  my $table = shift;
+  my $id    = shift;
+
+  boom "invalid TABLE name [$table]" unless des_exists( $table );
+  de_check_id_boom(   $id,    "invalid ID [$id]"            );
+  
+  $self->reset();
+
+  # FIXME: try to load record first
+
+  $self->{ 'BASE_TABLE' } = $table;
+  $self->{ 'BASE_ID'    } = $id;
+  
+}
+
+#-----------------------------------------------------------------------------
+
 # this module handles high-level, structured system/staged database io
 
 sub __get_base_table_fields
@@ -156,6 +194,10 @@ sub __resolve_field
   while( @fields )
     {
     my $field_des = describe_table_field( $current_table, $current_field );
+    
+    my $linked_table = $field_des->{ 'LINKED_TABLE' };
+    boom "cannot resolve table/field [$current_table/$current_field] invalid linked table [$linked_table]" unless des_exists( $linked_table );
+    
     
     
     }

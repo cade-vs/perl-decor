@@ -20,6 +20,8 @@ our @EXPORT = qw(
 
                 de_check_name
                 de_check_name_boom
+                de_check_id
+                de_check_id_boom
                 de_reload_config
 
                 de_obj_add_debug_info
@@ -44,7 +46,22 @@ sub de_check_name
 sub de_check_name_boom
 {
   my $name = shift;
-  my $msg  = shift || "invalid NAME: [$name]";
+  my $msg  = shift || "invalid NAME [$name]";
+  
+  de_check_name( $name ) or boom $msg;
+}
+
+sub de_check_id
+{
+  my $name = shift;
+  
+  return $name =~ /^[0-9]+$/o ? 1 : 0;
+}
+
+sub de_check_id_boom
+{
+  my $name = shift;
+  my $msg  = shift || "invalid ID [$name]";
   
   de_check_name( $name ) or boom $msg;
 }

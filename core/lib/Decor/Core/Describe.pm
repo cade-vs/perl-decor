@@ -596,6 +596,8 @@ sub des_exists
 
   my $table = $_[0];
   
+  return 0 unless de_check_name( $table );
+  
   # check/load table
   if( exists $DES_CACHE{ 'TABLE_DES' }{ $table } )
     {
@@ -617,6 +619,7 @@ sub des_exists
 
   # table exists, but field check is expected
   my $field = $_[1];
+  return 0 unless de_check_name( $field );
   
   if( exists $DES_CACHE{ 'TABLE_DES' }{ $table }{ $field } )
     {
