@@ -20,6 +20,8 @@ use Decor::Core::Utils;
 sub __init
 {
   my $self = shift;
+
+  $self->reset();
   
   1;
 }
@@ -30,7 +32,29 @@ sub reset
   
   %$self = ();
   
+  $self->{ 'DB::IO' } = new Decor::Core::DB::IO;
+  
   return 1;
+}
+
+sub set_read_only
+{
+  my $self = shift;
+  
+  my $state = shift;
+  
+  $state = 0 if $state < 0;
+  
+  $self->{ 'READ_ONLY' } = $state;
+  
+  return $state;
+}
+
+sub is_read_only
+{
+  my $self = shift;
+  
+  return $self->{ 'READ_ONLY' };
 }
 
 sub is_empty
@@ -54,6 +78,7 @@ sub create
   $self->{ 'BASE_TABLE' } = $table;
 
   my $new_id = $self->__create_empty_data( $table );
+
   
   
 }
@@ -78,6 +103,33 @@ sub load
 }
 
 #-----------------------------------------------------------------------------
+
+sub __create_empty_data
+{
+  my $self = shift;
+
+  my $table  = shift;
+  my $new_id = shift;
+
+  my $dbio = $self->{ 'DB::IO' };
+
+  if( ! $self->is_read_only() )
+    {
+    $new_id = $dbio->get_next_table_id( $table ) unless $new_id > 0;
+    }
+
+  my %data; # FIXME: populate with defaults
+  $data{ 'ID' } = $new_id;
+
+  $self->{ 'RECORD_MODIFIED' }++;
+  $self->{ 'RECORD_INSERT' }{ $dst_table }{ $new_id }++;
+  $self->{ 'RECORD_IMODS'  }{ $dst_table }{ $new_id }++;
+  $self->{ 'RECORD_FMODS'  }{ $dst_table }{ $new_id }{ $dst_field }++;
+  $self->{ 'RECORD_DATA'   }{ $dst_table }{ $new_id } = \%data;
+
+  return $new_id;
+  
+}
 
 # this module handles high-level, structured system/staged database io
 
@@ -159,10 +211,12 @@ sub write
 
     # FIXME: check for number values
     next if $self->{ 'RECORD_DATA' }{ $dst_table }{ $dst_id }{ $dst_field } eq $value;
+    # FIXME: IMPORTANT: check for DB data read for update records!
     
     $mods_count++;
     
     # mark the record and specific fields as modified
+    $self->{ 'RECORD_MODIFIED' }++;
     $self->{ 'RECORD_IMODS' }{ $dst_table }{ $dst_id }++;
     $self->{ 'RECORD_FMODS' }{ $dst_table }{ $dst_id }{ $dst_field }++;
     $self->{ 'RECORD_DATA'  }{ $dst_table }{ $dst_id }{ $dst_field } = $value;
