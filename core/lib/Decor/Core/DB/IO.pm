@@ -120,11 +120,14 @@ sub select
     push @select_fields, "$resolved_alias.$resolved_field";
     }
 
-  # FIXME: ORDERBY  
-  # FIXME: GROUPBY
+  # TODO: preprocess $where for linked fields path starting with ^
+  # TODO: the same for other clauses
+
+  # TODO: ORDERBY  
+  # TODO: GROUPBY
   
-  # FIXME: use inner or left outer joins, instead of simple where join
-  # FIXME: add option for inner, outer or full joins!
+  # TODO: use inner or left outer joins, instead of simple where join
+  # TODO: add option for inner, outer or full joins!
   push @where, keys %{ $self->{ 'SELECT' }{ 'RESOLVE_WHERE' } };
   delete $self->{ 'SELECT' }{ 'RESOLVE_WHERE' };
   
@@ -380,7 +383,7 @@ sub update_id
   my $id    = shift;
   my $opts  = shift;
 
-  return $self->update( $table, $data, '.ID = ?', BIND => [ $id ] );
+  return $self->update( $table, $data, '^ID = ?', BIND => [ $id ] );
 }
 
 #-----------------------------------------------------------------------------
@@ -436,7 +439,7 @@ sub read_first1_by_id_hashref
   my $id    = shift;
   my $opts  = shift; 
 
-  return $self->read_first1_hashref( $table, 'ID = ?', { %$opts, BIND => [ $id ] } );
+  return $self->read_first1_hashref( $table, '^ID = ?', { %$opts, BIND => [ $id ] } );
 }
 
 
