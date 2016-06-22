@@ -53,17 +53,17 @@ sub de_check_name_boom
 
 sub de_check_id
 {
-  my $name = shift;
+  my $id = shift;
   
-  return $name =~ /^[0-9]+$/o ? 1 : 0;
+  return $name =~ /^[0-9]+$/o and $id > 0;
 }
 
 sub de_check_id_boom
 {
-  my $name = shift;
-  my $msg  = shift || "invalid ID [$name]";
+  my $id = shift;
+  my $msg  = shift || "invalid ID [$id]";
   
-  de_check_name( $name ) or boom $msg;
+  de_check_name( $id ) or boom $msg;
 }
 
 sub de_reload_config

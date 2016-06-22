@@ -34,6 +34,8 @@ our @EXPORT = qw(
                 preload_all_tables_descriptions
 
                 des_exists
+                
+                des_table_get_fields_list
                 );
 
 ### TABLE DESCRIPTIONS #######################################################
@@ -643,6 +645,16 @@ sub des_exists
     }  
 
   return 0; # catch-all, should be unreachable
+}
+
+#--- helpers -----------------------------------------------------------------
+
+sub des_table_get_fields_list
+{
+  my $table = shift;
+  
+  my $des = des_describe_table( $table );
+  return $des->get_fields_list();
 }
 
 ### EOF ######################################################################

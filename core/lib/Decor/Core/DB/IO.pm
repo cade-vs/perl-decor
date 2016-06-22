@@ -89,10 +89,17 @@ sub select
     }
   else
     {
-    @fields = split /[\s,]+/, $fields;
-    if( ! @fields )
+    if( $fields eq '*' )
       {
       @fields = @{ $table_des->get_fields_list() };
+      }
+    else
+      {
+      @fields = split /[\s,]+/, $fields;
+      }  
+    if( ! @fields )
+      {
+      boom "empty fields list! requested was [$fields]";
       }
     }  
 
@@ -405,6 +412,33 @@ sub get_next_table_id
   de_log_debug( "debug: get_next_table_id: for table [$table] new val [$new_id]" );
   return $new_id;
 }
+
+#--- helpers -----------------------------------------------------------------
+
+sub read_first1_hashref
+{
+  my $self  = shift;
+  my $table = shift;
+  my $where  = shift;
+  my $opts   = shift; 
+
+  $self->select( $table, '*', $where, $opts );
+  my $data = $self->fetch();
+  $self->finish();
+  
+  return $data;
+}
+
+sub read_first1_by_id_hashref
+{
+  my $self  = shift;
+  my $table = shift;
+  my $id    = shift;
+  my $opts  = shift; 
+
+  return $self->read_first1_hashref( $table, 'ID = ?', { %$opts, BIND => [ $id ] } );
+}
+
 
 ### EOF ######################################################################
 1;

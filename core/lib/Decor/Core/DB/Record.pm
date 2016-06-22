@@ -79,8 +79,9 @@ sub create
 
   my $new_id = $self->__create_empty_data( $table );
 
-  
-  
+  $self->{ 'BASE_ID'    } = $id;
+
+  return $id;
 }
 
 sub load
@@ -91,15 +92,24 @@ sub load
   my $id    = shift;
 
   boom "invalid TABLE name [$table]" unless des_exists( $table );
-  de_check_id_boom(   $id,    "invalid ID [$id]"            );
+  de_check_id_boom( $id, "invalid ID [$id]" );
   
   $self->reset();
 
   # FIXME: try to load record first
+  my %data = map { $_ => '' } @{ des_table_get_fields_list( $table ) };
+
+  my $db_io = new Decor::Core::DB::IO;
+  
+  my $data = $db_io->read_first1_by_id_hashref( $table, $id );
 
   $self->{ 'BASE_TABLE' } = $table;
   $self->{ 'BASE_ID'    } = $id;
-  
+
+  $self->{ 'RECORD_DATA'    }{ $dst_table }{ $new_id } = \%data;
+  $self->{ 'RECORD_DATA_DB' }{ $dst_table }{ $new_id } = { %data }; # copy
+
+  return $id;
 }
 
 #-----------------------------------------------------------------------------
