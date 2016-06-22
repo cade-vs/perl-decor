@@ -106,8 +106,8 @@ sub load
   $self->{ 'BASE_TABLE' } = $table;
   $self->{ 'BASE_ID'    } = $id;
 
-  $self->{ 'RECORD_DATA'    }{ $dst_table }{ $new_id } = \%data;
-  $self->{ 'RECORD_DATA_DB' }{ $dst_table }{ $new_id } = { %data }; # copy
+  $self->{ 'RECORD_DATA'    }{ $table }{ $id } = \%data;
+  $self->{ 'RECORD_DATA_DB' }{ $table }{ $id } = { %data }; # copy, used for profile checks
 
   return $id;
 }
@@ -132,10 +132,10 @@ sub __create_empty_data
   $data{ 'ID' } = $new_id;
 
   $self->{ 'RECORD_MODIFIED' }++;
-  $self->{ 'RECORD_INSERT' }{ $dst_table }{ $new_id }++;
-  $self->{ 'RECORD_IMODS'  }{ $dst_table }{ $new_id }++;
-  $self->{ 'RECORD_FMODS'  }{ $dst_table }{ $new_id }{ $dst_field }++;
-  $self->{ 'RECORD_DATA'   }{ $dst_table }{ $new_id } = \%data;
+  $self->{ 'RECORD_INSERT' }{ $table }{ $new_id }++;
+  $self->{ 'RECORD_IMODS'  }{ $table }{ $new_id }++;
+  $self->{ 'RECORD_FMODS'  }{ $table }{ $new_id }{ $dst_field }++;
+  $self->{ 'RECORD_DATA'   }{ $table }{ $new_id } = \%data;
 
   return $new_id;
   
