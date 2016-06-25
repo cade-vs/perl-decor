@@ -135,7 +135,6 @@ sub __create_empty_data
   $self->{ 'RECORD_MODIFIED' }++;
   $self->{ 'RECORD_INSERT' }{ $table }{ $new_id }++;
   $self->{ 'RECORD_IMODS'  }{ $table }{ $new_id }++;
-#  $self->{ 'RECORD_FMODS'  }{ $table }{ $new_id }{ $dst_field }++; # not in use for INSERTs
   $self->{ 'RECORD_DATA'   }{ $table }{ $new_id } = \%data;
 
   return $new_id;
@@ -229,8 +228,8 @@ sub write
     # mark the record and specific fields as modified
     $self->{ 'RECORD_MODIFIED' }++;
     $self->{ 'RECORD_IMODS' }{ $dst_table }{ $dst_id }++;
-    $self->{ 'RECORD_FMODS' }{ $dst_table }{ $dst_id }{ $dst_field }++;
     $self->{ 'RECORD_DATA'  }{ $dst_table }{ $dst_id }{ $dst_field } = $value;
+    $self->{ 'RECORD_DATA_UPDATE' }{ $dst_table }{ $dst_id }{ $dst_field } = $value;
     }
 
   return $mods_count;
@@ -256,10 +255,15 @@ sub __resolve_field
   my $current_table = $base_table;
   my $current_field = shift @fields;
   my $current_id    = $base_id;
-  while( @fields )
+  while(4)
     {
 print "debug: record resolve table [$current_table] field [$current_field] id [$current_id] fields [@fields]\n";
     my $field_des = describe_table_field( $current_table, $current_field );
+
+    if( @fields == 0 )
+      {
+      return ( $current_table, $current_field, $current_id );
+      }
     
     my $linked_table = $field_des->{ 'LINKED_TABLE' };
     boom "cannot resolve table/field [$current_table/$current_field] invalid linked table [$linked_table]" unless des_exists( $linked_table );
@@ -269,9 +273,9 @@ print "debug: record resolve table [$current_table] field [$current_field] id [$
       {
       $next_id = $self->__create_empty_data( $linked_table );
       
-      $self->{ 'RECORD_IMODS'    }{ $current_table }{ $current_id }++;
-      $self->{ 'RECORD_DATA'     }{ $current_table }{ $current_id }{ $current_field }++;
-      $self->{ 'RECORD_DATA'     }{ $current_table }{ $current_id }{ $current_field } = $next_id;
+      $self->{ 'RECORD_IMODS'       }{ $current_table }{ $current_id }++;
+      $self->{ 'RECORD_DATA'        }{ $current_table }{ $current_id }{ $current_field } = $next_id;
+      $self->{ 'RECORD_DATA_UPDATE' }{ $current_table }{ $current_id }{ $current_field } = $next_id;
 
       $current_table = $linked_table;
       $current_id    = $next_id;  
@@ -293,10 +297,44 @@ print "debug: record resolve table [$current_table] field [$current_field] id [$
       $current_id    = $next_id;
       $current_field = shift @fields;
       }
+    }
+}
+
+sub save
+{
+  my $self = shift;
+
+  return undef unless $self->{ 'RECORD_MODIFIED' } > 0;
+  my $dbio = $self->{ 'DB::IO' };
+  
+  my @tables = keys( %{ $self->{ 'RECORD_DATA' } } );
+  for my $table ( @tables )
+    {
+    my @ids = keys( %{ $self->{ 'RECORD_IMODS'  }{ $table } } );
+    for my $id ( @ids )
+      {
+      next unless $self->{ 'RECORD_IMODS' }{ $table }{ $id };
+      
+      if( $self->{ 'RECORD_INSERT' }{ $table }{ $id } )
+        {
+        my $data = $self->{ 'RECORD_DATA' }{ $table }{ $id };
+        my $new_id = $dbio->insert( $table, $data );
+        
+        $self->{ 'RECORD_INSERT'  }{ $table }{ $id } = 0;
+        $self->{ 'RECORD_DATA_DB' }{ $table }{ $id } = { %$data }; # copy
+        }
+      else
+        {
+        my $data = $self->{ 'RECORD_DATA_UPDATE' }{ $table }{ $id };
+        my $ok_id = $dbio->update_id( $table, $data, $id );
+        delete $self->{ 'RECORD_DATA_UPDATE' }{ $table }{ $id };
+        }  
+      $self->{ 'RECORD_IMODS' }{ $table }{ $id } = 0;
+      }
+    
     
     }
-
-  return ( $current_table, $current_field, $current_id );
+  
 }
 
 ### EOF ######################################################################
