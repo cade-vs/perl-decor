@@ -226,9 +226,9 @@ sub write
     $mods_count++;
     
     # mark the record and specific fields as modified
-    $self->{ 'RECORD_MODIFIED' }++;
-    $self->{ 'RECORD_IMODS' }{ $dst_table }{ $dst_id }++;
-    $self->{ 'RECORD_DATA'  }{ $dst_table }{ $dst_id }{ $dst_field } = $value;
+    $self->{ 'RECORD_MODIFIED'    }++;
+    $self->{ 'RECORD_IMODS'       }{ $dst_table }{ $dst_id }++;
+    $self->{ 'RECORD_DATA'        }{ $dst_table }{ $dst_id }{ $dst_field } = $value;
     $self->{ 'RECORD_DATA_UPDATE' }{ $dst_table }{ $dst_id }{ $dst_field } = $value;
     }
 
@@ -320,7 +320,8 @@ sub save
         my $data = $self->{ 'RECORD_DATA' }{ $table }{ $id };
         my $new_id = $dbio->insert( $table, $data );
         
-        $self->{ 'RECORD_INSERT'  }{ $table }{ $id } = 0;
+        delete $self->{ 'RECORD_INSERT'      }{ $table }{ $id };
+        delete $self->{ 'RECORD_DATA_UPDATE' }{ $table }{ $id };
         $self->{ 'RECORD_DATA_DB' }{ $table }{ $id } = { %$data }; # copy
         }
       else
@@ -329,12 +330,10 @@ sub save
         my $ok_id = $dbio->update_id( $table, $data, $id );
         delete $self->{ 'RECORD_DATA_UPDATE' }{ $table }{ $id };
         }  
-      $self->{ 'RECORD_IMODS' }{ $table }{ $id } = 0;
+      delete $self->{ 'RECORD_IMODS' }{ $table }{ $id };
       }
-    
-    
     }
-  
+  $self->{ 'RECORD_MODIFIED' } = 0;
 }
 
 ### EOF ######################################################################

@@ -286,7 +286,7 @@ sub insert
     $data->{ "ID" } ||= $self->get_next_table_id( $table );
     }
 
-print STDERR Dumper( $data );
+#print STDERR Dumper( $data );
 
   # TODO: check if @columns + @values is faster or equal
   my $columns;
@@ -301,7 +301,7 @@ print STDERR Dumper( $data );
     $value = 0 if $field_type_name ne 'CHAR' and $value == 0;
     $columns .= "$field,";
     $values  .= "?,";
-print "$field [$value]\n";    
+#print "$field [$value]\n";    
     push @values, $value;
     }
   chop( $columns );
@@ -310,7 +310,7 @@ print "$field [$value]\n";
   my $db_table = $table_des->get_db_table_name();
   my $sql_stmt = "INSERT INTO $db_table ( $columns ) values ( $values )";
 
-print STDERR Dumper( $sql_stmt, \@values );
+print STDERR Dumper( '-' x 72, __PACKAGE__ . "::INSERT: table [$table] data/sql/values", $data, $sql_stmt, \@values );
 
   my $dbh = dsn_get_dbh_by_table( $table );
   my $rc = $dbh->do( $sql_stmt, {}, @values );
@@ -334,13 +334,21 @@ sub update
   my @bind;
 
   my $table_des = describe_table( $table );
-  my $db_table  = $table_des->get_db_table();
+  my $db_table  = $table_des->get_db_table_name();
 
-  my $id = exists $data->{ 'ID' } ? $data->{ 'ID' } : undef;
-  if( ! $where and $id )
+  if( $where )
     {
-    push @where, "$db_table.ID = ?" ;
-    push @bind, $id;
+    push @where, $where;
+    push @bind,  @{ $opts->{ 'BIND' } || [] };
+    }
+  else
+    {
+    my $id = exists $data->{ 'ID' } ? $data->{ 'ID' } : undef;
+    if( $id )
+      {
+      push @where, "$db_table.ID = ?" ;
+      push @bind, $id;
+      }
     }
 
   # TODO: check if @columns + @values is faster or equal
@@ -352,7 +360,7 @@ sub update
     my $fld_des = $table_des->get_field_des( $field );
     my $field_type_name = $fld_des->{ 'TYPE' }{ 'NAME' };
     
-    my $value = 0 if $field_type_name ne 'CHAR' and $value == 0;
+    $value = 0 if $field_type_name ne 'CHAR' and $value == 0;
     $columns .= "$field=?,";
     push @values, $value;
     }
@@ -364,8 +372,10 @@ sub update
     $where_clause = "WHERE " . join( ' AND ', @where );
     }
 
-  my $db_table = $table_des->get_db_table();
+  my $db_table = $table_des->get_db_table_name();
   my $sql_stmt = "UPDATE $db_table SET $columns $where_clause";
+
+print STDERR Dumper( '-' x 72, __PACKAGE__ . "::UPDATE: table [$table] data/sql/values/where/bind", $data, $sql_stmt, \@values, $where_clause, \@bind );
 
   my $dbh = dsn_get_dbh_by_table( $table );
   my $rc = $dbh->do( $sql_stmt, {}, ( @values, @bind ) );
@@ -383,7 +393,8 @@ sub update_id
   my $id    = shift;
   my $opts  = shift;
 
-  return $self->update( $table, $data, '^ID = ?', BIND => [ $id ] );
+  return $self->update( $table, $data, 'ID = ?', { BIND => [ $id ] } );
+  # FIXME: must be resolved ID, i.e. ^ID
 }
 
 #-----------------------------------------------------------------------------

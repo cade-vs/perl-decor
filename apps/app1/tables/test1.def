@@ -13,7 +13,7 @@ allow update, insert, delete ; admin ; monitor + users + !root
 
   type char 1024
   
-  unique
+#  unique
   required
 
 =CTIME
