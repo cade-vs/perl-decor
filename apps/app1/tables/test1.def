@@ -60,3 +60,9 @@ allow update, insert, delete ; admin ; monitor + users + !root
   type real
   index
   unique
+
+=REF
+
+  type link test2 name
+  
+

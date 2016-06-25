@@ -55,7 +55,7 @@ sub de_check_id
 {
   my $id = shift;
   
-  return $name =~ /^[0-9]+$/o and $id > 0;
+  return $id =~ /^[0-9]+$/o and $id > 0;
 }
 
 sub de_check_id_boom

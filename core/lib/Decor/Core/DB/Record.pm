@@ -13,6 +13,7 @@ use strict;
 use parent 'Decor::Core::DB';
 use Exception::Sink;
 
+use Decor::Core::Describe;
 use Decor::Core::Utils;
 
 ##############################################################################
@@ -69,7 +70,7 @@ sub create
 {
   my $self  = shift;
   
-  my $table = shift;
+  my $table = uc shift;
 
   boom "invalid TABLE name [$table]" unless des_exists( $table );
 
@@ -79,16 +80,16 @@ sub create
 
   my $new_id = $self->__create_empty_data( $table );
 
-  $self->{ 'BASE_ID'    } = $id;
+  $self->{ 'BASE_ID'    } = $new_id;
 
-  return $id;
+  return $new_id;
 }
 
 sub load
 {
   my $self  = shift;
   
-  my $table = shift;
+  my $table = uc shift;
   my $id    = shift;
 
   boom "invalid TABLE name [$table]" unless des_exists( $table );
@@ -134,7 +135,7 @@ sub __create_empty_data
   $self->{ 'RECORD_MODIFIED' }++;
   $self->{ 'RECORD_INSERT' }{ $table }{ $new_id }++;
   $self->{ 'RECORD_IMODS'  }{ $table }{ $new_id }++;
-  $self->{ 'RECORD_FMODS'  }{ $table }{ $new_id }{ $dst_field }++;
+#  $self->{ 'RECORD_FMODS'  }{ $table }{ $new_id }{ $dst_field }++; # not in use for INSERTs
   $self->{ 'RECORD_DATA'   }{ $table }{ $new_id } = \%data;
 
   return $new_id;
@@ -164,7 +165,7 @@ sub read
   my @res;
   for my $field ( @_ )
     {
-    my ( $dst_table, $dst_id, $dst_field ) = $self->__resolve_field( $field );
+    my ( $dst_table, $dst_field, $dst_id ) = $self->__resolve_field( $field );
     
     push @res, $self->{ 'RECORD_DATA' }{ $dst_table }{ $dst_id }{ $dst_field };
     }
@@ -188,7 +189,7 @@ sub read_hash
   my @res;
   for my $field ( @_ )
     {
-    my ( $dst_table, $dst_id, $dst_field ) = $self->__resolve_field( $field );
+    my ( $dst_table, $dst_field, $dst_id ) = $self->__resolve_field( $field );
     
     push @res, $field;
     push @res, $self->{ 'RECORD_DATA' }{ $dst_table }{ $dst_id }{ $dst_field };
@@ -208,7 +209,7 @@ sub write
 {
   my $self = shift;
   
-  boom "record is empty, cannot be read" if $self->empty();
+  boom "record is empty, cannot be read" if $self->is_empty();
 
   my $mods_count = 0; # modifications count
   my @data = @_;
@@ -217,7 +218,7 @@ sub write
     my $field = shift( @data );
     my $value = shift( @data );
 
-    my ( $dst_table, $dst_id, $dst_field ) = $self->__resolve_field( $field, WRITE => 1 );
+    my ( $dst_table, $dst_field, $dst_id ) = $self->__resolve_field( $field, WRITE => 1 );
 
     # FIXME: check for number values
     next if $self->{ 'RECORD_DATA' }{ $dst_table }{ $dst_id }{ $dst_field } eq $value;
@@ -257,18 +258,45 @@ sub __resolve_field
   my $current_id    = $base_id;
   while( @fields )
     {
+print "debug: record resolve table [$current_table] field [$current_field] id [$current_id] fields [@fields]\n";
     my $field_des = describe_table_field( $current_table, $current_field );
     
     my $linked_table = $field_des->{ 'LINKED_TABLE' };
     boom "cannot resolve table/field [$current_table/$current_field] invalid linked table [$linked_table]" unless des_exists( $linked_table );
+    my $next_id = $self->{ 'RECORD_DATA'  }{ $current_table }{ $current_id }{ $current_field };
     
-    
+    if( $next_id == 0 )
+      {
+      $next_id = $self->__create_empty_data( $linked_table );
+      
+      $self->{ 'RECORD_IMODS'    }{ $current_table }{ $current_id }++;
+      $self->{ 'RECORD_DATA'     }{ $current_table }{ $current_id }{ $current_field }++;
+      $self->{ 'RECORD_DATA'     }{ $current_table }{ $current_id }{ $current_field } = $next_id;
+
+      $current_table = $linked_table;
+      $current_id    = $next_id;  
+      $current_field = shift @fields;
+      }
+    else
+      {
+      if( ! exists $self->{ 'RECORD_DATA'  }{ $linked_table }{ $next_id } )
+        {
+        my $dbio = $self->{ 'DB::IO' };
+        my $data = $dbio->read_first1_by_id_hashref( $linked_table, $next_id );
+
+        $self->{ 'RECORD_MODIFIED' }++;
+        $self->{ 'RECORD_IMODS'    }{ $linked_table }{ $next_id }++;
+        $self->{ 'RECORD_DATA'     }{ $linked_table }{ $next_id } = $data;
+        $self->{ 'RECORD_DATA_DB'  }{ $linked_table }{ $next_id } = { %$data }; # copy, used for profile checks
+        } 
+      $current_table = $linked_table;
+      $current_id    = $next_id;
+      $current_field = shift @fields;
+      }
     
     }
 
-#  my $des = describe_table( $base_table );
-  
-  
+  return ( $current_table, $current_field, $current_id );
 }
 
 ### EOF ######################################################################

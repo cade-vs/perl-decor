@@ -622,8 +622,8 @@ sub des_exists
   # table exists, but field check is expected
   my $field = $_[1];
   return 0 unless de_check_name( $field );
-  
-  if( exists $DES_CACHE{ 'TABLE_DES' }{ $table }{ $field } )
+
+  if( exists $DES_CACHE{ 'TABLE_DES' }{ $table }{ 'FIELD' }{ $field } )
     {
     return 2 if @_ == 2;
     }
@@ -635,7 +635,7 @@ sub des_exists
   # table and field exist, but attribute check is expected
   my $attr = $_[2];
 
-  if( exists $DES_CACHE{ 'TABLE_DES' }{ $table }{ $field }{ $attr } )
+  if( exists $DES_CACHE{ 'TABLE_DES' }{ $table }{ 'FIELD' }{ $field }{ $attr } )
     {
     return 3 if @_ == 3;
     }
