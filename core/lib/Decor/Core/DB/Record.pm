@@ -18,6 +18,12 @@ use Decor::Core::Utils;
 
 ##############################################################################
 
+# TODO: add profiles check and support
+# TODO: add resolve checks for inter cross-DSN links
+# TODO: add resolve READONLY/WRITE support for read/write
+
+##############################################################################
+
 sub __init
 {
   my $self = shift;
@@ -314,6 +320,9 @@ sub save
     for my $id ( @ids )
       {
       next unless $self->{ 'RECORD_IMODS' }{ $table }{ $id };
+      delete $self->{ 'RECORD_IMODS' }{ $table }{ $id };
+      
+      next if $id == 0; # skip base records
       
       if( $self->{ 'RECORD_INSERT' }{ $table }{ $id } )
         {
@@ -330,7 +339,6 @@ sub save
         my $ok_id = $dbio->update_id( $table, $data, $id );
         delete $self->{ 'RECORD_DATA_UPDATE' }{ $table }{ $id };
         }  
-      delete $self->{ 'RECORD_IMODS' }{ $table }{ $id };
       }
     }
   $self->{ 'RECORD_MODIFIED' } = 0;
