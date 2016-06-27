@@ -19,6 +19,10 @@ use Decor::Core::Utils;
 
 ##############################################################################
 
+# TODO: expire cache if description acces is modified
+
+##############################################################################
+
 sub __init
 {
   my $self = shift;
@@ -80,7 +84,7 @@ sub get_groups
 {
   my $self = shift;
 
-  return $self->{ 'GROUPS' };
+  return keys %{ $self->{ 'GROUPS' } };
 }
 
 sub clear_groups
@@ -88,7 +92,7 @@ sub clear_groups
   my $self = shift;
 
   $self->{ 'ACCESS_CACHE' } = {};
-  $self->{ 'GROUPS' } = {};
+  $self->{ 'GROUPS'       } = {};
 }
 
 ### ACCESS CHECKS ############################################################
@@ -120,25 +124,24 @@ sub access_table_field
   my $table = uc $_[1];
   my $field = uc $_[2];
 
-  $self->{ 'ACCESS_CACHE' }{ $field } ||= {};
-  my $cache = $self->{ 'ACCESS_CACHE' }{ $field };
+  $self->{ 'ACCESS_CACHE' }{ 'TFO' }{ $table }{ $field } ||= {};
+  my $cache = $self->{ 'ACCESS_CACHE' }{ 'TFO' }{ $table }{ $field };
 
   if( $cache and exists $cache->{ $oper } )
     {
-    return $cache->{ $oper };
     $self->{ 'VAR' }{ 'CACHE_HITS' }++;
-    return $self->{ 'ACCESS_CACHE' }{ $field }{ $oper };
+    return $cache->{ $oper };
     }
   
-  my $des = $self->{ 'STAGE' }->describe_table( $table );
+  my $fdes = describe_table_field( $table, $field );
 
-  if( $self->__check_access_tree( $oper, $des->{ $field }{ 'DENY'  } ) )
+  if( $self->__check_access_tree( $oper, $des->{ 'DENY'  } ) )
     {
     $cache->{ $oper } = 0;
     return 0;
     }
     
-  if( $self->__check_access_tree( $oper, $des->{ $field }{ 'ALLOW' } ) )
+  if( $self->__check_access_tree( $oper, $des->{ 'ALLOW' } ) )
     {
     $cache->{ $oper } = 1;
     return 1;

@@ -45,6 +45,14 @@ sub set_profile_locked
   $self->{ 'PROFILE_LOCKED' } = 1;
 }
 
+sub profile_lock
+{
+  my $self    = shift;
+  
+  $self->{ 'PROFILE_LOCKED' } = 1 if $self->{ 'PROFILE' };
+  return $self->{ 'PROFILE_LOCKED' };
+}
+
 sub __get_profile
 {
   my $self    = shift;
