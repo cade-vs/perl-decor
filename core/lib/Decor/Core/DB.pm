@@ -12,9 +12,18 @@ use strict;
 
 use parent 'Decor::Core::Base';
 use Exception::Sink;
+use Data::Lock qw( dlock );
+use Hash::Util qw( lock_ref_keys );
 
 use Decor::Core::Utils;
 
+my %TAINT_MODES = (
+                  ROWS   => 1,
+                  TABLE  => 1,
+                  FIELDS => 1,
+                  );
+dlock \%TAINT_MODES;
+                  
 ##############################################################################
 
 sub __init
@@ -57,7 +66,62 @@ sub __get_profile
 {
   my $self    = shift;
 
-  return $self->{ 'PROFILE' };
+  return exists $self->{ 'PROFILE' } ? $self->{ 'PROFILE' } : undef;
+}
+
+sub taint_mode_set
+{
+  my $self    = shift;
+
+  for my $mode ( @_ )
+    {
+    $mode = uc $mode;
+    if( $mode eq 'NONE' )
+      {
+      $self->{ 'TAINT' } = {};
+      }
+    elsif( $mode eq 'ALL' )
+      {
+      $self->{ 'TAINT' } = { %TAINT_MODES };
+      }
+    else
+      {  
+      boom "invalid mode [$mode]" unless exists $TAINT_MODES{ $mode };
+      $self->{ 'TAINT' }{ $mode } = 1;
+      }
+    }
+
+  return 1;
+}
+
+sub taint_mode_remove
+{
+  my $self    = shift;
+
+  for my $mode ( @_ )
+    {
+    $mode = uc $mode;
+    if( $mode eq 'ALL' )
+      {
+      $self->{ 'TAINT' } = {};
+      }
+    else
+      {  
+      boom "invalid mode [$mode]" unless exists $TAINT_MODES{ $mode };
+      $self->{ 'TAINT' }{ $mode } = 0;
+      }
+    }
+
+  return 1;
+}
+
+sub taint_mode_get
+{
+  my $self = shift;
+  
+  my $mode = uc shift;
+  boom "invalid mode [$mode]" unless exists $TAINT_MODES{ $mode };
+  return $self->{ 'TAINT' }{ $mode };
 }
 
 ### EOF ######################################################################

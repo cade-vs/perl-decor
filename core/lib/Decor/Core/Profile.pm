@@ -97,7 +97,7 @@ sub clear_groups
 
 ### ACCESS CHECKS ############################################################
 
-sub access
+sub check_access
 {
   my $self = shift;
 
@@ -106,7 +106,7 @@ sub access
   return $self->{ 'GROUPS' }{ $group } if exists $self->{ 'GROUPS' }{ $group };
 }
 
-sub access_table
+sub check_access_table
 {
   my $self = shift;
 
@@ -116,7 +116,20 @@ sub access_table
   return $self->access_table_field( $oper, $table, '@' );
 }
 
-sub access_table_field
+sub check_access_table_boom
+{
+  my $self = shift;
+
+  my $oper  = uc $_[0];
+  my $table = uc $_[1];
+
+  my $res = $self->access_table( @_ );
+  boom "EACCESS: [$oper] denied for table [$table] res [$res]" unless $res;
+  
+  return $res;
+}
+
+sub check_access_table_field
 {
   my $self = shift;
 
@@ -149,6 +162,20 @@ sub access_table_field
   
   $cache->{ $oper } = 0;
   return 0;
+}
+
+sub check_access_table_field_boom
+{
+  my $self = shift;
+
+  my $oper  = uc $_[0];
+  my $table = uc $_[1];
+  my $field = uc $_[2];
+
+  my $res = $self->access_table_field( @_ );
+  boom "EACCESS: [$oper] denied for table [$table] field [$field] res [$res]" unless $res;
+  
+  return $res;
 }
 
 sub __check_access_tree

@@ -72,6 +72,26 @@ sub is_empty
   return 1;
 }
 
+sub taint_mode_set
+{
+  my $self  = shift;
+  
+  $self->SUPER::taint_mode_set( @_ );
+  $self->{ 'DB::IO' }->taint_mode_set( @_ ); # sync taint mode
+  
+  return 1;
+}
+
+sub taint_mode_remove
+{
+  my $self  = shift;
+  
+  $self->SUPER::taint_mode_remove( @_ );
+  $self->{ 'DB::IO' }->taint_mode_remove( @_ ); # sync taint mode
+
+  return 1;
+}
+
 sub create
 {
   my $self  = shift;
@@ -310,8 +330,12 @@ sub save
 {
   my $self = shift;
 
+  return 1 if $self->is_read_only();
+
   return undef unless $self->{ 'RECORD_MODIFIED' } > 0;
   my $dbio = $self->{ 'DB::IO' };
+
+  my $profile = $self->__get_profile();
   
   my @tables = keys( %{ $self->{ 'RECORD_DATA' } } );
   for my $table ( @tables )
@@ -326,6 +350,8 @@ sub save
       
       if( $self->{ 'RECORD_INSERT' }{ $table }{ $id } )
         {
+        $profile->check_access_table_boom( 'INSERT', $table ) if $profile;
+        
         my $data = $self->{ 'RECORD_DATA' }{ $table }{ $id };
         my $new_id = $dbio->insert( $table, $data );
         
@@ -335,6 +361,8 @@ sub save
         }
       else
         {
+        $profile->check_access_table_boom( 'UPDATE', $table ) if $profile;
+
         my $data = $self->{ 'RECORD_DATA_UPDATE' }{ $table }{ $id };
         my $ok_id = $dbio->update_id( $table, $data, $id );
         delete $self->{ 'RECORD_DATA_UPDATE' }{ $table }{ $id };
@@ -342,6 +370,8 @@ sub save
       }
     }
   $self->{ 'RECORD_MODIFIED' } = 0;
+  
+  return 1;
 }
 
 ### EOF ######################################################################
