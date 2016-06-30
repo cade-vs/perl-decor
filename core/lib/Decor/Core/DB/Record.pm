@@ -350,7 +350,13 @@ sub save
       
       if( $self->{ 'RECORD_INSERT' }{ $table }{ $id } )
         {
-        $profile->check_access_table_boom( 'INSERT', $table ) if $profile and $self->taint_mode_get( 'TABLE' );
+        if( $profile )
+          {
+          if( $self->taint_mode_get( 'TABLE' ) )
+            {
+            $profile->check_access_table_boom( 'INSERT', $table );
+            }
+          }  
         
         my $data = $self->{ 'RECORD_DATA' }{ $table }{ $id };
         my $new_id = $dbio->insert( $table, $data );
@@ -361,8 +367,19 @@ sub save
         }
       else
         {
-        $profile->check_access_table_boom( 'UPDATE', $table ) if $profile and $self->taint_mode_get( 'TABLE' );
-        $profile->check_access_row_boom( 'OWNER', $table, $self ) if $profile and $self->taint_mode_get( 'ROWS' );
+        if( $profile )
+          {
+          if( $self->taint_mode_get( 'TABLE' ) )
+            {
+            $profile->check_access_table_boom( 'UPDATE', $table );
+            }
+            
+          if( $self->taint_mode_get( 'ROWS' ) )
+            {
+            $profile->check_access_row_boom( 'OWNER',  $table, $self );
+            $profile->check_access_row_boom( 'UPDATE', $table, $self );
+            }
+          }  
 
         my $data = $self->{ 'RECORD_DATA_UPDATE' }{ $table }{ $id };
         my $ok_id = $dbio->update_id( $table, $data, $id );
