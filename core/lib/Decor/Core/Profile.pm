@@ -20,6 +20,7 @@ use Decor::Core::Utils;
 ##############################################################################
 
 # TODO: expire cache if description acces is modified
+# TODO: check if correct lc/uc for groups/opers is used
 
 ##############################################################################
 
@@ -123,7 +124,7 @@ sub check_access_table_boom
   my $oper  = uc $_[0];
   my $table = uc $_[1];
 
-  my $res = $self->access_table( @_ );
+  my $res = $self->check_access_table( @_ );
   boom "EACCESS: [$oper] denied for table [$table] res [$res]" unless $res;
   
   return $res;
@@ -174,6 +175,41 @@ sub check_access_table_field_boom
 
   my $res = $self->access_table_field( @_ );
   boom "EACCESS: [$oper] denied for table [$table] field [$field] res [$res]" unless $res;
+  
+  return $res;
+}
+
+sub check_access_row
+{
+  my $self = shift;
+
+  my $oper  = uc $_[0];
+  my $table = uc $_[1];
+  my $dsrc  = uc $_[2]; # data source, hashref or record object
+
+  my $fields = des_table_get_fields_list( $table );
+  for my $field ( @$fields )
+    {
+    next unless $field =~ /^_${$oper}(_[A-Z_0-9]+)?/;
+    
+    my $grp = ref( $dsrc ) eq 'HASH' ? $dsrc->{ $field } : $dsrc->read( $field );
+    my $res = $self->check_access(  );
+    return 1 if $res;
+    }
+  
+  return 0;
+}
+
+sub check_access_row_boom
+{
+  my $self = shift;
+
+  my $oper  = uc $_[0];
+  my $table = uc $_[1];
+  my $dsrc  = uc $_[2]; # data source, hashref or record object
+
+  my $res = $self->check_access_row( @_ );
+  boom "EACCESS: row access [$oper] denied for table [$table] res [$res]" unless $res;
   
   return $res;
 }

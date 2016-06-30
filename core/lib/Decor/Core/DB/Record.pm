@@ -156,7 +156,7 @@ sub __create_empty_data
     }
 
   my %data; # FIXME: populate with defaults
-  $data{ 'ID' } = $new_id;
+  $data{ '_ID' } = $new_id;
 
   $self->{ 'RECORD_MODIFIED' }++;
   $self->{ 'RECORD_INSERT' }{ $table }{ $new_id }++;
@@ -234,7 +234,7 @@ sub write
 {
   my $self = shift;
   
-  boom "record is empty, cannot be read" if $self->is_empty();
+  boom "record is empty, cannot be written" if $self->is_empty();
 
   my $mods_count = 0; # modifications count
   my @data = @_;
@@ -350,7 +350,7 @@ sub save
       
       if( $self->{ 'RECORD_INSERT' }{ $table }{ $id } )
         {
-        $profile->check_access_table_boom( 'INSERT', $table ) if $profile;
+        $profile->check_access_table_boom( 'INSERT', $table ) if $profile and $self->taint_mode_get( 'TABLE' );
         
         my $data = $self->{ 'RECORD_DATA' }{ $table }{ $id };
         my $new_id = $dbio->insert( $table, $data );
@@ -361,7 +361,8 @@ sub save
         }
       else
         {
-        $profile->check_access_table_boom( 'UPDATE', $table ) if $profile;
+        $profile->check_access_table_boom( 'UPDATE', $table ) if $profile and $self->taint_mode_get( 'TABLE' );
+        $profile->check_access_row_boom( 'OWNER', $table, $self ) if $profile and $self->taint_mode_get( 'ROWS' );
 
         my $data = $self->{ 'RECORD_DATA_UPDATE' }{ $table }{ $id };
         my $ok_id = $dbio->update_id( $table, $data, $id );
