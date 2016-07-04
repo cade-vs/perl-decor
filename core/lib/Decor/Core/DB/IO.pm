@@ -107,20 +107,26 @@ sub select
     
   
   dlock \@fields;
-  $self->{ 'SELECT' }{ 'FIELDS' } = \@fields;
-  $self->{ 'SELECT' }{ 'TABLES' }{ $db_table }++;
+  $self->{ 'SELECT' }{ 'FIELDS'     } = \@fields;
+  $self->{ 'SELECT' }{ 'TABLES'     }{ $db_table }++;
+  $self->{ 'SELECT' }{ 'BASE_TABLE' } = $table;
 
   my @where;
   my @bind;
   
   push @where, "$db_table._ID > 0";
 
+  # resolve fields in select
   my @select_fields;
   for my $field ( @fields )
     {
     my ( $resolved_alias, $resolved_table, $resolved_field ) = $self->__select_resolve_field( $table, $field );
     push @select_fields, "$resolved_alias.$resolved_field";
     }
+
+  # resolve fields in where clause
+  $where =~ s/((?<![A-Z_0-9])|^)((\.[A-Z_0-9]+)+)/$self->__where_resolve_field( $table, $2 )/gie;
+
 
   # TODO: preprocess $where for linked fields path starting with ^
   # TODO: the same for other clauses
@@ -136,12 +142,10 @@ sub select
   my $limit  = $opts->{ 'LIMIT'  };
   my $offset = $opts->{ 'OFFSET' };
   
-  my $limit_clause    = $self->__select_limit_clause( $limit   ) if $limit  > 0;
-  my $offset_clause   = $self->__select_offset_clause( $offset ) if $offset > 0;
+  my $limit_clause    = $self->__select_limit_clause( $limit   ) . "\n" if $limit  > 0;
+  my $offset_clause   = $self->__select_offset_clause( $offset ) . "\n" if $offset > 0;
   my $locking_clause  = "FOR UPDATE" if $opts->{ 'LOCK' }; # FIXME: support more locking clauses
   my $distinct_clause = "DISTINCT\n    " if $opts->{ 'DISTINCT' };
-
-  $where =~ s/((?<![A-Z_0-9])|^)((\.[A-Z_0-9]+)+)/$self->__where_resolve_field( $table, $2 )/gie;
 
   push @where, $where if $where;
   push @bind,  @{ $opts->{ 'BIND' } } if $opts->{ 'BIND' };
@@ -150,7 +154,7 @@ sub select
   my $select_fields = join ",\n    ", @select_fields;
   my $select_where  = "WHERE\n    " . join( "\n    AND ", @where );
   
-  my $sql_stmt = "SELECT\n    $distinct_clause$select_fields\nFROM\n    $select_tables\n$select_where\n$limit_clause\n$offset_clause\n$locking_clause\n";
+  my $sql_stmt = "SELECT\n    $distinct_clause$select_fields\nFROM\n    $select_tables\n$select_where\n$limit_clause$offset_clause$locking_clause\n";
 
   de_log_debug( "sql: select: [\n$sql_stmt] with values [@bind]" );
   

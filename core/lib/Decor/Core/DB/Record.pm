@@ -392,5 +392,62 @@ sub save
   return 1;
 }
 
+#-----------------------------------------------------------------------------
+
+sub select
+{
+  my $self = shift;
+
+  my $table = uc shift;
+  my $where = shift;
+  my $opt   = shift;
+
+  $self->reset();
+  my $dbio = $self->{ 'SELECT::DB::IO' } = new Decor::Core::DB::IO;
+  
+  # TODO: copy taint mode to $dbio
+
+  my $fields = des_table_get_fields_list( $table );
+  return $dbio->select( $table, $fields, $where, $opt );
+}
+
+sub next
+{
+  my $self  = shift;
+  
+  my $dbio = $self->{ 'SELECT::DB::IO' };
+  boom "cannot call select() before next()" unless $dbio;
+  
+  # TODO: add at least base_table, even no data found at all
+  
+  $self->reset();
+  
+  $self->{ 'SELECT::DB::IO' } = $dbio;
+  my $table = $dbio->{ 'SELECT' }{ 'BASE_TABLE' };
+
+  my $data = $dbio->fetch();
+  
+  return undef unless $data;
+  
+  my $id = $data->{ '_ID' };
+
+  $self->{ 'BASE_TABLE' } = $table;
+  $self->{ 'BASE_ID'    } = $id;
+
+  $self->{ 'RECORD_DATA'    }{ $table }{ $id } = $data;
+  $self->{ 'RECORD_DATA_DB' }{ $table }{ $id } = { %$data }; # copy, used for profile checks
+
+  return $id;
+}
+
+sub finish
+{
+  my $self = shift;
+  
+  $self->reset();
+
+  1;
+}
+
 ### EOF ######################################################################
 1;

@@ -653,7 +653,7 @@ sub des_table_get_fields_list
 {
   my $table = shift;
   
-  my $des = des_describe_table( $table );
+  my $des = describe_table( $table );
   return $des->get_fields_list();
 }
 
