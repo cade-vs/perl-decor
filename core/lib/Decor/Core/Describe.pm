@@ -208,7 +208,7 @@ sub __merge_table_des_file
     next if $line =~ /^([#;]|\/\/)/;
     de_log_debug( "        line: [$line]" );  
 
-    if( $line =~ /^=(([a-zA-Z_][a-zA-Z_0-9]*):\s*)?([a-zA-Z_][a-zA-Z_0-9]*)\s*(.*?)\s*$/ )
+    if( $line =~ /^=+\s*(([a-zA-Z_][a-zA-Z_0-9]*):\s*)?([a-zA-Z_][a-zA-Z_0-9]*)\s*(.*?)\s*$/ )
       {
          $category  = uc( $2 || 'FIELD' );    
          $sect_name = uc( $3 );

@@ -149,13 +149,13 @@ sub check_access_table_field
   
   my $fdes = describe_table_field( $table, $field );
 
-  if( $self->__check_access_tree( $oper, $des->{ 'DENY'  } ) )
+  if( $self->__check_access_tree( $oper, $fdes->{ 'DENY'  } ) )
     {
     $cache->{ $oper } = 0;
     return 0;
     }
     
-  if( $self->__check_access_tree( $oper, $des->{ 'ALLOW' } ) )
+  if( $self->__check_access_tree( $oper, $fdes->{ 'ALLOW' } ) )
     {
     $cache->{ $oper } = 1;
     return 1;

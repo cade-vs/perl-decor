@@ -9,8 +9,8 @@
 ##
 ##############################################################################
 use strict;
-use lib ( $ENV{ 'DECOR_ROOT' } || '/usr/local/decor' ) . '/core/lib';
-use lib ( $ENV{ 'DECOR_ROOT' } || '/usr/local/decor' ) . '/shared/lib';
+use lib ( $ENV{ 'DECOR_ROOT' } || die "missing DECOR_ROOT env variable\n" ) . '/core/lib';
+use lib ( $ENV{ 'DECOR_ROOT' } || die "missing DECOR_ROOT env variable\n" ) . '/shared/lib';
 
 use Exception::Sink;
 use Data::Dumper;

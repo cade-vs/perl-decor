@@ -9,7 +9,7 @@
 ##
 ##############################################################################
 use strict;
-use lib ( $ENV{ 'DECOR_ROOT' } || '/usr/local/decor' ) . "/core/lib";
+use lib ( $ENV{ 'DECOR_ROOT' } || die 'missing DECOR_ROOT env variable' ) . "/core/lib";
 
 use Time::HR;
 
@@ -34,7 +34,7 @@ print Dumper( $rio );
 
 $rio->create( 'test1' );
 
-$rio->write( NAME => 'test name 115', SUMA => rand(), 'REF.NAME' => 'ref' . rand() );
+$rio->write( NAME => 'test name 115', SUMA => rand(), 'REF.NAME' => 'ref' . rand(), 'REF.CNT' => int(rand(100)) );
 print Dumper( $rio );
 
 $rio->save();
@@ -44,3 +44,15 @@ print Dumper( $rio );
 
 $rio->save();
 print Dumper( $rio );
+
+#dsn_commit();
+
+my $dio = new Decor::Core::DB::IO;
+
+$dio->select( 'test1', 'SUMA,.REF.CNT', '.REF.CNT > ?', { BIND => [ 60 ] } );
+#$dio->select( 'test1', 'SUMA,REF.CNT' );
+while( my $hr = $dio->fetch() )
+  {
+  print Dumper( $hr );
+  }
+  

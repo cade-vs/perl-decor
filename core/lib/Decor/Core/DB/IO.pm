@@ -103,6 +103,8 @@ sub select
       }
     }  
 
+  s/^\.// for @fields; # remove leading anchor (syntax sugar really)
+    
   
   dlock \@fields;
   $self->{ 'SELECT' }{ 'FIELDS' } = \@fields;
@@ -111,7 +113,7 @@ sub select
   my @where;
   my @bind;
   
-  push @where, "$db_table.ID > 0";
+  push @where, "$db_table._ID > 0";
 
   my @select_fields;
   for my $field ( @fields )
@@ -137,16 +139,18 @@ sub select
   my $limit_clause    = $self->__select_limit_clause( $limit   ) if $limit  > 0;
   my $offset_clause   = $self->__select_offset_clause( $offset ) if $offset > 0;
   my $locking_clause  = "FOR UPDATE" if $opts->{ 'LOCK' }; # FIXME: support more locking clauses
-  my $distinct_clause = "DISTINCT" if $opts->{ 'DISTINCT' };
+  my $distinct_clause = "DISTINCT\n    " if $opts->{ 'DISTINCT' };
+
+  $where =~ s/((?<![A-Z_0-9])|^)((\.[A-Z_0-9]+)+)/$self->__where_resolve_field( $table, $2 )/gie;
 
   push @where, $where if $where;
   push @bind,  @{ $opts->{ 'BIND' } } if $opts->{ 'BIND' };
 
-  my $select_tables = join ",\n  ", keys %{ $self->{ 'SELECT' }{ 'TABLES' } };
-  my $select_fields = join ",\n  ", @select_fields;
-  my $select_where  = "WHERE\n  " . join( "\n AND ", @where );
+  my $select_tables = join ",\n    ", keys %{ $self->{ 'SELECT' }{ 'TABLES' } };
+  my $select_fields = join ",\n    ", @select_fields;
+  my $select_where  = "WHERE\n    " . join( "\n    AND ", @where );
   
-  my $sql_stmt = "SELECT\n $distinct_clause $select_fields\nFROM\n  $select_tables\n$select_where\n$limit_clause\n$offset_clause\n$locking_clause\n";
+  my $sql_stmt = "SELECT\n    $distinct_clause$select_fields\nFROM\n    $select_tables\n$select_where\n$limit_clause\n$offset_clause\n$locking_clause\n";
 
   de_log_debug( "sql: select: [\n$sql_stmt] with values [@bind]" );
   
@@ -177,16 +181,26 @@ sub __select_resolve_field
 
    my @field = split /\./, $field;
    my $table_now = $table;
-   my $field_now = shift @field;
+#   my $field_now = shift @field;
+   my $field_now;
    my $alias_now = $table_now;
    my $alias_key;
    my $alias_next;
-   
-   while( @field )
+
+#   while( @field )
+   while(4)
      {
-     my $fld_des    = describe_table_field( $table_now, $field );
+     $field_now = shift @field;
+
+     my $fld_des = describe_table_field( $table_now, $field_now );
+
+     if( @field == 0 )
+       {
+       return ( $alias_now, $table_now, $field_now );
+       }
+
      my $table_next = $fld_des->{ 'LINKED_TABLE' };
-     boom "cannot resolve field, current position is [$table_now:$field]" unless $table_next;
+     boom "cannot resolve field, current position is [$table_now:$field_now]" unless $table_next;
 
      # FIXME: check for cross-DSN links
      
@@ -195,24 +209,40 @@ sub __select_resolve_field
      if( ! $alias_next )
        {
        $alias_next = $self->{ 'SELECT' }{ 'TABLES_ALIASES' }{ $alias_key } 
-                  = "TA_" . ++$self->{ 'SELECT' }{ 'TABLES_ALIASES_COUNT' };
+                  = "_TABLE_ALIAS_" . ++$self->{ 'SELECT' }{ 'TABLES_ALIASES_COUNT' };
        }
      
      my $db_table_next = describe_table( $table_next )->get_db_table_name();
-     $self->{ 'SELECT' }{ 'TABLES' }{ "$db_table_next $alias_next" }++;
+     $self->{ 'SELECT' }{ 'TABLES' }{ "$db_table_next   $alias_next" }++;
 
      # FIXME: use inner or left outer joins, instead of simple where join
      # FIXME: add option for inner, outer or full joins!
-     $self->{ 'SELECT' }{ 'RESOLVE_WHERE' }{ "$alias_now.$field_now = $alias_next.ID" }++;
+     $self->{ 'SELECT' }{ 'RESOLVE_WHERE' }{ "$alias_now.$field_now = $alias_next._ID" }++;
      
      $table_now = $table_next;
      $alias_now = $alias_next;
-     $field_now = shift @field;
+#     $field_now = shift @field;
      }
 
-   return ( $alias_now, $table_now, $field_now );
 }
 
+sub __where_resolve_field
+{
+   my $self   = shift;
+   my $table  = uc shift;
+   my $field  = uc shift; # userid.info.des.asd.qwe
+
+print Dumper( "__where_resolve_field = [$field]" );
+
+   $field = substr( $field, 1 ); # skips leading anchor (.)
+
+   my ( $resolved_alias, $resolved_table, $resolved_field ) = $self->__select_resolve_field( $table, $field );
+
+print Dumper( \@_, "$resolved_alias.$resolved_field" );
+
+
+   return "$resolved_alias.$resolved_field";
+}
 
 #-----------------------------------------------------------------------------
 
@@ -279,11 +309,11 @@ sub insert
 
   my $table_des = describe_table( $table );
 
-  if( ! exists $data->{ "ID" } )
+  if( ! exists $data->{ "_ID" } )
     {
     # detach from the caller and fill ID field
     $data = { %$data }; 
-    $data->{ "ID" } ||= $self->get_next_table_id( $table );
+    $data->{ "_ID" } ||= $self->get_next_table_id( $table );
     }
 
 #print STDERR Dumper( $data );
@@ -315,7 +345,7 @@ print STDERR Dumper( '-' x 72, __PACKAGE__ . "::INSERT: table [$table] data/sql/
   my $dbh = dsn_get_dbh_by_table( $table );
   my $rc = $dbh->do( $sql_stmt, {}, @values );
 
-  return $rc ? $data->{ "ID" } : 0;
+  return $rc ? $data->{ "_ID" } : 0;
 }
 
 #-----------------------------------------------------------------------------
@@ -343,10 +373,10 @@ sub update
     }
   else
     {
-    my $id = exists $data->{ 'ID' } ? $data->{ 'ID' } : undef;
+    my $id = exists $data->{ '_ID' } ? $data->{ '_ID' } : undef;
     if( $id )
       {
-      push @where, "$db_table.ID = ?" ;
+      push @where, "$db_table._ID = ?" ;
       push @bind, $id;
       }
     }
@@ -393,7 +423,7 @@ sub update_id
   my $id    = shift;
   my $opts  = shift;
 
-  return $self->update( $table, $data, 'ID = ?', { BIND => [ $id ] } );
+  return $self->update( $table, $data, '_ID = ?', { BIND => [ $id ] } );
   # FIXME: must be resolved ID, i.e. ^ID
 }
 
@@ -450,7 +480,7 @@ sub read_first1_by_id_hashref
   my $id    = shift;
   my $opts  = shift; 
 
-  return $self->read_first1_hashref( $table, '^ID = ?', { %$opts, BIND => [ $id ] } );
+  return $self->read_first1_hashref( $table, '._ID = ?', { %$opts, BIND => [ $id ] } );
 }
 
 

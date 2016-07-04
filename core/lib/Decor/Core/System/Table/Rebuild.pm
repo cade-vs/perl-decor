@@ -103,7 +103,7 @@ sub get_table_max_id
   my $self  = shift;
   my $db_table = shift;
 
-  return $self->select_field_first1( $db_table, "MAX(ID)" );
+  return $self->select_field_first1( $db_table, "MAX(_ID)" );
 }
 
 #--- syntax specifics --------------------------------------------------------

@@ -1,0 +1,11 @@
+
+label  Test table 2
+
+=name
+
+  type char 256
+  
+=cnt
+
+  type int
+  
