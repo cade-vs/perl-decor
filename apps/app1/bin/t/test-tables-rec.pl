@@ -64,3 +64,9 @@ while( $rio->next() )
   {
   print Dumper( $rio );
   }
+
+$rio->select( 'test2' );
+while( $rio->next() )
+  {
+  print Dumper( $rio );
+  }

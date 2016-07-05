@@ -100,6 +100,8 @@ sub create
 
   boom "invalid TABLE name [$table]" unless des_exists( $table );
 
+  $self->check_if_locked_to( $table );
+
   $self->reset();
 
   $self->{ 'BASE_TABLE' } = $table;
@@ -122,6 +124,8 @@ sub load
   boom "invalid TABLE name [$table]" unless des_exists( $table );
   de_check_id_boom( $id, "invalid ID [$id]" );
   # TODO: check if opt is hashref
+
+  $self->check_if_locked_to( $table, $id );
   
   $self->reset();
 
@@ -172,7 +176,11 @@ sub check_if_locked_to
 
   my $locked_to_table = $self->{ 'LOCKED_TO_TABLE' };
   my $locked_to_id    = $self->{ 'LOCKED_TO_ID'    };
+  
   boom "record is locked to table [$locked_to_table] and cannot be changed to [$table]" unless $locked_to_table and $locked_to_table eq $table;
+  
+  return 1 if $id eq '';
+  
   boom "record is locked to table:id [$locked_to_table:$locked_to_id] and cannot be changed to [$table:$id]" unless $locked_to_id > 0 and $locked_to_id == $id;
 
   1;
@@ -469,6 +477,8 @@ sub next
   return undef unless $data;
   
   my $id = $data->{ '_ID' };
+
+  $self->check_if_locked_to( $table, $id );
 
   $self->{ 'BASE_TABLE' } = $table;
   $self->{ 'BASE_ID'    } = $id;
