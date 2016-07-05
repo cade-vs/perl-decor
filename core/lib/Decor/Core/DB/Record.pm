@@ -117,9 +117,11 @@ sub load
   
   my $table = uc shift;
   my $id    = shift;
+  my $opt   = shift;
 
   boom "invalid TABLE name [$table]" unless des_exists( $table );
   de_check_id_boom( $id, "invalid ID [$id]" );
+  # TODO: check if opt is hashref
   
   $self->reset();
 
@@ -137,6 +139,43 @@ sub load
   $self->{ 'RECORD_DATA_DB' }{ $table }{ $id } = { %data }; # copy, used for profile checks
 
   return $id;
+}
+
+sub lock_to_table
+{
+  my $self  = shift;
+  
+  boom "cannot lock-to-table empty record (missing table name)" unless $self->{ 'BASE_TABLE' };
+  
+  $self->{ 'LOCKED_TO_TABLE' } = $self->{ 'BASE_TABLE' };
+  1;
+}
+
+sub lock_to_record
+{
+  my $self  = shift;
+  
+  boom "cannot lock-to-record empty record (missing table name)" unless $self->{ 'BASE_TABLE' };
+  boom "cannot lock-to-record record without id"                 unless $self->{ 'BASE_ID'    };
+  
+  $self->{ 'LOCKED_TO_TABLE' } = $self->{ 'BASE_TABLE' };
+  $self->{ 'LOCKED_TO_ID'    } = $self->{ 'BASE_ID'    };
+  1;
+}
+
+sub check_if_locked_to
+{
+  my $self  = shift;
+
+  my $table = uc shift;
+  my $id    = shift;
+
+  my $locked_to_table = $self->{ 'LOCKED_TO_TABLE' };
+  my $locked_to_id    = $self->{ 'LOCKED_TO_ID'    };
+  boom "record is locked to table [$locked_to_table] and cannot be changed to [$table]" unless $locked_to_table and $locked_to_table eq $table;
+  boom "record is locked to table:id [$locked_to_table:$locked_to_id] and cannot be changed to [$table:$id]" unless $locked_to_id > 0 and $locked_to_id == $id;
+
+  1;
 }
 
 #-----------------------------------------------------------------------------
