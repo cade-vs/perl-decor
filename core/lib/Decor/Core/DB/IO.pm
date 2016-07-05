@@ -132,11 +132,11 @@ sub select
   # resolve fields in where clause
   $where = $self->__resolve_clause_fields( $table, $where );
 
-  my $orderby = $opts->{ 'ORDERBY' };
-  $orderby = 'ORDER BY ' . $self->__resolve_clause_fields( $table, $orderby ) if $orderby ne '';
+  my $order_by = $opts->{ 'ORDER_BY' };
+  $order_by = "ORDER BY\n    " . $self->__resolve_clause_fields( $table, $order_by ) if $order_by ne '';
 
-  my $groupby = $opts->{ 'GROUPBY' };
-  $groupby = 'GROUP BY ' . $self->__resolve_clause_fields( $table, $groupby ) if $groupby ne '';
+  my $group_by = $opts->{ 'GROUP_BY' };
+  $group_by = "GROUP BY\n    " . $self->__resolve_clause_fields( $table, $group_by ) if $group_by ne '';
   
 
   # TODO: use inner or left outer joins, instead of simple where join
@@ -153,6 +153,12 @@ sub select
   my $locking_clause  = "FOR UPDATE" if $opts->{ 'LOCK' }; # FIXME: support more locking clauses
   my $distinct_clause = "DISTINCT\n    " if $opts->{ 'DISTINCT' };
 
+  # TODO: check for clauses collisions, i.e. FOR_UPDATE cannot be used with GROUP_BY, DISTINCT, etc.
+  #       Oracle:     You cannot specify this clause with the following other constructs: the DISTINCT operator, CURSOR expression, set operators, group_by_clause, or aggregate functions.
+  #       PostgreSQL: ...cannot be used with GROUP_BY, HAVING, WINDOW, DISTINCT, with UNION/INTERSECT/EXCEPT result/input
+
+  # TODO: support for SKIP LOCKED, NOWAIT locking
+
   push @where, $where if $where;
   push @bind,  @{ $opts->{ 'BIND' } } if $opts->{ 'BIND' };
 
@@ -160,7 +166,7 @@ sub select
   my $select_fields = join ",\n    ", @select_fields;
   my $select_where  = "WHERE\n    " . join( "\n    AND ", @where );
   
-  my $sql_stmt = "SELECT\n    $distinct_clause$select_fields\nFROM\n    $select_tables\n$select_where\n$orderby\n$groupby\n$limit_clause$offset_clause$locking_clause\n";
+  my $sql_stmt = "SELECT\n    $distinct_clause$select_fields\nFROM\n    $select_tables\n$select_where\n$group_by\n$order_by\n$limit_clause$offset_clause$locking_clause\n";
 
   de_log_debug( "sql: select: [\n$sql_stmt] with values [@bind]" );
   
