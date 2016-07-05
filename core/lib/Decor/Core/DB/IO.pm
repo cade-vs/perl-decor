@@ -23,6 +23,11 @@ use Decor::Core::Utils;
 
 ##############################################################################
 
+# TODO: add profiles check and support
+# TODO: add resolve checks for inter cross-DSN links
+
+##############################################################################
+
 sub __init
 {
   my $self = shift;
@@ -65,7 +70,7 @@ sub __reshape
 sub select
 {
   my $self   = shift;
-  my $table  = shift;
+  my $table  = uc shift;
   my $fields = shift; # can be string, array ref or hash ref
   my $where  = shift;
   my $opts   = shift; 
@@ -125,17 +130,18 @@ sub select
     }
 
   # resolve fields in where clause
-  $where =~ s/((?<![A-Z_0-9])|^)((\.[A-Z_0-9]+)+)/$self->__where_resolve_field( $table, $2 )/gie;
+  $where = $self->__resolve_clause_fields( $table, $where );
 
+  my $orderby = $opts->{ 'ORDERBY' };
+  $orderby = 'ORDER BY ' . $self->__resolve_clause_fields( $table, $orderby ) if $orderby ne '';
 
-  # TODO: preprocess $where for linked fields path starting with ^
-  # TODO: the same for other clauses
-
-  # TODO: ORDERBY  
-  # TODO: GROUPBY
+  my $groupby = $opts->{ 'GROUPBY' };
+  $groupby = 'GROUP BY ' . $self->__resolve_clause_fields( $table, $groupby ) if $groupby ne '';
   
+
   # TODO: use inner or left outer joins, instead of simple where join
   # TODO: add option for inner, outer or full joins!
+
   push @where, keys %{ $self->{ 'SELECT' }{ 'RESOLVE_WHERE' } };
   delete $self->{ 'SELECT' }{ 'RESOLVE_WHERE' };
   
@@ -154,7 +160,7 @@ sub select
   my $select_fields = join ",\n    ", @select_fields;
   my $select_where  = "WHERE\n    " . join( "\n    AND ", @where );
   
-  my $sql_stmt = "SELECT\n    $distinct_clause$select_fields\nFROM\n    $select_tables\n$select_where\n$limit_clause$offset_clause$locking_clause\n";
+  my $sql_stmt = "SELECT\n    $distinct_clause$select_fields\nFROM\n    $select_tables\n$select_where\n$orderby\n$groupby\n$limit_clause$offset_clause$locking_clause\n";
 
   de_log_debug( "sql: select: [\n$sql_stmt] with values [@bind]" );
   
@@ -230,10 +236,10 @@ sub __select_resolve_field
 
 }
 
-sub __where_resolve_field
+sub __resolve_single_field
 {
    my $self   = shift;
-   my $table  = uc shift;
+   my $table  = shift;
    my $field  = uc shift; # userid.info.des.asd.qwe
 
 print Dumper( "__where_resolve_field = [$field]" );
@@ -246,6 +252,17 @@ print Dumper( \@_, "$resolved_alias.$resolved_field" );
 
 
    return "$resolved_alias.$resolved_field";
+}
+
+sub __resolve_clause_fields
+{
+   my $self   = shift;
+   my $table  = shift;
+   my $clause = shift;
+
+  $clause =~ s/((?<![A-Z_0-9])|^)((\.[A-Z_0-9]+)+)/$self->__resolve_single_field( $table, $2 )/gie;
+  
+  return $clause;
 }
 
 #-----------------------------------------------------------------------------

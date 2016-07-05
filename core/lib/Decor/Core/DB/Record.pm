@@ -176,10 +176,13 @@ sub check_if_locked_to
 
   my $locked_to_table = $self->{ 'LOCKED_TO_TABLE' };
   my $locked_to_id    = $self->{ 'LOCKED_TO_ID'    };
+
+  return 1 unless $locked_to_table;
   
-  boom "record is locked to table [$locked_to_table] and cannot be changed to [$table]" unless $locked_to_table and $locked_to_table eq $table;
+  boom "record is locked to table [$locked_to_table] and cannot be changed to [$table]" unless $locked_to_table eq $table;
   
   return 1 if $id eq '';
+  return 1 unless $locked_to_id ne '';
   
   boom "record is locked to table:id [$locked_to_table:$locked_to_id] and cannot be changed to [$table:$id]" unless $locked_to_id > 0 and $locked_to_id == $id;
 

@@ -49,14 +49,14 @@ print Dumper( $rio );
 
 my $dio = new Decor::Core::DB::IO;
 
-$dio->select( 'test1', 'SUMA,.REF.CNT', '.REF.CNT > ?', { BIND => [ 60 ], LOCK => 1 } );
+$dio->select( 'test1', 'SUMA,.REF.CNT', '.REF.CNT > ?', { BIND => [ 10 ], LOCK => 1, ORDER_BY => '.REF.CNT', GROUP_BY => '.REF.CNT' } );
 #$dio->select( 'test1', 'SUMA,REF.CNT' );
 while( my $hr = $dio->fetch() )
   {
   print Dumper( $hr );
   }
 
-
+die;
 print "\n" x 100;
   
 $rio->select( 'test1', '.REF.CNT > ?', { BIND => [ 60 ], LOCK => 1 } );
