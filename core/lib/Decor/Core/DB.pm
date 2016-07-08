@@ -43,6 +43,7 @@ sub set_profile
   de_check_ref( $profile, 'Decor::Core::Profile', "invalid or missing PROFILE reference, got [$profile]" );
   
   $self->{ 'PROFILE' } = $profile;
+  $self->{ 'TAINT'   } = {};
 }
 
 sub set_profile_locked
@@ -122,6 +123,13 @@ sub taint_mode_get
   my $mode = uc shift;
   boom "invalid mode [$mode]" unless exists $TAINT_MODES{ $mode };
   return $self->{ 'TAINT' }{ $mode };
+}
+
+sub taint_mode_get_all_enabled
+{
+  my $self = shift;
+
+  return map { $self->{ 'TAINT' }{ $_ } ? $_ : () } keys %{ $self->{ 'TAINT' } };
 }
 
 ### EOF ######################################################################

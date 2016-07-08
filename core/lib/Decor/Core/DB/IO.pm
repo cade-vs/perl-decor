@@ -125,6 +125,7 @@ sub select
   my @select_fields;
   for my $field ( @fields )
     {
+    # TODO: handle AGGREGATE functions, with checking allowed funcs
     my ( $resolved_alias, $resolved_table, $resolved_field ) = $self->__select_resolve_field( $table, $field );
     push @select_fields, "$resolved_alias.$resolved_field";
     }
@@ -137,7 +138,6 @@ sub select
 
   my $group_by = $opts->{ 'GROUP_BY' };
   $group_by = "GROUP BY\n    " . $self->__resolve_clause_fields( $table, $group_by ) if $group_by ne '';
-  
 
   # TODO: use inner or left outer joins, instead of simple where join
   # TODO: add option for inner, outer or full joins!
