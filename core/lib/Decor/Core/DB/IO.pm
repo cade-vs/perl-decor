@@ -39,8 +39,8 @@ sub reset
 {
   my $self   = shift;
 
-  $self->{ 'TABLE'   } = undef;
-  $self->{ 'SELECT'  } = {};
+  delete $self->{ 'TABLE'   };
+  delete $self->{ 'SELECT'  };
   
   1;
 }

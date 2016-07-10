@@ -28,6 +28,7 @@ sub __init
 {
   my $self = shift;
 
+  $self->{ 'DB::IO' } = new Decor::Core::DB::IO;
   $self->reset();
   
   1;
@@ -37,10 +38,15 @@ sub reset
 {
   my $self = shift;
   
-  %$self = ();
-  
-  $self->{ 'DB::IO' } = new Decor::Core::DB::IO;
-  
+  delete $self->{ 'BASE_TABLE'         };
+  delete $self->{ 'BASE_ID'            };
+  delete $self->{ 'RECORD_DATA'        };
+  delete $self->{ 'RECORD_DATA_DB'     };
+  delete $self->{ 'RECORD_MODIFIED'    };
+  delete $self->{ 'RECORD_INSERT'      };
+  delete $self->{ 'RECORD_IMODS'       };
+  delete $self->{ 'RECORD_DATA_UPDATE' };
+
   return 1;
 }
 
@@ -104,6 +110,12 @@ sub create
 
   $self->reset();
 
+  if( my $profile = $self->__get_profile() and $self->taint_mode_get( 'TABLE' ) )
+    {
+    # FIXME: what to do if tainted but no profile?!
+    $profile->check_access_table_boom( 'INSERT', $table );
+    }
+
   $self->{ 'BASE_TABLE' } = $table;
 
   my $new_id = $self->__create_empty_data( $table );
@@ -132,9 +144,9 @@ sub load
   # FIXME: try to load record first
   my %data = map { $_ => '' } @{ des_table_get_fields_list( $table ) };
 
-  my $db_io = new Decor::Core::DB::IO;
+  my $dbio = $self->{ 'DB::IO' };
   
-  my $data = $db_io->read_first1_by_id_hashref( $table, $id );
+  my $data = $dbio->read_first1_by_id_hashref( $table, $id );
 
   $self->{ 'BASE_TABLE' } = $table;
   $self->{ 'BASE_ID'    } = $id;

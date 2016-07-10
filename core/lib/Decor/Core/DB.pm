@@ -70,13 +70,13 @@ sub __get_profile
   return exists $self->{ 'PROFILE' } ? $self->{ 'PROFILE' } : undef;
 }
 
-sub taint_mode_set
+sub taint_mode_on
 {
   my $self    = shift;
 
-  for my $mode ( @_ )
+  for( @_ )
     {
-    $mode = uc $mode;
+    my $mode = uc $_;
     if( $mode eq 'NONE' )
       {
       $self->{ 'TAINT' } = {};
@@ -95,7 +95,14 @@ sub taint_mode_set
   return 1;
 }
 
-sub taint_mode_remove
+sub taint_mode_enable_all
+{
+  my $self    = shift;
+  
+  $self->taint_mode_on( 'ALL' );
+}
+
+sub taint_mode_off
 {
   my $self    = shift;
 

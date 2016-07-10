@@ -1,6 +1,8 @@
 
 label  Test table 2
 
+allow insert; admin; root
+
 =name
 
   type char 256

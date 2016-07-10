@@ -536,6 +536,7 @@ sub describe_table_field
   my $field = shift;
   
   my $des = describe_table( $table );
+  return $des->get_table_des() if $field eq '@'; # shortcut to self
   return $des->get_field_des( $field );
 }
 

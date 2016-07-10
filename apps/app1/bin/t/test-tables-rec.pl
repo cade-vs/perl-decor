@@ -32,6 +32,11 @@ my $rio = new Decor::Core::DB::Record;
 
 print Dumper( $rio );
 
+my $profile = new Decor::Core::Profile;
+$profile->set_groups( qw( admin user oper ) );
+$rio->set_profile( $profile );
+$rio->taint_mode_enable_all();
+
 $rio->create( 'test1' );
 
 $rio->write( NAME => 'test name 115', SUMA => rand(), 'REF.NAME' => 'ref' . rand(), 'REF.CNT' => int(rand(100)) );

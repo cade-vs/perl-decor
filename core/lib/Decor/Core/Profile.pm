@@ -15,6 +15,7 @@ use Exception::Sink;
 
 use Data::Dumper;
 
+use Decor::Core::Describe;
 use Decor::Core::Utils;
 
 ##############################################################################
@@ -114,7 +115,7 @@ sub check_access_table
   my $oper  = uc $_[0];
   my $table = uc $_[1];
 
-  return $self->access_table_field( $oper, $table, '@' );
+  return $self->check_access_table_field( $oper, $table, '@' );
 }
 
 sub check_access_table_boom
@@ -188,16 +189,18 @@ sub check_access_row
   my $dsrc  = uc $_[2]; # data source, hashref or record object
 
   my $fields = des_table_get_fields_list( $table );
+  my $scc = 0; # security checks count
   for my $field ( @$fields )
     {
-    next unless $field =~ /^_${$oper}(_[A-Z_0-9]+)?/;
-    
+    next unless $field =~ /^_${oper}(_[A-Z_0-9]+)?/;
+
+    my $scc++;
     my $grp = ref( $dsrc ) eq 'HASH' ? $dsrc->{ $field } : $dsrc->read( $field );
     my $res = $self->check_access(  );
     return 1 if $res;
     }
   
-  return 0;
+  return $scc > 0 ? 0 : 1; # return 1/allow if no security checks are performed at all
 }
 
 sub check_access_row_boom
