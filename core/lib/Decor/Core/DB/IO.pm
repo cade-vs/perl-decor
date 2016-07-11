@@ -24,7 +24,12 @@ use Decor::Core::Utils;
 ##############################################################################
 
 # TODO: add profiles check and support
+# TODO: add select _OWNER* and _READ* 'in' sets
+# TODO: add select READ for taint mode FIELDS check
+# TODO: add dot-path where fields support for insert()/update()
 # TODO: add resolve checks for inter cross-DSN links
+
+# TODO: FIXME: use only integer groups, use names only for mapping
 
 ##############################################################################
 

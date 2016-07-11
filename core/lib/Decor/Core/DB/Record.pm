@@ -21,6 +21,7 @@ use Decor::Core::Utils;
 # TODO: add profiles check and support
 # TODO: add resolve checks for inter cross-DSN links
 # TODO: add resolve READONLY/WRITE support for read/write
+# TODO: check profile/taint mode logic, taint or get-profile should be first?
 
 ##############################################################################
 
@@ -78,22 +79,22 @@ sub is_empty
   return 1;
 }
 
-sub taint_mode_set
+sub taint_mode_on
 {
   my $self  = shift;
   
-  $self->SUPER::taint_mode_set( @_ );
-  $self->{ 'DB::IO' }->taint_mode_set( @_ ); # sync taint mode
+  $self->SUPER::taint_mode_on( @_ );
+  $self->{ 'DB::IO' }->taint_mode_on( @_ ); # sync taint mode
   
   return 1;
 }
 
-sub taint_mode_remove
+sub taint_mode_off
 {
   my $self  = shift;
   
-  $self->SUPER::taint_mode_remove( @_ );
-  $self->{ 'DB::IO' }->taint_mode_remove( @_ ); # sync taint mode
+  $self->SUPER::taint_mode_off( @_ );
+  $self->{ 'DB::IO' }->taint_mode_off( @_ ); # sync taint mode
 
   return 1;
 }
@@ -110,16 +111,9 @@ sub create
 
   $self->reset();
 
-  if( my $profile = $self->__get_profile() and $self->taint_mode_get( 'TABLE' ) )
-    {
-    # FIXME: what to do if tainted but no profile?!
-    $profile->check_access_table_boom( 'INSERT', $table );
-    }
-
-  $self->{ 'BASE_TABLE' } = $table;
-
   my $new_id = $self->__create_empty_data( $table );
 
+  $self->{ 'BASE_TABLE' } = $table;
   $self->{ 'BASE_ID'    } = $new_id;
 
   return $new_id;
@@ -146,7 +140,14 @@ sub load
 
   my $dbio = $self->{ 'DB::IO' };
   
+  # $dbio is already taint-ed, so will not read restricted record
   my $data = $dbio->read_first1_by_id_hashref( $table, $id );
+  
+  if( ! $data )
+    {
+    # FIXME: need more here?
+    return undef;
+    }
 
   $self->{ 'BASE_TABLE' } = $table;
   $self->{ 'BASE_ID'    } = $id;
@@ -212,9 +213,15 @@ sub __create_empty_data
 
   my $dbio = $self->{ 'DB::IO' };
 
-  if( ! $self->is_read_only() )
+  if( ! $self->is_read_only() and $new_id <= 0 )
     {
-    $new_id = $dbio->get_next_table_id( $table ) unless $new_id > 0;
+    $new_id = $dbio->get_next_table_id( $table );
+    }
+
+  my $profile = $self->__get_profile();
+  if( $profile and $self->taint_mode_get( 'TABLE' ) )
+    {
+    $profile->check_access_table_boom( 'INSERT', $table );
     }
 
   my %data; # FIXME: populate with defaults
@@ -298,6 +305,8 @@ sub write
   
   boom "record is empty, cannot be written" if $self->is_empty();
 
+  my $profile = $self->__get_profile();
+
   my $mods_count = 0; # modifications count
   my @data = @_;
   while( @data )
@@ -306,6 +315,12 @@ sub write
     my $value = shift( @data );
 
     my ( $dst_table, $dst_field, $dst_id ) = $self->__resolve_field( $field, WRITE => 1 );
+
+    if( $profile and $self->taint_mode_get( 'FIELDS' ) )
+      {
+      my $oper = $self->{ 'RECORD_INSERT' }{ $dst_table }{ $dst_id } ? 'INSERT' : 'UPDATE';
+      $profile->check_access_table_field_boom( $oper, $dst_table, $dst_field );
+      }
 
     # FIXME: check for number values
     next if $self->{ 'RECORD_DATA' }{ $dst_table }{ $dst_id }{ $dst_field } eq $value;
@@ -359,7 +374,26 @@ print "debug: record resolve table [$current_table] field [$current_field] id [$
     
     if( $next_id == 0 )
       {
+      # __create_empty_data() will check for INSERT access
       $next_id = $self->__create_empty_data( $linked_table );
+
+      my $profile = $self->__get_profile();
+      if( $profile )
+        { 
+        my $current_insert = $self->{ 'RECORD_INSERT' }{ $current_table }{ $current_id };
+        if( $self->taint_mode_get( 'FIELDS' ) )
+          {
+          my $oper = $current_insert ? 'INSERT' : 'UPDATE';
+          $profile->check_access_table_field_boom( $oper, $current_table, $current_field );
+          }
+        if( $self->taint_mode_get( 'ROWS' ) )
+          {
+          # check if owner(s) is ok
+          $profile->check_access_row_boom( 'OWNER',  $table, $self );
+          # check for UPDATE access, but only for non-insert records
+          $profile->check_access_row_boom( 'UPDATE', $table, $self ) unless $current_insert;
+          }
+        }  
       
       $self->{ 'RECORD_IMODS'       }{ $current_table }{ $current_id }++;
       $self->{ 'RECORD_DATA'        }{ $current_table }{ $current_id }{ $current_field } = $next_id;

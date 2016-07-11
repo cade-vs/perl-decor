@@ -74,6 +74,8 @@ sub taint_mode_on
 {
   my $self    = shift;
 
+  boom "cannot enable taint mode without profile" unless $self->__get_profile();
+
   for( @_ )
     {
     my $mode = uc $_;

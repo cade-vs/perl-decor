@@ -23,6 +23,8 @@ use Decor::Core::Utils;
 # TODO: expire cache if description acces is modified
 # TODO: check if correct lc/uc for groups/opers is used
 
+# TODO: FIXME: use only integer groups, use names only for mapping
+
 ##############################################################################
 
 sub __init
