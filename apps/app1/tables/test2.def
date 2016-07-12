@@ -1,7 +1,7 @@
 
 label  Test table 2
 
-allow insert; admin; root
+allow insert; admin; root; oper
 
 =name
 
@@ -10,4 +10,5 @@ allow insert; admin; root
 =cnt
 
   type int
-  
+
+    allow insert; oper1

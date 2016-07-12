@@ -141,6 +141,8 @@ sub check_access_table_field
   my $table = uc $_[1];
   my $field = uc $_[2];
 
+print "check_access_table_field: [@_]\n";
+
   $self->{ 'ACCESS_CACHE' }{ 'TFO' }{ $table }{ $field } ||= {};
   my $cache = $self->{ 'ACCESS_CACHE' }{ 'TFO' }{ $table }{ $field };
 
@@ -154,16 +156,19 @@ sub check_access_table_field
 
   if( $self->__check_access_tree( $oper, $fdes->{ 'DENY'  } ) )
     {
+print "check_access_table_field: deny denied\n";
     $cache->{ $oper } = 0;
     return 0;
     }
     
   if( $self->__check_access_tree( $oper, $fdes->{ 'ALLOW' } ) )
     {
+print "check_access_table_field: allow allowed\n";
     $cache->{ $oper } = 1;
     return 1;
     }
   
+print "check_access_table_field: default denied\n";
   $cache->{ $oper } = 0;
   return 0;
 }
@@ -176,7 +181,7 @@ sub check_access_table_field_boom
   my $table = uc $_[1];
   my $field = uc $_[2];
 
-  my $res = $self->access_table_field( @_ );
+  my $res = $self->check_access_table_field( @_ );
   boom "EACCESS: [$oper] denied for table [$table] field [$field] res [$res]" unless $res;
   
   return $res;
@@ -198,6 +203,7 @@ sub check_access_row
 
     my $scc++;
     my $grp = ref( $dsrc ) eq 'HASH' ? $dsrc->{ $field } : $dsrc->read( $field );
+    # FIXME: TODO: URGENT: !!!
     my $res = $self->check_access(  );
     return 1 if $res;
     }
@@ -226,7 +232,7 @@ sub __check_access_tree
   my $oper = shift;
   my $tree = shift;
 
-#print "profile access exists check: [$oper]\n" . Dumper( $tree );  
+print "profile access exists check: [$oper]\n" . Dumper( $tree );  
 
   return 0 unless exists $tree->{ $oper };
   
@@ -238,12 +244,12 @@ sub __check_access_tree
       if( $group =~ /^!(.+)$/ )
         {
         my $group = $1;
-#print "profile access ! check: [$group]\n";  
+print "profile access ! check: [$group]\n";  
         $c++ if ! exists $self->{ 'GROUPS' }{ $group } or ! ( $self->{ 'GROUPS' }{ $group } > 0 );
         }
       else
         {
-#print "profile access   check: [$group]\n";  
+print "profile access   check: [$group]\n";  
         $c++ if   exists $self->{ 'GROUPS' }{ $group } and  ( $self->{ 'GROUPS' }{ $group } > 0 );
         }  
       }  

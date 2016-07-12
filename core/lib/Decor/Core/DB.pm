@@ -29,6 +29,8 @@ dlock \%TAINT_MODES;
 sub __init
 {
   my $self = shift;
+
+  $self->{ 'TAINT'   } = {};
   
   1;
 }
@@ -43,7 +45,6 @@ sub set_profile
   de_check_ref( $profile, 'Decor::Core::Profile', "invalid or missing PROFILE reference, got [$profile]" );
   
   $self->{ 'PROFILE' } = $profile;
-  $self->{ 'TAINT'   } = {};
 }
 
 sub set_profile_locked
@@ -73,7 +74,7 @@ sub __get_profile
 sub taint_mode_on
 {
   my $self    = shift;
-
+ 
   boom "cannot enable taint mode without profile" unless $self->__get_profile();
 
   for( @_ )
@@ -100,7 +101,7 @@ sub taint_mode_on
 sub taint_mode_enable_all
 {
   my $self    = shift;
-  
+
   $self->taint_mode_on( 'ALL' );
 }
 

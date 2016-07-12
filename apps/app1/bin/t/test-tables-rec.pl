@@ -30,20 +30,25 @@ de_debug_set( 11 );
 
 my $rio = new Decor::Core::DB::Record;
 
-print Dumper( $rio );
 
 my $profile = new Decor::Core::Profile;
-$profile->set_groups( qw( admin user oper ) );
+$profile->set_groups( qw( oper ) );
 $rio->set_profile( $profile );
+
+print Dumper( 'zzz', "$rio", $rio );
+
 $rio->taint_mode_enable_all();
+
+print Dumper( 'xxx', "$rio", $rio );
 
 $rio->create( 'test1' );
 
 $rio->write( NAME => 'test name 115', SUMA => rand(), 'REF.NAME' => 'ref' . rand(), 'REF.CNT' => int(rand(100)) );
-print Dumper( $rio );
 
 $rio->save();
 
+
+die;
 $rio->write( NAME => 'test name 116' );
 print Dumper( $rio );
 

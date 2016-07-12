@@ -6,7 +6,8 @@ label My funny table
 #allow update insert to admin, monitor
 #allow update, insert | admin | monitor
 #allow update insert / admin / monitor + users
-allow update, insert, delete ; admin ; monitor + users + !root
+allow insert; admin ; monitor + users + !root; oper
+allow update; admin ; monitor + users + !root
 
 
 =NAME

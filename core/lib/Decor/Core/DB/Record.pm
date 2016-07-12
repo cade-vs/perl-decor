@@ -79,6 +79,26 @@ sub is_empty
   return 1;
 }
 
+sub set_profile
+{
+  my $self  = shift;
+  
+  $self->SUPER::set_profile( @_ );
+  $self->{ 'DB::IO' }->set_profile( @_ ); # sync taint mode
+  
+  return 1;
+}
+
+sub set_profile_locked
+{
+  my $self  = shift;
+  
+  $self->SUPER::set_profile_locked( @_ );
+  $self->{ 'DB::IO' }->set_profile_locked( @_ ); # sync taint mode
+  
+  return 1;
+}
+
 sub taint_mode_on
 {
   my $self  = shift;
@@ -316,9 +336,14 @@ sub write
 
     my ( $dst_table, $dst_field, $dst_id ) = $self->__resolve_field( $field, WRITE => 1 );
 
+use Data::Dumper;
+print Dumper( '--------', $self );
+
     if( $profile and $self->taint_mode_get( 'FIELDS' ) )
       {
       my $oper = $self->{ 'RECORD_INSERT' }{ $dst_table }{ $dst_id } ? 'INSERT' : 'UPDATE';
+use Data::Dumper;
+print Dumper( '--------oper: ', $oper, $dst_table, $dst_field );
       $profile->check_access_table_field_boom( $oper, $dst_table, $dst_field );
       }
 
@@ -389,9 +414,9 @@ print "debug: record resolve table [$current_table] field [$current_field] id [$
         if( $self->taint_mode_get( 'ROWS' ) )
           {
           # check if owner(s) is ok
-          $profile->check_access_row_boom( 'OWNER',  $table, $self );
+          $profile->check_access_row_boom( 'OWNER',  $current_table, $self );
           # check for UPDATE access, but only for non-insert records
-          $profile->check_access_row_boom( 'UPDATE', $table, $self ) unless $current_insert;
+          $profile->check_access_row_boom( 'UPDATE', $current_table, $self ) unless $current_insert;
           }
         }  
       
