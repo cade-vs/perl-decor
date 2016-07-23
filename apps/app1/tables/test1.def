@@ -8,7 +8,7 @@ label My funny table
 #allow update insert / admin / monitor + users
 allow insert; admin ; monitor + users + !root; oper
 allow update; admin ; monitor + users + !root
-
+allow read ; all ; oper
 
 =NAME
 
@@ -61,5 +61,6 @@ allow update; admin ; monitor + users + !root
 =REF
 
   type link test2 name
+  
   
 

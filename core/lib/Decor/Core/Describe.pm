@@ -98,12 +98,12 @@ my %DES_ATTRS = (
                          },
                 );
 
-my %DES_LINK_ATTRS = (
-                  'FIELD' => {
-                           ALLOW  => 1,
-                           DENY   => 1,
-                         },
-                );
+#my %DES_LINK_ATTRS = (
+#                  'FIELD' => {
+#                           ALLOW  => 1,
+#                           DENY   => 1,
+#                         },
+#                );
                
 #my %TABLE_ATTRS = map { $_ => 1 } @TABLE_ATTRS;
 #hash_lock_recursive( \%TABLE_ATTRS );
@@ -367,6 +367,9 @@ sub __postprocess_table_des_hash
   $des->{ '@' }{ '_FIELDS_LIST'  } = \@fields;
   $des->{ '@' }{ '_INDEXES_LIST' } = \@indexes;
   $des->{ '@' }{ 'DSN'           } = uc( $des->{ '@' }{ 'DSN' } ) || 'MAIN';
+  
+  $des->{ '@' }{ 'ALLOW' } = {} unless $des->{ '@' }{ 'ALLOW' };
+  $des->{ '@' }{ 'DENY'  } = {} unless $des->{ '@' }{ 'DENY'  };
 
 ###  print STDERR "TABLE DES AFTER SELF PP [$table]:" . Dumper( $des );
   # postprocessing FIELDs ---------------------------------------------------
@@ -382,6 +385,7 @@ sub __postprocess_table_des_hash
     # "high" level types
     if( $type eq 'LINK' )
       {
+      $fld_des->{ 'LINK_TYPE'    } = 'LINK';
       $fld_des->{ 'LINKED_TABLE' } = shift @type;
       $fld_des->{ 'LINKED_FIELD' } = shift @type;
 
@@ -390,6 +394,7 @@ sub __postprocess_table_des_hash
       }
     elsif( $type eq 'BACKLINK' )
       {
+      $fld_des->{ 'LINK_TYPE'        } = 'BACKLINK';
       $fld_des->{ 'BACKLINKED_TABLE' } = shift @type;
       $fld_des->{ 'BACKLINKED_KEY'   } = shift @type;
 
@@ -440,13 +445,25 @@ sub __postprocess_table_des_hash
 
     # FIXME: more categories INDEX: ACTION: etc.
     # inherit empty keys
-    for my $attr ( keys %{ $DES_LINK_ATTRS{ 'FIELD' } } )
+    #for my $attr ( keys %{ $DES_LINK_ATTRS{ 'FIELD' } } )
+    #  {
+    #  next if exists $des->{ 'FIELD' }{ $field }{ $attr };
+    #  # link missing attributes to self
+    #  $des->{ 'FIELD' }{ $field }{ $attr } = $des->{ '@' }{ $attr };
+    #  }
+    
+    for my $allow_deny ( qw( ALLOW DENY ) )
       {
-      next if exists $des->{ 'FIELD' }{ $field }{ $attr };
-      # link missing attributes to self
-      $des->{ 'FIELD' }{ $field }{ $attr } = $des->{ '@' }{ $attr };
+      for my $oper ( keys %{ $des->{ '@' }{ $allow_deny } } )
+        {
+        next if exists $des->{ 'FIELD' }{ $field }{ $allow_deny }{ $oper };
+        # link missing operation allow/deny to self
+        $des->{ 'FIELD' }{ $field }{ $allow_deny }{ $oper } = $des->{ '@' }{ $allow_deny }{ $oper }
+        }
       }
+    
     }
+    
 
   # add empty keys to fields description before locking
   for my $category ( qw( FIELD INDEX ) )

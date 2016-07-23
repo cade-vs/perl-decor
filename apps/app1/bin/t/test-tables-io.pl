@@ -35,3 +35,18 @@ while( my $hr = $dio->fetch() )
 {
   print Dumper( $hr );
 }
+
+my $res = $dio->update( 'test1', { suma => 999 }, 'REF = ?', { BIND => [ 77 ] } );
+
+print "update res [$res]\n";
+
+my $profile = new Decor::Core::Profile;
+$profile->set_groups( qw( oper ) );
+$dio->set_profile( $profile );
+$dio->taint_mode_enable_all();
+
+print Dumper( $dio->read_first1_hashref( 'test1', '.REF.CNT = ?', { BIND => [ 77 ] } ) );
+
+
+my $dd = describe_table( 'test2' );
+print Dumper( $dd );

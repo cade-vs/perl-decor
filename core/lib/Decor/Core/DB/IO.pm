@@ -26,7 +26,7 @@ use Decor::Core::Utils;
 # TODO: add profiles check and support
 # TODO: add select _OWNER* and _READ* 'in' sets
 # TODO: add select READ for taint mode FIELDS check
-# TODO: add dot-path where fields support for insert()/update()
+# TODO: add dot-path where fields support for update()
 # TODO: add resolve checks for inter cross-DSN links
 
 # TODO: FIXME: use only integer groups, use names only for mapping
@@ -83,6 +83,14 @@ sub select
   $self->__reshape( $table );
 
   $self->finish();
+
+  my $profile = $self->__get_profile();
+  if( $profile and $self->taint_mode_get( 'TABLE' ) )
+    {
+    $profile->check_access_table_boom( 'READ', $table );
+    }
+
+  $fields = '*' if $fields eq '';
   
   my $table_des = describe_table( $table );
   my $db_table  = $table_des->get_db_table_name();
@@ -136,7 +144,7 @@ sub select
     }
 
   # resolve fields in where clause
-  $where = $self->__resolve_clause_fields( $table, $where );
+  $where = $self->__resolve_clause_fields( $table, $where ) if $where ne '';
 
   my $order_by = $opts->{ 'ORDER_BY' };
   $order_by = "ORDER BY\n    " . $self->__resolve_clause_fields( $table, $order_by ) if $order_by ne '';
@@ -196,54 +204,60 @@ sub __select_offset_clause
 
 sub __select_resolve_field
 {
-   my $self   = shift;
-   my $table  = uc shift;
-   my $field  = uc shift; # userid.info.des.asd.qwe
+  my $self   = shift;
+  my $table  = uc shift;
+  my $field  = uc shift; # userid.info.des.asd.qwe
 
-   my @field = split /\./, $field;
-   my $table_now = $table;
-#   my $field_now = shift @field;
-   my $field_now;
-   my $alias_now = $table_now;
-   my $alias_key;
-   my $alias_next;
+  my @field = split /\./, $field;
+  my $table_now = $table;
+  #   my $field_now = shift @field;
+  my $field_now;
+  my $alias_now = $table_now;
+  my $alias_key;
+  my $alias_next;
 
-#   while( @field )
-   while(4)
-     {
-     $field_now = shift @field;
+  my $profile = $self->__get_profile();
 
-     my $fld_des = describe_table_field( $table_now, $field_now );
+  #   while( @field )
+  while(4)
+    {
+    $field_now = shift @field;
 
-     if( @field == 0 )
-       {
-       return ( $alias_now, $table_now, $field_now );
-       }
+    if( $profile and $self->taint_mode_get( 'FIELDS' ) )
+      {
+      $profile->check_access_table_field_boom( 'READ', $table_now, $field_now );
+      }
+    my $fld_des = describe_table_field( $table_now, $field_now );
 
-     my $table_next = $fld_des->{ 'LINKED_TABLE' };
-     boom "cannot resolve field, current position is [$table_now:$field_now]" unless $table_next;
+    if( @field == 0 )
+      {
+      return ( $alias_now, $table_now, $field_now );
+      } 
 
-     # FIXME: check for cross-DSN links
-     
-     $alias_key .= "$field.";
-     $alias_next = $self->{ 'SELECT' }{ 'TABLES_ALIASES' }{ $alias_key };
-     if( ! $alias_next )
-       {
-       $alias_next = $self->{ 'SELECT' }{ 'TABLES_ALIASES' }{ $alias_key } 
-                  = "_TABLE_ALIAS_" . ++$self->{ 'SELECT' }{ 'TABLES_ALIASES_COUNT' };
-       }
-     
-     my $db_table_next = describe_table( $table_next )->get_db_table_name();
-     $self->{ 'SELECT' }{ 'TABLES' }{ "$db_table_next   $alias_next" }++;
+    my $table_next = $fld_des->{ 'LINKED_TABLE' };
+    boom "cannot resolve field, current position is [$table_now:$field_now]" unless $table_next;
 
-     # FIXME: use inner or left outer joins, instead of simple where join
-     # FIXME: add option for inner, outer or full joins!
-     $self->{ 'SELECT' }{ 'RESOLVE_WHERE' }{ "$alias_now.$field_now = $alias_next._ID" }++;
-     
-     $table_now = $table_next;
-     $alias_now = $alias_next;
-#     $field_now = shift @field;
-     }
+    # FIXME: check for cross-DSN links
+   
+    $alias_key .= "$field.";
+    $alias_next = $self->{ 'SELECT' }{ 'TABLES_ALIASES' }{ $alias_key };
+    if( ! $alias_next )
+      {
+      $alias_next = $self->{ 'SELECT' }{ 'TABLES_ALIASES' }{ $alias_key } 
+                 = "_TABLE_ALIAS_" . ++$self->{ 'SELECT' }{ 'TABLES_ALIASES_COUNT' };
+      }
+   
+    my $db_table_next = describe_table( $table_next )->get_db_table_name();
+    $self->{ 'SELECT' }{ 'TABLES' }{ "$db_table_next   $alias_next" }++;
+
+    # FIXME: use inner or left outer joins, instead of simple where join
+    # FIXME: add option for inner, outer or full joins!
+    $self->{ 'SELECT' }{ 'RESOLVE_WHERE' }{ "$alias_now.$field_now = $alias_next._ID" }++;
+   
+    $table_now = $table_next;
+    $alias_now = $alias_next;
+    #     $field_now = shift @field;
+  }
 
 }
 
@@ -398,8 +412,12 @@ sub update
   my $table_des = describe_table( $table );
   my $db_table  = $table_des->get_db_table_name();
 
-  if( $where )
+  if( $where ne '' )
     {
+    # FIXME: different databases support vastly differs as well :(
+    # resolve fields in where clause
+    #$where = $self->__resolve_clause_fields( $table, $where );
+
     push @where, $where;
     push @bind,  @{ $opts->{ 'BIND' } || [] };
     }
@@ -428,6 +446,10 @@ sub update
     }
   chop( $columns );
 
+  # FIXME: different databases support vastly differs as well :(
+  #push @where, keys %{ $self->{ 'SELECT' }{ 'RESOLVE_WHERE' } };
+  #delete $self->{ 'SELECT' }{ 'RESOLVE_WHERE' };
+
   my $where_clause;
   if( @where )
     {
@@ -437,7 +459,7 @@ sub update
   my $db_table = $table_des->get_db_table_name();
   my $sql_stmt = "UPDATE $db_table SET $columns $where_clause";
 
-print STDERR Dumper( '-' x 72, __PACKAGE__ . "::UPDATE: table [$table] data/sql/values/where/bind", $data, $sql_stmt, \@values, $where_clause, \@bind );
+print STDERR Dumper( '-' x 72, __PACKAGE__ . "::UPDATE: table [$table] data/sql/values/where/bind", $data, $sql_stmt, \@values, $where_clause, \@bind, $self );
 
   my $dbh = dsn_get_dbh_by_table( $table );
   my $rc = $dbh->do( $sql_stmt, {}, ( @values, @bind ) );

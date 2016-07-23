@@ -2,6 +2,7 @@
 label  Test table 2
 
 allow insert; admin; root; oper
+allow read ; all; oper
 
 =name
 
@@ -11,4 +12,4 @@ allow insert; admin; root; oper
 
   type int
 
-    allow insert; oper1
+  allow insert; oper1
