@@ -1,7 +1,7 @@
 ##############################################################################
 ##
 ##  Decor application machinery core
-##  2014-2015 (c) Vladi Belperchinov-Shabanski "Cade"
+##  2014-2016 (c) Vladi Belperchinov-Shabanski "Cade"
 ##  <cade@bis.bg> <cade@biscom.net> <cade@cpan.org>
 ##
 ##  LICENSE: GPLv2
@@ -353,6 +353,12 @@ sub insert
 
   $self->__reshape( $table );
 
+  my $profile = $self->__get_profile();
+  if( $profile and $self->taint_mode_get( 'TABLE' ) )
+    {
+    $profile->check_access_table_boom( 'INSERT', $table );
+    }
+
   my $table_des = describe_table( $table );
 
   if( ! exists $data->{ "_ID" } )
@@ -371,6 +377,11 @@ sub insert
   while( my ( $field, $value ) = each %$data )
     {
     $field = uc $field;
+    if( $profile and $self->taint_mode_get( 'FIELDS' ) )
+      {
+      $profile->check_access_table_field_boom( 'INSERT', $table, $field );
+      }
+
     my $fld_des = $table_des->get_field_des( $field );
     my $field_type_name = $fld_des->{ 'TYPE' }{ 'NAME' };
     
@@ -406,6 +417,12 @@ sub update
 
   $self->__reshape( $table );
 
+  my $profile = $self->__get_profile();
+  if( $profile and $self->taint_mode_get( 'TABLE' ) )
+    {
+    $profile->check_access_table_boom( 'UPDATE', $table );
+    }
+
   my @where;
   my @bind;
 
@@ -437,6 +454,11 @@ sub update
   while( my ( $field, $value ) = each %$data )
     {
     $field = uc $field;
+    if( $profile and $self->taint_mode_get( 'FIELDS' ) )
+      {
+      $profile->check_access_table_field_boom( 'INSERT', $table, $field );
+      }
+
     my $fld_des = $table_des->get_field_des( $field );
     my $field_type_name = $fld_des->{ 'TYPE' }{ 'NAME' };
     
@@ -449,6 +471,8 @@ sub update
   # FIXME: different databases support vastly differs as well :(
   #push @where, keys %{ $self->{ 'SELECT' }{ 'RESOLVE_WHERE' } };
   #delete $self->{ 'SELECT' }{ 'RESOLVE_WHERE' };
+
+  # TODO: support for _UG_* fields
 
   my $where_clause;
   if( @where )

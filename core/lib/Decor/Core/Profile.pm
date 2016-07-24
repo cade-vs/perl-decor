@@ -1,7 +1,7 @@
 ##############################################################################
 ##
 ##  Decor application machinery core
-##  2014-2015 (c) Vladi Belperchinov-Shabanski "Cade"
+##  2014-2016 (c) Vladi Belperchinov-Shabanski "Cade"
 ##  <cade@bis.bg> <cade@biscom.net> <cade@cpan.org>
 ##
 ##  LICENSE: GPLv2
@@ -21,9 +21,6 @@ use Decor::Core::Utils;
 ##############################################################################
 
 # TODO: expire cache if description acces is modified
-# TODO: check if correct lc/uc for groups/opers is used
-
-# TODO: FIXME: use only integer groups, use names only for mapping
 
 ##############################################################################
 
@@ -58,10 +55,12 @@ sub add_groups
   $self->{ 'ACCESS_CACHE' } = {};
   for my $group ( @groups )
     {
-    $group = lc $group;
-    de_check_name_boom( $group, "invalid group name [$group]" );
+    $group = int( $group );
+    de_check_id_boom( $group, "invalid group name [$group]" );
+    # TODO: remove or boom NOBODY group
     $self->{ 'GROUPS' }{ $group } = 1; # fixme: group classes/types
     }
+  # TODO: remove or boom NOBODY group
 }
 
 sub remove_groups
@@ -78,7 +77,7 @@ sub remove_groups
       $self->clear_groups();
       return;
       }
-    $group = lc $group;
+    $group = int( $group );
     de_check_name_boom( $group, "invalid group name [$group]" );
     delete $self->{ 'GROUPS' }{ $group };
     }
@@ -105,7 +104,8 @@ sub check_access
 {
   my $self = shift;
 
-  my $group = lc $_[0];
+  my $group = int( $_[0] );
+  return 0 if $group == 0;
   
   return $self->{ 'GROUPS' }{ $group } if exists $self->{ 'GROUPS' }{ $group };
 }
@@ -196,19 +196,18 @@ sub check_access_row
   my $dsrc  = uc $_[2]; # data source, hashref or record object
 
   my $fields = des_table_get_fields_list( $table );
-  my $scc = 0; # security checks count
+  my $sccnt = 0; # security checks count
   for my $field ( @$fields )
     {
     next unless $field =~ /^_${oper}(_[A-Z_0-9]+)?/;
 
-    my $scc++;
+    my $sccnt++;
     my $grp = ref( $dsrc ) eq 'HASH' ? $dsrc->{ $field } : $dsrc->read( $field );
-    # FIXME: TODO: URGENT: !!!
-    my $res = $self->check_access(  );
+    my $res = $self->check_access( $grp );
     return 1 if $res;
     }
   
-  return $scc > 0 ? 0 : 1; # return 1/allow if no security checks are performed at all
+  return $sccnt > 0 ? 0 : 1; # return 1/allow if no security checks are performed at all
 }
 
 sub check_access_row_boom
@@ -243,14 +242,17 @@ print "profile access exists check: [$oper]\n" . Dumper( $tree );
       {
       if( $group =~ /^!(.+)$/ )
         {
-        my $group = $1;
-print "profile access ! check: [$group]\n";  
-        $c++ if ! exists $self->{ 'GROUPS' }{ $group } or ! ( $self->{ 'GROUPS' }{ $group } > 0 );
+        my $grp = int( $1 );
+print "profile access ! check: [$grp]\n";  
+        next if $grp == 0;
+        $c++ if ! exists $self->{ 'GROUPS' }{ $grp } or ! ( $self->{ 'GROUPS' }{ $grp } > 0 );
         }
       else
         {
-print "profile access   check: [$group]\n";  
-        $c++ if   exists $self->{ 'GROUPS' }{ $group } and  ( $self->{ 'GROUPS' }{ $group } > 0 );
+        my $grp = int( $group );
+print "profile access   check: [$grp]\n";  
+        next if $grp == 0;
+        $c++ if   exists $self->{ 'GROUPS' }{ $grp } and  ( $self->{ 'GROUPS' }{ $grp } > 0 );
         }  
       }  
     return 1 if $c == @$sets;

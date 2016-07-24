@@ -1,7 +1,7 @@
 ##############################################################################
 ##
-##  Decor stagelication machinery core
-##  2014-2015 (c) Vladi Belperchinov-Shabanski "Cade"
+##  Decor application machinery core
+##  2014-2016 (c) Vladi Belperchinov-Shabanski "Cade"
 ##  <cade@bis.bg> <cade@biscom.net> <cade@cpan.org>
 ##
 ##  LICENSE: GPLv2
@@ -247,6 +247,11 @@ sub __create_empty_data
   my %data; # FIXME: populate with defaults
   $data{ '_ID' } = $new_id;
 
+  if( $profile and $self->taint_mode_get( 'ROWS' ) )
+    {
+    # TODO: fill default values for _OPER_*
+    }
+
   $self->{ 'RECORD_MODIFIED' }++;
   $self->{ 'RECORD_INSERT' }{ $table }{ $new_id }++;
   $self->{ 'RECORD_IMODS'  }{ $table }{ $new_id }++;
@@ -281,7 +286,7 @@ sub read
     {
     my ( $dst_table, $dst_field, $dst_id ) = $self->__resolve_field( $field );
     
-    push @res, $self->{ 'RECORD_DATA' }{ $dst_table }{ $dst_id }{ $dst_field };
+    push @res, $dst_table ? $self->{ 'RECORD_DATA' }{ $dst_table }{ $dst_id }{ $dst_field } : undef;
     }
 
   return wantarray ? @res : shift( @res );
@@ -306,7 +311,7 @@ sub read_hash
     my ( $dst_table, $dst_field, $dst_id ) = $self->__resolve_field( $field );
     
     push @res, $field;
-    push @res, $self->{ 'RECORD_DATA' }{ $dst_table }{ $dst_id }{ $dst_field };
+    push @res, $dst_table ? $self->{ 'RECORD_DATA' }{ $dst_table }{ $dst_id }{ $dst_field } : undef;
     }
 
   return wantarray ? @res : { @res };
@@ -323,7 +328,8 @@ sub write
 {
   my $self = shift;
   
-  boom "record is empty, cannot be written" if $self->is_empty();
+  boom "record is empty, cannot be written"     if $self->is_empty();
+  boom "record is read_only, cannot be written" if $self->is_read_only();
 
   my $profile = $self->__get_profile();
 
@@ -334,7 +340,7 @@ sub write
     my $field = shift( @data );
     my $value = shift( @data );
 
-    my ( $dst_table, $dst_field, $dst_id ) = $self->__resolve_field( $field, WRITE => 1 );
+    my ( $dst_table, $dst_field, $dst_id ) = $self->__resolve_field( $field, { WRITE => 1 } );
 
 use Data::Dumper;
 print Dumper( '--------', $self );
@@ -368,9 +374,12 @@ sub __resolve_field
   my $self = shift;
   
   my $field = uc shift;
+  my $opt   = shift;
   
   my $base_table = $self->{ 'BASE_TABLE' };
   my $base_id    = $self->{ 'BASE_ID'    };
+  
+  my $write_resolve = $opt->{ 'WRITE' };
   
   if( $field !~ /\./ ) # if no path was given, i.e. field.field.field
     {
@@ -399,6 +408,7 @@ print "debug: record resolve table [$current_table] field [$current_field] id [$
     
     if( $next_id == 0 )
       {
+      return () unless $write_resolve;
       # __create_empty_data() will check for INSERT access
       $next_id = $self->__create_empty_data( $linked_table );
 
