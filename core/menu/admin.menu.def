@@ -1,7 +1,7 @@
 
 =new user
 
-  type new res_users
+  type insert res_users
 
 =active users
 

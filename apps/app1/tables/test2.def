@@ -1,8 +1,8 @@
 
 label  Test table 2
 
-allow insert; admin; root; oper
-allow read ; all; oper
+allow insert, update ; 900
+allow read ; 900
 
 =name
 
@@ -12,4 +12,20 @@ allow read ; all; oper
 
   type int
 
-  allow insert; oper1
+  allow insert; 111; 900
+  
+=_OWNER
+
+  type int
+
+=_OWNER_2
+
+  type int
+
+=_READ_ACCESS
+
+  type int
+
+=_UPDATE_OFFICE
+
+  type int

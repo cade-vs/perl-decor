@@ -131,9 +131,11 @@ sub select
 
   my @where;
   my @bind;
-  
+
   push @where, "$db_table._ID > 0";
 
+  push @where, $self->__get_row_access_where_list( $table, 'OWNER', 'READ' );
+  
   # resolve fields in select
   my @select_fields;
   for my $field ( @fields )
@@ -290,6 +292,36 @@ sub __resolve_clause_fields
   return $clause;
 }
 
+sub __get_row_access_where_list
+{
+  my $self  = shift;
+  my $table = shift;
+
+  my $profile = $self->__get_profile();
+  return () unless $profile and $self->taint_mode_get( 'ROWS' );
+
+  my $groups_string = $profile->get_groups_string();
+
+  my $table_des = describe_table( $table );
+  my $fields    = $table_des->get_fields_list();
+  my $db_table  = $table_des->get_db_table_name();
+  
+  my @where;
+  for my $oper ( @_ )
+    {
+    my $sccnt = 0; # security checks count
+    for my $field ( @$fields )
+      {
+      next unless $field =~ /^_${oper}(_[A-Z_0-9]+)?$/;
+
+      my $where = "( $db_table.$field IN ( $groups_string ) )";
+      push @where, $where;
+      }
+    } 
+  
+  return @where;  
+}
+
 #-----------------------------------------------------------------------------
 
 sub fetch
@@ -395,9 +427,11 @@ sub insert
   chop( $values  );
 
   my $db_table = $table_des->get_db_table_name();
-  my $sql_stmt = "INSERT INTO $db_table ( $columns ) values ( $values )";
+  my $sql_stmt = "INSERT INTO\n    $db_table\n    ( $columns )\nVALUES\n    ( $values )";
 
-print STDERR Dumper( '-' x 72, __PACKAGE__ . "::INSERT: table [$table] data/sql/values", $data, $sql_stmt, \@values );
+  de_log_debug( "sql: update: [\n$sql_stmt] with values [@values]\n" . Dumper( $data ) );
+
+#print STDERR Dumper( '-' x 72, __PACKAGE__ . "::INSERT: table [$table] data/sql/values", $data, $sql_stmt, \@values );
 
   my $dbh = dsn_get_dbh_by_table( $table );
   my $rc = $dbh->do( $sql_stmt, {}, @values );
@@ -448,6 +482,8 @@ sub update
       }
     }
 
+  push @where, $self->__get_row_access_where_list( $table, 'OWNER', 'UPDATE' );
+
   # TODO: check if @columns + @values is faster or equal
   my $columns;
   my @values;
@@ -477,13 +513,15 @@ sub update
   my $where_clause;
   if( @where )
     {
-    $where_clause = "WHERE " . join( ' AND ', @where );
+    $where_clause = join( "\n    AND ", @where );
     }
 
   my $db_table = $table_des->get_db_table_name();
-  my $sql_stmt = "UPDATE $db_table SET $columns $where_clause";
+  my $sql_stmt = "UPDATE\n    $db_table\nSET\n    $columns\nWHERE\n    $where_clause";
 
-print STDERR Dumper( '-' x 72, __PACKAGE__ . "::UPDATE: table [$table] data/sql/values/where/bind", $data, $sql_stmt, \@values, $where_clause, \@bind, $self );
+  de_log_debug( "sql: update: [\n$sql_stmt] with values [@bind]" );
+
+#print STDERR Dumper( '-' x 72, __PACKAGE__ . "::UPDATE: table [$table] data/sql/values/where/bind", $data, $sql_stmt, \@values, $where_clause, \@bind, $self );
 
   my $dbh = dsn_get_dbh_by_table( $table );
   my $rc = $dbh->do( $sql_stmt, {}, ( @values, @bind ) );

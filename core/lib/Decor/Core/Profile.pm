@@ -28,9 +28,9 @@ sub __init
 {
   my $self = shift;
   
-  $self->{ 'GROUPS'       } = {};
-  $self->{ 'ACCESS_CACHE' } = {};
-  $self->{ 'VAR'          } = {};
+  $self->{ 'GROUPS' } = {};
+  $self->{ 'CACHE'  } = {};
+  $self->{ 'VAR'    } = {};
   
   $self->__lock_self_keys();
   1;
@@ -49,14 +49,14 @@ sub set_groups
 sub add_groups
 {
   my $self = shift;
-  
+
   my @groups = @_;
   
-  $self->{ 'ACCESS_CACHE' } = {};
+  $self->{ 'CACHE' } = {};
   for my $group ( @groups )
     {
+    de_check_id_boom( $group, "invalid group id, number expected [$group]" );
     $group = int( $group );
-    de_check_id_boom( $group, "invalid group name [$group]" );
     # TODO: remove or boom NOBODY group
     $self->{ 'GROUPS' }{ $group } = 1; # fixme: group classes/types
     }
@@ -69,7 +69,7 @@ sub remove_groups
 
   my @groups = @_;
   
-  $self->{ 'ACCESS_CACHE' } = {};
+  $self->{ 'CACHE' } = {};
   for my $group ( @groups )
     {
     if( $group eq '*' )
@@ -77,8 +77,8 @@ sub remove_groups
       $self->clear_groups();
       return;
       }
+    de_check_name_boom( $group, "invalid group id, number expected [$group]" );
     $group = int( $group );
-    de_check_name_boom( $group, "invalid group name [$group]" );
     delete $self->{ 'GROUPS' }{ $group };
     }
 }
@@ -90,12 +90,23 @@ sub get_groups
   return keys %{ $self->{ 'GROUPS' } };
 }
 
+sub get_groups_string
+{
+  my $self = shift;
+
+  return $self->{ 'CACHE' }{ 'GET_GROUPS_STRING_RES' } if $self->{ 'CACHE' }{ 'GET_GROUPS_STRING_RES' };
+
+  my @groups = $self->get_groups();
+  @groups = sort { $a <=> $b } @groups;
+  return $self->{ 'CACHE' }{ 'GET_GROUPS_STRING_RES' } = join ',', @groups;
+}
+
 sub clear_groups
 {
   my $self = shift;
 
-  $self->{ 'ACCESS_CACHE' } = {};
-  $self->{ 'GROUPS'       } = {};
+  $self->{ 'CACHE'  } = {};
+  $self->{ 'GROUPS' } = {};
 }
 
 ### ACCESS CHECKS ############################################################
@@ -143,8 +154,8 @@ sub check_access_table_field
 
 print "check_access_table_field: [@_]\n";
 
-  $self->{ 'ACCESS_CACHE' }{ 'TFO' }{ $table }{ $field } ||= {};
-  my $cache = $self->{ 'ACCESS_CACHE' }{ 'TFO' }{ $table }{ $field };
+  $self->{ 'CACHE' }{ 'ACCESS' }{ 'TFO' }{ $table }{ $field } ||= {};
+  my $cache = $self->{ 'CACHE' }{ 'ACCESS' }{ 'TFO' }{ $table }{ $field };
 
   if( $cache and exists $cache->{ $oper } )
     {

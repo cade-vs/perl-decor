@@ -28,13 +28,33 @@ de_debug_set( 11 );
 
 my $dio = new Decor::Core::DB::IO;
 
-$dio->insert( 'test2', { NAME => 'Testing ' . rand(), CNT => int(rand()), } );
+my $profile = new Decor::Core::Profile;
+print "add groups [111]\n";
+$profile->set_groups( qw( 900 ), 33..44 );
+print "add groups [222]\n";
+$dio->set_profile( $profile );
+$dio->taint_mode_enable_all();
+
+
+#my $t = gethrtime();
+#for( 1..1000000 )
+#{
+#my $str = $profile->get_groups_string();
+#}
+#$t = ( gethrtime() - $t ) / 1_000_000_000;
+#print "$t secs\n";
+#die;
+
+my $new_id = $dio->insert( 'test2', { NAME => 'Testing ' . rand(), CNT => int(rand()), } );
+$dio->update_id( 'test2', { NAME => 'Testing ' . rand(), CNT => int(rand()), }, $new_id );
 
 $dio->select( 'test2' );
 while( my $hr = $dio->fetch() )
 {
   print Dumper( $hr );
 }
+
+die;
 
 my $res = $dio->update( 'test1', { suma => 999 }, 'REF = ?', { BIND => [ 77 ] } );
 
