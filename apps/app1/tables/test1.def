@@ -2,13 +2,41 @@
 label My funny table
 
 
-#allow update or insert to admin or monitor
-#allow update insert to admin, monitor
-#allow update, insert | admin | monitor
-#allow update insert / admin / monitor + users
-allow insert; admin ; monitor + users + !root; oper
-allow update; admin ; monitor + users + !root
-allow read ; all ; oper
+#grant update or insert to admin or monitor
+#grant update insert to admin, monitor
+#grant update, insert | admin | monitor
+#grant update insert / admin / monitor + users
+
+#grant insert; admin ; monitor + users + !root; oper
+
+#grant update; admin ; monitor + users + !root
+
+#grant read ; 900
+
+#grant read insert update to 900, 100+10, 11+!20
+
+#grant read insert update to 900; 100+10; 11+!20
+
+#grant read, insert, update to 900, 100 + 10, 11+!20
+
+#grant read insert update to 900 or 100+10 or 11+!20
+
+
+#grant read delete to 900; 111; 44 + !22
+
+#allow read insert delete = 900 | 100 | 44 + !22
+
+#grant read insert to 990 or 100 + 22 or 99 + ! 66
+#grant read insert = 990 | 100 + 22 | 99 + ! 66
+
+#grant read insert to 990, 100 + 22, 99 + ! 66
+
+#grant read insert = 990 | 100 + 22; 99 + ! 66
+
+#grant read insert -> 990 | 100 + 22; 99 + ! 66
+
+
+grant update to 999; 100; 200+!2
 
 =NAME
 

@@ -47,7 +47,7 @@ my %TYPE_ATTRS = (
                  );
 
 my %DES_KEY_TYPES  = (
-                      'ALLOW' => '@',
+                      'GRANT' => '@',
                       'DENY'  => '@',
                     );
 
@@ -67,7 +67,7 @@ my %DES_CATEGORIES = (
 my @TABLE_ATTRS = qw(
                       SCHEMA
                       LABEL
-                      ALLOW
+                      GRANT
                       DENY
                     );
 
@@ -76,14 +76,14 @@ my %DES_ATTRS = (
                   '@' => {
                            SCHEMA => 1,
                            LABEL  => 1,
-                           ALLOW  => 1,
+                           GRANT  => 1,
                            DENY   => 1,
                            SYSTEM => 1,
                          },
                   'FIELD' => {
                            TYPE        => 1,
                            LABEL       => 1,
-                           ALLOW       => 1,
+                           GRANT       => 1,
                            DENY        => 1,
                            SYSTEM      => 1,
                            PRIMARY_KEY => 1,
@@ -100,7 +100,7 @@ my %DES_ATTRS = (
 
 #my %DES_LINK_ATTRS = (
 #                  'FIELD' => {
-#                           ALLOW  => 1,
+#                           GRANT  => 1,
 #                           DENY   => 1,
 #                         },
 #                );
@@ -352,8 +352,8 @@ sub __postprocess_table_des_hash
   # move table config in more comfortable location
   $des->{ '@' } = $des->{ '@' }{ '@' };
 
-  # convert allow/deny list to access tree
-  __preprocess_allow_deny( $des->{ '@' } );
+  # convert grant/deny list to access tree
+  __preprocess_grant_deny( $des->{ '@' } );
 
   # add empty keys to table description before locking
   for my $attr ( keys %{ $DES_ATTRS{ '@' } } )
@@ -368,7 +368,7 @@ sub __postprocess_table_des_hash
   $des->{ '@' }{ '_INDEXES_LIST' } = \@indexes;
   $des->{ '@' }{ 'DSN'           } = uc( $des->{ '@' }{ 'DSN' } ) || 'MAIN';
   
-  $des->{ '@' }{ 'ALLOW' } = {} unless $des->{ '@' }{ 'ALLOW' };
+  $des->{ '@' }{ 'GRANT' } = {} unless $des->{ '@' }{ 'GRANT' };
   $des->{ '@' }{ 'DENY'  } = {} unless $des->{ '@' }{ 'DENY'  };
 
 ###  print STDERR "TABLE DES AFTER SELF PP [$table]:" . Dumper( $des );
@@ -440,8 +440,8 @@ sub __postprocess_table_des_hash
       }
     $fld_des->{ 'TYPE' } = $type_des;
     
-    # convert allow/deny list to access tree
-    __preprocess_allow_deny( $des->{ 'FIELD' }{ $field } );
+    # convert grant/deny list to access tree
+    __preprocess_grant_deny( $des->{ 'FIELD' }{ $field } );
 
     # FIXME: more categories INDEX: ACTION: etc.
     # inherit empty keys
@@ -452,13 +452,13 @@ sub __postprocess_table_des_hash
     #  $des->{ 'FIELD' }{ $field }{ $attr } = $des->{ '@' }{ $attr };
     #  }
     
-    for my $allow_deny ( qw( ALLOW DENY ) )
+    for my $grant_deny ( qw( GRANT DENY ) )
       {
-      for my $oper ( keys %{ $des->{ '@' }{ $allow_deny } } )
+      for my $oper ( keys %{ $des->{ '@' }{ $grant_deny } } )
         {
-        next if exists $des->{ 'FIELD' }{ $field }{ $allow_deny }{ $oper };
-        # link missing operation allow/deny to self
-        $des->{ 'FIELD' }{ $field }{ $allow_deny }{ $oper } = $des->{ '@' }{ $allow_deny }{ $oper }
+        next if exists $des->{ 'FIELD' }{ $field }{ $grant_deny }{ $oper };
+        # link missing operation grant/deny to self
+        $des->{ 'FIELD' }{ $field }{ $grant_deny }{ $oper } = $des->{ '@' }{ $grant_deny }{ $oper }
         }
       }
     
@@ -559,22 +559,22 @@ sub describe_table_field
 
 #-----------------------------------------------------------------------------
 
-sub __preprocess_allow_deny
+sub __preprocess_grant_deny
 {
   my $hr = shift;
 
-  for my $allow_deny ( qw( ALLOW DENY ) )
+  for my $grant_deny ( qw( GRANT DENY ) )
     {
-    next unless exists $hr->{ $allow_deny };
-    # $hr->{ $allow_deny } ||= [];
+    next unless exists $hr->{ $grant_deny };
+    # $hr->{ $grant_deny } ||= [];
     my $access;
-    for my $line ( @{ $hr->{ $allow_deny } } )
+    for my $line ( @{ $hr->{ $grant_deny } } )
       {
       $access ||= {};
       my %a = __describe_parse_access_line( $line );
       %$access = ( %$access, %a );
       }
-    $hr->{ $allow_deny } = $access;
+    $hr->{ $grant_deny } = $access;
     }
 }
 
@@ -587,22 +587,30 @@ sub __describe_parse_access_line
   $line =~ s/^\s*//;
   $line =~ s/\s*$//;
 
-#print "ACCESS DEBUG LINE [$line]\n";
-  boom "invalid access line, keywords must not be separated by whitespace [$line]" if $line =~ /[a-z_0-9]\s+[a-z_0-9]/i;
+  boom "invalid access line [$line] expected [grant|deny <op> <op> <op> to <grp>; <grp> + <grp>; <grp> + !<grp>]" 
+        unless $line =~ /^\s*([a-z_0-9]+\s+)+?\s*to\s*([0-9!+;\s]+)\s*$/;
+  
+  my $opers_line  = $1;
+  my $groups_line = $2;
+  $groups_line =~ s/\s*//g;
 
-  $line =~ s/\s*//g;
+#print "ACCESS DEBUG LINE [$line]\n";
+#  boom "invalid access line, keywords must not be separated by whitespace [$line]" if $line =~ /[a-z_0-9]\s+[a-z_0-9]/i;
+
+#  $line =~ s/\s*//g;
 #print "ACCESS DEBUG LINE [$line]\n";
 
   my @line = split /;/, $line;
 
   my $ops = shift @line;
-  my @ops = split /[,]+/, $ops;
+  my @opers  = split /\s+/, $opers_line;
+  my @groups = split /\s*[;]\s*/, $groups_line;
 
   my %access;
   
-  for my $op ( @ops )
+  for my $op ( @opers )
     {
-    $access{ uc $op } = [ map { [ split /[\s\+]+/ ] } @line ];
+    $access{ uc $op } = [ map { [ split /[+]/ ] } @groups ];
     }
   
   return %access;

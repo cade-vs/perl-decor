@@ -172,9 +172,9 @@ print "check_access_table_field: deny denied\n";
     return 0;
     }
     
-  if( $self->__check_access_tree( $oper, $fdes->{ 'ALLOW' } ) )
+  if( $self->__check_access_tree( $oper, $fdes->{ 'GRANT' } ) )
     {
-print "check_access_table_field: allow allowed\n";
+print "check_access_table_field: grant granted\n";
     $cache->{ $oper } = 1;
     return 1;
     }
@@ -251,18 +251,18 @@ print "profile access exists check: [$oper]\n" . Dumper( $tree );
     my $c = 0;
     for my $group ( @$sets )
       {
-      if( $group =~ /^!(.+)$/ )
+      if( $group =~ /^!\s*([0-9]+)$/ )
         {
         my $grp = int( $1 );
 print "profile access ! check: [$grp]\n";  
-        next if $grp == 0;
+        boom "group in grant|deny policy set for operation [$oper] is equal to zero [$grp] all groups must not be zero" if $grp == 0;
         $c++ if ! exists $self->{ 'GROUPS' }{ $grp } or ! ( $self->{ 'GROUPS' }{ $grp } > 0 );
         }
       else
         {
         my $grp = int( $group );
 print "profile access   check: [$grp]\n";  
-        next if $grp == 0;
+        boom "group in grant|deny policy set for operation [$oper] is equal to zero [$grp] all groups must not be zero" if $grp == 0;
         $c++ if   exists $self->{ 'GROUPS' }{ $grp } and  ( $self->{ 'GROUPS' }{ $grp } > 0 );
         }  
       }  

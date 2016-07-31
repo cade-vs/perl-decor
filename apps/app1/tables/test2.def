@@ -1,8 +1,8 @@
 
 label  Test table 2
 
-allow insert, update ; 900
-allow read ; 900
+grant insert update to 900
+grant read          to 900
 
 =name
 
@@ -12,7 +12,7 @@ allow read ; 900
 
   type int
 
-  allow insert; 111; 900
+  grant insert to 111; 900; 22 + ! 44
   
 =_OWNER
 

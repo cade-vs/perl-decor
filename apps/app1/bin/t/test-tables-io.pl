@@ -48,7 +48,7 @@ $dio->taint_mode_enable_all();
 my $new_id = $dio->insert( 'test2', { NAME => 'Testing ' . rand(), CNT => int(rand()), } );
 $dio->update_id( 'test2', { NAME => 'Testing ' . rand(), CNT => int(rand()), }, $new_id );
 
-$dio->select( 'test2' );
+$dio->select( 'test1', 'NAME,REF.CNT' );
 while( my $hr = $dio->fetch() )
 {
   print Dumper( $hr );

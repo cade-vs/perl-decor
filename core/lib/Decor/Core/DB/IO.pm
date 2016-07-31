@@ -15,6 +15,7 @@ use Exception::Sink;
 use Data::Lock qw( dlock );
 use Data::Dumper;
 
+use Decor::Core::Env;
 use Decor::Core::DSN;
 use Decor::Core::Utils;
 use Decor::Core::Describe;
@@ -122,7 +123,8 @@ sub select
     }  
 
   s/^\.// for @fields; # remove leading anchor (syntax sugar really)
-    
+
+  @fields = sort @fields if de_debug();  
   
   dlock \@fields;
   $self->{ 'SELECT' }{ 'FIELDS'     } = \@fields;
@@ -183,8 +185,8 @@ sub select
   
   my $sql_stmt = "SELECT\n    $distinct_clause$select_fields\nFROM\n    $select_tables\n$select_where\n$group_by\n$order_by\n$limit_clause$offset_clause$locking_clause\n";
 
-  de_log_debug( "sql: select: [\n$sql_stmt] with values [@bind]" );
-  
+  de_log_debug( "sql: ".__PACKAGE__."::select:\n---BEGIN SQL---\n$sql_stmt\n---SQL BIND ARGS---\n@bind\n---END SQL---" );
+
   my $dbh = $self->{ 'SELECT' }{ 'DBH' } = dsn_get_dbh_by_table( $table );
   my $sth = $self->{ 'SELECT' }{ 'STH' } = $dbh->prepare( $sql_stmt );
   
@@ -429,7 +431,7 @@ sub insert
   my $db_table = $table_des->get_db_table_name();
   my $sql_stmt = "INSERT INTO\n    $db_table\n    ( $columns )\nVALUES\n    ( $values )";
 
-  de_log_debug( "sql: update: [\n$sql_stmt] with values [@values]\n" . Dumper( $data ) );
+  de_log_debug( "sql: ".__PACKAGE__."::insert:\n---BEGIN SQL---\n$sql_stmt\n---SQL BIND ARGS---\n@values\n---SQL BIND HASH---\n".Dumper( $data )."\n---END SQL---" );
 
 #print STDERR Dumper( '-' x 72, __PACKAGE__ . "::INSERT: table [$table] data/sql/values", $data, $sql_stmt, \@values );
 
@@ -519,7 +521,7 @@ sub update
   my $db_table = $table_des->get_db_table_name();
   my $sql_stmt = "UPDATE\n    $db_table\nSET\n    $columns\nWHERE\n    $where_clause";
 
-  de_log_debug( "sql: update: [\n$sql_stmt] with values [@bind]" );
+  de_log_debug( "sql: ".__PACKAGE__."::update:\n---BEGIN SQL---\n$sql_stmt\n---SQL BIND VALUES---\n@values\n---SQL BIND ARGS---\n@bind\n---SQL BIND HASH---\n".Dumper( $data )."\n---END SQL---" );
 
 #print STDERR Dumper( '-' x 72, __PACKAGE__ . "::UPDATE: table [$table] data/sql/values/where/bind", $data, $sql_stmt, \@values, $where_clause, \@bind, $self );
 
