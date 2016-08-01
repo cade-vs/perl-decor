@@ -588,10 +588,10 @@ sub __describe_parse_access_line
   $line =~ s/\s*$//;
 
   boom "invalid access line [$line] expected [grant|deny <op> <op> <op> to <grp>; <grp> + <grp>; <grp> + !<grp>]" 
-        unless $line =~ /^\s*([a-z_0-9]+\s+)+?\s*to\s*([0-9!+;\s]+)\s*$/;
+        unless $line =~ /^\s*(([a-z_0-9]+\s+)+?)\s*to\s*([0-9!+;\s]+)\s*$/;
   
   my $opers_line  = $1;
-  my $groups_line = $2;
+  my $groups_line = $3;
   $groups_line =~ s/\s*//g;
 
 #print "ACCESS DEBUG LINE [$line]\n";
@@ -613,6 +613,8 @@ sub __describe_parse_access_line
     $access{ uc $op } = [ map { [ split /[+]/ ] } @groups ];
     }
   
+
+print Dumper( $line, $opers_line, $groups_line, \%access );
   return %access;
 }
 

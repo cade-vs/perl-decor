@@ -22,6 +22,7 @@ use Decor::Core::DB::IO;
 
 $Data::Dumper::Sortkeys = 1;
 $Data::Dumper::Indent   = 3;
+$Data::Dumper::Indent   = 2;
 
 de_init( APP_NAME => 'app1' );
 de_debug_set( 11 );
