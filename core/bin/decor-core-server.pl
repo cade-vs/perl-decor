@@ -99,8 +99,6 @@ else
 my %srv_opt = (
               PORT    => $opt_listen_port,
               NO_FORK => $opt_no_fork,
-
-              DECOR_APP_NAME => $opt_app_name,
               );
 
 my $server = new Decor::Core::Net::Server( %srv_opt );
@@ -111,6 +109,5 @@ if( $opt_preload )
   preload_all_tables_descriptions();
   }
 de_net_protocols_allow( $opt_net_protocols );
-
 
 $server->run();
