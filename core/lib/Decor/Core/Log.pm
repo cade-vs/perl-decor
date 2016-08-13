@@ -36,7 +36,7 @@ our $DE_LOG_TO_STDERR = 0;
 our $DE_LOG_TO_FILES  = 1;
 our $DE_LOG_MAX_REPEAT_MSG  = 32;
 
-# fixme: log files
+# TODO: push/pop of temporary secondary prefixes (hints), use wrapper class
 
 my $DE_LOG_PREFIX = 'decor';
 my $DE_LOG_DIR    = '';

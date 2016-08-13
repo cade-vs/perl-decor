@@ -16,12 +16,10 @@ use Data::Lock qw( dlock dunlock );
 
 our @ISA    = qw( Exporter );
 our @EXPORT = qw(
-                  socket_read
-                  socket_write
-                  socket_print
+                  de_net_protocol_read_message
+                  de_net_protocol_write_message
 
-                  socket_read_message
-                  socket_write_message
+                  de_net_protocols_allow
                 );
 
 my %PROTOCOL_TYPES = (
