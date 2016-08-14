@@ -30,10 +30,17 @@ my $SERVER_IDLE_EXIT_ALARM_MAX = 10*60; # seconds
 #  print "client connected from $peerhost\n";
 #}
 
+sub on_process_xt_message
+{
+  boom "on_process_xt_message() must be reimplemented in current class";
+}
+
 sub on_process
 {
   my $self = shift;
   my $sock = shift;
+
+  # TODO: re/init app name and root
 
   my $mc = 0; # message counter
   my $mi;     # input message
@@ -67,40 +74,31 @@ sub on_process
     my $xt_table = 'MAIN'; # FIXME: change on XT message
     my $xt_handler = $XT_TABLE{ $xt_table }{ $xt };
     
-    my $xs;
-    if( $xt_handler )
+    eval
       {
-      eval
+      my $xt_handler_res = $self->on_process_xt_message( $mi, $mo );
+      };
+    if( $@ or ! $xt_handler_res )
+      {
+      de_log( "error: XTYPE handler returned error [$xt_handler_res] or exception [$@]" );
+      eval { dsn_rollback(); }; # FIXME: eval/break-main-loop
+      if( $@ )
         {
-        my $xt_handler_res = $xt_handler( $mi, $mo, { NET_WAITER_OBJ => $self, SOCKET => $sock, } );
-        };
-      if( $@ or ! $xt_handler_res )
-        {
-        de_log( "error: XTYPE handler returned error [$xt_handler_res] or exception [$@]" );
-        eval { dsn_rollback(); }; # FIXME: eval/break-main-loop
-        if( $@ )
-          {
-          de_log( "error: DSN ROLLBACK exception [$@] breaking main looop" );
-          $self->break_main_loop();
-          next;
-          }
+        de_log( "error: DSN ROLLBACK exception [$@] breaking main looop" );
+        $self->break_main_loop();
+        next;
         }
-      else
-        {
-        eval { dsn_commit(); };
-        if( $@ )
-          {
-          de_log( "error: DSN COMMIT exception [$@] breaking main looop" );
-          $self->break_main_loop();
-          next;
-          }
-        }  
       }
-    else  
+    else
       {
-      de_log( "error: unknown or forbidden message type received XTYPE [$xt], ignoring message" );
-      $mo->{ 'XS' } = 'E_UNKNOWN_MESSAGE';
-      }
+      eval { dsn_commit(); };
+      if( $@ )
+        {
+        de_log( "error: DSN COMMIT exception [$@] breaking main looop" );
+        $self->break_main_loop();
+        next;
+        }
+      }  
     
     if ( $mo->{ 'XS' } !~ /^(OK|E_[A-Z_]+)$/ )
       {
