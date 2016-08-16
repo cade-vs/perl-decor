@@ -46,15 +46,16 @@ sub on_process
 
   # TODO: re/init app name and root
 
-  my $mc = 0; # message counter
-  my $mi;     # input message
-  my $mo;     # output message
+  my $mc =  0; # message counter
+  my $mi = {}; # input message
+  my $mo = {}; # output message
   while(4)
     {
     last if $self->{ 'BREAK_MAIN_LOOP' };
     server_idle_begin();
     
-    $mi = de_net_protocol_read_message( $sock, $SOCKET_TIMEOUT );
+    my $ptype;
+    ( $mi, $ptype ) = de_net_protocol_read_message( $sock, $SOCKET_TIMEOUT );
     $mo = {};
     $mc++;
     server_idle_end();
@@ -67,7 +68,7 @@ sub on_process
       }
 
     my $xt = uc $mi->{ 'XT' };
-    de_debug_dumper( "MI" x 16, $mi );
+    de_log_dumper( "MI" x 16, $mi );
 
     # TODO: check incoming message
 
@@ -116,9 +117,9 @@ sub on_process
       $mo->{ 'XS' } = "E_STATUS";
       }
 
-    de_debug( "debug: XTYPE [$xt] XSTATUS [$xs] DBI::errstr [$DBI::errstr]" );
+    de_log_debug( "debug: XTYPE [$xt] XSTATUS [$xs] DBI::errstr [$DBI::errstr]" );
 
-    my $mo_res = de_net_protocol_write_message( $sock, $mo, $SOCKET_TIMEOUT );
+    my $mo_res = de_net_protocol_write_message( $sock, $ptype, $mo, $SOCKET_TIMEOUT );
 
     if( $mo_res == 0 )
       {
@@ -127,7 +128,7 @@ sub on_process
       next;
       }
     
-    de_debug_dumper( "MO" x 16, $mo );
+    de_log_dumper( "MO" x 16, $mo );
     my $write_res = de_net_protocol_write_message( $sock, $mo );
     }
   
@@ -155,7 +156,7 @@ sub server_idle_alarm_set
     $idle_alarm_seconds = 0;
     }
   $SERVER_IDLE_EXIT_ALARM = $idle_alarm_seconds;
-  de_log( "debug: idle alarm time advised to [$SERVER_IDLE_EXIT_ALARM] seconds" );
+  de_log_debug( "debug: idle alarm time advised to [$SERVER_IDLE_EXIT_ALARM] seconds" );
 }
 
 sub server_idle_begin

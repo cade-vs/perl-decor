@@ -11,6 +11,7 @@ package Decor::Shared::Net::Protocols;
 use strict;
 use Exporter;
 use Exception::Sink;
+use Data::Tools;
 use Data::Tools::Socket;
 use Data::Lock qw( dlock dunlock );
 
@@ -26,17 +27,17 @@ my %PROTOCOL_TYPES = (
                   'p' => {
                          'require' => 'Storable',
                          'pack'    => \&protocol_type_storable_pack, 
-                         'unpack'  => \&protocol_type_storable_pack,
+                         'unpack'  => \&protocol_type_storable_unpack,
                          },
                   's' => {
                          'require' => 'Data::Stacker',
                          'pack'    => \&protocol_type_stacker_pack, 
-                         'unpack'  => \&protocol_type_stacker_pack,
+                         'unpack'  => \&protocol_type_stacker_unpack,
                          },
                   'j' => {
                          'require' => 'JSON',
                          'pack'    => \&protocol_type_json_pack, 
-                         'unpack'  => \&protocol_type_json_pack,
+                         'unpack'  => \&protocol_type_json_unpack,
                          }
                   );
 
@@ -58,7 +59,7 @@ sub de_net_protocol_read_message
   my $hr = $proto->{ 'unpack' }->( substr( $data, 1 ) );
   boom "invalid data received from socket stream, expected HASH reference" unless ref( $hr ) eq 'HASH';
 
-  return $hr;
+  return wantarray ? ( $hr, $ptype ) : $hr;
 }
 
 sub de_net_protocol_write_message
@@ -71,7 +72,9 @@ sub de_net_protocol_write_message
   boom "unknown or forbidden PROTOCOL_TYPE requested [$ptype] expected one of [" . join( ',', keys %PROTOCOL_ALLOW ) . "]" unless exists $PROTOCOL_ALLOW{ $ptype };
   my $proto = $PROTOCOL_TYPES{ $ptype };
   
-  return socket_write_message( $socket, $proto->{ 'pack' }->( $hr ), $timeout );
+  boom "expected HASH reference at arg #3" unless ref( $hr ) eq 'HASH';
+  
+  return socket_write_message( $socket, $ptype . $proto->{ 'pack' }->( $hr ), $timeout );
 }
 
 #-----------------------------------------------------------------------------
@@ -100,7 +103,8 @@ sub load_protocol
   return if $PROTOCOL_LOADED{ $ptype };
   eval
     {
-    require $PROTOCOL_TYPES{ $ptype }{ 'require' };
+    my $pm_file = perl_package_to_file( $PROTOCOL_TYPES{ $ptype }{ 'require' } );
+    require $pm_file;
     };
   if( $@ )
     {
