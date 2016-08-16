@@ -534,14 +534,14 @@ sub describe_table
   return $des;
 }
 
-sub preload_all_table_descriptions
+sub preload_all_tables_descriptions
 {
   my $tables = des_get_tables_list();
 
   for my $table ( @$tables )
     {
     de_log_debug( "preloading description for table [$table]" );
-    describe_table( $_ );
+    describe_table( $table );
     };
 
   $DES_CACHE_PRELOADED = 1;

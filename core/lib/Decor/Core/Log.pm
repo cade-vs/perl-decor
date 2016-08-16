@@ -10,6 +10,7 @@
 package Decor::Core::Log;
 use strict;
 
+use POSIX;
 use Fcntl qw( :flock );                                                                                                         
 use Data::Dumper;
 use Exception::Sink;

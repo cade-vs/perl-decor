@@ -222,6 +222,7 @@ sub dsn_commit
   for my $name ( ( 'MAIN', keys %DSN_DBH_CACHE ) )
     {
     next if $name eq 'MAIN' and $skip_second_main++;
+    next unless exists $DSN_DBH_CACHE{ $name }; # skip if not connected
     my $dbh = $DSN_DBH_CACHE{ $name };
     $dbh->commit();
     }
@@ -238,6 +239,7 @@ sub dsn_savepoint
   for my $name ( ( 'MAIN', keys %DSN_DBH_CACHE ) )
     {
     next if $name eq 'MAIN' and $skip_second_main++;
+    next unless exists $DSN_DBH_CACHE{ $name }; # skip if not connected
     my $dbh = $DSN_DBH_CACHE{ $name };
     $dbh->do("SAVEPOINT sp_$sp_name");
     }
@@ -254,6 +256,7 @@ sub dsn_rollback_to_savepoint
   for my $name ( ( 'MAIN', keys %DSN_DBH_CACHE ) )
     {
     next if $name eq 'MAIN' and $skip_second_main++;
+    next unless exists $DSN_DBH_CACHE{ $name }; # skip if not connected
     my $dbh = $DSN_DBH_CACHE{ $name };
     $dbh->do("ROLLBACK TO sp_$sp_name");
     }
@@ -266,6 +269,7 @@ sub dsn_rollback
   for my $name ( ( 'MAIN', keys %DSN_DBH_CACHE ) )
     {
     next if $name eq 'MAIN' and $skip_second_main++;
+    next unless exists $DSN_DBH_CACHE{ $name }; # skip if not connected
     my $dbh = $DSN_DBH_CACHE{ $name };
     $dbh->rollback();
     }

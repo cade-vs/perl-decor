@@ -51,6 +51,10 @@ sub de_net_protocol_read_message
   my $timeout = shift;
   
   my $data = socket_read_message( $socket, $timeout );
+  if( ! defined $data )
+    {
+    return wantarray ? ( undef, undef, 'E_TIMEOUT' ) : undef;
+    }
   
   my $ptype = substr( $data, 0, 1 );
   boom "unknown or forbidden PROTOCOL_TYPE requested [$ptype] expected one of [" . join( ',', keys %PROTOCOL_ALLOW ) . "]" unless exists $PROTOCOL_ALLOW{ $ptype };

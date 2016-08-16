@@ -10,7 +10,7 @@
 package Decor::Core::Net::Server;
 use strict;
 use Exception::Sink;
-#use Data::Tools::
+use Data::Tools;
 use Decor::Core::DSN;
 use Decor::Core::Log;
 use Decor::Shared::Net::Protocols;
@@ -45,6 +45,7 @@ sub on_process
   my $sock = shift;
 
   # TODO: re/init app name and root
+  de_log_debug( "client connected, starting main loop..." );
 
   my $mc =  0; # message counter
   my $mi = {}; # input message
@@ -55,10 +56,13 @@ sub on_process
     server_idle_begin();
     
     my $ptype;
-    ( $mi, $ptype ) = de_net_protocol_read_message( $sock, $SOCKET_TIMEOUT );
+    ( $mi, $ptype ) = de_net_protocol_read_message( $sock );
+    
     $mo = {};
     $mc++;
     server_idle_end();
+    de_log_debug( "received message with PTYPE [$ptype]" );
+
     
     if( ! $mi or ref( $mi ) ne 'HASH' )
       {
@@ -74,7 +78,7 @@ sub on_process
 
     my $xt_utime = time();
     my $xt_ref_str  = "$$|$xt|$mc|$xt_utime";
-    my $xt_ref_hash = lc md5hex( $xt_ref_str );
+    my $xt_ref_hash = lc md5_hex( $xt_ref_str );
 
     $mi->{ 'XT_UTIME' } = $xt_utime;
     $mi->{ 'XT_MC'    } = $mc;
@@ -84,6 +88,7 @@ sub on_process
     eval
       {
       $xt_handler_res = $self->on_process_xt_message( $mi, $mo );
+    de_log_dumper( "MO RES " x 16, "$mo", $mo );
       };
     if( $@ or ! $xt_handler_res )
       {
@@ -119,7 +124,8 @@ sub on_process
 
     de_log_debug( "debug: XTYPE [$xt] XSTATUS [$xs] DBI::errstr [$DBI::errstr]" );
 
-    my $mo_res = de_net_protocol_write_message( $sock, $ptype, $mo, $SOCKET_TIMEOUT );
+    de_log_dumper( "MO" x 16, $mo );
+    my $mo_res = de_net_protocol_write_message( $sock, $ptype, $mo );
 
     if( $mo_res == 0 )
       {
@@ -128,10 +134,9 @@ sub on_process
       next;
       }
     
-    de_log_dumper( "MO" x 16, $mo );
-    my $write_res = de_net_protocol_write_message( $sock, $mo );
     }
-  
+  de_log_debug( "main loop did exit\n" );
+ 
 }
 
 #-----------------------------------------------------------------------------

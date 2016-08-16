@@ -11,8 +11,9 @@
 use strict;
 use lib ( map { die "invalid DECOR_CORE_ROOT dir [$_]\n" unless -d; ( "$_/core/lib", "$_/shared/lib" ) } ( $ENV{ 'DECOR_CORE_ROOT' } || '/usr/local/decor' ) );
 use Decor::Core::Env;
+use Decor::Core::Log;
 use Decor::Core::Describe;
-use Decor::Core::Net::Server;
+use Decor::Core::Net::Server::App;
 use Decor::Shared::Net::Protocols;
 
 
@@ -30,6 +31,8 @@ options:
     -e        -- preload application (will serve only single app)
     -t psj    -- allow network protocol formats (p=storable,s=stacker,j=json)
     -d        -- increase DEBUG level (can be used multiple times)
+    -r        -- log to STDERR
+    -rr       -- log to both files and STDERR
     --        -- end of options
 notes:
   * first argument is application name and it is mandatory!
@@ -57,10 +60,17 @@ while( @ARGV )
     print "option: run in foreground (no fork) mode\n";
     next;
     }
-  if( /-f/ )
+  if( /-p/ )
     {
     $opt_listen_port = shift;
     print "option: listening on port [$opt_listen_port]\n";
+    next;
+    }
+  if( /-r(r)?/ )
+    {
+    $DE_LOG_TO_STDERR = 1;
+    $DE_LOG_TO_FILES  = $1 ? 1 : 0;
+    print "option: forwarding logs to STDERR\n";
     next;
     }
   if( /-t/ )
@@ -108,7 +118,7 @@ my %srv_opt = (
               NO_FORK => $opt_no_fork,
               );
 
-my $server = new Decor::Core::Net::Server( %srv_opt );
+my $server = new Decor::Core::Net::Server::App( %srv_opt );
 
 if( $opt_preload )
   {
@@ -117,4 +127,5 @@ if( $opt_preload )
   }
 de_net_protocols_allow( $opt_net_protocols );
 
+print "starting server main listen loop...\n";
 $server->run();
