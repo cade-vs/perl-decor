@@ -18,9 +18,9 @@ use Decor::Shared::Net::Protocols;
 use parent qw( Net::Waiter );
 
 my $SOCKET_TIMEOUT = 60;
-my $SERVER_IDLE_EXIT_ALARM
+my $SERVER_IDLE_EXIT_ALARM     =  5*60; # seconds
 my $SERVER_IDLE_EXIT_ALARM_MIN =  1*60; # seconds
-my $SERVER_IDLE_EXIT_ALARM_MAX = 10*60; # seconds
+my $SERVER_IDLE_EXIT_ALARM_MAX = 15*60; # seconds
 
 #sub on_accept_ok
 #{
@@ -32,7 +32,11 @@ my $SERVER_IDLE_EXIT_ALARM_MAX = 10*60; # seconds
 
 sub on_process_xt_message
 {
+  my $mi = shift;
+  my $mo = shift;
+  
   boom "on_process_xt_message() must be reimplemented in current class";
+  return undef;
 }
 
 sub on_process
@@ -52,7 +56,7 @@ sub on_process
     
     $mi = de_net_protocol_read_message( $sock, $SOCKET_TIMEOUT );
     $mo = {};
-    $hc++;
+    $mc++;
     server_idle_end();
     
     if( ! $mi or ref( $mi ) ne 'HASH' )
@@ -71,12 +75,14 @@ sub on_process
     my $xt_ref_str  = "$$|$xt|$mc|$xt_utime";
     my $xt_ref_hash = lc md5hex( $xt_ref_str );
 
-    my $xt_table = 'MAIN'; # FIXME: change on XT message
-    my $xt_handler = $XT_TABLE{ $xt_table }{ $xt };
-    
+    $mi->{ 'XT_UTIME' } = $xt_utime;
+    $mi->{ 'XT_MC'    } = $mc;
+    $mi->{ 'XT_REFH'  } = $xt_ref_hash;
+
+    my $xt_handler_res;
     eval
       {
-      my $xt_handler_res = $self->on_process_xt_message( $mi, $mo );
+      $xt_handler_res = $self->on_process_xt_message( $mi, $mo );
       };
     if( $@ or ! $xt_handler_res )
       {
@@ -100,10 +106,11 @@ sub on_process
         }
       }  
     
-    if ( $mo->{ 'XS' } !~ /^(OK|E_[A-Z_]+)$/ )
+    my $xs = $mo->{ 'XS' };
+    
+    if ( $xs !~ /^(OK|E_[A-Z_]+)$/ )
       {
-      my $xs = $mo->{ 'XS' };
-      de_log( "error: invalid or empty XTYPE STATUS (XS) [xs], ignoring message" );
+      de_log( "error: invalid or empty XTYPE STATUS (XS) [$xs], ignoring message" );
       # TODO: rollback?
       $mo = {};
       $mo->{ 'XS' } = "E_STATUS";
@@ -120,8 +127,8 @@ sub on_process
       next;
       }
     
-    de_debug_dumper( "HO" x 16, $ho );
-    my $write_res = de_net_protocol_write_message( $sock, $ho );
+    de_debug_dumper( "MO" x 16, $mo );
+    my $write_res = de_net_protocol_write_message( $sock, $mo );
     }
   
 }

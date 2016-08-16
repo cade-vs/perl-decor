@@ -27,12 +27,12 @@ my %PROTOCOL_TYPES = (
                          'require' => 'Storable',
                          'pack'    => \&protocol_type_storable_pack, 
                          'unpack'  => \&protocol_type_storable_pack,
-                         }
+                         },
                   's' => {
                          'require' => 'Data::Stacker',
                          'pack'    => \&protocol_type_stacker_pack, 
                          'unpack'  => \&protocol_type_stacker_pack,
-                         }
+                         },
                   'j' => {
                          'require' => 'JSON',
                          'pack'    => \&protocol_type_json_pack, 
@@ -93,7 +93,7 @@ sub de_net_protocols_allow
 }
 
 my %PROTOCOL_LOADED;
-sub load_protocols
+sub load_protocol
 {
   my $ptype = shift;
   boom "unknown or forbidden PROTOCOL_TYPE requested [$ptype] expected one of [" . join( ',', keys %PROTOCOL_ALLOW ) . "]" unless exists $PROTOCOL_ALLOW{ $ptype };

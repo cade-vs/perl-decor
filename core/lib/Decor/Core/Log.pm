@@ -10,7 +10,7 @@
 package Decor::Core::Log;
 use strict;
 
-use POSIX;
+use Fcntl qw( :flock );                                                                                                         
 use Data::Dumper;
 use Exception::Sink;
 use Decor::Core::Env;
@@ -85,12 +85,12 @@ sub de_log
     push @msg_types, 'global' if $DE_LOG_TO_FILES and de_app_name();
 
     # write in order to prevent deadlock caused by flock
-    for my $msg_type ( sort @msg_type )
+    for my $msg_type ( sort @msg_types )
       {
       my $fh = $de_log_files{ $msg_type };
       if( de_app_name() and $DE_LOG_TO_FILES and -d $DE_LOG_DIR and ! $fh )
         {
-        open( $fh, ">>$DECOR_LOG_DIR/$msg_type.log" );
+        open( $fh, ">>$DE_LOG_DIR/$msg_type.log" );
         $de_log_files{ $msg_type } = $fh;
         }
 
