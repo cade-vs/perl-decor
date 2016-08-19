@@ -29,6 +29,11 @@ my %PROTOCOL_TYPES = (
                          'pack'    => \&protocol_type_storable_pack, 
                          'unpack'  => \&protocol_type_storable_unpack,
                          },
+                  'e' => {
+                         'require' => 'Sereal',
+                         'pack'    => \&protocol_type_sereal_pack, 
+                         'unpack'  => \&protocol_type_sereal_unpack,
+                         },
                   's' => {
                          'require' => 'Data::Stacker',
                          'pack'    => \&protocol_type_stacker_pack, 
@@ -132,6 +137,18 @@ sub protocol_type_storable_unpack
 {
   load_protocol( 'p' );
   return Storable::thaw( shift );
+}
+
+sub protocol_type_sereal_pack
+{
+  load_protocol( 'e' );
+  return Sereal::encode_sereal( shift );
+}
+
+sub protocol_type_sereal_unpack
+{
+  load_protocol( 'e' );
+  return Sereal::decode_sereal( shift );
 }
 
 sub protocol_type_stacker_pack
