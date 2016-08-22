@@ -26,8 +26,10 @@ use Decor::Core::Describe;
 use Storable qw( nfreeze thaw dclone );
 use BSON;
 use JSON;
+use Data::Stacker;
 use Data::MessagePack;
 use XML::Bare;
+use Sereal;
 
 use Time::Profiler;  
 
@@ -48,18 +50,22 @@ hash_unlock_recursive( $des );
 
 print STDERR Dumper( $des );
 
-my ( $p, $j, $b, $a, $x );
+my ( $p, $j, $b, $a, $x, $s, $e );
 
 { my $_ps = $pr->begin_scope( 'P' ); $p = Storable::nfreeze( $des ) for 1..1000; }
 { my $_ps = $pr->begin_scope( 'J' ); $j = JSON::encode_json( $des ) for 1..1000; }
 { my $_ps = $pr->begin_scope( 'B' ); $b = BSON::encode( $des ) for 1..1000; }
 { my $_ps = $pr->begin_scope( 'A' ); $a = $mp->pack( $des ) for 1..1000; }
 { my $_ps = $pr->begin_scope( 'X' ); $x = $xml->xml( $des ) for 1..1000; }
+{ my $_ps = $pr->begin_scope( 'S' ); $s = stack_data( $des ) for 1..1000; }
+{ my $_ps = $pr->begin_scope( 'E' ); $e = sereal_encode( $des ) for 1..1000; }
 
 print "perl " . length( $p ) . "\n";
 print "json " . length( $j ) . "\n";
 print "bson " . length( $b ) . "\n";
 print "mpck " . length( $a ) . "\n";
 print "xmlx " . length( $x ) . "\n";
+print "stck " . length( $s ) . "\n";
+print "serl " . length( $e ) . "\n";
 
 print $pr->report();

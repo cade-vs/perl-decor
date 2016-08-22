@@ -10,6 +10,7 @@
 package Decor::Core::Net::Server::App;
 use strict;
 use Exception::Sink;
+use Decor::Core::Subs;
 use Decor::Core::Log;
 
 use parent qw( Decor::Core::Net::Server );
@@ -20,10 +21,9 @@ sub on_process_xt_message
   my $mi   = shift;
   my $mo   = shift;
 
-  $mo->{ 'ECHO' } = $mi;
-  $mo->{ 'XS'   } = 'OK';
+  subs_process_xt_message( $mi, $mo );
 
-    de_log_dumper( "PROCESS " x 16, "$mi, $mo", $mi, $mo );
+#  de_log_dumper( "SUBS PROCESS " x 16, "$mi, $mo", $mi, $mo );
 
   return 1;
 }
