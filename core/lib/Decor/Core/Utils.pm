@@ -22,6 +22,10 @@ our @EXPORT = qw(
                 de_check_name_boom
                 de_check_id
                 de_check_id_boom
+                
+                de_check_user_login_name
+                de_check_user_pass_digest
+                
                 de_reload_config
 
                 de_obj_add_debug_info
@@ -64,6 +68,20 @@ sub de_check_id_boom
   my $msg = shift || "invalid ID [$id]";
   
   de_check_id( $id ) or boom $msg;
+}
+
+sub de_check_user_login_name
+{
+  my $name = shift;
+  
+  return $name =~ /^[a-zA-Z_0-9\-\.\,\@]+$/o ? 1 : 0;
+}
+
+sub de_check_user_pass_digest
+{
+  my $name = uc shift;
+  
+  return $name =~ /^[A-Z0-9]+$/o ? 1 : 0;
 }
 
 sub de_reload_config

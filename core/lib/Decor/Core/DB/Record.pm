@@ -222,6 +222,13 @@ sub check_if_locked_to
   1;
 }
 
+sub id
+{
+  my $self = shift;
+
+  return exists $self->{ 'BASE_ID' } and $self->{ 'BASE_ID' } ? $self->{ 'BASE_ID' } : undef;
+}
+
 #-----------------------------------------------------------------------------
 
 sub __create_empty_data

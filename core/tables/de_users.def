@@ -11,7 +11,17 @@ system
   
   label Password
   type  char  512
+
+=PASS_SALT
     
+  label Password seed
+  type  char  64
+
+=ACTIVE
+
+  label User Active?
+  type  bool
+
 =LAST_LTIME
 
   label Last login time

@@ -10,7 +10,9 @@
 package Decor::Core::Subs;
 use strict;
 use Exception::Sink;
+use Data::Tools;
 use Decor::Core::Log;
+use Decor::Core::Subs::Env;
 
 use Exporter;
 our @ISA    = qw( Exporter );
@@ -22,12 +24,18 @@ our @EXPORT = qw(
 
 ##############################################################################
 
+
+##############################################################################
+
 my %DISPATCH_MAP = (
                      'GLOBAL' => {
                                    'CAPS'     => \&sub_caps,
+                                   'RESET'    => \&sub_reset,
+                                   'END'      => \&sub_end,
+                                   'SEED'     => \&sub_seed,
                                  },
                      'MAIN'   => {
-                                   'LOGIN'    => \&sub_login,
+                                   'BEGIN'    => \&sub_begin,
                                  },
                      'USER'   => {
                                    'DESCRIBE' => \&sub_describe,
@@ -46,18 +54,18 @@ my %DISPATCH_MAP = (
 
 my %MAP_SHORTCUTS = (
                     'A'   => 'CAPS',
-                    'LI'  => 'LOGIN',
-                    'LO'  => 'LOGOUT',
+                    'B'   => 'BEGIN',
+                    'C'   => 'COMMIT',
                     'D'   => 'DESCRIBE',
-                    'M'   => 'MENU',
-                    'S'   => 'SELECT',
+                    'E'   => 'END',
                     'F'   => 'FETCH',
                     'H'   => 'FINISH',
                     'I'   => 'INSERT',
-                    'U'   => 'UPDATE',
-                    'D'   => 'DELETE',
-                    'C'   => 'COMMIT',
+                    'M'   => 'MENU',
                     'R'   => 'ROLLBACK',
+                    'S'   => 'SELECT',
+                    'T'   => 'DELETE',
+                    'U'   => 'UPDATE',
                     );
 
 my $DISPATCH_MAP = 'MAIN';
@@ -99,20 +107,138 @@ sub sub_caps
 {
   my $mi = shift;
   my $mo = shift;
+
+  $mo->{ 'VER'   } = de_version();
+  $mo->{ 'UTIME' } = time();
   
+  $mo->{ 'XS'    } = 'OK';
+  return 1;
+};
+
+sub sub_reset
+{
+  my $mi = shift;
+  my $mo = shift;
+
+  subs_reset_current_all();
+  
+  $mo->{ 'XS'    } = 'OK';
+  return 1;
 };
 
 #--- LOGIN/LOGOUT ------------------------------------------------------------
 
-sub sub_login
+my $BEGIN_SALT;
+
+sub sub_begin_prepare
 {
   my $mi = shift;
   my $mo = shift;
+
+  $BEGIN_SALT = create_random_id();
+  $mo->{ 'LOGIN_SALT'  } = $BEGIN_SALT;
+  
+  my $user = $mi->{ 'USER' };
+  if( $user )
+    {
+    my $user_rec = __sub_find_user( $user );
+    $mo->{ 'USER_SALT'  } = $user_rec->read( 'PASS_SALT' );
+    }
+  
+  $mo->{ 'XS'    } = 'OK';
+  return 1;
+}
+
+sub sub_begin
+{
+  my $mi = shift;
+  my $mo = shift;
+
+  my $user = $mi->{ 'USER' }
+  my $pass = $mi->{ 'PASS' }
+  
+  # user/pass login
+  if( $user and $login )
+    {
+    return __sub_begin_with_user_pass( $user, $pass );
+    }
+  
+  my $user_sid = $mi->{ 'USER_SID' }
+
+  # session continue
+  if( $user_sid )
+    {
+    # TODO: param/ip/addr
+    return __sub_begin_with_session_continue( $user_sid );
+    }
   
 };
 
+sub __sub_begin_with_user_pass
+{
+  my $user = shift;
+  my $pass = shift;
+  
+  my $begin_salt = $BEGIN_SALT;
+  $BEGIN_SALT = undef;
+  boom "login seed is empty, call XT=BEGIN_PREPARE first" unless $LOGIN_SALT;
+  subs_lock_current_user( __sub_find_and_check_user_pass( $user, $pass ) );
 
-sub sub_logout
+  my $user = subs_get_current_user();
+
+  # TODO: allow/deny root login
+  die "E_LOGIN: User not active" unless $user->read( 'ACTIVE' ) > 0;
+
+  $mo->{ 'XS'    } = 'OK';
+  return 1;
+}
+
+sub __sub_begin_with_session_continue
+{
+  my $user_sid = shift;
+  
+  return 1;
+}
+
+sub __sub_find_user
+{
+  my $user_name = shift;
+
+  boom "E_LOGIN: Invalid user login name [$user_name]" unless de_check_user_login_name(  $user_name );
+
+  my $user_rec = new Decor::DB::Record;
+
+  $user_rec->select( 'DE_USERS', 'NAME = ?', { BIND => [ $user_name ] } );
+  if( $user_rec->fetch() )
+    {
+    return $user_rec;
+    }
+  boom "E_LOGIN: User not found [$user_name]";
+  return undef; # never reached
+}
+
+sub __sub_find_and_check_user_pass
+{
+  my $user = shift;
+  my $pass = shift; # expected to be whirlpool_hex( "$SEED:$wp_hex_pass" )
+  my $salt = shift;
+
+  my $user_rec = __sub_find_user( $user );
+  
+  boom "E_LOGIN: Invalid user [$user] password"   unless de_check_user_pass_digest( $pass );
+  
+  if( $user_rec->fetch() )
+    {
+    my $user_pass = $user_rec->read( 'PASS' );
+    # TODO: use configurable digests
+    my $user_pass_hex = wp_hex( "$salt:$pass" ); 
+    boom "E_LOGIN: Wrong user [$user] password"   unless $pass eq $user_pass_hex;
+    return $user_rec;
+    }
+  boom "E_LOGIN: User not found [$user]";
+}
+
+sub sub_end
 {
   my $mi = shift;
   my $mo = shift;
