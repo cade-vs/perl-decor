@@ -38,10 +38,10 @@ my $user = new Decor::Core::DB::Record;
 
 $user->create( 'DE_USERS' );
 $user->write(
-             'NAME'   => 'test',
+             'NAME'      => 'test',
              'PASS_SALT' => $salt,
-             'PASS' => de_password_salt_hash( 'test123', $salt ),
-             'ACTIVE' => 1,
+             'PASS'      => de_password_salt_hash( 'test123', $salt ),
+             'ACTIVE'    => 1,
              );
 
 $user->save();

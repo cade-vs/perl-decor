@@ -228,14 +228,14 @@ sub id
 {
   my $self = shift;
 
-  return exists $self->{ 'BASE_ID' } and $self->{ 'BASE_ID' } ? $self->{ 'BASE_ID' } : undef;
+  return ( exists $self->{ 'BASE_ID'    } and $self->{ 'BASE_ID'    } ) ? $self->{ 'BASE_ID'    } : undef;
 }
 
 sub table
 {
   my $self = shift;
 
-  return exists $self->{ 'BASE_TABLE' } and $self->{ 'BASE_TABLE' } ? $self->{ 'BASE_TABLE' } : undef;
+  return ( exists $self->{ 'BASE_TABLE' } and $self->{ 'BASE_TABLE' } ) ? $self->{ 'BASE_TABLE' } : undef;
 }
 
 #-----------------------------------------------------------------------------
@@ -295,7 +295,7 @@ sub read
 {
   my $self = shift;
   
-  boom "record is empty, cannot be read" if $self->empty();
+  boom "record is empty, cannot be read" if $self->is_empty();
 
   my @res;
   for my $field ( @_ )
@@ -593,7 +593,11 @@ sub finish
 {
   my $self = shift;
   
-  $self->reset();
+  my $dbio = $self->{ 'SELECT::DB::IO' };
+  
+  $dbio->finish();
+  
+  delete $self->{ 'SELECT::DB::IO' };
 
   1;
 }

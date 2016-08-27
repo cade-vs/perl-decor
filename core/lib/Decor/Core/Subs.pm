@@ -12,7 +12,10 @@ use strict;
 use Exception::Sink;
 use Data::Tools;
 use Decor::Core::Log;
+use Decor::Core::DB::Record;
 use Decor::Core::Subs::Env;
+use Decor::Core::Utils;
+use Decor::Core::Profile;
 
 use Exporter;
 our @ISA    = qw( Exporter );
@@ -36,6 +39,7 @@ my %DISPATCH_MAP = (
                                  },
                      'MAIN'   => {
                                    'BEGIN'    => \&sub_begin,
+                                   'PREPARE'  => \&sub_begin_prepare,
                                  },
                      'USER'   => {
                                    'DESCRIBE' => \&sub_describe,
@@ -62,6 +66,7 @@ my %MAP_SHORTCUTS = (
                     'H'   => 'FINISH',
                     'I'   => 'INSERT',
                     'M'   => 'MENU',
+                    'P'   => 'PREPARE',
                     'R'   => 'ROLLBACK',
                     'S'   => 'SELECT',
                     'T'   => 'DELETE',
@@ -147,19 +152,19 @@ sub sub_begin_prepare
   
   $mo->{ 'XS'    } = 'OK';
   return 1;
-}
+};
 
 sub sub_begin
 {
   my $mi = shift;
   my $mo = shift;
 
-  my $user     = $mi->{ 'USER' }
-  my $pass     = $mi->{ 'PASS' }
-  my $user_sid = $mi->{ 'USER_SID' }
-  my $remote   = $mi->{ 'REMOTE' }
+  my $user     = $mi->{ 'USER'     };
+  my $pass     = $mi->{ 'PASS'     };
+  my $user_sid = $mi->{ 'USER_SID' };
+  my $remote   = $mi->{ 'REMOTE'   };
   
-  if( $user and $login )
+  if( $user and $pass )
     {
     # user/pass login
     __sub_begin_with_user_pass( $user, $pass, $remote );
@@ -192,11 +197,10 @@ sub __sub_begin_with_user_pass
   my $user   = shift;
   my $pass   = shift;
   my $remote = shift;
-  
+  boom "login seed is empty, call XT=BEGIN_PREPARE first" unless $BEGIN_SALT;
   my $begin_salt = $BEGIN_SALT;
   $BEGIN_SALT = undef;
-  boom "login seed is empty, call XT=BEGIN_PREPARE first" unless $LOGIN_SALT;
-  subs_lock_current_user( __sub_find_and_check_user_pass( $user, $pass ) );
+  subs_lock_current_user( __sub_find_and_check_user_pass( $user, $pass, $begin_salt ) );
 
   my $user = subs_get_current_user();
 
@@ -237,23 +241,22 @@ sub __sub_begin_with_user_pass
       de_log( "status: new session created for user [$user] sid [$sid]" );
       last;
       }  
-    if( time() - $ss_time() > 5 )
+    if( time() - $ss_time > 5 )
       {
       de_log( "error: cannot create session for user [$user] hit existing" );
       last;
       }
     }
 
-  $mo->{ 'XS'    } = 'OK';
   return 1;
-}
+};
 
 sub __sub_begin_with_session_continue
 {
   my $user_sid = shift;
   
   return 1;
-}
+};
 
 sub __sub_find_user
 {
@@ -261,37 +264,34 @@ sub __sub_find_user
 
   boom "E_LOGIN: Invalid user login name [$user_name]" unless de_check_user_login_name(  $user_name );
 
-  my $user_rec = new Decor::DB::Record;
+  my $user_rec = new Decor::Core::DB::Record;
 
   $user_rec->select( 'DE_USERS', 'NAME = ?', { BIND => [ $user_name ] } );
-  if( $user_rec->fetch() )
+  if( $user_rec->next() )
     {
+    $user_rec->finish();
     return $user_rec;
     }
   boom "E_LOGIN: User not found [$user_name]";
   return undef; # never reached
-}
+};
 
 sub __sub_find_and_check_user_pass
 {
   my $user = shift;
-  my $pass = shift; # expected to be whirlpool_hex( "$SEED:$wp_hex_pass" )
+  my $pass = shift; # expected to be whirlpool de_password_salt_hash()
   my $salt = shift;
 
   my $user_rec = __sub_find_user( $user );
   
   boom "E_LOGIN: Invalid user [$user] password"   unless de_check_user_pass_digest( $pass );
   
-  if( $user_rec->fetch() )
-    {
-    my $user_pass = $user_rec->read( 'PASS' );
-    # TODO: use configurable digests
-    my $user_pass_hex = wp_hex( "$salt:$pass" ); 
-    boom "E_LOGIN: Wrong user [$user] password"   unless $pass eq $user_pass_hex;
-    return $user_rec;
-    }
-  boom "E_LOGIN: User not found [$user]";
-}
+  my $user_pass = $user_rec->read( 'PASS' );
+  # TODO: use configurable digests
+  my $user_pass_hex = de_password_salt_hash( $user_pass, $salt ); 
+  boom "E_LOGIN: Wrong user [$user] password"   unless $pass eq $user_pass_hex;
+  return $user_rec;
+};
 
 sub sub_end
 {

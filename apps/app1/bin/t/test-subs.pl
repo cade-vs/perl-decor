@@ -24,6 +24,7 @@ use Decor::Core::Subs;
 #use Decor::Core::Describe;
 #use Decor::Core::DB::IO;
 #use Decor::Core::DB::Record;
+use Decor::Core::Utils;
 
 $Data::Dumper::Sortkeys = 1;
 $Data::Dumper::Indent   = 3;
@@ -33,5 +34,23 @@ de_debug_set( 11 );
 
 my $salt = create_random_id( 512 );
 
-my $mi = { XT => 'BEGIN', USER => 'cade', PASS => };
+#----------------------------------------------------------------------
+
+my $mi = { XT => 'PREPARE', USER => 'test' };
 my $mo = {};
+
+subs_process_xt_message( $mi, $mo );
+
+print Dumper( $mi, $mo );
+
+#----------------------------------------------------------------------
+
+my $user_salt  = $mo->{ 'USER_SALT'  };
+my $login_salt = $mo->{ 'LOGIN_SALT' };
+
+my $mi = { XT => 'BEGIN', USER => 'test', PASS => de_password_salt_hash( de_password_salt_hash( 'test123', $user_salt ), $login_salt ) };
+my $mo = {};
+
+subs_process_xt_message( $mi, $mo );
+
+print Dumper( $mi, $mo );
