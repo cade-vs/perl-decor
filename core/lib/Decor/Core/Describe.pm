@@ -74,11 +74,12 @@ my @TABLE_ATTRS = qw(
 # FIXME: more categories INDEX: ACTION: etc.
 my %DES_ATTRS = (
                   '@' => {
-                           SCHEMA => 1,
-                           LABEL  => 1,
-                           GRANT  => 1,
-                           DENY   => 1,
-                           SYSTEM => 1,
+                           SCHEMA  => 1,
+                           LABEL   => 1,
+                           GRANT   => 1,
+                           DENY    => 1,
+                           SYSTEM  => 1,
+                           OPTIONS => 1,
                          },
                   'FIELD' => {
                            TYPE        => 1,
@@ -90,11 +91,13 @@ my %DES_ATTRS = (
                            REQUIRED    => 1,
                            UNIQUE      => 1,
                            INDEX       => 1,
+                           OPTIONS     => 1,
                          },
                   'INDEX' => {
                            FIELDS      => 1,
                            UNIQUE      => 1,
                            FIELDS      => 1,
+                           OPTIONS     => 1,
                          },
                 );
 
@@ -400,6 +403,13 @@ sub __postprocess_table_des_hash
 
       $type = 'INT';
       @type = qw( 32 ); # length
+      }
+    elsif( $type eq 'BOOL' )
+      {
+      $fld_des->{ 'OPTIONS' } .= ':BOOL:';
+
+      $type = 'INT';
+      @type = qw( 1 ); # length
       }
     
     # FIXME: check if type is allowed!

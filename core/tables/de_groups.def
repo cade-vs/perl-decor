@@ -1,0 +1,9 @@
+
+  label User groups
+  
+=NAME
+
+  label Group name
+  type char 128
+  
+

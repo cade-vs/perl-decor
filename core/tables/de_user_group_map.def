@@ -1,0 +1,17 @@
+
+  label User group map
+  
+=USR
+
+  label User
+  type link DE_USERS NAME
+  
+=GRP
+
+  label Group
+  type link DE_GROUPS NAME
+  
+
+  
+  
+

@@ -43,7 +43,7 @@ use Decor::Core::Utils;
 ### PRIVATE ##################################################################
 
 my $VERSION = '1.00';
-my $ROOT    = $ENV{ 'DECOR_ROOT' } || '/usr/local/decor';
+my $ROOT    = $ENV{ 'DECOR_CORE_ROOT' } || '/usr/local/decor';
 my $DEBUG   = 0;
 
 unshift @INC, $ROOT . '/core/lib',  $ROOT . '/shared/lib';

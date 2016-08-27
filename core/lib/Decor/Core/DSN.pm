@@ -231,12 +231,13 @@ sub dsn_commit
 sub dsn_savepoint
 {
   my $sp_name = shift;
+  my @dsn     = @_;
   
   boom "missing save point name" unless $sp_name; # cannot be '0'
 
-  # FIXME: savepoint only for specific DSN
+  @dsn = ( 'MAIN', keys %DSN_DBH_CACHE ) unless @dsn > 0;
   my $skip_second_main;
-  for my $name ( ( 'MAIN', keys %DSN_DBH_CACHE ) )
+  for my $name ( @dsn )
     {
     next if $name eq 'MAIN' and $skip_second_main++;
     next unless exists $DSN_DBH_CACHE{ $name }; # skip if not connected
@@ -248,12 +249,13 @@ sub dsn_savepoint
 sub dsn_rollback_to_savepoint
 {
   my $sp_name = shift;
+  my @dsn     = @_;
   
   boom "missing save point name" unless $sp_name; # cannot be '0'
 
-  # FIXME: savepoint only for specific DSN
+  @dsn = ( 'MAIN', keys %DSN_DBH_CACHE ) unless @dsn > 0;
   my $skip_second_main;
-  for my $name ( ( 'MAIN', keys %DSN_DBH_CACHE ) )
+  for my $name ( @dsn )
     {
     next if $name eq 'MAIN' and $skip_second_main++;
     next unless exists $DSN_DBH_CACHE{ $name }; # skip if not connected

@@ -10,12 +10,12 @@ system
 =PASS
   
   label Password
-  type  char  512
+  type  char  256
 
 =PASS_SALT
     
   label Password seed
-  type  char  64
+  type  char  256
 
 =ACTIVE
 

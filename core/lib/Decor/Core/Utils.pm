@@ -12,6 +12,7 @@ use strict;
 
 use Exception::Sink;
 
+use Data::Tools;
 use Decor::Core::Log;
 
 use Exporter;
@@ -35,6 +36,8 @@ our @EXPORT = qw(
                 de_check_ref_array
                 
                 perl_package_to_file
+                
+                de_password_salt_hash
 
                 );
 
@@ -122,6 +125,13 @@ sub perl_package_to_file
   return $s;
 }
 
+sub de_password_salt_hash
+{
+  my $pass = shift;
+  my $salt = shift;
+  
+  return wp_hex( $salt . $pass );
+}
 
 ### EOF ######################################################################
 1;

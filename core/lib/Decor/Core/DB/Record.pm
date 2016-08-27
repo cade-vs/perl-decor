@@ -13,8 +13,10 @@ use strict;
 use parent 'Decor::Core::DB';
 use Exception::Sink;
 
+use Decor::Core::DSN;
 use Decor::Core::Describe;
 use Decor::Core::Utils;
+use Decor::Core::DB::IO;
 
 ##############################################################################
 
@@ -227,6 +229,13 @@ sub id
   my $self = shift;
 
   return exists $self->{ 'BASE_ID' } and $self->{ 'BASE_ID' } ? $self->{ 'BASE_ID' } : undef;
+}
+
+sub table
+{
+  my $self = shift;
+
+  return exists $self->{ 'BASE_TABLE' } and $self->{ 'BASE_TABLE' } ? $self->{ 'BASE_TABLE' } : undef;
 }
 
 #-----------------------------------------------------------------------------
@@ -587,6 +596,42 @@ sub finish
   $self->reset();
 
   1;
+}
+
+#-----------------------------------------------------------------------------
+
+sub commit
+{
+  my $self = shift;
+
+  dsn_commit();
+}
+
+sub savepoint
+{
+  my $self    = shift;
+  my $sp_name = shift;
+
+  my $des = describe_table( $self->table() );
+  my $dsn = $des->get_dsn_name();
+  dsn_savepoint( $sp_name, $dsn );
+}
+
+sub rollback
+{
+  my $self = shift;
+
+  dsn_rollback();
+}
+
+sub rollback_to_savepoint
+{
+  my $self    = shift;
+  my $sp_name = shift;
+
+  my $des = describe_table( $self->table() );
+  my $dsn = $des->get_dsn_name();
+  dsn_savepoint_to_savepoint( $sp_name, $dsn );
 }
 
 ### EOF ######################################################################

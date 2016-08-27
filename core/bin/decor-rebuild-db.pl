@@ -9,8 +9,9 @@
 ##
 ##############################################################################
 use strict;
-use lib ( $ENV{ 'DECOR_ROOT' } || die "missing DECOR_ROOT env variable\n" ) . '/core/lib';
-use lib ( $ENV{ 'DECOR_ROOT' } || die "missing DECOR_ROOT env variable\n" ) . '/shared/lib';
+#use lib ( $ENV{ 'DECOR_ROOT' } || die "missing DECOR_ROOT env variable\n" ) . '/core/lib';
+#use lib ( $ENV{ 'DECOR_ROOT' } || die "missing DECOR_ROOT env variable\n" ) . '/shared/lib';
+use lib ( map { die "invalid DECOR_CORE_ROOT dir [$_]\n" unless -d; ( "$_/core/lib", "$_/shared/lib" ) } ( $ENV{ 'DECOR_CORE_ROOT' } || '/usr/local/decor' ) );
 
 use Exception::Sink;
 use Data::Dumper;
@@ -42,6 +43,8 @@ options:
     -f        -- drop and recreate database objects (tables/indexes/sequences)
     -d        -- debug mode, can be used multiple times to rise debug level
     -o        -- ask for confirmation before executing tasks
+    -r        -- log to STDERR
+    -rr       -- log to both files and STDERR
     --        -- end of options
 notes:
   * first argument is application name and it is mandatory!
@@ -73,6 +76,13 @@ while( @ARGV )
     {
     my $level = de_debug_inc();
     print "option: debug level raised, now is [$level] \n";
+    next;
+    }
+  if( /-r(r)?/ )
+    {
+    $DE_LOG_TO_STDERR = 1;
+    $DE_LOG_TO_FILES  = $1 ? 1 : 0;
+    print "option: forwarding logs to STDERR\n";
     next;
     }
   if( /^(--?h(elp)?|help)$/io )

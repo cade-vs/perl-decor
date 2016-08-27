@@ -109,6 +109,59 @@ sub clear_groups
   $self->{ 'GROUPS' } = {};
 }
 
+### USER DB LOAD DATA ########################################################
+
+sub set_groups_from_user
+{
+  my $self = shift;
+  
+  $self->clear_groups();
+  $self->add_groups_from_user( @_  );
+}
+
+sub add_groups_from_user
+{
+  my $self = shift;
+  my $user = shift;
+  
+  my $user_id;
+
+  if( ref( $user ) eq 'Decor::Core::DB::Record' and ! $user->is_empty() and $user->table() eq 'DE_USERS' )
+    {
+    # record with loaded record from DE_USERS
+    $user_id = $user->id();
+    }
+  elsif( $user =~ /^\d+$/ )
+    {
+    # user id (number)
+    $user_id = $user;
+    }
+  elsif( ref( $user ) eq '' )
+    {
+    # plain scalar
+    my $dbio = new Decor::Core::DB::IO;
+    # TODO: move to Decor::Core::DB::Utils, read single hr or field
+    my $user_hr = $dbio->read_first1_hashref( 'DE_USERS', 'NAME = ?', { BIND => [ $user ] } );
+    }  
+  else
+    {
+    boom "invalid or unknown user reference [$user]";
+    }  
+    
+  my $cnt;
+  # TODO: move to Decor::Core::DB::Utils, read list of columns
+  my $dbio = new Decor::Core::DB::IO;
+  $dbio->select( 'DE_USER_GROUP_MAP', '*', 'USR = ?', { BIND => [ $user_id ] } );
+  while( my $hr = $dbio->fetch() )
+    {
+    $self->add_groups( $hr->{ 'GRP' } );
+    $cnt++;
+    }
+  $dbio->finish();  
+
+  return $cnt;  
+}
+
 ### ACCESS CHECKS ############################################################
 
 sub check_access

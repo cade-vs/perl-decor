@@ -135,7 +135,7 @@ sub sub_begin_prepare
   my $mi = shift;
   my $mo = shift;
 
-  $BEGIN_SALT = create_random_id();
+  $BEGIN_SALT = create_random_id( 128 );
   $mo->{ 'LOGIN_SALT'  } = $BEGIN_SALT;
   
   my $user = $mi->{ 'USER' };
@@ -154,30 +154,44 @@ sub sub_begin
   my $mi = shift;
   my $mo = shift;
 
-  my $user = $mi->{ 'USER' }
-  my $pass = $mi->{ 'PASS' }
+  my $user     = $mi->{ 'USER' }
+  my $pass     = $mi->{ 'PASS' }
+  my $user_sid = $mi->{ 'USER_SID' }
+  my $remote   = $mi->{ 'REMOTE' }
   
-  # user/pass login
   if( $user and $login )
     {
-    return __sub_begin_with_user_pass( $user, $pass );
+    # user/pass login
+    __sub_begin_with_user_pass( $user, $pass, $remote );
     }
-  
-  my $user_sid = $mi->{ 'USER_SID' }
-
-  # session continue
-  if( $user_sid )
+  elsif( $user_sid )
     {
+    # session continue
     # TODO: param/ip/addr
-    return __sub_begin_with_session_continue( $user_sid );
+    __sub_begin_with_session_continue( $user_sid );
     }
+  else
+    {
+    boom "invalid XT=BEGIN parameters";
+    }  
+
+  my $user = subs_get_current_user();
   
+  my $profile = new Decor::Core::Profile;
+  $profile->add_groups_from_user( $user );
+  
+  # TODO: decide on group IDs
+  $profile->add_groups( '*all*' );
+  $profile->remove_groups( '*nobody*' );
+
+  subs_lock_current_profile( $profile );
 };
 
 sub __sub_begin_with_user_pass
 {
-  my $user = shift;
-  my $pass = shift;
+  my $user   = shift;
+  my $pass   = shift;
+  my $remote = shift;
   
   my $begin_salt = $BEGIN_SALT;
   $BEGIN_SALT = undef;
@@ -188,6 +202,47 @@ sub __sub_begin_with_user_pass
 
   # TODO: allow/deny root login
   die "E_LOGIN: User not active" unless $user->read( 'ACTIVE' ) > 0;
+
+  my $session_rec = new Decor::Core::DB::Record;
+  
+  $session_rec->create( 'DE_SESSIONS' );
+  $session_rec->write(
+                     'ACTIVE' => 1,
+                     'USR'    => $user->id(),
+                     'CTIME'  => time(),
+                     'ETIME'  => 0,
+                     'ATIME'  => time(),
+                     'XTIME'  => time() + 15*60, # FIXME: get from config!
+                     'REMOTE' => $remote,
+                     );
+
+  my $ss_time = time();
+  while(4)
+    {
+    my $sid = create_random_id( 256 );
+    $session_rec->write( 'SID' => $sid );
+    my $sp_name = 'BEGIN_NEW_SESSION';
+    $session_rec->savepoint( $sp_name );
+    eval
+      {
+      $session_rec->save();
+      };
+    if( $@ )  
+      {
+      $session_rec->rollback_to_savepoint( $sp_name );
+      de_log_debug( "debug: error: session create hit existing session, retry" );
+      }
+    else
+      {
+      de_log( "status: new session created for user [$user] sid [$sid]" );
+      last;
+      }  
+    if( time() - $ss_time() > 5 )
+      {
+      de_log( "error: cannot create session for user [$user] hit existing" );
+      last;
+      }
+    }
 
   $mo->{ 'XS'    } = 'OK';
   return 1;

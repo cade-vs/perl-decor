@@ -1,0 +1,43 @@
+
+  label User sessions
+  
+=SID
+
+  label User session
+  type char 512
+
+=ACTIVE
+
+  label Session active?
+  type  bool
+  
+=USR
+
+  label User
+  type  link  DE_USERS  NAME
+  
+=CTIME
+
+  label Login time
+  type utime
+
+=ETIME
+
+  label Logout time
+  type utime
+
+=XTIME
+
+  label Expire time
+  type utime
+
+=ATIME
+
+  label Access time
+  type utime
+
+=REMOTE
+
+  label Remote description
+  type  char  256
+
