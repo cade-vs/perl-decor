@@ -181,15 +181,22 @@ sub sub_begin
     }  
 
   my $user = subs_get_current_user();
+  my $sess = subs_get_current_session();
+  
+  my $sess_sid = $sess->read( 'SID' );
   
   my $profile = new Decor::Core::Profile;
   $profile->add_groups_from_user( $user );
   
   # TODO: decide on group IDs
-  $profile->add_groups( '*all*' );
-  $profile->remove_groups( '*nobody*' );
+  $profile->add_groups( 999 ); # all
+  $profile->remove_groups( 900, 901 ); # nobody
 
   subs_lock_current_profile( $profile );
+
+  $mo->{ 'SID'   } = $sess_sid;
+  # TODO: expire time, further advise
+  $mo->{ 'XS'    } = 'OK';
 };
 
 sub __sub_begin_with_user_pass
@@ -198,6 +205,7 @@ sub __sub_begin_with_user_pass
   my $pass   = shift;
   my $remote = shift;
   boom "login seed is empty, call XT=BEGIN_PREPARE first" unless $BEGIN_SALT;
+  boom "invalid remote string" unless $remote =~ /^[a-z_A-Z0-9\.\:]$/;
   my $begin_salt = $BEGIN_SALT;
   $BEGIN_SALT = undef;
   subs_lock_current_user( __sub_find_and_check_user_pass( $user, $pass, $begin_salt ) );
@@ -223,7 +231,7 @@ sub __sub_begin_with_user_pass
   my $ss_time = time();
   while(4)
     {
-    my $sid = create_random_id( 256 );
+    my $sid = create_random_id( 128 );
     $session_rec->write( 'SID' => $sid );
     my $sp_name = 'BEGIN_NEW_SESSION';
     $session_rec->savepoint( $sp_name );
@@ -243,10 +251,11 @@ sub __sub_begin_with_user_pass
       }  
     if( time() - $ss_time > 5 )
       {
-      de_log( "error: cannot create session for user [$user] hit existing" );
-      last;
+      boom "E_SESSION: cannot create session for user [$user] hit existing timeout";
       }
     }
+
+  subs_lock_current_session( $session_rec );
 
   return 1;
 };
@@ -284,6 +293,7 @@ sub __sub_find_and_check_user_pass
 
   my $user_rec = __sub_find_user( $user );
   
+  boom "E_LOGIN: User not active [$user]"         unless $user_rec->read( 'ACTIVE' );
   boom "E_LOGIN: Invalid user [$user] password"   unless de_check_user_pass_digest( $pass );
   
   my $user_pass = $user_rec->read( 'PASS' );

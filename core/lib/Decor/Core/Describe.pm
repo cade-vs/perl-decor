@@ -249,7 +249,7 @@ sub __merge_table_des_file
 
       my @opts = split /[\s,]+/, uc $opts;
 
-      de_log_debug( "        isa:  DUMP: " . Dumper($isa) );  
+      #de_log_debug( "        isa:  DUMP: " . Dumper($isa) );  
       
       for my $opt ( @opts ) # FIXME: covers arg $opt
         {
@@ -488,7 +488,7 @@ sub __postprocess_table_des_hash
       }  
     }  
 
-  print STDERR "TABLE DES POST PROCESSSED [$table]:" . Dumper( $des );
+  #print STDERR "TABLE DES POST PROCESSSED [$table]:" . Dumper( $des );
 
   bless $des, 'Decor::Core::Table::Description';
   dlock $des;

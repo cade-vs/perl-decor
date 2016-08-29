@@ -358,14 +358,14 @@ sub write
 
     my ( $dst_table, $dst_field, $dst_id ) = $self->__resolve_field( $field, { WRITE => 1 } );
 
-use Data::Dumper;
-print Dumper( '--------', $self );
+#use Data::Dumper;
+#print Dumper( '--------', $self );
 
     if( $profile and $self->taint_mode_get( 'FIELDS' ) )
       {
       my $oper = $self->{ 'RECORD_INSERT' }{ $dst_table }{ $dst_id } ? 'INSERT' : 'UPDATE';
-use Data::Dumper;
-print Dumper( '--------oper: ', $oper, $dst_table, $dst_field );
+#use Data::Dumper;
+#print Dumper( '--------oper: ', $oper, $dst_table, $dst_field );
       $profile->check_access_table_field_boom( $oper, $dst_table, $dst_field );
       }
 
@@ -410,7 +410,7 @@ sub __resolve_field
   my $current_id    = $base_id;
   while(4)
     {
-print "debug: record resolve table [$current_table] field [$current_field] id [$current_id] fields [@fields]\n";
+#print "debug: record resolve table [$current_table] field [$current_field] id [$current_id] fields [@fields]\n";
     my $field_des = describe_table_field( $current_table, $current_field );
 
     if( @fields == 0 )

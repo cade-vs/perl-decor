@@ -19,7 +19,7 @@ use Data::Dumper;
 use Decor::Core::Env;
 use Decor::Core::Code;
 use Decor::Core::Subs;
-#use Decor::Core::DSN;
+use Decor::Core::DSN;
 #use Decor::Core::Profile;
 #use Decor::Core::Describe;
 #use Decor::Core::DB::IO;
@@ -54,3 +54,5 @@ my $mo = {};
 subs_process_xt_message( $mi, $mo );
 
 print Dumper( $mi, $mo );
+
+dsn_commit();

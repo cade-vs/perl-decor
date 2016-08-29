@@ -84,7 +84,7 @@ sub de_check_user_pass_digest
 {
   my $name = uc shift;
   
-  return $name =~ /^[A-Z0-9]+$/o ? 1 : 0;
+  return $name =~ /^[a-fA-F0-9]+$/o ? 1 : 0;
 }
 
 sub de_reload_config
