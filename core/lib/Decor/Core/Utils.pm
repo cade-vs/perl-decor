@@ -77,7 +77,7 @@ sub de_check_user_login_name
 {
   my $name = shift;
   
-  return $name =~ /^[a-zA-Z_0-9\-\.\,\@]+$/o ? 1 : 0;
+  return $name =~ /^[a-zA-Z_0-9\-\.\,\@\:]+$/o ? 1 : 0;
 }
 
 sub de_check_user_pass_digest
