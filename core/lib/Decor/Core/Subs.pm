@@ -16,6 +16,7 @@ use Decor::Core::DB::Record;
 use Decor::Core::Subs::Env;
 use Decor::Core::Utils;
 use Decor::Core::Profile;
+use Decor::Core::Describe;
 
 use Exporter;
 our @ISA    = qw( Exporter );
@@ -125,12 +126,17 @@ sub sub_reset
   my $mi = shift;
   my $mo = shift;
 
-  subs_reset_dispatch_map();
-  subs_reset_current_all();
+  __sub_reset_state();
   
   $mo->{ 'XS'    } = 'OK';
   return 1;
 };
+
+sub __sub_reset_state
+{
+  subs_reset_dispatch_map();
+  subs_reset_current_all();
+}
 
 #--- LOGIN/LOGOUT ------------------------------------------------------------
 
@@ -155,6 +161,7 @@ sub sub_begin_prepare
   return 1;
 };
 
+# i.e. either login or continue session
 sub sub_begin
 {
   my $mi = shift;
@@ -195,6 +202,15 @@ sub sub_begin
 
   subs_lock_current_profile( $profile );
 
+  my $atime = $sess->read( 'ATIME' );
+  if( time() - $atime > 60 )
+    {
+    # update access time but not less than a minute away
+    $sess->write( 'ATIME' => time() );
+    }
+
+  subs_set_dispatch_map( 'USER' );
+
   $mo->{ 'SID'   } = $sess_sid;
   # TODO: expire time, further advise
   $mo->{ 'XS'    } = 'OK';
@@ -216,16 +232,18 @@ sub __sub_begin_with_user_pass
   # TODO: allow/deny root login
   die "E_LOGIN: User not active" unless $user->read( 'ACTIVE' ) > 0;
 
+  my $time_now = time(); # to keep the same time for all data here
+
   my $session_rec = new Decor::Core::DB::Record;
   
   $session_rec->create( 'DE_SESSIONS' );
   $session_rec->write(
                      'ACTIVE' => 1,
                      'USR'    => $user->id(),
-                     'CTIME'  => time(),
+                     'CTIME'  => $time_now,
                      'ETIME'  => 0,
-                     'ATIME'  => time(),
-                     'XTIME'  => time() + 15*60, # FIXME: get from config!
+                     'ATIME'  => $time_now,
+                     'XTIME'  => $time_now + 15*60, # FIXME: get from config!
                      'REMOTE' => $remote,
                      );
 
@@ -256,6 +274,12 @@ sub __sub_begin_with_user_pass
       }
     }
 
+  my $session_id = $session_rec->id();
+  $user->write(
+               'LAST_LOGIN_SESSION' => $session_id,
+               'LAST_LOGIN_TIME'    => $time_now,
+              );
+
   subs_lock_current_session( $session_rec );
 
   return 1;
@@ -273,13 +297,19 @@ sub __sub_begin_with_session_continue
     $session_rec->write(
                        'ACTIVE' => 0,
                        'ETIME'  => time(),
-                       'ATIME'  => time(),
                        );
     $session_rec->save();
     
-    sub_reset( $mi, $mo );
+    __sub_reset_state();
     return 1;
     }
+
+  my $user_id = $session_rec->read( 'USR' );
+  my $user_rec = new Decor::Core::DB::Record;
+  $user_rec->load( 'DE_USERS', $user_id ) or boom "E_INTERNAL: cannot load USER with id [$user_id] from requested session [$user_sid] and remote [$remote]";
+  
+  subs_lock_current_user( $user_rec );
+  subs_lock_current_session( $session_rec );
   
   return 1;
 };
@@ -292,7 +322,7 @@ sub __sub_find_user
 
   my $user_rec = new Decor::Core::DB::Record;
 
-  $user_rec->select( 'DE_USERS', 'NAME = ?', { BIND => [ $user_name ] } );
+  $user_rec->select( 'DE_USERS', 'NAME = ?', { BIND => [ $user_name ], LOCK => 1 } );
   if( $user_rec->next() )
     {
     $user_rec->finish();
@@ -330,7 +360,7 @@ sub __sub_find_session
 
   my $session_rec = new Decor::Core::DB::Record;
 
-  $session_rec->select( 'DE_SESSIONS', 'SID = ? AND REMOTE = ? AND ACTIVE = ?', { BIND => [ $session_sid, $remote, 1 ] } );
+  $session_rec->select( 'DE_SESSIONS', 'SID = ? AND REMOTE = ? AND ACTIVE = ?', { BIND => [ $session_sid, $remote, 1 ], LOCK => 1 } );
   if( $session_rec->next() )
     {
     $session_rec->finish();
@@ -340,6 +370,7 @@ sub __sub_find_session
   return undef; # never reached
 };
 
+# i.e. logout
 sub sub_end
 {
   my $mi = shift;
@@ -357,7 +388,7 @@ sub sub_end
                      );
   $session_rec->save();
 
-  sub_reset( $mi, $mo );
+  __sub_reset_state();
   
   $mo->{ 'XS'    } = 'OK';
 };
@@ -368,7 +399,15 @@ sub sub_describe
 {
   my $mi = shift;
   my $mo = shift;
+
+  my $table = $mi->{ 'TABLE' };
+
+  boom "invalid TABLE name [$table]"   unless de_check_name( $table );
   
+  my $des = describe_table( $table );
+  
+  $mo->{ 'DES'   } = $des;
+  $mo->{ 'XS'    } = 'OK';
 };
 
 

@@ -22,9 +22,13 @@ system
   label User Active?
   type  bool
 
-=LAST_LTIME
+=LAST_LOGIN_TIME
 
   label Last login time
   type  utime
   
+=LAST_LOGIN_SESSION
+
+  label Last login session
+  type  link DE_SESSIONS STIME
 

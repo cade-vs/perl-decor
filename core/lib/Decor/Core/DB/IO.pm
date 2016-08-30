@@ -596,7 +596,7 @@ sub read_first1_by_id_hashref
   my $self  = shift;
   my $table = shift;
   my $id    = shift;
-  my $opts  = shift; 
+  my $opts  = shift || {}; 
 
   return $self->read_first1_hashref( $table, '._ID = ?', { %$opts, BIND => [ $id ] } );
 }
