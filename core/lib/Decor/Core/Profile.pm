@@ -295,9 +295,11 @@ sub __check_access_tree
   my $oper = shift;
   my $tree = shift;
 
-print "profile access exists check: [$oper]\n" . Dumper( $tree );  
+#print "profile access exists check: [$oper]\n" . Dumper( $tree );  
 
   return 0 unless exists $tree->{ $oper };
+
+  my $groups = $self->{ 'GROUPS' };
   
   for my $sets ( @{ $tree->{ $oper } } )
     {
@@ -307,22 +309,23 @@ print "profile access exists check: [$oper]\n" . Dumper( $tree );
       if( $group =~ /^!\s*([0-9]+)$/ )
         {
         my $grp = int( $1 );
-print "profile access ! check: [$grp]\n";  
+#print "profile access ! check: [$grp]\n";  
         boom "group in grant|deny policy set for operation [$oper] is equal to zero [$grp] all groups must not be zero" if $grp == 0;
-        $c++ if ! exists $self->{ 'GROUPS' }{ $grp } or ! ( $self->{ 'GROUPS' }{ $grp } > 0 );
+        $c++ if ! exists $groups->{ $grp } or ! ( $groups->{ $grp } > 0 );
         }
       else
         {
         my $grp = int( $group );
-print "profile access   check: [$grp]\n";  
+#print "profile access   check: [$grp]\n";  
         boom "group in grant|deny policy set for operation [$oper] is equal to zero [$grp] all groups must not be zero" if $grp == 0;
-        $c++ if   exists $self->{ 'GROUPS' }{ $grp } and  ( $self->{ 'GROUPS' }{ $grp } > 0 );
+        $c++ if   exists $groups->{ $grp } and  ( $groups->{ $grp } > 0 );
         }  
       }  
     return 1 if $c == @$sets;
     }
   return 0;
 }
+
 
 ### EOF ######################################################################
 1;

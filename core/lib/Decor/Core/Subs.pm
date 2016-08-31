@@ -18,6 +18,8 @@ use Decor::Core::Utils;
 use Decor::Core::Profile;
 use Decor::Core::Describe;
 
+use Clone qw( clone );
+
 use Exporter;
 our @ISA    = qw( Exporter );
 our @EXPORT = qw( 
@@ -403,13 +405,43 @@ sub sub_describe
   my $table = $mi->{ 'TABLE' };
 
   boom "invalid TABLE name [$table]"   unless de_check_name( $table );
-  
+
+  my $profile = subs_get_current_profile();
+  my $replace_gd = sub
+    {
+      my $grant_deny = shift;
+      my %new;
+      
+      while( my ( $k, $v ) = each %$grant_deny )
+        {
+        $new{ $k } = $profile->__check_access_tree( $k, $grant_deny );
+        }
+        
+      return \%new;  
+    };
+
   my $des = describe_table( $table );
+
+  my $new = clone( { %$des } );
+
+  $new->{ '@' }{ 'GRANT' } = $replace_gd->( $des->{ '@' }{ 'GRANT' } );
+  $new->{ '@' }{ 'DENY'  } = $replace_gd->( $des->{ '@' }{ 'DENY'  } );
+  delete $new->{ 'INDEX' };
+
+  for my $field ( @{ $new->{ '@' }{ '_FIELDS_LIST' } } )
+    {
+    my $hrd = $des->{ 'FIELD' }{ $field };
+    my $hrn = $new->{ 'FIELD' }{ $field };
+    #dunlock $hr;
+    #dunlock $hr->{ 'DENY'  };
+    $hrn->{ 'GRANT' } = $replace_gd->( $hrd->{ 'GRANT' } );
+    $hrn->{ 'DENY'  } = $replace_gd->( $hrd->{ 'DENY'  } );
+    delete $hrn->{ 'DEBUG::ORIGIN' };
+    }
   
-  $mo->{ 'DES'   } = $des;
+  $mo->{ 'DES'   } = $new;
   $mo->{ 'XS'    } = 'OK';
 };
-
 
 sub sub_menu
 {

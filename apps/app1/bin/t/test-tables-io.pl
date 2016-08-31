@@ -9,7 +9,7 @@
 ##
 ##############################################################################
 use strict;
-use lib ( $ENV{ 'DECOR_ROOT' } || '/usr/local/decor' ) . "/core/lib";
+use lib ( map { die "invalid DECOR_CORE_ROOT dir [$_]\n" unless -d; ( "$_/core/lib", "$_/shared/lib" ) } ( $ENV{ 'DECOR_CORE_ROOT' } || '/usr/local/decor' ) );
 
 use Time::HR;
 
