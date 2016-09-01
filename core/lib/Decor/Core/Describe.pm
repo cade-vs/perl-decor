@@ -36,15 +36,26 @@ our @EXPORT = qw(
                 des_exists
                 
                 des_table_get_fields_list
+                
+                describe_parse_access_line
+                describe_preprocess_grant_deny
                 );
 
 ### TABLE DESCRIPTIONS #######################################################
 
 my %TYPE_ATTRS = (
-                      'NAME' => undef,
-                      'LEN'  => undef,
-                      'DOT'  => undef,
+                      'NAME'  => undef,
+                      'LEN'   => undef,
+                      'DOT'   => undef,
                  );
+my %FIELD_TYPES = (
+                      'CHAR'  => 1,
+                      'INT'   => 1,
+                      'REAL'  => 1,
+                      'TIME'  => 1,
+                      'DATE'  => 1,
+                      'UTIME' => 1,
+                  );
 
 my %DES_KEY_TYPES  = (
                       'GRANT' => '@',
@@ -202,7 +213,7 @@ sub __merge_table_des_file
   while( my $line = <$inf> )
     {
     $ln++;
-    my $origin = "$fname:$ln"; # localize $origin from the outer one
+    my $origin = "$fname at $ln"; # localize $origin from the outer one
 
     chomp( $line );
     $line =~ s/^\s*//;
@@ -217,7 +228,7 @@ sub __merge_table_des_file
          $sect_name = uc( $3 );
       my $sect_opts =     $4; # fixme: upcase/locase?
 
-      boom "invalid category [$category] at [$fname:$ln]" unless exists $DES_CATEGORIES{ $category };
+      boom "invalid category [$category] at [$fname at $ln]" unless exists $DES_CATEGORIES{ $category };
 
       de_log_debug( "       =sect: [$category:$sect_name]" );  
       
@@ -245,7 +256,7 @@ sub __merge_table_des_file
 
       my $isa = __load_table_des_hash( $name );
 
-      boom "isa/include error: cannot load config [$name] at [$fname:$ln]" unless $isa;
+      boom "isa/include error: cannot load config [$name] at [$fname at $ln]" unless $isa;
 
       my @opts = split /[\s,]+/, uc $opts;
 
@@ -262,13 +273,13 @@ sub __merge_table_des_file
           }
         else
           {
-          boom "isa/include error: invalid key [$opt] in [$name] at [$fname:$ln]";
+          boom "isa/include error: invalid key [$opt] in [$name] at [$fname at $ln]";
           }  
         if( $category ne $isa_category )  
           {
-          boom "isa/include error: cannot inherit kyes from different categories, got [$isa_category] expected [$category] key [$opt] in [$name] at [$fname:$ln]";
+          boom "isa/include error: cannot inherit kyes from different categories, got [$isa_category] expected [$category] key [$opt] in [$name] at [$fname at $ln]";
           }
-        boom "isa/include error: non existing key [$opt] in [$name] at [$fname:$ln]" if ! exists $isa->{ $isa_category } or ! exists $isa->{ $isa_category }{ $isa_sect_name };
+        boom "isa/include error: non existing key [$opt] in [$name] at [$fname at $ln]" if ! exists $isa->{ $isa_category } or ! exists $isa->{ $isa_category }{ $isa_sect_name };
         $des->{ $category }{ $sect_name } ||= {};
         %{ $des->{ $category }{ $sect_name } } = ( %{ $des->{ $category }{ $sect_name } }, %{ dclone( $isa->{ $isa_category }{ $isa_sect_name } ) } );
         }
@@ -282,7 +293,7 @@ sub __merge_table_des_file
       my $value =    $2;
 
       $key = $DES_KEY_SHORTCUTS{ $key } if exists $DES_KEY_SHORTCUTS{ $key };
-      boom "unknown attribute key [$key] for table [$table] category [$category] section [$sect_name] at [$fname:$ln]" unless exists $DES_ATTRS{ $category }{ $key };
+      boom "unknown attribute key [$key] for table [$table] category [$category] section [$sect_name] at [$fname at $ln]" unless exists $DES_ATTRS{ $category }{ $key };
 
       if( $value =~ /^(['"])(.*?)\1/ )
         {
@@ -356,7 +367,7 @@ sub __postprocess_table_des_hash
   $des->{ '@' } = $des->{ '@' }{ '@' };
 
   # convert grant/deny list to access tree
-  __preprocess_grant_deny( $des->{ '@' } );
+  describe_preprocess_grant_deny( $des->{ '@' } );
 
   # add empty keys to table description before locking
   for my $attr ( keys %{ $DES_ATTRS{ '@' } } )
@@ -385,6 +396,8 @@ sub __postprocess_table_des_hash
     my @type = split /[,\s]+/, uc $fld_des->{ 'TYPE' };
     my $type = shift @type;
 
+    my @debug_origin = exists $fld_des->{ 'DEBUG::ORIGIN' } ? @{ $fld_des->{ 'DEBUG::ORIGIN' } } : ();
+
     # "high" level types
     if( $type eq 'LINK' )
       {
@@ -411,8 +424,9 @@ sub __postprocess_table_des_hash
       $type = 'INT';
       @type = qw( 1 ); # length
       }
+
+    boom "invalid FIELD TYPE [$type] in table [$table] field [$field] from [@debug_origin]" unless $FIELD_TYPES{ $type };
     
-    # FIXME: check if type is allowed!
     $type_des->{ 'NAME' } = $type;
     if( $type eq 'CHAR' )
       {
@@ -451,7 +465,7 @@ sub __postprocess_table_des_hash
     $fld_des->{ 'TYPE' } = $type_des;
     
     # convert grant/deny list to access tree
-    __preprocess_grant_deny( $des->{ 'FIELD' }{ $field } );
+    describe_preprocess_grant_deny( $des->{ 'FIELD' }{ $field } );
 
     # FIXME: more categories INDEX: ACTION: etc.
     # inherit empty keys
@@ -569,7 +583,7 @@ sub describe_table_field
 
 #-----------------------------------------------------------------------------
 
-sub __preprocess_grant_deny
+sub describe_preprocess_grant_deny
 {
   my $hr = shift;
 
@@ -581,7 +595,7 @@ sub __preprocess_grant_deny
     for my $line ( @{ $hr->{ $grant_deny } } )
       {
       $access ||= {};
-      my %a = __describe_parse_access_line( $line );
+      my %a = describe_parse_access_line( $line );
       %$access = ( %$access, %a );
       }
     $hr->{ $grant_deny } = $access;
@@ -590,7 +604,7 @@ sub __preprocess_grant_deny
 
 #-----------------------------------------------------------------------------
 
-sub __describe_parse_access_line
+sub describe_parse_access_line
 {
   my $line = lc shift;
   
