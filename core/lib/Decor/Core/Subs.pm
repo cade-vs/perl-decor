@@ -17,6 +17,7 @@ use Decor::Core::Subs::Env;
 use Decor::Core::Utils;
 use Decor::Core::Profile;
 use Decor::Core::Describe;
+use Decor::Core::Menu;
 
 use Clone qw( clone );
 
@@ -397,6 +398,21 @@ sub sub_end
 
 #--- DESCRIBE/MENU -----------------------------------------------------------
 
+sub __replace_grant_deny
+{
+  my $profile    = shift;
+  my $grant_deny = shift;
+  my %new;
+  
+  while( my ( $k, $v ) = each %$grant_deny )
+    {
+    $new{ $k } = $profile->__check_access_tree( $k, $grant_deny );
+    }
+    
+  return \%new;  
+};
+
+
 sub sub_describe
 {
   my $mi = shift;
@@ -407,25 +423,13 @@ sub sub_describe
   boom "invalid TABLE name [$table]"   unless de_check_name( $table );
 
   my $profile = subs_get_current_profile();
-  my $replace_gd = sub
-    {
-      my $grant_deny = shift;
-      my %new;
-      
-      while( my ( $k, $v ) = each %$grant_deny )
-        {
-        $new{ $k } = $profile->__check_access_tree( $k, $grant_deny );
-        }
-        
-      return \%new;  
-    };
 
   my $des = describe_table( $table );
 
   my $new = clone( { %$des } );
 
-  $new->{ '@' }{ 'GRANT' } = $replace_gd->( $des->{ '@' }{ 'GRANT' } );
-  $new->{ '@' }{ 'DENY'  } = $replace_gd->( $des->{ '@' }{ 'DENY'  } );
+  $new->{ '@' }{ 'GRANT' } = __replace_grant_deny( $profile, $des->{ '@' }{ 'GRANT' } );
+  $new->{ '@' }{ 'DENY'  } = __replace_grant_deny( $profile, $des->{ '@' }{ 'DENY'  } );
   delete $new->{ 'INDEX' };
 
   for my $field ( @{ $new->{ '@' }{ '_FIELDS_LIST' } } )
@@ -434,8 +438,8 @@ sub sub_describe
     my $hrn = $new->{ 'FIELD' }{ $field };
     #dunlock $hr;
     #dunlock $hr->{ 'DENY'  };
-    $hrn->{ 'GRANT' } = $replace_gd->( $hrd->{ 'GRANT' } );
-    $hrn->{ 'DENY'  } = $replace_gd->( $hrd->{ 'DENY'  } );
+    $hrn->{ 'GRANT' } = __replace_grant_deny( $profile, $hrd->{ 'GRANT' } );
+    $hrn->{ 'DENY'  } = __replace_grant_deny( $profile, $hrd->{ 'DENY'  } );
     delete $hrn->{ 'DEBUG::ORIGIN' };
     }
   
@@ -447,7 +451,30 @@ sub sub_menu
 {
   my $mi = shift;
   my $mo = shift;
+
+  my $menu_name = $mi->{ 'MENU' };
+
+  boom "invalid MENU name [$menu_name]"   unless de_check_name( $menu_name );
+
+  my $profile = subs_get_current_profile();
+
+  my $menu = de_menu_get( $menu_name );
+
+  my $new = clone( { %$menu } );
+
+  for my $item ( @{ $new->{ '@' }{ '_ITEMS_LIST' } } )
+    {
+    my $hrm = $menu->{ $item };
+    my $hrn =  $new->{ $item };
+    #dunlock $hr;
+    #dunlock $hr->{ 'DENY'  };
+    $hrn->{ 'GRANT' } = __replace_grant_deny( $profile, $hrm->{ 'GRANT' } );
+    $hrn->{ 'DENY'  } = __replace_grant_deny( $profile, $hrm->{ 'DENY'  } );
+    delete $hrn->{ 'DEBUG::ORIGIN' };
+    }
   
+  $mo->{ 'MENU'  } = $new;
+  $mo->{ 'XS'    } = 'OK';
 };
 
 #--- SELECT/FETCH/FINISH -----------------------------------------------------

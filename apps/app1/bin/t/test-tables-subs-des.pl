@@ -74,9 +74,14 @@ my $ps = 1_00 / $t;
 print "$t secs, $ps per second\n";
 
 
-  my $mi = { XT => 'D', TABLE => 'test1' };
-  my $mo = {};
-  subs_process_xt_message( $mi, $mo );
+my $mi = { XT => 'D', TABLE => 'test1' };
+my $mo = {};
+subs_process_xt_message( $mi, $mo );
 
-  print Dumper( $mo );
+print Dumper( $mo );
 
+my $mi = { XT => 'M', MENU => 'main' };
+my $mo = {};
+subs_process_xt_message( $mi, $mo );
+
+print Dumper( $mo );

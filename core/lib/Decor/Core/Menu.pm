@@ -316,6 +316,9 @@ sub __postprocess_menu_hash
   # postprocessing TABLE (self) ---------------------------------------------
   my @items  = sort { $menu->{ $a }{ '_ORDER' } <=> $menu->{ $b }{ '_ORDER' } } keys %{ $menu };
 
+  # convert grant/deny list to access tree
+  describe_preprocess_grant_deny( $menu->{ '@' } );
+
   # add empty keys to table description before locking
   for my $attr ( keys %{ $MENU_ATTRS{ '@' } } )
     {
@@ -368,9 +371,11 @@ sub __postprocess_menu_hash
     
     # convert grant/deny list to access tree
     describe_preprocess_grant_deny( $item_des );
+#print Dumper( '-'x20, $menu_name, $item, $item_des );      
 
     for my $grant_deny ( qw( GRANT DENY ) )
       {
+#print Dumper( $menu_name, $menu->{ '@' }{ $grant_deny } );      
       for my $oper ( keys %{ $menu->{ '@' }{ $grant_deny } } )
         {
         next if exists $item_des->{ $grant_deny }{ $oper };
