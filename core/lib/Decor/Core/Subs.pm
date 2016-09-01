@@ -400,6 +400,34 @@ sub sub_end
 
 sub __replace_grant_deny
 {
+  my $profile = shift;
+  my $hrn     = shift;
+  my $hrd     = shift;
+  
+  for my $grant_deny ( qw( GRANT DENY ) )
+    {
+    if( ! $hrd->{ $grant_deny } )
+      {
+      $hrn->{ $grant_deny } = {};
+      next;
+      }
+    while( my ( $k, $v ) = each %{ $hrd->{ $grant_deny } } )
+      {
+      $hrn->{ $grant_deny }{ $k } = $profile->__check_access_tree( $k, $hrd->{ $grant_deny } );
+      }
+    }  
+
+  for my $oper ( keys %{ $hrn->{ 'DENY' } } )
+    {
+    next unless $hrn->{ 'DENY' }{ $oper };
+    delete $hrn->{ 'GRANT' }{ $oper };
+    }
+    
+  return 1;
+};
+
+sub __replace_grant_deny__
+{
   my $profile    = shift;
   my $grant_deny = shift;
   my %new;
@@ -412,6 +440,14 @@ sub __replace_grant_deny
   return \%new;  
 };
 
+=pod
+  for my $oper ( keys %{ $hr->{ 'DENY' } } )
+    {
+    next unless $hr->{ 'DENY' }{ $oper };
+    delete $hr->{ 'GRANT' }{ $oper };
+    }
+
+=cut
 
 sub sub_describe
 {
@@ -428,8 +464,7 @@ sub sub_describe
 
   my $new = clone( { %$des } );
 
-  $new->{ '@' }{ 'GRANT' } = __replace_grant_deny( $profile, $des->{ '@' }{ 'GRANT' } );
-  $new->{ '@' }{ 'DENY'  } = __replace_grant_deny( $profile, $des->{ '@' }{ 'DENY'  } );
+  __replace_grant_deny( $profile, $new->{ '@' }, $des->{ '@' } );
   delete $new->{ 'INDEX' };
 
   for my $field ( @{ $new->{ '@' }{ '_FIELDS_LIST' } } )
@@ -438,8 +473,7 @@ sub sub_describe
     my $hrn = $new->{ 'FIELD' }{ $field };
     #dunlock $hr;
     #dunlock $hr->{ 'DENY'  };
-    $hrn->{ 'GRANT' } = __replace_grant_deny( $profile, $hrd->{ 'GRANT' } );
-    $hrn->{ 'DENY'  } = __replace_grant_deny( $profile, $hrd->{ 'DENY'  } );
+    __replace_grant_deny( $profile, $hrn, $hrd );
     delete $hrn->{ 'DEBUG::ORIGIN' };
     }
   
@@ -466,10 +500,7 @@ sub sub_menu
     {
     my $hrm = $menu->{ $item };
     my $hrn =  $new->{ $item };
-    #dunlock $hr;
-    #dunlock $hr->{ 'DENY'  };
-    $hrn->{ 'GRANT' } = __replace_grant_deny( $profile, $hrm->{ 'GRANT' } );
-    $hrn->{ 'DENY'  } = __replace_grant_deny( $profile, $hrm->{ 'DENY'  } );
+    __replace_grant_deny( $profile, $hrn, $hrm );
     delete $hrn->{ 'DEBUG::ORIGIN' };
     }
   

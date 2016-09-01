@@ -475,7 +475,7 @@ sub __postprocess_table_des_hash
     #  # link missing attributes to self
     #  $des->{ 'FIELD' }{ $field }{ $attr } = $des->{ '@' }{ $attr };
     #  }
-    
+
     for my $grant_deny ( qw( GRANT DENY ) )
       {
       for my $oper ( keys %{ $des->{ '@' }{ $grant_deny } } )

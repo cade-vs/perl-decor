@@ -41,6 +41,6 @@ my $menu = de_menu_get( 'MAIN' );
 
 print Dumper( 'MAIN ' x 10, $menu );
 
-my $menu = de_menu_get( 'TEST' );
+#my $menu = de_menu_get( 'TEST' );
 
-print Dumper( 'TEST ' x 10, $menu );
+#print Dumper( 'TEST ' x 10, $menu );
