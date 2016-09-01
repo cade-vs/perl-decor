@@ -426,29 +426,6 @@ sub __replace_grant_deny
   return 1;
 };
 
-sub __replace_grant_deny__
-{
-  my $profile    = shift;
-  my $grant_deny = shift;
-  my %new;
-  
-  while( my ( $k, $v ) = each %$grant_deny )
-    {
-    $new{ $k } = $profile->__check_access_tree( $k, $grant_deny );
-    }
-    
-  return \%new;  
-};
-
-=pod
-  for my $oper ( keys %{ $hr->{ 'DENY' } } )
-    {
-    next unless $hr->{ 'DENY' }{ $oper };
-    delete $hr->{ 'GRANT' }{ $oper };
-    }
-
-=cut
-
 sub sub_describe
 {
   my $mi = shift;
