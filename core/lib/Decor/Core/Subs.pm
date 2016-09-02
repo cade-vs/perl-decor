@@ -79,6 +79,8 @@ my %MAP_SHORTCUTS = (
 
 my $DISPATCH_MAP = 'MAIN';
 
+my %SELECT_MAP;
+
 sub subs_set_dispatch_map
 {
   my $map = uc shift;
@@ -139,6 +141,7 @@ sub __sub_reset_state
 {
   subs_reset_dispatch_map();
   subs_reset_current_all();
+  %SELECT_MAP = ();
 }
 
 #--- LOGIN/LOGOUT ------------------------------------------------------------
@@ -491,7 +494,38 @@ sub sub_select
 {
   my $mi = shift;
   my $mo = shift;
+
+  my $table  = uc $mi->{ 'TABLE'  };
+  my $fields = uc $mi->{ 'FIELDS' };
+  my $limit  =    $mi->{ 'LIMIT'  };
+  my $offset =    $mi->{ 'OFFSET' };
+  my $filter =    $mi->{ 'FILTER' } || {};
+
+  boom "invalid TABLE name [$table]"    unless de_check_name( $table );
+  boom "invalid FIELDS list [$fields]"  unless $fields =~ /^([A-Z_0-9\.\,]+|\*)$/o;
+  boom "invalid LIMIT [$limit]"         unless $limit =~ /^[0-9]*$/o;
+  boom "invalid OFFSET [$offset]"       unless $offset =~ /^[0-9]*$/o;
+  boom "invalid FILTER [$filter]"       unless ref( $filter ) eq 'HASH';
   
+  my @where;
+  my @bind;
+  while( my ( $f, $v ) = each %$filter )
+    {
+    $f = uc $f;
+    boom "invalid FILTER FIELD [$f]"  unless $f =~ /^[A-Z_0-9\.]+$/o;
+    push @where, "^$f = ?";
+    push @bind, $v;
+    # TODO: more complex filter rules
+    }
+  my $where = join ' AND ', @where;
+  
+  my $select_handle = create_random_id( 64 );
+  my $dbio = $SELECT_MAP{ $select_handle } = new Decor::Core::DB::IO;
+  
+  my $res = $dbio->select( $table, $fields, $where, { BIND => \@bind, LIMIT => $limit, OFFSET => $offset } );
+  
+  $mo->{ 'SELECT_HANDLE' } = $select_handle;
+  $mo->{ 'XS'            } = 'OK';
 };
 
 
@@ -499,7 +533,22 @@ sub sub_fetch
 {
   my $mi = shift;
   my $mo = shift;
+
+  my $select_handle = $mi->{ 'SELECT_HANDLE' };
+  boom "invalid SELECT_HANDLE [$select_handle]" unless exists $SELECT_MAP{ $select_handle };
+  my $dbio = $SELECT_MAP{ $select_handle };
+
+  my $hr = $dbio->fetch();
   
+  if( $hr )
+    {
+    $mo->{ 'DATA' } = $hr;
+    $mo->{ 'XS'   } = 'OK';
+    }
+  else
+    {
+    $mo->{ 'XS'   } = 'EOD'; # end of data
+    }  
 };
 
 
@@ -507,7 +556,15 @@ sub sub_finish
 {
   my $mi = shift;
   my $mo = shift;
+
+  my $select_handle = $mi->{ 'SELECT_HANDLE' };
+  boom "invalid SELECT_HANDLE [$select_handle]" unless exists $SELECT_MAP{ $select_handle };
+  my $dbio = $SELECT_MAP{ $select_handle };
   
+  $dbio->finish();
+  delete $SELECT_MAP{ $select_handle };
+  
+  $mo->{ 'XS' } = 'OK';
 };
 
 #--- INSERT/UPDATE/DELETE ----------------------------------------------------
