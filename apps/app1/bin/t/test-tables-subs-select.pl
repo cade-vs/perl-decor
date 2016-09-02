@@ -23,6 +23,7 @@ use Decor::Core::Profile;
 use Decor::Core::Describe;
 use Decor::Core::DB::IO;
 use Decor::Core::DB::Record;
+use Decor::Core::Log;
 use Decor::Core::Utils;
 
 use Data::Lock qw( dlock dunlock );
@@ -35,6 +36,8 @@ $Data::Dumper::Indent   = 3;
 
 de_init( APP_NAME => 'app1' );
 de_debug_set( 11 );
+$DE_LOG_TO_STDERR = 1;
+$DE_LOG_TO_FILES  = 1;
 
 my $salt = create_random_id( 512 );
 
@@ -61,7 +64,21 @@ print Dumper( $mi, $mo );
 
 #----------------------------------------------------------------------
 
-my $mi = { XT => 'S', TABLE => 'test1', FIELDS => '*' };
+my %filter;
+
+%filter = (
+          SUMA => '0.9464',
+          );
+
+%filter = (
+          SUMA => { OP => '>', VALUE => '0.5' },
+          );
+          
+%filter = (
+          REF => [ qw( 10075 10077 10079 ) ],
+          );
+
+my $mi = { XT => 'S', TABLE => 'test1', FIELDS => '*', FILTER => \%filter };
 my $mo = {};
 subs_process_xt_message( $mi, $mo );
 

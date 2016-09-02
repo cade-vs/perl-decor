@@ -79,6 +79,24 @@ my %MAP_SHORTCUTS = (
 
 my $DISPATCH_MAP = 'MAIN';
 
+my %SELECT_WHERE_OPERATORS = (
+                    '='    => '=',
+                    '=='   => '=',
+                    '<'    => '<',
+                    '<='   => '<=',
+                    '>'    => '>',
+                    '>='   => '>=',
+                    '<>'   => '<>',
+                    'LIKE' => 'LIKE',
+                    'eq'   => '=',
+                    'lt'   => '<',
+                    'le'   => '<=',
+                    'gt'   => '>',
+                    'ge'   => '>=',
+                    'ne'   => '<>',
+                    );
+
+
 my %SELECT_MAP;
 
 sub subs_set_dispatch_map
@@ -513,8 +531,38 @@ sub sub_select
     {
     $f = uc $f;
     boom "invalid FILTER FIELD [$f]"  unless $f =~ /^[A-Z_0-9\.]+$/o;
-    push @where, "^$f = ?";
-    push @bind, $v;
+    
+    my $vref = ref( $v );
+    if( $vref eq 'HASH' )
+      {
+      my $op  = uc $v->{ 'OP'    };
+      my $val =    $v->{ 'VALUE' };
+      boom "invalid OPERATOR [$op]" unless exists $SELECT_WHERE_OPERATORS{ $op };
+      my $op = $SELECT_WHERE_OPERATORS{ $op };
+
+      push @where, ".$f $op ?";
+      push @bind,  $val;
+      }
+    elsif( $vref eq 'ARRAY' )  
+      {
+      # i.e. IN
+      my $vc = @$v;
+      my @inph = ( '?' ) x $vc; # IN place holders
+      my $inph = join ',', @inph;
+
+      push @where, ".$f IN ( $inph )";
+      push @bind,  @$v;
+      }
+    elsif( $vref eq '' )  
+      {
+      push @where, ".$f = ?";
+      push @bind,  $v;
+      }
+    else
+      {
+      boom "invalid FILTER VALUE [$v]";
+      }  
+    
     # TODO: more complex filter rules
     }
   my $where = join ' AND ', @where;

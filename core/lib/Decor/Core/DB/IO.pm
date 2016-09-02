@@ -271,13 +271,13 @@ sub __resolve_single_field
    my $table  = shift;
    my $field  = uc shift; # userid.info.des.asd.qwe
 
-print Dumper( "__where_resolve_field = [$field]" );
+#print Dumper( "__where_resolve_field = [$field]" );
 
    $field = substr( $field, 1 ); # skips leading anchor (.)
 
    my ( $resolved_alias, $resolved_table, $resolved_field ) = $self->__select_resolve_field( $table, $field );
 
-print Dumper( \@_, "$resolved_alias.$resolved_field" );
+#print Dumper( \@_, "$resolved_alias.$resolved_field" );
 
 
    return "$resolved_alias.$resolved_field";
