@@ -2,6 +2,6 @@
 
 =_ID
 
-  type int 32
+  type INT 32
   primary_key
 

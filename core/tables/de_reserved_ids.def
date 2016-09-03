@@ -1,0 +1,23 @@
+
+  label Reserved IDs
+  
+=USR
+
+  type  LINK  DE_USERS
+
+=SESS
+  
+  type  LINK  DE_SESSIONS
+
+=RESERVED_ID
+
+  type  INT 32
+  
+=CTIME
+    
+  type  UTIME
+
+=ACTIVE
+
+  type  bool
+

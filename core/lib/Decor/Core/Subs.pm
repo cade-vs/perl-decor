@@ -51,6 +51,7 @@ my %DISPATCH_MAP = (
                                    'SELECT'   => \&sub_select,
                                    'FETCH'    => \&sub_fetch,
                                    'FINISH'   => \&sub_finish,
+                                   'NEXTID'   => \&sub_get_next_id,
                                    'INSERT'   => \&sub_insert,
                                    'UPDATE'   => \&sub_update,
                                    'DELETE'   => \&sub_delete,
@@ -70,6 +71,7 @@ my %MAP_SHORTCUTS = (
                     'H'   => 'FINISH',
                     'I'   => 'INSERT',
                     'M'   => 'MENU',
+                    'N'   => 'NEXTID',
                     'P'   => 'PREPARE',
                     'R'   => 'ROLLBACK',
                     'S'   => 'SELECT',
@@ -569,6 +571,7 @@ sub sub_select
   
   my $select_handle = create_random_id( 64 );
   my $dbio = $SELECT_MAP{ $select_handle } = new Decor::Core::DB::IO;
+  $dbio->taint_mode_enable_all();
   
   my $res = $dbio->select( $table, $fields, $where, { BIND => \@bind, LIMIT => $limit, OFFSET => $offset } );
   
@@ -617,11 +620,58 @@ sub sub_finish
 
 #--- INSERT/UPDATE/DELETE ----------------------------------------------------
 
+sub sub_get_next_id
+{
+  my $mi = shift;
+  my $mo = shift;
+
+  my $table  = uc $mi->{ 'TABLE'  };
+
+  boom "invalid TABLE name [$table]"    unless de_check_name( $table );
+  my $new_id = get_next_table_id( $table );
+  
+  my $user = subs_get_current_user();
+  my $sess = subs_get_current_session();
+  
+  my $user_id = $user->id();
+  my $sess_id = $sess->id();
+  
+  my $rec = new Decor::Core::DB::Record;
+  
+  $rec->create( 'DE_RESERVED_IDS' );
+  $rec->write(
+               'USR'         => $user_id,
+               'SESS'        => $sess_id,
+               'RESERVED_ID' => $new_id,
+               'CTIME'       => time(),
+               'ACTIVE'      => 1,
+             );
+  $rec->save();
+  
+  $mo->{ 'RESERVED_ID' } = $new_id;
+  $mo->{ 'XS' } = 'OK';
+}
+
 sub sub_insert
 {
   my $mi = shift;
   my $mo = shift;
-  
+
+  my $table  = uc $mi->{ 'TABLE'  };
+  my $data   =    $mi->{ 'DATA'   };
+  my $id     =    $mi->{ 'ID'     };
+  my $offset =    $mi->{ 'OFFSET' };
+  my $filter =    $mi->{ 'FILTER' } || {};
+
+  boom "invalid TABLE name [$table]"    unless de_check_name( $table );
+  boom "invalid DATA [$filter]"         unless ref( $data ) eq 'HASH';
+  boom "invalid ID [$id]"               unless de_check_id( $id );
+
+  if( $id > 0 )
+    {
+    # TODO: check reserved IDs
+    }
+
 };
 
 
@@ -637,6 +687,8 @@ sub sub_delete
 {
   my $mi = shift;
   my $mo = shift;
+
+
   
 };
 
@@ -646,7 +698,10 @@ sub sub_commit
 {
   my $mi = shift;
   my $mo = shift;
-  
+
+  dsn_commit();
+
+  $mo->{ 'XS' } = 'OK';
 };
 
 
@@ -655,6 +710,9 @@ sub sub_rollback
   my $mi = shift;
   my $mo = shift;
   
+  dsn_rollback();
+
+  $mo->{ 'XS' } = 'OK';
 };
 
 
