@@ -574,6 +574,8 @@ sub sub_select
   boom "invalid LIMIT [$limit]"         unless $limit =~ /^[0-9]*$/o;
   boom "invalid OFFSET [$offset]"       unless $offset =~ /^[0-9]*$/o;
   boom "invalid FILTER [$filter]"       unless ref( $filter ) eq 'HASH';
+
+  # TODO: check TABLE READ ACCESS
  
   my ( $where, $bind ) = __filter_to_where( $filter );
   my $where_clause = join ' AND ', @$where;
@@ -675,6 +677,8 @@ sub sub_insert
   boom "invalid DATA [$data]"           unless ref( $data ) eq 'HASH';
   boom "invalid ID [$id]"               unless de_check_id( $id );
 
+  # TODO: check TABLE INSERT ACCESS
+
   if( $id > 0 )
     {
     # TODO: check reserved IDs
@@ -730,6 +734,8 @@ sub sub_update
   boom "invalid ID [$id]"               unless de_check_id( $id );
   boom "invalid FILTER [$filter]"       unless ref( $filter ) eq 'HASH';
 
+  # TODO: check TABLE UPDATE ACCESS
+
   my $rec = new Decor::Core::DB::Record;
   $rec->taint_mode_enable_all();
 
@@ -738,6 +744,8 @@ sub sub_update
 
   boom "E_ACCESS: unable to load requested record TABLE [$table] ID [$id]" 
       unless $rec->select_first1( $table, $where_clause, { BIND => $bind, $lock } );
+
+  # TODO: check RECORD UPDATE ACCESS
 
   $rec->write( %$data );
   # TODO: call triggers here
