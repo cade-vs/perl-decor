@@ -602,6 +602,17 @@ sub finish
   1;
 }
 
+sub select_first1
+{
+  my $self = shift;
+
+  $self->select( @_ );
+  my $res = $self->next();
+  $self->finish();
+
+  return defined $res ? $res : undef;
+}
+
 #-----------------------------------------------------------------------------
 
 sub commit

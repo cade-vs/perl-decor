@@ -670,6 +670,14 @@ sub sub_insert
   if( $id > 0 )
     {
     # TODO: check reserved IDs
+    my $user = subs_get_current_user();
+    my $sess = subs_get_current_session();
+  
+    my $user_id = $user->id();
+    my $sess_id = $sess->id();
+    
+    my $rec = new Decor::Core::DB::Record;
+    $rec->select();
     }
 
 };
