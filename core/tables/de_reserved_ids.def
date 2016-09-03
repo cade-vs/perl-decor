@@ -9,11 +9,19 @@
   
   type  LINK  DE_SESSIONS
 
+=RESERVED_TABLE
+
+  type  CHAR  128
+
 =RESERVED_ID
 
   type  INT 32
   
 =CTIME
+    
+  type  UTIME
+
+=ETIME
     
   type  UTIME
 

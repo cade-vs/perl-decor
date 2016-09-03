@@ -510,22 +510,9 @@ sub sub_menu
 
 #--- SELECT/FETCH/FINISH -----------------------------------------------------
 
-sub sub_select
+sub __folter_to_where
 {
-  my $mi = shift;
-  my $mo = shift;
-
-  my $table  = uc $mi->{ 'TABLE'  };
-  my $fields = uc $mi->{ 'FIELDS' };
-  my $limit  =    $mi->{ 'LIMIT'  };
-  my $offset =    $mi->{ 'OFFSET' };
-  my $filter =    $mi->{ 'FILTER' } || {};
-
-  boom "invalid TABLE name [$table]"    unless de_check_name( $table );
-  boom "invalid FIELDS list [$fields]"  unless $fields =~ /^([A-Z_0-9\.\,]+|\*)$/o;
-  boom "invalid LIMIT [$limit]"         unless $limit =~ /^[0-9]*$/o;
-  boom "invalid OFFSET [$offset]"       unless $offset =~ /^[0-9]*$/o;
-  boom "invalid FILTER [$filter]"       unless ref( $filter ) eq 'HASH';
+  my $filter = shift;
   
   my @where;
   my @bind;
@@ -567,13 +554,35 @@ sub sub_select
     
     # TODO: more complex filter rules
     }
-  my $where = join ' AND ', @where;
+  
+  return ( \@where, \@bind );
+}
+
+sub sub_select
+{
+  my $mi = shift;
+  my $mo = shift;
+
+  my $table  = uc $mi->{ 'TABLE'  };
+  my $fields = uc $mi->{ 'FIELDS' };
+  my $limit  =    $mi->{ 'LIMIT'  };
+  my $offset =    $mi->{ 'OFFSET' };
+  my $filter =    $mi->{ 'FILTER' } || {};
+
+  boom "invalid TABLE name [$table]"    unless de_check_name( $table );
+  boom "invalid FIELDS list [$fields]"  unless $fields =~ /^([A-Z_0-9\.\,]+|\*)$/o;
+  boom "invalid LIMIT [$limit]"         unless $limit =~ /^[0-9]*$/o;
+  boom "invalid OFFSET [$offset]"       unless $offset =~ /^[0-9]*$/o;
+  boom "invalid FILTER [$filter]"       unless ref( $filter ) eq 'HASH';
+ 
+  my ( $where, $bind ) = __filter_to_where( $filter );
+  my $where_clause = join ' AND ', @$where;
   
   my $select_handle = create_random_id( 64 );
   my $dbio = $SELECT_MAP{ $select_handle } = new Decor::Core::DB::IO;
   $dbio->taint_mode_enable_all();
   
-  my $res = $dbio->select( $table, $fields, $where, { BIND => \@bind, LIMIT => $limit, OFFSET => $offset } );
+  my $res = $dbio->select( $table, $fields, $where_clause, { BIND => \@bind, LIMIT => $limit, OFFSET => $offset } );
   
   $mo->{ 'SELECT_HANDLE' } = $select_handle;
   $mo->{ 'XS'            } = 'OK';
@@ -640,11 +649,12 @@ sub sub_get_next_id
   
   $rec->create( 'DE_RESERVED_IDS' );
   $rec->write(
-               'USR'         => $user_id,
-               'SESS'        => $sess_id,
-               'RESERVED_ID' => $new_id,
-               'CTIME'       => time(),
-               'ACTIVE'      => 1,
+               'USR'            => $user_id,
+               'SESS'           => $sess_id,
+               'RESERVED_TABLE' => $table,
+               'RESERVED_ID'    => $new_id,
+               'CTIME'          => time(),
+               'ACTIVE'         => 1,
              );
   $rec->save();
   
@@ -660,11 +670,9 @@ sub sub_insert
   my $table  = uc $mi->{ 'TABLE'  };
   my $data   =    $mi->{ 'DATA'   };
   my $id     =    $mi->{ 'ID'     };
-  my $offset =    $mi->{ 'OFFSET' };
-  my $filter =    $mi->{ 'FILTER' } || {};
 
   boom "invalid TABLE name [$table]"    unless de_check_name( $table );
-  boom "invalid DATA [$filter]"         unless ref( $data ) eq 'HASH';
+  boom "invalid DATA [$data]"           unless ref( $data ) eq 'HASH';
   boom "invalid ID [$id]"               unless de_check_id( $id );
 
   if( $id > 0 )
@@ -676,10 +684,33 @@ sub sub_insert
     my $user_id = $user->id();
     my $sess_id = $sess->id();
     
-    my $rec = new Decor::Core::DB::Record;
-    $rec->select();
+    my $res_rec = new Decor::Core::DB::Record;
+    
+    boom "E_ACCESS: invalid RESERVED_ID [$id] for table [$table] user [$user_id] session [$sess_id]" 
+        unless $res_rec->select_first1( 'DE_RESERVED_IDS', 'USR = ? AND SESS = ? AND RESERVED_TABLE = ? AND RESERVED_ID = ? AND ACTIVE = ?', { BIND => [ $user_id, $sess_id, $table, $id, 1 ] } );
+    
+    $res_rec->write(
+                    'ETIME'       => time(),
+                    'ACTIVE'      => 0,
+                   );
+    $res_rec->save();
     }
+  else
+    {
+    my $dbio = new Decor::Core::DB::IO;
+    $id = $dbio->get_next_table_id( $table );
+    }  
 
+  my $rec = new Decor::Core::DB::Record;
+  $rec->taint_mode_enable_all();
+
+  $rec->create( $table, $id );
+  $rec->write( %$data );
+  # TODO: call triggers here
+  $rec->save();
+
+  $mo->{ 'NEW_ID' } = $rec->id();
+  $mo->{ 'XS' } = 'OK';
 };
 
 
@@ -688,6 +719,31 @@ sub sub_update
   my $mi = shift;
   my $mo = shift;
   
+  my $table  = uc $mi->{ 'TABLE'  };
+  my $data   =    $mi->{ 'DATA'   };
+  my $id     =    $mi->{ 'ID'     };
+  my $lock   =    $mi->{ 'LOCK'   } ? 1 : 0;
+  my $filter =    $mi->{ 'FILTER' } || {};
+
+  boom "invalid TABLE name [$table]"    unless de_check_name( $table );
+  boom "invalid DATA [$data]"           unless ref( $data ) eq 'HASH';
+  boom "invalid ID [$id]"               unless de_check_id( $id );
+  boom "invalid FILTER [$filter]"       unless ref( $filter ) eq 'HASH';
+
+  my $rec = new Decor::Core::DB::Record;
+  $rec->taint_mode_enable_all();
+
+  my ( $where, $bind ) = __filter_to_where( $id > 0 ? { 'ID' => $id } : $filter );
+  my $where_clause = join ' AND ', @$where;
+
+  boom "E_ACCESS: unable to load requested record TABLE [$table] ID [$id]" 
+      unless $rec->select_first1( $table, $where_clause, { BIND => $bind, $lock } );
+
+  $rec->write( %$data );
+  # TODO: call triggers here
+  $rec->save();
+
+  $mo->{ 'XS' } = 'OK';
 };
 
 
@@ -696,7 +752,7 @@ sub sub_delete
   my $mi = shift;
   my $mo = shift;
 
-
+  boom "sub_delete is not yet implemented";
   
 };
 

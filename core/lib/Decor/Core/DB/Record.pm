@@ -126,14 +126,16 @@ sub create
   my $self  = shift;
   
   my $table = uc shift;
+  my $id    =    shift;
 
   boom "invalid TABLE name [$table]" unless des_exists( $table );
+  boom "invalid ID [$id]"            unless de_check_id( $id );
 
   $self->check_if_locked_to( $table );
 
   $self->reset();
 
-  my $new_id = $self->__create_empty_data( $table );
+  my $new_id = $self->__create_empty_data( $table, $id );
 
   $self->{ 'BASE_TABLE' } = $table;
   $self->{ 'BASE_ID'    } = $new_id;
@@ -426,6 +428,7 @@ sub __resolve_field
       {
       return () unless $write_resolve;
       # __create_empty_data() will check for INSERT access
+      # FIXME: TODO: check if ID already given inside the link field
       $next_id = $self->__create_empty_data( $linked_table );
 
       my $profile = $self->__get_profile();
