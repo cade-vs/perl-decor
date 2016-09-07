@@ -7,16 +7,18 @@
 ##  LICENSE: GPLv2
 ##
 ##############################################################################
-package Decor::Shared::Net::Protocols;
+package Decor::Shared::Net::Client;
 use strict;
 use Exporter;
 use Exception::Sink;
 
 use Hash::Util qw( lock_ref_keys );
+use IO::Socket::INET;
 use Data::Tools;
 use Exception::Sink;
 
 use Decor::Shared::Utils;
+use Decor::Shared::Net::Protocols;
 
 sub new
 {
@@ -131,8 +133,8 @@ sub tx_msg
   
   my $ptype = 'p'; # FIXME: config?
   
-  my $mi_res = de_net_protocol_write_message( $sock, $ptype, $mo );
-  if( $mo_res == 0 )
+  my $mi_res = de_net_protocol_write_message( $socket, $ptype, $mi );
+  if( $mi_res == 0 )
     {
     $self->disconnect();
     return undef;
@@ -162,10 +164,10 @@ sub begin_user_pass
 
   my $mop = $self->tx_msg( { 'XT' => 'P', 'USER' => $user } ) or return undef;
 
-  my $user_salt  = $mo->{ 'USER_SALT'  };
-  my $login_salt = $mo->{ 'LOGIN_SALT' };
+  my $user_salt  = $mop->{ 'USER_SALT'  };
+  my $login_salt = $mop->{ 'LOGIN_SALT' };
 
-  my $mi = { XT => 'BEGIN', USER => $user, , REMOTE => $remote };
+  my %mi;
 
   $mi{ 'XT'     } = 'B';
   $mi{ 'USER'   } = $user;

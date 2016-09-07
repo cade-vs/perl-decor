@@ -119,7 +119,7 @@ sub subs_reset_dispatch_map
 sub subs_process_xt_message
 {
   my $mi = shift;
-  my $mo = xshift;
+  my $mo = shift;
   
   my $xt = uc $mi->{ 'XT' };
 
@@ -588,7 +588,7 @@ sub sub_select
   my $dbio = $SELECT_MAP{ $select_handle } = new Decor::Core::DB::IO;
   $dbio->taint_mode_enable_all();
   
-  my $res = $dbio->select( $table, $fields, $where_clause, { BIND => \@bind, LIMIT => $limit, OFFSET => $offset } );
+  my $res = $dbio->select( $table, $fields, $where_clause, { BIND => $bind, LIMIT => $limit, OFFSET => $offset } );
   
   $mo->{ 'SELECT_HANDLE' } = $select_handle;
   $mo->{ 'XS'            } = 'OK';

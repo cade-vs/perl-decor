@@ -95,7 +95,7 @@ die 'de_reload_config: is not implemented';
 
 sub de_obj_add_debug_info
 {
-  return unless de_log_debug();
+  # FIXME: return unless DEBUG
   my $obj = shift;
 
   my ( $pack, $file, $line, $subname ) = caller( 1 );

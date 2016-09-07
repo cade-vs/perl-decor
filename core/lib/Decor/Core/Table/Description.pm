@@ -16,8 +16,8 @@ use Data::Dumper;
 use Exception::Sink;
 use Data::Tools;
 
+use Decor::Shared::Utils;
 use Decor::Core::Log;
-use Decor::Core::Utils;
 use Decor::Core::Config;
 
 ##############################################################################

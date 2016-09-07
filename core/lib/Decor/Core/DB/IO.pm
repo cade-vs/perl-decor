@@ -15,12 +15,11 @@ use Exception::Sink;
 use Data::Lock qw( dlock );
 use Data::Dumper;
 
+use Decor::Shared::Utils;
 use Decor::Core::Env;
 use Decor::Core::DSN;
-use Decor::Core::Utils;
 use Decor::Core::Describe;
 use Decor::Core::Log;
-use Decor::Core::Utils;
 
 ##############################################################################
 

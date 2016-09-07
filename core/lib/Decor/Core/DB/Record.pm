@@ -13,9 +13,9 @@ use strict;
 use parent 'Decor::Core::DB';
 use Exception::Sink;
 
+use Decor::Shared::Utils;
 use Decor::Core::DSN;
 use Decor::Core::Describe;
-use Decor::Core::Utils;
 use Decor::Core::DB::IO;
 
 ##############################################################################
@@ -129,7 +129,7 @@ sub create
   my $id    =    shift;
 
   boom "invalid TABLE name [$table]" unless des_exists( $table );
-  boom "invalid ID [$id]"            unless de_check_id( $id );
+  boom "invalid ID [$id]"            unless $id eq '' or de_check_id( $id );
 
   $self->check_if_locked_to( $table );
 
