@@ -11,7 +11,7 @@ label My funny table
 
 #grant update; admin ; monitor + users + !root
 
-#grant read ; 900
+grant read to 999
 
 #grant read insert update to 900, 100+10, 11+!20
 
