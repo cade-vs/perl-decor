@@ -24,6 +24,12 @@ $client->connect( $host ) or die "cannot connect";
 
 $client->begin_user_pass( 'test', 'test123', 'local' ) or die "cannot begin with user pass";
 
+my $ss = $client->select( 'test1', '*' );
+print "ss: $ss\n";
+while( my $hr = $client->fetch( $ss ) )
+  {
+  print Dumper( $hr );
+  }
 
 
 

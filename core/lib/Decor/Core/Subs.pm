@@ -583,9 +583,12 @@ sub sub_select
  
   my ( $where, $bind ) = __filter_to_where( $filter );
   my $where_clause = join ' AND ', @$where;
+
+  my $profile = subs_get_current_profile();
   
   my $select_handle = create_random_id( 64 );
   my $dbio = $SELECT_MAP{ $select_handle } = new Decor::Core::DB::IO;
+  $dbio->set_profile_locked( $profile );
   $dbio->taint_mode_enable_all();
   
   my $res = $dbio->select( $table, $fields, $where_clause, { BIND => $bind, LIMIT => $limit, OFFSET => $offset } );
