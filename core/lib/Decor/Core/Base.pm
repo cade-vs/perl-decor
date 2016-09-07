@@ -12,9 +12,9 @@ use strict;
 
 use Hash::Util qw( lock_ref_keys );
 use Data::Tools;
-
-use Decor::Core::Utils;
 use Exception::Sink;
+
+use Decor::Shared::Utils;
 
 sub new
 {

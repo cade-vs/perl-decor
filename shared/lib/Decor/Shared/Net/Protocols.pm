@@ -175,4 +175,5 @@ sub protocol_type_json_unpack
   return JSON::decode_json( shift );
 }
 
+##############################################################################
 1;

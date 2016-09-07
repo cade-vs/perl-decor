@@ -28,8 +28,8 @@ use Data::Dumper;
 use Data::Tools 1.09;
 use Exception::Sink;
 
+use Decor::Shared::Utils;
 use Decor::Core::Env;
-use Decor::Core::Utils;
 use Decor::Core::Log;
 
 

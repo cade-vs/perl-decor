@@ -13,8 +13,9 @@ use strict;
 use Data::Lock qw( dlock dunlock );
 
 use Exception::Sink;
+
+use Decor::Shared::Utils;
 use Decor::Core::Env;
-use Decor::Core::Utils;
 
 use Exporter;
 our @ISA    = qw( Exporter );

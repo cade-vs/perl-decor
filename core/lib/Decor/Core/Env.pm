@@ -37,8 +37,8 @@ use Data::Dumper;
 use Exception::Sink;
 use Data::Tools 1.09;
 
+use Decor::Shared::Utils;
 use Decor::Core::Config;
-use Decor::Core::Utils;
 
 ### PRIVATE ##################################################################
 

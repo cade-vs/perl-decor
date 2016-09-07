@@ -45,8 +45,8 @@ sub on_process_xt_message
 
 sub on_process
 {
-  my $self = shift;
-  my $sock = shift;
+  my $self   = shift;
+  my $socket = shift;
 
   # TODO: re/init app name and root
   de_log_debug( "client connected, starting main loop..." );
@@ -60,7 +60,7 @@ sub on_process
     server_idle_begin();
     
     my $ptype;
-    ( $mi, $ptype ) = de_net_protocol_read_message( $sock );
+    ( $mi, $ptype ) = de_net_protocol_read_message( $socket );
     
     $mo = {};
     $mc++;
@@ -129,7 +129,7 @@ sub on_process
     de_log_debug( "debug: XTYPE [$xt] XSTATUS [$xs] DBI::errstr [$DBI::errstr]" );
 
     de_log_dumper( "MO" x 16, $mo );
-    my $mo_res = de_net_protocol_write_message( $sock, $ptype, $mo );
+    my $mo_res = de_net_protocol_write_message( $socket, $ptype, $mo );
 
     if( $mo_res == 0 )
       {

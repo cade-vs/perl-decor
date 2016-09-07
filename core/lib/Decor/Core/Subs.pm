@@ -11,10 +11,10 @@ package Decor::Core::Subs;
 use strict;
 use Exception::Sink;
 use Data::Tools;
+use Decor::Shared::Utils;
 use Decor::Core::Log;
 use Decor::Core::DB::Record;
 use Decor::Core::Subs::Env;
-use Decor::Core::Utils;
 use Decor::Core::Profile;
 use Decor::Core::Describe;
 use Decor::Core::Menu;
@@ -28,6 +28,8 @@ our @EXPORT = qw(
                 subs_process_xt_message
 
                 );
+
+# TODO: op triggers
 
 ##############################################################################
 
@@ -117,7 +119,7 @@ sub subs_reset_dispatch_map
 sub subs_process_xt_message
 {
   my $mi = shift;
-  my $mo = shift;
+  my $mo = xshift;
   
   my $xt = uc $mi->{ 'XT' };
 
@@ -510,7 +512,7 @@ sub sub_menu
 
 #--- SELECT/FETCH/FINISH -----------------------------------------------------
 
-sub __folter_to_where
+sub __filter_to_where
 {
   my $filter = shift;
   
@@ -568,10 +570,12 @@ sub sub_select
   my $limit  =    $mi->{ 'LIMIT'  };
   my $offset =    $mi->{ 'OFFSET' };
   my $filter =    $mi->{ 'FILTER' } || {};
+  # TODO: groupby, orderby
 
+  # FIXME: TODO: Subs/MessageCheck TABLE ID FIELDS LIMIT OFFSET FILTER validate_hash()
   boom "invalid TABLE name [$table]"    unless de_check_name( $table );
   boom "invalid FIELDS list [$fields]"  unless $fields =~ /^([A-Z_0-9\.\,]+|\*)$/o;
-  boom "invalid LIMIT [$limit]"         unless $limit =~ /^[0-9]*$/o;
+  boom "invalid LIMIT [$limit]"         unless $limit  =~ /^[0-9]*$/o;
   boom "invalid OFFSET [$offset]"       unless $offset =~ /^[0-9]*$/o;
   boom "invalid FILTER [$filter]"       unless ref( $filter ) eq 'HASH';
 

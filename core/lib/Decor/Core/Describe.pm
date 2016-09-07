@@ -16,8 +16,8 @@ use Data::Tools 1.09;
 use Tie::IxHash;
 use Data::Lock qw( dlock dunlock );
 
+use Decor::Shared::Utils;
 use Decor::Core::Env;
-use Decor::Core::Utils;
 use Decor::Core::Log;
 #use Decor::Core::Config;
 use Decor::Core::Table::Description;

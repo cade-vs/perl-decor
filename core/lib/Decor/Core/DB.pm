@@ -15,7 +15,7 @@ use Exception::Sink;
 use Data::Lock qw( dlock );
 use Hash::Util qw( lock_ref_keys );
 
-use Decor::Core::Utils;
+use Decor::Shared::Utils;
 
 my %TAINT_MODES = (
                   ROWS   => 1,
