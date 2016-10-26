@@ -21,11 +21,14 @@ use Exporter;
 our @ISA    = qw( Exporter );
 our @EXPORT = qw( 
 
+                de_code_reset_map
+
                 de_code_file_find
                 de_code_get_map
 
                 );
 
+# TODO: preload_all_code() ? 
 
 my %CODE_CACHE;
 
@@ -75,6 +78,8 @@ sub de_code_get_map
   my $ctype = lc shift;
   my $name  = lc shift;
   
+  return $CODE_CACHE{ 'CODE_MAPS' }{ $ctype }{ $name } if exists $CODE_CACHE{ 'CODE_MAPS' }{ $ctype }{ $name };
+  
   my $file = de_code_file_find( $ctype, $name );
   return undef unless $file;
 
@@ -95,14 +100,34 @@ sub de_code_get_map
   
   while( my ( $k, $v ) = each %{ $main::{ 'decor::' }{ $ctype . '::' }{ $name . '::' } } )
     {
-    print "$k $v\n";
+    #print "$k $v\n";
     next unless $k =~ /^on_/;
     my $code = \&{ "decor::${ctype}::${name}::$k" };
+    $k = uc $k;
+    boom "duplicate TRIGGER [$k] found in code type [$ctype] name [$name] file [$file]" if exists $map{ $k };
     $map{ $k } = $code;
     }
 
   dlock \%map;
+  $CODE_CACHE{ 'CODE_MAPS' }{ $ctype }{ $name } = \%map;
   return \%map;
+}
+
+sub de_code_reset_map
+{
+  my $ctype = lc shift;
+  my $name  = lc shift;
+
+  if( $ctype eq '*' )
+    {
+    delete $CODE_CACHE{ 'CODE_MAPS' };
+    return 1;
+    }
+  
+  delete $CODE_CACHE{ 'CODE_MAPS' }{ $ctype }{ $name } if $ctype and $name;
+  delete $CODE_CACHE{ 'CODE_MAPS' }{ $ctype }          if $ctype;
+  
+  return 1;
 }
 
 ### EOF ######################################################################

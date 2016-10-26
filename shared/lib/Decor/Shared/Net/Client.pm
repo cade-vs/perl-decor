@@ -28,8 +28,11 @@ sub new
   my %args = @_;
   
   my $self = {
+             %args # FIXME: check and/or filter
              };
   bless $self, $class;
+
+  $self->{ 'TIMEOUT' } = 60 if $self->{ 'TIMEOUT' } < 1;
   
   de_obj_add_debug_info( $self );
   $self->__init();
@@ -129,11 +132,12 @@ sub tx_msg
 
   $self->check_connected();
 
-  my $socket = $self->{ 'SOCKET' };
+  my $socket  = $self->{ 'SOCKET'  };
+  my $timeout = $self->{ 'TIMEOUT' };
   
   my $ptype = 'p'; # FIXME: config?
   
-  my $mi_res = de_net_protocol_write_message( $socket, $ptype, $mi );
+  my $mi_res = de_net_protocol_write_message( $socket, $ptype, $mi, $timeout );
   if( $mi_res == 0 )
     {
     $self->disconnect();
@@ -141,7 +145,7 @@ sub tx_msg
     }
 
   my $mo;
-  ( $mo, $ptype ) = de_net_protocol_read_message( $socket );
+  ( $mo, $ptype ) = de_net_protocol_read_message( $socket, $timeout );
   if( ! $mo or ref( $mo ) ne 'HASH' )
     {
     $self->disconnect();

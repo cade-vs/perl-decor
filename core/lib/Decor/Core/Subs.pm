@@ -616,7 +616,8 @@ sub sub_fetch
     }
   else
     {
-    $mo->{ 'XS'   } = 'EOD'; # end of data
+    $mo->{ 'EOD'  } = 'YES'; # end of data
+    $mo->{ 'XS'   } = 'OK';
     }  
 };
 
