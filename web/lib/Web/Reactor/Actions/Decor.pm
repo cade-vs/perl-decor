@@ -98,7 +98,7 @@ sub __find_act_pkg
     $act_cache->{ $name } = $ap;
     return $ap;
     }
-  elsif( $@ =~ /Can't locate $file/)
+  elsif( $@ =~ /Can't locate $found/)
     {
     print STDERR "NOT FOUND: action: $ap [$found]\n";
     }

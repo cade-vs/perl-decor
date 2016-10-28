@@ -43,17 +43,23 @@ sub new
 
   my $lang = lc $env{ 'LANG' };
 
-  my $action_sets = ref( $env{ 'ACTION_SETS' } ) eq 'ARRAY' ? $env{ 'ACTION_SETS' } : [];
-
   my %cfg = (
             'DEBUG'          => 0,
             'APP_NAME'       => $APP_NAME,
             'APP_ROOT'       => $APP_ROOT,
             'LIB_DIRS'       => [ "$APP_ROOT/lib", "$ROOT/shared/lib" ],
             'HTML_DIRS'      => $lang ?
-                                    [ "$APP_ROOT/html/$lang/", "$ROOT/html/$lang/", "$APP_ROOT/html/default/", "$ROOT/html/default/" ]
-                                    :
-                                    [ "$APP_ROOT/html/default/", "$ROOT/html/default/" ],
+                                    [ 
+                                      "$APP_ROOT/web/html/$lang/", 
+                                      "$ROOT/web/html/$lang/", 
+                                      "$APP_ROOT/web/html/default/", 
+                                      "$ROOT/web/html/default/" 
+                                    ]
+                                :
+                                    [ 
+                                      "$APP_ROOT/web/html/default/", 
+                                      "$ROOT/web/html/default/" 
+                                    ],
             'ACTIONS_DIRS'   => [ "$APP_ROOT/actions", "$ROOT/actions" ],
             'REO_ACTS_CLASS' => 'Web::Reactor::Actions::Decor',
             'TRANS_DIRS'     => [ "$ROOT/trans", "$APP_ROOT/trans" ],
@@ -106,7 +112,7 @@ sub de_login
 
   $self->log( "debug: about to connect and login to host [$de_core_host] application [$de_core_app]" );
 
-  if( ! $client->connect( $host ) )
+  if( ! $client->connect( $de_core_host ) )
     {
     $self->log( "error: connect FAILED to host [$de_core_host] application [$de_core_app]:\n" . Dumper( $client ) );
     return;
@@ -149,7 +155,7 @@ sub de_connect
   my $user_shr = $self->get_user_session();
   my $http_env = $self->get_http_env();
 
-  $de_core_session_id = $user_shr->{ 'DECOR_CORE_SESSION_ID'     };
+  my $de_core_session_id = $user_shr->{ 'DECOR_CORE_SESSION_ID'     };
 
   boom "missing DECOR_CORE_SESSION_ID" unless $de_core_session_id;
 
@@ -157,7 +163,7 @@ sub de_connect
 
   $self->log( "debug: about to connect and use session to host [$de_core_host] application [$de_core_app]" );
 
-  if( ! $client->connect( $host ) )
+  if( ! $client->connect( $de_core_host ) )
     {
     $self->log( "error: connect FAILED to host [$de_core_host] application [$de_core_app]:\n" . Dumper( $client ) );
     return;
