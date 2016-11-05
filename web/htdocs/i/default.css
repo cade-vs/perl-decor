@@ -1,0 +1,57 @@
+/*** DECOR SYSTEM DEFAULT CSS ***********************************************/
+
+/*** main/body **************************************************************/
+
+BODY    {
+        font-family: sans-serif, helvetica;
+        margin: 0px 0px 0px 0px;
+        font-style: normal;
+        font-size: 10pt;
+        color: #AAA;
+        background-color: #333;
+        }
+
+/*** for_screen/for_print ***************************************************/
+
+div#div_for_screen
+        {
+        width:  100%;
+        height: 100%;
+        }
+
+table.main
+        {
+        width:  100%;
+        height: 100%;
+        }
+
+tr.main_body
+        {
+        width:  100%;
+        height: 100%;
+        vertical-align: top;
+        }
+
+td.main_footer
+        {
+        width:  100%;
+        height: 100%;
+        vertical-align: top;
+        background-color: #444;
+        padding: 4px;
+        }
+
+@media screen
+        {
+        div#div_for_screen { display: block; }
+        div#div_for_print  { display: none;  }
+        }
+
+@media print 
+        { 
+        div#div_for_screen { display: none;  }
+        div#div_for_print  { display: block; }
+        }
+
+
+/*** DECOR EOF **************************************************************/

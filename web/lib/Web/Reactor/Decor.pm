@@ -60,7 +60,7 @@ sub new
                                       "$APP_ROOT/web/html/default/", 
                                       "$ROOT/web/html/default/" 
                                     ],
-            'ACTIONS_DIRS'   => [ "$APP_ROOT/actions", "$ROOT/actions" ],
+            'ACTIONS_DIRS'   => [ "$APP_ROOT/web/actions", "$ROOT/web/actions" ],
             'REO_ACTS_CLASS' => 'Web::Reactor::Actions::Decor',
             'TRANS_DIRS'     => [ "$ROOT/trans", "$APP_ROOT/trans" ],
             'SESS_VAR_DIR'   => "$ROOT/var/$APP_NAME/sess/",
