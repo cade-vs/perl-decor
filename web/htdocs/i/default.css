@@ -11,6 +11,11 @@ BODY    {
         background-color: #333;
         }
 
+/*** globals ****************************************************************/
+
+a       { color: #A00; }
+a:hover { color: #F00; }
+
 /*** for_screen/for_print ***************************************************/
 
 div#div_for_screen

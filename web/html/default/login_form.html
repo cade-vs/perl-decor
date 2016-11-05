@@ -1,0 +1,23 @@
+<form action=login.pl method=post>
+<$FORM_INPUT_SESSION_KEEPER>
+    <input TYPE=hidden NAME=page VALUE=login>
+
+    <table class=view cellspacing=1 cellpadding=4 width=40%>
+      <tr>
+          <td colspan=2 align=center class=view-header><~Enter your username and password></td>
+      </tr>
+      <tr>
+        <td class=view-name ><~Username></td>
+        <td class=view-value><input TYPE=text     NAME=user style='width: 100%' AUTOCOMPLETE='off'></td>
+      </tr>
+      <tr>
+        <td class=view-name ><~Password></td>
+        <td class=view-value><input TYPE=password NAME=pass style='width: 100%' AUTOCOMPLETE='off'></td>
+      </tr>
+      <tr>
+        <td class=view-name >&nbsp;</td>
+        <td class=view-value><input TYPE=submit class=button name=button:login Value='   [~Login]   '></td>
+      </tr>
+    </table>
+      
+</form>

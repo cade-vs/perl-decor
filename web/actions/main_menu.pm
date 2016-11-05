@@ -3,10 +3,13 @@ use strict;
 
 sub main
 {
+  my $reo = shift;
+  
+  return "<#menu_outside>" unless $reo->is_logged_in();
+
   
   
-  
-  return "hellou! " . rand();
+  return "MAIN MENU" . rand();
 }
 
 1;
