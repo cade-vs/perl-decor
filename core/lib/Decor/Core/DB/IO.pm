@@ -80,6 +80,8 @@ sub select
   my $where  = shift;
   my $opts   = shift; 
 
+  boom "BIND opt must be ARRAY ref" if $opts->{ 'BIND' } and ref( $opts->{ 'BIND' } ) ne 'ARRAY';
+
   $self->__reshape( $table );
 
   $self->finish();

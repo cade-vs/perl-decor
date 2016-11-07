@@ -92,11 +92,12 @@ sub on_process
     eval
       {
       $xt_handler_res = $self->on_process_xt_message( $mi, $mo );
-    de_log_dumper( "MO RES " x 16, "$mo", $mo );
+      de_log_dumper( "MO RES " x 16, "$mo", $mo );
       };
     if( $@ or ! $xt_handler_res )
       {
       de_log( "error: XTYPE handler returned error [$xt_handler_res] or exception [$@]" );
+      $mo->{ 'XS' } = $@;
       eval { dsn_rollback(); }; # FIXME: eval/break-main-loop
       if( $@ )
         {
@@ -118,7 +119,12 @@ sub on_process
     
     my $xs = $mo->{ 'XS' };
     
-    if ( $xs !~ /^(OK|E_[A-Z_]+)$/ )
+    if ( $xs =~ /^(OK|E_[A-Z_]+)(:\s*(.*?))?$/ )
+      {
+      $mo->{ 'XS'     } = uc $1;
+      $mo->{ 'XS_MSG' } =    $3;
+      }
+    else  
       {
       de_log( "error: invalid or empty XTYPE STATUS (XS) [$xs], ignoring message" );
       # TODO: rollback?

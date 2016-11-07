@@ -126,12 +126,12 @@ sub de_login
     my $user_shr = $self->get_user_session();
     $user_shr->{ 'DECOR_CORE_SESSION_ID'   } = $de_core_session_id;
     $self->log( "status: login OK as user [$user] remote [$remote] core session [$de_core_session_id]" );
-    return $client;
+    return ( $client );
     }
   else
     {
     $self->log( "error: login FAILED as user [$user] remote [$remote]:\n" . Dumper( $client ) );
-    return undef;
+    return ( undef, $client->status() );
     }  
 }
 

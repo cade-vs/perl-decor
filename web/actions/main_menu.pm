@@ -9,7 +9,7 @@ sub main
 
   
   
-  return "MAIN MENU" . rand();
+  return "MAIN MENU" . rand() . return "<#menu_inside_debug>";
 }
 
 1;

@@ -298,7 +298,7 @@ sub __sub_begin_with_user_pass
       }  
     if( time() - $ss_time > 5 )
       {
-      boom "E_SESSION: cannot create session for user [$user] hit existing timeout";
+      die "E_SESSION: cannot create session for user [$user] hit existing timeout";
       }
     }
 
@@ -346,7 +346,7 @@ sub __sub_find_user
 {
   my $user_name = shift;
 
-  boom "E_LOGIN: Invalid user login name [$user_name]" unless de_check_user_login_name(  $user_name );
+  die "E_LOGIN: Invalid user login name [$user_name]" unless de_check_user_login_name(  $user_name );
 
   my $user_rec = new Decor::Core::DB::Record;
 
@@ -356,7 +356,7 @@ sub __sub_find_user
     $user_rec->finish();
     return $user_rec;
     }
-  boom "E_LOGIN: User not found [$user_name]";
+  die "E_LOGIN: User not found [$user_name]";
   return undef; # never reached
 };
 
@@ -368,13 +368,13 @@ sub __sub_find_and_check_user_pass
 
   my $user_rec = __sub_find_user( $user );
   
-  boom "E_LOGIN: User not active [$user]"         unless $user_rec->read( 'ACTIVE' );
-  boom "E_LOGIN: Invalid user [$user] password"   unless de_check_user_pass_digest( $pass );
+  die "E_LOGIN: User not active [$user]"         unless $user_rec->read( 'ACTIVE' );
+  die "E_LOGIN: Invalid user [$user] password"   unless de_check_user_pass_digest( $pass );
   
   my $user_pass = $user_rec->read( 'PASS' );
   # TODO: use configurable digests
   my $user_pass_hex = de_password_salt_hash( $user_pass, $salt ); 
-  boom "E_LOGIN: Wrong user [$user] password"   unless $pass eq $user_pass_hex;
+  die "E_LOGIN: Wrong user [$user] password"   unless $pass eq $user_pass_hex;
   return $user_rec;
 };
 
@@ -394,7 +394,7 @@ sub __sub_find_session
     $session_rec->finish();
     return $session_rec;
     }
-  boom "E_SESSION: Session not found [$session_sid] from remote [$remote]";
+  die "E_SESSION: Session not found [$session_sid] from remote [$remote]";
   return undef; # never reached
 };
 

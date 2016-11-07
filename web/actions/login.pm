@@ -20,12 +20,21 @@ sub main
   my $user = $ui->{ 'USER' };
   my $pass = $ui->{ 'PASS' };
   
-  my $res = $reo->de_login( $user, $pass );
+  my ( $client, $status ) = $reo->de_login( $user, $pass );
 
+#  print STDERR Dumper( $reo );
+#  return "login res: client [$client] status [$status] ";
 
-  print STDERR Dumper( $reo );
-  return "login res: [$res]";
-  
+  if( $client )
+    {
+    $reo->login();                                                                                                              
+    $reo->forward_new( ACTION => 'home' );
+    }
+  else
+    {
+    $reo->html_content_set( 'login-error' => "<#$status>" );
+    return "<#login_form>";
+    }  
   
 }
 

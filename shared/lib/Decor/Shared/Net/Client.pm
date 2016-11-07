@@ -64,6 +64,13 @@ sub DESTROY
 
 ##############################################################################
 
+sub status
+{
+  my $self = shift;
+  
+  return $self->{ 'STATUS'  };
+}
+
 sub is_connected
 {
   my $self = shift;
@@ -135,6 +142,8 @@ sub tx_msg
   my $socket  = $self->{ 'SOCKET'  };
   my $timeout = $self->{ 'TIMEOUT' };
   
+  $self->{ 'STATUS'  } = 'E_MSG';
+  
   my $ptype = 'p'; # FIXME: config?
   
   my $mi_res = de_net_protocol_write_message( $socket, $ptype, $mi, $timeout );
@@ -151,6 +160,8 @@ sub tx_msg
     $self->disconnect();
     return undef;
     }
+
+  $self->{ 'STATUS'  } = $mo->{ 'XS' };
   
   return $mo;
 }
