@@ -329,6 +329,7 @@ sub __sub_begin_with_session_continue
     $session_rec->save();
     
     __sub_reset_state();
+    die "E_SESSION_EXPIRED: user session expired";
     return 1;
     }
 

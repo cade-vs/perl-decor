@@ -16,6 +16,17 @@ BODY    {
 a       { color: #A00; }
 a:hover { color: #F00; }
 
+h1      { margin: 2 2 2 2; }
+
+div.error-text
+        {
+        width:  80%;
+        background-color: #522;
+        border: solid 1px #633;
+        text-align: center;
+        padding: 5px;
+        }
+
 /*** for_screen/for_print ***************************************************/
 
 div#div_for_screen
@@ -43,6 +54,7 @@ td.main_footer
         height: 100%;
         vertical-align: top;
         background-color: #444;
+        border-top: solid 2px #777;
         padding: 4px;
         }
 
@@ -58,5 +70,71 @@ td.main_footer
         div#div_for_print  { display: block; }
         }
 
+/*** logo head table ********************************************************/
+
+table.logo 
+        {
+        color: #CCC;
+        background-color: #446;
+        border-bottom: solid 2px #66A;
+        vertical-align: middle;
+        padding: 4px;
+        }
+
+a.logo
+        {
+        color: #CCC;
+        text-decoration: none;
+        }
+
+/*** main menu **************************************************************/
+
+table.main-menu
+        {
+        color: #CCC;
+        background-color: #224;
+        border-bottom: solid 2px #66A;
+        vertical-align: middle;
+        font-weight: bold;
+        }
+
+td.main-menu
+        {
+        width:  1%;
+        border-right: solid 2px #777;
+        padding: 4px;
+        white-space: nowrap;
+        padding-left: 10px;
+        padding-right: 10px;
+        }
+
+td.main-menu-fill
+        {
+        width:  100%;
+        border-right: solid 2px #777;
+        padding: 4px;
+        padding-left: 10px;
+        padding-right: 10px;
+        text-align: right;
+        }
+
+a.main-menu
+        {
+        display: block;
+        color: #CCC;
+        width:  100%;
+        padding: 4px;
+        text-decoration: none;
+        }
+
+a.main-menu:hover
+        {
+        color: #FFF;
+        }
+
+td.main-menu:hover
+        {
+        background-color: #335;
+        }
 
 /*** DECOR EOF **************************************************************/

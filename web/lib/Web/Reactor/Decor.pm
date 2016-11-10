@@ -115,7 +115,7 @@ sub de_login
   if( ! $client->connect( $de_core_host ) )
     {
     $self->log( "error: connect FAILED to host [$de_core_host] application [$de_core_app]:\n" . Dumper( $client ) );
-    return;
+    return ( undef, 'E_CONNECT' );
     }
   
   my $remote = $http_env->{ 'REMOTE_ADDR' };
@@ -182,9 +182,11 @@ sub de_connect
     }
   else
     {
+    my $status = $client->status();
+    $self->logout();
     delete $self->{ 'DECOR_CLIENT_OBJECT' };
     $self->log( "error: connect FAILED with session [$de_core_session_id] remote [$remote]:\n" . Dumper( $client ) );
-    $self->render( PAGE => 'error', 'error-des' => "<#E_SESSION>" );
+    $self->render( PAGE => 'error', 'main_action' => "<#$status>" );
     return undef;
     }  
 }
