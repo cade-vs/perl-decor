@@ -28,7 +28,8 @@ sub main
     my $link;
     if( $type eq 'SUBMENU' )
       {
-      $link = "<a class=main-menu reactor_new_href=?action=menu&menu=$key>$label</a>";
+      my $submenu_name = $item->{ 'SUBMENU_NAME'  };
+      $link = "<a class=main-menu reactor_new_href=?action=menu&menu=$submenu_name>$label</a>";
       }
     elsif( $type eq 'GRID' )
       {

@@ -256,8 +256,8 @@ sub menu
   my $self = shift;
   my $name = shift; # menu name
 
-  return $self->{ 'CACHE' }{ 'MENU' }
-      if $self->{ 'CACHE' }{ 'MENU' };
+  return $self->{ 'CACHE' }{ 'MENU' }{ $name }
+      if $self->{ 'CACHE' }{ 'MENU' }{ $name };
 
 
   my %mi;
@@ -267,7 +267,7 @@ sub menu
 
   my $mo = $self->tx_msg( \%mi ) or return undef;
 
-  $self->{ 'CACHE' }{ 'MENU' } = $mo->{ 'MENU' };
+  $self->{ 'CACHE' }{ 'MENU' }{ $name } = $mo->{ 'MENU' };
 
   return $mo->{ 'MENU' };
 }

@@ -48,6 +48,11 @@ tr.main_body
         vertical-align: top;
         }
 
+td.main_body
+        {
+        text-align: center;
+        }
+
 td.main_footer
         {
         width:  100%;
@@ -101,7 +106,7 @@ table.main-menu
 td.main-menu
         {
         width:  1%;
-        border-right: solid 2px #777;
+        border-right: solid 1px #777;
         padding: 4px;
         white-space: nowrap;
         padding-left: 10px;
@@ -111,7 +116,7 @@ td.main-menu
 td.main-menu-fill
         {
         width:  100%;
-        border-right: solid 2px #777;
+        border-right: solid 1px #777;
         padding: 4px;
         padding-left: 10px;
         padding-right: 10px;
@@ -133,6 +138,50 @@ a.main-menu:hover
         }
 
 td.main-menu:hover
+        {
+        background-color: #335;
+        }
+
+/*** menu *******************************************************************/
+
+table.menu
+        {
+margin-top: 20px;
+        color: #CCC;
+        background-color: #224;
+        border-top: solid 1px #66A;
+        vertical-align: middle;
+        font-weight: bold;
+        width: 80%;
+        }
+
+td.menu
+        {
+        width:  1%;
+        border-bottom: solid 1px #777;
+        border-left: solid 1px #66A;
+        border-right: solid 1px #66A;
+        padding: 4px;
+        white-space: nowrap;
+        padding-left: 10px;
+        padding-right: 10px;
+        }
+
+a.menu
+        {
+        display: block;
+        color: #CCC;
+        width:  100%;
+        padding: 4px;
+        text-decoration: none;
+        }
+
+a.menu:hover
+        {
+        color: #FFF;
+        }
+
+td.menu:hover
         {
         background-color: #335;
         }
