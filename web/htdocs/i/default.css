@@ -107,19 +107,15 @@ td.main-menu
         {
         width:  1%;
         border-right: solid 1px #777;
-        padding: 4px;
+        padding: 0;
         white-space: nowrap;
-        padding-left: 10px;
-        padding-right: 10px;
         }
 
 td.main-menu-fill
         {
         width:  100%;
         border-right: solid 1px #777;
-        padding: 4px;
-        padding-left: 10px;
-        padding-right: 10px;
+        padding: 0;
         text-align: right;
         }
 
@@ -128,7 +124,10 @@ a.main-menu
         display: block;
         color: #CCC;
         width:  100%;
+        margin: 0 0 0 0;
         padding: 4px;
+        padding-left: 20px;
+        padding-right: 20px;
         text-decoration: none;
         }
 
@@ -184,6 +183,89 @@ a.menu:hover
 td.menu:hover
         {
         background-color: #335;
+        }
+
+/*** view *******************************************************************/
+
+table.view
+        {
+        color: #CCC;
+        width:  80%;
+        border-collapse: collapse;
+        border: solid 1px #555;
+        }
+
+td.view-header
+        {
+        background-color: #242;
+        border: solid 1px #464;
+        border-bottom: solid 2px #66A;
+        font-weight: bold;
+        }
+
+td.view-name
+        {
+        background-color: #444;
+        border-bottom: solid 1px #555;
+        text-align: right;
+        }
+
+td.view-value
+        {
+        background-color: #444;
+        text-align: left;
+        padding: 4px;
+        }
+
+/*** form inputs ************************************************************/
+
+input
+        {
+        background-color: #777;
+        padding: 4px;
+        border: solid 1px #999;
+        margin: 0 0 0 0;
+        border-left:   solid 1px #CCC;
+        border-bottom: solid 1px #CCC;
+        }
+
+input:hover
+        {
+        border: solid 1px #FFF;
+        }
+
+input:focus
+        {
+        border: solid 1px #FFF;
+        }
+
+input.button
+        {
+        cursor: pointer;
+        font-weight: bold;
+        color: #000;
+        background-color: #AAA;
+        padding-top:     2px;
+        padding-left:   12px;
+        padding-bottom:  3px;
+        padding-right:  13px;
+        margin: 0 0 0 0;
+        border-top:    solid 1px #FFF;
+        border-left:   solid 1px #FFF;
+        border-bottom: solid 1px #777;
+        border-right:  solid 1px #777;
+        }
+
+input.button:hover
+        {
+        padding-top:     3px;
+        padding-left:   13px;
+        padding-bottom:  2px;
+        padding-right:  12px;
+        border-top:    solid 1px #777;
+        border-left:   solid 1px #777;
+        border-bottom: solid 1px #FFF;
+        border-right:  solid 1px #FFF;
         }
 
 /*** DECOR EOF **************************************************************/
