@@ -102,6 +102,7 @@ my %SELECT_WHERE_OPERATORS = (
 
 
 my %SELECT_MAP;
+my $SELECT_MAP_COUNT;
 
 sub subs_set_dispatch_map
 {
@@ -164,6 +165,7 @@ sub __sub_reset_state
   subs_reset_dispatch_map();
   subs_reset_current_all();
   %SELECT_MAP = ();
+  $SELECT_MAP_COUNT = 0;
 }
 
 #--- LOGIN/LOGOUT ------------------------------------------------------------
@@ -600,7 +602,9 @@ sub sub_select
 
   my $profile = subs_get_current_profile();
   
-  my $select_handle = create_random_id( 64 );
+  my $select_handle;
+  # $select_handle = create_random_id( 64 ) while $SELECT_MAP{ $select_handle };
+  $select_handle = ++$SELECT_MAP_COUNT;
   my $dbio = $SELECT_MAP{ $select_handle } = new Decor::Core::DB::IO;
   $dbio->set_profile_locked( $profile );
   $dbio->taint_mode_enable_all();
