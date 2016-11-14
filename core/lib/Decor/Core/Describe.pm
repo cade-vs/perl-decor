@@ -330,6 +330,7 @@ sub __merge_table_des_hash
 {
   my $des   = shift;
   my $table = uc shift;
+  my $opt   = shift || {};
 
   boom "invalid TABLE name [$table]" unless de_check_name( $table );
 
@@ -345,7 +346,7 @@ sub __merge_table_des_hash
   for my $file ( @table_files )
     {
     $c++;
-    __merge_table_des_file( $des, $table, $file, {} );
+    __merge_table_des_file( $des, $table, $file, $opt );
     }
 
   return $c;
@@ -531,10 +532,11 @@ sub __load_table_description
   my $des = {};
   tie %$des, 'Tie::IxHash';
 
+  my $opt = {};
   my $rc;
-  $rc = __merge_table_des_hash( $des, '_DE_UNIVERSAL' );
+  $rc = __merge_table_des_hash( $des, '_DE_UNIVERSAL', $opt );
   # zero $rc for UNIVERSAL is ok
-  $rc = __merge_table_des_hash( $des, $table );
+  $rc = __merge_table_des_hash( $des, $table, $opt );
   return undef unless $rc > 0;
   __postprocess_table_des_hash( $des, $table );
 

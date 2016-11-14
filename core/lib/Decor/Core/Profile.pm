@@ -57,10 +57,12 @@ sub add_groups
     {
     de_check_id_boom( $group, "invalid group id, number expected [$group]" );
     $group = int( $group );
-    # TODO: remove or boom NOBODY group
+
+    # skip ROOT and NOBODY groups, the must never appear inside profile
+    next if $group == 1 or $group == 900 or $group == 901;
+    
     $self->{ 'GROUPS' }{ $group } = 1; # fixme: group classes/types
     }
-  # TODO: remove or boom NOBODY group
 }
 
 sub remove_groups
@@ -107,6 +109,29 @@ sub clear_groups
 
   $self->{ 'CACHE'  } = {};
   $self->{ 'GROUPS' } = {};
+}
+
+### ROOT MANAGEMENT ##########################################################
+
+sub enable_root_access
+{
+  my $self = shift;
+
+  $self->{ 'GROUPS' }{ 1 } = 1;
+}
+
+sub disable_root_access
+{
+  my $self = shift;
+
+  delete $self->{ 'GROUPS' }{ 1 };
+}
+
+sub has_root_access
+{
+  my $self = shift;
+
+  return exists $self->{ 'GROUPS' }{ 1 } ? 1 : 0;
 }
 
 ### USER DB LOAD DATA ########################################################
@@ -168,6 +193,8 @@ sub check_access
 {
   my $self = shift;
 
+  return 1 if $self->has_root_access();
+
   my $group = int( $_[0] );
   return 0 if $group == 0;
   
@@ -178,6 +205,8 @@ sub check_access_table
 {
   my $self = shift;
 
+  return 1 if $self->has_root_access();
+
   my $oper  = uc $_[0];
   my $table = uc $_[1];
 
@@ -187,6 +216,8 @@ sub check_access_table
 sub check_access_table_boom
 {
   my $self = shift;
+
+  return 1 if $self->has_root_access();
 
   my $oper  = uc $_[0];
   my $table = uc $_[1];
@@ -200,6 +231,8 @@ sub check_access_table_boom
 sub check_access_table_field
 {
   my $self = shift;
+
+  return 1 if $self->has_root_access();
 
   my $oper  = uc $_[0];
   my $table = uc $_[1];
@@ -241,6 +274,8 @@ sub check_access_table_field_boom
 {
   my $self = shift;
 
+  return 1 if $self->has_root_access();
+
   my $oper  = uc $_[0];
   my $table = uc $_[1];
   my $field = uc $_[2];
@@ -254,6 +289,8 @@ sub check_access_table_field_boom
 sub check_access_row
 {
   my $self = shift;
+
+  return 1 if $self->has_root_access();
 
   my $oper  = uc $_[0];
   my $table = uc $_[1];
@@ -277,6 +314,8 @@ sub check_access_row
 sub check_access_row_boom
 {
   my $self = shift;
+
+  return 1 if $self->has_root_access();
 
   my $oper  = uc $_[0];
   my $table = uc $_[1];

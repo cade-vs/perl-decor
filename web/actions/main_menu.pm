@@ -19,8 +19,8 @@ sub main
     {
     next if $key eq '@';
     my $item = $menu->{ $key };
-    next unless $item->{ 'GRANT' }{ 'ACCESS' };
-    next if     $item->{ 'DENY'  }{ 'ACCESS' };
+    next unless $item->{ 'GRANT' }{ 'ACCESS' } or $item->{ 'GRANT' }{ 'ALL' };
+    next if     $item->{ 'DENY'  }{ 'ACCESS' } or $item->{ 'DENY'  }{ 'ALL' };
 
     my $label = $item->{ 'LABEL' } || $key;
     my $type  = $item->{ 'TYPE'  };
@@ -46,7 +46,7 @@ sub main
     }
   $text .= "<td class=main-menu-fill>&nbsp;</td><td class=main-menu><#main_menu_fill></td></tr></table>";
   
-  print STDERR Dumper( $menu );
+  print STDERR Dumper( '+++', $menu, $text );
   return $text;
   return "MAIN MENU" . rand() . return "<#menu_inside_debug><xmp>" . Dumper( $menu ) . "</xmp>";
 }

@@ -19,6 +19,7 @@ use Exception::Sink;
 
 use Decor::Shared::Utils;
 use Decor::Shared::Net::Protocols;
+use Decor::Shared::Net::Client::Table::Description;
 
 sub new
 {
@@ -247,6 +248,8 @@ sub describe
   my $mo = $self->tx_msg( \%mi ) or return undef;
 
   $self->{ 'CACHE' }{ 'DESCRIBE' }{ $table } = $mo->{ 'DES' };
+
+  bless $mo->{ 'DES' }, 'Decor::Shared::Net::Client::Table::Description';
 
   return $mo->{ 'DES' };
 }

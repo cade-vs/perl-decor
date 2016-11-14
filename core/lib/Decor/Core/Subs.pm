@@ -224,9 +224,12 @@ sub sub_begin
   my $profile = new Decor::Core::Profile;
   $profile->add_groups_from_user( $user );
   
-  # TODO: decide on group IDs
-  $profile->add_groups( 999 ); # all
+  # common groups setup
+  $profile->add_groups( 999 ); # all/everybody
   $profile->remove_groups( 900, 901 ); # nobody
+  
+  # enable root access if user is root (id==1)
+  $profile->enable_root_access() if $user->id() == 1;
 
   subs_lock_current_profile( $profile );
 
@@ -429,6 +432,13 @@ sub __replace_grant_deny
   my $profile = shift;
   my $hrn     = shift;
   my $hrd     = shift;
+
+  if( $profile->has_root_access() )
+    {
+    $hrn->{ 'GRANT' } = { ALL => 1 };
+    $hrn->{ 'DENY'  } = {};
+    return 1;
+    }
   
   for my $grant_deny ( qw( GRANT DENY ) )
     {
