@@ -12,7 +12,7 @@ use strict;
 use Exporter;
 use Exception::Sink;
 
-use Hash::Util qw( lock_ref_keys );
+use Hash::Util qw( lock_ref_keys unlock_ref_keys );
 use IO::Socket::INET;
 use Data::Tools;
 use Exception::Sink;
@@ -249,7 +249,10 @@ sub describe
 
   $self->{ 'CACHE' }{ 'DESCRIBE' }{ $table } = $mo->{ 'DES' };
 
+  $mo->{ 'DES' }{ 'CACHE' } = {};
   bless $mo->{ 'DES' }, 'Decor::Shared::Net::Client::Table::Description';
+  lock_ref_keys( $mo->{ 'DES' } );  
+  unlock_ref_keys( $mo->{ 'DES' }{ 'CACHE' } );
 
   return $mo->{ 'DES' };
 }

@@ -25,6 +25,15 @@ div.error-text
         border: solid 1px #633;
         text-align: center;
         padding: 5px;
+        margin-left: auto;
+        margin-right: auto;
+        }
+
+table
+        {
+        padding: 2px;
+        margin-left: auto;
+        margin-right: auto;
         }
 
 /*** for_screen/for_print ***************************************************/
@@ -145,7 +154,6 @@ td.main-menu:hover
 
 table.menu
         {
-margin-top: 20px;
         color: #CCC;
         background-color: #224;
         border-top: solid 1px #66A;
@@ -189,18 +197,19 @@ td.menu:hover
 
 table.view
         {
-        color: #CCC;
         width:  80%;
+        color: #CCC;
         border-collapse: collapse;
         border: solid 1px #555;
         }
 
 td.view-header
         {
-        background-color: #242;
-        border: solid 1px #464;
+        background-color: #232;
+        border: solid 1px #555;
         border-bottom: solid 2px #66A;
         font-weight: bold;
+        padding: 4px;
         }
 
 td.view-name
@@ -208,13 +217,74 @@ td.view-name
         background-color: #444;
         border-bottom: solid 1px #555;
         text-align: right;
+        width: 50%;
+        padding: 4px;
         }
 
 td.view-value
         {
         background-color: #444;
         text-align: left;
+        width: 50%;
         padding: 4px;
+        }
+
+/*** grid *******************************************************************/
+
+table.grid
+        {
+        width:  99%;
+        color: #CCC;
+        border-collapse: collapse;
+        border: solid 1px #555;
+        }
+
+td.grid-header
+        {
+        background-color: #223;
+        border: solid 1px #555;
+        border-bottom: solid 2px #66A;
+        font-weight: bold;
+        padding: 4px;
+        white-space: normal;
+        }
+
+td.grid-data
+        {
+        border-bottom: solid 1px #555;
+        padding: 4px;
+        white-space: nowrap;
+        border-right: solid 1px #555;
+        }
+
+tr.grid-header
+        {
+        background-color: #223;
+        }
+
+tr.grid-1
+        {
+        background-color: #444;
+        }
+
+tr.grid-2
+        {
+        background-color: #333;
+        }
+
+td.fmt-left
+        {
+        text-align: left;
+        }
+
+td.fmt-right
+        {
+        text-align: right;
+        }
+
+td.fmt-center
+        {
+        text-align: center;
         }
 
 /*** form inputs ************************************************************/

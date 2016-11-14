@@ -2,6 +2,16 @@ package decor::actions::grid;
 use strict;
 use Data::Dumper;
 
+my %FMT_CLASSES = (
+                  'CHAR'  => 'fmt-left',
+                  'DATE'  => 'fmt-left',
+                  'TIME'  => 'fmt-left',
+                  'UTIME' => 'fmt-left',
+
+                  'INT'   => 'fmt-right',
+                  'REAL'  => 'fmt-right',
+                  );
+
 sub main
 {
   my $reo = shift;
@@ -27,20 +37,28 @@ sub main
 
   my $text = "select core <xmp>" . Dumper( $select ) . "</xmp>";
   
-  $text .= "<table cellspacing=0 cellpadding=0 width=100% border=1>";
-  $text .= "<tr>";
+  $text .= "<table class=grid cellspacing=0 cellpadding=0>";
+  $text .= "<tr class=grid-header>";
   for my $f ( @fields )
     {
-    $text .= "<td class=view-head>$f</td>";
+    my $type_name = $des->{ 'FIELD' }{ $f }{ 'TYPE' }{ 'NAME' };
+    my $fmt_class = $FMT_CLASSES{ $type_name } || 'fmt-left';
+
+    $text .= "<td class='grid-header $fmt_class'>$f</td>";
     }
   $text .= "</tr>";
+  my $row_counter;
   while( my $row_data = $core->fetch( $select ) )
     {
-    $text .= "<tr>";
+    my $row_class = $row_counter++ % 2 ? 'grid-1' : 'grid-2';
+    $text .= "<tr class=$row_class>";
     for my $f ( @fields )
       {
+      my $type_name = $des->{ 'FIELD' }{ $f }{ 'TYPE' }{ 'NAME' };
+      my $fmt_class = $FMT_CLASSES{ $type_name } || 'fmt-left';
+      
       my $data = $row_data->{ $f };
-      $text .= "<td class=view-head>$data</td>";
+      $text .= "<td class='grid-data $fmt_class'>$data</td>";
       }
     $text .= "</tr>";
     }
