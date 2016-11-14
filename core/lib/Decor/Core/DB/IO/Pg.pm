@@ -51,5 +51,21 @@ sub get_next_sequence
     }
 }
 
+sub __select_limit_clause
+{
+  my $self   = shift;
+  my $limit  = shift;
+  
+  return "LIMIT $limit";
+}
+
+sub __select_offset_clause
+{
+  my $self   = shift;
+  my $offset = shift;
+  
+  return "OFFSET $offset";
+}
+
 ### EOF ######################################################################
 1;

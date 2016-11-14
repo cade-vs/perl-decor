@@ -576,18 +576,21 @@ sub sub_select
   my $mi = shift;
   my $mo = shift;
 
-  my $table  = uc $mi->{ 'TABLE'  };
-  my $fields = uc $mi->{ 'FIELDS' };
-  my $limit  =    $mi->{ 'LIMIT'  };
-  my $offset =    $mi->{ 'OFFSET' };
-  my $filter =    $mi->{ 'FILTER' } || {};
-  # TODO: groupby, orderby
+  my $table    = uc $mi->{ 'TABLE'  };
+  my $fields   = uc $mi->{ 'FIELDS' };
+  my $limit    =    $mi->{ 'LIMIT'  };
+  my $offset   =    $mi->{ 'OFFSET' };
+  my $filter   =    $mi->{ 'FILTER' } || {};
+  my $order_by = uc $mi->{ 'ORDER_BY' };
+  my $group_by = uc $mi->{ 'GROUP_BY' };
 
   # FIXME: TODO: Subs/MessageCheck TABLE ID FIELDS LIMIT OFFSET FILTER validate_hash()
   boom "invalid TABLE name [$table]"    unless de_check_name( $table );
-  boom "invalid FIELDS list [$fields]"  unless $fields =~ /^([A-Z_0-9\.\,]+|\*)$/o;
-  boom "invalid LIMIT [$limit]"         unless $limit  =~ /^[0-9]*$/o;
-  boom "invalid OFFSET [$offset]"       unless $offset =~ /^[0-9]*$/o;
+  boom "invalid FIELDS list [$fields]"  unless $fields   =~ /^([A-Z_0-9\.\,]+|\*)$/o;
+  boom "invalid ORDER BY [$order_by]"   unless $order_by =~ /^([A-Z_0-9\. ]*)$/o;
+  boom "invalid GROUP BY [$group_by]"   unless $group_by =~ /^([A-Z_0-9\. ]*)$/o;
+  boom "invalid LIMIT [$limit]"         unless $limit    =~ /^[0-9]*$/o;
+  boom "invalid OFFSET [$offset]"       unless $offset   =~ /^[0-9]*$/o;
   boom "invalid FILTER [$filter]"       unless ref( $filter ) eq 'HASH';
 
   # TODO: check TABLE READ ACCESS
@@ -602,7 +605,7 @@ sub sub_select
   $dbio->set_profile_locked( $profile );
   $dbio->taint_mode_enable_all();
   
-  my $res = $dbio->select( $table, $fields, $where_clause, { BIND => $bind, LIMIT => $limit, OFFSET => $offset } );
+  my $res = $dbio->select( $table, $fields, $where_clause, { BIND => $bind, LIMIT => $limit, OFFSET => $offset, ORDER_BY => $order_by, GROUP_BY => $group_by } );
   
   $mo->{ 'SELECT_HANDLE' } = $select_handle;
   $mo->{ 'XS'            } = 'OK';

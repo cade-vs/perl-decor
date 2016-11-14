@@ -51,5 +51,25 @@ sub get_next_sequence
   
 }
 
+# ORACLE 12c and later, ONLY! sorry that oracle has no native limit/offset before 12c...
+
+# FIXME: URGENT: NOT TESTED, no ORACLE 12c server access yet.
+
+sub __select_limit_clause
+{
+  my $self   = shift;
+  my $limit  = shift;
+  
+  return "FETCH FIRST $limit ROWS ONLY";
+}
+
+sub __select_offset_clause
+{
+  my $self   = shift;
+  my $offset = shift;
+  
+  return "OFFSET $offset ROWS";
+}
+
 ### EOF ######################################################################
 1;

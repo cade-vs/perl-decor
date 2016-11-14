@@ -285,21 +285,24 @@ sub select
   my $fields = uc shift;
   my $opt    = shift;
   
-  my $filter = $opt->{ 'FILTER' } || {};
-  my $limit  = $opt->{ 'LIMIT'  };
-  my $offset = $opt->{ 'OFFSET' };
-  my $lock   = $opt->{ 'LOCK'   };
-  # TODO: groupby, orderby
+  my $filter   = $opt->{ 'FILTER' } || {};
+  my $limit    = $opt->{ 'LIMIT'  };
+  my $offset   = $opt->{ 'OFFSET' };
+  my $lock     = $opt->{ 'LOCK'   };
+  my $order_by = $opt->{ 'ORDER_BY' };
+  my $group_by = $opt->{ 'GROUP_BY' };
 
   my %mi;
 
   $mi{ 'XT' } = 'S';
-  $mi{ 'TABLE'  } = $table;
-  $mi{ 'FIELDS' } = $fields;
-  $mi{ 'FILTER' } = $filter;
-  $mi{ 'LIMIT'  } = $limit;
-  $mi{ 'OFFSET' } = $offset;
-  $mi{ 'LOCK'   } = $lock;
+  $mi{ 'TABLE'    } = $table;
+  $mi{ 'FIELDS'   } = $fields;
+  $mi{ 'FILTER'   } = $filter;
+  $mi{ 'LIMIT'    } = $limit;
+  $mi{ 'OFFSET'   } = $offset;
+  $mi{ 'LOCK'     } = $lock;
+  $mi{ 'ORDER_BY' } = $order_by;
+  $mi{ 'GROUP_BY' } = $group_by;
 
   my $mo = $self->tx_msg( \%mi ) or return undef;
 

@@ -17,6 +17,35 @@ sub main
 
   my $text = "grid here $table <xmp>" . Dumper( $des->get_fields_list_by_oper( 'READ' ) ) . "</xmp>";
 
+  my $offset =  0;
+  my $limit  = 15;
+  
+  my @fields = @{ $des->get_fields_list_by_oper( 'READ' ) };
+  my $fields = join ',', @fields;
+  
+  my $select = $core->select( $table, $fields, { OFFSET => $offset, LIMIT => $limit, ORDER_BY => '_ID DESC' } );
+
+  my $text = "select core <xmp>" . Dumper( $select ) . "</xmp>";
+  
+  $text .= "<table cellspacing=0 cellpadding=0 width=100% border=1>";
+  $text .= "<tr>";
+  for my $f ( @fields )
+    {
+    $text .= "<td class=view-head>$f</td>";
+    }
+  $text .= "</tr>";
+  while( my $row_data = $core->fetch( $select ) )
+    {
+    $text .= "<tr>";
+    for my $f ( @fields )
+      {
+      my $data = $row_data->{ $f };
+      $text .= "<td class=view-head>$data</td>";
+      }
+    $text .= "</tr>";
+    }
+  $text .= "</table>";
+
 =pod
   $text .= "<table cellspacing=0 cellpadding=0 width=100%><tr><td align=center><table class=menu cellspacing=0 cellpadding=0 width=80%><tr>";
   for my $key ( keys %$menu )
