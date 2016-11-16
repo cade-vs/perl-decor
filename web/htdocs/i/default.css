@@ -26,7 +26,7 @@ a.button
         padding-left:   12px;
         padding-bottom:  3px;
         padding-right:  13px;
-        margin: 4px 4px 4px 4px;
+        margin: 2px 2px 2px 2px;
         border-top:    solid 1px #FFF;
         border-left:   solid 1px #FFF;
         border-bottom: solid 1px #777;
@@ -46,7 +46,48 @@ a.button:hover
         border-right:  solid 1px #FFF;
         }
 
-h1      { margin: 2 2 2 2; }
+img.icon
+        {
+        cursor: pointer;
+        font-weight: bold;
+        color: #000;
+        background-color: #223;
+        padding-top:     3px;
+        padding-left:    3px;
+        padding-bottom:  4px;
+        padding-right:   4px;
+        border-top:    solid 1px #445;
+        border-left:   solid 1px #445;
+        border-bottom: solid 1px #334;
+        border-right:  solid 1px #334;
+        text-decoration: none;
+        }
+
+img.icon:hover
+        {
+        cursor: pointer;
+        font-weight: bold;
+        color: #000;
+        background-color: #223;
+        padding-top:     4px;
+        padding-left:    4px;
+        padding-bottom:  3px;
+        padding-right:   3px;
+        border-top:    solid 1px #334;
+        border-left:   solid 1px #334;
+        border-bottom: solid 1px #445;
+        border-right:  solid 1px #445;
+        text-decoration: none;
+        }
+
+a.icon
+        {
+        margin: 1px 1px 1px 1px;
+        padding: 0;
+        text-decoration: none;
+        }
+
+h1      { margin: 2px 2px 2px 2px; }
 
 div.error-text
         {

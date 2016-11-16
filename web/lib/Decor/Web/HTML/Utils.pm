@@ -20,6 +20,7 @@ our @EXPORT = qw(
 
                 de_html_alink_block
                 de_html_alink_button
+                de_html_alink_icon
 
                 );
 
@@ -28,7 +29,7 @@ our @EXPORT = qw(
 sub __value_image_fix
 {
   my $value =    shift;
-  $value = "<img src=i/$value>" if $value =~ /^[a-z_0-9]+\.(png|jpg|jpeg|gif)$/i;
+  $value = "<img class=icon src=i/$value>" if $value =~ /^[a-z_0-9]+\.(png|jpg|jpeg|gif)$/i;
   return $value;
 }
 
@@ -56,6 +57,19 @@ sub de_html_alink_button
   $value = __value_image_fix( $value );
 
   return html_alink( $reo, $type, $value, { HINT => $hint, CLASS => 'button' }, @args );
+}
+
+sub de_html_alink_icon
+{
+  my $reo   =    shift;
+  my $type  = lc shift;
+  my $value =    shift;
+  my $hint  =    shift;
+  my @args  = @_;
+
+  $value = __value_image_fix( $value );
+
+  return html_alink( $reo, $type, $value, { HINT => $hint, CLASS => 'icon' }, @args );
 }
 
 ### EOF ######################################################################
