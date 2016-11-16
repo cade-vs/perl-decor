@@ -102,6 +102,7 @@ my %SELECT_WHERE_OPERATORS = (
 
 
 my %SELECT_MAP;
+my $SELECT_MAP_COUNTER;
 my $SELECT_MAP_COUNT;
 
 sub subs_set_dispatch_map
@@ -165,7 +166,8 @@ sub __sub_reset_state
   subs_reset_dispatch_map();
   subs_reset_current_all();
   %SELECT_MAP = ();
-  $SELECT_MAP_COUNT = 0;
+  $SELECT_MAP_COUNTER = 0;
+  $SELECT_MAP_COUNT   = 0;
 }
 
 #--- LOGIN/LOGOUT ------------------------------------------------------------
@@ -239,7 +241,11 @@ sub sub_begin
   if( time() - $atime > 60 )
     {
     # update access time but not less than a minute away
-    $sess->write( 'ATIME' => time() );
+    $sess->write( 
+                  'ATIME' => time(),
+                  'XTIME' => time() + 15*60, # FIXME: get from config!
+                );  
+    # TODO: use variable-length or fixed-length sessions
     }
 
   subs_set_dispatch_map( 'USER' );
@@ -604,7 +610,9 @@ sub sub_select
   
   my $select_handle;
   # $select_handle = create_random_id( 64 ) while $SELECT_MAP{ $select_handle };
-  $select_handle = ++$SELECT_MAP_COUNT;
+  $SELECT_MAP_COUNTER++;
+  $SELECT_MAP_COUNT++;
+  $select_handle = $SELECT_MAP_COUNTER;
   my $dbio = $SELECT_MAP{ $select_handle } = new Decor::Core::DB::IO;
   $dbio->set_profile_locked( $profile );
   $dbio->taint_mode_enable_all();
@@ -651,6 +659,12 @@ sub sub_finish
   
   $dbio->finish();
   delete $SELECT_MAP{ $select_handle };
+  $SELECT_MAP_COUNT--;
+  if( $SELECT_MAP_COUNT <= 0 )
+    {
+    $SELECT_MAP_COUNT   = 0;
+    $SELECT_MAP_COUNTER = 0;
+    }
   
   $mo->{ 'XS' } = 'OK';
 };

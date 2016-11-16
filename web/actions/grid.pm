@@ -1,5 +1,6 @@
 package decor::actions::grid;
 use strict;
+use Web::Reactor::HTML::Utils;
 use Data::Dumper;
 
 my %FMT_CLASSES = (
@@ -8,8 +9,8 @@ my %FMT_CLASSES = (
                   'TIME'  => 'fmt-left',
                   'UTIME' => 'fmt-left',
 
-                  'INT'   => 'fmt-right',
-                  'REAL'  => 'fmt-right',
+                  'INT'   => 'fmt-right fmt-mono',
+                  'REAL'  => 'fmt-right fmt-mono',
                   );
 
 sub main
@@ -18,40 +19,54 @@ sub main
 
   return unless $reo->is_logged_in();
   
-  my $table = $reo->param( 'TABLE' );
+  my $text;
+
+  my $table  = $reo->param( 'TABLE' );
+  my $offset = $reo->param( 'OFFSET' );
 
   my $core = $reo->de_connect();
   my $des  = $core->describe( $table );
 
   print STDERR Dumper( $des );
 
-  my $text = "grid here $table <xmp>" . Dumper( $des->get_fields_list_by_oper( 'READ' ) ) . "</xmp>";
-
-  my $offset =  0;
-  my $limit  = 15;
+  my $page_size  = 15;
+  $offset = 0 if $offset < 0;
   
   my @fields = @{ $des->get_fields_list_by_oper( 'READ' ) };
   my $fields = join ',', @fields;
   
-  my $select = $core->select( $table, $fields, { OFFSET => $offset, LIMIT => $limit, ORDER_BY => '_ID DESC' } );
+  my $select = $core->select( $table, $fields, { OFFSET => $offset, LIMIT => $page_size, ORDER_BY => '_ID DESC' } );
 
-  my $text = "select core <xmp>" . Dumper( $select ) . "</xmp>";
+  my $text .= "<br>";
   
   $text .= "<table class=grid cellspacing=0 cellpadding=0>";
   $text .= "<tr class=grid-header>";
+  $text .= "<td class='grid-header fmt-left'>Ctrl</td>";
+  
   for my $f ( @fields )
     {
     my $type_name = $des->{ 'FIELD' }{ $f }{ 'TYPE' }{ 'NAME' };
     my $fmt_class = $FMT_CLASSES{ $type_name } || 'fmt-left';
+    my $label     = $des->{ 'FIELD' }{ $f }{ 'LABEL' } || $f;
 
-    $text .= "<td class='grid-header $fmt_class'>$f</td>";
+    $text .= "<td class='grid-header $fmt_class'>$label</td>";
     }
   $text .= "</tr>";
   my $row_counter;
   while( my $row_data = $core->fetch( $select ) )
     {
+    my $id = $row_data->{ '_ID' };
+    
     my $row_class = $row_counter++ % 2 ? 'grid-1' : 'grid-2';
     $text .= "<tr class=$row_class>";
+    
+    my $vec_ctrl;
+    
+    $vec_ctrl .= html_alink( $reo, 'new', "<img src=i/view.png>", { HINT => 'View this record' }, ACTION => 'view', ID => $id, TABLE => $table );
+    $vec_ctrl .= html_alink( $reo, 'new', "<img src=i/edit.png>", { HINT => 'Edit this record' }, ACTION => 'edit', ID => $id, TABLE => $table );
+    $vec_ctrl .= html_alink( $reo, 'new', "<img src=i/copy.png>", { HINT => 'Copy this record' }, ACTION => 'edit', ID =>  -1, TABLE => $table, COPY_ID => $id );
+    
+    $text .= "<td class='grid-data fmt-ctrl'>$vec_ctrl</td>";
     for my $f ( @fields )
       {
       my $type_name = $des->{ 'FIELD' }{ $f }{ 'TYPE' }{ 'NAME' };
@@ -63,6 +78,10 @@ sub main
     $text .= "</tr>";
     }
   $text .= "</table>";
+
+  my $offset_prev = $offset - $page_size;
+  my $offset_next = $offset + $page_size;
+  $text .= "<a reactor_here_href=?offset=$offset_prev><img src=i/page-prev.png> previous page</a> | <a reactor_here_href=?offset=$offset_next>next page <img src=i/page-next.png> </a>";
 
 =pod
   $text .= "<table cellspacing=0 cellpadding=0 width=100%><tr><td align=center><table class=menu cellspacing=0 cellpadding=0 width=80%><tr>";

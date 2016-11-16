@@ -8,7 +8,7 @@ BODY    {
         font-style: normal;
         font-size: 10pt;
         color: #AAA;
-        background-color: #333;
+        background-color: #222;
         }
 
 /*** globals ****************************************************************/
@@ -68,7 +68,7 @@ td.main_footer
         height: 100%;
         vertical-align: top;
         background-color: #444;
-        border-top: solid 2px #777;
+        border-top: solid 1px #777;
         padding: 4px;
         }
 
@@ -90,7 +90,7 @@ table.logo
         {
         color: #CCC;
         background-color: #446;
-        border-bottom: solid 2px #66A;
+        border-bottom: solid 1px #66A;
         vertical-align: middle;
         padding: 4px;
         }
@@ -107,7 +107,7 @@ table.main-menu
         {
         color: #CCC;
         background-color: #224;
-        border-bottom: solid 2px #66A;
+        border-bottom: solid 1px #66A;
         vertical-align: middle;
         font-weight: bold;
         }
@@ -207,26 +207,30 @@ td.view-header
         {
         background-color: #232;
         border: solid 1px #555;
-        border-bottom: solid 2px #66A;
+        border-bottom: solid 1px #66A;
         font-weight: bold;
-        padding: 4px;
+        padding: 6px;
         }
 
-td.view-name
+td.view-field
         {
-        background-color: #444;
+        background-color: #333;
         border-bottom: solid 1px #555;
+        border-right: solid 1px #444;
         text-align: right;
         width: 50%;
         padding: 4px;
+        padding-right: 8px;
         }
 
 td.view-value
         {
-        background-color: #444;
+        background-color: #333;
+        border-bottom: solid 1px #555;
         text-align: left;
         width: 50%;
         padding: 4px;
+        padding-left: 8px;
         }
 
 /*** grid *******************************************************************/
@@ -251,7 +255,6 @@ td.grid-header
 
 td.grid-data
         {
-        border-bottom: solid 1px #555;
         padding: 4px;
         white-space: nowrap;
         border-right: solid 1px #555;
@@ -264,12 +267,24 @@ tr.grid-header
 
 tr.grid-1
         {
-        background-color: #444;
+        background-color: #353535;
+        border-bottom: solid 1px #555;
         }
 
 tr.grid-2
         {
-        background-color: #333;
+        background-color: #303030;
+        border-bottom: solid 1px #555;
+        }
+
+tr.grid-1:hover
+        {
+        border-bottom: solid 1px #888;
+        }
+
+tr.grid-2:hover
+        {
+        border-bottom: solid 1px #888;
         }
 
 td.fmt-left
@@ -286,6 +301,18 @@ td.fmt-center
         {
         text-align: center;
         }
+        
+td.fmt-mono
+        {
+        font-family: monospace;
+        }        
+
+td.fmt-ctrl
+        {
+        text-align: left;
+        background-color: #334;
+        width: 1%;
+        }        
 
 /*** form inputs ************************************************************/
 
@@ -336,6 +363,18 @@ input.button:hover
         border-left:   solid 1px #777;
         border-bottom: solid 1px #FFF;
         border-right:  solid 1px #FFF;
+        }
+
+/*** hover layer ************************************************************/
+
+div.hover-layer
+        {
+        display: none;
+        color: #000;
+        background-color: #990;
+        border: solid 1px #BB0;
+        padding: 4px;
+        opacity: 0.72;
         }
 
 /*** DECOR EOF **************************************************************/
