@@ -1,4 +1,4 @@
-package decor::actions::view;
+package decor::actions::edit;
 use strict;
 use Web::Reactor::HTML::Utils;
 use Decor::Web::HTML::Utils;
@@ -50,7 +50,6 @@ sub main
 
   $text .= "<br>";
   $text .= de_html_alink_button( $reo, 'back', "Back", "Return to previous screen" );
-  $text .= de_html_alink_button( $reo, 'new',  "Edit", "Edit this record", ACTION => 'edit', ID => $id, TABLE => $table );
 
   return $text;
 }

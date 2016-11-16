@@ -1,6 +1,7 @@
 package decor::actions::grid;
 use strict;
 use Web::Reactor::HTML::Utils;
+use Decor::Web::HTML::Utils;
 use Data::Dumper;
 
 my %FMT_CLASSES = (
@@ -62,9 +63,9 @@ sub main
     
     my $vec_ctrl;
     
-    $vec_ctrl .= html_alink( $reo, 'new', "<img src=i/view.png>", { HINT => 'View this record' }, ACTION => 'view', ID => $id, TABLE => $table );
-    $vec_ctrl .= html_alink( $reo, 'new', "<img src=i/edit.png>", { HINT => 'Edit this record' }, ACTION => 'edit', ID => $id, TABLE => $table );
-    $vec_ctrl .= html_alink( $reo, 'new', "<img src=i/copy.png>", { HINT => 'Copy this record' }, ACTION => 'edit', ID =>  -1, TABLE => $table, COPY_ID => $id );
+    $vec_ctrl .= de_html_alink_button( $reo, 'new', "view.png", 'View this record', ACTION => 'view', ID => $id, TABLE => $table );
+    $vec_ctrl .= de_html_alink_button( $reo, 'new', "edit.png", 'Edit this record', ACTION => 'edit', ID => $id, TABLE => $table );
+    $vec_ctrl .= de_html_alink_button( $reo, 'new', "copy.png", 'Copy this record', ACTION => 'edit', ID =>  -1, TABLE => $table, COPY_ID => $id );
     
     $text .= "<td class='grid-data fmt-ctrl'>$vec_ctrl</td>";
     for my $f ( @fields )

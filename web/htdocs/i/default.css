@@ -16,6 +16,36 @@ BODY    {
 a       { color: #A00; }
 a:hover { color: #F00; }
 
+a.button
+        {
+        cursor: pointer;
+        font-weight: bold;
+        color: #000;
+        background-color: #AAA;
+        padding-top:     2px;
+        padding-left:   12px;
+        padding-bottom:  3px;
+        padding-right:  13px;
+        margin: 4px 4px 4px 4px;
+        border-top:    solid 1px #FFF;
+        border-left:   solid 1px #FFF;
+        border-bottom: solid 1px #777;
+        border-right:  solid 1px #777;
+        text-decoration: none;
+        }
+
+a.button:hover
+        {
+        padding-top:     3px;
+        padding-left:   13px;
+        padding-bottom:  2px;
+        padding-right:  12px;
+        border-top:    solid 1px #777;
+        border-left:   solid 1px #777;
+        border-bottom: solid 1px #FFF;
+        border-right:  solid 1px #FFF;
+        }
+
 h1      { margin: 2 2 2 2; }
 
 div.error-text
@@ -346,7 +376,7 @@ input.button
         padding-left:   12px;
         padding-bottom:  3px;
         padding-right:  13px;
-        margin: 0 0 0 0;
+        margin: 2px 2px 2px 2px;
         border-top:    solid 1px #FFF;
         border-left:   solid 1px #FFF;
         border-bottom: solid 1px #777;
