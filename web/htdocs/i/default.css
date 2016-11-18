@@ -2,13 +2,20 @@
 
 /*** main/body **************************************************************/
 
-BODY    {
+html
+        {
+        height: 100%;
+        }
+
+body    
+        {
         font-family: sans-serif, helvetica;
         margin: 0px 0px 0px 0px;
         font-style: normal;
         font-size: 10pt;
         color: #AAA;
         background-color: #222;
+        height: 100%;
         }
 
 /*** globals ****************************************************************/
@@ -318,7 +325,7 @@ td.grid-header
         {
         background-color: #223;
         border: solid 1px #555;
-        border-bottom: solid 2px #66A;
+        border-bottom: solid 1px #66A;
         font-weight: bold;
         padding: 4px;
         white-space: normal;

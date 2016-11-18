@@ -403,6 +403,21 @@ sub delete
 
 #-----------------------------------------------------------------------------
 
+### helpers ##################################################################
+
+sub select_first1_by_id
+{
+  my $self   = shift;
+  my $table  = shift;
+  my $fields = shift;
+  my $id     = shift;
+
+  my $select   = $self->select( $table, $fields, { LIMIT => 1, FILTER => { '_ID' => $id } } ) or return undef;
+  my $row_data = $self->fetch( $select ) or return undef;
+                 $self->finish( $select );
+  
+  return $row_data;
+}
 
 ##############################################################################
 1;

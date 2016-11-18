@@ -244,7 +244,8 @@ sub sub_begin
     $sess->write( 
                   'ATIME' => time(),
                   'XTIME' => time() + 15*60, # FIXME: get from config!
-                );  
+                );
+    $sess->save();            
     # TODO: use variable-length or fixed-length sessions
     }
 
