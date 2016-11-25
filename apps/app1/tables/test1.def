@@ -65,6 +65,7 @@ grant update to 999; 100; 200+!2
 =DES
 
   type char 0
+  #opt   pass
 
 =AMOUNT1
 
@@ -89,6 +90,7 @@ grant update to 999; 100; 200+!2
 =REF
 
   type link test2 name
+  
   
   
 

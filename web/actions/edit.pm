@@ -1,8 +1,20 @@
+##############################################################################
+##
+##  Decor application machinery core
+##  2014-2016 (c) Vladi Belperchinov-Shabanski "Cade"
+##  <cade@bis.bg> <cade@biscom.net> <cade@cpan.org>
+##
+##  LICENSE: GPLv2
+##
+##############################################################################
 package decor::actions::edit;
 use strict;
-use Web::Reactor::HTML::Utils;
-use Decor::Web::HTML::Utils;
 use Data::Dumper;
+use Exception::Sink;
+
+use Decor::Shared::Types;
+use Decor::Web::HTML::Utils;
+use Web::Reactor::HTML::Utils;
 
 sub main
 {
@@ -25,14 +37,19 @@ sub main
   my $core = $reo->de_connect();
   my $tdes = $core->describe( $table );
 
-  my @fields = @{ $des->get_fields_list_by_oper( 'READ' ) };
-  my $fields = join ',', @fields;
+
+  my $edit_mode_insert;
+  my $fields_ar;
 
   if( ! $ps->{ 'INIT_DONE' } )
     {
     $ps->{ 'INIT_DONE' } = 1;
     if( $mode_insert )
       {
+      # insert
+      $edit_mode_insert = 1;
+
+      $fields_ar = $tdes->get_fields_list_by_oper( 'INSERT' );
       if( $copy_id )
         {
         # insert with copy
@@ -48,15 +65,29 @@ sub main
     else
       {
       # update
-      my $row_data = $core->select_first1_by_id( $table, $fields, $id );
+
+      $edit_mode_insert = 0;
+      $fields_ar = $tdes->get_fields_list_by_oper( 'UPDATE' );
+      my $row_data = $core->select_first1_by_id( $table, $fields_ar, $id );
       $ps->{ 'ROW_DATA' } = $row_data;
       }  
+    
+    $ps->{ 'FIELDS_WRITE_AR'  } = $fields_ar;
+    $ps->{ 'EDIT_MODE_INSERT' } = $edit_mode_insert;
     }
+  else
+    {
+    $fields_ar = @{ $ps->{ 'FIELDS_WRITE_AR' } };
+    $edit_mode_insert = $ps->{ 'EDIT_MODE_INSERT' };
+    }  
 
+  boom "FIELDS list empty" unless @$fields_ar;
+
+  my $fields = join ',', @$fields_ar;
   
 ###  my $select = $core->select( $table, $fields, { LIMIT => 1, FILTER => { '_ID' => $id } } );
 
-  my $text .= "<br>";
+  $text .= "<br>";
 
   my $edit_form = new Web::Reactor::HTML::Form( REO_REACTOR => $reo );
   my $edit_form_begin;
@@ -74,17 +105,46 @@ sub main
 ###  my $row_data = $core->fetch( $select );
 ###  my $row_id = $row_data->{ '_ID' };
     
-  for my $f ( @fields )
+  for my $f ( @$fields_ar )
     {
     my $fdes      = $tdes->{ 'FIELD' }{ $f };
+    my $type      = $fdes->{ 'TYPE'  };
     my $type_name = $fdes->{ 'TYPE'  }{ 'NAME' };
     my $label     = $fdes->{ 'LABEL' } || $f;
     
-    my $data = $ps->{ 'ROW_DATA' }{ $f };
+    my $field_data = $ps->{ 'ROW_DATA' }{ $f };
+    my $field_data_usr_format = type_format( $field_data, $type );
+
+    my $field_id = "F:$table:$f:" . $reo->html_new_id();
+
+    my $field_input;
+    my $input_tag_args;
+    my $field_disabled;
+    
+    if( $type_name eq 'CHAR' )
+      {
+      my $pass_type = 1 if $fdes->{ 'OPTIONS' }{ 'PWD' } or $f =~ /^PWD_/;
+      my $field_size = $type->{ 'LEN' };
+      my $field_maxlen = $field_size;
+      $field_size = 42 if $field_size > 42; # TODO: fixme
+      $field_input .= $edit_form->input( 
+                                       NAME     => "F:$f", 
+                                       ID       => $field_id, 
+                                       PASS     => $pass_type, 
+                                       VALUE    => $field_data_usr_format, 
+                                       SIZE     => $field_size, 
+                                       MAXLEN   => $field_maxlen, 
+                                       DISABLED => $field_disabled, 
+                                       ARGS     => $input_tag_args, 
+                                       );
+      }
+    elsif( $type_name eq 'INT' )
+      {
+      }
 
     $text .= "<tr class=view>";
     $text .= "<td class='view-field'>$label</td>";
-    $text .= "<td class='view-value' >$data</td>";
+    $text .= "<td class='view-value' >$field_input</td>";
     $text .= "</tr>";
     }
   $text .= "</table>";

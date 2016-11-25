@@ -285,7 +285,7 @@ sub select
   my $self = shift;
 
   my $table  = uc shift;
-  my $fields = uc shift;
+  my $fields = shift;
   my $opt    = shift;
   
   my $filter   = $opt->{ 'FILTER' } || {};
@@ -295,11 +295,14 @@ sub select
   my $order_by = $opt->{ 'ORDER_BY' };
   my $group_by = $opt->{ 'GROUP_BY' };
 
+  $fields = join( ',',      @$fields ) if ref( $fields ) eq 'ARRAY';
+  $fields = join( ',', keys %$fields ) if ref( $fields ) eq 'HASH';
+
   my %mi;
 
   $mi{ 'XT' } = 'S';
   $mi{ 'TABLE'    } = $table;
-  $mi{ 'FIELDS'   } = $fields;
+  $mi{ 'FIELDS'   } = uc $fields;
   $mi{ 'FILTER'   } = $filter;
   $mi{ 'LIMIT'    } = $limit;
   $mi{ 'OFFSET'   } = $offset;
