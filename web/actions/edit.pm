@@ -32,6 +32,8 @@ sub main
   
   return "<#access_denied>" if $id == 0;
 
+  my $si = $reo->get_safe_input();
+  my $ui = $reo->get_user_input();
   my $ps = $reo->get_page_session();
 
   my $core = $reo->de_connect();
@@ -77,13 +79,22 @@ sub main
     }
   else
     {
-    $fields_ar = @{ $ps->{ 'FIELDS_WRITE_AR' } };
+    $fields_ar = $ps->{ 'FIELDS_WRITE_AR' };
     $edit_mode_insert = $ps->{ 'EDIT_MODE_INSERT' };
     }  
 
   boom "FIELDS list empty" unless @$fields_ar;
 
   my $fields = join ',', @$fields_ar;
+
+  my %ui_si = ( %$ui, %$si ); # merge inputs, SAFE_INPUT has priority
+  # input data
+  for my $field ( @$fields_ar )
+    {
+    next unless exists $ui_si{ "F:$field" };
+    my $input_data = $ui_si{ "F:$field" };
+    $ps->{ 'ROW_DATA' }{ $field } = $input_data;
+    }
   
 ###  my $select = $core->select( $table, $fields, { LIMIT => 1, FILTER => { '_ID' => $id } } );
 
@@ -95,6 +106,8 @@ sub main
   $edit_form_begin .= $edit_form->input( NAME => "ACTION", RETURN => "edit", HIDDEN => 1 );
   my $form_id = $edit_form->get_id();
   $edit_form_begin .= "<p>";
+
+  $text .= $edit_form_begin;
   
   $text .= "<table class=view cellspacing=0 cellpadding=0>";
   $text .= "<tr class=view-header>";
@@ -142,14 +155,16 @@ sub main
       {
       }
 
-    $text .= "<tr class=view>";
-    $text .= "<td class='view-field'>$label</td>";
-    $text .= "<td class='view-value' >$field_input</td>";
-    $text .= "</tr>";
+    $text .= "<tr class=view>\n";
+    $text .= "<td class='view-field'>$label</td>\n";
+    $text .= "<td class='view-value' >$field_input</td>\n";
+    $text .= "</tr>\n";
     }
   $text .= "</table>";
 
   $text .= "<br>";
+  $text .= $edit_form->button( NAME => "REDIRECT:PREVIEW", VALUE => "[~Preview]" );
+  $text .= $edit_form->end();
   $text .= de_html_alink_button( $reo, 'back', "Back", "Return to previous screen" );
 
   return $text;
