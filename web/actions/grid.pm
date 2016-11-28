@@ -80,7 +80,6 @@ sub main
       
       if( $type_name eq 'CHAR' )
         {
-        #my $maxlen = $fdes->{ 'WEB.GRID.MAXLEN' } || $fdes->{ 'WEB.MAXLEN' };
         my $maxlen = $fdes->get_attr( qw( WEB GRID MAXLEN ) );
         if( $maxlen )
           {
@@ -92,8 +91,7 @@ sub main
             $data_format = substr( $data, 0, $cut_len ) . ' ... ' . substr( $data, - $cut_len );
             }
           }
-        my $mono = $fdes->{ 'WEB.GRID.MONO' } || $fdes->{ 'WEB.MONO' };
-        if( $mono )
+        if( $fdes->get_attr( qw( WEB GRID MONO ) ) )
           {
           $fmt_class .= " fmt-mono";
           }
