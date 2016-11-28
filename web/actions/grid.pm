@@ -49,7 +49,7 @@ sub main
     my $fdes      = $tdes->{ 'FIELD' }{ $f };
     my $type_name = $fdes->{ 'TYPE' }{ 'NAME' };
     my $fmt_class = $FMT_CLASSES{ $type_name } || 'fmt-left';
-    my $label     = $fdes->{ 'WEB.GRID.LABEL' } || $fdes->{ 'LABEL' };
+    my $label     = $fdes->get_attr( qw( WEB GRID LABEL ) );
 
     $text .= "<td class='grid-header $fmt_class'>$label</td>";
     }
@@ -80,7 +80,8 @@ sub main
       
       if( $type_name eq 'CHAR' )
         {
-        my $maxlen = $fdes->{ 'WEB.GRID.MAXLEN' } || $fdes->{ 'WEB.MAXLEN' };
+        #my $maxlen = $fdes->{ 'WEB.GRID.MAXLEN' } || $fdes->{ 'WEB.MAXLEN' };
+        my $maxlen = $fdes->get_attr( qw( WEB GRID MAXLEN ) );
         if( $maxlen )
           {
           $maxlen = 16 if $maxlen <   0;

@@ -20,6 +20,7 @@ use Exception::Sink;
 use Decor::Shared::Utils;
 use Decor::Shared::Net::Protocols;
 use Decor::Shared::Net::Client::Table::Description;
+use Decor::Shared::Net::Client::Table::Field::Description;
 
 sub new
 {
@@ -251,6 +252,10 @@ sub describe
 
   $mo->{ 'DES' }{ 'CACHE' } = {};
   bless $mo->{ 'DES' }, 'Decor::Shared::Net::Client::Table::Description';
+  for my $field ( keys %{ $mo->{ 'DES' }{ 'FIELD' } } )
+    {
+    bless $mo->{ 'DES' }{ 'FIELD' }{ $field }, 'Decor::Shared::Net::Client::Table::Field::Description';
+    }
   lock_ref_keys( $mo->{ 'DES' } );  
   unlock_ref_keys( $mo->{ 'DES' }{ 'CACHE' } );
 
