@@ -66,6 +66,8 @@ my %DES_KEY_SHORTCUTS = (
                         'PKEY' => 'PRIMARY_KEY',
                         'REQ'  => 'REQUIRED',
                         'UNIQ' => 'UNIQUE',
+                        'RO'   => 'READ_ONLY',
+                        'SYS'  => 'SYSTEM',
                         );
                     
 my %DES_CATEGORIES = ( 
@@ -82,7 +84,10 @@ my @TABLE_ATTRS = qw(
                       DENY
                     );
 
-# FIXME: more categories INDEX: ACTION: etc.
+# LEGEND: 1 == core attribute, must not have attribute path
+#   NOTE: only type 1 attributes are filled with default values!
+# LEGEND: 2 == regular attribute, it can have attribute path
+# LEGEND: 3 == remote/path attribute, it must have attribute path
 my %DES_ATTRS = (
                   '@' => {
                            SCHEMA  => 1,
@@ -90,25 +95,26 @@ my %DES_ATTRS = (
                            GRANT   => 1,
                            DENY    => 1,
                            SYSTEM  => 1,
-                           OPTIONS => 1,
                          },
                   'FIELD' => {
                            TYPE        => 1,
-                           LABEL       => 1,
+                           LABEL       => 2,
                            GRANT       => 1,
                            DENY        => 1,
-                           SYSTEM      => 1,
+                           SYSTEM      => 1, # field with all operations forbidden, only for system use
+                           READ_ONLY   => 1, # field is visible but not allowed for modification
                            PRIMARY_KEY => 1,
                            REQUIRED    => 1,
                            UNIQUE      => 1,
                            INDEX       => 1,
-                           OPTIONS     => 1,
+                           
+                           MAXLEN      => 3, # max remote viewer field length
+                           MONO        => 3, # remote viewer should use monospaced font
                          },
                   'INDEX' => {
                            FIELDS      => 1,
                            UNIQUE      => 1,
                            FIELDS      => 1,
-                           OPTIONS     => 1,
                          },
                 );
 
@@ -287,13 +293,40 @@ sub __merge_table_des_file
       next;
       }
 
-    if( $line =~ /^([a-zA-Z_0-9\:]+)\s*(.*?)\s*$/ )
+    if( $line =~ /^([a-zA-Z_0-9\.]+)\s*(.*?)\s*$/ )
       {
       my $key   = uc $1;
       my $value =    $2;
 
+      my $key_path;
+      
+      if( $key =~ /^(([A-Z_0-9]+\.)*)([A-Z_0-9]+)$/ )
+        {
+        $key_path = $1;
+        $key = $3;
+        }
+
+      my $error_location = "[$key_path$key] for table [$table] category [$category] section [$sect_name] at [$fname at $ln]";
+
       $key = $DES_KEY_SHORTCUTS{ $key } if exists $DES_KEY_SHORTCUTS{ $key };
-      boom "unknown attribute key [$key] for table [$table] category [$category] section [$sect_name] at [$fname at $ln]" unless exists $DES_ATTRS{ $category }{ $key };
+      boom "unknown attribute key $error_location" unless exists $DES_ATTRS{ $category }{ $key };
+
+      my $attr_type = $DES_ATTRS{ $category }{ $key };
+      
+      if( $attr_type == 1 and $key_path ne '' )
+        {
+        boom "core attribute must not have path key $error_location";
+        }
+      elsif( $attr_type == 3 and $key_path eq '' )
+        {
+        boom "remote/path attributes must have path key $error_location";
+        }
+      elsif( $attr_type >= 4 )
+        {
+        boom "invalid DES_ATTR type >3, call maintainers";
+        }  
+
+      $key = "$key_path$key"; # after checks and shortcuts bring back key full name
 
       if( $value =~ /^(['"])(.*?)\1/ )
         {

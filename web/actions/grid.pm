@@ -26,14 +26,14 @@ sub main
   my $offset = $reo->param( 'OFFSET' );
 
   my $core = $reo->de_connect();
-  my $des  = $core->describe( $table );
+  my $tdes = $core->describe( $table );
 
-  print STDERR Dumper( $des );
+#  print STDERR Dumper( $tdes );
 
   my $page_size  = 15;
   $offset = 0 if $offset < 0;
   
-  my @fields = @{ $des->get_fields_list_by_oper( 'READ' ) };
+  my @fields = @{ $tdes->get_fields_list_by_oper( 'READ' ) };
   my $fields = join ',', @fields;
   
   my $select = $core->select( $table, $fields, { OFFSET => $offset, LIMIT => $page_size, ORDER_BY => '_ID DESC' } );
@@ -46,9 +46,10 @@ sub main
   
   for my $f ( @fields )
     {
-    my $type_name = $des->{ 'FIELD' }{ $f }{ 'TYPE' }{ 'NAME' };
+    my $fdes      = $tdes->{ 'FIELD' }{ $f };
+    my $type_name = $fdes->{ 'TYPE' }{ 'NAME' };
     my $fmt_class = $FMT_CLASSES{ $type_name } || 'fmt-left';
-    my $label     = $des->{ 'FIELD' }{ $f }{ 'LABEL' } || $f;
+    my $label     = $fdes->{ 'WEB.GRID.LABEL' } || $fdes->{ 'LABEL' };
 
     $text .= "<td class='grid-header $fmt_class'>$label</td>";
     }
@@ -70,11 +71,34 @@ sub main
     $text .= "<td class='grid-data fmt-ctrl'>$vec_ctrl</td>";
     for my $f ( @fields )
       {
-      my $type_name = $des->{ 'FIELD' }{ $f }{ 'TYPE' }{ 'NAME' };
+      my $fdes      = $tdes->{ 'FIELD' }{ $f };
+      my $type_name = $fdes->{ 'TYPE' }{ 'NAME' };
       my $fmt_class = $FMT_CLASSES{ $type_name } || 'fmt-left';
       
       my $data = $row_data->{ $f };
-      $text .= "<td class='grid-data $fmt_class'>$data</td>";
+      my $data_format = $data;
+      
+      if( $type_name eq 'CHAR' )
+        {
+        my $maxlen = $fdes->{ 'WEB.GRID.MAXLEN' } || $fdes->{ 'WEB.MAXLEN' };
+        if( $maxlen )
+          {
+          $maxlen = 16 if $maxlen <   0;
+          $maxlen = 16 if $maxlen > 256;
+          if( length( $data ) > $maxlen )
+            {
+            my $cut_len = int( ( $maxlen - 3 ) / 2 );
+            $data_format = substr( $data, 0, $cut_len ) . ' ... ' . substr( $data, - $cut_len );
+            }
+          }
+        my $mono = $fdes->{ 'WEB.GRID.MONO' } || $fdes->{ 'WEB.MONO' };
+        if( $mono )
+          {
+          $fmt_class .= " fmt-mono";
+          }
+        }
+      
+      $text .= "<td class='grid-data $fmt_class'>$data_format</td>";
       }
     $text .= "</tr>";
     }

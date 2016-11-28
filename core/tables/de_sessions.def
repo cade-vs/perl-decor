@@ -5,6 +5,9 @@
 
   label User session
   type char 512
+  
+  web.maxlen  12
+  web.mono
 
 =ACTIVE
 
