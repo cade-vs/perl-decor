@@ -2,6 +2,7 @@ package decor::actions::view;
 use strict;
 use Web::Reactor::HTML::Utils;
 use Decor::Web::HTML::Utils;
+use Decor::Web::View;
 use Data::Dumper;
 
 sub main
@@ -16,9 +17,9 @@ sub main
   my $id     = $reo->param( 'ID'    );
 
   my $core = $reo->de_connect();
-  my $des  = $core->describe( $table );
+  my $tdes = $core->describe( $table );
 
-  my @fields = @{ $des->get_fields_list_by_oper( 'READ' ) };
+  my @fields = @{ $tdes->get_fields_list_by_oper( 'READ' ) };
   my $fields = join ',', @fields;
   
   my $select = $core->select( $table, $fields, { LIMIT => 1, FILTER => { '_ID' => $id } } );
@@ -36,14 +37,16 @@ sub main
     
   for my $f ( @fields )
     {
-    my $type_name = $des->{ 'FIELD' }{ $f }{ 'TYPE' }{ 'NAME' };
-    my $label     = $des->{ 'FIELD' }{ $f }{ 'LABEL' } || $f;
+    my $fdes      = $tdes->{ 'FIELD' }{ $f };
+    my $type_name = $fdes->{ 'TYPE' }{ 'NAME' };
+    my $label     = $fdes->get_attr( qw( WEB VIEW LABEL ) );
     
     my $data = $row_data->{ $f };
+    my $data_fmt = de_web_format_field( $data, $fdes, 'VIEW' );
 
     $text .= "<tr class=view>";
-    $text .= "<td class='view-field'>$label</td>";
-    $text .= "<td class='view-value' >$data</td>";
+    $text .= "<td class='view-field' >$label</td>";
+    $text .= "<td class='view-value' >$data_fmt</td>";
     $text .= "</tr>";
     }
   $text .= "</table>";

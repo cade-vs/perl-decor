@@ -6,7 +6,8 @@
   label User session
   type char 512
   
-  web.maxlen  12
+  web.grid.maxlen  12
+  web.view.maxlen  32
   web.mono
 
 =ACTIVE

@@ -20,7 +20,7 @@ sub get_attr
 {
   my $self = shift;
   my @path = @_;
-  
+
   my $attr = pop @path;
   
   boom "missing ATTRIBUTE NAME argument" unless $attr;
@@ -28,14 +28,11 @@ sub get_attr
   while( @path )
     {
     my $full_attr = join '.', @path, $attr;
-    
-print STDERR "++++++++++++++++++++++++++++[$full_attr]\n";
-    
     return $self->{ $full_attr } if exists $self->{ $full_attr };
     pop @path;
     }
 
-  boom "ATTRIBUTE [$attr] does not exist" unless exists $self->{ $attr };
+  return undef unless exists $self->{ $attr };
     
   return $self->{ $attr };
 }

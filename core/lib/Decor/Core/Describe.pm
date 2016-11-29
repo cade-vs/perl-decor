@@ -107,6 +107,7 @@ my %DES_ATTRS = (
                            REQUIRED    => 1,
                            UNIQUE      => 1,
                            INDEX       => 1,
+                           BOOL        => 1,
                            
                            MAXLEN      => 3, # max remote viewer field length
                            MONO        => 3, # remote viewer should use monospaced font
@@ -453,7 +454,7 @@ sub __postprocess_table_des_hash
       }
     elsif( $type eq 'BOOL' )
       {
-      $fld_des->{ 'OPTIONS' } .= ':BOOL:';
+      $fld_des->{ 'BOOL' } = 1;
 
       $type = 'INT';
       @type = qw( 1 ); # length
@@ -528,7 +529,7 @@ sub __postprocess_table_des_hash
     {
     for my $key ( keys %{ $des->{ $category } })
       {
-      for my $attr ( keys %{ $DES_ATTRS{ $category } } )
+      for my $attr ( grep { $DES_ATTRS{ $category }{ $_ } < 3 } keys %{ $DES_ATTRS{ $category } } )
         {
         next if exists $des->{ $category }{ $key }{ $attr };
         $des->{ $category }{ $key }{ $attr } = undef;

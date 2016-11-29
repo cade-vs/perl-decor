@@ -2,6 +2,7 @@ package decor::actions::grid;
 use strict;
 use Web::Reactor::HTML::Utils;
 use Decor::Web::HTML::Utils;
+use Decor::Web::View;
 use Data::Dumper;
 
 my %FMT_CLASSES = (
@@ -76,28 +77,9 @@ sub main
       my $fmt_class = $FMT_CLASSES{ $type_name } || 'fmt-left';
       
       my $data = $row_data->{ $f };
-      my $data_format = $data;
+      my ( $data_fmt, $fmt_class ) = de_web_format_field( $data, $fdes, 'GRID' );
       
-      if( $type_name eq 'CHAR' )
-        {
-        my $maxlen = $fdes->get_attr( qw( WEB GRID MAXLEN ) );
-        if( $maxlen )
-          {
-          $maxlen = 16 if $maxlen <   0;
-          $maxlen = 16 if $maxlen > 256;
-          if( length( $data ) > $maxlen )
-            {
-            my $cut_len = int( ( $maxlen - 3 ) / 2 );
-            $data_format = substr( $data, 0, $cut_len ) . ' ... ' . substr( $data, - $cut_len );
-            }
-          }
-        if( $fdes->get_attr( qw( WEB GRID MONO ) ) )
-          {
-          $fmt_class .= " fmt-mono";
-          }
-        }
-      
-      $text .= "<td class='grid-data $fmt_class'>$data_format</td>";
+      $text .= "<td class='grid-data $fmt_class'>$data_fmt</td>";
       }
     $text .= "</tr>";
     }

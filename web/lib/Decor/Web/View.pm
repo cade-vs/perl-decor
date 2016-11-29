@@ -12,6 +12,8 @@ use strict;
 use Data::Dumper;
 use Exception::Sink;
 
+use Decor::Shared::Types;
+
 use Exporter;
 our @ISA    = qw( Exporter );
 our @EXPORT = qw( 
@@ -23,34 +25,50 @@ our @EXPORT = qw(
 
 sub de_web_format_field
 {
-  my $data = shift;
-  my $fdes = shift;
-  my $opts = shift;
+  my $data  =    shift;
+  my $fdes  =    shift;
+  my $vtype = uc shift;
+  my $opts  =    shift;
 
-  my $fmt_data = $data;
+  my $type_name = $fdes->{ 'TYPE' }{ 'NAME' };
+
+  my $data_fmt;
+  my $fmt_class;
 
   if( $type_name eq 'CHAR' )
     {
-    if( $field_options =~ /grid-len=(\d+)/ )
+    my $maxlen = $fdes->get_attr( 'WEB', $vtype, 'MAXLEN' );
+    if( $maxlen )
       {
-      my $gl = $1;
-      $gl = 16 if $gl <   0;
-      $gl = 16 if $gl > 256;
-      if( length( $data ) > $gl )
+      $maxlen = 16 if $maxlen <   0;
+      $maxlen = 16 if $maxlen > 256;
+      if( length( $data ) > $maxlen )
         {
-        my $cut_len = int( ( $gl - 3 ) / 2 );
-        $data_format = substr( $data, 0, $cut_len ) . ' ... ' . substr( $data, - $cut_len );
+        my $cut_len = int( ( $maxlen - 3 ) / 2 );
+        $data_fmt = substr( $data, 0, $cut_len ) . ' &hellip; ' . substr( $data, - $cut_len );
         }
       }
-    if( $field_options =~ /grid-mono/ )
+    if( $fdes->get_attr( 'WEB', $vtype, 'MAXLEN' ) )
       {
       $fmt_class .= " fmt-mono";
       }
     }
-  elsif( $type_name eq 'CHAR' )
+  elsif( $type_name eq 'INT' and $fdes->{ 'BOOL' } )
+    {
+    $data_fmt = $data > 0 ? '[&radic;]' : '[&nbsp;]';
+    }
+  elsif( $type_name eq 'UTIME' )
+    {
+    return '&laquo;empty&raquo;' if $data == 0;
+    $data_fmt = type_format( $data, $fdes->{ 'TYPE' } );
+    }
+  else
+    {
+    $data_fmt = type_format( $data, $fdes->{ 'TYPE' } );
+    }  
 
 
-  return $fmt_data;
+  return wantarray ? ( $data_fmt, $fmt_class ) : $data_fmt;
 }
 
 1;
