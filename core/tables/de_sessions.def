@@ -24,21 +24,33 @@
 
   label Login time
   type utime
+  
+  web.grid.details 2
+  web.details      1
 
 =ETIME
 
   label Logout time
   type utime
 
+  web.grid.details 2
+  web.details      1
+
 =XTIME
 
   label Expire time
   type utime
 
+  web.grid.details 2
+  web.details      1
+
 =ATIME
 
   label Access time
   type utime
+
+  web.grid.details 2
+  web.details      1
 
 =REMOTE
 

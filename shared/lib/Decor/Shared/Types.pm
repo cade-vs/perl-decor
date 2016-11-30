@@ -108,7 +108,7 @@ my %FORMAT_DEFAULTS = (
                         'DATE'  => 'YMD',
                         'TIME'  => '24',
                         'UTIME' => 'YMD24Z',
-                        'TZ'    => '', # local machine TZ if empty
+                        'TZ'    => undef, # local machine TZ if empty
                       );
                       
 

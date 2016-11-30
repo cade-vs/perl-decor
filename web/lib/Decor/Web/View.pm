@@ -11,6 +11,7 @@ package Decor::Web::View;
 use strict;
 use Data::Dumper;
 use Exception::Sink;
+use Data::Tools::Time;
 
 use Decor::Shared::Types;
 
@@ -61,6 +62,16 @@ sub de_web_format_field
     {
     return '&laquo;empty&raquo;' if $data == 0;
     $data_fmt = type_format( $data, $fdes->{ 'TYPE' } );
+    my $details = $fdes->get_attr( 'WEB', $vtype, 'DETAILS' );
+    
+print STDERR Dumper( '!'x33, $vtype, $details );    
+    
+    if( $details )
+      {
+      my $sep  = $details > 1 ? '<br>' : '&Delta;';
+      my $diff = unix_time_diff_in_words_relative( time() - $data );
+      $data_fmt .= " <span class=details-text>$sep $diff</span>";
+      }
     }
   else
     {

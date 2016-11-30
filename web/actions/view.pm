@@ -33,6 +33,7 @@ sub main
   $text .= "</tr>";
 
   my $row_data = $core->fetch( $select );
+  return "<#no_data>" unless $row_data;
   my $row_id = $row_data->{ '_ID' };
     
   for my $f ( @fields )
