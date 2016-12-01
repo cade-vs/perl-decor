@@ -417,10 +417,12 @@ sub sub_end
   my $mi = shift;
   my $mo = shift;
 
-  my $user_sid = $mi->{ 'USER_SID' };
-  my $remote   = $mi->{ 'REMOTE'   };
+  #my $user_sid = $mi->{ 'USER_SID' };
+  #my $remote   = $mi->{ 'REMOTE'   };
 
-  my $session_rec = __sub_find_session( $user_sid, $remote );
+  #my $sess = __sub_find_session( $user_sid, $remote );
+
+  my $session_rec = subs_get_current_session();
   
   $session_rec->write(
                      'ACTIVE' => 0,

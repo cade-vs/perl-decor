@@ -188,7 +188,8 @@ sub __merge_menu_file
     next if $line =~ /^([#;]|\/\/)/;
     de_log_debug( "        line: [$line]" );  
 
-    if( $line =~ /^=+\s*([a-zA-Z_][a-zA-Z_0-9]*)\s*(.*?)\s*$/ )
+#    if( $line =~ /^=+\s*([a-zA-Z_][a-zA-Z_0-9]*)\s*(.*?)\s*$/ )
+    if( $line =~ /^=+\s*(.*?)\s*$/ )
       {
          $item_name = uc( $1 );
       my $item_opts =     $2; # fixme: upcase/locase?

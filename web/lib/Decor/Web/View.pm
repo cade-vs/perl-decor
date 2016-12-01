@@ -38,15 +38,17 @@ sub de_web_format_field
 
   if( $type_name eq 'CHAR' )
     {
+    $data_fmt = type_format( $data, $fdes->{ 'TYPE' } );
+
     my $maxlen = $fdes->get_attr( 'WEB', $vtype, 'MAXLEN' );
     if( $maxlen )
       {
       $maxlen = 16 if $maxlen <   0;
       $maxlen = 16 if $maxlen > 256;
-      if( length( $data ) > $maxlen )
+      if( length( $data_fmt ) > $maxlen )
         {
         my $cut_len = int( ( $maxlen - 3 ) / 2 );
-        $data_fmt = substr( $data, 0, $cut_len ) . ' &hellip; ' . substr( $data, - $cut_len );
+        $data_fmt = substr( $data_fmt, 0, $cut_len ) . ' &hellip; ' . substr( $data_fmt, - $cut_len );
         }
       }
     if( $fdes->get_attr( 'WEB', $vtype, 'MAXLEN' ) )
@@ -63,8 +65,6 @@ sub de_web_format_field
     return '&laquo;empty&raquo;' if $data == 0;
     $data_fmt = type_format( $data, $fdes->{ 'TYPE' } );
     my $details = $fdes->get_attr( 'WEB', $vtype, 'DETAILS' );
-    
-print STDERR Dumper( '!'x33, $vtype, $details );    
     
     if( $details )
       {

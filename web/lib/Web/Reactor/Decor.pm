@@ -170,6 +170,7 @@ sub de_connect
     }
 
   my $remote = $http_env->{ 'REMOTE_ADDR' };
+  
   my $session_ok = $client->begin_user_session( $de_core_session_id, $remote );
 
   if( $session_ok )
