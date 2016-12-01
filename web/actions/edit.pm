@@ -14,6 +14,7 @@ use Exception::Sink;
 
 use Decor::Shared::Types;
 use Decor::Web::HTML::Utils;
+use Decor::Web::Utils;
 use Web::Reactor::HTML::Utils;
 
 sub main
@@ -102,6 +103,9 @@ sub main
 
     $ps->{ 'ROW_DATA' }{ $field } = $raw_input_data;
     }
+
+  # handle redirects here
+  de_web_handle_redirect_buttons( $reo );
 
 ###  my $select = $core->select( $table, $fields, { LIMIT => 1, FILTER => { '_ID' => $id } } );
 
@@ -232,7 +236,9 @@ sub main
 
   $text .= "<br>";
   $text .= de_html_alink_button( $reo, 'back', "Back", "Return to previous screen" );
-  $text .= $edit_form->button( NAME => "REDIRECT:PREVIEW", VALUE => "[~Preview]" );
+  #$text .= $edit_form->button( NAME => "REDIRECT:PREVIEW", VALUE => "[~Preview]" );
+  $text .= de_html_form_button_redirect( $reo, 'here', $edit_form, 'PREVIEW', "[~Preview]", "Preview data before save", ACTION => 'preview' );
+  $text .= de_html_form_button_redirect( $reo, 'new', $edit_form, 'VIEWTEST', "[~View]", "View data", ACTION => 'view', TABLE => $table, ID => $id );
   $text .= $edit_form->end();
 
   return $text;
