@@ -298,7 +298,7 @@ td.view-header
 td.view-field
         {
         background-color: #333;
-        border-bottom: solid 1px #555;
+        border-bottom: solid 1px #444;
         border-right: solid 1px #444;
         text-align: right;
         width: 50%;
@@ -309,7 +309,7 @@ td.view-field
 td.view-value
         {
         background-color: #333;
-        border-bottom: solid 1px #555;
+        border-bottom: solid 1px #444;
         text-align: left;
         width: 50%;
         padding: 4px;
@@ -401,22 +401,26 @@ td.fmt-ctrl
 
 input
         {
-        background-color: #777;
-        padding: 4px;
-        border: solid 1px #999;
+        color: #CCC;
+        background-color: #252525;
+        padding: 5px;
         margin: 0 0 0 0;
-        border-left:   solid 1px #CCC;
-        border-bottom: solid 1px #CCC;
+        border:        none;
+        border-left:   solid 1px #555;
+        border-bottom: solid 1px #555;
         }
 
 input:hover
         {
-        border: solid 1px #FFF;
+        border-left:   solid 1px #999;
+        border-bottom: solid 1px #999;
         }
 
 input:focus
         {
-        border: solid 1px #FFF;
+        border-left:   solid 1px #FFF;
+        border-bottom: solid 1px #FFF;
+        background-image: none;
         }
 
 input.button
@@ -425,6 +429,7 @@ input.button
         font-weight: bold;
         color: #000;
         background-color: #AAA;
+        background-image: none;
         padding-top:     2px;
         padding-left:   12px;
         padding-bottom:  3px;

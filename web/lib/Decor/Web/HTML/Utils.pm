@@ -18,6 +18,7 @@ use Exporter;
 our @ISA    = qw( Exporter );
 our @EXPORT = qw( 
 
+                de_html_alink
                 de_html_alink_block
                 de_html_alink_button
                 de_html_alink_icon
@@ -29,8 +30,22 @@ our @EXPORT = qw(
 sub __value_image_fix
 {
   my $value =    shift;
-  $value = "<img class=icon src=i/$value>" if $value =~ /^[a-z_0-9]+\.(png|jpg|jpeg|gif)$/i;
+  #$value = "<img class=icon src=i/$value>" if $value =~ /^[a-z_0-9]+\.(png|jpg|jpeg|gif)$/i;
+  $value =~ s/([a-z_0-9]+\.(png|jpg|jpeg|gif))/<img class=icon src=i\/$1>/g;
   return $value;
+}
+
+sub de_html_alink
+{
+  my $reo   =    shift;
+  my $type  = lc shift;
+  my $value =    shift;
+  my $hint  =    shift;
+  my @args  = @_;
+
+  $value = __value_image_fix( $value );
+
+  return html_alink( $reo, $type, $value, { HINT => $hint }, @args );
 }
 
 sub de_html_alink_block

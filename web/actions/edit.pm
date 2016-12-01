@@ -55,19 +55,20 @@ sub main
       if( $copy_id )
         {
         # insert with copy
+        my $row_data = $core->select_first1_by_id( $table, $fields_ar, $copy_id );
+        $ps->{ 'ROW_DATA' } = $row_data;
         }
       else
         {
         # regular insert
         
         # exec default method
-        
+        $ps->{ 'ROW_DATA' } = {};
         }  
       }
     else
       {
       # update
-
       $edit_mode_insert = 0;
       $fields_ar = $tdes->get_fields_list_by_oper( 'UPDATE' );
       my $row_data = $core->select_first1_by_id( $table, $fields_ar, $id );
@@ -93,9 +94,15 @@ sub main
     {
     next unless exists $ui_si{ "F:$field" };
     my $input_data = $ui_si{ "F:$field" };
-    $ps->{ 'ROW_DATA' }{ $field } = $input_data;
+
+    my $fdes       = $tdes->{ 'FIELD' }{ $field };
+    my $type       = $fdes->{ 'TYPE'  };
+    
+    my $raw_input_data = type_revert( $input_data, $type );
+
+    $ps->{ 'ROW_DATA' }{ $field } = $raw_input_data;
     }
-  
+
 ###  my $select = $core->select( $table, $fields, { LIMIT => 1, FILTER => { '_ID' => $id } } );
 
   $text .= "<br>";
@@ -118,17 +125,17 @@ sub main
 ###  my $row_data = $core->fetch( $select );
 ###  my $row_id = $row_data->{ '_ID' };
     
-  for my $f ( @$fields_ar )
+  for my $field ( @$fields_ar )
     {
-    my $fdes      = $tdes->{ 'FIELD' }{ $f };
+    my $fdes      = $tdes->{ 'FIELD' }{ $field };
     my $type      = $fdes->{ 'TYPE'  };
     my $type_name = $fdes->{ 'TYPE'  }{ 'NAME' };
-    my $label     = $fdes->{ 'LABEL' } || $f;
+    my $label     = $fdes->{ 'LABEL' } || $field;
     
-    my $field_data = $ps->{ 'ROW_DATA' }{ $f };
+    my $field_data = $ps->{ 'ROW_DATA' }{ $field };
     my $field_data_usr_format = type_format( $field_data, $type );
 
-    my $field_id = "F:$table:$f:" . $reo->html_new_id();
+    my $field_id = "F:$table:$field:" . $reo->html_new_id();
 
     my $field_input;
     my $input_tag_args;
@@ -136,12 +143,12 @@ sub main
     
     if( $type_name eq 'CHAR' )
       {
-      my $pass_type = 1 if $fdes->{ 'OPTIONS' }{ 'PWD' } or $f =~ /^PWD_/;
+      my $pass_type = 1 if $fdes->{ 'OPTIONS' }{ 'PWD' } or $field =~ /^PWD_/;
       my $field_size = $type->{ 'LEN' };
       my $field_maxlen = $field_size;
       $field_size = 42 if $field_size > 42; # TODO: fixme
       $field_input .= $edit_form->input( 
-                                       NAME     => "F:$f", 
+                                       NAME     => "F:$field", 
                                        ID       => $field_id, 
                                        PASS     => $pass_type, 
                                        VALUE    => $field_data_usr_format, 
@@ -153,7 +160,68 @@ sub main
       }
     elsif( $type_name eq 'INT' )
       {
+      $field_input .= $edit_form->input( 
+                                       NAME     => "F:$field", 
+                                       ID       => $field_id, 
+                                       VALUE    => $field_data_usr_format, 
+                                       SIZE     => 32, 
+                                       MAXLEN   => 64, 
+                                       DISABLED => $field_disabled, 
+                                       ARGS     => $input_tag_args, 
+                                       );
       }
+    elsif( $type_name eq 'REAL' )
+      {
+      $field_input .= $edit_form->input( 
+                                       NAME     => "F:$field", 
+                                       ID       => $field_id, 
+                                       VALUE    => $field_data_usr_format, 
+                                       SIZE     => 32, 
+                                       MAXLEN   => 64, 
+                                       DISABLED => $field_disabled, 
+                                       ARGS     => $input_tag_args, 
+                                       );
+      }
+    elsif( $type_name eq 'DATE' )
+      {
+      $field_input .= $edit_form->input( 
+                                       NAME     => "F:$field", 
+                                       ID       => $field_id, 
+                                       VALUE    => $field_data_usr_format, 
+                                       SIZE     => 32, 
+                                       MAXLEN   => 64, 
+                                       DISABLED => $field_disabled, 
+                                       ARGS     => $input_tag_args, 
+                                       );
+      }
+    elsif( $type_name eq 'TIME' )
+      {
+      $field_input .= $edit_form->input( 
+                                       NAME     => "F:$field", 
+                                       ID       => $field_id, 
+                                       VALUE    => $field_data_usr_format, 
+                                       SIZE     => 32, 
+                                       MAXLEN   => 64, 
+                                       DISABLED => $field_disabled, 
+                                       ARGS     => $input_tag_args, 
+                                       );
+      }
+    elsif( $type_name eq 'UTIME' )
+      {
+      $field_input .= $edit_form->input( 
+                                       NAME     => "F:$field", 
+                                       ID       => $field_id, 
+                                       VALUE    => $field_data_usr_format, 
+                                       SIZE     => 32, 
+                                       MAXLEN   => 64, 
+                                       DISABLED => $field_disabled, 
+                                       ARGS     => $input_tag_args, 
+                                       );
+      }
+    else
+      {
+      $field_input = "(unknown)";
+      }  
 
     $text .= "<tr class=view>\n";
     $text .= "<td class='view-field'>$label</td>\n";
@@ -163,9 +231,9 @@ sub main
   $text .= "</table>";
 
   $text .= "<br>";
+  $text .= de_html_alink_button( $reo, 'back', "Back", "Return to previous screen" );
   $text .= $edit_form->button( NAME => "REDIRECT:PREVIEW", VALUE => "[~Preview]" );
   $text .= $edit_form->end();
-  $text .= de_html_alink_button( $reo, 'back', "Back", "Return to previous screen" );
 
   return $text;
 }
