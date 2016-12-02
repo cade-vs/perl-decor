@@ -354,6 +354,22 @@ sub finish
 
 #-----------------------------------------------------------------------------
 
+sub next_id
+{
+  my $self = shift;
+
+  my $table  = uc shift;
+  
+  my %mi;
+
+  $mi{ 'XT' } = 'N';
+  $mi{ 'TABLE'  } = $table;
+
+  my $mo = $self->tx_msg( \%mi ) or return undef;
+
+  return $mo->{ 'RESERVED_ID' };
+}
+
 sub insert
 {
   my $self = shift;
