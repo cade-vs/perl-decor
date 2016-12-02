@@ -682,7 +682,9 @@ sub sub_get_next_id
   my $table  = uc $mi->{ 'TABLE'  };
 
   boom "invalid TABLE name [$table]"    unless de_check_name( $table );
-  my $new_id = get_next_table_id( $table );
+
+  my $dbio = new Decor::Core::DB::IO;
+  my $new_id = $dbio->get_next_table_id( $table );
   
   my $user = subs_get_current_user();
   my $sess = subs_get_current_session();
@@ -748,7 +750,12 @@ sub sub_insert
     $id = $dbio->get_next_table_id( $table );
     }  
 
+
   my $rec = new Decor::Core::DB::Record;
+
+  my $profile = subs_get_current_profile();
+  $rec->set_profile_locked( $profile );
+
   $rec->taint_mode_enable_all();
 
   $rec->create( $table, $id );
@@ -780,9 +787,13 @@ sub sub_update
   # TODO: check TABLE UPDATE ACCESS
 
   my $rec = new Decor::Core::DB::Record;
+
+  my $profile = subs_get_current_profile();
+  $rec->set_profile_locked( $profile );
+
   $rec->taint_mode_enable_all();
 
-  my ( $where, $bind ) = __filter_to_where( $id > 0 ? { 'ID' => $id } : $filter );
+  my ( $where, $bind ) = __filter_to_where( $id > 0 ? { '_ID' => $id } : $filter );
   my $where_clause = join ' AND ', @$where;
 
   boom "E_ACCESS: unable to load requested record TABLE [$table] ID [$id]" 

@@ -144,7 +144,8 @@ sub tx_msg
   my $socket  = $self->{ 'SOCKET'  };
   my $timeout = $self->{ 'TIMEOUT' };
   
-  $self->{ 'STATUS'  } = 'E_MSG';
+  $self->{ 'STATUS'      } = 'E_MSG';
+  $self->{ 'STATUS_MSG'  } = 'Communication error';
   
   my $ptype = 'p'; # FIXME: config?
   
@@ -163,8 +164,11 @@ sub tx_msg
     return undef;
     }
 
-  $self->{ 'STATUS'  } = $mo->{ 'XS' };
-  
+
+  $self->{ 'STATUS'      } = $mo->{ 'XS'     };
+  $self->{ 'STATUS_MSG'  } = $mo->{ 'XS_MSG' };
+
+  return undef unless $mo->{ 'XS' } eq 'OK';
   return $mo;
 }
 
@@ -394,8 +398,6 @@ sub update
 {
   my $self = shift;
 
-  my $self = shift;
-
   my $table  = uc shift;
   my $data   = shift;
   my $opt    = shift;
@@ -406,7 +408,7 @@ sub update
 
   my %mi;
 
-  $mi{ 'XT' } = 'S';
+  $mi{ 'XT' } = 'U';
   $mi{ 'TABLE'  } = $table;
   $mi{ 'DATA'   } = $data;
   $mi{ 'FILTER' } = $filter;

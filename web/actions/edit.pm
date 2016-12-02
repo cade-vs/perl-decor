@@ -51,6 +51,8 @@ sub main
       {
       # insert
       $edit_mode_insert = 1;
+      
+      $id = $core->next_id( $table );
 
       $fields_ar = $tdes->get_fields_list_by_oper( 'INSERT' );
       if( $copy_id )
@@ -58,13 +60,14 @@ sub main
         # insert with copy
         my $row_data = $core->select_first1_by_id( $table, $fields_ar, $copy_id );
         $ps->{ 'ROW_DATA' } = $row_data;
+        $ps->{ 'ROW_DATA' }{ '_ID' } = $id;
         }
       else
         {
         # regular insert
         
         # exec default method
-        $ps->{ 'ROW_DATA' } = {};
+        $ps->{ 'ROW_DATA' } = { _ID => $id };
         }  
       }
     else
@@ -78,11 +81,17 @@ sub main
     
     $ps->{ 'FIELDS_WRITE_AR'  } = $fields_ar;
     $ps->{ 'EDIT_MODE_INSERT' } = $edit_mode_insert;
+    
+    $ps->{ 'TABLE' } = $table;
+    $ps->{ 'ID'    } = $id;
     }
   else
     {
-    $fields_ar = $ps->{ 'FIELDS_WRITE_AR' };
+    $fields_ar        = $ps->{ 'FIELDS_WRITE_AR' };
     $edit_mode_insert = $ps->{ 'EDIT_MODE_INSERT' };
+    
+    $table = $ps->{ 'TABLE' };
+    $id    = $ps->{ 'ID'    };
     }  
 
   boom "FIELDS list empty" unless @$fields_ar;

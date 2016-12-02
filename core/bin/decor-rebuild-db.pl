@@ -21,8 +21,8 @@ use Decor::Core::Env;
 use Decor::Core::Describe;
 use Decor::Core::DSN;
 use Decor::Core::Profile;
-use Decor::Core::Utils;
 use Decor::Core::Log;
+use Decor::Shared::Utils;
 
 $Data::Dumper::Sortkeys = 1;
 $Data::Dumper::Indent   = 3;
