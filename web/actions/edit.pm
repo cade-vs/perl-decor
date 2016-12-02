@@ -235,10 +235,8 @@ sub main
   $text .= "</table>";
 
   $text .= "<br>";
-  $text .= de_html_alink_button( $reo, 'back', "Back", "Return to previous screen" );
-  #$text .= $edit_form->button( NAME => "REDIRECT:PREVIEW", VALUE => "[~Preview]" );
+  $text .= de_html_alink_button( $reo, 'back', "Cancel", "Cancel this operation"   );
   $text .= de_html_form_button_redirect( $reo, 'here', $edit_form, 'PREVIEW', "[~Preview]", "Preview data before save", ACTION => 'preview' );
-  $text .= de_html_form_button_redirect( $reo, 'new', $edit_form, 'VIEWTEST', "[~View]", "View data", ACTION => 'view', TABLE => $table, ID => $id );
   $text .= $edit_form->end();
 
   return $text;
