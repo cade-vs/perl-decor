@@ -171,6 +171,16 @@ sub main
                                        ARGS     => $input_tag_args, 
                                        );
       }
+    elsif( $type_name eq 'INT' and $fdes->{ 'BOOL' } )
+      {
+      $field_input .= $edit_form->checkbox( 
+                                       NAME     => "F:$field", 
+                                       ID       => $field_id, 
+                                       VALUE => $field_data, 
+                                       RET   => [ '0', '1' ], 
+                                       ARGS     => $input_tag_args, 
+                                       );
+      }
     elsif( $type_name eq 'INT' )
       {
       $field_input .= $edit_form->input( 
