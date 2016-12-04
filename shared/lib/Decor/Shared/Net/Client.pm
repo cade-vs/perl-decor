@@ -198,6 +198,8 @@ sub begin_user_pass
   my $mo = $self->tx_msg( \%mi ) or return undef;
   # FIXME: TODO: if failed then disconnect?
 
+  $self->{ 'CORE_SESSION_XTIME' } = $mo->{ 'XTIME' } || time() + 10*60;
+
   return $mo->{ 'SID' };
 }
 
@@ -216,6 +218,8 @@ sub begin_user_session
   
   my $mo = $self->tx_msg( \%mi ) or return undef;
   # FIXME: TODO: if failed then disconnect?
+
+  $self->{ 'CORE_SESSION_XTIME' } = $mo->{ 'XTIME' } || time() + 10*60;
 
   return $mo->{ 'SID' };
 }
