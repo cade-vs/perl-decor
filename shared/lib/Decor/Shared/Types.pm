@@ -155,7 +155,7 @@ sub type_format
 
   if( $type_name eq "DATE" )
    {
-   if ( $data >= 0 )
+   if ( $data > 0 )
      {
      my ( $y, $m, $d ) = inverse_julian_day( $data );
 
@@ -257,6 +257,8 @@ sub type_revert
 
   if( $type_name eq "DATE" )
     {
+    return undef if $data =~ m/^\s*(n\/a|\(?empty\)?)\s*$/;
+    
     my $fmt_name = $FORMATS{ 'DATE' };
     $data = __canonize_date_str( $data, $fmt_name );
 
