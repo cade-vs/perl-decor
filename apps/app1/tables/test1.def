@@ -95,3 +95,8 @@ grant update to 999; 100; 200+!2
 
   type bool
   
+  
+=DATE_TEST
+
+    type  date
+  
