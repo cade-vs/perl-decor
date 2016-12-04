@@ -21,6 +21,7 @@ our @EXPORT = qw(
                 de_app_path
                 de_modules
                 de_modules_dirs
+                de_app_cfg
                 
                 de_version
                 de_root
@@ -49,11 +50,17 @@ my $DEBUG   = 0;
 unshift @INC, $ROOT . '/core/lib',  $ROOT . '/shared/lib';
 
 my $APP_NAME;
+
+my %APP_CFG;
+my %APP_CFG_KEYS = (
+                   MODULES             => 1,
+                   SESSION_EXPIRE_TIME => 1,
+                   );
+
 my @MODULES;
 my @MODULES_DIRS;
 
 ### PUBLIC ###################################################################
-
 
 my $_INIT_OK;
 
@@ -72,9 +79,12 @@ sub de_init
   boom "cannot find/access application [$APP_NAME] path [$app_path]" unless -d $app_path;
 
   my $cfg = de_config_load_file( "$app_path/etc/app.cfg" );
-  $cfg = $cfg->{ '@' }{ '@' } if $cfg;
+  if( $cfg )
+    {
+    %APP_CFG = %{ $cfg = $cfg->{ '@' }{ '@' } };
+    }
 
-  @MODULES = sort split /[\s\,]+/, $cfg->{ 'MODULES' };
+  @MODULES = sort split /[\s\,]+/, $APP_CFG{ 'MODULES' };
   
   unshift @MODULES, sort ( read_dir_entries( "$app_path/modules" ) );
   
@@ -99,7 +109,7 @@ sub de_init
   dlock \@MODULES;
   dlock \@MODULES_DIRS;
   
-  print STDERR 'CONFIG:' . Dumper( $cfg, \@MODULES, \@MODULES_DIRS );
+  print STDERR 'CONFIG:' . Dumper( \%APP_CFG, \@MODULES, \@MODULES_DIRS );
 }
 
 sub de_app_name
@@ -112,6 +122,19 @@ sub de_app_path
 {
   boom "call de_init() first to initialize environment!" unless $_INIT_OK;
   return "$ROOT/apps/$APP_NAME";
+}
+
+sub de_app_cfg
+{
+  my @res;
+
+  for my $key ( @_ )
+  {
+  boom "invalid APP_CFG key [$key]" unless exists $APP_CFG_KEYS{ $key };
+  push @res, $APP_CFG{ $key };
+  }
+  
+  return wantarray ? ( @res ) : shift @res;
 }
 
 sub de_modules
