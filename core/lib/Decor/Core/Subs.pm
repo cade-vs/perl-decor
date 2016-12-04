@@ -253,6 +253,7 @@ sub sub_begin
 
   $mo->{ 'SID'   } = $sess_sid;
   # TODO: expire time, further advise
+  $mo->{ 'XTIME' } = $sess->read( 'XTIME' );
   $mo->{ 'XS'    } = 'OK';
 };
 
