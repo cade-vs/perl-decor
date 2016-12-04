@@ -216,6 +216,9 @@ sub main
                                        DISABLED => $field_disabled, 
                                        ARGS     => $input_tag_args, 
                                        );
+      my $hl_handle = html_hover_layer( $reo, VALUE => "Set current date", DELAY => 250 );
+      my $date_format = type_get_format( $type );
+      $field_input .= qq(<a href='#' class=icon onClick='set_value( "$field_id", current_date( "$date_format" ) ); return false;' $hl_handle ><img src=i/set-date.png></a>);
       }
     elsif( $type_name eq 'TIME' )
       {
