@@ -83,7 +83,10 @@ sub de_init
     {
     %APP_CFG = %{ $cfg = $cfg->{ '@' }{ '@' } };
     }
-
+  else
+    {
+    %APP_CFG = ();
+    }  
   @MODULES = sort split /[\s\,]+/, $APP_CFG{ 'MODULES' };
   
   unshift @MODULES, sort ( read_dir_entries( "$app_path/modules" ) );
@@ -109,7 +112,7 @@ sub de_init
   dlock \@MODULES;
   dlock \@MODULES_DIRS;
   
-  print STDERR 'CONFIG:' . Dumper( \%APP_CFG, \@MODULES, \@MODULES_DIRS );
+  print STDERR Dumper( 'APP_CFG:', \%APP_CFG, 'MODULES:', \@MODULES, 'MODULES DIRS:', \@MODULES_DIRS );
 }
 
 sub de_app_name
@@ -126,15 +129,14 @@ sub de_app_path
 
 sub de_app_cfg
 {
-  my @res;
+  my $key = shift;
+  my $def = shift; # default value
 
-  for my $key ( @_ )
-  {
   boom "invalid APP_CFG key [$key]" unless exists $APP_CFG_KEYS{ $key };
-  push @res, $APP_CFG{ $key };
-  }
   
-  return wantarray ? ( @res ) : shift @res;
+  my $res = ( exists $APP_CFG{ $key } and $APP_CFG{ $key } ne '' ) ? $APP_CFG{ $key } : $def;
+
+  return $res;
 }
 
 sub de_modules

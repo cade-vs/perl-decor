@@ -1,0 +1,15 @@
+
+grant access to 999
+
+=new user
+
+  type insert de_users
+
+=active users
+
+  type grid de_users
+
+=sessions
+
+  type grid de_sessions
+

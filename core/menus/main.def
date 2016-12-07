@@ -1,0 +1,9 @@
+
+grant access to 999
+
+=admin
+
+  type submenu admin
+
+  grant access to 999
+  

@@ -176,7 +176,7 @@ sub de_connect
   if( $session_ok )
     {
     $self->log( "status: connect OK with session [$de_core_session_id] remote [$remote]" );
-    $self->set_user_session_expire_time( $client->{ 'CORE_SESSION_XTIME' } );
+    $self->set_user_session_expire_time( $client->{ 'CORE_SESSION_XTIME' } + 60 );
     
     $self->{ 'DECOR_CLIENT_OBJECT' } = $client;
     return $client;

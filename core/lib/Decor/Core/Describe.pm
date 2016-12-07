@@ -97,6 +97,9 @@ my %DES_ATTRS = (
                            SYSTEM  => 1,
                          },
                   'FIELD' => {
+                           TABLE       => 1,
+                           NAME        => 1,
+
                            TYPE        => 1,
                            LABEL       => 2,
                            GRANT       => 1,
@@ -241,6 +244,8 @@ sub __merge_table_des_file
       de_log_debug( "       =sect: [$category:$sect_name]" );  
       
       $des->{ $category }{ $sect_name } ||= {};
+      $des->{ $category }{ $sect_name }{ 'TABLE' }   = $table;
+      $des->{ $category }{ $sect_name }{ 'NAME'  }   = $sect_name;
       $des->{ $category }{ $sect_name }{ 'LABEL' } ||= $sect_name;
       # FIXME: URGENT: copy only listed keys! no all
 ###      %{ $config->{ $category }{ $sect_name } } = ( %{ dclone( $config->{ '@' }{ '@' } ) }, %{ $config->{ $category }{ $sect_name } } );

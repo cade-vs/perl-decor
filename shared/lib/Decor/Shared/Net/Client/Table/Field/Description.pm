@@ -16,6 +16,13 @@ use Data::Tools;
 
 ##############################################################################
 
+sub client
+{
+  my $self = shift;
+  
+  return $self->{ ':CLIENT_OBJECT' };
+}
+
 sub get_attr
 {
   my $self = shift;
@@ -35,6 +42,69 @@ sub get_attr
   return undef unless exists $self->{ $attr };
     
   return $self->{ $attr };
+}
+
+sub is_linked
+{
+  my $self   = shift;
+  
+  return ( exists $self->{ 'LINKED_TABLE' } or exists $self->{ 'BACKLINKED_TABLE' } ) ? 1 : undef;
+}
+
+sub is_backlinked
+{
+  my $self   = shift;
+  
+  return ( exists $self->{ 'BACKLINKED_TABLE' } ) ? 1 : undef;
+}
+
+sub link_details
+{
+  my $self   = shift;
+  
+  if( exists $self->{ 'LINKED_TABLE' } )
+    {
+    return ( $self->{ 'LINKED_TABLE' }, $self->{ 'LINKED_FIELD' }, $self->{ 'LINK_TYPE' } );
+    }
+  elsif( exists $self->{ 'BACKLINKED_TABLE' } )  
+    {
+    return ( $self->{ 'BACKLINKED_TABLE' }, $self->{ 'BACKLINKED_KEY' }, $self->{ 'LINK_TYPE' } );
+    }
+  else
+    {
+    my $table = $self->{ 'TABLE' };
+    my $field = $self->{ 'FIELD' };
+    boom "link details requested for table [$table] field [$field] but this is not a LINKED field";
+    }  
+}
+
+sub describe_linked_field
+{
+  my $self   = shift;
+  
+  my ( $table, $f, $type ) = $self->link_details();
+  
+  my $ltdes = $self->client()->describe( $table );
+  my $lfdes = $ltdes->{ 'FIELD' }{ $f };
+  
+  return $lfdes;
+}
+
+sub expand_path
+{
+  my $self   = shift;
+  
+  my $cfdes = $self;
+  my @res = ( $self->{ 'NAME' } );
+  while(4)
+    {
+    last unless $cfdes->is_linked();
+    $cfdes = $cfdes->describe_linked_field();
+    push @res, $cfdes->{ 'NAME' };
+    }
+    
+  my $res = join '.', @res;
+  return wantarray ? ( $res, $cfdes ) : $res;  
 }
 
 ### EOF ######################################################################

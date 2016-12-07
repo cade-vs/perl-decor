@@ -28,6 +28,10 @@ sub main
 
   my $core = $reo->de_connect();
   my $tdes = $core->describe( $table );
+  my %bfdes; # base/begin/origin field descriptions, indexed by field path
+  my %lfdes; # linked/last       field descriptions, indexed by field path, pointing to trail field
+  
+  return "<#e_internal>" unless $tdes;
 
 #  print STDERR Dumper( $tdes );
 
@@ -35,6 +39,24 @@ sub main
   $offset = 0 if $offset < 0;
   
   my @fields = @{ $tdes->get_fields_list_by_oper( 'READ' ) };
+  
+  for( @fields )
+    {
+    # resolve fields
+    my $fdes    = $tdes->{ 'FIELD' }{ $_ };
+    if( $fdes->is_linked() )
+      {
+      my $lfdes;
+      ( $_, $lfdes ) = $fdes->expand_path();
+      $lfdes{ $_ } = $lfdes;
+      }
+    else
+      {
+      $lfdes{ $_ } = $fdes;
+      }  
+    $bfdes{ $_ } = $fdes;
+    }
+
   my $fields = join ',', @fields;
   
   my $select = $core->select( $table, $fields, { OFFSET => $offset, LIMIT => $page_size, ORDER_BY => '_ID DESC' } );
@@ -48,12 +70,19 @@ sub main
   $text .= "<tr class=grid-header>";
   $text .= "<td class='grid-header fmt-left'>Ctrl</td>";
   
-  for my $f ( @fields )
+  for my $field ( @fields )
     {
-    my $fdes      = $tdes->{ 'FIELD' }{ $f };
-    my $type_name = $fdes->{ 'TYPE' }{ 'NAME' };
+    my $bfdes     = $bfdes{ $field };
+    my $lfdes     = $lfdes{ $field };
+    my $type_name = $lfdes->{ 'TYPE' }{ 'NAME' };
     my $fmt_class = $FMT_CLASSES{ $type_name } || 'fmt-left';
-    my $label     = $fdes->get_attr( qw( WEB GRID LABEL ) );
+    my $blabel     = $bfdes->get_attr( qw( WEB GRID LABEL ) );
+    my $label = "$blabel";
+    if( $bfdes ne $lfdes )
+      {
+      my $llabel     = $lfdes->get_attr( qw( WEB GRID LABEL ) );
+      $label .= "/$llabel";
+      }
 
     $text .= "<td class='grid-header $fmt_class'>$label</td>";
     }
@@ -73,14 +102,16 @@ sub main
     $vec_ctrl .= de_html_alink_icon( $reo, 'new', "copy.png", 'Copy this record', ACTION => 'edit', ID =>  -1, TABLE => $table, COPY_ID => $id );
     
     $text .= "<td class='grid-data fmt-ctrl'>$vec_ctrl</td>";
-    for my $f ( @fields )
+    for my $field ( @fields )
       {
-      my $fdes      = $tdes->{ 'FIELD' }{ $f };
-      my $type_name = $fdes->{ 'TYPE' }{ 'NAME' };
+      my $bfdes     = $bfdes{ $field };
+      my $lfdes     = $lfdes{ $field };
+      my $type_name = $lfdes->{ 'TYPE' }{ 'NAME' };
       my $fmt_class = $FMT_CLASSES{ $type_name } || 'fmt-left';
+
+      my $data = $row_data->{ $field };
       
-      my $data = $row_data->{ $f };
-      my ( $data_fmt, $fmt_class ) = de_web_format_field( $data, $fdes, 'GRID' );
+      my ( $data_fmt, $fmt_class ) = de_web_format_field( $data, $lfdes, 'GRID' );
       
       $text .= "<td class='grid-data $fmt_class'>$data_fmt</td>";
       }

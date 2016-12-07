@@ -11,7 +11,9 @@ package Decor::Core::Subs;
 use strict;
 use Exception::Sink;
 use Data::Tools;
+
 use Decor::Shared::Utils;
+use Decor::Core::Env;
 use Decor::Core::Log;
 use Decor::Core::DB::Record;
 use Decor::Core::Subs::Env;
@@ -243,7 +245,7 @@ sub sub_begin
     # update access time but not less than a minute away
     $sess->write( 
                   'ATIME' => time(),
-                  'XTIME' => time() + 15*60, # FIXME: get from config!
+                  'XTIME' => time() + de_app_cfg( 'SESSION_EXPIRE_TIME', 15*60 ), # 15 minutes default
                 );
     $sess->save();            
     # TODO: use variable-length or fixed-length sessions
@@ -284,7 +286,7 @@ sub __sub_begin_with_user_pass
                      'CTIME'  => $time_now,
                      'ETIME'  => 0,
                      'ATIME'  => $time_now,
-                     'XTIME'  => $time_now + 15*60, # FIXME: get from config!
+                     'XTIME' => time() + de_app_cfg( 'SESSION_EXPIRE_TIME', 15*60 ), # 15 minutes default
                      'REMOTE' => $remote,
                      );
 

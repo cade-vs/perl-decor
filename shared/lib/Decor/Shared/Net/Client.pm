@@ -262,9 +262,11 @@ sub describe
   bless $mo->{ 'DES' }, 'Decor::Shared::Net::Client::Table::Description';
   for my $field ( keys %{ $mo->{ 'DES' }{ 'FIELD' } } )
     {
+    $mo->{ 'DES' }{ 'FIELD' }{ $field }{ ':CLIENT_OBJECT' } = $self;
     bless $mo->{ 'DES' }{ 'FIELD' }{ $field }, 'Decor::Shared::Net::Client::Table::Field::Description';
     }
-  lock_ref_keys( $mo->{ 'DES' } );  
+  hash_lock_recursive( $mo->{ 'DES' } );
+#  lock_ref_keys( $mo->{ 'DES' } );  
   unlock_ref_keys( $mo->{ 'DES' }{ 'CACHE' } );
 
   return $mo->{ 'DES' };
