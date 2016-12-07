@@ -66,7 +66,19 @@ sub link_details
     {
     return ( $self->{ 'LINKED_TABLE' }, $self->{ 'LINKED_FIELD' }, $self->{ 'LINK_TYPE' } );
     }
-  elsif( exists $self->{ 'BACKLINKED_TABLE' } )  
+  else
+    {
+    my $table = $self->{ 'TABLE' };
+    my $field = $self->{ 'FIELD' };
+    boom "link details requested for table [$table] field [$field] but this is not a LINKED field";
+    }  
+}
+
+sub backlink_details
+{
+  my $self   = shift;
+
+  if( exists $self->{ 'BACKLINKED_TABLE' } )  
     {
     return ( $self->{ 'BACKLINKED_TABLE' }, $self->{ 'BACKLINKED_KEY' }, $self->{ 'LINK_TYPE' } );
     }
@@ -74,7 +86,7 @@ sub link_details
     {
     my $table = $self->{ 'TABLE' };
     my $field = $self->{ 'FIELD' };
-    boom "link details requested for table [$table] field [$field] but this is not a LINKED field";
+    boom "backlink details requested for table [$table] field [$field] but this is not a BACKLINKED field";
     }  
 }
 
@@ -90,7 +102,7 @@ sub describe_linked_field
   return $lfdes;
 }
 
-sub expand_path
+sub expand_field_path
 {
   my $self   = shift;
   

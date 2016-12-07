@@ -39,22 +39,31 @@ sub main
   $offset = 0 if $offset < 0;
   
   my @fields = @{ $tdes->get_fields_list_by_oper( 'READ' ) };
+
+push @fields, 'USR.ACTIVE';
   
   for( @fields )
     {
     # resolve fields
-    my $fdes    = $tdes->{ 'FIELD' }{ $_ };
-    if( $fdes->is_linked() )
+    if( /\./ )
       {
-      my $lfdes;
-      ( $_, $lfdes ) = $fdes->expand_path();
-      $lfdes{ $_ } = $lfdes;
+      ( $bfdes{ $_ }, $lfdes{ $_ } ) = $tdes->resolve_path( $_ );
       }
     else
-      {
-      $lfdes{ $_ } = $fdes;
+      {  
+      my $fdes    = $tdes->{ 'FIELD' }{ $_ };
+      if( $fdes->is_linked() )
+        {
+        my $lfdes;
+        ( $_, $lfdes ) = $fdes->expand_field_path();
+        $lfdes{ $_ } = $lfdes;
+        }
+      else
+        {
+        $lfdes{ $_ } = $fdes;
+        }
+      $bfdes{ $_ } = $fdes;
       }  
-    $bfdes{ $_ } = $fdes;
     }
 
   my $fields = join ',', @fields;

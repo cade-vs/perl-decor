@@ -259,6 +259,7 @@ sub describe
   $self->{ 'CACHE' }{ 'DESCRIBE' }{ $table } = $mo->{ 'DES' };
 
   $mo->{ 'DES' }{ 'CACHE' } = {};
+  $mo->{ 'DES' }{ ':CLIENT_OBJECT' } = $self;
   bless $mo->{ 'DES' }, 'Decor::Shared::Net::Client::Table::Description';
   for my $field ( keys %{ $mo->{ 'DES' }{ 'FIELD' } } )
     {

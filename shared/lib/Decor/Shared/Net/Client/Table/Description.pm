@@ -16,6 +16,13 @@ use Data::Tools;
 
 ##############################################################################
 
+sub client
+{
+  my $self = shift;
+  
+  return $self->{ ':CLIENT_OBJECT' };
+}
+
 sub get_fields_list_by_oper
 {
   my $self = shift;
@@ -40,7 +47,39 @@ sub get_fields_list_by_oper
   return \@f;
 }
 
+sub get_field_des
+{
+  my $self = shift;
+  my $f    = shift;
+  
+  return $self->{ 'FIELD' }{ $f };
+}
 
+sub resolve_path
+{
+  my $self = shift;
+  my $path = shift;
+  
+  my @path = split /\./, $path;
+  
+  my $f  = shift @path;
+  my $bfdes = $self->get_field_des( $f );
+  my $cfdes = $bfdes;
+
+  while( @path )
+    {
+    if( ! $cfdes->is_linked() )
+      {
+      boom "during path resolve of [$path] non-linked field [$f] is found";
+      }
+    my ( $table ) = $cfdes->link_details();
+    my $ctdes = $self->client()->describe( $table );
+    $f = shift @path;
+    $cfdes = $ctdes->get_field_des( $f );
+    }
+  
+  return wantarray ? ( $bfdes, $cfdes ) : $cfdes;
+}
 
 ### EOF ######################################################################
 1;
