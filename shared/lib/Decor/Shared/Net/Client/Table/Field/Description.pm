@@ -114,9 +114,9 @@ sub expand_field_path
     $cfdes = $cfdes->describe_linked_field();
     push @res, $cfdes->{ 'NAME' };
     }
-    
+
   my $res = join '.', @res;
-  return wantarray ? ( $res, $cfdes ) : $res;  
+  return wantarray() ? ( $res, $cfdes ) : $res;  
 }
 
 ### EOF ######################################################################

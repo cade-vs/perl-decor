@@ -19,10 +19,46 @@ use Exporter;
 our @ISA    = qw( Exporter );
 our @EXPORT = qw( 
 
+                de_web_expand_resolve_fields_in_place
                 de_web_format_field
 
                 );
 
+sub de_web_expand_resolve_fields_in_place
+{
+  my $fields = shift; # array ref with fields
+  my $tdes   = shift; # table description
+  my $bfdes  = shift; # hashref base/begin/origin field descriptions, indexed by field path
+  my $lfdes  = shift; # hashref linked/last       field descriptions, indexed by field path, pointing to trail field
+ 
+  my @res_fields;
+  
+  for( @$fields )
+    {
+    # resolve fields
+    if( /\./ )
+      {
+      ( $bfdes->{ $_ }, $lfdes->{ $_ } ) = $tdes->resolve_path( $_ );
+      }
+    else
+      {  
+      my $fdes    = $tdes->{ 'FIELD' }{ $_ };
+      if( $fdes->is_linked() )
+        {
+        my $ld;
+        ( $_, $ld ) = $fdes->expand_field_path();
+        $lfdes->{ $_ } = $ld;
+        }
+      else
+        {
+        $lfdes->{ $_ } = $fdes;
+        }
+      $bfdes->{ $_ } = $fdes;
+      }  
+    }
+
+  return undef;
+}
 
 sub de_web_format_field
 {
@@ -43,6 +79,7 @@ sub de_web_format_field
     my $maxlen = $fdes->get_attr( 'WEB', $vtype, 'MAXLEN' );
     if( $maxlen )
       {
+
       $maxlen = 16 if $maxlen <   0;
       $maxlen = 16 if $maxlen > 256;
       if( length( $data_fmt ) > $maxlen )

@@ -8,6 +8,7 @@
   
   web.grid.maxlen  12
   web.view.maxlen  32
+  web.preview.maxlen  32
   web.mono
 
 =ACTIVE

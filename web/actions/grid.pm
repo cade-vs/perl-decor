@@ -40,31 +40,10 @@ sub main
   
   my @fields = @{ $tdes->get_fields_list_by_oper( 'READ' ) };
 
-push @fields, 'USR.ACTIVE';
-  
-  for( @fields )
-    {
-    # resolve fields
-    if( /\./ )
-      {
-      ( $bfdes{ $_ }, $lfdes{ $_ } ) = $tdes->resolve_path( $_ );
-      }
-    else
-      {  
-      my $fdes    = $tdes->{ 'FIELD' }{ $_ };
-      if( $fdes->is_linked() )
-        {
-        my $lfdes;
-        ( $_, $lfdes ) = $fdes->expand_field_path();
-        $lfdes{ $_ } = $lfdes;
-        }
-      else
-        {
-        $lfdes{ $_ } = $fdes;
-        }
-      $bfdes{ $_ } = $fdes;
-      }  
-    }
+### testing
+#push @fields, 'USR.ACTIVE';
+
+  de_web_expand_resolve_fields_in_place( \@fields, $tdes, \%bfdes, \%lfdes );
 
   my $fields = join ',', @fields;
   
@@ -132,43 +111,6 @@ push @fields, 'USR.ACTIVE';
   my $offset_next = $offset + $page_size;
   $text .= "<a reactor_here_href=?offset=$offset_prev><img src=i/page-prev.png> previous page</a> | <a reactor_here_href=?offset=$offset_next>next page <img src=i/page-next.png> </a>";
 
-=pod
-  $text .= "<table cellspacing=0 cellpadding=0 width=100%><tr><td align=center><table class=menu cellspacing=0 cellpadding=0 width=80%><tr>";
-  for my $key ( keys %$menu )
-    {
-    next if $key eq '@';
-    my $item = $menu->{ $key };
-    next unless $item->{ 'GRANT' }{ 'ACCESS' };
-    next if     $item->{ 'DENY'  }{ 'ACCESS' };
-
-    my $label = $item->{ 'LABEL' } || $key;
-    my $type  = $item->{ 'TYPE'  };
-    
-    my $link;
-    if( $type eq 'SUBMENU' )
-      {
-      $link = "<a class=menu reactor_new_href=?action=menu&menu=$key>$label</a>";
-      }
-    elsif( $type eq 'GRID' )
-      {
-      my $table  = $item->{ 'TABLE'  };
-      $link = "<a class=menu reactor_new_href=?action=grid&table=$table>$label</a>";
-      }
-    elsif( $type eq 'INSERT' )
-      {
-      my $table  = $item->{ 'TABLE'  };
-      $link = "<a class=menu reactor_new_href=?action=edit&table=$table&id=-1>$label</a>";
-      }
-    else
-      {
-      $reo->log( "error: menu: invalid item [$key] type [$type]" );
-      next;
-      }  
-
-    $text .= "<tr><td class=menu>$link</td></tr>";
-    }
-  $text .= "</table></td></tr></table>";
-=cut  
   return $text;
 }
 

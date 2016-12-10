@@ -18,8 +18,13 @@ sub main
 
   my $core = $reo->de_connect();
   my $tdes = $core->describe( $table );
+  my %bfdes; # base/begin/origin field descriptions, indexed by field path
+  my %lfdes; # linked/last       field descriptions, indexed by field path, pointing to trail field
 
   my @fields = @{ $tdes->get_fields_list_by_oper( 'READ' ) };
+
+  de_web_expand_resolve_fields_in_place( \@fields, $tdes, \%bfdes, \%lfdes );
+
   my $fields = join ',', @fields;
   
   my $select = $core->select( $table, $fields, { LIMIT => 1, FILTER => { '_ID' => $id } } );
@@ -36,14 +41,22 @@ sub main
   return "<#no_data>" unless $row_data;
   my $row_id = $row_data->{ '_ID' };
 
-  for my $f ( @fields )
+  for my $field ( @fields )
     {
-    my $fdes      = $tdes->{ 'FIELD' }{ $f };
-    my $type_name = $fdes->{ 'TYPE' }{ 'NAME' };
-    my $label     = $fdes->get_attr( qw( WEB VIEW LABEL ) );
+    my $bfdes     = $bfdes{ $field };
+    my $lfdes     = $lfdes{ $field };
+    my $type_name = $lfdes->{ 'TYPE' }{ 'NAME' };
+    my $blabel    = $bfdes->get_attr( qw( WEB VIEW LABEL ) );
+
+    my $label = "$blabel";
+    if( $bfdes ne $lfdes )
+      {
+      my $llabel     = $lfdes->get_attr( qw( WEB VIEW LABEL ) );
+      $label .= "/$llabel";
+      }
     
-    my $data = $row_data->{ $f };
-    my $data_fmt = de_web_format_field( $data, $fdes, 'VIEW' );
+    my $data = $row_data->{ $field };
+    my $data_fmt = de_web_format_field( $data, $lfdes, 'VIEW' );
 
     $text .= "<tr class=view>";
     $text .= "<td class='view-field' >$label</td>";
