@@ -7,7 +7,7 @@
   type char 512
   
   web.grid.maxlen  12
-  web.view.maxlen  32
+  web.view.maxlen  48
   web.preview.maxlen  32
   web.mono
 

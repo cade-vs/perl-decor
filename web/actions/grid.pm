@@ -49,7 +49,7 @@ sub main
   
   my $select = $core->select( $table, $fields, { OFFSET => $offset, LIMIT => $page_size, ORDER_BY => '_ID DESC' } );
 
-  my $text .= "<br>";
+  $text .= "<br>";
 
   $text .= de_html_alink( $reo, 'new', "insert.png Insert new record", 'Insert new record', ACTION => 'edit', ID => -1, TABLE => $table );
   $text .= "<p>";

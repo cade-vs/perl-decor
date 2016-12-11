@@ -145,6 +145,9 @@ sub sub_caps
   my $mi = shift;
   my $mo = shift;
 
+  my $app_name = $mi->{ 'APP_NAME' };
+  de_init( APP_NAME => $app_name ) if $app_name;
+
   $mo->{ 'VER'   } = de_version();
   $mo->{ 'UTIME' } = time();
   

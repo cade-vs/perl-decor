@@ -83,13 +83,13 @@ sub de_log
     next if $msg_type eq 'debug' and ! de_debug();
 
     my @msg_types = ( $msg_type );
-    push @msg_types, 'global' if $DE_LOG_TO_FILES and de_app_name();
+    push @msg_types, 'global' if $DE_LOG_TO_FILES and de_init_done();
 
     # write in order to prevent deadlock caused by flock
     for my $msg_type ( sort @msg_types )
       {
       my $fh = $de_log_files{ $msg_type };
-      if( de_app_name() and $DE_LOG_TO_FILES and -d $DE_LOG_DIR and ! $fh )
+      if( de_init_done() and $DE_LOG_TO_FILES and -d $DE_LOG_DIR and ! $fh )
         {
         open( $fh, ">>$DE_LOG_DIR/$msg_type.log" );
         $de_log_files{ $msg_type } = $fh;

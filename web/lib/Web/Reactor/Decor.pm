@@ -112,7 +112,7 @@ sub de_login
 
   $self->log( "debug: about to connect and login to host [$de_core_host] application [$de_core_app]" );
 
-  if( ! $client->connect( $de_core_host ) )
+  if( ! $client->connect( $de_core_host, $de_core_app ) )
     {
     $self->log( "error: connect FAILED to host [$de_core_host] application [$de_core_app]:\n" . Dumper( $client ) );
     return ( undef, 'E_CONNECT' );
@@ -163,10 +163,11 @@ sub de_connect
 
   $self->log( "debug: about to connect and use session to host [$de_core_host] application [$de_core_app]" );
 
-  if( ! $client->connect( $de_core_host ) )
+  if( ! $client->connect( $de_core_host, $de_core_app ) )
     {
     $self->log( "error: connect FAILED to host [$de_core_host] application [$de_core_app]:\n" . Dumper( $client ) );
-    return;
+#    $self->render( PAGE => 'error', 'main_action' => "<#e_connect>" );
+    return undef;
     }
 
   my $remote = $http_env->{ 'REMOTE_ADDR' };

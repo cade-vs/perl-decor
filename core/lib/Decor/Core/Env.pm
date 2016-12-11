@@ -17,6 +17,8 @@ our @ISA    = qw( Exporter );
 our @EXPORT = qw( 
                 
                 de_init
+                de_init_done
+                
                 de_app_name
                 de_app_path
                 de_modules
@@ -113,6 +115,11 @@ sub de_init
   dlock \@MODULES_DIRS;
   
   print STDERR Dumper( 'APP_CFG:', \%APP_CFG, 'MODULES:', \@MODULES, 'MODULES DIRS:', \@MODULES_DIRS );
+}
+
+sub de_init_done
+{
+  return $APP_NAME ne '';
 }
 
 sub de_app_name

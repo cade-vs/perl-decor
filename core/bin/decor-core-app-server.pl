@@ -24,11 +24,11 @@ my $opt_listen_port = 4243;
 my $opt_net_protocols = '*';
 
 our $help_text = <<END;
-usage: $0 <options> application_name
+usage: $0 <options>
 options:
     -p port   -- port number for incoming connections (default 9100)
     -f        -- run in foreground (no fork) mode
-    -e        -- preload application (will serve only single app)
+    -e app    -- preload application (will serve only single app)
     -t psj    -- allow network protocol formats (p=storable,s=stacker,j=json)
     -d        -- increase DEBUG level (can be used multiple times)
     -r        -- log to STDERR
@@ -81,7 +81,8 @@ while( @ARGV )
     }
   if( /-e/ )
     {
-    $opt_preload = 1;
+    $opt_preload  = 1;
+    $opt_app_name = lc shift @args;
     print "option: preload application, will serve single app\n";
     next;
     }
@@ -99,16 +100,19 @@ while( @ARGV )
   push @args, $_;
   }
 
-my $opt_app_name = lc shift @args;
 
-if( $opt_app_name =~ /^[A-Z_0-9]+$/i )
+
+if( $opt_preload )
   {
-  print "info: application name in use [$opt_app_name]\n";
-  }
-else
-  {
-  print "error: invalid application name [$opt_app_name]\n";
-  exit 1;
+  if( $opt_app_name =~ /^[A-Z_0-9]+$/i )
+    {
+    print "info: application name in use [$opt_app_name]\n";
+    }
+  else
+    {
+    print "error: invalid application name [$opt_app_name]\n";
+    exit 1;
+    }  
   }  
 
 #-----------------------------------------------------------------------------
