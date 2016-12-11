@@ -30,7 +30,8 @@ sub de_web_expand_resolve_fields_in_place
   my $tdes   = shift; # table description
   my $bfdes  = shift; # hashref base/begin/origin field descriptions, indexed by field path
   my $lfdes  = shift; # hashref linked/last       field descriptions, indexed by field path, pointing to trail field
- 
+  my $basef  = shift; # base fields
+
   my @res_fields;
   
   for( @$fields )
@@ -39,6 +40,8 @@ sub de_web_expand_resolve_fields_in_place
     if( /\./ )
       {
       ( $bfdes->{ $_ }, $lfdes->{ $_ } ) = $tdes->resolve_path( $_ );
+      $basef->{ $_ } = $bfdes->{ $_ }->{ 'NAME' };
+      print STDERR Dumper( $_, $bfdes->{ $_ }, '---------------------------+++---'  );
       }
     else
       {  
@@ -48,6 +51,7 @@ sub de_web_expand_resolve_fields_in_place
         my $ld;
         ( $_, $ld ) = $fdes->expand_field_path();
         $lfdes->{ $_ } = $ld;
+        $basef->{ $_ } = $fdes->{ 'NAME' };
         }
       else
         {

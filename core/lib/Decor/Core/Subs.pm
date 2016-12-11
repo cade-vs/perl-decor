@@ -325,6 +325,7 @@ sub __sub_begin_with_user_pass
                'LAST_LOGIN_SESSION' => $session_id,
                'LAST_LOGIN_TIME'    => $time_now,
               );
+  $user->save();
 
   subs_lock_current_session( $session_rec );
 

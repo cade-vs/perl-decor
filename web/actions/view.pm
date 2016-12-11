@@ -20,12 +20,17 @@ sub main
   my $tdes = $core->describe( $table );
   my %bfdes; # base/begin/origin field descriptions, indexed by field path
   my %lfdes; # linked/last       field descriptions, indexed by field path, pointing to trail field
+  my %basef; # base fields map, return base field NAME by field path
 
   my @fields = @{ $tdes->get_fields_list_by_oper( 'READ' ) };
 
-  de_web_expand_resolve_fields_in_place( \@fields, $tdes, \%bfdes, \%lfdes );
+#  push @fields, 'USR.ACTIVE';
 
-  my $fields = join ',', @fields;
+  de_web_expand_resolve_fields_in_place( \@fields, $tdes, \%bfdes, \%lfdes, \%basef );
+
+#$text .= Dumper( \%basef );
+
+  my $fields = join ',', @fields, values %basef;
   
   my $select = $core->select( $table, $fields, { LIMIT => 1, FILTER => { '_ID' => $id } } );
 
@@ -55,8 +60,25 @@ sub main
       $label .= "/$llabel";
       }
     
-    my $data = $row_data->{ $field };
-    my $data_fmt = de_web_format_field( $data, $lfdes, 'VIEW' );
+    my $data      = $row_data->{ $field };
+    my $data_base = $row_data->{ $basef{ $field } } if exists $basef{ $field };
+    my $data_fmt  = de_web_format_field( $data, $lfdes, 'VIEW' );
+
+    my $overflow  = $bfdes->get_attr( qw( WEB VIEW OVERFLOW ) );
+    if( $overflow )
+      {
+      $data_fmt =~ s/'/&#39;/g; # FIXME: move to func
+      $data_fmt = "<form><input value='$data_fmt' style='width: 96%' readonly></form>";
+      }
+
+    if( $bfdes->is_linked() )
+      {
+      my ( $linked_table, $linked_field ) = $bfdes->link_details();
+      $data_fmt = de_html_alink_button( $reo, 'new', $data_fmt, "View linked record", ACTION => 'view', ID => $data_base, TABLE => $linked_table );
+      }
+    elsif( $bfdes->is_backlinked() )
+      {
+      }
 
     $text .= "<tr class=view>";
     $text .= "<td class='view-field' >$label</td>";

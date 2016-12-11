@@ -69,7 +69,7 @@ sub link_details
   else
     {
     my $table = $self->{ 'TABLE' };
-    my $field = $self->{ 'FIELD' };
+    my $field = $self->{ 'NAME'  };
     boom "link details requested for table [$table] field [$field] but this is not a LINKED field";
     }  
 }
@@ -85,7 +85,7 @@ sub backlink_details
   else
     {
     my $table = $self->{ 'TABLE' };
-    my $field = $self->{ 'FIELD' };
+    my $field = $self->{ 'NAME'  };
     boom "backlink details requested for table [$table] field [$field] but this is not a BACKLINKED field";
     }  
 }
@@ -94,10 +94,16 @@ sub describe_linked_field
 {
   my $self   = shift;
   
-  my ( $table, $f, $type ) = $self->link_details();
+  my ( $linked_table, $linked_field, $type ) = $self->link_details();
   
-  my $ltdes = $self->client()->describe( $table );
-  my $lfdes = $ltdes->{ 'FIELD' }{ $f };
+  my $ltdes = $self->client()->describe( $linked_table );
+  if( ! $ltdes or ! exists $ltdes->{ 'FIELD' }{ $linked_field } )
+    {
+    my $table = $self->{ 'TABLE' };
+    my $field = $self->{ 'NAME'  };
+    boom "table [$table] field [$field] links to unknown table [$linked_table] or field [$linked_field]";
+    }
+  my $lfdes = $ltdes->{ 'FIELD' }{ $linked_field };
   
   return $lfdes;
 }

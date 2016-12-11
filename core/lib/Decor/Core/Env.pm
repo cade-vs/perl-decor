@@ -69,10 +69,18 @@ my $_INIT_OK;
 sub de_init
 {
   my %init  = @_;
+  my $app_name = $init{ 'APP_NAME' };
+  boom "invalid APP_NAME [$app_name]" unless de_check_name( $app_name );
+
+  if( $_INIT_OK )
+    {
+    boom "mismatched APP_NAME expected [$APP_NAME] got [$app_name]" unless $APP_NAME eq $app_name;
+    return;
+    }
+
   $_INIT_OK = 1;
   
-  dlock $APP_NAME = $init{ 'APP_NAME' };
-  boom "invalid APP_NAME [$APP_NAME]" unless de_check_name( $APP_NAME );
+  dlock $APP_NAME = $app_name;
 
   boom "invalid ROOT directory [$ROOT] use either [/usr/local/decor] or DECOR_ROOT env var" unless $ROOT ne '' and -d $ROOT;
 

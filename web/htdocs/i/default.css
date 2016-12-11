@@ -188,6 +188,7 @@ a.logo
 
 table.main-menu
         {
+        width:  100%;
         color: #CCC;
         background-color: #224;
         border-bottom: solid 1px #66A;
@@ -198,9 +199,8 @@ table.main-menu
 td.main-menu
         {
         width:  1%;
-        border-right: solid 1px #777;
-        padding: 0;
         white-space: nowrap;
+        border-right: solid 1px #777;
         }
 
 td.main-menu-fill
@@ -216,10 +216,7 @@ a.main-menu
         display: block;
         color: #CCC;
         width:  100%;
-        margin: 0 0 0 0;
-        padding: 4px;
-        padding-left: 20px;
-        padding-right: 20px;
+        padding: 6px;
         text-decoration: none;
         }
 

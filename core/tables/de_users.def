@@ -12,10 +12,14 @@ system
   label Password
   type  char  256
 
+  web.overflow  1
+
 =PASS_SALT
     
   label Password seed
   type  char  256
+
+  web.overflow  1
 
 =ACTIVE
 
@@ -30,5 +34,5 @@ system
 =LAST_LOGIN_SESSION
 
   label Last login session
-  type  link DE_SESSIONS STIME
+  type  link DE_SESSIONS CTIME
 

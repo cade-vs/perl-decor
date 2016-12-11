@@ -115,6 +115,7 @@ my %DES_ATTRS = (
                            MAXLEN      => 3, # max remote viewer field length
                            MONO        => 3, # remote viewer should use monospaced font
                            DETAILS     => 3,
+                           OVERFLOW    => 3,
                          },
                   'INDEX' => {
                            FIELDS      => 1,

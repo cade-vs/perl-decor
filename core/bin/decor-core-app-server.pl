@@ -82,7 +82,7 @@ while( @ARGV )
   if( /-e/ )
     {
     $opt_preload  = 1;
-    $opt_app_name = lc shift @args;
+    $opt_app_name = lc shift @ARGV;
     print "option: preload application, will serve single app\n";
     next;
     }
