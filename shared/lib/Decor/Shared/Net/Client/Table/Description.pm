@@ -23,6 +23,23 @@ sub client
   return $self->{ ':CLIENT_OBJECT' };
 }
 
+sub allows
+{
+  my $self = shift;
+  
+  my $oper = uc shift;
+
+#print STDERR Dumper( $self->{ '@' } );
+
+  return 0 if    ( exists $self->{ '@' }{ 'DENY'  }{ $oper } and $self->{ '@' }{ 'DENY'  }{ $oper } ) 
+              or ( exists $self->{ '@' }{ 'DENY'  }{ 'ALL' } and $self->{ '@' }{ 'DENY'  }{ 'ALL' } );
+              
+  return 1 if    ( exists $self->{ '@' }{ 'GRANT' }{ $oper } and $self->{ '@' }{ 'GRANT' }{ $oper } ) 
+              or ( exists $self->{ '@' }{ 'GRANT' }{ 'ALL' } and $self->{ '@' }{ 'GRANT' }{ 'ALL' } );
+  
+  return 0;
+}
+
 sub get_fields_list_by_oper
 {
   my $self = shift;
@@ -35,8 +52,7 @@ sub get_fields_list_by_oper
   
   for my $f ( keys %{ $self->{ 'FIELD' } } )
     {
-    next unless $self->{ 'FIELD' }{ $f }{ 'GRANT' }{ $oper } or $self->{ 'FIELD' }{ $f }{ 'GRANT' }{ 'ALL' };
-    next if     $self->{ 'FIELD' }{ $f }{ 'DENY'  }{ $oper } or $self->{ 'FIELD' }{ $f }{ 'DENY'  }{ 'ALL' };
+    next unless $self->{ 'FIELD' }{ $f }->allows( $oper );
     push @f, $f;
     }
 

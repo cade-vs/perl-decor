@@ -64,7 +64,7 @@ sub main
     my $lfdes     = $lfdes{ $field };
     my $type_name = $lfdes->{ 'TYPE' }{ 'NAME' };
     my $fmt_class = $FMT_CLASSES{ $type_name } || 'fmt-left';
-    my $blabel     = $bfdes->get_attr( qw( WEB GRID LABEL ) );
+    my $blabel    = $bfdes->get_attr( qw( WEB GRID LABEL ) );
     my $label = "$blabel";
     if( $bfdes ne $lfdes )
       {
@@ -97,9 +97,16 @@ sub main
       my $type_name = $lfdes->{ 'TYPE' }{ 'NAME' };
       my $fmt_class = $FMT_CLASSES{ $type_name } || 'fmt-left';
 
+      my $lpassword = $lfdes->get_attr( 'PASSWORD' ) ? 1 : 0;
+
       my $data = $row_data->{ $field };
       
       my ( $data_fmt, $fmt_class ) = de_web_format_field( $data, $lfdes, 'GRID' );
+
+      if( $lpassword )
+        {
+        $data_fmt = "(hidden)";
+        }
       
       $text .= "<td class='grid-data $fmt_class'>$data_fmt</td>";
       }

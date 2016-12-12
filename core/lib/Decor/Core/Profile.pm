@@ -294,10 +294,11 @@ sub check_access_row
 
   my $oper  = uc $_[0];
   my $table = uc $_[1];
-  my $dsrc  = uc $_[2]; # data source, hashref or record object
+  my $dsrc  =    $_[2]; # data source, hashref or record object
 
   my $fields = des_table_get_fields_list( $table );
   my $sccnt = 0; # security checks count
+#print STDERR "--------------------------------check access row [$oper] [$table] [$dsrc] [---] ($sccnt)\n";
   for my $field ( @$fields )
     {
     next unless $field =~ /^_${oper}(_[A-Z_0-9]+)?/;
@@ -305,6 +306,9 @@ sub check_access_row
     my $sccnt++;
     my $grp = ref( $dsrc ) eq 'HASH' ? $dsrc->{ $field } : $dsrc->read( $field );
     my $res = $self->check_access( $grp );
+
+#print STDERR "--------------------------------check access row [$oper] [$table] [$dsrc] [$field]=>[$grp]==[$res] ($sccnt)\n";
+
     return 1 if $res;
     }
   

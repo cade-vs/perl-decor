@@ -43,7 +43,10 @@ sub main
   $text .= "</tr>";
 
   my $row_data = $core->fetch( $select );
-  return "<#no_data>" unless $row_data;
+  if( ! $row_data )
+    {
+    return "<p><#no_data><p>" . de_html_alink_button( $reo, 'back', "Back", "Return to previous screen" );
+    }
   my $row_id = $row_data->{ '_ID' };
 
   for my $field ( @fields )
@@ -53,16 +56,21 @@ sub main
     my $type_name = $lfdes->{ 'TYPE' }{ 'NAME' };
     my $blabel    = $bfdes->get_attr( qw( WEB VIEW LABEL ) );
 
+    my $lpassword = $lfdes->get_attr( 'PASSWORD' ) ? 1 : 0;
+
     my $label = "$blabel";
     if( $bfdes ne $lfdes )
       {
       my $llabel     = $lfdes->get_attr( qw( WEB VIEW LABEL ) );
       $label .= "/$llabel";
       }
+
+    my $base_field = exists $basef{ $field } ? $basef{ $field } : $field;
     
     my $data      = $row_data->{ $field };
     my $data_base = $row_data->{ $basef{ $field } } if exists $basef{ $field };
     my $data_fmt  = de_web_format_field( $data, $lfdes, 'VIEW' );
+    my $data_ctrl;
 
     my $overflow  = $bfdes->get_attr( qw( WEB VIEW OVERFLOW ) );
     if( $overflow )
@@ -74,16 +82,30 @@ sub main
     if( $bfdes->is_linked() )
       {
       my ( $linked_table, $linked_field ) = $bfdes->link_details();
-      $data_fmt = de_html_alink_button( $reo, 'new', $data_fmt, "View linked record", ACTION => 'view', ID => $data_base, TABLE => $linked_table );
+      my $ltdes = $core->describe( $linked_table );
+      $data_fmt = de_html_alink( $reo, 'new', $data_fmt, "View linked record", ACTION => 'view', ID => $data_base, TABLE => $linked_table );
+      $data_ctrl .= de_html_alink_icon( $reo, 'new', 'view.png',   "View linked record",           ACTION => 'view', ID => $data_base, TABLE => $linked_table );
+      if( $ltdes->allows( 'INSERT' ) and $tdes->allows( 'UPDATE' ) and $bfdes->allows( 'UPDATE' ) )
+        {
+        # FIXME: check for record access too!
+        $data_ctrl .= de_html_alink_icon( $reo, 'new', 'insert.png', "Insert and link a new record", ACTION => 'edit', ID => -1,         TABLE => $linked_table, LINK_TO_TABLE => $table, LINK_TO_FIELD => $base_field, LINK_TO_ID => $id );
+        }
       }
     elsif( $bfdes->is_backlinked() )
       {
+      my ( $backlinked_table, $backlinked_field ) = $bfdes->backlink_details();
+      $data_ctrl .= de_html_alink_icon( $reo, 'new', 'insert.png', "Insert and link a new record", ACTION => 'edit', ID => -1, TABLE => $backlinked_table );
+      }
+
+    if( $lpassword )
+      {
+      $data_fmt = "(hidden)";
       }
 
     $text .= "<tr class=view>";
     $text .= "<td class='view-field' >$label</td>";
-    $text .= "<td class='view-value' >$data_fmt</td>";
-    $text .= "</tr>";
+    $text .= "<td class='view-value' ><table cellspacing=0 cellpadding=0 width=100%><tr><td align=left>$data_fmt</td><td align=right>$data_ctrl</td></tr></table></td>";
+    $text .= "</tr>\n";
     }
   $text .= "</table>";
 

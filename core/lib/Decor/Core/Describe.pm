@@ -111,6 +111,7 @@ my %DES_ATTRS = (
                            UNIQUE      => 1,
                            INDEX       => 1,
                            BOOL        => 1,
+                           PASSWORD    => 1,
                            
                            MAXLEN      => 3, # max remote viewer field length
                            MONO        => 3, # remote viewer should use monospaced font

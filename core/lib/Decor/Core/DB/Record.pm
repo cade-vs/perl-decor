@@ -149,7 +149,7 @@ sub load
   
   my $table = uc shift;
   my $id    = shift;
-  my $opt   = shift;
+  my $opt   = shift || {};
 
   boom "invalid TABLE name [$table]" unless des_exists( $table );
   de_check_id_boom( $id, "invalid ID [$id]" );
@@ -165,7 +165,7 @@ sub load
   my $dbio = $self->{ 'DB::IO' };
   
   # $dbio is already taint-ed, so will not read restricted record
-  my $data = $dbio->read_first1_by_id_hashref( $table, $id );
+  my $data = $dbio->read_first1_by_id_hashref( $table, $id, { LOCK => $opt->{ 'LOCK' } } );
   
   if( ! $data )
     {

@@ -750,6 +750,7 @@ sub sub_insert
                     'ACTIVE'      => 0,
                    );
     $res_rec->save();
+    $data->{ '_ID' } = $id;
     }
   else
     {
@@ -769,6 +770,41 @@ sub sub_insert
   $rec->write( %$data );
   # TODO: call triggers here
   $rec->save();
+
+  # extra processing, attach, etc.
+  my $lt_table  = uc $mi->{ 'LINK_TO_TABLE'  };
+  my $lt_field  = uc $mi->{ 'LINK_TO_FIELD'  };
+  my $lt_id     =    $mi->{ 'LINK_TO_ID'     };
+
+print STDERR "+++++++++++++++++++++++++++++++ LINK_TO table:field:id == $lt_table:$lt_field:$lt_id\n";
+
+  if( $lt_table and $lt_field and $lt_id )
+    {
+    boom "invalid LINK_TO_TABLE name [$lt_table]"    unless de_check_name( $lt_table );
+    boom "invalid LINK_TO_FIELD name [$lt_field]"    unless de_check_name( $lt_field );
+    boom "invalid LINK_TO_ID [$lt_id]"               unless de_check_id( $lt_id );
+    
+    my $lt_rec = new Decor::Core::DB::Record;
+
+    my $profile = subs_get_current_profile();
+    $lt_rec->set_profile_locked( $profile );
+
+    $lt_rec->taint_mode_enable_all();
+
+    $profile->check_access_table_boom( 'UPDATE', $lt_table );
+    $profile->check_access_table_field_boom( 'UPDATE', $lt_table, $lt_field );
+
+    boom "E_ACCESS: unable to load requested record TABLE [$lt_table] ID [$lt_id]" 
+        unless $lt_rec->load( $lt_table, $lt_id, { LOCK => 1 } );
+    
+    boom "E_ACCESS: UPDATE is not allowed for requested record TABLE [$table] ID [$id]" 
+        unless $profile->check_access_row( 'UPDATE', $lt_rec->table(), $lt_rec );
+        
+    $lt_rec->write( $lt_field => $rec->id() );    
+    
+    $lt_rec->save();
+    }
+
 
   $mo->{ 'NEW_ID' } = $rec->id();
   $mo->{ 'XS' } = 'OK';
@@ -804,9 +840,11 @@ sub sub_update
   my $where_clause = join ' AND ', @$where;
 
   boom "E_ACCESS: unable to load requested record TABLE [$table] ID [$id]" 
-      unless $rec->select_first1( $table, $where_clause, { BIND => $bind, $lock } );
+      unless $rec->select_first1( $table, $where_clause, { BIND => $bind, LOCK => $lock } );
 
   # TODO: check RECORD UPDATE ACCESS
+  boom "E_ACCESS: UPDATE is not allowed for requested record TABLE [$table] ID [$id]" 
+      unless $profile->check_access_row( 'UPDATE', $rec->table(), $rec );
 
   $rec->write( %$data );
   # TODO: call triggers here

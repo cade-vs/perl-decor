@@ -38,7 +38,20 @@ sub main
   my $res;
   if( $edit_mode_insert )
     {
-    $res = $core->insert( $table, $row_data, $id );
+    my $opt = {};
+    
+    my $lt_table = $reo->param( 'LINK_TO_TABLE' );
+    my $lt_field = $reo->param( 'LINK_TO_FIELD' );
+    my $lt_id    = $reo->param( 'LINK_TO_ID'    );
+    
+    if( $lt_table and $lt_field and $lt_id )
+      {
+      $opt->{ 'LINK_TO_TABLE' } = $lt_table;
+      $opt->{ 'LINK_TO_FIELD' } = $lt_field;
+      $opt->{ 'LINK_TO_ID'    } = $lt_id;
+      }
+    
+    $res = $core->insert( $table, $row_data, $id, $opt );
     }
   else
     {

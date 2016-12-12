@@ -301,7 +301,15 @@ sub __get_row_access_where_list
   my $table = shift;
 
   my $profile = $self->__get_profile();
-  return () unless $profile and $self->taint_mode_get( 'ROWS' );
+  if( $profile )
+    {
+    return () if     $profile->has_root_access();
+    return () unless $self->taint_mode_get( 'ROWS' );
+    }
+  else
+    {
+    return ();
+    }  
 
   my $groups_string = $profile->get_groups_string();
 
@@ -313,13 +321,15 @@ sub __get_row_access_where_list
   for my $oper ( @_ )
     {
     my $sccnt = 0; # security checks count
+    my @oper_where;
     for my $field ( @$fields )
       {
       next unless $field =~ /^_${oper}(_[A-Z_0-9]+)?$/;
 
-      my $where = "( $db_table.$field IN ( $groups_string ) )";
-      push @where, $where;
+      push @oper_where, "( $db_table.$field IN ( $groups_string ) )";
       }
+    my $oper_where = join ' OR ', @oper_where;
+    push @where, "( $oper_where )";
     } 
   
   return @where;  

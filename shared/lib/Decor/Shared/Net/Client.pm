@@ -16,6 +16,7 @@ use Hash::Util qw( lock_ref_keys unlock_ref_keys );
 use IO::Socket::INET;
 use Data::Tools;
 use Exception::Sink;
+use Data::Dumper;
 
 use Decor::Shared::Utils;
 use Decor::Shared::Net::Protocols;
@@ -396,13 +397,22 @@ sub insert
   my $table  = uc shift;
   my $data   = shift;
   my $id     = shift;
+  my $opt    = shift || {};
   
   my %mi;
 
-  $mi{ 'XT' } = 'I';
+  $mi{ 'XT'     } = 'I';
   $mi{ 'TABLE'  } = $table;
   $mi{ 'DATA'   } = $data;
   $mi{ 'ID'     } = $id;
+
+print STDERR Dumper( $opt );
+  
+  for( qw( LINK_TO_TABLE LINK_TO_FIELD LINK_TO_ID ) )
+    {
+    next unless exists $opt->{ $_ };
+    $mi{ $_ } = $opt->{ $_ };
+    }
 
   my $mo = $self->tx_msg( \%mi ) or return undef;
 
@@ -423,7 +433,7 @@ sub update
 
   my %mi;
 
-  $mi{ 'XT' } = 'U';
+  $mi{ 'XT'     } = 'U';
   $mi{ 'TABLE'  } = $table;
   $mi{ 'DATA'   } = $data;
   $mi{ 'FILTER' } = $filter;

@@ -37,9 +37,13 @@ sub main
   my $ui = $reo->get_user_input();
   my $ps = $reo->get_page_session();
 
+  # save extra args
+  $reo->param( 'LINK_TO_TABLE' );
+  $reo->param( 'LINK_TO_FIELD' );
+  $reo->param( 'LINK_TO_ID'    );
+
   my $core = $reo->de_connect();
   my $tdes = $core->describe( $table );
-
 
   my $edit_mode_insert;
   my $fields_ar;

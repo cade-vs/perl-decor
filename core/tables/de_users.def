@@ -13,6 +13,7 @@ system
   type  char  256
 
   web.overflow  1
+  password
 
 =PASS_SALT
     
@@ -20,6 +21,7 @@ system
   type  char  256
 
   web.overflow  1
+  password
 
 =ACTIVE
 

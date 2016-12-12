@@ -23,6 +23,22 @@ sub client
   return $self->{ ':CLIENT_OBJECT' };
 }
 
+sub allows
+{
+  my $self = shift;
+  
+  my $oper = uc shift;
+
+  return 0 if    ( exists $self->{ 'DENY'  }{ $oper } and $self->{ 'DENY'  }{ $oper } ) 
+              or ( exists $self->{ 'DENY'  }{ 'ALL' } and $self->{ 'DENY'  }{ 'ALL' } );
+              
+  return 1 if    ( exists $self->{ 'GRANT' }{ $oper } and $self->{ 'GRANT' }{ $oper } ) 
+              or ( exists $self->{ 'GRANT' }{ 'ALL' } and $self->{ 'GRANT' }{ 'ALL' } );
+  
+  return 0;
+}
+
+
 sub get_attr
 {
   my $self = shift;
@@ -64,7 +80,7 @@ sub link_details
   
   if( exists $self->{ 'LINKED_TABLE' } )
     {
-    return ( $self->{ 'LINKED_TABLE' }, $self->{ 'LINKED_FIELD' }, $self->{ 'LINK_TYPE' } );
+    return ( $self->{ 'LINKED_TABLE' }, $self->{ 'LINKED_FIELD' } );
     }
   else
     {
@@ -80,7 +96,7 @@ sub backlink_details
 
   if( exists $self->{ 'BACKLINKED_TABLE' } )  
     {
-    return ( $self->{ 'BACKLINKED_TABLE' }, $self->{ 'BACKLINKED_KEY' }, $self->{ 'LINK_TYPE' } );
+    return ( $self->{ 'BACKLINKED_TABLE' }, $self->{ 'BACKLINKED_KEY' } );
     }
   else
     {
