@@ -28,8 +28,6 @@ sub main
 
   my $core = $reo->de_connect();
   my $tdes = $core->describe( $table );
-  my %bfdes; # base/begin/origin field descriptions, indexed by field path
-  my %lfdes; # linked/last       field descriptions, indexed by field path, pointing to trail field
   
   return "<#e_internal>" unless $tdes;
 
@@ -43,9 +41,13 @@ sub main
 ### testing
 #push @fields, 'USR.ACTIVE';
 
-  de_web_expand_resolve_fields_in_place( \@fields, $tdes, \%bfdes, \%lfdes );
+  my %bfdes; # base/begin/origin field descriptions, indexed by field path
+  my %lfdes; # linked/last       field descriptions, indexed by field path, pointing to trail field
+  my %basef; # base fields map, return base field NAME by field path
 
-  my $fields = join ',', @fields;
+  de_web_expand_resolve_fields_in_place( \@fields, $tdes, \%bfdes, \%lfdes, \%basef );
+
+  my $fields = join ',', @fields, values %basef;
   
   my $select = $core->select( $table, $fields, { OFFSET => $offset, LIMIT => $page_size, ORDER_BY => '_ID DESC' } );
 
@@ -99,13 +101,40 @@ sub main
 
       my $lpassword = $lfdes->get_attr( 'PASSWORD' ) ? 1 : 0;
 
+      my $base_field = exists $basef{ $field } ? $basef{ $field } : $field;
+
       my $data = $row_data->{ $field };
+      my $data_base = $row_data->{ $basef{ $field } } if exists $basef{ $field };
       
       my ( $data_fmt, $fmt_class ) = de_web_format_field( $data, $lfdes, 'GRID' );
+      my $data_ctrl;
+
+      if( $bfdes->is_linked() )
+        {
+        my ( $linked_table, $linked_field ) = $bfdes->link_details();
+        my $ltdes = $core->describe( $linked_table );
+        $data_fmt = de_html_alink( $reo, 'new', $data_fmt, "View linked record", ACTION => 'view', ID => $data_base, TABLE => $linked_table );
+        $data_ctrl .= de_html_alink_icon( $reo, 'new', 'view.png',   "View linked record",           ACTION => 'view', ID => $data_base, TABLE => $linked_table );
+        if( $ltdes->allows( 'INSERT' ) and $tdes->allows( 'UPDATE' ) and $bfdes->allows( 'UPDATE' ) )
+          {
+          # FIXME: check for record access too!
+          $data_ctrl .= de_html_alink_icon( $reo, 'new', 'insert.png', "Insert and link a new record", ACTION => 'edit', ID => -1,         TABLE => $linked_table, LINK_TO_TABLE => $table, LINK_TO_FIELD => $base_field, LINK_TO_ID => $id );
+          }
+        }
+      elsif( $bfdes->is_backlinked() )
+        {
+        my ( $backlinked_table, $backlinked_field ) = $bfdes->backlink_details();
+        $data_ctrl .= de_html_alink_icon( $reo, 'new', 'insert.png', "Insert and link a new record", ACTION => 'edit', ID => -1, TABLE => $backlinked_table );
+        }
 
       if( $lpassword )
         {
         $data_fmt = "(hidden)";
+        }
+
+      if( $data_ctrl )
+        {
+        $data_fmt = "<table cellspacing=0 cellpadding=0 width=100%><tr><td align=left>$data_fmt</td><td align=right>&nbsp;$data_ctrl</td></tr></table>";
         }
       
       $text .= "<td class='grid-data $fmt_class'>$data_fmt</td>";

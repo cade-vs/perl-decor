@@ -776,7 +776,7 @@ sub sub_insert
   my $lt_field  = uc $mi->{ 'LINK_TO_FIELD'  };
   my $lt_id     =    $mi->{ 'LINK_TO_ID'     };
 
-print STDERR "+++++++++++++++++++++++++++++++ LINK_TO table:field:id == $lt_table:$lt_field:$lt_id\n";
+#print STDERR "+++++++++++++++++++++++++++++++ LINK_TO table:field:id == $lt_table:$lt_field:$lt_id\n";
 
   if( $lt_table and $lt_field and $lt_id )
     {

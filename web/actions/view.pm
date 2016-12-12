@@ -18,13 +18,14 @@ sub main
 
   my $core = $reo->de_connect();
   my $tdes = $core->describe( $table );
-  my %bfdes; # base/begin/origin field descriptions, indexed by field path
-  my %lfdes; # linked/last       field descriptions, indexed by field path, pointing to trail field
-  my %basef; # base fields map, return base field NAME by field path
 
   my @fields = @{ $tdes->get_fields_list_by_oper( 'READ' ) };
 
 #  push @fields, 'USR.ACTIVE';
+
+  my %bfdes; # base/begin/origin field descriptions, indexed by field path
+  my %lfdes; # linked/last       field descriptions, indexed by field path, pointing to trail field
+  my %basef; # base fields map, return base field NAME by field path
 
   de_web_expand_resolve_fields_in_place( \@fields, $tdes, \%bfdes, \%lfdes, \%basef );
 
