@@ -470,4 +470,12 @@ div.hover-layer
         opacity: 0.72;
         }
 
+div.popup-layer
+        {
+        display: none;
+        color: #000;
+        background-color: #446;
+        border: solid 1px #558;
+        }
+
 /*** DECOR EOF **************************************************************/

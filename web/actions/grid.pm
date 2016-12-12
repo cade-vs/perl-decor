@@ -113,12 +113,27 @@ sub main
         {
         my ( $linked_table, $linked_field ) = $bfdes->link_details();
         my $ltdes = $core->describe( $linked_table );
-        $data_fmt = de_html_alink( $reo, 'new', $data_fmt, "View linked record", ACTION => 'view', ID => $data_base, TABLE => $linked_table );
-        $data_ctrl .= de_html_alink_icon( $reo, 'new', 'view.png',   "View linked record",           ACTION => 'view', ID => $data_base, TABLE => $linked_table );
+        if( $data_base > 0 )
+          {
+          $data_fmt   = de_html_alink( $reo, 'new', $data_fmt,                       "View linked record", ACTION => 'view', ID => $data_base, TABLE => $linked_table );
+          }
+        else
+          {
+          $data_fmt   = "(empty)";
+          }  
+        $data_ctrl .= de_html_alink( $reo, 'new', 'view.png View linked record',   undef,                ACTION => 'view', ID => $data_base, TABLE => $linked_table );
+        $data_ctrl .= "<br>\n";
+        if( $ltdes->allows( 'UPDATE' ) and $data_base > 0 )
+          {
+          # FIXME: check for record access too!
+          $data_ctrl .= de_html_alink( $reo, 'new', 'edit.png Edit linked record', undef, ACTION => 'edit', ID => $data_base, TABLE => $linked_table );
+          $data_ctrl .= "<br>\n";
+          }
         if( $ltdes->allows( 'INSERT' ) and $tdes->allows( 'UPDATE' ) and $bfdes->allows( 'UPDATE' ) )
           {
           # FIXME: check for record access too!
-          $data_ctrl .= de_html_alink_icon( $reo, 'new', 'insert.png', "Insert and link a new record", ACTION => 'edit', ID => -1,         TABLE => $linked_table, LINK_TO_TABLE => $table, LINK_TO_FIELD => $base_field, LINK_TO_ID => $id );
+          $data_ctrl .= de_html_alink( $reo, 'new', 'insert.png Insert and link a new record', undef, ACTION => 'edit', ID => -1,         TABLE => $linked_table, LINK_TO_TABLE => $table, LINK_TO_FIELD => $base_field, LINK_TO_ID => $id );
+          $data_ctrl .= "<br>\n";
           }
         }
       elsif( $bfdes->is_backlinked() )
@@ -134,6 +149,7 @@ sub main
 
       if( $data_ctrl )
         {
+        $data_ctrl = de_html_popup_icon( $reo, 'more.png', $data_ctrl );
         $data_fmt = "<table cellspacing=0 cellpadding=0 width=100%><tr><td align=left>$data_fmt</td><td align=right>&nbsp;$data_ctrl</td></tr></table>";
         }
       
