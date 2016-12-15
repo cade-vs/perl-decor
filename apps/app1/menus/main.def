@@ -1,11 +1,11 @@
 
-#=SYSTEM
+=SYSTEM
 
-#  type submenu  SYSTEM
+  type submenu  ADMIN
 
-#=TESTS
+=TESTS
 
-#  type  submenu TESTS
+  type  submenu TESTS
   
 =ITEMS
 

@@ -36,6 +36,8 @@ our @EXPORT = qw(
                 
                 );
 
+# TODO: FIXME: handle LOOP errors!
+
 ### TABLE DESCRIPTIONS #######################################################
 
 my %MENU_TYPES = (

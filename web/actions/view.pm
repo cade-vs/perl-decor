@@ -76,7 +76,7 @@ sub main
     my $overflow  = $bfdes->get_attr( qw( WEB VIEW OVERFLOW ) );
     if( $overflow )
       {
-      $data_fmt =~ s/'/&#39;/g; # FIXME: move to func
+      $data_fmt =~ html_escape( $data_fmt );
       $data_fmt = "<form><input value='$data_fmt' style='width: 96%' readonly></form>";
       }
 

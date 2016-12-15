@@ -248,6 +248,7 @@ table.menu
         vertical-align: middle;
         font-weight: bold;
         width: 80%;
+        text-align: left;
         }
 
 td.menu
@@ -279,6 +280,13 @@ a.menu:hover
 td.menu:hover
         {
         background-color: #335;
+        white-space: nowrap;
+        }
+
+tr.menu
+        {
+        cursor: pointer;
+        white-space: nowrap;
         }
 
 /*** view *******************************************************************/
@@ -468,6 +476,7 @@ div.hover-layer
         border: solid 1px #BB0;
         padding: 4px;
         opacity: 0.72;
+        white-space: nowrap;
         }
 
 div.popup-layer
@@ -476,6 +485,8 @@ div.popup-layer
         color: #000;
         background-color: #446;
         border: solid 1px #558;
+        white-space: nowrap;
+        padding: 4px;
         }
 
 /*** DECOR EOF **************************************************************/

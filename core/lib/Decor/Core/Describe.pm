@@ -41,6 +41,8 @@ our @EXPORT = qw(
                 describe_preprocess_grant_deny
                 );
 
+# TODO: FIXME: handle LOOP errors!
+
 ### TABLE DESCRIPTIONS #######################################################
 
 my %TYPE_ATTRS = (
