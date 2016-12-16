@@ -1,0 +1,14 @@
+
+=SYSTEM
+
+  type submenu  ADMIN
+  
+=ITEMS
+
+  label List items
+  type  grid  TEST1
+    
+=NEW_ITEM
+
+  label Add new item
+  type  insert TEST1

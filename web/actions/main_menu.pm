@@ -14,7 +14,7 @@ sub main
   my $text;
 
 
-  $text .= "<table class=main-menu cellspacing=0 cellpadding=0 width=100%><tr>";
+  $text .= "<table class=main-menu cellspacing=0 cellpadding=0 width=100%><tr class=main-menu>";
   for my $key ( keys %$menu )
     {
     next if $key eq '@';

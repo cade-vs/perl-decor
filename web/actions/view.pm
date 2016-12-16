@@ -16,6 +16,8 @@ sub main
   my $table  = $reo->param( 'TABLE' );
   my $id     = $reo->param( 'ID'    );
 
+  $reo->ps_path_add( 'view', "View record data from <b>$table</b>" );
+
   my $core = $reo->de_connect();
   my $tdes = $core->describe( $table );
 

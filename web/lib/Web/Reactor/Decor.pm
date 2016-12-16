@@ -213,4 +213,26 @@ sub de_load_cfg
 
 #-----------------------------------------------------------------------------
 
+sub ps_path_add
+{
+  my $self  = shift;
+  my $icon  = shift;
+  my $title = shift;
+
+  my $ps    = $self->get_page_session();
+  my $rs    = $self->get_page_session( 1 );
+  my $ps_id = $self->get_page_session_id();
+  
+  my @ps_path = @{ $rs->{ 'PS_PATH' } || [] };
+  $ps->{ 'PS_PATH' } = \@ps_path;
+
+  $icon .= '.png' unless $icon =~ /\.(png|gif|jpg|jpeg)$/i;
+  
+  push @ps_path, { PS_ID => $ps_id, ICON => $icon, TITLE => $title };
+
+  return @ps_path;
+}
+
+#-----------------------------------------------------------------------------
+
 1;

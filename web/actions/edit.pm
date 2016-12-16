@@ -98,6 +98,15 @@ sub main
     $id    = $ps->{ 'ID'    };
     }  
 
+  if( $edit_mode_insert )
+    {
+    $reo->ps_path_add( 'insert', "Insert new record into <b>$table</b>" );
+    }
+  else
+    {
+    $reo->ps_path_add( 'edit', "Edit record data from <b>$table</b>" );
+    }  
+
   boom "FIELDS list empty" unless @$fields_ar;
 
   my $fields = join ',', @$fields_ar;

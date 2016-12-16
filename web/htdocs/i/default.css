@@ -66,6 +66,11 @@ a.button:hover
         border-right:  solid 1px #FFF;
         }
 
+img
+        {
+        vertical-align: middle;
+        }
+
 img.icon
         {
         cursor: pointer;
@@ -100,6 +105,16 @@ img.icon:hover
         text-decoration: none;
         }
 
+img.icon-disabled
+        {
+        background-color: #223;
+        padding-top:     3px;
+        padding-left:    3px;
+        padding-bottom:  4px;
+        padding-right:   4px;
+        border:        solid 1px #333;
+        }
+
 a.icon
         {
         margin: 1px 1px 1px 1px;
@@ -122,9 +137,9 @@ div.error-text
 
 table
         {
-        padding: 2px;
         margin-left: auto;
         margin-right: auto;
+        border-collapse: collapse;
         }
 
 /*** for_screen/for_print ***************************************************/
@@ -198,17 +213,26 @@ table.main-menu
         {
         width:  100%;
         color: #CCC;
+        }
+
+tr.main-menu
+        {
         background-color: #224;
-        border-bottom: solid 1px #66A;
         vertical-align: middle;
         font-weight: bold;
+        white-space: nowrap;
+        border-bottom: solid 1px #66A;
         }
 
 td.main-menu
         {
         width:  1%;
-        white-space: nowrap;
         border-right: solid 1px #777;
+        }
+
+td.main-menu:hover
+        {
+        background-color: #335;
         }
 
 td.main-menu-fill
@@ -233,9 +257,19 @@ a.main-menu:hover
         color: #FFF;
         }
 
-td.main-menu:hover
+/*** page sessions path ******************************************************/
+
+tr.ps-path
         {
-        background-color: #335;
+        background-color: #224;
+        vertical-align: middle;
+        white-space: nowrap;
+        border-bottom: solid 1px #66A;
+        }
+
+td.ps-path
+        {
+        padding: 6px;
         }
 
 /*** menu *******************************************************************/

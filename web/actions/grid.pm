@@ -20,15 +20,17 @@ sub main
   my $reo = shift;
 
   return unless $reo->is_logged_in();
-  
+
   my $text;
 
   my $table  = $reo->param( 'TABLE' );
   my $offset = $reo->param( 'OFFSET' );
 
+  $reo->ps_path_add( 'grid.png', "List data from <b>$table</b>" );
+  
   my $core = $reo->de_connect();
   my $tdes = $core->describe( $table );
-  
+
   return "<#e_internal>" unless $tdes;
 
 #  print STDERR Dumper( $tdes );
