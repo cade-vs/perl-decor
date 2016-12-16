@@ -487,7 +487,8 @@ sub __postprocess_table_des_hash
     elsif( $type eq 'REAL' )  
       {
       my $spec = shift( @type );
-      if( $spec =~ /^(\d*)(\.(\d*))?/ )
+      $spec = '.4' if $spec eq ''; # default spec, FIXME: get from config?
+      if( $spec ne '' and $spec =~ /^(\d*)(\.(\d*))?$/ )
         {
         my $len = $1;
         my $dot = $3;
@@ -505,6 +506,10 @@ sub __postprocess_table_des_hash
           }
         $type_des->{ 'LEN' } = $len if $len > 0;
         $type_des->{ 'DOT' } = $dot if $dot ne '';
+        }
+      else
+        {
+        boom "invalid FIELD type SPEC [$spec] for type [$type] in table [$table] field [$field] from [@debug_origin]";
         }
       }
     $fld_des->{ 'TYPE' } = $type_des;
