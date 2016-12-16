@@ -26,10 +26,12 @@ sub main
   my $table  = $reo->param( 'TABLE' );
   my $offset = $reo->param( 'OFFSET' );
 
-  $reo->ps_path_add( 'grid.png', "List data from <b>$table</b>" );
-  
   my $core = $reo->de_connect();
   my $tdes = $core->describe( $table );
+
+  my $table_label = $tdes->get_label();
+
+  $reo->ps_path_add( 'grid.png', qq( List data from "<b>$table_label</b>" ) );
 
   return "<#e_internal>" unless $tdes;
 

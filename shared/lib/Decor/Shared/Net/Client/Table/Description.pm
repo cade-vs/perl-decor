@@ -40,6 +40,13 @@ sub allows
   return 0;
 }
 
+sub get_label
+{
+  my $self = shift;
+
+  return $self->{ '@' }{ 'LABEL' };
+}
+
 sub get_fields_list_by_oper
 {
   my $self = shift;

@@ -45,6 +45,8 @@ sub main
   my $core = $reo->de_connect();
   my $tdes = $core->describe( $table );
 
+  my $table_label = $tdes->get_label();
+
   my $edit_mode_insert;
   my $fields_ar;
 
@@ -100,11 +102,11 @@ sub main
 
   if( $edit_mode_insert )
     {
-    $reo->ps_path_add( 'insert', "Insert new record into <b>$table</b>" );
+    $reo->ps_path_add( 'insert', qq( "Insert new record into "<b>$table_label</b>" ) );
     }
   else
     {
-    $reo->ps_path_add( 'edit', "Edit record data from <b>$table</b>" );
+    $reo->ps_path_add( 'edit', qq( "Edit record data from "<b>$table_label</b>" ) );
     }  
 
   boom "FIELDS list empty" unless @$fields_ar;
@@ -275,8 +277,8 @@ sub main
   $text .= "</table>";
 
   $text .= "<br>";
-  $text .= de_html_alink_button( $reo, 'back', "Cancel", "Cancel this operation"   );
-  $text .= de_html_form_button_redirect( $reo, 'here', $edit_form, 'PREVIEW', "[~Preview]", "Preview data before save", ACTION => 'preview' );
+  $text .= de_html_alink_button( $reo, 'back', "&lArr; Cancel", "Cancel this operation"   );
+  $text .= de_html_form_button_redirect( $reo, 'here', $edit_form, 'PREVIEW', "[~Preview] &rArr;", "Preview data before save", ACTION => 'preview' );
   $text .= $edit_form->end();
 
   return $text;

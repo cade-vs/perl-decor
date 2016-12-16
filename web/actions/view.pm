@@ -16,10 +16,12 @@ sub main
   my $table  = $reo->param( 'TABLE' );
   my $id     = $reo->param( 'ID'    );
 
-  $reo->ps_path_add( 'view', "View record data from <b>$table</b>" );
-
   my $core = $reo->de_connect();
   my $tdes = $core->describe( $table );
+
+  my $table_label = $tdes->get_label();
+
+  $reo->ps_path_add( 'view', qq( View record data from "<b>$table_label</b>" ) );
 
   my @fields = @{ $tdes->get_fields_list_by_oper( 'READ' ) };
 
@@ -113,8 +115,8 @@ sub main
   $text .= "</table>";
 
   $text .= "<br>";
-  $text .= de_html_alink_button( $reo, 'back', "Back", "Return to previous screen" );
-  $text .= de_html_alink_button( $reo, 'new',  "Edit", "Edit this record", ACTION => 'edit', ID => $id, TABLE => $table );
+  $text .= de_html_alink_button( $reo, 'back', "&lArr; [~Back]", "Return to previous screen" );
+  $text .= de_html_alink_button( $reo, 'new',  "Edit &uArr;", "Edit this record", ACTION => 'edit', ID => $id, TABLE => $table );
 
   return $text;
 }

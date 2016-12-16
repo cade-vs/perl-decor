@@ -78,8 +78,8 @@ sub main
 #  my $ok_hint = $edit_mode_insert ? "Confirm new record insert" : "Confirm record update";
   
   $text .= "<br>";
-  $text .= de_html_alink_button( $reo, 'here', "Back",     "Back to data edit screen", ACTION => 'edit'   );
-  $text .= de_html_alink_button( $reo, 'back', "Continue", "Operation done, continue..."              );
+  $text .= de_html_alink_button( $reo, 'here', "&lArr; [~Back]",     "Back to data edit screen", ACTION => 'edit'   );
+  $text .= de_html_alink_button( $reo, 'back', "[~Continue] &crarr;", "Operation done, continue..."              );
 #  $text .= de_html_alink_button( $reo, 'new',  "OK",     $ok_hint,                   ACTION => 'commit' );
 
   return $text;
