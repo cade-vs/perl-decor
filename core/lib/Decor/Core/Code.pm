@@ -92,8 +92,8 @@ sub de_code_get_map
     boom "error loading code file [$file] reason: $@";
     }
 
-  boom "missing decor:: namespace for DECOR user code"  unless exists $main::{ 'decor::' };
-  boom "missing decor::${ctype}:: namespace for DECOR user code" unless exists $main::{ 'decor::' }{ $ctype . '::' };
+  boom "missing decor:: namespace for DECOR user code"                    unless exists $main::{ 'decor::' };
+  boom "missing decor::${ctype}:: namespace for DECOR user code"          unless exists $main::{ 'decor::' }{ $ctype . '::' };
   boom "missing decor::${ctype}::${name}:: namespace for DECOR user code" unless exists $main::{ 'decor::' }{ $ctype . '::' }{ $name . '::' };
   
   my %map;

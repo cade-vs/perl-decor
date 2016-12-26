@@ -166,7 +166,7 @@ sub __merge_menu_file
   my $inf;
   open( $inf, $fname ) or boom "cannot open menu file [$fname]";
 
-  de_log_debug( "menu open file: [$fname]" );  
+  de_log_debug2( "menu open file: [$fname]" );  
 
   my $item_name = '@'; # self :) should be more like 0
   $menu->{ $item_name } ||= {};
@@ -188,7 +188,7 @@ sub __merge_menu_file
     $line =~ s/\s*$//;
     next unless $line =~ /\S/;
     next if $line =~ /^([#;]|\/\/)/;
-    de_log_debug( "        line: [$line]" );  
+    de_log_debug2( "        line: [$line]" );  
 
 #    if( $line =~ /^=+\s*([a-zA-Z_][a-zA-Z_0-9]*)\s*(.*?)\s*$/ )
     if( $line =~ /^=+\s*(.*?)\s*$/ )
@@ -196,7 +196,7 @@ sub __merge_menu_file
          $item_name = uc( $1 );
       my $item_opts =     $2; # fixme: upcase/locase?
 
-      de_log_debug( "       =item: [$item_name]" );  
+      de_log_debug2( "       =item: [$item_name]" );  
       
       $menu->{ $item_name } ||= {};
       $menu->{ $item_name }{ 'LABEL' } ||= $item_name;
@@ -216,7 +216,7 @@ sub __merge_menu_file
       my $name = $2;
       my $opts = $3; # options/arguments, FIXME: upcase/lowcase?
   
-      de_log_debug( "        isa:  [$name][$opts]" );  
+      de_log_debug2( "        isa:  [$name][$opts]" );  
 
       my $isa = __load_menu_hash( $name );
 
@@ -224,7 +224,7 @@ sub __merge_menu_file
 
       my @opts = split /[\s,]+/, uc $opts;
 
-      #de_log_debug( "        isa:  DUMP: " . Dumper($isa) );  
+      #de_log_debug2( "        isa:  DUMP: " . Dumper($isa) );  
       
       for my $opt ( @opts ) # FIXME: covers arg $opt
         {
@@ -262,7 +262,7 @@ sub __merge_menu_file
         $value = 1;
         }
 
-      de_log_debug( "            key:  [$item_name]:[$key]=[$value]" );
+      de_log_debug2( "            key:  [$item_name]:[$key]=[$value]" );
 
       if( $MENU_KEY_TYPES{ $key } eq '@' )
         {
@@ -458,7 +458,7 @@ sub preload_all_menus
 
   for my $menu_name ( @$menus )
     {
-    de_log_debug( "preloading MENU for menu name [$menu_name]" );
+    de_log_debug2( "preloading MENU for menu name [$menu_name]" );
     de_menu_get( $menu_name );
     };
 

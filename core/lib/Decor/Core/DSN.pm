@@ -67,7 +67,7 @@ sub __dsn_parse_config
   
   my $dsn = de_config_load_file( $dsn_file );
   $dsn = $dsn->{ '*' };
-  print Dumper( "DSN PARSE CONFIG: ", $dsn );
+#  print Dumper( "DSN PARSE CONFIG: ", $dsn );
 
   for my $name ( keys %$dsn )
     {
@@ -85,7 +85,7 @@ sub __dsn_parse_config
       }  
     }
 
-  print Dumper( "DSN PARSE CONFIG: ", $dsn );
+#  print Dumper( "DSN PARSE CONFIG: ", $dsn );
   
   hash_lock_recursive( $dsn );
 

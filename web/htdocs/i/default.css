@@ -71,11 +71,10 @@ img
         vertical-align: middle;
         }
 
-img.icon
+.icon
         {
         cursor: pointer;
-        font-weight: bold;
-        color: #000;
+        color: #AAA;
         background-color: #223;
         padding-top:     3px;
         padding-left:    3px;
@@ -88,12 +87,8 @@ img.icon
         text-decoration: none;
         }
 
-img.icon:hover
+.icon:hover
         {
-        cursor: pointer;
-        font-weight: bold;
-        color: #000;
-        background-color: #223;
         padding-top:     4px;
         padding-left:    4px;
         padding-bottom:  3px;
@@ -102,11 +97,11 @@ img.icon:hover
         border-left:   solid 1px #334;
         border-bottom: solid 1px #445;
         border-right:  solid 1px #445;
-        text-decoration: none;
         }
 
-img.icon-disabled
+.icon-disabled
         {
+        color: #888;
         background-color: #223;
         padding-top:     3px;
         padding-left:    3px;

@@ -17,6 +17,9 @@ use Decor::Web::HTML::Utils;
 use Decor::Web::Utils;
 use Web::Reactor::HTML::Utils;
 
+my $clear_icon = 'i/clear.png';
+my $clear_icon = 'x';
+
 sub main
 {
   my $reo = shift;
@@ -184,6 +187,7 @@ sub main
                                        MAXLEN   => $field_maxlen, 
                                        DISABLED => $field_disabled, 
                                        ARGS     => $input_tag_args, 
+                                       CLEAR    => $clear_icon,
                                        );
       }
     elsif( $type_name eq 'INT' and $fdes->{ 'BOOL' } )
@@ -194,6 +198,7 @@ sub main
                                        VALUE => $field_data, 
                                        RET   => [ '0', '1' ], 
                                        ARGS     => $input_tag_args, 
+                                       CLEAR    => $clear_icon,
                                        );
       }
     elsif( $type_name eq 'INT' )
@@ -206,6 +211,7 @@ sub main
                                        MAXLEN   => 64, 
                                        DISABLED => $field_disabled, 
                                        ARGS     => $input_tag_args, 
+                                       CLEAR    => $clear_icon,
                                        );
       }
     elsif( $type_name eq 'REAL' )
@@ -218,6 +224,7 @@ sub main
                                        MAXLEN   => 64, 
                                        DISABLED => $field_disabled, 
                                        ARGS     => $input_tag_args, 
+                                       CLEAR    => $clear_icon,
                                        );
       }
     elsif( $type_name eq 'DATE' )
@@ -230,10 +237,11 @@ sub main
                                        MAXLEN   => 64, 
                                        DISABLED => $field_disabled, 
                                        ARGS     => $input_tag_args, 
+                                       CLEAR    => $clear_icon,
                                        );
       my $hl_handle = html_hover_layer( $reo, VALUE => "Set current date", DELAY => 250 );
       my $date_format = type_get_format( $type );
-      $field_input .= qq(<a href='#' class=icon onClick='set_value( "$field_id", current_date( "$date_format" ) ); return false;' $hl_handle ><img src=i/set-time.png></a>);
+      $field_input .= qq(<a href='#' onClick='set_value( "$field_id", current_date( "$date_format" ) ); return false;' ><img class=icon src=i/set-time.png $hl_handle></a>);
       }
     elsif( $type_name eq 'TIME' )
       {
@@ -245,9 +253,10 @@ sub main
                                        MAXLEN   => 64, 
                                        DISABLED => $field_disabled, 
                                        ARGS     => $input_tag_args, 
+                                       CLEAR    => $clear_icon,
                                        );
       my $hl_handle = html_hover_layer( $reo, VALUE => "Set current time", DELAY => 250 );
-      $field_input .= qq(<a href='#' class=icon onClick='set_value( "$field_id", current_time() ); return false;' $hl_handle ><img src=i/set-time.png></a>);
+      $field_input .= qq(<a href='#' onClick='set_value( "$field_id", current_time() ); return false;' ><img class=icon src=i/set-time.png $hl_handle></a>);
       }
     elsif( $type_name eq 'UTIME' )
       {
@@ -259,10 +268,11 @@ sub main
                                        MAXLEN   => 64, 
                                        DISABLED => $field_disabled, 
                                        ARGS     => $input_tag_args, 
+                                       CLEAR    => $clear_icon,
                                        );
       my $hl_handle = html_hover_layer( $reo, VALUE => "Set current date+time", DELAY => 250 );
       my $date_format = type_get_format( $type );
-      $field_input .= qq(<a href='#' class=icon onClick='set_value( "$field_id", current_utime( "$date_format" ) ); return false;' $hl_handle ><img src=i/set-time.png></a>);
+      $field_input .= qq(<a href='#' onClick='set_value( "$field_id", current_utime( "$date_format" ) ); return false;' ><img class=icon src=i/set-time.png $hl_handle></a>);
       }
     else
       {

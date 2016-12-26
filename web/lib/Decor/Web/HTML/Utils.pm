@@ -126,7 +126,7 @@ sub de_html_popup_icon
   my $value = shift; # link text
   my $popup = shift; # popup text
   
-  my $handle = html_popup_layer( $reo, VALUE => $popup, TYPE => 'AUTOHIDE2', SINGLE => 1 );
+  my $handle = html_popup_layer( $reo, VALUE => $popup, TYPE => 'CLICK' );
 
   return "<img class='icon' src='i/$value' $handle>";
 }

@@ -91,9 +91,9 @@ sub main
     
     my $vec_ctrl;
     
-    $vec_ctrl .= de_html_alink_icon( $reo, 'new', "view.png", 'View this record', ACTION => 'view', ID => $id, TABLE => $table );
-    $vec_ctrl .= de_html_alink_icon( $reo, 'new', "edit.png", 'Edit this record', ACTION => 'edit', ID => $id, TABLE => $table );
-    $vec_ctrl .= de_html_alink_icon( $reo, 'new', "copy.png", 'Copy this record', ACTION => 'edit', ID =>  -1, TABLE => $table, COPY_ID => $id );
+    $vec_ctrl .= de_html_alink( $reo, 'new', "view.png", 'View this record', ACTION => 'view', ID => $id, TABLE => $table );
+    $vec_ctrl .= de_html_alink( $reo, 'new', "edit.png", 'Edit this record', ACTION => 'edit', ID => $id, TABLE => $table );
+    $vec_ctrl .= de_html_alink( $reo, 'new', "copy.png", 'Copy this record', ACTION => 'edit', ID =>  -1, TABLE => $table, COPY_ID => $id );
     
     $text .= "<td class='grid-data fmt-ctrl'>$vec_ctrl</td>";
     for my $field ( @fields )

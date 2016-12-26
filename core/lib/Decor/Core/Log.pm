@@ -28,6 +28,7 @@ our @EXPORT = qw(
                 de_log_debug
                 de_log_stack
                 de_log_dumper
+                de_log_dumper2
                 
                 de_reopen_logs
 
@@ -145,6 +146,12 @@ sub de_log_stack
 sub de_log_dumper
 {
   return unless de_debug();
+  de_log_debug( Dumper( @_ ) );
+}
+
+sub de_log_dumper2
+{
+  return unless de_debug() > 1;
   de_log_debug( Dumper( @_ ) );
 }
 

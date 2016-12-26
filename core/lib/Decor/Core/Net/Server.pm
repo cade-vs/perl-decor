@@ -76,7 +76,7 @@ sub on_process
       }
 
     my $xt = uc $mi->{ 'XT' };
-    de_log_dumper( "MI" x 16, $mi );
+    de_log_dumper2( "MI" x 16, $mi );
 
     # TODO: check incoming message
 
@@ -92,7 +92,7 @@ sub on_process
     eval
       {
       $xt_handler_res = $self->on_process_xt_message( $mi, $mo );
-      de_log_dumper( "MO RES " x 16, "$mo", $mo );
+      de_log_dumper2( "HANDLER MO RES " x 8, "$mo", $mo );
       };
     if( $@ or ! $xt_handler_res )
       {
@@ -134,7 +134,7 @@ sub on_process
 
     de_log_debug( "debug: XTYPE [$xt] XSTATUS [$xs] DBI::errstr [$DBI::errstr]" );
 
-    de_log_dumper( "MO" x 16, $mo );
+    de_log_dumper2( "MO" x 16, $mo );
     my $mo_res = de_net_protocol_write_message( $socket, $ptype, $mo );
 
     if( $mo_res == 0 )

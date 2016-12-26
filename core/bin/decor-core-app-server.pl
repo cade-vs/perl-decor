@@ -20,13 +20,13 @@ use Decor::Shared::Net::Protocols;
 my $opt_app_name;
 my $opt_no_fork = 0;
 my $opt_preload = 0;
-my $opt_listen_port = 4243;
+my $opt_listen_port = 42000;
 my $opt_net_protocols = '*';
 
 our $help_text = <<END;
 usage: $0 <options>
 options:
-    -p port   -- port number for incoming connections (default 9100)
+    -p port   -- port number for incoming connections (default $opt_listen_port)
     -f        -- run in foreground (no fork) mode
     -e app    -- preload application (will serve only single app)
     -t psj    -- allow network protocol formats (p=storable,s=stacker,j=json)
