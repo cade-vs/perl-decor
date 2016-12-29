@@ -25,6 +25,10 @@ our @EXPORT = qw(
 
                 de_code_file_find
                 de_code_get_map
+                de_code_exists
+                de_code_reset_map
+                
+                de_code_exec
 
                 );
 
@@ -101,7 +105,8 @@ sub de_code_get_map
   while( my ( $k, $v ) = each %{ $main::{ 'decor::' }{ $ctype . '::' }{ $name . '::' } } )
     {
     #print "$k $v\n";
-    next unless $k =~ /^on_/;
+    next unless $k =~ /^on_/i;
+    boom "found TRIGGER [$k] with invalid name for code type [$ctype] name [$name] file [$file]" unless $k =~ /^on_[a-z0-9][a-z_0-9]+$/;
     my $code = \&{ "decor::${ctype}::${name}::$k" };
     $k = uc $k;
     boom "duplicate TRIGGER [$k] found in code type [$ctype] name [$name] file [$file]" if exists $map{ $k };
@@ -111,6 +116,21 @@ sub de_code_get_map
   dlock \%map;
   $CODE_CACHE{ 'CODE_MAPS' }{ $ctype }{ $name } = \%map;
   return \%map;
+}
+
+sub de_code_exists
+{
+  my $ctype   = shift;
+  my $name    = shift;
+  my $trigger = lc shift;
+
+  de_check_name_boom( $name,  "invalid CODE TRIGGER name [$trigger]" );
+
+  my $map = de_code_get_map( $ctype, $name );
+  
+  return undef unless $map;
+  return undef unless exists $map->{ $trigger };
+  return 1;
 }
 
 sub de_code_reset_map
@@ -128,6 +148,19 @@ sub de_code_reset_map
   delete $CODE_CACHE{ 'CODE_MAPS' }{ $ctype }          if $ctype;
   
   return 1;
+}
+
+sub de_code_exec
+{
+  my $ctype   = shift;
+  my $name    = shift;
+  my $trigger = lc shift;
+  
+  my $map = de_code_get_map( $ctype, $name );
+  
+  boom "requested exec for TRIGGER [$trigger] but it does not exist for code type [$ctype] name [$name]" unless de_code_exists( $ctype, $name, $trigger );
+
+  return $map->{ $trigger }->( @_ );
 }
 
 ### EOF ######################################################################

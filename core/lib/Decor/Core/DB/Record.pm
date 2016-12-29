@@ -17,6 +17,7 @@ use Decor::Shared::Utils;
 use Decor::Core::DSN;
 use Decor::Core::Describe;
 use Decor::Core::DB::IO;
+use Decor::Core::Code;
 
 ##############################################################################
 
@@ -59,7 +60,7 @@ sub set_read_only
   
   my $state = shift;
   
-  $state = 0 if $state < 0;
+  $state = 1 if $state < 1; # once set read-only, record cannot be brought back to read-write state
   
   $self->{ 'READ_ONLY' } = $state;
   
@@ -133,7 +134,12 @@ sub create
 
   $self->check_if_locked_to( $table );
 
+  # read-only records cannot create read-write objects
+  my $ro = $self->is_read_only();
+  
   $self->reset();
+
+  $self->set_read_only( $ro ) if $ro > 0;
 
   my $new_id = $self->__create_empty_data( $table, $id );
 
@@ -141,6 +147,16 @@ sub create
   $self->{ 'BASE_ID'    } = $new_id;
 
   return $new_id;
+}
+
+sub create_read_only
+{
+  my $self  = shift;
+  
+  my $table = uc shift;
+
+  $self->set_read_only();
+  return $self->create( $table );
 }
 
 sub load
@@ -242,6 +258,24 @@ sub table
 
 #-----------------------------------------------------------------------------
 
+sub __get_new_id
+{
+  my $self = shift;
+
+  my $table = $self->table();
+  boom "cannot get new ID for record without attached TABLE" unless $table;
+  
+  if( $self->is_read_only() )
+    {
+    return - ( 100 + $self->{ 'READ_ONLY_ID_COUNTER' }++ );
+    }
+  else
+    {
+    my $dbio = $self->{ 'DB::IO' };
+    return $dbio->get_next_table_id( $table );
+    }  
+}
+
 sub __create_empty_data
 {
   my $self = shift;
@@ -249,11 +283,12 @@ sub __create_empty_data
   my $table  = shift;
   my $new_id = shift;
 
-  my $dbio = $self->{ 'DB::IO' };
+####  my $dbio = $self->{ 'DB::IO' };
 
   if( ! $self->is_read_only() and $new_id <= 0 )
     {
-    $new_id = $dbio->get_next_table_id( $table );
+###    $new_id = $dbio->get_next_table_id( $table );
+    $new_id = $self->__get_new_id();
     }
 
   my $profile = $self->__get_profile();
@@ -347,7 +382,7 @@ sub write
   my $self = shift;
   
   boom "record is empty, cannot be written"     if $self->is_empty();
-  boom "record is read_only, cannot be written" if $self->is_read_only();
+  boom "record is read_only, cannot be written" if $self->is_read_only() > 1;
 
   my $profile = $self->__get_profile();
 
@@ -650,6 +685,18 @@ sub rollback_to_savepoint
   my $des = describe_table( $self->table() );
   my $dsn = $des->get_dsn_name();
   dsn_savepoint_to_savepoint( $sp_name, $dsn );
+}
+
+#-----------------------------------------------------------------------------
+
+sub method
+{
+  my $self = shift;
+  my $name = shift;
+
+  return undef unless de_code_exists( 'tables', $self->table(), $name );
+
+  return de_code_exec( 'tables', $self->table(), $name, $self, @_ );
 }
 
 ### EOF ######################################################################

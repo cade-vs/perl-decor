@@ -59,6 +59,7 @@ my %DISPATCH_MAP = (
                                    'INSERT'   => \&sub_insert,
                                    'UPDATE'   => \&sub_update,
                                    'DELETE'   => \&sub_delete,
+                                   'RECALC'   => \&sub_recalc,
                                    'COMMIT'   => \&sub_commit,
                                    'ROLLBACK' => \&sub_rollback,
                                    'LOGOUT'   => \&sub_logout,
@@ -74,6 +75,7 @@ my %MAP_SHORTCUTS = (
                     'F'   => 'FETCH',
                     'H'   => 'FINISH',
                     'I'   => 'INSERT',
+                    'L'   => 'RECALC',
                     'M'   => 'MENU',
                     'N'   => 'NEXTID',
                     'P'   => 'PREPARE',
@@ -862,6 +864,42 @@ sub sub_delete
   boom "sub_delete is not yet implemented";
   
 };
+
+sub sub_recalc
+{
+  my $mi = shift;
+  my $mo = shift;
+
+  my $table  = uc $mi->{ 'TABLE'  };
+  my $data   =    $mi->{ 'DATA'   };
+  my $id     =    $mi->{ 'ID'     };
+
+  my $rec = new Decor::Core::DB::Record;
+
+  my $profile = subs_get_current_profile();
+  $rec->set_profile_locked( $profile );
+
+  $rec->taint_mode_enable_all();
+
+  if( $id )
+    {
+    $rec->load( $table, $id );
+    }
+  else
+    {
+    $rec->create_read_only( $table );
+    }  
+
+  $rec->write( %$data );
+
+  $rec->taint_mode_disable_all();
+
+  # TODO: recalc for insert/update
+  $rec->method( 'RECALC' );
+
+  $mo->{ 'RDATA' } = $rec->read_hash_all();
+  $mo->{ 'XS'    } = 'OK';
+}
 
 #--- CONTROLS/COMMIT/ROLLBACK/ETC. -------------------------------------------
 

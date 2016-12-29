@@ -126,6 +126,13 @@ sub taint_mode_off
   return 1;
 }
 
+sub taint_mode_disable_all
+{
+  my $self    = shift;
+
+  $self->taint_mode_off( 'ALL' );
+}
+
 sub taint_mode_get
 {
   my $self = shift;
