@@ -141,9 +141,10 @@ sub create
 
   $self->set_read_only( $ro ) if $ro > 0;
 
+  $self->{ 'BASE_TABLE' } = $table;
+
   my $new_id = $self->__create_empty_data( $table, $id );
 
-  $self->{ 'BASE_TABLE' } = $table;
   $self->{ 'BASE_ID'    } = $new_id;
 
   return $new_id;
@@ -320,7 +321,7 @@ sub __get_base_table_fields
 {
   my $self = shift;
 
-  boom "record is empty, cannot be read/written" if $self->empty();
+  boom "record is empty, cannot be read/written" if $self->is_empty();
 
   my $base_table = $self->{ 'BASE_TABLE' };
   
@@ -356,7 +357,7 @@ sub read_hash
 {
   my $self = shift;
   
-  boom "record is empty, cannot be read" if $self->empty();
+  boom "record is empty, cannot be read" if $self->is_empty();
 
   my @res;
   for my $field ( @_ )

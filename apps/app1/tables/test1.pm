@@ -1,6 +1,20 @@
 package decor::tables::test1;
 use strict;
 
+use Data::Dumper;
+
+sub on_recalc
+{
+  my $r = shift;
+
+  my $sum;
+  
+  $sum += $_ for $r->read( qw( AMOUNT1 AMOUNT2 AMOUNT3 ) );
+  $r->write( AMOUNT4 => $sum );
+  
+  print Dumper( 'RECALC-'x10, $r );
+}
+
 sub on_test
 {
   print "test";

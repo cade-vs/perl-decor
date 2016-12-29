@@ -109,9 +109,9 @@ sub taint_mode_off
 {
   my $self    = shift;
 
-  for my $mode ( @_ )
+  for( @_ )
     {
-    $mode = uc $mode;
+    my $mode = uc $_;
     if( $mode eq 'ALL' )
       {
       $self->{ 'TAINT' } = {};

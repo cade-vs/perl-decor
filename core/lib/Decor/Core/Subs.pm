@@ -9,6 +9,7 @@
 ##############################################################################
 package Decor::Core::Subs;
 use strict;
+use Data::Dumper;
 use Exception::Sink;
 use Data::Tools;
 
@@ -136,6 +137,8 @@ sub subs_process_xt_message
   boom "unknown or forbidden DMAP:XTYPE [$DISPATCH_MAP:$xt] current DMAP is [$DISPATCH_MAP]" unless exists $mapc->{ $xt } or exists $mapg->{ $xt };
 
   my $handle = $mapc->{ $xt } || $mapg->{ $xt };
+
+  de_log_debug( "debug: processing XTYPE [$xt] xt code handle [$handle]" );
 
   my $res = $handle->( $mi, $mo );
 }
@@ -899,6 +902,10 @@ sub sub_recalc
 
   $mo->{ 'RDATA' } = $rec->read_hash_all();
   $mo->{ 'XS'    } = 'OK';
+
+
+#print Dumper( $rec, $mi, $mo  );
+
 }
 
 #--- CONTROLS/COMMIT/ROLLBACK/ETC. -------------------------------------------

@@ -406,7 +406,7 @@ sub insert
   $mi{ 'DATA'   } = $data;
   $mi{ 'ID'     } = $id;
 
-print STDERR Dumper( $opt );
+#print STDERR Dumper( $opt );
   
   for( qw( LINK_TO_TABLE LINK_TO_FIELD LINK_TO_ID ) )
     {
@@ -453,6 +453,27 @@ sub delete
 }
 
 #-----------------------------------------------------------------------------
+
+sub recalc
+{
+  my $self = shift;
+
+  my $table  = uc shift;
+  my $data   = shift;
+  my $id     = shift;
+  my $opt    = shift || {};
+  
+  my %mi;
+
+  $mi{ 'XT'     } = 'L';
+  $mi{ 'TABLE'  } = $table;
+  $mi{ 'DATA'   } = $data;
+  $mi{ 'ID'     } = $id;
+
+  my $mo = $self->tx_msg( \%mi ) or return undef;
+
+  return $mo->{ 'RDATA' };
+}
 
 ### helpers ##################################################################
 

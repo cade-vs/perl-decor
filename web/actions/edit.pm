@@ -134,6 +134,23 @@ sub main
   # handle redirects here
   de_web_handle_redirect_buttons( $reo );
 
+  # recalc data
+  #$fields_ar        = $ps->{ 'FIELDS_WRITE_AR' };
+  #$edit_mode_insert = $ps->{ 'EDIT_MODE_INSERT' };
+  
+  my $calc_in  = { map { $_ => $ps->{ 'ROW_DATA' }{ $_ } } @$fields_ar };
+  my $calc_id  = $id unless $edit_mode_insert;
+  my $calc_out = $core->recalc( $table, $calc_in, $calc_id );
+  if( $calc_out )
+    {
+    $ps->{ 'ROW_DATA' } = $calc_out;
+    }
+  else
+    {
+    return "<#e_internal>";
+    }  
+  
+
 ###  my $select = $core->select( $table, $fields, { LIMIT => 1, FILTER => { '_ID' => $id } } );
 
   $text .= "<br>";

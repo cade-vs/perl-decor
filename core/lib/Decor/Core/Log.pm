@@ -24,9 +24,13 @@ our @EXPORT = qw(
                 $DE_LOG_TO_FILES
 
                 de_set_log_prefix
+                
                 de_log
                 de_log_debug
+                de_log_debug2
+                
                 de_log_stack
+                
                 de_log_dumper
                 de_log_dumper2
                 
@@ -136,6 +140,12 @@ sub de_log_debug
   my $msg = join( "\n", @args );
   $msg = "debug: $msg" unless $msg =~ /^debug:/i;
   de_log( $msg );
+}
+
+sub de_log_debug2
+{
+  return unless de_debug() > 1;
+  de_log_debug( @_ );
 }
 
 sub de_log_stack

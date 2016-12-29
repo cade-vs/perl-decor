@@ -10,6 +10,7 @@
 package Decor::Core::Code;
 use strict;
 
+use Data::Dumper;
 use Data::Lock qw( dlock dunlock );
 
 use Exception::Sink;
@@ -122,11 +123,15 @@ sub de_code_exists
 {
   my $ctype   = shift;
   my $name    = shift;
-  my $trigger = lc shift;
+  my $trigger = uc shift;
 
   de_check_name_boom( $name,  "invalid CODE TRIGGER name [$trigger]" );
 
+  $trigger = "ON_$trigger";
+
   my $map = de_code_get_map( $ctype, $name );
+
+print Dumper( 'de-code-exists'x10, $ctype, $name, $trigger, $map );
   
   return undef unless $map;
   return undef unless exists $map->{ $trigger };
@@ -154,11 +159,15 @@ sub de_code_exec
 {
   my $ctype   = shift;
   my $name    = shift;
-  my $trigger = lc shift;
+  my $trigger = uc shift;
   
   my $map = de_code_get_map( $ctype, $name );
+
+print Dumper( 'de-code-exec'x10, $ctype, $name, $trigger, $map );
   
   boom "requested exec for TRIGGER [$trigger] but it does not exist for code type [$ctype] name [$name]" unless de_code_exists( $ctype, $name, $trigger );
+
+  $trigger = "ON_$trigger";
 
   return $map->{ $trigger }->( @_ );
 }
