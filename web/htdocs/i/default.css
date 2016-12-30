@@ -130,12 +130,29 @@ div.error-text
         margin-right: auto;
         }
 
+div.link-data
+        {
+        color: #CCC;
+        background-color: #252535;
+        padding: 5px;
+        margin: 0 0 0 0;
+        border:        none;
+        border-left:   solid 1px #555;
+        border-bottom: solid 1px #555;
+        }
+
+
 .warning
         {
         background-color: #522;
         border: solid 1px #633;
         padding: 2px;
         margin: 2px 2px 2px 2px;
+        }
+
+.input-error
+        {
+        background-color: #352525;
         }
 
 table

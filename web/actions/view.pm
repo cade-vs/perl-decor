@@ -89,17 +89,17 @@ sub main
       my ( $linked_table, $linked_field ) = $bfdes->link_details();
       my $ltdes = $core->describe( $linked_table );
       $data_fmt = de_html_alink( $reo, 'new', $data_fmt, "View linked record", ACTION => 'view', ID => $data_base, TABLE => $linked_table );
-      $data_ctrl .= de_html_alink_icon( $reo, 'new', 'view.png',   "View linked record",           ACTION => 'view', ID => $data_base, TABLE => $linked_table );
+      $data_ctrl .= de_html_alink( $reo, 'new', 'view.png',   "View linked record",           ACTION => 'view', ID => $data_base, TABLE => $linked_table );
       if( $ltdes->allows( 'INSERT' ) and $tdes->allows( 'UPDATE' ) and $bfdes->allows( 'UPDATE' ) )
         {
         # FIXME: check for record access too!
-        $data_ctrl .= de_html_alink_icon( $reo, 'new', 'insert.png', "Insert and link a new record", ACTION => 'edit', ID => -1,         TABLE => $linked_table, LINK_TO_TABLE => $table, LINK_TO_FIELD => $base_field, LINK_TO_ID => $id );
+        $data_ctrl .= de_html_alink( $reo, 'new', 'insert.png', "Insert and link a new record", ACTION => 'edit', ID => -1,         TABLE => $linked_table, LINK_TO_TABLE => $table, LINK_TO_FIELD => $base_field, LINK_TO_ID => $id );
         }
       }
     elsif( $bfdes->is_backlinked() )
       {
       my ( $backlinked_table, $backlinked_field ) = $bfdes->backlink_details();
-      $data_ctrl .= de_html_alink_icon( $reo, 'new', 'insert.png', "Insert and link a new record", ACTION => 'edit', ID => -1, TABLE => $backlinked_table );
+      $data_ctrl .= de_html_alink( $reo, 'new', 'insert.png', "Insert and link a new record", ACTION => 'edit', ID => -1, TABLE => $backlinked_table );
       }
 
     if( $lpassword )

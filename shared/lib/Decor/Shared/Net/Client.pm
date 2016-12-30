@@ -491,5 +491,19 @@ sub select_first1_by_id
   return $row_data;
 }
 
+sub read_field
+{
+  my $self  = shift;
+  my $table = shift;
+  my $field = shift;
+  my $id    = shift;
+
+  my $select   = $self->select( $table, $field, { LIMIT => 1, FILTER => { '_ID' => $id } } ) or return undef;
+  my $row_data = $self->fetch( $select ) or return undef;
+                 $self->finish( $select );
+  
+  return $row_data->{ $field };
+}
+
 ##############################################################################
 1;

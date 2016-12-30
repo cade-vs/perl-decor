@@ -58,6 +58,13 @@ sub main
     $res = $core->update( $table, $row_data, { ID => $id } );
     }  
 
+  if( $res )
+    {
+    # no error, return to caller
+    
+    $reo->forward_back();
+    }
+
   my $res_msg = $res ? "OK" : "Error";
 
   my $text .= "<br>";
@@ -79,7 +86,7 @@ sub main
   
   $text .= "<br>";
   $text .= de_html_alink_button( $reo, 'here', "&lArr; [~Back]",     "Back to data edit screen", ACTION => 'edit'   );
-  $text .= de_html_alink_button( $reo, 'back', "[~Continue] &crarr;", "Operation done, continue..."              );
+  $text .= de_html_alink_button( $reo, 'back', "[~Continue] &crarr;", "Operation done, continue..."       );
 #  $text .= de_html_alink_button( $reo, 'new',  "OK",     $ok_hint,                   ACTION => 'commit' );
 
   return $text;

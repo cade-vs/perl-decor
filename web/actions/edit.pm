@@ -15,6 +15,7 @@ use Exception::Sink;
 use Decor::Shared::Types;
 use Decor::Web::HTML::Utils;
 use Decor::Web::Utils;
+use Decor::Web::View;
 use Web::Reactor::HTML::Utils;
 
 my $clear_icon = 'i/clear.png';
@@ -39,6 +40,8 @@ sub main
   my $si = $reo->get_safe_input();
   my $ui = $reo->get_user_input();
   my $ps = $reo->get_page_session();
+
+  my $button    = $reo->get_input_button();
 
   # save extra args
   $reo->param( 'LINK_TO_TABLE' );
@@ -158,7 +161,7 @@ sub main
 
   $text .= "<br>";
   
-  if( $calc_merrs->{ '*' } )
+  if( $button and $calc_merrs->{ '*' } )
     {
     $text .= "<div class=error-text>";
     $text .= "$_<br>\n" for @{ $calc_merrs->{ '*' } };
@@ -196,14 +199,17 @@ sub main
 
     my $field_error;
     
-    $field_error .= "$_<br>\n" for @{ $calc_merrs->{ $field } };
+    if( $button )
+      {
+      $field_error .= "$_<br>\n" for @{ $calc_merrs->{ $field } };
+      }
 
     my $field_id = "F:$table:$field:" . $reo->html_new_id();
 
     my $field_input;
     my $input_tag_args;
     my $field_disabled;
-    
+
     if( $type_name eq 'CHAR' )
       {
       my $pass_type = 1 if $fdes->{ 'OPTIONS' }{ 'PWD' } or $field =~ /^PWD_/;
@@ -221,6 +227,20 @@ sub main
                                        ARGS     => $input_tag_args, 
                                        CLEAR    => $clear_icon,
                                        );
+      }
+    elsif( $type_name eq 'INT' and $fdes->is_linked() )
+      {
+      my ( $linked_table, $linked_field ) = $fdes->link_details();
+      my ( $link_path, $lfdes ) = $fdes->expand_field_path();
+      
+      my $link_data = $core->read_field( $table, $link_path, $id );
+      my $link_data_fmt = de_web_format_field( $link_data, $lfdes, 'VIEW' );
+
+      $field_input = "<div class=link-data>$link_data_fmt</div>";
+      }
+    elsif( $type_name eq 'INT' and $fdes->is_backlinked() )
+      {
+      $field_input = "(backlink)";
       }
     elsif( $type_name eq 'INT' and $fdes->{ 'BOOL' } )
       {
