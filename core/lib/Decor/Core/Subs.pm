@@ -900,12 +900,10 @@ sub sub_recalc
   # TODO: recalc for insert/update
   $rec->method( 'RECALC' );
 
+  $mo->{ 'MERRS' } = $rec->{ 'METHOD:ERRORS' } if $rec->{ 'METHOD:ERRORS' };
   $mo->{ 'RDATA' } = $rec->read_hash_all();
   $mo->{ 'XS'    } = 'OK';
-
-
 #print Dumper( $rec, $mi, $mo  );
-
 }
 
 #--- CONTROLS/COMMIT/ROLLBACK/ETC. -------------------------------------------

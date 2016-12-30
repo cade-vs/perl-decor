@@ -688,7 +688,7 @@ sub rollback_to_savepoint
   dsn_savepoint_to_savepoint( $sp_name, $dsn );
 }
 
-#-----------------------------------------------------------------------------
+### METHODS ##################################################################
 
 sub method
 {
@@ -699,6 +699,30 @@ sub method
 
   return de_code_exec( 'tables', $self->table(), $name, $self, @_ );
 }
+
+sub reset_errors
+{
+  my $self = shift;
+  
+  delete $self->{ 'METHOD:ERRORS' };
+}
+
+sub method_add_error
+{
+  my $self = shift;
+  
+  push @{ $self->{ 'METHOD:ERRORS' }{ '*' } }, @_;
+}
+
+sub method_add_field_error
+{
+  my $self = shift;
+  my $name = uc shift;
+  
+  push @{ $self->{ 'METHOD:ERRORS' }{ $name } }, @_;
+}
+
+#-----------------------------------------------------------------------------
 
 ### EOF ######################################################################
 1;

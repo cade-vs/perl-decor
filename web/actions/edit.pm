@@ -131,16 +131,13 @@ sub main
     $ps->{ 'ROW_DATA' }{ $field } = $raw_input_data;
     }
 
-  # handle redirects here
-  de_web_handle_redirect_buttons( $reo );
-
   # recalc data
   #$fields_ar        = $ps->{ 'FIELDS_WRITE_AR' };
   #$edit_mode_insert = $ps->{ 'EDIT_MODE_INSERT' };
   
   my $calc_in  = { map { $_ => $ps->{ 'ROW_DATA' }{ $_ } } @$fields_ar };
   my $calc_id  = $id unless $edit_mode_insert;
-  my $calc_out = $core->recalc( $table, $calc_in, $calc_id );
+  my ( $calc_out, $calc_merrs )= $core->recalc( $table, $calc_in, $calc_id );
   if( $calc_out )
     {
     $ps->{ 'ROW_DATA' } = $calc_out;
@@ -151,9 +148,23 @@ sub main
     }  
   
 
+  if( ! $calc_merrs )
+    {
+    # handle redirects here
+    de_web_handle_redirect_buttons( $reo );
+    }
+
 ###  my $select = $core->select( $table, $fields, { LIMIT => 1, FILTER => { '_ID' => $id } } );
 
   $text .= "<br>";
+  
+  if( $calc_merrs->{ '*' } )
+    {
+    $text .= "<div class=error-text>";
+    $text .= "$_<br>\n" for @{ $calc_merrs->{ '*' } };
+    $text .= "</div>";
+    $text .= "<br>";
+    }
 
   my $edit_form = new Web::Reactor::HTML::Form( REO_REACTOR => $reo );
   my $edit_form_begin;
@@ -182,6 +193,10 @@ sub main
     
     my $field_data = $ps->{ 'ROW_DATA' }{ $field };
     my $field_data_usr_format = type_format( $field_data, $type );
+
+    my $field_error;
+    
+    $field_error .= "$_<br>\n" for @{ $calc_merrs->{ $field } };
 
     my $field_id = "F:$table:$field:" . $reo->html_new_id();
 
@@ -296,8 +311,10 @@ sub main
       $field_input = "(unknown)";
       }  
 
+    $field_error = "<div class=warning align=right>$field_error</div>" if $field_error;
+
     $text .= "<tr class=view>\n";
-    $text .= "<td class='view-field'>$label</td>\n";
+    $text .= "<td class='view-field'>$label$field_error</td>\n";
     $text .= "<td class='view-value' >$field_input</td>\n";
     $text .= "</tr>\n";
     }

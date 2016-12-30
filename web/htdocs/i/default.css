@@ -130,6 +130,14 @@ div.error-text
         margin-right: auto;
         }
 
+.warning
+        {
+        background-color: #522;
+        border: solid 1px #633;
+        padding: 2px;
+        margin: 2px 2px 2px 2px;
+        }
+
 table
         {
         margin-left: auto;
@@ -356,6 +364,7 @@ td.view-value
         width: 50%;
         padding: 4px;
         padding-left: 8px;
+        vertical-align: top;
         }
 
 /*** grid *******************************************************************/

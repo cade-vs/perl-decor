@@ -472,7 +472,7 @@ sub recalc
 
   my $mo = $self->tx_msg( \%mi ) or return undef;
 
-  return $mo->{ 'RDATA' };
+  return wantarray ? ( $mo->{ 'RDATA' }, $mo->{ 'MERRS' } ) : $mo->{ 'RDATA' };
 }
 
 ### helpers ##################################################################
