@@ -36,7 +36,7 @@ sub de_html_form_button_redirect
   my $reo   = shift; # web::reactor object
   my $type  = shift; # redirect type: new, back, here, none
   my $form  = shift; # web::reactor::html::form object
-  my $name  = shift; # button name
+  my $name  = uc shift; # button name
   my $value = shift; # button text
   my $hint  = shift; # button hover hint
   my @args  = @_;    # redirect data
@@ -55,7 +55,14 @@ sub de_html_form_button_redirect
 
   my $text;
 
-  $text .= $form->button( NAME => "REDIRECT:$name", VALUE => $value, ARGS => $args );
+  if( $value =~ /([a-z_0-9]+\.(png|jpg|jpeg|gif))/ )
+    {
+    $text .= $form->image_button( NAME => "REDIRECT:$name", SRC => "i/$value", CLASS => 'icon', ARGS => $args );
+    }
+  else
+    {  
+    $text .= $form->button( NAME => "REDIRECT:$name", VALUE => $value, ARGS => $args );
+    }
   
   return $text;
 }

@@ -43,7 +43,7 @@ sub main
     my $lt_table = $reo->param( 'LINK_TO_TABLE' );
     my $lt_field = $reo->param( 'LINK_TO_FIELD' );
     my $lt_id    = $reo->param( 'LINK_TO_ID'    );
-    
+
     if( $lt_table and $lt_field and $lt_id )
       {
       $opt->{ 'LINK_TO_TABLE' } = $lt_table;
@@ -61,8 +61,18 @@ sub main
   if( $res )
     {
     # no error, return to caller
+
+    my $return_data_from = $reo->param( 'RETURN_DATA_FROM' );
+    my $return_data_to   = $reo->param( 'RETURN_DATA_TO'   );
+
+    my @return_args;
     
-    $reo->forward_back();
+    if( $return_data_from and $return_data_to )
+      {
+      push @return_args, ( "F:$return_data_to" => $row_data->{ $return_data_from } );
+      }
+    
+    $reo->forward_back( @return_args );
     }
 
   my $res_msg = $res ? "OK" : "Error";

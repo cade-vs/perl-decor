@@ -17,6 +17,7 @@ use Decor::Web::HTML::Utils;
 use Decor::Web::Utils;
 use Decor::Web::View;
 use Web::Reactor::HTML::Utils;
+use Web::Reactor::HTML::Layout;
 
 my $clear_icon = 'i/clear.png';
 my $clear_icon = 'x';
@@ -42,11 +43,10 @@ sub main
   my $ps = $reo->get_page_session();
 
   my $button    = $reo->get_input_button();
+  my $button_id = $reo->get_input_button_id();
 
   # save extra args
-  $reo->param( 'LINK_TO_TABLE' );
-  $reo->param( 'LINK_TO_FIELD' );
-  $reo->param( 'LINK_TO_ID'    );
+  $reo->param( $_ ) for qw( LINK_TO_TABLE LINK_TO_FIELD LINK_TO_ID RETURN_DATA_FROM RETURN_DATA_TO );
 
   my $core = $reo->de_connect();
   my $tdes = $core->describe( $table );
@@ -151,7 +151,7 @@ sub main
     }  
   
 
-  if( ! $calc_merrs )
+  if( ! ( ( $button_id eq 'PREVIEW' or $button_id eq 'OK' ) and $calc_merrs ) )
     {
     # handle redirects here
     de_web_handle_redirect_buttons( $reo );
@@ -207,6 +207,7 @@ sub main
     my $field_id = "F:$table:$field:" . $reo->html_new_id();
 
     my $field_input;
+    my $field_input_ctrl;
     my $input_tag_args;
     my $field_disabled;
 
@@ -231,12 +232,25 @@ sub main
     elsif( $type_name eq 'INT' and $fdes->is_linked() )
       {
       my ( $linked_table, $linked_field ) = $fdes->link_details();
-      my ( $link_path, $lfdes ) = $fdes->expand_field_path();
+      my $lfdes = $fdes->describe_linked_field();
+      my ( $link_path, $llfdes ) = $lfdes->expand_field_path();
+      my $link_data = $core->read_field( $linked_table, $link_path, $field_data );
+      my $link_data_fmt;
       
-      my $link_data = $core->read_field( $table, $link_path, $id );
-      my $link_data_fmt = de_web_format_field( $link_data, $lfdes, 'VIEW' );
+      if( $field_data > 0 )
+        {
+        $link_data_fmt = de_web_format_field( $link_data, $llfdes, 'VIEW' );
+        }
+      else
+        {
+        $link_data_fmt = '(empty)';
+        }  
 
       $field_input = "<div class=link-data>$link_data_fmt</div>";
+
+      $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "VIEW_LINKED_$field_id", "view.png", "View linked data", ACTION => 'view', TABLE => $linked_table, ID => $field_data )
+          if $field_data > 0;
+      $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "INSERT_LINKED_$field_id", "insert.png", "Insert new linked data", ACTION => 'edit', TABLE => $linked_table, ID => -1, RETURN_DATA_FROM => '_ID', RETURN_DATA_TO => $field );
       }
     elsif( $type_name eq 'INT' and $fdes->is_backlinked() )
       {
@@ -333,9 +347,10 @@ sub main
 
     $field_error = "<div class=warning align=right>$field_error</div>" if $field_error;
 
+    my $input_layout = html_layout_2lr( $field_input, $field_input_ctrl, '<==1>' );
     $text .= "<tr class=view>\n";
     $text .= "<td class='view-field'>$label$field_error</td>\n";
-    $text .= "<td class='view-value' >$field_input</td>\n";
+    $text .= "<td class='view-value' >$input_layout</td>\n";
     $text .= "</tr>\n";
     }
   $text .= "</table>";

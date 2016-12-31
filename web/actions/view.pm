@@ -1,6 +1,7 @@
 package decor::actions::view;
 use strict;
 use Web::Reactor::HTML::Utils;
+use Web::Reactor::HTML::Layout;
 use Decor::Web::HTML::Utils;
 use Decor::Web::View;
 use Data::Dumper;
@@ -107,9 +108,10 @@ sub main
       $data_fmt = "(hidden)";
       }
 
+    my $data_layout = html_layout_2lr( $data_fmt, $data_ctrl, '<==1>' );
     $text .= "<tr class=view>";
     $text .= "<td class='view-field' >$label</td>";
-    $text .= "<td class='view-value' ><table cellspacing=0 cellpadding=0 width=100%><tr><td align=left>$data_fmt</td><td align=right>$data_ctrl</td></tr></table></td>";
+    $text .= "<td class='view-value' >$data_layout</td>";
     $text .= "</tr>\n";
     }
   $text .= "</table>";
