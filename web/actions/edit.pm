@@ -48,6 +48,8 @@ sub main
   # save extra args
   $reo->param( $_ ) for qw( LINK_TO_TABLE LINK_TO_FIELD LINK_TO_ID RETURN_DATA_FROM RETURN_DATA_TO );
 
+  my $backlink_field_disable = $reo->param( 'BACKLINK_FIELD_DISABLE' );
+
   my $core = $reo->de_connect();
   my $tdes = $core->describe( $table );
 
@@ -190,6 +192,7 @@ sub main
   for my $field ( @$fields_ar )
     {
     my $fdes      = $tdes->{ 'FIELD' }{ $field };
+    my $bfdes     = $fdes; # keep sync code with view/preview/grid, bfdes is begin/origin-field
     my $type      = $fdes->{ 'TYPE'  };
     my $type_name = $fdes->{ 'TYPE'  }{ 'NAME' };
     my $label     = $fdes->{ 'LABEL' } || $field;
@@ -248,13 +251,24 @@ sub main
 
       $field_input = "<div class=link-data>$link_data_fmt</div>";
 
-      $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "VIEW_LINKED_$field_id", "view.png", "View linked data", ACTION => 'view', TABLE => $linked_table, ID => $field_data )
-          if $field_data > 0;
-      $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "INSERT_LINKED_$field_id", "insert.png", "Insert new linked data", ACTION => 'edit', TABLE => $linked_table, ID => -1, RETURN_DATA_FROM => '_ID', RETURN_DATA_TO => $field );
+      if( ! $backlink_field_disable or $field ne $backlink_field_disable )
+        {
+        if( $field_data > 0 )
+          {
+          $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "VIEW_LINKED_$field_id", "view.png", "View linked data", ACTION => 'view', TABLE => $linked_table, ID => $field_data );
+          $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "EDIT_LINKED_$field_id", "edit.png", "Edit linked data", ACTION => 'edit', TABLE => $linked_table, ID => $field_data );
+          }
+        $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "INSERT_LINKED_$field_id", "insert.png", "Insert new linked data", ACTION => 'edit', TABLE => $linked_table, ID => -1, RETURN_DATA_FROM => '_ID', RETURN_DATA_TO => $field );
+        }
       }
     elsif( $type_name eq 'INT' and $fdes->is_backlinked() )
       {
-      $field_input = "(backlink)";
+      my ( $backlinked_table, $backlinked_field ) = $bfdes->backlink_details();
+      $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "GRID_BACKLINKED_$field_id",   "grid.png",   "View grid with all backlinked data", ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, FILTER => { $backlinked_field => $id } );
+      $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "INSERT_BACKLINKED_$field_id", "insert.png", "Insert new backlinked data", ACTION => 'edit', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, BACKLINK_FIELD_DISABLE => $backlinked_field );
+
+      # TODO: find count
+      $field_input = "XXX records.";
       }
     elsif( $type_name eq 'INT' and $fdes->{ 'BOOL' } )
       {

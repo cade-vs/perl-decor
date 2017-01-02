@@ -100,7 +100,9 @@ sub main
     elsif( $bfdes->is_backlinked() )
       {
       my ( $backlinked_table, $backlinked_field ) = $bfdes->backlink_details();
-      $data_ctrl .= de_html_alink( $reo, 'new', 'insert.png', "Insert and link a new record", ACTION => 'edit', ID => -1, TABLE => $backlinked_table );
+      $data_ctrl .= de_html_alink( $reo, 'new', 'insert.png', "Insert and link a new record", ACTION => 'edit', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, BACKLINK_FIELD_DISABLE => $backlinked_field );
+      # TODO: find count
+      $data_fmt = "XXX records.";
       }
 
     if( $lpassword )

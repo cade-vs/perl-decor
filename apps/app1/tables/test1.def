@@ -90,6 +90,10 @@ grant update to 999; 100; 200+!2
 =REF
 
   type link test2 name
+
+=BACKREF
+
+  type backlink test3 PARENT
   
 =BOOL_TEST
 

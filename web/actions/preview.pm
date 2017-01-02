@@ -45,11 +45,19 @@ sub main
   for my $field ( @$fields_ar )
     {
     my $fdes      = $tdes->{ 'FIELD' }{ $field };
+    my $bfdes     = $fdes; # keep sync code with view/grid, bfdes is begin/origin-field
     my $type_name = $fdes->{ 'TYPE'  }{ 'NAME' };
     my $label     = $fdes->get_attr( qw( WEB PREVIEW LABEL ) );
     
     my $data = $row_data->{ $field };
     my $data_fmt = de_web_format_field( $data, $fdes, 'PREVIEW' );
+
+    if( $bfdes->is_backlinked() )
+      {
+      my ( $backlinked_table, $backlinked_field ) = $bfdes->backlink_details();
+      # TODO: find count
+      $data_fmt = "XXX records.";
+      }
 
     $text .= "<tr class=view>";
     $text .= "<td class='view-field' >$label</td>";

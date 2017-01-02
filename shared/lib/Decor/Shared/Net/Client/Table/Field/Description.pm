@@ -64,14 +64,14 @@ sub is_linked
 {
   my $self   = shift;
   
-  return ( exists $self->{ 'LINKED_TABLE' } or exists $self->{ 'BACKLINKED_TABLE' } ) ? 1 : undef;
+  return exists $self->{ 'LINKED_TABLE' } ? 1 : undef;
 }
 
 sub is_backlinked
 {
   my $self   = shift;
   
-  return ( exists $self->{ 'BACKLINKED_TABLE' } ) ? 1 : undef;
+  return exists $self->{ 'BACKLINKED_TABLE' } ? 1 : undef;
 }
 
 sub link_details

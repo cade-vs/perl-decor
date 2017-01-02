@@ -23,8 +23,9 @@ sub main
 
   my $text;
 
-  my $table  = $reo->param( 'TABLE' );
+  my $table  = $reo->param( 'TABLE'  );
   my $offset = $reo->param( 'OFFSET' );
+  my $filter_param = $reo->param( 'FILTER' );
 
   my $core = $reo->de_connect();
   my $tdes = $core->describe( $table );
@@ -34,6 +35,8 @@ sub main
   $reo->ps_path_add( 'grid.png', qq( List data from "<b>$table_label</b>" ) );
 
   return "<#e_internal>" unless $tdes;
+
+  my $link_field_disable = $reo->param( 'LINK_FIELD_DISABLE' );
 
 #  print STDERR Dumper( $tdes );
 
@@ -52,8 +55,12 @@ sub main
   de_web_expand_resolve_fields_in_place( \@fields, $tdes, \%bfdes, \%lfdes, \%basef );
 
   my $fields = join ',', @fields, values %basef;
+
+  my %filter;
   
-  my $select = $core->select( $table, $fields, { OFFSET => $offset, LIMIT => $page_size, ORDER_BY => '_ID DESC' } );
+  %filter = ( %filter, %$filter_param ) if $filter_param;
+  
+  my $select = $core->select( $table, $fields, { FILTER => \%filter, OFFSET => $offset, LIMIT => $page_size, ORDER_BY => '_ID DESC' } );
 
   $text .= "<br>";
 
@@ -115,30 +122,45 @@ sub main
 
       if( $bfdes->is_linked() )
         {
-        my ( $linked_table, $linked_field ) = $bfdes->link_details();
-        my $ltdes = $core->describe( $linked_table );
-        if( $data_base > 0 )
+        if( $link_field_disable and $base_field eq $link_field_disable )
           {
-          $data_fmt   = de_html_alink( $reo, 'new', $data_fmt,                       "View linked record", ACTION => 'view', ID => $data_base, TABLE => $linked_table );
+          if( $data_base > 0 )
+            {
+            # TODO: highlight disabled links
+            # $data_fmt   = $data_fmt;
+            }
+          else
+            {
+            $data_fmt   = "(empty)";
+            }  
           }
         else
-          {
-          $data_fmt   = "(empty)";
+          {  
+          my ( $linked_table, $linked_field ) = $bfdes->link_details();
+          my $ltdes = $core->describe( $linked_table );
+          if( $data_base > 0 )
+            {
+            $data_fmt   = de_html_alink( $reo, 'new', $data_fmt,                       "View linked record", ACTION => 'view', ID => $data_base, TABLE => $linked_table );
+            }
+          else
+            {
+            $data_fmt   = "(empty)";
+            }  
+          $data_ctrl .= de_html_alink( $reo, 'new', 'view.png View linked record',   undef,                ACTION => 'view', ID => $data_base, TABLE => $linked_table );
+          $data_ctrl .= "<br>\n";
+          if( $ltdes->allows( 'UPDATE' ) and $data_base > 0 )
+            {
+            # FIXME: check for record access too!
+            $data_ctrl .= de_html_alink( $reo, 'new', 'edit.png Edit linked record', undef, ACTION => 'edit', ID => $data_base, TABLE => $linked_table );
+            $data_ctrl .= "<br>\n";
+            }
+          if( $ltdes->allows( 'INSERT' ) and $tdes->allows( 'UPDATE' ) and $bfdes->allows( 'UPDATE' ) )
+            {
+            # FIXME: check for record access too!
+            $data_ctrl .= de_html_alink( $reo, 'new', 'insert.png Insert and link a new record', undef, ACTION => 'edit', ID => -1,         TABLE => $linked_table, LINK_TO_TABLE => $table, LINK_TO_FIELD => $base_field, LINK_TO_ID => $id );
+            $data_ctrl .= "<br>\n";
+            }
           }  
-        $data_ctrl .= de_html_alink( $reo, 'new', 'view.png View linked record',   undef,                ACTION => 'view', ID => $data_base, TABLE => $linked_table );
-        $data_ctrl .= "<br>\n";
-        if( $ltdes->allows( 'UPDATE' ) and $data_base > 0 )
-          {
-          # FIXME: check for record access too!
-          $data_ctrl .= de_html_alink( $reo, 'new', 'edit.png Edit linked record', undef, ACTION => 'edit', ID => $data_base, TABLE => $linked_table );
-          $data_ctrl .= "<br>\n";
-          }
-        if( $ltdes->allows( 'INSERT' ) and $tdes->allows( 'UPDATE' ) and $bfdes->allows( 'UPDATE' ) )
-          {
-          # FIXME: check for record access too!
-          $data_ctrl .= de_html_alink( $reo, 'new', 'insert.png Insert and link a new record', undef, ACTION => 'edit', ID => -1,         TABLE => $linked_table, LINK_TO_TABLE => $table, LINK_TO_FIELD => $base_field, LINK_TO_ID => $id );
-          $data_ctrl .= "<br>\n";
-          }
         }
       elsif( $bfdes->is_backlinked() )
         {

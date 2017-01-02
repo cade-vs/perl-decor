@@ -1,0 +1,19 @@
+
+label  Test table 2
+
+grant insert update to 900
+grant read          to 900
+
+=name
+
+  type char 256
+  
+=cnt
+
+  type int
+
+  grant insert to 111; 900; 22 + ! 44
+  
+=PARENT
+
+  type  link  test1 name
