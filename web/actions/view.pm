@@ -100,15 +100,16 @@ sub main
     elsif( $bfdes->is_backlinked() )
       {
       my ( $backlinked_table, $backlinked_field ) = $bfdes->backlink_details();
-      $data_ctrl .= de_html_alink( $reo, 'new', 'insert.png', "Insert and link a new record", ACTION => 'edit', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, BACKLINK_FIELD_DISABLE => $backlinked_field );
-      # TODO: find count
-      my $count = $core->count( $backlinked_table, { FILTER => { $backlinked_field => $id } });
-      $count = 'Unknown' if $count eq '';
-      
       my $bltdes = $core->describe( $backlinked_table );
       my $linked_table_label = $bltdes->get_label();
       
-      $data_fmt = qq( <b>$count</b> records from "<b>$linked_table_label</b>" );
+      $data_ctrl .= de_html_alink( $reo, 'new', 'grid.png',   "View all backlinked records from <b>$linked_table_label</b>",  ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, FILTER => { $backlinked_field => $id } );
+      $data_ctrl .= de_html_alink( $reo, 'new', 'insert.png', "Insert and link a new record into <b>$linked_table_label</b>", ACTION => 'edit', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, BACKLINK_FIELD_DISABLE => $backlinked_field );
+
+      my $count = $core->count( $backlinked_table, { FILTER => { $backlinked_field => $id } });
+      $count = 'Unknown' if $count eq '';
+      
+      $data_fmt = de_html_alink( $reo, 'new', "<b class=hi>$count</b> records from <b class=hi>$linked_table_label</b>",   "View all backlinked records from <b class=hi>$linked_table_label</b>",  ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, FILTER => { $backlinked_field => $id } );
       }
 
     if( $lpassword )

@@ -264,11 +264,16 @@ sub main
     elsif( $type_name eq 'INT' and $fdes->is_backlinked() )
       {
       my ( $backlinked_table, $backlinked_field ) = $bfdes->backlink_details();
-      $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "GRID_BACKLINKED_$field_id",   "grid.png",   "View grid with all backlinked data", ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, FILTER => { $backlinked_field => $id } );
-      $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "INSERT_BACKLINKED_$field_id", "insert.png", "Insert new backlinked data", ACTION => 'edit', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, BACKLINK_FIELD_DISABLE => $backlinked_field );
+      my $bltdes = $core->describe( $backlinked_table );
+      my $linked_table_label = $bltdes->get_label();
+      
+      $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "GRID_BACKLINKED_$field_id",   "grid.png",   "View all backlinked records from <b>$linked_table_label</b>",  ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, FILTER => { $backlinked_field => $id } );
+      $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "INSERT_BACKLINKED_$field_id", "insert.png", "Insert and link a new record into <b>$linked_table_label</b>", ACTION => 'edit', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, BACKLINK_FIELD_DISABLE => $backlinked_field );
 
-      # TODO: find count
-      $field_input = "XXX records.";
+      my $count = $core->count( $backlinked_table, { FILTER => { $backlinked_field => $id } });
+      $count = 'Unknown' if $count eq '';
+      
+      $field_input = "<b class=hi>$count</b> records from <b class=hi>$linked_table_label</b>";
       }
     elsif( $type_name eq 'INT' and $fdes->{ 'BOOL' } )
       {

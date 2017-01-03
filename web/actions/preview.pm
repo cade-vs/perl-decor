@@ -55,8 +55,13 @@ sub main
     if( $bfdes->is_backlinked() )
       {
       my ( $backlinked_table, $backlinked_field ) = $bfdes->backlink_details();
-      # TODO: find count
-      $data_fmt = "XXX records.";
+      my $bltdes = $core->describe( $backlinked_table );
+      my $linked_table_label = $bltdes->get_label();
+      
+      my $count = $core->count( $backlinked_table, { FILTER => { $backlinked_field => $id } });
+      $count = 'Unknown' if $count eq '';
+      
+      $data_fmt = qq( <b class=hi>$count</b> records from <b class=hi>$linked_table_label</b> );
       }
 
     $text .= "<tr class=view>";
