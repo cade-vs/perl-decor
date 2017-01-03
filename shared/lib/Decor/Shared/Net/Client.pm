@@ -505,5 +505,18 @@ sub read_field
   return $row_data->{ $field };
 }
 
+sub count
+{
+  my $self  = shift;
+  my $table = shift;
+  my $opt    = shift;
+
+  my $select   = $self->select( $table, 'COUNT(*)', $opt ) or return undef;
+  my $row_data = $self->fetch( $select ) or return undef;
+                 $self->finish( $select );
+  
+  return $row_data->{ 'COUNT(*)' };
+}
+
 ##############################################################################
 1;

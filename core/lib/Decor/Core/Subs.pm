@@ -609,7 +609,7 @@ sub sub_select
 
   # FIXME: TODO: Subs/MessageCheck TABLE ID FIELDS LIMIT OFFSET FILTER validate_hash()
   boom "invalid TABLE name [$table]"    unless de_check_name( $table );
-  boom "invalid FIELDS list [$fields]"  unless $fields   =~ /^([A-Z_0-9\.\,]+|\*)$/o;
+  boom "invalid FIELDS list [$fields]"  unless $fields   =~ /^([A-Z_0-9\.\,]+|COUNT\(\*\)|\*)$/o; # FIXME: more aggregate funcs
   boom "invalid ORDER BY [$order_by]"   unless $order_by =~ /^([A-Z_0-9\. ]*)$/o;
   boom "invalid GROUP BY [$group_by]"   unless $group_by =~ /^([A-Z_0-9\. ]*)$/o;
   boom "invalid LIMIT [$limit]"         unless $limit    =~ /^[0-9]*$/o;
@@ -773,7 +773,10 @@ sub sub_insert
 
   $rec->create( $table, $id );
   $rec->write( %$data );
-  # TODO: call triggers here
+
+  $rec->taint_mode_disable_all();
+  $rec->method( 'UPDATE' );
+
   $rec->save();
 
   # extra processing, attach, etc.
@@ -785,29 +788,12 @@ sub sub_insert
 
   if( $lt_table and $lt_field and $lt_id )
     {
-    boom "invalid LINK_TO_TABLE name [$lt_table]"    unless de_check_name( $lt_table );
-    boom "invalid LINK_TO_FIELD name [$lt_field]"    unless de_check_name( $lt_field );
-    boom "invalid LINK_TO_ID [$lt_id]"               unless de_check_id( $lt_id );
-    
-    my $lt_rec = new Decor::Core::DB::Record;
-
-    my $profile = subs_get_current_profile();
-    $lt_rec->set_profile_locked( $profile );
-
-    $lt_rec->taint_mode_enable_all();
-
-    $profile->check_access_table_boom( 'UPDATE', $lt_table );
-    $profile->check_access_table_field_boom( 'UPDATE', $lt_table, $lt_field );
-
-    boom "E_ACCESS: unable to load requested record TABLE [$lt_table] ID [$lt_id]" 
-        unless $lt_rec->load( $lt_table, $lt_id, { LOCK => 1 } );
-    
-    boom "E_ACCESS: UPDATE is not allowed for requested record TABLE [$table] ID [$id]" 
-        unless $profile->check_access_row( 'UPDATE', $lt_rec->table(), $lt_rec );
-        
-    $lt_rec->write( $lt_field => $rec->id() );    
-    
-    $lt_rec->save();
+    # this is a shortcut, to fall inside the same transaction
+    my $rec_id = $rec->id();
+    my $ui = { TABLE => $lt_table, ID => $lt_id, DATA => { $lt_field => $rec->id() } };
+    my $uo = {};
+    sub_update( $ui, $uo );
+    boom "invalid XS received from sub_update [$lt_table:$lt_id:$lt_field=$rec_id] while linking new insert data into [$table:$rec_id]" unless $uo->{ 'XS' } eq 'OK';
     }
 
 
@@ -852,7 +838,10 @@ sub sub_update
       unless $profile->check_access_row( 'UPDATE', $rec->table(), $rec );
 
   $rec->write( %$data );
-  # TODO: call triggers here
+
+  $rec->taint_mode_disable_all();
+  $rec->method( 'UPDATE' );
+
   $rec->save();
 
   $mo->{ 'XS' } = 'OK';

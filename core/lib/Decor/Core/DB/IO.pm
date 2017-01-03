@@ -144,6 +144,13 @@ sub select
   for my $field ( @fields )
     {
     # TODO: handle AGGREGATE functions, with checking allowed funcs
+    if( $field eq 'COUNT(*)' )
+      {
+      # special case COUNT(*)
+      push @select_fields, 'COUNT(*)';
+      next;
+      };
+    
     my ( $resolved_alias, $resolved_table, $resolved_field ) = $self->__select_resolve_field( $table, $field );
     push @select_fields, "$resolved_alias.$resolved_field";
     }

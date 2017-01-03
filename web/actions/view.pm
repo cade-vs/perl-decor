@@ -102,7 +102,13 @@ sub main
       my ( $backlinked_table, $backlinked_field ) = $bfdes->backlink_details();
       $data_ctrl .= de_html_alink( $reo, 'new', 'insert.png', "Insert and link a new record", ACTION => 'edit', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, BACKLINK_FIELD_DISABLE => $backlinked_field );
       # TODO: find count
-      $data_fmt = "XXX records.";
+      my $count = $core->count( $backlinked_table, { FILTER => { $backlinked_field => $id } });
+      $count = 'Unknown' if $count eq '';
+      
+      my $bltdes = $core->describe( $backlinked_table );
+      my $linked_table_label = $bltdes->get_label();
+      
+      $data_fmt = qq( <b>$count</b> records from "<b>$linked_table_label</b>" );
       }
 
     if( $lpassword )
