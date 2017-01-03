@@ -1,7 +1,7 @@
 ##############################################################################
 ##
 ##  Decor application machinery core
-##  2014-2016 (c) Vladi Belperchinov-Shabanski "Cade"
+##  2014-2017 (c) Vladi Belperchinov-Shabanski "Cade"
 ##  <cade@bis.bg> <cade@biscom.net> <cade@cpan.org>
 ##
 ##  LICENSE: GPLv2
@@ -163,7 +163,7 @@ sub de_code_exec
   
   my $map = de_code_get_map( $ctype, $name );
 
-print Dumper( 'de-code-exec'x10, $ctype, $name, $trigger, $map );
+#print Dumper( 'de-code-exec'x10, $ctype, $name, $trigger, $map );
   
   boom "requested exec for TRIGGER [$trigger] but it does not exist for code type [$ctype] name [$name]" unless de_code_exists( $ctype, $name, $trigger );
 

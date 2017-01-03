@@ -1,7 +1,7 @@
 ##############################################################################
 ##
-##  Decor stagelication machinery core
-##  2014-2016 (c) Vladi Belperchinov-Shabanski "Cade"
+##  Decor application machinery core
+##  2014-2017 (c) Vladi Belperchinov-Shabanski "Cade"
 ##  <cade@bis.bg> <cade@biscom.net> <cade@cpan.org>
 ##
 ##  LICENSE: GPLv2

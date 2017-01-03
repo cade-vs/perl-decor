@@ -1,4 +1,13 @@
 #!/usr/bin/perl
+##############################################################################
+##
+##  Decor application machinery core
+##  2014-2017 (c) Vladi Belperchinov-Shabanski "Cade"
+##  <cade@bis.bg> <cade@biscom.net> <cade@cpan.org>
+##
+##  LICENSE: GPLv2
+##
+##############################################################################
 use strict;
 use Date::Format qw( strftime );
 use Time::JulianDay;
