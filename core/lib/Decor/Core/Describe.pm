@@ -10,6 +10,7 @@
 package Decor::Core::Describe;
 use strict;
 
+use Storable qw( dclone );
 use Data::Dumper;
 use Exception::Sink;
 use Data::Tools 1.09;
@@ -267,38 +268,45 @@ sub __merge_table_des_file
     if( $line =~ /^@(isa|include)\s*([a-zA-Z_0-9]+)\s*(.*?)\s*$/ )
       {
       my $name = $2;
-      my $opts = $3; # options/arguments, FIXME: upcase/lowcase?
+      my $args = $3; # options/arguments, FIXME: upcase/lowcase?
   
-      de_log_debug( "        isa:  [$name][$opts]" );  
+      de_log_debug( "        isa:  [$name][$args]" );  
 
-      my $isa = __load_table_des_hash( $name );
+      my $isa = __load_table_description( $name );
 
       boom "isa/include error: cannot load config [$name] at [$fname at $ln]" unless $isa;
 
-      my @opts = split /[\s,]+/, uc $opts;
+      my @args = split /[\s,]+/, uc $args;
 
-      #de_log_debug( "        isa:  DUMP: " . Dumper($isa) );  
+      de_log_debug( "        isa:  DUMP: " . Dumper($isa) );  
       
-      for my $opt ( @opts ) # FIXME: covers arg $opt
+      for my $arg ( @args ) # FIXME: covers arg $opt
         {
         my $isa_category;
         my $isa_sect_name;
-        if( $opt =~ /(([a-zA-Z_][a-zA-Z_0-9]*):)?([a-zA-Z_][a-zA-Z_0-9]*)/ )
+        if( $arg =~ /(([a-zA-Z_][a-zA-Z_0-9]*):)?([a-zA-Z_][a-zA-Z_0-9]*)/ )
           {
-          $isa_category  = uc( $2 || $opt->{ 'DEFAULT_CATEGORY' } || '*' );
+          #$isa_category  = uc( $2 || $opt->{ 'DEFAULT_CATEGORY' } || '*' );
+          $isa_category  = uc( $2 || 'FIELD' || '*' );
           $isa_sect_name = uc( $3 );
           }
         else
           {
-          boom "isa/include error: invalid key [$opt] in [$name] at [$fname at $ln]";
+          boom "isa/include error: invalid key [$arg] in [$name] at [$fname at $ln]";
           }  
-        if( $category ne $isa_category )  
-          {
-          boom "isa/include error: cannot inherit kyes from different categories, got [$isa_category] expected [$category] key [$opt] in [$name] at [$fname at $ln]";
-          }
-        boom "isa/include error: non existing key [$opt] in [$name] at [$fname at $ln]" if ! exists $isa->{ $isa_category } or ! exists $isa->{ $isa_category }{ $isa_sect_name };
-        $des->{ $category }{ $sect_name } ||= {};
-        %{ $des->{ $category }{ $sect_name } } = ( %{ $des->{ $category }{ $sect_name } }, %{ dclone( $isa->{ $isa_category }{ $isa_sect_name } ) } );
+#        if( $category ne $isa_category )  
+#          {
+#          boom "isa/include error: cannot inherit kyes from different categories, got [$isa_category] expected [$category] key [$arg] in [$name] at [$fname at $ln]";
+#          }
+        boom "isa/include error: cannot include unknown key [$arg] from [$name] at [$fname at $ln]" if ! exists $isa->{ $isa_category } or ! exists $isa->{ $isa_category }{ $isa_sect_name };
+        $des->{ $isa_category }{ $isa_sect_name } ||= {};
+
+print Dumper( $isa_category, $isa_sect_name, $isa->{ $isa_category }{ $isa_sect_name });
+
+        %{ $des->{ $isa_category }{ $isa_sect_name } } = ( 
+                                                       %{         $des->{ $isa_category }{ $isa_sect_name }   }, 
+                                                       %{ dclone( $isa->{ $isa_category }{ $isa_sect_name } ) },
+                                                     );
         }
       
       next;
@@ -567,14 +575,15 @@ sub __load_table_description
 {
   my $table = uc shift;
 
-  if( exists $DES_CACHE{ 'TABLE_DES' }{ $table } )
+  if( exists $DES_CACHE{ 'TABLE_DES_RAW' }{ $table } )
     {
     # FIXME: boom if ref() is not HASH
     #de_log( "status: table description cache hit for [$table]" );
-    return $DES_CACHE{ 'TABLE_DES' }{ $table };
+    return $DES_CACHE{ 'TABLE_DES_RAW' }{ $table };
     }
   elsif( $DES_CACHE_PRELOADED )  
     {
+    # table must be loaded, if here, then something wrong did happen :)
     return undef;
     }
 
@@ -587,9 +596,8 @@ sub __load_table_description
   # zero $rc for UNIVERSAL is ok
   $rc = __merge_table_des_hash( $des, $table, $opt );
   return undef unless $rc > 0;
-  __postprocess_table_des_hash( $des, $table );
 
-  $DES_CACHE{ 'TABLE_DES' }{ $table } = $des;
+  $DES_CACHE{ 'TABLE_DES_RAW' }{ $table } = $des;
   
   return $des;
 }
@@ -598,13 +606,30 @@ sub describe_table
 {
   my $table = uc shift;
 
+  if( exists $DES_CACHE{ 'TABLE_DES' }{ $table } )
+    {
+    return $DES_CACHE{ 'TABLE_DES' }{ $table };
+    }
+  elsif( $DES_CACHE_PRELOADED )  
+    {
+    # table must be loaded, if here, then something wrong did happen :)
+    my $tables_dirs = __get_tables_dirs();
+    boom "missing preload description for table [$table] dirs [@$tables_dirs]";
+    }
+
   my $des = __load_table_description( $table );
 
-  if( ! $des )
+  if( $des )
+    {
+    __postprocess_table_des_hash( $des, $table );
+    }
+  else
     {
     my $tables_dirs = __get_tables_dirs();
     boom "cannot find/load description for table [$table] dirs [@$tables_dirs]";
     }
+
+  $DES_CACHE{ 'TABLE_DES' }{ $table } = $des;
   
   return $des;
 }
@@ -618,6 +643,8 @@ sub preload_all_tables_descriptions
     de_log_debug( "preloading description for table [$table]" );
     describe_table( $table );
     };
+
+  # TODO: clear TABLE_DES_RAW cache to free memory
 
   $DES_CACHE_PRELOADED = 1;
 }

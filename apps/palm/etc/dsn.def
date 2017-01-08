@@ -1,0 +1,7 @@
+
+=MAIN
+
+DSN   dbi:Pg:dbname=palm_fe4;host=127.0.0.1
+USER  palm-fe4
+PASS  123eee
+

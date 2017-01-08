@@ -1,0 +1,23 @@
+
+
+
+=SYSTEM
+
+  type submenu  ADMIN
+  grant access to 1; 11
+
+=CONTACTS
+
+  label Contacts
+  type  grid  CONTACTS
+  
+=NOTES
+
+  label Notes
+  type  grid  NOTES
+  
+=TODO
+
+  label ToDo Notes
+  type  grid  TODO
+  
