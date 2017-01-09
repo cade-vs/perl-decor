@@ -43,3 +43,9 @@
 
     for Oracle or other databases, check DBI docs for proper DSN/USER/PASS  
   
+  * convert Decor type (for example UTIME) to DB native type data:
+  
+    perl -I/usr/local/decor/shared/lib -MDecor::Shared::Types -e "print type_revert( '2017-01-01 00:00:00', { NAME => 'UTIME' } )"
+  
+    # it should return: 1483221600 (unix time for 01.01.2017 00:00 GMT)
+  

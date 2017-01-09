@@ -74,6 +74,13 @@ sub status
   return $self->{ 'STATUS'  };
 }
 
+sub status_ref
+{
+  my $self = shift;
+  
+  return $self->{ 'STATUS_REF'  };
+}
+
 sub is_connected
 {
   my $self = shift;
@@ -155,6 +162,7 @@ sub tx_msg
   
   $self->{ 'STATUS'      } = 'E_MSG';
   $self->{ 'STATUS_MSG'  } = 'Communication error';
+  $self->{ 'STATUS_REF'  } = undef;
   
   my $ptype = 'p'; # FIXME: config?
   
@@ -176,6 +184,7 @@ sub tx_msg
 
   $self->{ 'STATUS'      } = $mo->{ 'XS'     };
   $self->{ 'STATUS_MSG'  } = $mo->{ 'XS_MSG' };
+  $self->{ 'STATUS_REF'  } = $mo->{ 'XS_REF' };
 
   return undef unless $mo->{ 'XS' } eq 'OK';
   return $mo;

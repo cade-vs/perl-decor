@@ -132,6 +132,13 @@ sub on_process
       $mo->{ 'XS' } = "E_STATUS";
       }
 
+
+    if( $mo->{ 'XS' } ne 'OK' )
+      {
+      my $err_ref = create_random_id( 9, 'ABCDEFGHJKLMNPQRTVWXY0123456789' ); # print read safe
+      de_log( "error: reference: $err_ref" );
+      $mo->{ 'XS_REF' } = $err_ref;
+      }
     de_log_debug( "debug: XTYPE [$xt] XSTATUS [$xs] DBI::errstr [$DBI::errstr]" );
 
     de_log_dumper2( "MO" x 16, $mo );

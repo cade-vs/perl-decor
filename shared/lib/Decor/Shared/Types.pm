@@ -124,9 +124,10 @@ sub type_set_format
   boom "unknown type [$type_name]" unless exists $FORMAT_SPECS{ $type_name };
   boom "unknown format [$fmt] for type [$type_name]" unless exists $FORMAT_SPECS{ $type_name }{ $fmt };
   
+  my $old_fmt = $FORMATS{ $type_name };
   $FORMATS{ $type_name } = $fmt;
   
-  return $fmt;
+  return $old_fmt;
 }
 
 sub type_get_format
