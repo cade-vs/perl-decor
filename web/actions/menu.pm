@@ -41,7 +41,7 @@ sub sub_menu
 
   my @res;
   
-  for my $key ( keys %$menu )
+  for my $key ( sort { $menu->{ $a }{ '_ORDER' } <=> $menu->{ $b }{ '_ORDER' } } keys %$menu )
     {
     next if $key eq '@';
     my $item = $menu->{ $key };
