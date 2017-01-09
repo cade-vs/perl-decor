@@ -1,4 +1,5 @@
 
+-- return uniq references for core server errors
 
 -- return "<#e_something>" with arguments!
 
