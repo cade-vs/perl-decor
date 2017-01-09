@@ -67,6 +67,7 @@ sub main
       $edit_mode_insert = 1;
       
       $id = $core->next_id( $table );
+      return "<#e_internal>" unless $id > 0;
 
       $fields_ar = $tdes->get_fields_list_by_oper( 'INSERT' );
       if( $copy_id )
@@ -81,7 +82,8 @@ sub main
         # regular insert
         
         # exec default method
-        $ps->{ 'ROW_DATA' } = { _ID => $id };
+        $ps->{ 'ROW_DATA' } = {};
+        $ps->{ 'ROW_DATA' }{ '_ID' } = $id;
         }  
       }
     else

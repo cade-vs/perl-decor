@@ -30,7 +30,7 @@ sub main
   my $table   = $ps->{ 'TABLE'   };
   my $id      = $ps->{ 'ID'      };
 
-  return "<#e_data>" unless $table and $id;
+  return "<#e_data> $table|$id" unless $table and $id;
 
   my $core = $reo->de_connect();
   my $tdes = $core->describe( $table );

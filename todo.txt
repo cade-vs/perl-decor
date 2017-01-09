@@ -1,5 +1,8 @@
 
--- "share" commong directory
+
+-- return "<#e_something>" with arguments!
+
+-- "share" common directory
 
 
 -- session expire time

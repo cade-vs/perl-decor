@@ -1,0 +1,10 @@
+
+=TITLE 
+    type    char    128
+    
+=PRIORITY
+    type    int
+
+=DONE
+    type    bool
+    

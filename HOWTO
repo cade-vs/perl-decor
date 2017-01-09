@@ -1,0 +1,45 @@
+
+
+
+  DECOR APPLICATION MACHINERY
+  (c) Vladi Belperchinov-Shabanski "Cade"
+
+  COMMANDS HOWTO
+  
+  This file contains HOWTO examples for creating new databases and using Decor
+  tools.
+  
+  * create PostgreSQL database 'test-db'
+  
+      createdb  test-db
+      
+  * create PostgreSQL user 'test-user'
+  
+      createuser -D -R -S -P  test-user
+      
+  * rebuild Decor app named 'test_sys'
+  
+      export DECOR_CORE_ROOT=/usr/local/decor/
+      $DECOR_CORE_ROOT/core/bin/decor-rebuild-db.pl test_sys -d -r
+      
+      or
+      
+      cd /usr/local/decor/core/bin
+      ./decor-rebuild-db.pl test_sys -d -rr
+          
+      NOTE: Decor app names can contain only A-Z, 9-0 and _ (underscore)
+      
+  * change Decor app database settings
+  
+      edit $DECOR_CORE_ROOT/apps/<app_name>/etc/dsn.def
+      
+    for PostgreSQL it should look something like this:
+    
+      =MAIN
+
+      DSN   dbi:Pg:dbname=palm_fe4;host=127.0.0.1
+      USER  palm-fe4
+      PASS  palm-pass-777
+
+    for Oracle or other databases, check DBI docs for proper DSN/USER/PASS  
+  

@@ -151,7 +151,11 @@ sub sub_caps
   my $mo = shift;
 
   my $app_name = $mi->{ 'APP_NAME' };
-  de_init( APP_NAME => $app_name ) if $app_name;
+  if( $app_name )
+    {
+    boom "invalid APP_NAME [$app_name]" unless de_check_name( $app_name );
+    de_init( APP_NAME => $app_name );
+    }
 
   $mo->{ 'VER'   } = de_version();
   $mo->{ 'UTIME' } = time();

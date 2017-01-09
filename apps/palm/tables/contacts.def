@@ -1,6 +1,19 @@
 
 
 =NAME
-    type  char  256
+    type  char  128
     
+=EMAIL
+    type  char  128
 
+=ADDRESS
+    type  char  64
+
+=PHONE_MOBILE
+    type  char  64
+
+=PHONE_LANDLINE
+    type  char  64
+
+=CTIME
+    type    utime

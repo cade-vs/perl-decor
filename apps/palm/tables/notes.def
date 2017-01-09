@@ -1,0 +1,9 @@
+
+=TITLE
+    type    char    128
+    
+=BODY
+    type    char    4000
+    
+=CTIME
+    type    utime
