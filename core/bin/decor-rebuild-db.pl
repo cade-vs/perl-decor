@@ -180,7 +180,7 @@ sub rebuild_table
   # handle tables -------------------------------
   my $table_db_des = $dbo->describe_db_table( $table, $schema );
 
-  print Dumper( 'TABLE DB DES:', $table, $schema, $table_db_des );
+  #print Dumper( 'TABLE DB DES:', $table, $schema, $table_db_des );
 
   if( $opt_recreate and $table_db_des )
     {
@@ -202,7 +202,7 @@ sub rebuild_table
   # handle table sequence -------------------------------
   my $seq_db_des   = $dbo->describe_db_sequence( $table, $schema );
 
-  print Dumper( 'SEQUENCE DB DES:', $table, $schema, $seq_db_des );
+  #print Dumper( 'SEQUENCE DB DES:', $table, $schema, $seq_db_des );
 
   my $max_id = $dbo->get_table_max_id( $db_table );
   my $start_with = $max_id < 10001 ? 10001 : $max_id + 1;
@@ -221,7 +221,7 @@ sub rebuild_table
   # handle table indexes -------------------------------
   my $index_db_des = $dbo->describe_db_indexes( $table, $schema );
 
-  print Dumper( 'INDEX DB DES:', $table, $schema, $index_db_des );
+  #print Dumper( 'INDEX DB DES:', $table, $schema, $index_db_des );
 
   my $dbh = $dbo->get_dbh();
   my $fields = $des->get_fields_list();
@@ -337,7 +337,7 @@ sub table_alter
   my $des  = shift;
   my $table_db_des = shift;
   
-  print Dumper( $table_db_des );
+  #print Dumper( $table_db_des );
   
   my $table    = $des->get_table_name();
   my $db_table = $des->get_db_table_name();
