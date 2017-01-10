@@ -278,13 +278,49 @@ sub __merge_table_des_file
 
       my @args = split /[\s,]+/, uc $args;
 
-      de_log_debug( "        isa:  DUMP: " . Dumper($isa) );  
+      boom "isa/include error: empty argument list at [$fname at $ln]" unless @args;
+
+      my %isa_args;
+      tie %isa_args, 'Tie::IxHash';
+
+      for my $arg ( @args )
+        {
+        if( $arg eq '**' )
+          {
+          $isa_args{ '@' } = 1;
+          $arg = '*';
+          }
+          
+        if( $arg eq '*' )
+          {
+          $isa_args{ $_ } = 1 for sort { $isa->{ 'FIELD' }{ $a }{ '_ORDER' } <=> $isa->{ 'FIELD' }{ $b }{ '_ORDER' } } keys %{ $isa->{ 'FIELD' } };
+          }
+        elsif( $arg =~ s/^-// )  
+          {
+          delete $isa_args{ $arg };
+          }
+        else
+          {
+          $isa_args{ $arg } = 1;
+          }  
+        }
+      @args = keys %isa_args;  
+
+#      if( $args[0] eq '*' )
+#        {
+#        shift @args;
+#        unshift @args, sort { $isa->{ 'FIELD' }{ $a }{ '_ORDER' } <=> $isa->{ 'FIELD' }{ $b }{ '_ORDER' } } keys %{ $isa->{ 'FIELD' } };
+#        }
+
+      de_log_debug( "        isa:  DUMP: " . Dumper($isa,\@args) );  
+print Dumper( 'isa - ' x 10, $isa,\@args);
       
       for my $arg ( @args ) # FIXME: covers arg $opt
         {
+###        boom "isa/include error: key [*] can appear only at first position inside arguments list in [$name] at [$fname at $ln]" if $arg eq '*';
         my $isa_category;
         my $isa_sect_name;
-        if( $arg =~ /(([a-zA-Z_][a-zA-Z_0-9]*):)?([a-zA-Z_][a-zA-Z_0-9]*)/ )
+        if( $arg =~ /(([a-zA-Z_][a-zA-Z_0-9]*):)?([a-zA-Z_][a-zA-Z_0-9]*|\@)/ )
           {
           #$isa_category  = uc( $2 || $opt->{ 'DEFAULT_CATEGORY' } || '*' );
           $isa_category  = uc( $2 || 'FIELD' || '*' );
@@ -294,6 +330,8 @@ sub __merge_table_des_file
           {
           boom "isa/include error: invalid key [$arg] in [$name] at [$fname at $ln]";
           }  
+          
+        $isa_category = '@' if $isa_sect_name eq '@';  
 #        if( $category ne $isa_category )  
 #          {
 #          boom "isa/include error: cannot inherit kyes from different categories, got [$isa_category] expected [$category] key [$arg] in [$name] at [$fname at $ln]";
@@ -301,12 +339,14 @@ sub __merge_table_des_file
         boom "isa/include error: cannot include unknown key [$arg] from [$name] at [$fname at $ln]" if ! exists $isa->{ $isa_category } or ! exists $isa->{ $isa_category }{ $isa_sect_name };
         $des->{ $isa_category }{ $isa_sect_name } ||= {};
 
-print Dumper( $isa_category, $isa_sect_name, $isa->{ $isa_category }{ $isa_sect_name });
+#print Dumper( 'isa - ' x 10, $isa_category, $isa_sect_name, $isa->{ $isa_category }{ $isa_sect_name });
 
         %{ $des->{ $isa_category }{ $isa_sect_name } } = ( 
-                                                       %{         $des->{ $isa_category }{ $isa_sect_name }   }, 
-                                                       %{ dclone( $isa->{ $isa_category }{ $isa_sect_name } ) },
-                                                     );
+                                                         %{         $des->{ $isa_category }{ $isa_sect_name }   }, 
+                                                         %{ dclone( $isa->{ $isa_category }{ $isa_sect_name } ) },
+                                                         );
+        $des->{ $category }{ $sect_name }{ '_ORDER' } = ++ $opt->{ '_ORDER' };
+        
         }
       
       next;
