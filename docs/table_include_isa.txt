@@ -1,0 +1,33 @@
+
+
+
+  DECOR APPLICATION MACHINERY
+  2014-2017 (c) Vladi Belperchinov-Shabanski "Cade"
+
+  TABLE DESCRIPTION INCLUDE/ISA
+  
+  All table descriptions can include parts of another table (or even the 
+  whole table). All included fields are placed in the original order but 
+  at the current table position. Include can be used anywhere in the current
+  table description or even used alone to get the same table with different 
+  name. Include syntax is:
+  
+  
+      @include <origin_table_name> <argument_list>
+      
+      <origin_table_name> is the table name from which fields must be copied.
+      <argument_list> is lsit of field names which must be copied.
+  
+  There are special cases inside <argument_list>. Any position can be one of:
+  
+      *       replaced with a list of all fields from <origin_table_name>
+      @       copy table attributes from <origin_table_name>
+      **      same as "* @"
+      <field_name>    explicit name of the field to be copied
+      -<field_name>   remove field from the argument list
+      
+      -<field_name> is useful to remove fields after '*' or '**'.
+
+
+
+EOF
