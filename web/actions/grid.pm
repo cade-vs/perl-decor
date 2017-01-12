@@ -194,6 +194,11 @@ sub main
     }
   $text .= "</table>";
 
+  if( $row_counter == 0 )
+    {
+    $text .= "<p><div class=info-text>No data found</div>";
+    }
+
   my $offset_prev = $offset - $page_size;
   my $offset_next = $offset + $page_size;
   $text .= "<a reactor_here_href=?offset=$offset_prev><img src=i/page-prev.png> previous page</a> | <a reactor_here_href=?offset=$offset_next>next page <img src=i/page-next.png> </a>";

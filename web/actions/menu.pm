@@ -60,12 +60,12 @@ sub sub_menu
     elsif( $type eq 'GRID' )
       {
       my $table  = $item->{ 'TABLE'  };
-      push @res, "<a class=menu reactor_new_href=?action=grid&table=$table><img src=i/menu-item-grid.png> $label</a>";
+      push @res, "<a class=menu reactor_none_href=?action=grid&table=$table><img src=i/menu-item-grid.png> $label</a>";
       }
     elsif( $type eq 'INSERT' )
       {
       my $table  = $item->{ 'TABLE'  };
-      push @res, "<a class=menu reactor_new_href=?action=edit&table=$table&id=-1><img src=i/menu-item-insert.png> $label</a>";
+      push @res, "<a class=menu reactor_none_href=?action=edit&table=$table&id=-1><img src=i/menu-item-insert.png> $label</a>";
       }
     else
       {

@@ -236,7 +236,7 @@ sub __merge_table_des_file
     $line =~ s/\s*$//;
     next unless $line =~ /\S/;
     next if $line =~ /^([#;]|\/\/)/;
-    de_log_debug( "        line: [$line]" );  
+    de_log_debug2( "        line: [$line]" );  
 
     if( $line =~ /^=+\s*(([a-zA-Z_][a-zA-Z_0-9]*):\s*)?([a-zA-Z_][a-zA-Z_0-9]*)\s*(.*?)\s*$/ )
       {
@@ -246,7 +246,7 @@ sub __merge_table_des_file
 
       boom "invalid category [$category] at [$fname at $ln]" unless exists $DES_CATEGORIES{ $category };
 
-      de_log_debug( "       =sect: [$category:$sect_name]" );  
+      de_log_debug2( "       =sect: [$category:$sect_name]" );  
       
       $des->{ $category }{ $sect_name } ||= {};
       $des->{ $category }{ $sect_name }{ 'TABLE' }   = $table;
@@ -270,7 +270,7 @@ sub __merge_table_des_file
       my $name = $2;
       my $args = $3; # options/arguments, FIXME: upcase/lowcase?
   
-      de_log_debug( "        isa:  [$name][$args]" );  
+      de_log_debug2( "        isa:  [$name][$args]" );  
 
       my $isa = __load_table_description( $name );
 
@@ -312,8 +312,8 @@ sub __merge_table_des_file
 #        unshift @args, sort { $isa->{ 'FIELD' }{ $a }{ '_ORDER' } <=> $isa->{ 'FIELD' }{ $b }{ '_ORDER' } } keys %{ $isa->{ 'FIELD' } };
 #        }
 
-      de_log_debug( "        isa:  DUMP: " . Dumper($isa,\@args) );  
-print Dumper( 'isa - ' x 10, $isa,\@args);
+#      de_log_debug( "        isa:  DUMP: " . Dumper($isa,\@args) );  
+#print Dumper( 'isa - ' x 10, $isa,\@args);
       
       for my $arg ( @args ) # FIXME: covers arg $opt
         {
@@ -396,7 +396,7 @@ print Dumper( 'isa - ' x 10, $isa,\@args);
         $value = 1;
         }
 
-      de_log_debug( "            key:  [$sect_name]:[$key]=[$value]" );
+      de_log_debug2( "            key:  [$sect_name]:[$key]=[$value]" );
 
       if( $DES_KEY_TYPES{ $key } eq '@' )
         {

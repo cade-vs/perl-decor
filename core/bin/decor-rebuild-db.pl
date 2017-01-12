@@ -121,8 +121,12 @@ $_ = uc $_ for @tables;
 
 print "rebuilding tables: @tables\n";
 
+my $cc;
+my $ac = @tables;
 for my $table ( @tables )
   {
+  $cc++;
+  print "rebuilding table: ($cc/$ac) $table\n";
   my $des = describe_table( $table );
   my $dbh = dsn_get_dbh_by_table( $table );
   my $db_name = dsn_get_db_name( $des->get_dsn_name() );

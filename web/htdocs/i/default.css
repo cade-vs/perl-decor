@@ -23,7 +23,7 @@ body
         margin: 0px 0px 0px 0px;
         font-style: normal;
         font-size: 10pt;
-        color: #AAA;
+        color: #DDD;
         background-color: #222;
         height: 100%;
         }
@@ -132,10 +132,23 @@ h1      { margin: 2px 2px 2px 2px; }
 div.error-text
         {
         width:  80%;
-        background-color: #522;
-        border: solid 1px #633;
+        background-color: #511;
+        border:      solid 1px #933;
+        border-left: solid 3px #933;
         text-align: center;
-        padding: 5px;
+        padding: 1em;
+        margin-left: auto;
+        margin-right: auto;
+        }
+
+div.info-text
+        {
+        width:  80%;
+        background-color: #357;
+        border:      solid 1px #68A;
+        border-left: solid 3px #68A;
+        text-align: center;
+        padding: 1em;
         margin-left: auto;
         margin-right: auto;
         }
@@ -541,11 +554,13 @@ input.button:hover
 div.hover-layer
         {
         display: none;
-        color: #000;
-        background-color: #990;
-        border: solid 1px #BB0;
-        padding: 4px;
-        opacity: 0.72;
+        color: #FFF;
+        background-color: #550;
+        border:      solid 1px #990;
+        border-left: solid 3px #990;
+        padding: 0.5em;
+        padding-left: 1em;
+        opacity: 0.95;
         white-space: nowrap;
         }
 
@@ -556,7 +571,8 @@ div.popup-layer
         background-color: #446;
         border: solid 1px #558;
         white-space: nowrap;
-        padding: 4px;
+        padding: 0.5em;
+        padding-left: 1em;
         }
 
 /*** DECOR EOF **************************************************************/

@@ -38,12 +38,12 @@ sub main
     if( $type eq 'SUBMENU' )
       {
       my $submenu_name = $item->{ 'SUBMENU_NAME'  };
-      $link = "<a class=main-menu reactor_new_href=?action=menu&menu=$submenu_name>$label</a>";
+      $link = "<a class=main-menu reactor_none_href=?action=menu&menu=$submenu_name>$label</a>";
       }
     elsif( $type eq 'GRID' )
       {
       my $table  = $item->{ 'TABLE'  };
-      $link = "<a class=main-menu reactor_new_href=?action=grid&table=$table>$label</a>";
+      $link = "<a class=main-menu reactor_none_href=?action=grid&table=$table>$label</a>";
       }
     else
       {
