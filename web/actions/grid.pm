@@ -35,6 +35,7 @@ sub main
   my $table  = $reo->param( 'TABLE'  );
   my $offset = $reo->param( 'OFFSET' );
   my $filter_param = $reo->param( 'FILTER' );
+  my $page_size = $reo->param( 'PAGE_SIZE' );
 
   my $core = $reo->de_connect();
   my $tdes = $core->describe( $table );
@@ -49,7 +50,8 @@ sub main
 
 #  print STDERR Dumper( $tdes );
 
-  my $page_size  = 15;
+  $page_size =  15 if $page_size <=   0;
+  $page_size = 300 if $page_size >  300;
   $offset = 0 if $offset < 0;
   
   my @fields = @{ $tdes->get_fields_list_by_oper( 'READ' ) };
@@ -70,15 +72,21 @@ sub main
   %filter = ( %filter, %$filter_param ) if $filter_param;
   
   my $select = $core->select( $table, $fields, { FILTER => \%filter, OFFSET => $offset, LIMIT => $page_size, ORDER_BY => '_ID DESC' } );
+  my $scount = $core->count( $table, { FILTER => \%filter } );
 
   $text .= "<br>";
 
   $text .= de_html_alink( $reo, 'new', "insert.png Insert new record", 'Insert new record', ACTION => 'edit', ID => -1, TABLE => $table );
   $text .= "<p>";
+
+  my $text_grid_head;
+  my $text_grid_body;
+  my $text_grid_foot;
+  my $text_grid_navi;
   
-  $text .= "<table class=grid cellspacing=0 cellpadding=0>";
-  $text .= "<tr class=grid-header>";
-  $text .= "<td class='grid-header fmt-left'>Ctrl</td>";
+  $text_grid_head .= "<table class=grid cellspacing=0 cellpadding=0>";
+  $text_grid_head .= "<tr class=grid-header>";
+  $text_grid_head .= "<td class='grid-header fmt-left'>Ctrl</td>";
   
   for my $field ( @fields )
     {
@@ -94,16 +102,17 @@ sub main
       $label .= "/$llabel";
       }
 
-    $text .= "<td class='grid-header $fmt_class'>$label</td>";
+    $text_grid_head .= "<td class='grid-header $fmt_class'>$label</td>";
     }
-  $text .= "</tr>";
+  $text_grid_head .= "</tr>";
+  
   my $row_counter;
   while( my $row_data = $core->fetch( $select ) )
     {
     my $id = $row_data->{ '_ID' };
     
     my $row_class = $row_counter++ % 2 ? 'grid-1' : 'grid-2';
-    $text .= "<tr class=$row_class>";
+    $text_grid_body .= "<tr class=$row_class>";
     
     my $vec_ctrl;
     
@@ -111,7 +120,7 @@ sub main
     $vec_ctrl .= de_html_alink( $reo, 'new', "edit.png", 'Edit this record', ACTION => 'edit', ID => $id, TABLE => $table );
     $vec_ctrl .= de_html_alink( $reo, 'new', "copy.png", 'Copy this record', ACTION => 'edit', ID =>  -1, TABLE => $table, COPY_ID => $id );
     
-    $text .= "<td class='grid-data fmt-ctrl'>$vec_ctrl</td>";
+    $text_grid_body .= "<td class='grid-data fmt-ctrl'>$vec_ctrl</td>";
     for my $field ( @fields )
       {
       my $bfdes     = $bfdes{ $field };
@@ -188,20 +197,47 @@ sub main
         $data_fmt = "<table cellspacing=0 cellpadding=0 width=100%><tr><td align=left>$data_fmt</td><td align=right>&nbsp;$data_ctrl</td></tr></table>";
         }
       
-      $text .= "<td class='grid-data $fmt_class'>$data_fmt</td>";
+      $text_grid_body .= "<td class='grid-data $fmt_class'>$data_fmt</td>";
       }
-    $text .= "</tr>";
+    $text_grid_body .= "</tr>";
     }
-  $text .= "</table>";
+  $text_grid_foot .= "</table>";
 
   if( $row_counter == 0 )
     {
     $text .= "<p><div class=info-text>No data found</div>";
     }
+  else
+    {
+    my $offset_prev = $offset - $page_size;
+    my $offset_next = $offset + $page_size;
+    my $offset_last = $scount - $page_size;
+    
+    $offset_prev = 0 if $offset_prev < 0;
+    $offset_last = 0 if $offset_last < 0;
+    
+    $text_grid_navi .= $offset > 0 ? "<a reactor_here_href=?offset=0><img src=i/page-prev.png> first page</a> | " : "<img src=i/page-prev.png> first page | ";
+    $text_grid_navi .= $offset > 0 ? "<a reactor_here_href=?offset=$offset_prev><img src=i/page-prev.png> previous page</a> | " : "<img src=i/page-prev.png> previous page | ";
+    $text_grid_navi .= $offset_next < $scount ? "<a reactor_here_href=?offset=$offset_next>next page <img src=i/page-next.png></a> | " : "next page <img src=i/page-next.png> | ";
+    $text_grid_navi .= $offset_next < $scount ? "<a reactor_here_href=?offset=$offset_last>last page <img src=i/page-next.png></a> | " : "last page <img src=i/page-next.png> | ";
+    
+    #$text_grid_navi .= "<a reactor_here_href=?offset=$offset_prev><img src=i/page-prev.png> previous page</a> | <a reactor_here_href=?offset=$offset_next>next page <img src=i/page-next.png> </a>";
+    my $page_more = int( $page_size * 2 );
+    my $page_less = int( $page_size / 2 );
+    my $link_page_more = de_html_alink( $reo, 'here', "+",       'Show more rows per page', PAGE_SIZE => $page_more );
+    my $link_page_less = de_html_alink( $reo, 'here', "&mdash;", 'Show less rows per page', PAGE_SIZE => $page_less );
 
-  my $offset_prev = $offset - $page_size;
-  my $offset_next = $offset + $page_size;
-  $text .= "<a reactor_here_href=?offset=$offset_prev><img src=i/page-prev.png> previous page</a> | <a reactor_here_href=?offset=$offset_next>next page <img src=i/page-next.png> </a>";
+    my $offset_from = $offset + 1;
+    my $offset_to   = $offset + $row_counter;
+    $text_grid_navi .= "rows $offset_from .. $offset_to ($page_size/$link_page_more/$link_page_less) of $scount";
+
+    $text .= $text_grid_navi;
+    $text .= $text_grid_head;
+    $text .= $text_grid_body;
+    $text .= $text_grid_foot;
+    $text .= $text_grid_navi;
+    }  
+
 
   return $text;
 }
