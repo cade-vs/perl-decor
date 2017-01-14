@@ -21,8 +21,8 @@ our @EXPORT = qw(
                 
                 de_app_name
                 de_app_path
-                de_modules
-                de_modules_dirs
+                de_bundles
+                de_bundles_dirs
                 de_app_cfg
                 
                 de_version
@@ -55,12 +55,12 @@ my $APP_NAME;
 
 my %APP_CFG;
 my %APP_CFG_KEYS = (
-                   MODULES             => 1,
+                   BUNDLES             => 1,
                    SESSION_EXPIRE_TIME => 1,
                    );
 
-my @MODULES;
-my @MODULES_DIRS;
+my @BUNDLES;
+my @BUNDLES_DIRS;
 
 ### PUBLIC ###################################################################
 
@@ -97,32 +97,32 @@ sub de_init
     {
     %APP_CFG = ();
     }  
-  @MODULES = sort split /[\s\,]+/, $APP_CFG{ 'MODULES' };
+  @BUNDLES = sort split /[\s\,]+/, $APP_CFG{ 'BUNDLES' };
   
-  unshift @MODULES, sort ( read_dir_entries( "$app_path/modules" ) );
+  unshift @BUNDLES, sort ( read_dir_entries( "$app_path/bundles" ) );
   
-  for my $module ( @MODULES )
+  for my $bundle ( @BUNDLES )
     {
     my $found;
-    for my $mod_dir ( ( "$app_path/modules", "$ROOT/modules" ) )
+    for my $bundle_dir ( ( "$app_path/bundles", "$ROOT/bundles" ) )
       {
-      if( -d "$mod_dir/$module" )
+      if( -d "$bundle_dir/$bundle" )
         {
-        push @MODULES_DIRS, "$mod_dir/$module";
+        push @BUNDLES_DIRS, "$bundle_dir/$bundle";
         $found = 1;
         last;
         }
       }
     if( ! $found )  
       {
-      boom( "error: module not found [$module]" );
+      boom( "error: bundle not found [$bundle]" );
       }
     }
 
-  dlock \@MODULES;
-  dlock \@MODULES_DIRS;
+  dlock \@BUNDLES;
+  dlock \@BUNDLES_DIRS;
   
-  print STDERR Dumper( 'APP_CFG:', \%APP_CFG, 'MODULES:', \@MODULES, 'MODULES DIRS:', \@MODULES_DIRS );
+  print STDERR Dumper( 'APP_CFG:', \%APP_CFG, 'BUNDLES:', \@BUNDLES, 'BUNDLES DIRS:', \@BUNDLES_DIRS );
 }
 
 sub de_init_done
@@ -154,14 +154,14 @@ sub de_app_cfg
   return $res;
 }
 
-sub de_modules
+sub de_bundles
 {
-  return \@MODULES;
+  return \@BUNDLES;
 }
 
-sub de_modules_dirs
+sub de_bundles_dirs
 {
-  return \@MODULES_DIRS;
+  return \@BUNDLES_DIRS;
 }
 
 sub de_version

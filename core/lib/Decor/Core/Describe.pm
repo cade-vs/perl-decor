@@ -161,11 +161,11 @@ sub __get_tables_dirs
   
   my $root         = de_root();
   my $app_path     = de_app_path();
-  my $modules_dirs = de_modules_dirs();
+  my $bundles_dirs = de_bundles_dirs();
   
   my @dirs;
   push @dirs, "$root/core/tables";
-  push @dirs, "$_/tables" for reverse @$modules_dirs;
+  push @dirs, "$_/tables" for reverse @$bundles_dirs;
   push @dirs, "$app_path/tables";
 
   $DES_CACHE{ 'TABLES_DIRS_AR' } = \@dirs;

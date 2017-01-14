@@ -47,11 +47,11 @@ sub __get_code_dirs
   
   my $root         = de_root();
   my $app_path     = de_app_path();
-  my $modules_dirs = de_modules_dirs();
+  my $bundles_dirs = de_bundles_dirs();
   
   my @dirs;
   push @dirs, "$app_path/$ctype";
-  push @dirs, "$_/$ctype" for reverse @$modules_dirs;
+  push @dirs, "$_/$ctype" for reverse @$bundles_dirs;
   push @dirs, "$root/core/$ctype";
 
   $CODE_CACHE{ 'CODE_DIRS_AR' }{ $ctype } = \@dirs;

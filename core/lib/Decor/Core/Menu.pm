@@ -114,11 +114,11 @@ sub __get_menus_dirs
   
   my $root         = de_root();
   my $app_path     = de_app_path();
-  my $modules_dirs = de_modules_dirs();
+  my $bundles_dirs = de_bundles_dirs();
   
   my @dirs;
   push @dirs, "$root/core/menus";
-  push @dirs, "$_/menus" for reverse @$modules_dirs;
+  push @dirs, "$_/menus" for reverse @$bundles_dirs;
   push @dirs, "$app_path/menus";
 
   $MENU_CACHE{ 'MENUS_DIRS_AR' } = \@dirs;
