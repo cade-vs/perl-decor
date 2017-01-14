@@ -224,12 +224,14 @@ sub main
     #$text_grid_navi .= "<a reactor_here_href=?offset=$offset_prev><img src=i/page-prev.png> previous page</a> | <a reactor_here_href=?offset=$offset_next>next page <img src=i/page-next.png> </a>";
     my $page_more = int( $page_size * 2 );
     my $page_less = int( $page_size / 2 );
-    my $link_page_more = de_html_alink( $reo, 'here', "+",       'Show more rows per page', PAGE_SIZE => $page_more );
-    my $link_page_less = de_html_alink( $reo, 'here', "&mdash;", 'Show less rows per page', PAGE_SIZE => $page_less );
+    my $link_page_more = de_html_alink( $reo, 'here', "+",       'Show more rows per page',   PAGE_SIZE => $page_more );
+    my $link_page_less = de_html_alink( $reo, 'here', "&mdash;", 'Show less rows per page',   PAGE_SIZE => $page_less );
+    my $link_page_all  = $scount <= 300 ? de_html_alink( $reo, 'here', "=",       'Show all rows in one page', PAGE_SIZE => $scount, OFFSET => 0 ) : '';
+    $link_page_all = "/$link_page_all" if $link_page_all;
 
     my $offset_from = $offset + 1;
     my $offset_to   = $offset + $row_counter;
-    $text_grid_navi .= "rows $offset_from .. $offset_to ($page_size/$link_page_more/$link_page_less) of $scount";
+    $text_grid_navi .= "rows $offset_from .. $offset_to ($page_size/$link_page_more/$link_page_less$link_page_all) of $scount";
 
     $text .= $text_grid_navi;
     $text .= $text_grid_head;
