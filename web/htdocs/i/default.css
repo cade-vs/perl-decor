@@ -575,4 +575,31 @@ div.popup-layer
         padding-left: 1em;
         }
 
+/*** check boxes ************************************************************/
+
+div.checkbox-0
+        {
+        cursor: pointer;
+        text-align: center;
+        color: #999;
+        background-color: #422;
+        border: solid 1px #644;
+        padding: 0.5em;
+        display: table-cell;
+        width: 3em;
+        }
+
+div.checkbox-1
+        {
+        cursor: pointer;
+        text-align: center;
+        color: #FFF;
+        font-weight: bold;
+        background-color: #242;
+        border: solid 1px #464;
+        padding: 0.5em;
+        display: table-cell;
+        width: 3em;
+        }
+
 /*** DECOR EOF **************************************************************/
