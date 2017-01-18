@@ -28,7 +28,8 @@ options:
     -rr       -- log to both files and STDERR
     --        -- end of options
 commands:    
-  add-user  user_name  user_pass  <user_id>
+  add-user  user_name        user_pass  <user_id>
+  user-pwd  user_name_or_id  user_pass
 notes:
   * first argument is application name and it is mandatory!
   * options cannot be grouped: -fd is invalid, correct is: -f -d
@@ -89,6 +90,7 @@ de_init( APP_NAME => $opt_app_name );
 my $cmd = lc shift @args;
 
 cmd_user_add( @args ) if $cmd eq 'add-user';
+cmd_user_pwd( @args )   if $cmd eq 'user-pwd';
 
 #-----------------------------------------------------------------------------
 
@@ -101,7 +103,7 @@ sub cmd_user_add
   
   my $user_rec = new Decor::Core::DB::Record;
 
-  if( $user_rec->select_first1( 'DE_USERS', 'NAME = ?', { BIND => [ $user ] } ) )
+  if( $user_rec->select_first1( 'DE_USERS', '.NAME = ?', { BIND => [ $user ] } ) )
     {
     $uid = $user_rec->id();
     print "error: user [$user] already exists with id [$uid]\n";
@@ -122,21 +124,37 @@ sub cmd_user_add
   
   $user_rec->save();
   $user_rec->commit();
+  
+  my $usid = $user_rec->id();
+  my $name = $user_rec->read( 'NAME' );
+  print "info: new user [$name] created with id [$usid]\n";
 }
+
+#-----------------------------------------------------------------------------
 
 sub cmd_user_pwd
 {
   my $user = shift;
   my $pass = shift;
   
-  
   my $user_rec = new Decor::Core::DB::Record;
 
-  if( ! $user_rec->select_first1( 'DE_USERS', 'NAME = ?', { BIND => [ $user ] } ) )
+  if( $user =~ /^\d+$/ )
     {
-    print "error: user [$user] not found\n";
-    return;
+    if( $user <= 0 or ! $user_rec->load( 'DE_USERS', $user ) )
+      {
+      print "error: user id [$user] not found\n";
+      return;
+      }
     }
+  else
+    {  
+    if( $user eq '' or ! $user_rec->select_first1( 'DE_USERS', '.NAME = ?', { BIND => [ $user ] } ) )
+      {
+      print "error: user [$user] not found\n";
+      return;
+      }
+    }  
 
   my $user_salt     = create_random_id( 128 );
   my $user_pass_hex = de_password_salt_hash( $pass, $user_salt ); 
@@ -150,4 +168,10 @@ sub cmd_user_pwd
   
   $user_rec->save();
   $user_rec->commit();
+
+  my $usid = $user_rec->id();
+  my $name = $user_rec->read( 'NAME' );
+  print "info: password changed for existing user [$name] with id [$usid]\n";
 }
+
+#-----------------------------------------------------------------------------
