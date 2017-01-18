@@ -100,7 +100,7 @@ sub de_web_format_field
   elsif( $type_name eq 'INT' and $fdes->{ 'BOOL' } )
     {
     $data_fmt = $data > 0 ? '[&radic;]' : '[&nbsp;]';
-    $data_fmt = $data > 0 ? '<div class=checkbox-1 value="&radic;">&radic;</div>' : '<div class=checkbox-0>x</div>';
+    $data_fmt = $data > 0 ? '<div class="checkbox-1" value="&radic;">&radic;</div>' : '<div class=checkbox-0>x</div>';
     }
   elsif( $type_name eq 'UTIME' )
     {

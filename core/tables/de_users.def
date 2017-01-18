@@ -6,6 +6,7 @@ system
 
   label Login name
   type  char  128
+  unique
 
 =PASS
   
@@ -38,3 +39,7 @@ system
   label Last login session
   type  link DE_SESSIONS CTIME
 
+=LOGIN_SESSIONS
+
+  label Previous login sessions
+  type  backlink  de_sessions   usr

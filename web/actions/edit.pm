@@ -280,7 +280,7 @@ sub main
       }
     elsif( $type_name eq 'INT' and $fdes->{ 'BOOL' } )
       {
-      $field_input .= $edit_form->checkbox( 
+      $field_input .= $edit_form->checkbox_multi( 
                                        NAME     => "F:$field", 
                                        ID       => $field_id, 
                                        VALUE => $field_data, 

@@ -1,11 +1,7 @@
 
-grant access to 999
+deny access to 999
 
-=new user
-
-  type insert de_users
-
-=active users
+=users
 
   type grid de_users
 

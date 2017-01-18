@@ -190,6 +190,11 @@ table
         border-collapse: collapse;
         }
 
+.cursor-pointer
+        {
+        cursor: pointer;
+        }
+
 /*** for_screen/for_print ***************************************************/
 
 div#div_for_screen
@@ -579,7 +584,6 @@ div.popup-layer
 
 div.checkbox-0
         {
-        cursor: pointer;
         text-align: center;
         color: #999;
         background-color: #422;
@@ -591,7 +595,6 @@ div.checkbox-0
 
 div.checkbox-1
         {
-        cursor: pointer;
         text-align: center;
         color: #FFF;
         font-weight: bold;

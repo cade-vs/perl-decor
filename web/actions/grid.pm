@@ -183,7 +183,10 @@ sub main
       elsif( $bfdes->is_backlinked() )
         {
         my ( $backlinked_table, $backlinked_field ) = $bfdes->backlink_details();
-        $data_ctrl .= de_html_alink_icon( $reo, 'new', 'insert.png', "Insert and link a new record", ACTION => 'edit', ID => -1, TABLE => $backlinked_table );
+        $data_ctrl .= de_html_alink( $reo, 'new', 'insert.png Insert and link a new record', undef, ACTION => 'edit', TABLE => $backlinked_table, ID => -1,  );
+        $data_ctrl .= "<br>\n";
+        $data_ctrl .= de_html_alink( $reo, 'new', 'grid.png View linked records',            undef, ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, FILTER => { $backlinked_field => $id } );
+        $data_ctrl .= "<br>\n";
         }
 
       if( $lpassword )

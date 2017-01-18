@@ -122,7 +122,7 @@ sub de_init
   dlock \@BUNDLES;
   dlock \@BUNDLES_DIRS;
   
-  print STDERR Dumper( 'APP_CFG:', \%APP_CFG, 'BUNDLES:', \@BUNDLES, 'BUNDLES DIRS:', \@BUNDLES_DIRS );
+  #print STDERR Dumper( 'APP_CFG:', \%APP_CFG, 'BUNDLES:', \@BUNDLES, 'BUNDLES DIRS:', \@BUNDLES_DIRS );
 }
 
 sub de_init_done
