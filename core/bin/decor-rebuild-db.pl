@@ -22,6 +22,7 @@ use Decor::Core::Describe;
 use Decor::Core::DSN;
 use Decor::Core::Profile;
 use Decor::Core::Log;
+use Decor::Core::DB::Record;
 use Decor::Shared::Utils;
 
 $Data::Dumper::Sortkeys = 1;
@@ -273,6 +274,25 @@ sub rebuild_table
       }
     }
 
+  # base-records (zero-id records)
+  my $base_io = new Decor::Core::DB::IO;
+  if( ! $base_io->read_first1_by_id_hashref( $table, 0 ) )
+    {
+    de_log( "info: missing base record in table [$table], will recreate it" );
+    my $des = describe_table( $table );
+    my $fields = $des->get_fields_list();
+
+    my %base_data;
+    for my $field ( @$fields )
+      {
+      my $fdes = $des->get_field_des( $field );
+      my $type_name = $fdes->{ 'TYPE' }{ 'NAME' };
+      # TODO: is it enough to check for non-CHAR and set them to zero?
+      $base_data{ $field } = $type_name eq 'CHAR' ? '' : 0;
+      }
+    $base_data{ "_ID" } = 0;
+    $base_io->insert( $table, \%base_data );  
+    }
 }
 
 #--- tables ------------------------------------------------------------------
