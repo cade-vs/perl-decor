@@ -46,23 +46,40 @@ our @EXPORT = qw(
 
 ### TABLE DESCRIPTIONS #######################################################
 
+my %OPERS = (
+                      'READ'    => 1,
+                      'INSERT'  => 1,
+                      'UPDATE'  => 1,
+                      'DELETE'  => 1,
+                      'EXECUTE' => 1,
+                      'ACCESS'  => 1,
+                 );
+my @OPERS = keys %OPERS;                 
+
+my %GROUP_ALIASES = (
+                      'ALL'    => 999,
+                      'NOBODY' => 900,
+                      'NOONE'  => 900,
+                      'GUEST'  => 901,
+);
+
 my %TYPE_ATTRS = (
-                      'NAME'  => undef,
-                      'LEN'   => undef,
-                      'DOT'   => undef,
+                      'NAME'   => undef,
+                      'LEN'    => undef,
+                      'DOT'    => undef,
                  );
 my %FIELD_TYPES = (
-                      'CHAR'  => 1,
-                      'INT'   => 1,
-                      'REAL'  => 1,
-                      'TIME'  => 1,
-                      'DATE'  => 1,
-                      'UTIME' => 1,
+                      'CHAR'   => 1,
+                      'INT'    => 1,
+                      'REAL'   => 1,
+                      'TIME'   => 1,
+                      'DATE'   => 1,
+                      'UTIME'  => 1,
                   );
 
 my %DES_KEY_TYPES  = (
-                      'GRANT' => '@',
-                      'DENY'  => '@',
+                      'GRANT'  => '@',
+                      'DENY'   => '@',
                     );
 
 my %DES_KEY_SHORTCUTS = (
@@ -339,14 +356,14 @@ sub __merge_table_des_file
         boom "isa/include error: cannot include unknown key [$arg] from [$name] at [$fname at $ln]" if ! exists $isa->{ $isa_category } or ! exists $isa->{ $isa_category }{ $isa_sect_name };
         $des->{ $isa_category }{ $isa_sect_name } ||= {};
 
-#print Dumper( 'isa - ' x 10, $isa_category, $isa_sect_name, $isa->{ $isa_category }{ $isa_sect_name });
+print Dumper( 'isa - ' x 10, $isa_category, $isa_sect_name, $isa->{ $isa_category }{ $isa_sect_name });
 
         %{ $des->{ $isa_category }{ $isa_sect_name } } = ( 
                                                          %{         $des->{ $isa_category }{ $isa_sect_name }   }, 
                                                          %{ dclone( $isa->{ $isa_category }{ $isa_sect_name } ) },
                                                          );
         $des->{ $category }{ $sect_name }{ '_ORDER' } = ++ $opt->{ '_ORDER' };
-        
+        $des->{ $isa_category }{ $isa_sect_name }{ '__ISA'  } = 1;
         }
       
       next;
@@ -397,6 +414,21 @@ sub __merge_table_des_file
         }
 
       de_log_debug2( "            key:  [$sect_name]:[$key]=[$value]" );
+
+      if( $key eq 'GRANT' or $key eq 'DENY' )
+        {
+        # special case
+        if( $des->{ $category }{ $sect_name }{ '__ISA'  } and ! $des->{ $category }{ $sect_name }{ '__LGD'  } )
+          {
+          delete $des->{ $category }{ $sect_name }{ '__GDA'  }; # grant/deny access accumulator array
+          $des->{ $category }{ $sect_name }{ '__LGD'  } = 1; # local grant/deny policy, discard ISA one
+          }
+
+        $des->{ $category }{ $sect_name }{ '__GDA'  } ||= [];
+        push @{ $des->{ $category }{ $sect_name }{ '__GDA' } }, "$key  $value";
+
+        next;
+        }
 
       if( $DES_KEY_TYPES{ $key } eq '@' )
         {
@@ -642,6 +674,8 @@ sub __load_table_description
   return $des;
 }
 
+#-----------------------------------------------------------------------------
+
 sub describe_table
 {
   my $table = uc shift;
@@ -674,6 +708,8 @@ sub describe_table
   return $des;
 }
 
+#-----------------------------------------------------------------------------
+
 sub preload_all_tables_descriptions
 {
   my $tables = des_get_tables_list();
@@ -688,6 +724,8 @@ sub preload_all_tables_descriptions
 
   $DES_CACHE_PRELOADED = 1;
 }
+
+#-----------------------------------------------------------------------------
 
 sub describe_table_field
 {
@@ -705,38 +743,42 @@ sub describe_preprocess_grant_deny
 {
   my $hr = shift;
 
-  for my $grant_deny ( qw( GRANT DENY ) )
+  my %access = ( 'GRANT' => {}, 'DENY' => {} );
+  
+  for my $line ( @{ $hr->{ '__GDA' } } )
     {
-    next unless exists $hr->{ $grant_deny };
-    # $hr->{ $grant_deny } ||= [];
-    my $access;
-    for my $line ( @{ $hr->{ $grant_deny } } )
+    my ( $ty, $ac, $op )  = describe_parse_access_line( $line );
+    for my $o ( @$op )
       {
-      $access ||= {};
-      my %a = describe_parse_access_line( $line );
-      %$access = ( %$access, %a );
+      $access{ $ty }{ $o } = $ac->{ $o };
+      my $rty = { GRANT => 'DENY', DENY => 'GRANT' }->{ $ty };
+      delete $access{ $rty }{ $o };
       }
-    $hr->{ $grant_deny } = $access;
     }
+  $hr->{ 'GRANT' } = $access{ 'GRANT' };   
+  $hr->{ 'DENY'  } = $access{ 'DENY'  };   
+  
+  #print Dumper( "describe_preprocess_grant_deny DEBUG:", $hr->{ 'NAME' }, $hr->{ '__GDA' }, $hr->{ 'GRANT' }, $hr->{ 'DENY' } );
 }
 
 #-----------------------------------------------------------------------------
 
 sub describe_parse_access_line
 {
-  my $line = lc shift;
+  my $line = uc shift;
   
   $line =~ s/^\s*//;
   $line =~ s/\s*$//;
 
   boom "invalid access line [$line] expected [grant|deny <op> <op> <op> to <grp>; <grp> + <grp>; <grp> + !<grp>]" 
-        unless $line =~ /^\s*(([a-z_0-9]+\s+)+?)\s*to\s*([0-9!+;\s]+)\s*$/;
+        unless $line =~ /^\s*(GRANT|DENY)\s+(([A-Z_0-9]+\s*?)+?)(\s+TO\s+([A-Z0-9!+;\s]+))?\s*$/;
   
-  my $opers_line  = $1;
-  my $groups_line = $3;
+  my $type_line   = $1;
+  my $opers_line  = $2;
+  my $groups_line = $4 ? $5 : 'ALL';
   $groups_line =~ s/\s*//g;
 
-#print "ACCESS DEBUG LINE [$line]\n";
+#print "ACCESS DEBUG LINE [$line] OPER [$opers_line] GROUPS [$groups_line]\n";
 #  boom "invalid access line, keywords must not be separated by whitespace [$line]" if $line =~ /[a-z_0-9]\s+[a-z_0-9]/i;
 
 #  $line =~ s/\s*//g;
@@ -748,16 +790,32 @@ sub describe_parse_access_line
   my @opers  = split /\s+/, $opers_line;
   my @groups = split /\s*[;]\s*/, $groups_line;
 
+  $_ = $GROUP_ALIASES{ $_ } || $_ for @groups;
+
+  for my $op ( @opers )
+    {
+    next unless $op eq 'ALL';
+    @opers = @OPERS;
+    last;
+    }
+
   my %access;
   
   for my $op ( @opers )
     {
-    $access{ uc $op } = [ map { [ split /[+]/ ] } @groups ];
+    if( @groups == 1 and $groups[ 0 ] > 0 )
+      {
+      $access{ uc $op } = $groups[ 0 ];
+      }
+    else
+      {  
+      $access{ uc $op } = [ map { [ split /[+]/ ] } @groups ];
+      }
     }
   
 
 #print Dumper( $line, $opers_line, $groups_line, \%access );
-  return %access;
+  return ( $type_line, \%access, \@opers );
 }
 
 #-----------------------------------------------------------------------------

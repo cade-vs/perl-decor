@@ -355,6 +355,8 @@ sub fetch
 
   my $select_handle = shift;
 
+  return undef unless $select_handle;
+
   my %mi;
 
   $mi{ 'XT' } = 'F';

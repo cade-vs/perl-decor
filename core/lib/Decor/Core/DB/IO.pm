@@ -25,6 +25,7 @@ use Decor::Core::Log;
 
 # TODO: add profiles check and support
 # TODO: add select _OWNER* and _READ* 'in' sets
+# TODO: check for valid opers
 # TODO: add select READ for taint mode FIELDS check
 # TODO: add dot-path where fields support for update()
 # TODO: add resolve checks for inter cross-DSN links
@@ -135,7 +136,7 @@ sub select
   my @where;
   my @bind;
 
-  push @where, "$db_table._ID > 0";
+  push @where, "$db_table._ID > 0" unless $opts->{ 'MANUAL' };
 
   push @where, $self->__get_row_access_where_list( $table, 'OWNER', 'READ' );
   
@@ -327,17 +328,22 @@ sub __get_row_access_where_list
   my @where;
   for my $oper ( @_ )
     {
+    # TODO: check for valid opers
     my $sccnt = 0; # security checks count
     my @oper_where;
     for my $field ( @$fields )
       {
+print STDERR "+++++++++++++++++++++++++++ [$oper][$field]\n";
       next unless $field =~ /^_${oper}(_[A-Z_0-9]+)?$/;
 
       push @oper_where, "( $db_table.$field IN ( $groups_string ) )";
+print STDERR "+++++++++++++++++++++++++++ ( $db_table.$field IN ( $groups_string ) )\n";
       }
+    next unless @oper_where > 0;
     my $oper_where = join ' OR ', @oper_where;
     push @where, "( $oper_where )";
     } 
+
   
   return @where;  
 }

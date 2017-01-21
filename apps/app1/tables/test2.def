@@ -1,8 +1,8 @@
 
 label  Test table 2
 
-grant insert update to 900
-grant read          to 900
+grant insert update to 999
+grant read          to 999
 
 =name
 
@@ -12,20 +12,24 @@ grant read          to 900
 
   type int
 
-  grant insert to 111; 900; 22 + ! 44
+  grant insert update to 222; 900; 33 + ! 44
   
 =_OWNER
 
   type int
+  deny all to 999;
 
 =_OWNER_2
 
   type int
+  deny all to 999;
 
 =_READ_ACCESS
 
   type int
+  deny all to 999;
 
 =_UPDATE_OFFICE
 
   type int
+  deny all to 999

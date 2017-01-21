@@ -71,9 +71,9 @@ sub main
   
   %filter = ( %filter, %$filter_param ) if $filter_param;
   
-  my $select = $core->select( $table, $fields, { FILTER => \%filter, OFFSET => $offset, LIMIT => $page_size, ORDER_BY => '_ID DESC' } );
-  my $scount = $core->count( $table, { FILTER => \%filter } );
-
+  my $select = $core->select( $table, $fields, { FILTER => \%filter, OFFSET => $offset, LIMIT => $page_size, ORDER_BY => '_ID DESC' } ) if $fields;
+  my $scount = $core->count( $table, { FILTER => \%filter } ) if $select;
+  
   $text .= "<br>";
 
   $text .= de_html_alink( $reo, 'new', "insert.png Insert new record", 'Insert new record', ACTION => 'edit', ID => -1, TABLE => $table );

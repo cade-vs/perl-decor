@@ -344,6 +344,12 @@ sub __check_access_tree
 
   my $groups = $self->{ 'GROUPS' };
   
+  if( ! ref( $tree->{ $oper } ) and $tree->{ $oper } )
+    {
+    # quick check if there is only one group in the policy
+    return $groups->{ $tree->{ $oper } } > 0 ? 1 : 0;
+    }
+  
   for my $sets ( @{ $tree->{ $oper } } )
     {
     my $c = 0;

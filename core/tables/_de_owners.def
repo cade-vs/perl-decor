@@ -1,4 +1,6 @@
 
+  deny all
+
 =_OWNER
 
   type  link  de_groups   name

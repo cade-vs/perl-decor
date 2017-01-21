@@ -35,6 +35,8 @@ sub main
 
   my @fields = @{ $tdes->get_fields_list_by_oper( 'READ' ) };
 
+  return "<#access_denied>" unless @fields;
+
 #  push @fields, 'USR.ACTIVE';
 
   my %bfdes; # base/begin/origin field descriptions, indexed by field path

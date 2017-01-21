@@ -1,4 +1,7 @@
 
+grant all to 999
+
+@include  _DE_OWNERS  _OWNER                                                                                                    
 
 =NAME
     type  char  128

@@ -37,7 +37,7 @@ sub main
   my $fields_ar        = $ps->{ 'FIELDS_WRITE_AR'  };
   my $edit_mode_insert = $ps->{ 'EDIT_MODE_INSERT' };
 
-  boom "FIELDS list empty" unless @$fields_ar;
+  return "<#access_denied>" unless @$fields_ar;
 
   my $text .= "<br>";
   

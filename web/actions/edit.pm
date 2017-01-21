@@ -120,7 +120,7 @@ sub main
     $reo->ps_path_add( 'edit', qq( "Edit record data from "<b>$table_label</b>" ) );
     }  
 
-  boom "FIELDS list empty" unless @$fields_ar;
+  return "<#access_denied>" unless @$fields_ar;
 
   my $fields = join ',', @$fields_ar;
 

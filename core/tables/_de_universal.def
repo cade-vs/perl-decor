@@ -1,7 +1,10 @@
 
+  deny all to all
 
 =_ID
 
   type INT 32
   primary_key
+  
+  grant read
 

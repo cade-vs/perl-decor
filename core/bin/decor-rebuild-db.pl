@@ -276,7 +276,7 @@ sub rebuild_table
 
   # base-records (zero-id records)
   my $base_io = new Decor::Core::DB::IO;
-  if( ! $base_io->read_first1_by_id_hashref( $table, 0 ) )
+  if( ! $base_io->read_first1_by_id_hashref( $table, 0, { MANUAL => 1 } ) )
     {
     de_log( "info: missing base record in table [$table], will recreate it" );
     my $des = describe_table( $table );
