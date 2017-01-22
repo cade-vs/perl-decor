@@ -418,10 +418,10 @@ print Dumper( 'isa - ' x 10, $isa_category, $isa_sect_name, $isa->{ $isa_categor
       if( $key eq 'GRANT' or $key eq 'DENY' )
         {
         # special case
-        if( $des->{ $category }{ $sect_name }{ '__ISA'  } and ! $des->{ $category }{ $sect_name }{ '__LGD'  } )
+        if( $des->{ $category }{ $sect_name }{ '__ISA'  } and ! $des->{ $category }{ $sect_name }{ '__GDL'  } )
           {
-          delete $des->{ $category }{ $sect_name }{ '__GDA'  }; # grant/deny access accumulator array
-          $des->{ $category }{ $sect_name }{ '__LGD'  } = 1; # local grant/deny policy, discard ISA one
+          delete $des->{ $category }{ $sect_name }{ '__GDA'  };     # grant/deny access accumulator array
+                 $des->{ $category }{ $sect_name }{ '__GDL'  } = 1; # grant/deny local policy, discard ISA one
           }
 
         $des->{ $category }{ $sect_name }{ '__GDA'  } ||= [];
@@ -664,7 +664,7 @@ sub __load_table_description
 
   my $opt = {};
   my $rc;
-  $rc = __merge_table_des_hash( $des, '_DE_UNIVERSAL', $opt );
+  $rc = __merge_table_des_hash( $des, '_DE_UNIVERSAL', $opt ) unless $table eq '_DE_UNIVERSAL';
   # zero $rc for UNIVERSAL is ok
   $rc = __merge_table_des_hash( $des, $table, $opt );
   return undef unless $rc > 0;
