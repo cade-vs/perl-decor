@@ -76,15 +76,17 @@ sub main
   my $select = $core->select( $table, $fields, { FILTER => \%filter, OFFSET => $offset, LIMIT => $page_size, ORDER_BY => '_ID DESC' } ) if $fields;
   my $scount = $core->count( $table, { FILTER => \%filter } ) if $select;
   
-  $text .= "<br>";
-
-  $text .= de_html_alink( $reo, 'new', "insert.png Insert new record", 'Insert new record', ACTION => 'edit', ID => -1, TABLE => $table );
+#  $text .= "<br>";
   $text .= "<p>";
 
   my $text_grid_head;
   my $text_grid_body;
   my $text_grid_foot;
-  my $text_grid_navi;
+  my $text_grid_navi_left;
+  my $text_grid_navi_right;
+  my $text_grid_navi_mid;
+
+  $text_grid_navi_left .= de_html_alink( $reo, 'new', "insert.png Insert new record", 'Insert new record', ACTION => 'edit', ID => -1, TABLE => $table );
   
   $text_grid_head .= "<table class=grid cellspacing=0 cellpadding=0>";
   $text_grid_head .= "<tr class=grid-header>";
@@ -243,10 +245,10 @@ sub main
     $offset_prev = 0 if $offset_prev < 0;
     $offset_last = 0 if $offset_last < 0;
     
-    $text_grid_navi .= $offset > 0 ? "<a reactor_here_href=?offset=0><img src=i/page-prev.png> first page</a> | " : "<img src=i/page-prev.png> first page | ";
-    $text_grid_navi .= $offset > 0 ? "<a reactor_here_href=?offset=$offset_prev><img src=i/page-prev.png> previous page</a> | " : "<img src=i/page-prev.png> previous page | ";
-    $text_grid_navi .= $offset_next < $scount ? "<a reactor_here_href=?offset=$offset_next>next page <img src=i/page-next.png></a> | " : "next page <img src=i/page-next.png> | ";
-    $text_grid_navi .= $offset_next < $scount ? "<a reactor_here_href=?offset=$offset_last>last page <img src=i/page-next.png></a> | " : "last page <img src=i/page-next.png> | ";
+    $text_grid_navi_mid .= $offset > 0 ? "<a reactor_here_href=?offset=0><img src=i/page-prev.png> first page</a> | " : "<img src=i/page-prev.png> first page | ";
+    $text_grid_navi_mid .= $offset > 0 ? "<a reactor_here_href=?offset=$offset_prev><img src=i/page-prev.png> previous page</a> | " : "<img src=i/page-prev.png> previous page | ";
+    $text_grid_navi_mid .= $offset_next < $scount ? "<a reactor_here_href=?offset=$offset_next>next page <img src=i/page-next.png></a> | " : "next page <img src=i/page-next.png> | ";
+    $text_grid_navi_mid .= $offset_next < $scount ? "<a reactor_here_href=?offset=$offset_last>last page <img src=i/page-next.png></a> | " : "last page <img src=i/page-next.png> | ";
     
     #$text_grid_navi .= "<a reactor_here_href=?offset=$offset_prev><img src=i/page-prev.png> previous page</a> | <a reactor_here_href=?offset=$offset_next>next page <img src=i/page-next.png> </a>";
     my $page_more = int( $page_size * 2 );
@@ -258,7 +260,10 @@ sub main
 
     my $offset_from = $offset + 1;
     my $offset_to   = $offset + $row_counter;
-    $text_grid_navi .= "rows $offset_from .. $offset_to ($page_size/$link_page_more/$link_page_less$link_page_all) of $scount";
+    $text_grid_navi_mid .= "rows $offset_from .. $offset_to ($page_size/$link_page_more/$link_page_less$link_page_all) of $scount";
+
+    # FIXME: use function!
+    my $text_grid_navi = "<table width=100% style='white-space: nowrap'><tr><td align=left width=1%>$text_grid_navi_left</td><td align=center>$text_grid_navi_mid</td><td align=right width=1%>$text_grid_navi_right</td></tr></table>";
 
     $text .= $text_grid_navi;
     $text .= $text_grid_head;
