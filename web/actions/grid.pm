@@ -32,6 +32,8 @@ sub main
 
   my $text;
 
+  my $grid_mode  = $reo->param( 'GRID_MODE'  ) || 'NORMAL';
+
   my $table  = $reo->param( 'TABLE'  );
   my $offset = $reo->param( 'OFFSET' );
   my $filter_param = $reo->param( 'FILTER' );
@@ -115,6 +117,28 @@ sub main
     $text_grid_body .= "<tr class=$row_class>";
     
     my $vec_ctrl;
+    
+    if( $grid_mode eq 'SELECT' )
+      {
+      my $return_data_from = $reo->param( 'RETURN_DATA_FROM' );
+      my $return_data_to   = $reo->param( 'RETURN_DATA_TO'   );
+      my $select_key_data  = $reo->param( 'SELECT_KEY_DATA'  );
+      my @return_args;
+
+      if( $return_data_from and $return_data_to )
+        {
+        push @return_args, ( "F:$return_data_to" => $row_data->{ $return_data_from } );
+        }
+
+      my $select_icon = "select-to.png";
+      my $select_hint = 'Select this record';
+      if( $select_key_data ne '' and $row_data->{ $return_data_from } eq $select_key_data )
+        {
+        $select_icon = "select-to-selected.png";
+        $select_hint = 'This is the currently selected record';
+        }
+      $vec_ctrl .= de_html_alink( $reo, 'back', $select_icon, $select_hint, @return_args );
+      }
     
     $vec_ctrl .= de_html_alink( $reo, 'new', "view.png", 'View this record', ACTION => 'view', ID => $id, TABLE => $table );
     $vec_ctrl .= de_html_alink( $reo, 'new', "edit.png", 'Edit this record', ACTION => 'edit', ID => $id, TABLE => $table );

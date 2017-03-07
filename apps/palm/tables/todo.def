@@ -3,7 +3,7 @@
     type    char    128
     
 =PRIORITY
-    type    int
+    type    link    TODO_PRIO   NAME
 
 =DONE
     type    bool
