@@ -1,0 +1,196 @@
+
+
+
+  DECOR APPLICATION MACHINERY
+  2014-2017 (c) Vladi Belperchinov-Shabanski "Cade"
+
+  TABLE DEFINITION
+
+  Tables are defined in text files with the actual table names with ".def" 
+  extension. Table definition files are stored in "tables" directory inside
+  Decor "core" infrastructure and in the application directory. Actual search
+  order is:
+  
+  $(DECOR_CORE_ROOT)/core/tables/
+  $(DECOR_CORE_ROOT)/bundles/<bundles_name>/tables/
+  $(DECOR_CORE_ROOT)/apps/<app_name>/core/bundles/<bundle_name>/tables/
+  $(DECOR_CORE_ROOT)/apps/<app_name>/core/tables/
+
+  and all found table definitions are stacked one over another, allowing
+  extension and modification of core or bundles tables. 
+  Usually core tables are not supposed to be modified and rarely extended.
+
+  All missing tables and fields will be created in the database with 
+  $(DECOR_CORE_ROOT)/core/bin/decor-rebuild-db.pl
+
+  All lines starting with # are comments.
+  
+  Table definition structure start with table attributes:
+  
+  ---begin-of-file-----
+
+  # table label
+  label  Test table 3
+
+  # table permissions
+  grant insert update to 900
+  grant read          to 900
+  deny insert
+
+  # inherit field "cnt" from table "test2"
+  @isa  test2   cnt
+
+  ---cut---------------
+
+  PERMISSIONS, GRANT/DENY ACCESS
+
+  Most important part is the table access permissions. The syntax is:
+  
+  grant oper1 oper2 ... to grp1; grp2 + grp3; grp4 + ! grp5
+  deny  oper1 oper3 ... to grp3 + grp4
+
+  "grant" and "deny" lines can be specified multiple times. First hit on
+  grant or deny line stops evaluation and sets final permission status.
+  
+  There are special catch-all keywords for opers and groups:
+  
+  grant all to all
+  grant all
+  deny  all  
+
+  Operations are predefined and currently supported are:
+  
+  read
+  insert
+  update
+  delete
+  execute
+  access
+  
+  All of them are defined for the whole table and for the specific table field
+  separately. All fields without grant/deny lines inherit table ones. Not all
+  operations make sense for fields. For example "execute" and "access" are not
+  used for fields but they can be still specified.
+  
+  Groups given in grant/deny lines are application specific and are either
+  defined by the application design/structure or added run-time by the app
+  logic. All groups are numbers which represents group record _ID in table
+  DE_GROUPS.
+
+  FIELDS DEFINITIONS
+  
+  Table fields (or columns) are defined with '=' followed by the field name
+  and mandatory and optional field attributes on the following lines:
+  
+  ---begin-of-file-----
+
+  =USER_NAME
+
+  label           User full name
+  web.grid.label  User
+  type        char 256
+  unique
+  required
+  
+  ---cut---------------
+
+  In this example new field "USER_NAME" is defined, with generic label and
+  grid specific label (not all attribute allows specifications).
+  There is also field type definition (mandatory) and few other attributes
+  (optional).
+  
+  Currently available attributes are:
+  
+  "type"   (mandatory, only default values for lengths)
+  
+        sets field type and type specs. available types are:
+    
+        char  <len>
+        int   <len>
+        real  <len.dot>
+        link  link_table_name   link_table_field_name
+        date
+        time
+        utime
+      
+        "type" is mandatory, all fields need type.
+      
+  "label"  (optional, default value is the field name)
+  
+        sets field generic label. this label is used on all record grids, 
+        record view, edit, preview screens. this type can have specifications:
+        
+        web.grid.label
+        web.view.label
+        web.preview.label
+        etc.
+        
+        label is not mandatory but if left empty it will copy the field name
+        itself.
+        
+  "required"  (optional, value is optional and defaults to 1, shortcut: "req")
+  
+        this field will be required to have data for insert and update, if
+        grant/deny allows it.
+
+  "unique"    (optional, value is optional and defaults to 1, shortcut: "uniq")
+  
+        this field will be required to be unique inside the database. this
+        field will have unique index created upon database rebuild with
+        $(DECOR_CORE_ROOT)/core/bin/decor-rebuild-db.pl
+
+  "read_only" (optional, value is optional and defaults to 1, shortcut: "ro")
+  
+        this field will be forbidden for insert and update for all users
+        (except root, of course). it will not be displayed on any input
+        screen.
+  
+  "system"    (optional, value is optional and defaults to 1, shortcut: "sys")
+  
+        same as "read_only" but it is also forbidden for read.
+        this field is not supposed to be accessed by any user.
+
+  "index"     (optional, value is optional and defaults to 1)
+  
+        this field is expected to be used for searching, so index will be
+        created upon database rebuilding with
+        $(DECOR_CORE_ROOT)/core/bin/decor-rebuild-db.pl
+
+  "password"  (optional, value is optional and defaults to 1)
+  
+        this field will not show actual input data and will show only "*"s
+
+
+  INDEXES DEFINITIONS
+  
+  All tables can contain and complex index definitions. Indexes are defined by
+  "=INDEX:" followed by the index name:
+  
+  ---begin-of-file-----
+
+  =INDEX: INDEX_NAME
+  
+  fields  field1  field2 ...
+  unique
+
+  ---cut---------------
+
+  Available attributes are:
+  
+  "fields"   (mandatory, no default value)
+  
+        lists all fields used in this index
+        
+  "unique"    (optional, value is optional and defaults to 1, shortcut: "uniq")
+  
+        this index will be created as "unique" and will not allow duplicate
+        values in the fields listed in "fields" attribute.
+        
+  All missing indexes will be created in the database with 
+  $(DECOR_CORE_ROOT)/core/bin/decor-rebuild-db.pl
+  However, if index "fields" is changed, currently, index must be dropped 
+  manually and then decor-rebuild-db.pl can recreate it. This is intentional
+  and has no other workaround.
+      
+
+--
