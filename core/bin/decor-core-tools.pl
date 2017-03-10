@@ -10,6 +10,7 @@
 ##############################################################################
 use strict;
 use lib ( map { die "invalid DECOR_CORE_ROOT dir [$_]\n" unless -d; ( "$_/core/lib", "$_/shared/lib" ) } ( $ENV{ 'DECOR_CORE_ROOT' } || '/usr/local/decor' ) );
+use Term::ReadKey;
 use Decor::Core::Env;
 use Decor::Core::Log;
 use Decor::Core::Describe;
@@ -100,6 +101,7 @@ sub cmd_user_add
   my $pass = shift;
   my $uid  = shift;
   
+  $pass = ask_pass() if $pass eq 'ask' or ! $pass;
   
   my $user_rec = new Decor::Core::DB::Record;
 
@@ -136,6 +138,8 @@ sub cmd_user_pwd
 {
   my $user = shift;
   my $pass = shift;
+
+  $pass = ask_pass() if $pass eq 'ask' or ! $pass;
   
   my $user_rec = new Decor::Core::DB::Record;
 
@@ -172,6 +176,29 @@ sub cmd_user_pwd
   my $usid = $user_rec->id();
   my $name = $user_rec->read( 'NAME' );
   print "info: password changed for existing user [$name] with id [$usid]\n";
+}
+
+#-----------------------------------------------------------------------------
+
+sub ask_pass
+{
+  print "\n";
+  ReadMode( 'noecho' );
+  print "Enter new password: ";
+  my $pwd1 = ReadLine(0);
+  print "\n";
+  print "Enter the new password again: ";
+  my $pwd2 = ReadLine(0);
+  print "\n";
+  ReadMode( 0 );
+  chomp( $pwd1 );
+  chomp( $pwd2 );
+
+  die "error: password(s) empty or trivial\n" unless $pwd1 and $pwd2;
+  die "error: passwords do not match\n" unless $pwd1 eq $pwd2;
+  # TODO: password strength?
+    
+  return $pwd1;  
 }
 
 #-----------------------------------------------------------------------------

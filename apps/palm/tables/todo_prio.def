@@ -1,0 +1,7 @@
+
+grant insert read to all
+
+=NAME
+
+    type    char    32
+

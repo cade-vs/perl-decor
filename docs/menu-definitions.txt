@@ -1,0 +1,16 @@
+
+
+
+  DECOR APPLICATION MACHINERY
+  2014-2017 (c) Vladi Belperchinov-Shabanski "Cade"
+
+  MENU DEFINITION
+
+  FIXME: to be completed.
+
+  Meanwhile, see the demo applications in the "apps" directory:
+
+  ls -l /usr/local/decor/apps/app1/menus
+  ls -l /usr/local/decor/apps/palm/menus
+
+--

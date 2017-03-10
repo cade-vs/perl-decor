@@ -1,4 +1,6 @@
 
+-- static data rebuild tool
+
 -- avoid INTERNAL ERROR in web when all table fields are forbidden and is empty list
 
 -- return uniq references for core server errors

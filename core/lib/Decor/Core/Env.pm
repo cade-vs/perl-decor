@@ -88,7 +88,7 @@ sub de_init
 
   boom "cannot find/access application [$APP_NAME] path [$app_path]" unless -d $app_path;
 
-  my $cfg = de_config_load_file( "$app_path/etc/app.cfg" );
+  my $cfg = de_config_load_file( "$app_path/etc/app.conf" );
   if( $cfg )
     {
     %APP_CFG = %{ $cfg = $cfg->{ '@' }{ '@' } };
@@ -97,7 +97,7 @@ sub de_init
     {
     %APP_CFG = ();
     }  
-  @BUNDLES = sort split /[\s\,]+/, $APP_CFG{ 'BUNDLES' };
+  @BUNDLES = sort split /[\s\,]+/, $APP_CFG{ 'USE_BUNDLES' };
   
   unshift @BUNDLES, sort ( read_dir_entries( "$app_path/bundles" ) );
   

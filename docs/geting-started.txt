@@ -1,0 +1,213 @@
+
+
+
+  DECOR APPLICATION MACHINERY
+  2014-2017 (c) Vladi Belperchinov-Shabanski "Cade"
+
+  GETING STARTED/BOOTSTRAPPING NEW APPLICATION
+
+  To get started with a new application, it is needed to do the following
+  steps:
+
+  1. unpack Decor installation tarball into choosen Decor root directory.
+     in this example this will be "/usr/local/decor".
+
+     you can clone or download Decor from:
+
+        https://github.com/cade-vs
+
+  2. go to the decor applications directory and create directory for the new
+     application. this directory name will be the actual application name:
+
+     cd /usr/local/decor/apps
+     mkdir my_first_app
+
+  3. go to the new app directory and create "etc" directory. it will contain
+     all application configuration. currently it keeps the following files:
+
+     dsn.conf   -- holds the database details (connect info, user name, pass)
+     app.conf   -- holds the application parameters
+
+     cd /usr/local/decor/apps/my_new_app
+     mkdir etc
+     cd etc
+     (create dsn.conf)
+     (create app.conf)
+
+     dsn.conf contains the following:
+
+     ---begin-of-dsn.conf------------
+     =MAIN
+
+     DSN   dbi:Pg:dbname=decor
+     USER  decor-user
+     PASS  decor-pass
+     ---eof--------------------------
+
+     it defines 'MAIN' database connector, used for all core operations.
+     dsn.conf may containg multiple database connectors with different names
+     byt "MAIN" is mandatory and need to be defined always.
+
+     then create app.conf with the following:
+
+     ---begin-of-app.conf------------
+     use_bundles base
+
+     session_expire_time   840
+     ---eof--------------------------
+
+     "use_bundles" defines list of bundles to be used. bundles are sets of
+     tables and other features which will be included into the current app.
+
+     "session_expire_time" defines inactivity idle time, after which currently
+     logged-in user will be disconnected. time is in seconds. in this example
+     it is 14 minutes.
+
+  4. create "menus" directory in the app base directory:
+
+     cd /usr/local/decor/apps/my_new_app
+     mkdir menus
+     cd menus
+     (create all needed menus definitions)
+
+     for details about menu definition files syntax, read
+     "menu-definitions.txt" file from the docs directory.
+
+  5. create "tables" directory in the app base directory:
+
+     cd /usr/local/decor/apps/my_new_app
+     mkdir tables
+     cd tables
+     (create all needed tables definitions)
+
+     for details about table definition files syntax, read
+     "table-definitions.txt" file from the docs directory.
+
+  6. now the database structure needs to be created:
+
+     export DECOR_CORE_ROOT="/usr/local/decor/"
+     cd /usr/local/decor/core/bin
+     ./decor-rebuild-db.pl my_first_app -d -r
+
+     "decor-rebuild-db.pl" utility is used whenever you make changes in the
+     tables definition files. all added or changed tables and fields will
+     be updated in the database. no existing table, fields or data will be
+     erased. "-d" enables debug mode and prints details about database rebuild
+     process. "-r" prints all to screen, instead of the log files.
+
+  7. create new root account for the app:
+
+     export DECOR_CORE_ROOT="/usr/local/decor/"
+     cd /usr/local/decor/core/bin
+     ./decor-core-tools.pl  my_first_app  add-user  root  ask  1
+
+     this creates new record in the DE_USERS system core tables with _ID=1
+
+     "my_first_app" is the app name
+     "root" is the user name, in this case this is the system administrator
+     "ask" asks user to enter and confirm the user password
+     "1" is the new user _ID in the DE_USERS table, "root" must be _ID=1!
+
+     any other string in the place of "ask" will be considered the actual user
+     password.
+
+     when creating more non-root users, password and _ID can be skipped. in
+     this case password will be asked and next available _ID will be used:
+
+     ./decor-core-tools.pl  my_first_app  add-user  tom
+     ./decor-core-tools.pl  my_first_app  add-user  jerry
+
+  8. start the core network application server:
+
+     export DECOR_CORE_ROOT="/usr/local/decor/"
+     cd /usr/local/decor/core/bin
+     ./decor-core-app-server.pl
+
+     if no arguments are given, this server will handle all apps found in
+     the "apps" directory:
+
+     ls -l /usr/local/decor/apps/
+
+     if the server needs to handle only one application, it needs to be run
+     like this:
+
+     ./decor-core-app-server.pl -e my_first_app
+
+     it forces the server to preload all tables and methods and will ignore
+     requests to serve other apps.
+
+  At this point "my_first_app" is up and running. An interface is needed to
+  access the app. Currently Decor offers WEB interface.
+
+  WEB interface uses Web::Reactor and Data::Tools perl modules.
+  All of them can be obtained either from CPAN or from:
+
+      https://github.com/cade-vs
+
+  To enable the WEB interface follow these steps:
+
+  1. enable CGI execution in your web http server.
+
+  2. create web-visible directory for your app.
+
+     cd /var/www/html
+     (for example)
+     mkdir my_first_app
+
+  3. copy or symlink decor htdocs images:
+
+     cd /var/www/html/my_first_app
+     cp -r /usr/local/decor/web/htdocs/i .
+
+  4. copy Web::Reactor javascript support from a unpacked installation:
+
+     cd /var/www/html/my_first_app
+     mkdir js
+     cp /usr/local/web-reactor/htdocs/reactor.js  js/
+
+  5. create index.cgi and make it executable:
+
+     cd /var/www/html/my_first_app
+     (create index.cgi)
+     chmod a+rx index.cgi
+
+     other option is to enable execution only by the web server but for this
+     please, consult the web server manual.
+
+     index.cgi contains the following:
+
+     ---begin-of-dsn.conf------------
+     #!/usr/bin/perl
+     use strict;
+     use lib '/usr/local/web-reactor/lib';
+     use lib '/usr/local/data-tools/lib';
+     use lib '/usr/local/decor/web/lib', '/usr/local/decor/shared/lib';
+     use Web::Reactor::Decor;
+     use Data::Dumper;
+     use Time::HR;
+
+     my $DECOR_APP_NAME = 'my_first_app';
+     my $reo = Web::Reactor::Decor->new(
+                  APP_NAME               => $DECOR_APP_NAME,
+                  DECOR_CORE_ROOT        => '/usr/local/decor/',
+                  DECOR_CORE_HOST        => 'localhost:42000',
+                  DECOR_CORE_APP         => $DECOR_APP_NAME,
+                  DEBUG                  => 0,
+                  LANG                   => 'bg',
+                  SESS_VAR_DIR           => '/tmp/decor-var',
+                  DISABLE_SECURE_COOKIES => 0,
+                );
+
+      eval { $reo->run(); };
+      if( $@ )
+        {
+        print STDERR "DECOR CGI EXCEPTION: $@";
+        print "content-type: text/html\n\nsystem is temporary unavailable";
+        }
+     ---eof--------------------------
+
+  6. point your browser to the web-visible directory (probably it is something
+     like: http://localhost/my_first_app if you are on the same machine) and
+     login with previously created user.
+
+--
