@@ -6,17 +6,20 @@
 
 #  INTRODUCTION
 
-Decor is set of Perl libraries and support resources to build client-server
-information systems. Decor automates wide range of routine work:
+DECOR is Perl infrastructure for building general purpose information
+systems/applications.
 
-    * database structuring
+DECOR includes set of libraries and database tools, client-server host apps
+and user interface protocols. DECOR automates wide range of routine work:
+
+    * database (re)structuring
     * user management
     * security management
     * business logic security and execution
     * client-server data interaction (server api, client api, protocols)
     * data entry and other client-side forms/screens management
 
-Decor automates further those tasks with:
+DECOR automates further those tasks with:
 
     * single-source DB structure and data-input objects description
     * online restructuring of the database schema on demand
@@ -25,9 +28,9 @@ Decor automates further those tasks with:
     * user server session management
     * user, page/screen and linked-data client session management
 
-Decor is written entirely in Perl 5, but client apps can be in any language.
+DECOR is written entirely in Perl 5, but client apps can be in any language.
 
-Decor is licensed under GPLv2, for full text see file "COPYING".
+DECOR is licensed under GPLv2, for full text see file "COPYING".
 
 Further documentation can be found in "docs" directory.
 
@@ -38,4 +41,5 @@ Questions, please, send to:
 
   Vladi Belperchinov-Shabanski "Cade"
   <cade@bis.bg> <cade@biscom.net> <cade@cpan.org>
-
+  https://github.com/cade-vs
+  github repo: git@github.com:cade-vs/perl-decor.git
