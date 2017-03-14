@@ -1,6 +1,6 @@
 ##############################################################################
 ##
-##  Decor application machinery core
+##  DECOR application machinery core
 ##  2014-2017 (c) Vladi Belperchinov-Shabanski "Cade"
 ##  <cade@bis.bg> <cade@biscom.net> <cade@cpan.org>
 ##
@@ -14,24 +14,24 @@ use Exporter;
 BEGIN
 {
 our @ISA    = qw( Exporter );
-our @EXPORT = qw( 
-                
+our @EXPORT = qw(
+
                 de_init
                 de_init_done
-                
+
                 de_app_name
                 de_app_path
                 de_bundles
                 de_bundles_dirs
                 de_app_cfg
-                
+
                 de_version
                 de_root
                 de_debug
                 de_debug_set
                 de_debug_inc
                 de_debug_off
-                
+
                 );
 }
 
@@ -79,7 +79,7 @@ sub de_init
     }
 
   $_INIT_OK = 1;
-  
+
   dlock $APP_NAME = $app_name;
 
   boom "invalid ROOT directory [$ROOT] use either [/usr/local/decor] or DECOR_ROOT env var" unless $ROOT ne '' and -d $ROOT;
@@ -96,11 +96,11 @@ sub de_init
   else
     {
     %APP_CFG = ();
-    }  
+    }
   @BUNDLES = sort split /[\s\,]+/, $APP_CFG{ 'USE_BUNDLES' };
-  
+
   unshift @BUNDLES, sort ( read_dir_entries( "$app_path/bundles" ) );
-  
+
   for my $bundle ( @BUNDLES )
     {
     my $found;
@@ -113,7 +113,7 @@ sub de_init
         last;
         }
       }
-    if( ! $found )  
+    if( ! $found )
       {
       boom( "error: bundle not found [$bundle]" );
       }
@@ -121,7 +121,7 @@ sub de_init
 
   dlock \@BUNDLES;
   dlock \@BUNDLES_DIRS;
-  
+
   #print STDERR Dumper( 'APP_CFG:', \%APP_CFG, 'BUNDLES:', \@BUNDLES, 'BUNDLES DIRS:', \@BUNDLES_DIRS );
 }
 
@@ -148,7 +148,7 @@ sub de_app_cfg
   my $def = shift; # default value
 
   boom "invalid APP_CFG key [$key]" unless exists $APP_CFG_KEYS{ $key };
-  
+
   my $res = ( exists $APP_CFG{ $key } and $APP_CFG{ $key } ne '' ) ? $APP_CFG{ $key } : $def;
 
   return $res;
