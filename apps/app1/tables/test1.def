@@ -92,7 +92,8 @@ grant update insert to 999; 100; 200+!2
   type link test2 name
 
 #  web.select-where    CNT > ?; 2
-  web.combo
+  web.combo     %40s=%-15s; NAME; CNT
+#  web.edit.mono
 
 =BACKREF
 

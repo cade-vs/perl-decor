@@ -84,7 +84,6 @@ sub main
       my $lrow_data = $core->select_first1_by_id( $linked_table, $lfields, $data );
 
       $data_fmt = de_web_format_field( $lrow_data->{ $linked_field }, $lfdes{ $linked_field }, 'PREVIEW' );
-
       }
     elsif( $bfdes->is_backlinked() )
       {

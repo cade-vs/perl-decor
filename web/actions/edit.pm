@@ -238,37 +238,81 @@ sub main
     elsif( $type_name eq 'INT' and $fdes->is_linked() )
       {
       my ( $linked_table, $linked_field ) = $fdes->link_details();
-      my $lfdes = $fdes->describe_linked_field();
-      my ( $link_path, $llfdes ) = $lfdes->expand_field_path();
-      my $link_data = $core->read_field( $linked_table, $link_path, $field_data );
-      my $link_data_fmt;
-
-      if( $field_data > 0 )
-        {
-        $link_data_fmt = de_web_format_field( $link_data, $llfdes, 'VIEW' );
-        }
-      else
-        {
-        $link_data_fmt = '(empty)';
-        }
 
       my $combo = $fdes->get_attr( qw( WEB COMBO ) );
       if( $combo )
         {
+        my $spf_fmt;
+        my @spf_fld;
+        if( $combo == 1 )
+          {
+          $spf_fmt = "%s";
+          @spf_fld = ( $linked_field );
+          }
+        else
+          {
+          my @v = split /\s*;\s*/, $combo;
+          $spf_fmt = shift @v;
+          @spf_fld = @v;
+          }
+
+
         my $combo_data = [];
         my $sel_hr     = {};
         $sel_hr->{ $field_data } = 1 if $field_data > 0;
 
-        my $combo_select = $core->select( $linked_table, "_ID,$linked_field" );
+        my $ldes = $core->describe( $linked_table );
+        my @lfields = @{ $ldes->get_fields_list_by_oper( 'READ' ) };
+        unshift @lfields, $linked_field;
+
+##        return "<#access_denied>" unless @fields;
+
+        my %bfdes; # base/begin/origin field descriptions, indexed by field path
+        my %lfdes; # linked/last       field descriptions, indexed by field path, pointing to trail field
+        my %basef; # base fields map, return base field NAME by field path
+
+        de_web_expand_resolve_fields_in_place( \@lfields, $ldes, \%bfdes, \%lfdes, \%basef );
+
+      #$text .= Dumper( \%basef );
+
+        my $lfields = join ',', '_ID', @lfields, values %basef;
+
+        my $combo_select = $core->select( $linked_table, $lfields );
+#$text .= "my $combo_select = $core->select( $linked_table, $lfields )<br>";
         while( my $hr = $core->fetch( $combo_select ) )
           {
-          push @$combo_data, { KEY => $hr->{ '_ID' }, VALUE => $hr->{ $linked_field } };
+          my @value = map { $hr->{ $_ } } @spf_fld;
+          my $value = sprintf( $spf_fmt, @value );
+
+#$text .= "[$spf_fmt][@spf_fld][$value][@value]<br>";
+          $value =~ s/\s/&nbsp;/g;
+          push @$combo_data, { KEY => $hr->{ '_ID' }, VALUE => $value };
           }
 
-        $field_input = $edit_form->combo( NAME => "F:$field", DATA => $combo_data, SELECTED => $sel_hr );
+        my $fmt_class;
+        if( $fdes->get_attr( 'WEB', 'EDIT', 'MONO' ) )
+          {
+          $fmt_class .= " fmt-mono";
+          }
+
+        $field_input = $edit_form->combo( NAME => "F:$field", CLASS => $fmt_class, DATA => $combo_data, SELECTED => $sel_hr );
         }
       else
         {
+        my $lfdes = $fdes->describe_linked_field();
+        my ( $link_path, $llfdes ) = $lfdes->expand_field_path();
+        my $link_data = $core->read_field( $linked_table, $link_path, $field_data );
+        my $link_data_fmt;
+
+        if( $field_data > 0 )
+          {
+          $link_data_fmt = de_web_format_field( $link_data, $llfdes, 'VIEW' );
+          }
+        else
+          {
+          $link_data_fmt = '(empty)';
+          }
+
         $field_input = "<div class=link-data>$link_data_fmt</div>";
         }
 

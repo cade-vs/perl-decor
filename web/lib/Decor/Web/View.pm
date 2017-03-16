@@ -17,7 +17,7 @@ use Decor::Shared::Types;
 
 use Exporter;
 our @ISA    = qw( Exporter );
-our @EXPORT = qw( 
+our @EXPORT = qw(
 
                 de_web_expand_resolve_fields_in_place
                 de_web_format_field
@@ -33,7 +33,7 @@ sub de_web_expand_resolve_fields_in_place
   my $basef  = shift; # base fields
 
   my @res_fields;
-  
+
   for( @$fields )
     {
     # resolve fields
@@ -44,7 +44,7 @@ sub de_web_expand_resolve_fields_in_place
       print STDERR Dumper( $_, $bfdes->{ $_ }, '---------------------------+++---'  );
       }
     else
-      {  
+      {
       my $fdes    = $tdes->{ 'FIELD' }{ $_ };
       if( $fdes->is_linked() )
         {
@@ -58,7 +58,7 @@ sub de_web_expand_resolve_fields_in_place
         $lfdes->{ $_ } = $fdes;
         }
       $bfdes->{ $_ } = $fdes;
-      }  
+      }
     }
 
   return undef;
@@ -92,7 +92,7 @@ sub de_web_format_field
         $data_fmt = substr( $data_fmt, 0, $cut_len ) . ' &hellip; ' . substr( $data_fmt, - $cut_len );
         }
       }
-    if( $fdes->get_attr( 'WEB', $vtype, 'MAXLEN' ) )
+    if( $fdes->get_attr( 'WEB', $vtype, 'MONO' ) )
       {
       $fmt_class .= " fmt-mono";
       }
@@ -107,7 +107,7 @@ sub de_web_format_field
     return '&laquo;empty&raquo;' if $data == 0;
     $data_fmt = type_format( $data, $fdes->{ 'TYPE' } );
     my $details = $fdes->get_attr( 'WEB', $vtype, 'DETAILS' );
-    
+
     if( $details )
       {
       my $sep  = $details > 1 ? '<br>' : '&Delta;';
@@ -118,7 +118,7 @@ sub de_web_format_field
   else
     {
     $data_fmt = type_format( $data, $fdes->{ 'TYPE' } );
-    }  
+    }
 
 
   return wantarray ? ( $data_fmt, $fmt_class ) : $data_fmt;
