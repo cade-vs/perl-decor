@@ -27,7 +27,7 @@ sub main
   my $reo = shift;
 
   return unless $reo->is_logged_in();
-  
+
   my $text;
 
   my $table   = $reo->param( 'TABLE'   );
@@ -35,7 +35,7 @@ sub main
   my $copy_id = $reo->param( 'COPY_ID' );
 
   my $mode_insert = 1 if $id < 0;
-  
+
   return "<#access_denied>" if $id == 0;
 
   my $si = $reo->get_safe_input();
@@ -65,7 +65,7 @@ sub main
       {
       # insert
       $edit_mode_insert = 1;
-      
+
       $id = $core->next_id( $table );
       my $status_ref = $core->status_ref();
       return "<#e_internal>[$status_ref]" unless $id > 0;
@@ -81,11 +81,11 @@ sub main
       else
         {
         # regular insert
-        
+
         # exec default method
         $ps->{ 'ROW_DATA' } = {};
         $ps->{ 'ROW_DATA' }{ '_ID' } = $id;
-        }  
+        }
       }
     else
       {
@@ -94,11 +94,11 @@ sub main
       $fields_ar = $tdes->get_fields_list_by_oper( 'UPDATE' );
       my $row_data = $core->select_first1_by_id( $table, $fields_ar, $id );
       $ps->{ 'ROW_DATA' } = $row_data;
-      }  
-    
+      }
+
     $ps->{ 'FIELDS_WRITE_AR'  } = $fields_ar;
     $ps->{ 'EDIT_MODE_INSERT' } = $edit_mode_insert;
-    
+
     $ps->{ 'TABLE' } = $table;
     $ps->{ 'ID'    } = $id;
     }
@@ -106,10 +106,10 @@ sub main
     {
     $fields_ar        = $ps->{ 'FIELDS_WRITE_AR' };
     $edit_mode_insert = $ps->{ 'EDIT_MODE_INSERT' };
-    
+
     $table = $ps->{ 'TABLE' };
     $id    = $ps->{ 'ID'    };
-    }  
+    }
 
   if( $edit_mode_insert )
     {
@@ -118,7 +118,7 @@ sub main
   else
     {
     $reo->ps_path_add( 'edit', qq( "Edit record data from "<b>$table_label</b>" ) );
-    }  
+    }
 
   return "<#access_denied>" unless @$fields_ar;
 
@@ -133,7 +133,7 @@ sub main
 
     my $fdes       = $tdes->{ 'FIELD' }{ $field };
     my $type       = $fdes->{ 'TYPE'  };
-    
+
     my $raw_input_data = type_revert( $input_data, $type );
 
     $ps->{ 'ROW_DATA' }{ $field } = $raw_input_data;
@@ -142,7 +142,7 @@ sub main
   # recalc data
   #$fields_ar        = $ps->{ 'FIELDS_WRITE_AR' };
   #$edit_mode_insert = $ps->{ 'EDIT_MODE_INSERT' };
-  
+
   my $calc_in  = { map { $_ => $ps->{ 'ROW_DATA' }{ $_ } } @$fields_ar };
   my $calc_id  = $id unless $edit_mode_insert;
   my ( $calc_out, $calc_merrs )= $core->recalc( $table, $calc_in, $calc_id );
@@ -153,8 +153,8 @@ sub main
   else
     {
     return "<#e_internal>";
-    }  
-  
+    }
+
 
   if( ! ( ( $button_id eq 'PREVIEW' or $button_id eq 'OK' ) and $calc_merrs ) )
     {
@@ -165,7 +165,7 @@ sub main
 ###  my $select = $core->select( $table, $fields, { LIMIT => 1, FILTER => { '_ID' => $id } } );
 
   $text .= "<br>";
-  
+
   if( $button and $calc_merrs->{ '*' } )
     {
     $text .= "<div class=error-text>";
@@ -182,7 +182,7 @@ sub main
   $edit_form_begin .= "<p>";
 
   $text .= $edit_form_begin;
-  
+
   $text .= "<table class=view cellspacing=0 cellpadding=0>";
   $text .= "<tr class=view-header>";
   $text .= "<td class='view-header fmt-right'>Field</td>";
@@ -191,7 +191,7 @@ sub main
 
 ###  my $row_data = $core->fetch( $select );
 ###  my $row_id = $row_data->{ '_ID' };
-    
+
   for my $field ( @$fields_ar )
     {
     my $fdes      = $tdes->{ 'FIELD' }{ $field };
@@ -199,12 +199,12 @@ sub main
     my $type      = $fdes->{ 'TYPE'  };
     my $type_name = $fdes->{ 'TYPE'  }{ 'NAME' };
     my $label     = $fdes->{ 'LABEL' } || $field;
-    
+
     my $field_data = $ps->{ 'ROW_DATA' }{ $field };
     my $field_data_usr_format = type_format( $field_data, $type );
 
     my $field_error;
-    
+
     if( $button )
       {
       $field_error .= "$_<br>\n" for @{ $calc_merrs->{ $field } };
@@ -223,15 +223,15 @@ sub main
       my $field_size = $type->{ 'LEN' };
       my $field_maxlen = $field_size;
       $field_size = 42 if $field_size > 42; # TODO: fixme
-      $field_input .= $edit_form->input( 
-                                       NAME     => "F:$field", 
-                                       ID       => $field_id, 
-                                       PASS     => $pass_type, 
-                                       VALUE    => $field_data_usr_format, 
-                                       SIZE     => $field_size, 
-                                       MAXLEN   => $field_maxlen, 
-                                       DISABLED => $field_disabled, 
-                                       ARGS     => $input_tag_args, 
+      $field_input .= $edit_form->input(
+                                       NAME     => "F:$field",
+                                       ID       => $field_id,
+                                       PASS     => $pass_type,
+                                       VALUE    => $field_data_usr_format,
+                                       SIZE     => $field_size,
+                                       MAXLEN   => $field_maxlen,
+                                       DISABLED => $field_disabled,
+                                       ARGS     => $input_tag_args,
                                        CLEAR    => $clear_icon,
                                        );
       }
@@ -242,7 +242,7 @@ sub main
       my ( $link_path, $llfdes ) = $lfdes->expand_field_path();
       my $link_data = $core->read_field( $linked_table, $link_path, $field_data );
       my $link_data_fmt;
-      
+
       if( $field_data > 0 )
         {
         $link_data_fmt = de_web_format_field( $link_data, $llfdes, 'VIEW' );
@@ -250,9 +250,27 @@ sub main
       else
         {
         $link_data_fmt = '(empty)';
-        }  
+        }
 
-      $field_input = "<div class=link-data>$link_data_fmt</div>";
+      my $combo = $fdes->get_attr( qw( WEB COMBO ) );
+      if( $combo )
+        {
+        my $combo_data = [];
+        my $sel_hr     = {};
+        $sel_hr->{ $field_data } = 1 if $field_data > 0;
+
+        my $combo_select = $core->select( $linked_table, "_ID,$linked_field" );
+        while( my $hr = $core->fetch( $combo_select ) )
+          {
+          push @$combo_data, { KEY => $hr->{ '_ID' }, VALUE => $hr->{ $linked_field } };
+          }
+
+        $field_input = $edit_form->combo( NAME => "F:$field", DATA => $combo_data, SELECTED => $sel_hr );
+        }
+      else
+        {
+        $field_input = "<div class=link-data>$link_data_fmt</div>";
+        }
 
       if( ! $backlink_field_disable or $field ne $backlink_field_disable )
         {
@@ -272,63 +290,63 @@ sub main
       my ( $backlinked_table, $backlinked_field ) = $bfdes->backlink_details();
       my $bltdes = $core->describe( $backlinked_table );
       my $linked_table_label = $bltdes->get_label();
-      
+
       $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "GRID_BACKLINKED_$field_id",   "grid.png",   "View all backlinked records from <b>$linked_table_label</b>",  ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, FILTER => { $backlinked_field => $id } );
         # FIXME: check permissions first
       $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "INSERT_BACKLINKED_$field_id", "insert.png", "Insert and link a new record into <b>$linked_table_label</b>", ACTION => 'edit', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, BACKLINK_FIELD_DISABLE => $backlinked_field );
 
       my $count = $core->count( $backlinked_table, { FILTER => { $backlinked_field => $id } });
       $count = 'Unknown' if $count eq '';
-      
+
       $field_input = "<b class=hi>$count</b> records from <b class=hi>$linked_table_label</b>";
       }
     elsif( $type_name eq 'INT' and $fdes->{ 'BOOL' } )
       {
-      $field_input .= $edit_form->checkbox_multi( 
-                                       NAME     => "F:$field", 
-                                       ID       => $field_id, 
-                                       VALUE => $field_data, 
-                                       RET   => [ '0', '1' ], 
-                                       ARGS     => $input_tag_args, 
+      $field_input .= $edit_form->checkbox_multi(
+                                       NAME     => "F:$field",
+                                       ID       => $field_id,
+                                       VALUE => $field_data,
+                                       RET   => [ '0', '1' ],
+                                       ARGS     => $input_tag_args,
                                        CLEAR    => $clear_icon,
                                        );
       }
     elsif( $type_name eq 'INT' )
       {
-      $field_input .= $edit_form->input( 
-                                       NAME     => "F:$field", 
-                                       ID       => $field_id, 
-                                       VALUE    => $field_data_usr_format, 
-                                       SIZE     => 32, 
-                                       MAXLEN   => 64, 
-                                       DISABLED => $field_disabled, 
-                                       ARGS     => $input_tag_args, 
+      $field_input .= $edit_form->input(
+                                       NAME     => "F:$field",
+                                       ID       => $field_id,
+                                       VALUE    => $field_data_usr_format,
+                                       SIZE     => 32,
+                                       MAXLEN   => 64,
+                                       DISABLED => $field_disabled,
+                                       ARGS     => $input_tag_args,
                                        CLEAR    => $clear_icon,
                                        );
       }
     elsif( $type_name eq 'REAL' )
       {
-      $field_input .= $edit_form->input( 
-                                       NAME     => "F:$field", 
-                                       ID       => $field_id, 
-                                       VALUE    => $field_data_usr_format, 
-                                       SIZE     => 32, 
-                                       MAXLEN   => 64, 
-                                       DISABLED => $field_disabled, 
-                                       ARGS     => $input_tag_args, 
+      $field_input .= $edit_form->input(
+                                       NAME     => "F:$field",
+                                       ID       => $field_id,
+                                       VALUE    => $field_data_usr_format,
+                                       SIZE     => 32,
+                                       MAXLEN   => 64,
+                                       DISABLED => $field_disabled,
+                                       ARGS     => $input_tag_args,
                                        CLEAR    => $clear_icon,
                                        );
       }
     elsif( $type_name eq 'DATE' )
       {
-      $field_input .= $edit_form->input( 
-                                       NAME     => "F:$field", 
-                                       ID       => $field_id, 
-                                       VALUE    => $field_data_usr_format, 
-                                       SIZE     => 32, 
-                                       MAXLEN   => 64, 
-                                       DISABLED => $field_disabled, 
-                                       ARGS     => $input_tag_args, 
+      $field_input .= $edit_form->input(
+                                       NAME     => "F:$field",
+                                       ID       => $field_id,
+                                       VALUE    => $field_data_usr_format,
+                                       SIZE     => 32,
+                                       MAXLEN   => 64,
+                                       DISABLED => $field_disabled,
+                                       ARGS     => $input_tag_args,
                                        CLEAR    => $clear_icon,
                                        );
       my $hl_handle = html_hover_layer( $reo, VALUE => "Set current date", DELAY => 250 );
@@ -337,14 +355,14 @@ sub main
       }
     elsif( $type_name eq 'TIME' )
       {
-      $field_input .= $edit_form->input( 
-                                       NAME     => "F:$field", 
-                                       ID       => $field_id, 
-                                       VALUE    => $field_data_usr_format, 
-                                       SIZE     => 32, 
-                                       MAXLEN   => 64, 
-                                       DISABLED => $field_disabled, 
-                                       ARGS     => $input_tag_args, 
+      $field_input .= $edit_form->input(
+                                       NAME     => "F:$field",
+                                       ID       => $field_id,
+                                       VALUE    => $field_data_usr_format,
+                                       SIZE     => 32,
+                                       MAXLEN   => 64,
+                                       DISABLED => $field_disabled,
+                                       ARGS     => $input_tag_args,
                                        CLEAR    => $clear_icon,
                                        );
       my $hl_handle = html_hover_layer( $reo, VALUE => "Set current time", DELAY => 250 );
@@ -352,14 +370,14 @@ sub main
       }
     elsif( $type_name eq 'UTIME' )
       {
-      $field_input .= $edit_form->input( 
-                                       NAME     => "F:$field", 
-                                       ID       => $field_id, 
-                                       VALUE    => $field_data_usr_format, 
-                                       SIZE     => 32, 
-                                       MAXLEN   => 64, 
-                                       DISABLED => $field_disabled, 
-                                       ARGS     => $input_tag_args, 
+      $field_input .= $edit_form->input(
+                                       NAME     => "F:$field",
+                                       ID       => $field_id,
+                                       VALUE    => $field_data_usr_format,
+                                       SIZE     => 32,
+                                       MAXLEN   => 64,
+                                       DISABLED => $field_disabled,
+                                       ARGS     => $input_tag_args,
                                        CLEAR    => $clear_icon,
                                        );
       my $hl_handle = html_hover_layer( $reo, VALUE => "Set current date+time", DELAY => 250 );
@@ -369,7 +387,7 @@ sub main
     else
       {
       $field_input = "(unknown)";
-      }  
+      }
 
     $field_error = "<div class=warning align=right>$field_error</div>" if $field_error;
 

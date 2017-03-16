@@ -21,7 +21,7 @@ sub main
   my $reo = shift;
 
   return unless $reo->is_logged_in();
-  
+
   my $text;
 
   my $table   = $reo->param( 'TABLE'   );
@@ -40,7 +40,7 @@ sub main
   return "<#access_denied>" unless @$fields_ar;
 
   my $text .= "<br>";
-  
+
   $text .= "<table class=view cellspacing=0 cellpadding=0>";
   $text .= "<tr class=view-header>";
   $text .= "<td class='view-header fmt-right'>Field</td>";
@@ -57,19 +57,44 @@ sub main
     my $bfdes     = $fdes; # keep sync code with view/grid, bfdes is begin/origin-field
     my $type_name = $fdes->{ 'TYPE'  }{ 'NAME' };
     my $label     = $fdes->get_attr( qw( WEB PREVIEW LABEL ) );
-    
+
     my $data = $row_data->{ $field };
     my $data_fmt = de_web_format_field( $data, $fdes, 'PREVIEW' );
 
-    if( $bfdes->is_backlinked() )
+    if( $bfdes->is_linked() )
+      {
+      my ( $linked_table, $linked_field ) = $bfdes->link_details();
+      my $ltdes = $core->describe( $linked_table );
+
+      my $ldes = $core->describe( $linked_table );
+      my @lfields = @{ $ldes->get_fields_list_by_oper( 'READ' ) };
+
+###      return "<#access_denied>" unless @fields;
+
+      my %bfdes; # base/begin/origin field descriptions, indexed by field path
+      my %lfdes; # linked/last       field descriptions, indexed by field path, pointing to trail field
+      my %basef; # base fields map, return base field NAME by field path
+
+      de_web_expand_resolve_fields_in_place( \@lfields, $ldes, \%bfdes, \%lfdes, \%basef );
+
+    #$text .= Dumper( \%basef );
+
+      my $lfields = join ',', @lfields, values %basef;
+
+      my $lrow_data = $core->select_first1_by_id( $linked_table, $lfields, $data );
+
+      $data_fmt = de_web_format_field( $lrow_data->{ $linked_field }, $lfdes{ $linked_field }, 'PREVIEW' );
+
+      }
+    elsif( $bfdes->is_backlinked() )
       {
       my ( $backlinked_table, $backlinked_field ) = $bfdes->backlink_details();
       my $bltdes = $core->describe( $backlinked_table );
       my $linked_table_label = $bltdes->get_label();
-      
+
       my $count = $core->count( $backlinked_table, { FILTER => { $backlinked_field => $id } });
       $count = 'Unknown' if $count eq '';
-      
+
       $data_fmt = qq( <b class=hi>$count</b> records from <b class=hi>$linked_table_label</b> );
       }
 
@@ -81,7 +106,7 @@ sub main
   $text .= "</table>";
 
   my $ok_hint = $edit_mode_insert ? "Confirm new record insert" : "Confirm record update";
-  
+
   $text .= "<br>";
   $text .= de_html_alink_button( $reo, 'back', "&lArr; [~Cancel]", "Cancel this operation"                        );
   $text .= de_html_alink_button( $reo, 'here', "&lArr; [~Back]",   "Back to data edit screen", ACTION => 'edit'   );

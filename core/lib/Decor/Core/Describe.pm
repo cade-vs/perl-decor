@@ -25,19 +25,19 @@ use Decor::Core::Table::Description;
 
 use Exporter;
 our @ISA    = qw( Exporter );
-our @EXPORT = qw( 
+our @EXPORT = qw(
 
                 des_reset
-                
+
                 des_get_tables_list
-                describe_table 
+                describe_table
                 describe_table_field
                 preload_all_tables_descriptions
 
                 des_exists
-                
+
                 des_table_get_fields_list
-                
+
                 describe_parse_access_line
                 describe_preprocess_grant_deny
                 );
@@ -54,7 +54,7 @@ my %OPERS = (
                       'EXECUTE' => 1,
                       'ACCESS'  => 1,
                  );
-my @OPERS = keys %OPERS;                 
+my @OPERS = keys %OPERS;
 
 my %GROUP_ALIASES = (
                       'ALL'    => 999,
@@ -89,11 +89,11 @@ my %DES_KEY_SHORTCUTS = (
                         'RO'   => 'READ_ONLY',
                         'SYS'  => 'SYSTEM',
                         );
-                    
-my %DES_CATEGORIES = ( 
-                       '@'     => 1, 
-                       'FIELD' => 1,  
-                       'INDEX' => 1 
+
+my %DES_CATEGORIES = (
+                       '@'     => 1,
+                       'FIELD' => 1,
+                       'INDEX' => 1
                      );
 
 
@@ -132,11 +132,12 @@ my %DES_ATTRS = (
                            INDEX       => 1,
                            BOOL        => 1,
                            PASSWORD    => 1,
-                           
+
                            MAXLEN      => 3, # max remote viewer field length
                            MONO        => 3, # remote viewer should use monospaced font
                            DETAILS     => 3,
                            OVERFLOW    => 3,
+                           COMBO       => 3, # requires link selection to be combo
                          },
                   'INDEX' => {
                            FIELDS      => 1,
@@ -151,7 +152,7 @@ my %DES_ATTRS = (
 #                           DENY   => 1,
 #                         },
 #                );
-               
+
 #my %TABLE_ATTRS = map { $_ => 1 } @TABLE_ATTRS;
 #hash_lock_recursive( \%TABLE_ATTRS );
 #my %FIELD_ATTRS = map { $_ => 1 } @FIELD_ATTRS;
@@ -166,7 +167,7 @@ sub des_reset
 {
   %DES_CACHE = ();
   $DES_CACHE_PRELOADED = 0;
-  
+
   return 1;
 }
 
@@ -175,11 +176,11 @@ sub des_reset
 sub __get_tables_dirs
 {
   return $DES_CACHE{ 'TABLES_DIRS_AR' } if exists $DES_CACHE{ 'TABLES_DIRS_AR' };
-  
+
   my $root         = de_root();
   my $app_path     = de_app_path();
   my $bundles_dirs = de_bundles_dirs();
-  
+
   my @dirs;
   push @dirs, "$root/core/tables";
   push @dirs, "$_/tables" for reverse @$bundles_dirs;
@@ -199,9 +200,9 @@ sub des_get_tables_list
   my $tables_dirs = __get_tables_dirs();
 
   #print STDERR 'TABLE DES DIRS:' . Dumper( $tables_dirs );
-  
+
   my @tables;
-  
+
   for my $dir ( @$tables_dirs )
     {
     print STDERR "$dir/*.def\n";
@@ -226,11 +227,11 @@ sub __merge_table_des_file
   my $opt    = shift || {};
 
   my $order = 0;
-  
+
   my $inf;
   open( $inf, $fname ) or boom "cannot open table description file [$fname]";
 
-  de_log_debug( "table description open file: [$fname]" );  
+  de_log_debug( "table description open file: [$fname]" );
 
   my $sect_name = '@'; # self :) should be more like 0
   my $category  = '@';
@@ -241,7 +242,7 @@ sub __merge_table_des_file
     # of all files merged, keep only the latest modification time
     $des->{ $category }{ $sect_name }{ '_MTIME' } = $file_mtime;
     }
-  
+
   my $ln; # line number
   while( my $line = <$inf> )
     {
@@ -253,18 +254,18 @@ sub __merge_table_des_file
     $line =~ s/\s*$//;
     next unless $line =~ /\S/;
     next if $line =~ /^([#;]|\/\/)/;
-    de_log_debug2( "        line: [$line]" );  
+    de_log_debug2( "        line: [$line]" );
 
     if( $line =~ /^=+\s*(([a-zA-Z_][a-zA-Z_0-9]*):\s*)?([a-zA-Z_][a-zA-Z_0-9]*)\s*(.*?)\s*$/ )
       {
-         $category  = uc( $2 || 'FIELD' );    
+         $category  = uc( $2 || 'FIELD' );
          $sect_name = uc( $3 );
       my $sect_opts =     $4; # fixme: upcase/locase?
 
       boom "invalid category [$category] at [$fname at $ln]" unless exists $DES_CATEGORIES{ $category };
 
-      de_log_debug2( "       =sect: [$category:$sect_name]" );  
-      
+      de_log_debug2( "       =sect: [$category:$sect_name]" );
+
       $des->{ $category }{ $sect_name } ||= {};
       $des->{ $category }{ $sect_name }{ 'TABLE' }   = $table;
       $des->{ $category }{ $sect_name }{ 'NAME'  }   = $sect_name;
@@ -272,7 +273,7 @@ sub __merge_table_des_file
       # FIXME: URGENT: copy only listed keys! no all
 ###      %{ $config->{ $category }{ $sect_name } } = ( %{ dclone( $config->{ '@' }{ '@' } ) }, %{ $config->{ $category }{ $sect_name } } );
       $des->{ $category }{ $sect_name }{ '_ORDER' } = ++ $opt->{ '_ORDER' };
-      
+
       if( de_debug() )
         {
         $des->{ $category }{ $sect_name }{ 'DEBUG::ORIGIN' } ||= [];
@@ -286,8 +287,8 @@ sub __merge_table_des_file
       {
       my $name = $2;
       my $args = $3; # options/arguments, FIXME: upcase/lowcase?
-  
-      de_log_debug2( "        isa:  [$name][$args]" );  
+
+      de_log_debug2( "        isa:  [$name][$args]" );
 
       my $isa = __load_table_description( $name );
 
@@ -307,21 +308,21 @@ sub __merge_table_des_file
           $isa_args{ '@' } = 1;
           $arg = '*';
           }
-          
+
         if( $arg eq '*' )
           {
           $isa_args{ $_ } = 1 for sort { $isa->{ 'FIELD' }{ $a }{ '_ORDER' } <=> $isa->{ 'FIELD' }{ $b }{ '_ORDER' } } keys %{ $isa->{ 'FIELD' } };
           }
-        elsif( $arg =~ s/^-// )  
+        elsif( $arg =~ s/^-// )
           {
           delete $isa_args{ $arg };
           }
         else
           {
           $isa_args{ $arg } = 1;
-          }  
+          }
         }
-      @args = keys %isa_args;  
+      @args = keys %isa_args;
 
 #      if( $args[0] eq '*' )
 #        {
@@ -329,9 +330,9 @@ sub __merge_table_des_file
 #        unshift @args, sort { $isa->{ 'FIELD' }{ $a }{ '_ORDER' } <=> $isa->{ 'FIELD' }{ $b }{ '_ORDER' } } keys %{ $isa->{ 'FIELD' } };
 #        }
 
-#      de_log_debug( "        isa:  DUMP: " . Dumper($isa,\@args) );  
+#      de_log_debug( "        isa:  DUMP: " . Dumper($isa,\@args) );
 #print Dumper( 'isa - ' x 10, $isa,\@args);
-      
+
       for my $arg ( @args ) # FIXME: covers arg $opt
         {
 ###        boom "isa/include error: key [*] can appear only at first position inside arguments list in [$name] at [$fname at $ln]" if $arg eq '*';
@@ -346,10 +347,10 @@ sub __merge_table_des_file
         else
           {
           boom "isa/include error: invalid key [$arg] in [$name] at [$fname at $ln]";
-          }  
-          
-        $isa_category = '@' if $isa_sect_name eq '@';  
-#        if( $category ne $isa_category )  
+          }
+
+        $isa_category = '@' if $isa_sect_name eq '@';
+#        if( $category ne $isa_category )
 #          {
 #          boom "isa/include error: cannot inherit kyes from different categories, got [$isa_category] expected [$category] key [$arg] in [$name] at [$fname at $ln]";
 #          }
@@ -358,14 +359,14 @@ sub __merge_table_des_file
 
 print Dumper( 'isa - ' x 10, $isa_category, $isa_sect_name, $isa->{ $isa_category }{ $isa_sect_name });
 
-        %{ $des->{ $isa_category }{ $isa_sect_name } } = ( 
-                                                         %{         $des->{ $isa_category }{ $isa_sect_name }   }, 
+        %{ $des->{ $isa_category }{ $isa_sect_name } } = (
+                                                         %{         $des->{ $isa_category }{ $isa_sect_name }   },
                                                          %{ dclone( $isa->{ $isa_category }{ $isa_sect_name } ) },
                                                          );
         $des->{ $category }{ $sect_name }{ '_ORDER' } = ++ $opt->{ '_ORDER' };
         $des->{ $isa_category }{ $isa_sect_name }{ '__ISA'  } = 1;
         }
-      
+
       next;
       }
 
@@ -375,7 +376,7 @@ print Dumper( 'isa - ' x 10, $isa_category, $isa_sect_name, $isa->{ $isa_categor
       my $value =    $2;
 
       my $key_path;
-      
+
       if( $key =~ /^(([A-Z_0-9]+\.)*)([A-Z_0-9]+)$/ )
         {
         $key_path = $1;
@@ -388,7 +389,7 @@ print Dumper( 'isa - ' x 10, $isa_category, $isa_sect_name, $isa->{ $isa_categor
       boom "unknown attribute key $error_location" unless exists $DES_ATTRS{ $category }{ $key };
 
       my $attr_type = $DES_ATTRS{ $category }{ $key };
-      
+
       if( $attr_type == 1 and $key_path ne '' )
         {
         boom "core attribute must not have path key $error_location";
@@ -400,7 +401,7 @@ print Dumper( 'isa - ' x 10, $isa_category, $isa_sect_name, $isa->{ $isa_categor
       elsif( $attr_type >= 4 )
         {
         boom "invalid DES_ATTR type >3, call maintainers";
-        }  
+        }
 
       $key = "$key_path$key"; # after checks and shortcuts bring back key full name
 
@@ -436,17 +437,17 @@ print Dumper( 'isa - ' x 10, $isa_category, $isa_sect_name, $isa->{ $isa_categor
         push @{ $des->{ $category }{ $sect_name }{ $key } }, $value;
         }
       else
-        {  
+        {
         $des->{ $category }{ $sect_name }{ $key } = $value;
         }
-      
+
       next;
       }
 
 
     }
   close( $inf );
-  
+
   return 1;
 }
 
@@ -481,9 +482,9 @@ sub __postprocess_table_des_hash
   my $des   = shift;
   my $table = uc shift;
 ###  print STDERR "TABLE DES RAW [$table]:" . Dumper( $des );
-  
+
   boom "missing description (load error) for table [$table]" unless $des;
-  
+
   # postprocessing TABLE (self) ---------------------------------------------
   my @fields  = sort { $des->{ 'FIELD' }{ $a }{ '_ORDER' } <=> $des->{ 'FIELD' }{ $b }{ '_ORDER' } } keys %{ $des->{ 'FIELD' } };
   my @indexes = sort { $des->{ 'INDEX' }{ $a }{ '_ORDER' } <=> $des->{ 'INDEX' }{ $b }{ '_ORDER' } } keys %{ $des->{ 'INDEX' } };
@@ -500,19 +501,19 @@ sub __postprocess_table_des_hash
     next if exists $des->{ '@' }{ $attr };
     $des->{ '@' }{ $attr } = undef;
     }
-    
+
   # more postprocessing work
   $des->{ '@' }{ '_TABLE_NAME'   } = $table;
   $des->{ '@' }{ '_FIELDS_LIST'  } = \@fields;
   $des->{ '@' }{ '_INDEXES_LIST' } = \@indexes;
   $des->{ '@' }{ 'DSN'           } = uc( $des->{ '@' }{ 'DSN' } ) || 'MAIN';
-  
+
   $des->{ '@' }{ 'GRANT' } = {} unless $des->{ '@' }{ 'GRANT' };
   $des->{ '@' }{ 'DENY'  } = {} unless $des->{ '@' }{ 'DENY'  };
 
 ###  print STDERR "TABLE DES AFTER SELF PP [$table]:" . Dumper( $des );
   # postprocessing FIELDs ---------------------------------------------------
-  
+
   for my $field ( @fields )
     {
     my $fld_des = $des->{ 'FIELD' }{ $field };
@@ -551,7 +552,7 @@ sub __postprocess_table_des_hash
       }
 
     boom "invalid FIELD TYPE [$type] in table [$table] field [$field] from [@debug_origin]" unless $FIELD_TYPES{ $type };
-    
+
     $type_des->{ 'NAME' } = $type;
     if( $type eq 'CHAR' )
       {
@@ -559,12 +560,12 @@ sub __postprocess_table_des_hash
       $len = 256 if $len eq '';
       $type_des->{ 'LEN' } = $len;
       }
-    elsif( $type eq 'INT' )  
+    elsif( $type eq 'INT' )
       {
       my $len = shift( @type );
       $type_des->{ 'LEN' } = $len if $len > 0;
       }
-    elsif( $type eq 'REAL' )  
+    elsif( $type eq 'REAL' )
       {
       my $spec = shift( @type );
       $spec = '.4' if $spec eq ''; # default spec, FIXME: get from config?
@@ -582,7 +583,7 @@ sub __postprocess_table_des_hash
             {
             $len = 18 + 18;
             $dot =      18;
-            }  
+            }
           }
         $type_des->{ 'LEN' } = $len if $len > 0;
         $type_des->{ 'DOT' } = $dot if $dot ne '';
@@ -593,7 +594,7 @@ sub __postprocess_table_des_hash
         }
       }
     $fld_des->{ 'TYPE' } = $type_des;
-    
+
     # convert grant/deny list to access tree
     describe_preprocess_grant_deny( $des->{ 'FIELD' }{ $field } );
 
@@ -615,9 +616,9 @@ sub __postprocess_table_des_hash
         $des->{ 'FIELD' }{ $field }{ $grant_deny }{ $oper } = $des->{ '@' }{ $grant_deny }{ $oper }
         }
       }
-    
+
     }
-    
+
 
   # add empty keys to fields description before locking
   for my $category ( qw( FIELD INDEX ) )
@@ -629,15 +630,15 @@ sub __postprocess_table_des_hash
         next if exists $des->{ $category }{ $key }{ $attr };
         $des->{ $category }{ $key }{ $attr } = undef;
         }
-      }  
-    }  
+      }
+    }
 
   #print STDERR "TABLE DES POST PROCESSSED [$table]:" . Dumper( $des );
 
   bless $des, 'Decor::Core::Table::Description';
   dlock $des;
   #hash_lock_recursive( $des );
-  
+
   return $des;
 }
 
@@ -653,7 +654,7 @@ sub __load_table_description
     #de_log( "status: table description cache hit for [$table]" );
     return $DES_CACHE{ 'TABLE_DES_RAW' }{ $table };
     }
-  elsif( $DES_CACHE_PRELOADED )  
+  elsif( $DES_CACHE_PRELOADED )
     {
     # table must be loaded, if here, then something wrong did happen :)
     return undef;
@@ -670,7 +671,7 @@ sub __load_table_description
   return undef unless $rc > 0;
 
   $DES_CACHE{ 'TABLE_DES_RAW' }{ $table } = $des;
-  
+
   return $des;
 }
 
@@ -684,7 +685,7 @@ sub describe_table
     {
     return $DES_CACHE{ 'TABLE_DES' }{ $table };
     }
-  elsif( $DES_CACHE_PRELOADED )  
+  elsif( $DES_CACHE_PRELOADED )
     {
     # table must be loaded, if here, then something wrong did happen :)
     my $tables_dirs = __get_tables_dirs();
@@ -704,7 +705,7 @@ sub describe_table
     }
 
   $DES_CACHE{ 'TABLE_DES' }{ $table } = $des;
-  
+
   return $des;
 }
 
@@ -731,7 +732,7 @@ sub describe_table_field
 {
   my $table = shift;
   my $field = shift;
-  
+
   my $des = describe_table( $table );
   return $des->get_table_des() if $field eq '@'; # shortcut to self
   return $des->get_field_des( $field );
@@ -744,7 +745,7 @@ sub describe_preprocess_grant_deny
   my $hr = shift;
 
   my %access = ( 'GRANT' => {}, 'DENY' => {} );
-  
+
   for my $line ( @{ $hr->{ '__GDA' } } )
     {
     my ( $ty, $ac, $op )  = describe_parse_access_line( $line );
@@ -755,9 +756,9 @@ sub describe_preprocess_grant_deny
       delete $access{ $rty }{ $o };
       }
     }
-  $hr->{ 'GRANT' } = $access{ 'GRANT' };   
-  $hr->{ 'DENY'  } = $access{ 'DENY'  };   
-  
+  $hr->{ 'GRANT' } = $access{ 'GRANT' };
+  $hr->{ 'DENY'  } = $access{ 'DENY'  };
+
   #print Dumper( "describe_preprocess_grant_deny DEBUG:", $hr->{ 'NAME' }, $hr->{ '__GDA' }, $hr->{ 'GRANT' }, $hr->{ 'DENY' } );
 }
 
@@ -766,13 +767,13 @@ sub describe_preprocess_grant_deny
 sub describe_parse_access_line
 {
   my $line = uc shift;
-  
+
   $line =~ s/^\s*//;
   $line =~ s/\s*$//;
 
-  boom "invalid access line [$line] expected [grant|deny <op> <op> <op> to <grp>; <grp> + <grp>; <grp> + !<grp>]" 
+  boom "invalid access line [$line] expected [grant|deny <op> <op> <op> to <grp>; <grp> + <grp>; <grp> + !<grp>]"
         unless $line =~ /^\s*(GRANT|DENY)\s+(([A-Z_0-9]+\s*?)+?)(\s+TO\s+([A-Z0-9!+;\s]+))?\s*$/;
-  
+
   my $type_line   = $1;
   my $opers_line  = $2;
   my $groups_line = $4 ? $5 : 'ALL';
@@ -800,7 +801,7 @@ sub describe_parse_access_line
     }
 
   my %access;
-  
+
   for my $op ( @opers )
     {
     if( @groups == 1 and $groups[ 0 ] > 0 )
@@ -808,11 +809,11 @@ sub describe_parse_access_line
       $access{ uc $op } = $groups[ 0 ];
       }
     else
-      {  
+      {
       $access{ uc $op } = [ map { [ split /[+]/ ] } @groups ];
       }
     }
-  
+
 
 #print Dumper( $line, $opers_line, $groups_line, \%access );
   return ( $type_line, \%access, \@opers );
@@ -825,16 +826,16 @@ sub des_exists
   boom "invalid number of arguments, expected (table,field,attr)" unless @_ > 0 and @_ < 4;
 
   my $table = $_[0];
-  
+
   return 0 unless de_check_name( $table );
-  
+
   # check/load table
   if( exists $DES_CACHE{ 'TABLE_DES' }{ $table } )
     {
     # table exists and is loaded, no fields given
     return 1 if @_ == 1;
     }
-  elsif( $DES_CACHE_PRELOADED )  
+  elsif( $DES_CACHE_PRELOADED )
     {
     # table does not exists and all tables are loaded already
     return 0;
@@ -845,7 +846,7 @@ sub des_exists
     my $des = __load_table_description( $table );
     return 1 if   $des and @_ == 1;
     return 0 if ! $des;
-    }  
+    }
 
   # table exists, but field check is expected
   my $field = $_[1];
@@ -858,8 +859,8 @@ sub des_exists
   else
     {
     return 0;
-    }  
-  
+    }
+
   # table and field exist, but attribute check is expected
   my $attr = $_[2];
 
@@ -870,7 +871,7 @@ sub des_exists
   else
     {
     return 0;
-    }  
+    }
 
   return 0; # catch-all, should be unreachable
 }
@@ -880,7 +881,7 @@ sub des_exists
 sub des_table_get_fields_list
 {
   my $table = shift;
-  
+
   my $des = describe_table( $table );
   return $des->get_fields_list();
 }

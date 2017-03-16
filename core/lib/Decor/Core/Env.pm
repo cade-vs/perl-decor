@@ -103,6 +103,7 @@ sub de_init
 
   for my $bundle ( @BUNDLES )
     {
+    # FIXME: bad logic, should not complain if no bundles are used at all, report locations and bundle name for other "not-found" errors
     my $found;
     for my $bundle_dir ( ( "$app_path/bundles", "$ROOT/bundles" ) )
       {
