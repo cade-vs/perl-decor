@@ -13,6 +13,7 @@ use strict;
 use parent 'Decor::Core::DB';
 use Exception::Sink;
 
+use Decor::Shared::Types;
 use Decor::Shared::Utils;
 use Decor::Core::DSN;
 use Decor::Core::Describe;
@@ -34,14 +35,14 @@ sub __init
 
   $self->{ 'DB::IO' } = new Decor::Core::DB::IO;
   $self->reset();
-  
+
   1;
 }
 
 sub reset
 {
   my $self = shift;
-  
+
   delete $self->{ 'BASE_TABLE'         };
   delete $self->{ 'BASE_ID'            };
   delete $self->{ 'RECORD_DATA'        };
@@ -57,27 +58,27 @@ sub reset
 sub set_read_only
 {
   my $self = shift;
-  
+
   my $state = shift;
-  
+
   $state = 1 if $state < 1; # once set read-only, record cannot be brought back to read-write state
-  
+
   $self->{ 'READ_ONLY' } = $state;
-  
+
   return $state;
 }
 
 sub is_read_only
 {
   my $self = shift;
-  
+
   return $self->{ 'READ_ONLY' };
 }
 
 sub is_empty
 {
   my $self = shift;
-  
+
   return 0 if exists $self->{ 'BASE_TABLE' } and exists $self->{ 'RECORD_DATA' };
   return 1;
 }
@@ -85,37 +86,37 @@ sub is_empty
 sub set_profile
 {
   my $self  = shift;
-  
+
   $self->SUPER::set_profile( @_ );
   $self->{ 'DB::IO' }->set_profile( @_ ); # sync taint mode
-  
+
   return 1;
 }
 
 sub set_profile_locked
 {
   my $self  = shift;
-  
+
   $self->SUPER::set_profile_locked( @_ );
   $self->{ 'DB::IO' }->set_profile_locked( @_ ); # sync taint mode
-  
+
   return 1;
 }
 
 sub taint_mode_on
 {
   my $self  = shift;
-  
+
   $self->SUPER::taint_mode_on( @_ );
   $self->{ 'DB::IO' }->taint_mode_on( @_ ); # sync taint mode
-  
+
   return 1;
 }
 
 sub taint_mode_off
 {
   my $self  = shift;
-  
+
   $self->SUPER::taint_mode_off( @_ );
   $self->{ 'DB::IO' }->taint_mode_off( @_ ); # sync taint mode
 
@@ -125,7 +126,7 @@ sub taint_mode_off
 sub create
 {
   my $self  = shift;
-  
+
   my $table = uc shift;
   my $id    =    shift;
 
@@ -136,7 +137,7 @@ sub create
 
   # read-only records cannot create read-write objects
   my $ro = $self->is_read_only();
-  
+
   $self->reset();
 
   $self->set_read_only( $ro ) if $ro > 0;
@@ -153,7 +154,7 @@ sub create
 sub create_read_only
 {
   my $self  = shift;
-  
+
   my $table = uc shift;
 
   $self->set_read_only();
@@ -163,7 +164,7 @@ sub create_read_only
 sub load
 {
   my $self  = shift;
-  
+
   my $table = uc shift;
   my $id    = shift;
   my $opt   = shift || {};
@@ -173,17 +174,17 @@ sub load
   # TODO: check if opt is hashref
 
   $self->check_if_locked_to( $table, $id );
-  
+
   $self->reset();
 
   # FIXME: try to load record first
   my %data = map { $_ => '' } @{ des_table_get_fields_list( $table ) };
 
   my $dbio = $self->{ 'DB::IO' };
-  
+
   # $dbio is already taint-ed, so will not read restricted record
   my $data = $dbio->read_first1_by_id_hashref( $table, $id, { LOCK => $opt->{ 'LOCK' } } );
-  
+
   if( ! $data )
     {
     # FIXME: need more here?
@@ -202,9 +203,9 @@ sub load
 sub lock_to_table
 {
   my $self  = shift;
-  
+
   boom "cannot lock-to-table empty record (missing table name)" unless $self->{ 'BASE_TABLE' };
-  
+
   $self->{ 'LOCKED_TO_TABLE' } = $self->{ 'BASE_TABLE' };
   1;
 }
@@ -212,10 +213,10 @@ sub lock_to_table
 sub lock_to_record
 {
   my $self  = shift;
-  
+
   boom "cannot lock-to-record empty record (missing table name)" unless $self->{ 'BASE_TABLE' };
   boom "cannot lock-to-record record without id"                 unless $self->{ 'BASE_ID'    };
-  
+
   $self->{ 'LOCKED_TO_TABLE' } = $self->{ 'BASE_TABLE' };
   $self->{ 'LOCKED_TO_ID'    } = $self->{ 'BASE_ID'    };
   1;
@@ -232,12 +233,12 @@ sub check_if_locked_to
   my $locked_to_id    = $self->{ 'LOCKED_TO_ID'    };
 
   return 1 unless $locked_to_table;
-  
+
   boom "record is locked to table [$locked_to_table] and cannot be changed to [$table]" unless $locked_to_table eq $table;
-  
+
   return 1 if $id eq '';
   return 1 unless $locked_to_id ne '';
-  
+
   boom "record is locked to table:id [$locked_to_table:$locked_to_id] and cannot be changed to [$table:$id]" unless $locked_to_id > 0 and $locked_to_id == $id;
 
   1;
@@ -265,7 +266,7 @@ sub __get_new_id
 
   my $table = $self->table();
   boom "cannot get new ID for record without attached TABLE" unless $table;
-  
+
   if( $self->is_read_only() )
     {
     return - ( 100 + $self->{ 'READ_ONLY_ID_COUNTER' }++ );
@@ -274,7 +275,7 @@ sub __get_new_id
     {
     my $dbio = $self->{ 'DB::IO' };
     return $dbio->get_next_table_id( $table );
-    }  
+    }
 }
 
 sub __create_empty_data
@@ -299,6 +300,14 @@ sub __create_empty_data
     }
 
   my %data; # FIXME: populate with defaults
+
+  my $tdes = describe_table( $table );
+  for my $field ( @{ $tdes->get_fields_list() } )
+    {
+    my $fdes = $tdes->get_field_des( $field );
+    $data{ $field } = type_default( $fdes->{ 'TYPE' }{ 'NAME' } );
+    }
+
   $data{ '_ID' } = $new_id;
 
   if( $profile and $self->taint_mode_get( 'ROWS' ) )
@@ -312,7 +321,7 @@ sub __create_empty_data
   $self->{ 'RECORD_DATA'   }{ $table }{ $new_id } = \%data;
 
   return $new_id;
-  
+
 }
 
 # this module handles high-level, structured system/staged database io
@@ -324,7 +333,7 @@ sub __get_base_table_fields
   boom "record is empty, cannot be read/written" if $self->is_empty();
 
   my $base_table = $self->{ 'BASE_TABLE' };
-  
+
   my $des = describe_table( $base_table );
   return $des->get_fields_list();
 }
@@ -332,14 +341,14 @@ sub __get_base_table_fields
 sub read
 {
   my $self = shift;
-  
+
   boom "record is empty, cannot be read" if $self->is_empty();
 
   my @res;
   for my $field ( @_ )
     {
     my ( $dst_table, $dst_field, $dst_id ) = $self->__resolve_field( $field );
-    
+
     push @res, $dst_table ? $self->{ 'RECORD_DATA' }{ $dst_table }{ $dst_id }{ $dst_field } : undef;
     }
 
@@ -349,21 +358,21 @@ sub read
 sub read_all
 {
   my $self = shift;
-  
+
   return $self->read( @{ $self->__get_base_table_fields() } );
 }
 
 sub read_hash
 {
   my $self = shift;
-  
+
   boom "record is empty, cannot be read" if $self->is_empty();
 
   my @res;
   for my $field ( @_ )
     {
     my ( $dst_table, $dst_field, $dst_id ) = $self->__resolve_field( $field );
-    
+
     push @res, $field;
     push @res, $dst_table ? $self->{ 'RECORD_DATA' }{ $dst_table }{ $dst_id }{ $dst_field } : undef;
     }
@@ -374,14 +383,14 @@ sub read_hash
 sub read_hash_all
 {
   my $self = shift;
-  
+
   return $self->read_hash( @{ $self->__get_base_table_fields() } );
 }
 
 sub write
 {
   my $self = shift;
-  
+
   boom "record is empty, cannot be written"     if $self->is_empty();
   boom "record is read_only, cannot be written" if $self->is_read_only() > 1;
 
@@ -410,9 +419,9 @@ sub write
     # FIXME: check for number values
     next if $self->{ 'RECORD_DATA' }{ $dst_table }{ $dst_id }{ $dst_field } eq $value;
     # FIXME: IMPORTANT: check for DB data read for update records!
-    
+
     $mods_count++;
-    
+
     # mark the record and specific fields as modified
     $self->{ 'RECORD_MODIFIED'    }++;
     $self->{ 'RECORD_IMODS'       }{ $dst_table }{ $dst_id }++;
@@ -426,15 +435,15 @@ sub write
 sub __resolve_field
 {
   my $self = shift;
-  
+
   my $field = uc shift;
   my $opt   = shift;
-  
+
   my $base_table = $self->{ 'BASE_TABLE' };
   my $base_id    = $self->{ 'BASE_ID'    };
-  
+
   my $write_resolve = $opt->{ 'WRITE' };
-  
+
   if( $field !~ /\./ ) # if no path was given, i.e. field.field.field
     {
     boom "cannot resolve table/field [$base_table/$field]" unless des_exists( $base_table, $field );
@@ -442,7 +451,7 @@ sub __resolve_field
     }
 
   my @fields = split /\./, $field;
-  
+
   my $current_table = $base_table;
   my $current_field = shift @fields;
   my $current_id    = $base_id;
@@ -455,11 +464,11 @@ sub __resolve_field
       {
       return ( $current_table, $current_field, $current_id );
       }
-    
+
     my $linked_table = $field_des->{ 'LINKED_TABLE' };
     boom "cannot resolve table/field [$current_table/$current_field] invalid linked table [$linked_table]" unless des_exists( $linked_table );
     my $next_id = $self->{ 'RECORD_DATA'  }{ $current_table }{ $current_id }{ $current_field };
-    
+
     if( $next_id == 0 )
       {
       return () unless $write_resolve;
@@ -469,7 +478,7 @@ sub __resolve_field
 
       my $profile = $self->__get_profile();
       if( $profile )
-        { 
+        {
         my $current_insert = $self->{ 'RECORD_INSERT' }{ $current_table }{ $current_id };
         if( $self->taint_mode_get( 'FIELDS' ) )
           {
@@ -483,14 +492,14 @@ sub __resolve_field
           # check for UPDATE access, but only for non-insert records
           $profile->check_access_row_boom( 'UPDATE', $current_table, $self ) unless $current_insert;
           }
-        }  
-      
+        }
+
       $self->{ 'RECORD_IMODS'       }{ $current_table }{ $current_id }++;
       $self->{ 'RECORD_DATA'        }{ $current_table }{ $current_id }{ $current_field } = $next_id;
       $self->{ 'RECORD_DATA_UPDATE' }{ $current_table }{ $current_id }{ $current_field } = $next_id;
 
       $current_table = $linked_table;
-      $current_id    = $next_id;  
+      $current_id    = $next_id;
       $current_field = shift @fields;
       }
     else
@@ -504,7 +513,7 @@ sub __resolve_field
         $self->{ 'RECORD_IMODS'    }{ $linked_table }{ $next_id }++;
         $self->{ 'RECORD_DATA'     }{ $linked_table }{ $next_id } = $data;
         $self->{ 'RECORD_DATA_DB'  }{ $linked_table }{ $next_id } = { %$data }; # copy, used for profile checks
-        } 
+        }
       $current_table = $linked_table;
       $current_id    = $next_id;
       $current_field = shift @fields;
@@ -522,7 +531,7 @@ sub save
   my $dbio = $self->{ 'DB::IO' };
 
   my $profile = $self->__get_profile();
-  
+
   my @tables = keys( %{ $self->{ 'RECORD_DATA' } } );
   for my $table ( @tables )
     {
@@ -531,9 +540,9 @@ sub save
       {
       next unless $self->{ 'RECORD_IMODS' }{ $table }{ $id };
       delete $self->{ 'RECORD_IMODS' }{ $table }{ $id };
-      
+
       next if $id == 0; # skip base records
-      
+
       if( $self->{ 'RECORD_INSERT' }{ $table }{ $id } )
         {
         if( $profile )
@@ -542,11 +551,11 @@ sub save
             {
             $profile->check_access_table_boom( 'INSERT', $table );
             }
-          }  
-        
+          }
+
         my $data = $self->{ 'RECORD_DATA' }{ $table }{ $id };
         my $new_id = $dbio->insert( $table, $data );
-        
+
         delete $self->{ 'RECORD_INSERT'      }{ $table }{ $id };
         delete $self->{ 'RECORD_DATA_UPDATE' }{ $table }{ $id };
         $self->{ 'RECORD_DATA_DB' }{ $table }{ $id } = { %$data }; # copy
@@ -559,22 +568,22 @@ sub save
             {
             $profile->check_access_table_boom( 'UPDATE', $table );
             }
-            
+
           if( $self->taint_mode_get( 'ROWS' ) )
             {
             $profile->check_access_row_boom( 'OWNER',  $table, $self );
             $profile->check_access_row_boom( 'UPDATE', $table, $self );
             }
-          }  
+          }
 
         my $data = $self->{ 'RECORD_DATA_UPDATE' }{ $table }{ $id };
         my $ok_id = $dbio->update_id( $table, $data, $id );
         delete $self->{ 'RECORD_DATA_UPDATE' }{ $table }{ $id };
-        }  
+        }
       }
     }
   $self->{ 'RECORD_MODIFIED' } = 0;
-  
+
   return 1;
 }
 
@@ -590,7 +599,7 @@ sub select
 
   $self->reset();
   my $dbio = $self->{ 'SELECT::DB::IO' } = new Decor::Core::DB::IO;
-  
+
   # TODO: copy taint mode to $dbio
 
   my $fields = des_table_get_fields_list( $table );
@@ -600,21 +609,21 @@ sub select
 sub next
 {
   my $self  = shift;
-  
+
   my $dbio = $self->{ 'SELECT::DB::IO' };
   boom "cannot call select() before next()" unless $dbio;
-  
+
   # TODO: add at least base_table, even no data found at all
-  
+
   $self->reset();
-  
+
   $self->{ 'SELECT::DB::IO' } = $dbio;
   my $table = $dbio->{ 'SELECT' }{ 'BASE_TABLE' };
 
   my $data = $dbio->fetch();
-  
+
   return undef unless $data;
-  
+
   my $id = $data->{ '_ID' };
 
   $self->check_if_locked_to( $table, $id );
@@ -631,11 +640,11 @@ sub next
 sub finish
 {
   my $self = shift;
-  
+
   my $dbio = $self->{ 'SELECT::DB::IO' };
-  
+
   $dbio->finish();
-  
+
   delete $self->{ 'SELECT::DB::IO' };
 
   1;
@@ -703,14 +712,14 @@ sub method
 sub reset_errors
 {
   my $self = shift;
-  
+
   delete $self->{ 'METHOD:ERRORS' };
 }
 
 sub method_add_error
 {
   my $self = shift;
-  
+
   push @{ $self->{ 'METHOD:ERRORS' }{ '*' } }, @_;
 }
 
@@ -718,7 +727,7 @@ sub method_add_field_error
 {
   my $self = shift;
   my $name = uc shift;
-  
+
   push @{ $self->{ 'METHOD:ERRORS' }{ $name } }, @_;
 }
 

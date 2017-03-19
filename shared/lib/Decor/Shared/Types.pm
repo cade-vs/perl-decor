@@ -17,6 +17,7 @@ our @EXPORT = qw(
                   type_get_format
                   type_format
                   type_revert
+                  type_default
                 );
 
 use Data::Dumper;
@@ -33,7 +34,22 @@ use Time::JulianDay;
 #use DateTime::Format::Strptime;
 use Hash::Util qw( lock_hashref unlock_hashref lock_ref_keys );
 
-my %TYPE_NAMES   = map { $_ => 1 } qw( INT REAL CHAR DATE TIME UTIME );
+my %TYPE_NAMES    = (
+                      INT    => 1,
+                      REAL   => 1,
+                      CHAR   => 1,
+                      DATE   => 1,
+                      TIME   => 1,
+                      UTIME  => 1,
+                    );
+my %TYPE_DEFAULTS = (
+                      INT    => 0,
+                      REAL   => 0.0,
+                      CHAR   => '',
+                      DATE   => 0,
+                      TIME   => 0,
+                      UTIME  => 0,
+                    );
 
 my $FMT_DATE_DMY = '%d.%m.%Y';
 my $FMT_DATE_MDY = '%m.%d.%Y';
@@ -102,7 +118,7 @@ my %FORMAT_SPECS = (
                                         FMT => "$FMT_DATE_YMD $FMT_TIME_12 $FMT_TZ",
                                         },
                               },
-                    );                      
+                    );
 
 my %FORMAT_DEFAULTS = (
                         'DATE'  => 'YMD',
@@ -110,23 +126,23 @@ my %FORMAT_DEFAULTS = (
                         'UTIME' => 'YMD24Z',
                         'TZ'    => undef, # local machine TZ if empty
                       );
-                      
+
 
 my %FORMATS = %FORMAT_DEFAULTS;
-                      
+
 sub type_set_format
 {
   my $type = shift; # hashref with type args
   my $fmt  = shift; # format string
-  
+
   my $type_name = $type->{ 'NAME' };
 
   boom "unknown type [$type_name]" unless exists $FORMAT_SPECS{ $type_name };
   boom "unknown format [$fmt] for type [$type_name]" unless exists $FORMAT_SPECS{ $type_name }{ $fmt };
-  
+
   my $old_fmt = $FORMATS{ $type_name };
   $FORMATS{ $type_name } = $fmt;
-  
+
   return $old_fmt;
 }
 
@@ -135,7 +151,7 @@ sub type_get_format
   my $type = shift; # hashref with type args
 
   my $type_name = $type->{ 'NAME' };
-  
+
   return $FORMATS{ $type_name };
 }
 
@@ -193,7 +209,7 @@ sub type_format
    if ( $data >= 0 )
      {
      my @t = localtime( $data );
-    
+
      my $tz = $type->{ 'TZ' } || $FORMATS{ 'TZ' };
 
      my $fmt = $FORMAT_SPECS{ 'UTIME' }{ $FORMATS{ 'UTIME' } }{ 'FMT' };
@@ -203,16 +219,16 @@ sub type_format
      {
      return 'n/a';
      }
-   }  
+   }
   elsif ( $type_name eq "REAL" )
    {
    return undef unless $data =~ /^([-+])?(\d+)?(\.(\d+)?)?$/o;
-   
+
    my $sign = $1;
    my $int  = $2 || '0';
    my $frac = $4 || '0';
    my $dot  = $type->{ 'DOT' };
-   
+
    if ( $dot > 0 )
      {
      $frac .= '0' x $dot;              # pad
@@ -243,12 +259,12 @@ sub __canonize_date_str
   elsif( $fmt_name =~ /^MDY/ )
     {
     $date =~ s/^(\d\d?)([\.\/\-])(\d\d?)([\.\/\-])(\d\d\d\d)/$5$4$1$2$3/;
-    }  
-  
+    }
+
   return $date;
 }
 
-# converts from human/visible format to internal data 
+# converts from human/visible format to internal data
 sub type_revert
 {
   my $data = shift;
@@ -259,7 +275,7 @@ sub type_revert
   if( $type_name eq "DATE" )
     {
     return undef if $data =~ m/^\s*(n\/a|\(?empty\)?)\s*$/;
-    
+
     my $fmt_name = $FORMATS{ 'DATE' };
     $data = __canonize_date_str( $data, $fmt_name );
 
@@ -291,7 +307,7 @@ sub type_revert
     $data = __canonize_date_str( $data, $fmt_name );
 
     return str2time( $data );
-    }  
+    }
     elsif ( $type_name eq "REAL" )
     {
     return undef if $data eq '';
@@ -320,6 +336,14 @@ sub type_convert
 sub type_check_name
 {
   return exists $TYPE_NAMES{ $_[0] };
+}
+
+sub type_default
+{
+  my $type_name = uc shift;
+
+  boom "unknown type [$type_name]" unless exists $TYPE_DEFAULTS{ $type_name };
+  return $TYPE_DEFAULTS{ $type_name };
 }
 
 ### EOF ######################################################################
