@@ -36,7 +36,7 @@ sub new
   my $ROOT     = $env{ 'DECOR_CORE_ROOT' } || '/usr/local/decor/';
 
   boom "ROOT path does not exist [$ROOT]" unless -d $ROOT;
-  
+
   my $APP_NAME = lc $env{ 'APP_NAME' };
 
   boom "missing APP_NAME" unless $APP_NAME =~ /^[a-z_0-9]+$/;
@@ -53,16 +53,16 @@ sub new
             'APP_ROOT'       => $APP_ROOT,
             'LIB_DIRS'       => [ "$APP_ROOT/lib", "$ROOT/shared/lib" ],
             'HTML_DIRS'      => $lang ?
-                                    [ 
-                                      "$APP_ROOT/web/html/$lang/", 
-                                      "$ROOT/web/html/$lang/", 
-                                      "$APP_ROOT/web/html/default/", 
-                                      "$ROOT/web/html/default/" 
+                                    [
+                                      "$APP_ROOT/web/html/$lang/",
+                                      "$ROOT/web/html/$lang/",
+                                      "$APP_ROOT/web/html/default/",
+                                      "$ROOT/web/html/default/"
                                     ]
                                 :
-                                    [ 
-                                      "$APP_ROOT/web/html/default/", 
-                                      "$ROOT/web/html/default/" 
+                                    [
+                                      "$APP_ROOT/web/html/default/",
+                                      "$ROOT/web/html/default/"
                                     ],
             'ACTIONS_DIRS'   => [ "$APP_ROOT/web/actions", "$ROOT/web/actions" ],
             'REO_ACTS_CLASS' => 'Web::Reactor::Actions::Decor',
@@ -121,7 +121,7 @@ sub de_login
     $self->log( "error: connect FAILED to host [$de_core_host] application [$de_core_app]:\n" . Dumper( $client ) );
     return ( undef, 'E_CONNECT' );
     }
-  
+
   my $remote = $http_env->{ 'REMOTE_ADDR' };
   my $de_core_session_id = $client->begin_user_pass( $user, $pass, $remote );
 
@@ -136,7 +136,7 @@ sub de_login
     {
     $self->log( "error: login FAILED as user [$user] remote [$remote]:\n" . Dumper( $client ) );
     return ( undef, $client->status() );
-    }  
+    }
 }
 
 #-----------------------------------------------------------------------------
@@ -170,19 +170,19 @@ sub de_connect
   if( ! $client->connect( $de_core_host, $de_core_app ) )
     {
     $self->log( "error: connect FAILED to host [$de_core_host] application [$de_core_app]:\n" . Dumper( $client ) );
-#    $self->render( PAGE => 'error', 'main_action' => "<#e_connect>" );
+    $self->render( PAGE => 'error', 'main_action' => "<#e_connect>" );
     return undef;
     }
 
   my $remote = $http_env->{ 'REMOTE_ADDR' };
-  
+
   my $session_ok = $client->begin_user_session( $de_core_session_id, $remote );
 
   if( $session_ok )
     {
     $self->log( "status: connect OK with session [$de_core_session_id] remote [$remote]" );
     $self->set_user_session_expire_time( $client->{ 'CORE_SESSION_XTIME' } + 60 );
-    
+
     $self->{ 'DECOR_CLIENT_OBJECT' } = $client;
     return $client;
     }
@@ -194,7 +194,7 @@ sub de_connect
     $self->log( "error: connect FAILED with session [$de_core_session_id] remote [$remote]:\n" . Dumper( $client ) );
     $self->render( PAGE => 'error', 'main_action' => "<#$status>" );
     return undef;
-    }  
+    }
 }
 
 #-----------------------------------------------------------------------------
@@ -202,7 +202,7 @@ sub de_connect
 sub de_load_cfg
 {
   my $self = shift;
-  
+
   my $fn = shift;
   boom "invalid config file name" unless $fn =~ /^[a-zA-Z0-9_]+$/;
 
@@ -226,12 +226,12 @@ sub ps_path_add
   my $ps    = $self->get_page_session();
   my $rs    = $self->get_page_session( 1 );
   my $ps_id = $self->get_page_session_id();
-  
+
   my @ps_path = @{ $rs->{ 'PS_PATH' } || [] };
   $ps->{ 'PS_PATH' } = \@ps_path;
 
   $icon .= '.png' unless $icon =~ /\.(png|gif|jpg|jpeg)$/i;
-  
+
   push @ps_path, { PS_ID => $ps_id, ICON => $icon, TITLE => $title };
 
   return @ps_path;
