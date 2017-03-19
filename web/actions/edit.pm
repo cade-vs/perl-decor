@@ -152,7 +152,7 @@ sub main
     }
   else
     {
-    return "<#e_internal>";
+    return "<#e_internal>" . de_html_alink_button( $reo, 'back', "&lArr; Go back", "Go back to the previous screen"   );
     }
 
 
