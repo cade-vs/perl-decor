@@ -26,7 +26,7 @@ use Clone qw( clone );
 
 use Exporter;
 our @ISA    = qw( Exporter );
-our @EXPORT = qw( 
+our @EXPORT = qw(
 
                 subs_process_xt_message
 
@@ -113,7 +113,7 @@ my $SELECT_MAP_COUNT;
 sub subs_set_dispatch_map
 {
   my $map = uc shift;
-  
+
   boom "unknown DISPATCH MAP [$map]" unless exists $DISPATCH_MAP{ $map };
   $DISPATCH_MAP = $map;
 }
@@ -127,12 +127,12 @@ sub subs_process_xt_message
 {
   my $mi = shift;
   my $mo = shift;
-  
+
   my $xt = uc $mi->{ 'XT' };
 
   $xt = $MAP_SHORTCUTS{ $xt } if exists $MAP_SHORTCUTS{ $xt };
 
-  my $mapc = $DISPATCH_MAP{ $DISPATCH_MAP }; # current 
+  my $mapc = $DISPATCH_MAP{ $DISPATCH_MAP }; # current
   my $mapg = $DISPATCH_MAP{ 'GLOBAL' };      # global
   boom "unknown or forbidden DMAP:XTYPE [$DISPATCH_MAP:$xt] current DMAP is [$DISPATCH_MAP]" unless exists $mapc->{ $xt } or exists $mapg->{ $xt };
 
@@ -159,7 +159,7 @@ sub sub_caps
 
   $mo->{ 'VER'   } = de_version();
   $mo->{ 'UTIME' } = time();
-  
+
   $mo->{ 'XS'    } = 'OK';
   return 1;
 };
@@ -170,7 +170,7 @@ sub sub_reset
   my $mo = shift;
 
   __sub_reset_state();
-  
+
   $mo->{ 'XS'    } = 'OK';
   return 1;
 };
@@ -195,14 +195,14 @@ sub sub_begin_prepare
 
   $BEGIN_SALT = create_random_id( 128 );
   $mo->{ 'LOGIN_SALT'  } = $BEGIN_SALT;
-  
+
   my $user = $mi->{ 'USER' };
   if( $user )
     {
     my $user_rec = __sub_find_user( $user );
     $mo->{ 'USER_SALT'  } = $user_rec->read( 'PASS_SALT' );
     }
-  
+
   $mo->{ 'XS'    } = 'OK';
   return 1;
 };
@@ -217,7 +217,7 @@ sub sub_begin
   my $pass     = $mi->{ 'PASS'     };
   my $user_sid = $mi->{ 'USER_SID' };
   my $remote   = $mi->{ 'REMOTE'   };
-  
+
   if( $user and $pass )
     {
     # user/pass login
@@ -232,20 +232,20 @@ sub sub_begin
   else
     {
     boom "invalid XT=BEGIN parameters";
-    }  
+    }
 
   my $user = subs_get_current_user();
   my $sess = subs_get_current_session();
-  
+
   my $sess_sid = $sess->read( 'SID' );
-  
+
   my $profile = new Decor::Core::Profile;
   $profile->add_groups_from_user( $user );
-  
+
   # common groups setup
   $profile->add_groups( 999 ); # all/everybody
   $profile->remove_groups( 900, 901 ); # nobody
-  
+
   # enable root access if user is root (id==1)
   $profile->enable_root_access() if $user->id() == 1;
 
@@ -255,11 +255,11 @@ sub sub_begin
   if( time() - $atime > 60 )
     {
     # update access time but not less than a minute away
-    $sess->write( 
+    $sess->write(
                   'ATIME' => time(),
                   'XTIME' => time() + de_app_cfg( 'SESSION_EXPIRE_TIME', 15*60 ), # 15 minutes default
                 );
-    $sess->save();            
+    $sess->save();
     # TODO: use variable-length or fixed-length sessions
     }
 
@@ -290,7 +290,7 @@ sub __sub_begin_with_user_pass
   my $time_now = time(); # to keep the same time for all data here
 
   my $session_rec = new Decor::Core::DB::Record;
-  
+
   $session_rec->create( 'DE_SESSIONS' );
   $session_rec->write(
                      'ACTIVE' => 1,
@@ -313,7 +313,7 @@ sub __sub_begin_with_user_pass
       {
       $session_rec->save();
       };
-    if( $@ )  
+    if( $@ )
       {
       $session_rec->rollback_to_savepoint( $sp_name );
       de_log_debug( "debug: error: session create hit existing session, retry" );
@@ -322,7 +322,7 @@ sub __sub_begin_with_user_pass
       {
       de_log( "status: new session created for user [$user] sid [$sid]" );
       last;
-      }  
+      }
     if( time() - $ss_time > 5 )
       {
       die "E_SESSION: cannot create session for user [$user] hit existing timeout";
@@ -347,7 +347,7 @@ sub __sub_begin_with_session_continue
   my $remote   = shift;
 
   my $session_rec = __sub_find_session( $user_sid, $remote );
-  
+
   if( $session_rec->read( 'XTIME' ) < time() )
     {
     $session_rec->write(
@@ -355,7 +355,7 @@ sub __sub_begin_with_session_continue
                        'ETIME'  => time(),
                        );
     $session_rec->save();
-    
+
     __sub_reset_state();
     die "E_SESSION_EXPIRED: user session expired";
     return 1;
@@ -364,10 +364,10 @@ sub __sub_begin_with_session_continue
   my $user_id = $session_rec->read( 'USR' );
   my $user_rec = new Decor::Core::DB::Record;
   $user_rec->load( 'DE_USERS', $user_id ) or boom "E_INTERNAL: cannot load USER with id [$user_id] from requested session [$user_sid] and remote [$remote]";
-  
+
   subs_lock_current_user( $user_rec );
   subs_lock_current_session( $session_rec );
-  
+
   return 1;
 };
 
@@ -396,13 +396,13 @@ sub __sub_find_and_check_user_pass
   my $salt = shift;
 
   my $user_rec = __sub_find_user( $user );
-  
+
   die "E_LOGIN: User not active [$user]"         unless $user_rec->read( 'ACTIVE' );
   die "E_LOGIN: Invalid user [$user] password"   unless de_check_user_pass_digest( $pass );
-  
+
   my $user_pass = $user_rec->read( 'PASS' );
   # TODO: use configurable digests
-  my $user_pass_hex = de_password_salt_hash( $user_pass, $salt ); 
+  my $user_pass_hex = de_password_salt_hash( $user_pass, $salt );
   die "E_LOGIN: Wrong user [$user] password"   unless $pass eq $user_pass_hex;
   return $user_rec;
 };
@@ -439,7 +439,7 @@ sub sub_end
   #my $sess = __sub_find_session( $user_sid, $remote );
 
   my $session_rec = subs_get_current_session();
-  
+
   $session_rec->write(
                      'ACTIVE' => 0,
                      'ETIME'  => time(),
@@ -448,7 +448,7 @@ sub sub_end
   $session_rec->save();
 
   __sub_reset_state();
-  
+
   $mo->{ 'XS'    } = 'OK';
 };
 
@@ -466,7 +466,7 @@ sub __replace_grant_deny
     $hrn->{ 'DENY'  } = {};
     return 1;
     }
-  
+
   for my $grant_deny ( qw( GRANT DENY ) )
     {
     if( ! $hrd->{ $grant_deny } )
@@ -478,14 +478,14 @@ sub __replace_grant_deny
       {
       $hrn->{ $grant_deny }{ $k } = $profile->__check_access_tree( $k, $hrd->{ $grant_deny } );
       }
-    }  
+    }
 
   for my $oper ( keys %{ $hrn->{ 'DENY' } } )
     {
     next unless $hrn->{ 'DENY' }{ $oper };
     delete $hrn->{ 'GRANT' }{ $oper };
     }
-    
+
   return 1;
 };
 
@@ -516,7 +516,7 @@ sub sub_describe
     __replace_grant_deny( $profile, $hrn, $hrd );
     delete $hrn->{ 'DEBUG::ORIGIN' };
     }
-  
+
   $mo->{ 'DES'   } = $new;
   $mo->{ 'XS'    } = 'OK';
 };
@@ -543,7 +543,7 @@ sub sub_menu
     __replace_grant_deny( $profile, $hrn, $hrm );
     delete $hrn->{ 'DEBUG::ORIGIN' };
     }
-  
+
   $mo->{ 'MENU'  } = $new;
   $mo->{ 'XS'    } = 'OK';
 };
@@ -553,14 +553,14 @@ sub sub_menu
 sub __filter_to_where
 {
   my $filter = shift;
-  
+
   my @where;
   my @bind;
   while( my ( $f, $v ) = each %$filter )
     {
     $f = uc $f;
     boom "invalid FILTER FIELD [$f]"  unless $f =~ /^[A-Z_0-9\.]+$/o;
-    
+
     my $vref = ref( $v );
     if( $vref eq 'HASH' )
       {
@@ -572,7 +572,7 @@ sub __filter_to_where
       push @where, ".$f $op ?";
       push @bind,  $val;
       }
-    elsif( $vref eq 'ARRAY' )  
+    elsif( $vref eq 'ARRAY' )
       {
       # i.e. IN
       my $vc = @$v;
@@ -582,7 +582,7 @@ sub __filter_to_where
       push @where, ".$f IN ( $inph )";
       push @bind,  @$v;
       }
-    elsif( $vref eq '' )  
+    elsif( $vref eq '' )
       {
       push @where, ".$f = ?";
       push @bind,  $v;
@@ -590,11 +590,11 @@ sub __filter_to_where
     else
       {
       boom "invalid FILTER VALUE [$v]";
-      }  
-    
+      }
+
     # TODO: more complex filter rules
     }
-  
+
   return ( \@where, \@bind );
 }
 
@@ -621,12 +621,12 @@ sub sub_select
   boom "invalid FILTER [$filter]"       unless ref( $filter ) eq 'HASH';
 
   # TODO: check TABLE READ ACCESS
- 
+
   my ( $where, $bind ) = __filter_to_where( $filter );
   my $where_clause = join ' AND ', @$where;
 
   my $profile = subs_get_current_profile();
-  
+
   my $select_handle;
   # $select_handle = create_random_id( 64 ) while $SELECT_MAP{ $select_handle };
   $SELECT_MAP_COUNTER++;
@@ -635,9 +635,9 @@ sub sub_select
   my $dbio = $SELECT_MAP{ $select_handle } = new Decor::Core::DB::IO;
   $dbio->set_profile_locked( $profile );
   $dbio->taint_mode_enable_all();
-  
+
   my $res = $dbio->select( $table, $fields, $where_clause, { BIND => $bind, LIMIT => $limit, OFFSET => $offset, ORDER_BY => $order_by, GROUP_BY => $group_by } );
-  
+
   $mo->{ 'SELECT_HANDLE' } = $select_handle;
   $mo->{ 'XS'            } = 'OK';
 };
@@ -653,7 +653,7 @@ sub sub_fetch
   my $dbio = $SELECT_MAP{ $select_handle };
 
   my $hr = $dbio->fetch();
-  
+
   if( $hr )
     {
     $mo->{ 'DATA' } = $hr;
@@ -663,7 +663,7 @@ sub sub_fetch
     {
     $mo->{ 'EOD'  } = 'YES'; # end of data
     $mo->{ 'XS'   } = 'OK';
-    }  
+    }
 };
 
 
@@ -675,7 +675,7 @@ sub sub_finish
   my $select_handle = $mi->{ 'SELECT_HANDLE' };
   boom "invalid SELECT_HANDLE [$select_handle]" unless exists $SELECT_MAP{ $select_handle };
   my $dbio = $SELECT_MAP{ $select_handle };
-  
+
   $dbio->finish();
   delete $SELECT_MAP{ $select_handle };
   $SELECT_MAP_COUNT--;
@@ -684,7 +684,7 @@ sub sub_finish
     $SELECT_MAP_COUNT   = 0;
     $SELECT_MAP_COUNTER = 0;
     }
-  
+
   $mo->{ 'XS' } = 'OK';
 };
 
@@ -701,15 +701,15 @@ sub sub_get_next_id
 
   my $dbio = new Decor::Core::DB::IO;
   my $new_id = $dbio->get_next_table_id( $table );
-  
+
   my $user = subs_get_current_user();
   my $sess = subs_get_current_session();
-  
+
   my $user_id = $user->id();
   my $sess_id = $sess->id();
-  
+
   my $rec = new Decor::Core::DB::Record;
-  
+
   $rec->create( 'DE_RESERVED_IDS' );
   $rec->write(
                'USR'            => $user_id,
@@ -720,7 +720,7 @@ sub sub_get_next_id
                'ACTIVE'         => 1,
              );
   $rec->save();
-  
+
   $mo->{ 'RESERVED_ID' } = $new_id;
   $mo->{ 'XS' } = 'OK';
 }
@@ -745,15 +745,15 @@ sub sub_insert
     # TODO: check reserved IDs
     my $user = subs_get_current_user();
     my $sess = subs_get_current_session();
-  
+
     my $user_id = $user->id();
     my $sess_id = $sess->id();
-    
+
     my $res_rec = new Decor::Core::DB::Record;
-    
-    boom "E_ACCESS: invalid RESERVED_ID [$id] for table [$table] user [$user_id] session [$sess_id]" 
+
+    boom "E_ACCESS: invalid RESERVED_ID [$id] for table [$table] user [$user_id] session [$sess_id]"
         unless $res_rec->select_first1( 'DE_RESERVED_IDS', 'USR = ? AND SESS = ? AND RESERVED_TABLE = ? AND RESERVED_ID = ? AND ACTIVE = ?', { BIND => [ $user_id, $sess_id, $table, $id, 1 ] } );
-    
+
     $res_rec->write(
                     'ETIME'       => time(),
                     'ACTIVE'      => 0,
@@ -765,7 +765,7 @@ sub sub_insert
     {
     my $dbio = new Decor::Core::DB::IO;
     $id = $dbio->get_next_table_id( $table );
-    }  
+    }
 
 
   my $rec = new Decor::Core::DB::Record;
@@ -779,7 +779,7 @@ sub sub_insert
   $rec->write( %$data );
 
   $rec->taint_mode_disable_all();
-  $rec->method( 'UPDATE' );
+  $rec->method( 'INSERT' );
 
   $rec->save();
 
@@ -810,7 +810,7 @@ sub sub_update
 {
   my $mi = shift;
   my $mo = shift;
-  
+
   my $table  = uc $mi->{ 'TABLE'  };
   my $data   =    $mi->{ 'DATA'   };
   my $id     =    $mi->{ 'ID'     };
@@ -834,11 +834,11 @@ sub sub_update
   my ( $where, $bind ) = __filter_to_where( $id > 0 ? { '_ID' => $id } : $filter );
   my $where_clause = join ' AND ', @$where;
 
-  boom "E_ACCESS: unable to load requested record TABLE [$table] ID [$id]" 
+  boom "E_ACCESS: unable to load requested record TABLE [$table] ID [$id]"
       unless $rec->select_first1( $table, $where_clause, { BIND => $bind, LOCK => $lock } );
 
   # TODO: check RECORD UPDATE ACCESS
-  boom "E_ACCESS: UPDATE is not allowed for requested record TABLE [$table] ID [$id]" 
+  boom "E_ACCESS: UPDATE is not allowed for requested record TABLE [$table] ID [$id]"
       unless $profile->check_access_row( 'UPDATE', $rec->table(), $rec );
 
   $rec->write( %$data );
@@ -858,7 +858,7 @@ sub sub_delete
   my $mo = shift;
 
   boom "sub_delete is not yet implemented";
-  
+
 };
 
 sub sub_recalc
@@ -884,7 +884,7 @@ sub sub_recalc
   else
     {
     $rec->create_read_only( $table );
-    }  
+    }
 
   $rec->write( %$data );
 
@@ -916,7 +916,7 @@ sub sub_rollback
 {
   my $mi = shift;
   my $mo = shift;
-  
+
   dsn_rollback();
 
   $mo->{ 'XS' } = 'OK';
