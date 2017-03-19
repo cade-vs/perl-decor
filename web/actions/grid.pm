@@ -55,7 +55,7 @@ sub main
   $page_size =  15 if $page_size <=   0;
   $page_size = 300 if $page_size >  300;
   $offset = 0 if $offset < 0;
-  
+
   my @fields = @{ $tdes->get_fields_list_by_oper( 'READ' ) };
 
 ### testing
@@ -70,12 +70,12 @@ sub main
   my $fields = join ',', @fields, values %basef;
 
   my %filter;
-  
+
   %filter = ( %filter, %$filter_param ) if $filter_param;
-  
+
   my $select = $core->select( $table, $fields, { FILTER => \%filter, OFFSET => $offset, LIMIT => $page_size, ORDER_BY => '_ID DESC' } ) if $fields;
   my $scount = $core->count( $table, { FILTER => \%filter } ) if $select;
-  
+
 #  $text .= "<br>";
   $text .= "<p>";
 
@@ -87,11 +87,11 @@ sub main
   my $text_grid_navi_mid;
 
   $text_grid_navi_left .= de_html_alink( $reo, 'new', "insert.png Insert new record", 'Insert new record', ACTION => 'edit', ID => -1, TABLE => $table );
-  
+
   $text_grid_head .= "<table class=grid cellspacing=0 cellpadding=0>";
   $text_grid_head .= "<tr class=grid-header>";
   $text_grid_head .= "<td class='grid-header fmt-left'>Ctrl</td>";
-  
+
   for my $field ( @fields )
     {
     my $bfdes     = $bfdes{ $field };
@@ -109,17 +109,17 @@ sub main
     $text_grid_head .= "<td class='grid-header $fmt_class'>$label</td>";
     }
   $text_grid_head .= "</tr>";
-  
+
   my $row_counter;
   while( my $row_data = $core->fetch( $select ) )
     {
     my $id = $row_data->{ '_ID' };
-    
+
     my $row_class = $row_counter++ % 2 ? 'grid-1' : 'grid-2';
     $text_grid_body .= "<tr class=$row_class>";
-    
+
     my $vec_ctrl;
-    
+
     if( $grid_mode eq 'SELECT' )
       {
       my $return_data_from = $reo->param( 'RETURN_DATA_FROM' );
@@ -141,11 +141,11 @@ sub main
         }
       $vec_ctrl .= de_html_alink( $reo, 'back', $select_icon, $select_hint, @return_args );
       }
-    
+
     $vec_ctrl .= de_html_alink( $reo, 'new', "view.png", 'View this record', ACTION => 'view', ID => $id, TABLE => $table );
     $vec_ctrl .= de_html_alink( $reo, 'new', "edit.png", 'Edit this record', ACTION => 'edit', ID => $id, TABLE => $table );
     $vec_ctrl .= de_html_alink( $reo, 'new', "copy.png", 'Copy this record', ACTION => 'edit', ID =>  -1, TABLE => $table, COPY_ID => $id );
-    
+
     $text_grid_body .= "<td class='grid-data fmt-ctrl'>$vec_ctrl</td>";
     for my $field ( @fields )
       {
@@ -160,7 +160,7 @@ sub main
 
       my $data = $row_data->{ $field };
       my $data_base = $row_data->{ $basef{ $field } } if exists $basef{ $field };
-      
+
       my ( $data_fmt, $fmt_class ) = de_web_format_field( $data, $lfdes, 'GRID' );
       my $data_ctrl;
 
@@ -176,10 +176,10 @@ sub main
           else
             {
             $data_fmt   = "(empty)";
-            }  
+            }
           }
         else
-          {  
+          {
           my ( $linked_table, $linked_field ) = $bfdes->link_details();
           my $ltdes = $core->describe( $linked_table );
           if( $data_base > 0 )
@@ -189,7 +189,7 @@ sub main
           else
             {
             $data_fmt   = "(empty)";
-            }  
+            }
           $data_ctrl .= de_html_alink( $reo, 'new', 'view.png View linked record',   undef,                ACTION => 'view', ID => $data_base, TABLE => $linked_table );
           $data_ctrl .= "<br>\n";
           if( $ltdes->allows( 'UPDATE' ) and $data_base > 0 )
@@ -204,7 +204,7 @@ sub main
             $data_ctrl .= de_html_alink( $reo, 'new', 'insert.png Insert and link a new record', undef, ACTION => 'edit', ID => -1,         TABLE => $linked_table, LINK_TO_TABLE => $table, LINK_TO_FIELD => $base_field, LINK_TO_ID => $id );
             $data_ctrl .= "<br>\n";
             }
-          }  
+          }
         }
       elsif( $bfdes->is_backlinked() )
         {
@@ -225,7 +225,7 @@ sub main
         $data_ctrl = de_html_popup_icon( $reo, 'more.png', $data_ctrl );
         $data_fmt = "<table cellspacing=0 cellpadding=0 width=100%><tr><td align=left>$data_fmt</td><td align=right>&nbsp;$data_ctrl</td></tr></table>";
         }
-      
+
       $text_grid_body .= "<td class='grid-data $fmt_class'>$data_fmt</td>";
       }
     $text_grid_body .= "</tr>";
@@ -234,22 +234,22 @@ sub main
 
   if( $row_counter == 0 )
     {
-    $text .= "<p><div class=info-text>No data found</div>";
+    $text .= "<p><div class=info-text>No data found -- $text_grid_navi_left</div>";
     }
   else
     {
     my $offset_prev = $offset - $page_size;
     my $offset_next = $offset + $page_size;
     my $offset_last = $scount - $page_size;
-    
+
     $offset_prev = 0 if $offset_prev < 0;
     $offset_last = 0 if $offset_last < 0;
-    
+
     $text_grid_navi_mid .= $offset > 0 ? "<a reactor_here_href=?offset=0><img src=i/page-prev.png> first page</a> | " : "<img src=i/page-prev.png> first page | ";
     $text_grid_navi_mid .= $offset > 0 ? "<a reactor_here_href=?offset=$offset_prev><img src=i/page-prev.png> previous page</a> | " : "<img src=i/page-prev.png> previous page | ";
     $text_grid_navi_mid .= $offset_next < $scount ? "<a reactor_here_href=?offset=$offset_next>next page <img src=i/page-next.png></a> | " : "next page <img src=i/page-next.png> | ";
     $text_grid_navi_mid .= $offset_next < $scount ? "<a reactor_here_href=?offset=$offset_last>last page <img src=i/page-next.png></a> | " : "last page <img src=i/page-next.png> | ";
-    
+
     #$text_grid_navi .= "<a reactor_here_href=?offset=$offset_prev><img src=i/page-prev.png> previous page</a> | <a reactor_here_href=?offset=$offset_next>next page <img src=i/page-next.png> </a>";
     my $page_more = int( $page_size * 2 );
     my $page_less = int( $page_size / 2 );
@@ -270,7 +270,7 @@ sub main
     $text .= $text_grid_body;
     $text .= $text_grid_foot;
     $text .= $text_grid_navi;
-    }  
+    }
 
 
   return $text;
