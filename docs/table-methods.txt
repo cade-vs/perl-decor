@@ -1,0 +1,105 @@
+
+
+
+  DECOR APPLICATION MACHINERY
+  2014-2017 (c) Vladi Belperchinov-Shabanski "Cade"
+
+  TABLE METHODS
+
+  Table methods are defined in the same place where table definition are
+  stored:
+
+      $(DECOR_CORE_ROOT)/apps/<app_name>/core/tables
+
+  Methods files are perl modules, named with the same table name but with .pm
+  extension:
+
+      $(DECOR_CORE_ROOT)/apps/<app_name>/core/tables/test_table.def
+      $(DECOR_CORE_ROOT)/apps/<app_name>/core/tables/test_table.pm
+
+  Table methods file must have the following package:
+
+      package decor::tables::<table_name>
+
+  All methods are named with lower case letters and must start with "on_".
+  Example tables method file looks like this:
+
+      package decor::tables::test1;
+      use strict;
+
+      use Data::Dumper;
+
+      sub on_recalc
+      {
+        my $current_record = shift;
+        ...
+      }
+
+      sub on_insert
+      {
+        my $current_record = shift;
+        ...
+      }
+
+      sub on_update
+      {
+        my $current_record = shift;
+        ...
+      }
+
+      1;
+
+  Methods can be manually called on any record:
+
+      $any_record->method( 'METHOD_NAME' );
+
+  Methods can receive any number of arguments:
+
+      $any_record->method( 'METHOD_NAME', ARGS_LIST );
+
+  Decor system methods are:
+
+      RECALC   -- called on each page refresh on any INSERT or UPDATE screen
+      INSERT   -- called before new record insert
+      UPDATE   -- called before existing method update
+
+  Note that RECALC method is used only for user feedback! No data calculated
+  by the RECALC will be passed back to INSERT or UPDATE methods. If INSERT
+  or UPDATE methods need RECALC first, it is needed to be called manually:
+
+      package decor::tables::test1;
+      use strict;
+
+      use Data::Dumper;
+
+      sub on_recalc
+      {
+        my $current_record = shift;
+        ...
+      }
+
+      sub on_insert
+      {
+        my $current_record = shift;
+        $current_record->method( 'RECALC' );
+        # or even with:
+        # on_recalc( $current_record );
+      }
+
+      sub on_update
+      {
+        my $current_record = shift;
+        $current_record->method( 'RECALC' );
+        # or even with:
+        # on_recalc( $current_record );
+      }
+
+      1;
+
+
+  Calling directly method handlers like "on_recalc( $current_record )" must
+  be used only inside methods modules. In any other place record's "method"
+  interface must be used!
+
+--
+
