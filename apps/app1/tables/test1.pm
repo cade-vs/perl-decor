@@ -12,7 +12,7 @@ sub on_recalc
   $sum += $_ for $r->read( qw( AMOUNT1 AMOUNT2 AMOUNT3 ) );
   $r->write( AMOUNT4 => $sum );
   $r->write( CTIME   => time() );
-  asd();
+
   $r->method_add_field_error( 'AMOUNT4', 'Field sum cannot be less than 100' ) if $sum < 100;
   $r->method_add_field_error( 'AMOUNT4', 'Field sum cannot be above 500' ) if $sum > 500;
   $r->method_add_field_error( 'AMOUNT4', 'Field sum cannot be above 500' ) if $sum > 500;
