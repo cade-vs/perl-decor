@@ -1,5 +1,6 @@
 package decor::tables::test1;
 use strict;
+use cade::tools;
 
 use Data::Dumper;
 

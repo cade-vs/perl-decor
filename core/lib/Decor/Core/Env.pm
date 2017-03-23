@@ -50,6 +50,7 @@ my $ROOT    = $ENV{ 'DECOR_CORE_ROOT' } || '/usr/local/decor';
 my $DEBUG   = 0;
 
 unshift @INC, $ROOT . '/core/lib',  $ROOT . '/shared/lib';
+my @ORIGINAL_INC = @INC;
 
 my $APP_NAME;
 
@@ -123,6 +124,7 @@ sub de_init
   dlock \@BUNDLES;
   dlock \@BUNDLES_DIRS;
 
+  @INC = ( "$app_path/lib", @ORIGINAL_INC );
   #print STDERR Dumper( 'APP_CFG:', \%APP_CFG, 'BUNDLES:', \@BUNDLES, 'BUNDLES DIRS:', \@BUNDLES_DIRS );
 }
 
