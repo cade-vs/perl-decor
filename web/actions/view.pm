@@ -20,7 +20,7 @@ sub main
   my $reo = shift;
 
   return unless $reo->is_logged_in();
-  
+
   my $text;
 
   my $table  = $reo->param( 'TABLE' );
@@ -48,11 +48,11 @@ sub main
 #$text .= Dumper( \%basef );
 
   my $fields = join ',', @fields, values %basef;
-  
+
   my $select = $core->select( $table, $fields, { LIMIT => 1, FILTER => { '_ID' => $id } } );
 
   my $text .= "<br>";
-  
+
   $text .= "<table class=view cellspacing=0 cellpadding=0>";
   $text .= "<tr class=view-header>";
   $text .= "<td class='view-header fmt-right'>Field</td>";
@@ -83,7 +83,7 @@ sub main
       }
 
     my $base_field = exists $basef{ $field } ? $basef{ $field } : $field;
-    
+
     my $data      = $row_data->{ $field };
     my $data_base = $row_data->{ $basef{ $field } } if exists $basef{ $field };
     my $data_fmt  = de_web_format_field( $data, $lfdes, 'VIEW' );
@@ -101,11 +101,11 @@ sub main
       my ( $linked_table, $linked_field ) = $bfdes->link_details();
       my $ltdes = $core->describe( $linked_table );
       $data_fmt = de_html_alink( $reo, 'new', $data_fmt, "View linked record", ACTION => 'view', ID => $data_base, TABLE => $linked_table );
-      $data_ctrl .= de_html_alink( $reo, 'new', 'view.png',   "View linked record",           ACTION => 'view', ID => $data_base, TABLE => $linked_table );
+      $data_ctrl .= de_html_alink( $reo, 'new', 'view.svg',   "View linked record",           ACTION => 'view', ID => $data_base, TABLE => $linked_table );
       if( $ltdes->allows( 'INSERT' ) and $tdes->allows( 'UPDATE' ) and $bfdes->allows( 'UPDATE' ) )
         {
         # FIXME: check for record access too!
-        $data_ctrl .= de_html_alink( $reo, 'new', 'insert.png', "Insert and link a new record", ACTION => 'edit', ID => -1,         TABLE => $linked_table, LINK_TO_TABLE => $table, LINK_TO_FIELD => $base_field, LINK_TO_ID => $id );
+        $data_ctrl .= de_html_alink( $reo, 'new', 'insert.svg', "Insert and link a new record", ACTION => 'edit', ID => -1,         TABLE => $linked_table, LINK_TO_TABLE => $table, LINK_TO_FIELD => $base_field, LINK_TO_ID => $id );
         }
       }
     elsif( $bfdes->is_backlinked() )
@@ -113,13 +113,13 @@ sub main
       my ( $backlinked_table, $backlinked_field ) = $bfdes->backlink_details();
       my $bltdes = $core->describe( $backlinked_table );
       my $linked_table_label = $bltdes->get_label();
-      
-      $data_ctrl .= de_html_alink( $reo, 'new', 'grid.png',   "View all backlinked records from <b>$linked_table_label</b>",  ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, FILTER => { $backlinked_field => $id } );
-      $data_ctrl .= de_html_alink( $reo, 'new', 'insert.png', "Insert and link a new record into <b>$linked_table_label</b>", ACTION => 'edit', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, BACKLINK_FIELD_DISABLE => $backlinked_field );
+
+      $data_ctrl .= de_html_alink( $reo, 'new', 'grid.svg',   "View all backlinked records from <b>$linked_table_label</b>",  ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, FILTER => { $backlinked_field => $id } );
+      $data_ctrl .= de_html_alink( $reo, 'new', 'insert.svg', "Insert and link a new record into <b>$linked_table_label</b>", ACTION => 'edit', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, BACKLINK_FIELD_DISABLE => $backlinked_field );
 
       my $count = $core->count( $backlinked_table, { FILTER => { $backlinked_field => $id } });
       $count = 'Unknown' if $count eq '';
-      
+
       $data_fmt = de_html_alink( $reo, 'new', "<b class=hi>$count</b> records from <b class=hi>$linked_table_label</b>",   "View all backlinked records from <b class=hi>$linked_table_label</b>",  ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, FILTER => { $backlinked_field => $id } );
       }
 

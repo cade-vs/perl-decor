@@ -17,7 +17,7 @@ html
         height: 100%;
         }
 
-body    
+body
         {
         font-family: sans-serif, helvetica;
         margin: 0px 0px 0px 0px;
@@ -35,15 +35,15 @@ body
 
 /*** globals ****************************************************************/
 
-a       { 
-        color: aqua; 
-        text-decoration-style: dotted; 
-        text-decoration-color: teal;  
+a       {
+        color: aqua;
+        text-decoration-style: dotted;
+        text-decoration-color: teal;
         }
-a:hover { 
-        color: aqua; 
-        text-decoration-style: solid;  
-        text-decoration-color: aqua;  
+a:hover {
+        color: aqua;
+        text-decoration-style: solid;
+        text-decoration-color: aqua;
         }
 
 a.button
@@ -237,15 +237,15 @@ td.main_footer
         div#div_for_print  { display: none;  }
         }
 
-@media print 
-        { 
+@media print
+        {
         div#div_for_screen { display: none;  }
         div#div_for_print  { display: block; }
         }
 
 /*** logo head table ********************************************************/
 
-table.logo 
+table.logo
         {
         color: #CCC;
         background-color: #446;
@@ -485,18 +485,18 @@ td.fmt-center
         {
         text-align: center;
         }
-        
+
 td.fmt-mono
         {
         font-family: monospace;
-        }        
+        }
 
 td.fmt-ctrl
         {
         text-align: left;
         background-color: #334;
         width: 1%;
-        }        
+        }
 
 /*** form inputs ************************************************************/
 

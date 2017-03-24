@@ -19,7 +19,7 @@ use Decor::Web::View;
 use Web::Reactor::HTML::Utils;
 use Web::Reactor::HTML::Layout;
 
-my $clear_icon = 'i/clear.png';
+my $clear_icon = 'i/clear.svg';
 my $clear_icon = 'x';
 
 sub main
@@ -320,13 +320,13 @@ sub main
         {
         if( $field_data > 0 )
           {
-          $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "VIEW_LINKED_$field_id", "view.png", "View linked data", ACTION => 'view', TABLE => $linked_table, ID => $field_data );
+          $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "VIEW_LINKED_$field_id", "view.svg", "View linked data", ACTION => 'view', TABLE => $linked_table, ID => $field_data );
         # FIXME: check permissions first
-          $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "EDIT_LINKED_$field_id", "edit.png", "Edit linked data", ACTION => 'edit', TABLE => $linked_table, ID => $field_data );
+          $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "EDIT_LINKED_$field_id", "edit.svg", "Edit linked data", ACTION => 'edit', TABLE => $linked_table, ID => $field_data );
           }
         # FIXME: check permissions first
-        $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "INSERT_LINKED_$field_id", "insert.png",      "Insert new linked data", ACTION => 'edit', TABLE => $linked_table, ID => -1, RETURN_DATA_FROM => '_ID', RETURN_DATA_TO => $field );
-        $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "SELECT_LINKED_$field_id", "select-from.png", "Select linked data",     ACTION => 'grid', TABLE => $linked_table, ID => -1, RETURN_DATA_FROM => '_ID', RETURN_DATA_TO => $field, GRID_MODE => 'SELECT', SELECT_KEY_DATA => $field_data );
+        $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "INSERT_LINKED_$field_id", "insert.svg",      "Insert new linked data", ACTION => 'edit', TABLE => $linked_table, ID => -1, RETURN_DATA_FROM => '_ID', RETURN_DATA_TO => $field );
+        $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "SELECT_LINKED_$field_id", "select-from.svg", "Select linked data",     ACTION => 'grid', TABLE => $linked_table, ID => -1, RETURN_DATA_FROM => '_ID', RETURN_DATA_TO => $field, GRID_MODE => 'SELECT', SELECT_KEY_DATA => $field_data );
         }
       }
     elsif( $type_name eq 'INT' and $fdes->is_backlinked() )
@@ -335,9 +335,9 @@ sub main
       my $bltdes = $core->describe( $backlinked_table );
       my $linked_table_label = $bltdes->get_label();
 
-      $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "GRID_BACKLINKED_$field_id",   "grid.png",   "View all backlinked records from <b>$linked_table_label</b>",  ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, FILTER => { $backlinked_field => $id } );
+      $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "GRID_BACKLINKED_$field_id",   "grid.svg",   "View all backlinked records from <b>$linked_table_label</b>",  ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, FILTER => { $backlinked_field => $id } );
         # FIXME: check permissions first
-      $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "INSERT_BACKLINKED_$field_id", "insert.png", "Insert and link a new record into <b>$linked_table_label</b>", ACTION => 'edit', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, BACKLINK_FIELD_DISABLE => $backlinked_field );
+      $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "INSERT_BACKLINKED_$field_id", "insert.svg", "Insert and link a new record into <b>$linked_table_label</b>", ACTION => 'edit', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, BACKLINK_FIELD_DISABLE => $backlinked_field );
 
       my $count = $core->count( $backlinked_table, { FILTER => { $backlinked_field => $id } });
       $count = 'Unknown' if $count eq '';
@@ -395,7 +395,7 @@ sub main
                                        );
       my $hl_handle = html_hover_layer( $reo, VALUE => "Set current date", DELAY => 250 );
       my $date_format = type_get_format( $type );
-      $field_input .= qq(<a href='#' onClick='set_value( "$field_id", current_date( "$date_format" ) ); return false;' ><img class=icon src=i/set-time.png $hl_handle></a>);
+      $field_input .= qq(<a href='#' onClick='set_value( "$field_id", current_date( "$date_format" ) ); return false;' ><img class=icon src=i/set-time.svg $hl_handle></a>);
       }
     elsif( $type_name eq 'TIME' )
       {
@@ -410,7 +410,7 @@ sub main
                                        CLEAR    => $clear_icon,
                                        );
       my $hl_handle = html_hover_layer( $reo, VALUE => "Set current time", DELAY => 250 );
-      $field_input .= qq(<a href='#' onClick='set_value( "$field_id", current_time() ); return false;' ><img class=icon src=i/set-time.png $hl_handle></a>);
+      $field_input .= qq(<a href='#' onClick='set_value( "$field_id", current_time() ); return false;' ><img class=icon src=i/set-time.svg $hl_handle></a>);
       }
     elsif( $type_name eq 'UTIME' )
       {
@@ -426,7 +426,7 @@ sub main
                                        );
       my $hl_handle = html_hover_layer( $reo, VALUE => "Set current date+time", DELAY => 250 );
       my $date_format = type_get_format( $type );
-      $field_input .= qq(<a href='#' onClick='set_value( "$field_id", current_utime( "$date_format" ) ); return false;' ><img class=icon src=i/set-time.png $hl_handle></a>);
+      $field_input .= qq(<a href='#' onClick='set_value( "$field_id", current_utime( "$date_format" ) ); return false;' ><img class=icon src=i/set-time.svg $hl_handle></a>);
       }
     else
       {

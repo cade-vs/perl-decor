@@ -16,15 +16,15 @@ use Web::Reactor::HTML::Utils;
 
 use Exporter;
 our @ISA    = qw( Exporter );
-our @EXPORT = qw( 
+our @EXPORT = qw(
 
                 de_html_form_button_redirect
-                
+
                 de_html_alink
                 de_html_alink_block
                 de_html_alink_button
                 de_html_alink_icon
-                
+
                 de_html_popup_icon
 
                 );
@@ -50,20 +50,20 @@ sub de_html_form_button_redirect
   $ps->{ 'BUTTON_REDIRECT' }{ $name } = [ $type, @args ];
 
   my $args;
-  
+
   $args .= " $hl_handle ";
 
   my $text;
 
-  if( $value =~ /([a-z_0-9]+\.(png|jpg|jpeg|gif))/ )
+  if( $value =~ /([a-z_0-9]+\.(png|jpg|jpeg|gif|svg))/ )
     {
     $text .= $form->image_button( NAME => "REDIRECT:$name", SRC => "i/$value", CLASS => 'icon', ARGS => $args );
     }
   else
-    {  
+    {
     $text .= $form->button( NAME => "REDIRECT:$name", VALUE => $value, ARGS => $args );
     }
-  
+
   return $text;
 }
 
@@ -71,7 +71,7 @@ sub __value_image_fix
 {
   my $value =    shift;
   #$value = "<img class=icon src=i/$value>" if $value =~ /^[a-z_0-9]+\.(png|jpg|jpeg|gif)$/i;
-  $value =~ s/([a-z_\-0-9]+\.(png|jpg|jpeg|gif))/<img class=icon src=i\/$1>/g;
+  $value =~ s/([a-z_\-0-9]+\.(png|jpg|jpeg|gif|svg))/<img class=icon src=i\/$1>/g;
   return $value;
 }
 
@@ -132,7 +132,7 @@ sub de_html_popup_icon
   my $reo   = shift; # web::reactor object
   my $value = shift; # link text
   my $popup = shift; # popup text
-  
+
   my $handle = html_popup_layer( $reo, VALUE => $popup, TYPE => 'CLICK' );
 
   return "<img class='icon' src='i/$value' $handle>";

@@ -231,7 +231,7 @@ sub ps_path_add
   my @ps_path = @{ $rs->{ 'PS_PATH' } || [] };
   $ps->{ 'PS_PATH' } = \@ps_path;
 
-  $icon .= '.png' unless $icon =~ /\.(png|gif|jpg|jpeg)$/i;
+  $icon .= '.svg' unless $icon =~ /\.(png|gif|jpg|jpeg)$/i;
 
   push @ps_path, { PS_ID => $ps_id, ICON => $icon, TITLE => $title };
 
