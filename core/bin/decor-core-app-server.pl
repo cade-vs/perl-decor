@@ -16,6 +16,7 @@ use Decor::Core::Describe;
 use Decor::Core::Net::Server::App;
 use Decor::Shared::Net::Protocols;
 
+INIT { $| = 1; }
 
 my $opt_app_name;
 my $opt_no_fork = 0;
@@ -57,39 +58,39 @@ while( @ARGV )
   if( /-f/ )
     {
     $opt_no_fork = 1;
-    print "option: run in foreground (no fork) mode\n";
+    print "status: option: run in foreground (no fork) mode\n";
     next;
     }
   if( /-p/ )
     {
     $opt_listen_port = shift;
-    print "option: listening on port [$opt_listen_port]\n";
+    print "status: option: listening on port [$opt_listen_port]\n";
     next;
     }
   if( /-r(r)?/ )
     {
     $DE_LOG_TO_STDERR = 1;
     $DE_LOG_TO_FILES  = $1 ? 1 : 0;
-    print "option: forwarding logs to STDERR\n";
+    print "status: option: forwarding logs to STDERR\n";
     next;
     }
   if( /-t/ )
     {
     $opt_net_protocols = shift;
-    print "option: allowed network protocols [$opt_net_protocols]\n";
+    print "status: option: allowed network protocols [$opt_net_protocols]\n";
     next;
     }
   if( /-e/ )
     {
     $opt_preload  = 1;
     $opt_app_name = lc shift @ARGV;
-    print "option: preload application, will serve single app\n";
+    print "status: option: preload application, will serve single app\n";
     next;
     }
   if( /^-d/ )
     {
     my $level = de_debug_inc();
-    print "option: debug level raised, now is [$level] \n";
+    print "status: option: debug level raised, now is [$level] \n";
     next;
     }
   if( /^(--?h(elp)?|help)$/io )
@@ -131,5 +132,5 @@ if( $opt_preload )
   }
 de_net_protocols_allow( $opt_net_protocols );
 
-print "starting server main listen loop...\n";
+print "info: starting server main listen loop...\n";
 $server->run();

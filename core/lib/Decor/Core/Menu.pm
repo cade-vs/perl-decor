@@ -211,47 +211,18 @@ sub __merge_menu_file
       next;
       }
 
-    if( $line =~ /^@(isa|include)\s*([a-zA-Z_0-9]+)\s*(.*?)\s*$/ )
-      {
-      my $name = $2;
-      my $opts = $3; # options/arguments, FIXME: upcase/lowcase?
-
-      de_log_debug2( "        isa:  [$name][$opts]" );
-
-      my $isa = __load_menu_hash( $name );
-
-      boom "isa/include error: cannot load config [$name] at [$fname:$ln]" unless $isa;
-
-      my @opts = split /[\s,]+/, uc $opts;
-
-      #de_log_debug2( "        isa:  DUMP: " . Dumper($isa) );
-
-      for my $opt ( @opts ) # FIXME: covers arg $opt
-        {
-        my $isa_item_name;
-        if( $opt =~ /([a-zA-Z_][a-zA-Z_0-9]*)/ )
-          {
-          $isa_item_name = uc( $1 );
-          }
-        else
-          {
-          boom "isa/include error: invalid key [$opt] in [$name] at [$fname at $ln]";
-          }
-        boom "isa/include error: non existing key [$opt] in [$name] at [$fname at $ln]" if ! exists $isa->{ $isa_item_name };
-        $menu->{ $item_name } ||= {};
-        %{ $menu->{ $item_name } } = ( %{ $menu->{ $item_name } }, %{ dclone( $isa->{ $isa_item_name } ) } );
-        }
-
-      next;
-      }
-
     if( $line =~ /^([a-zA-Z_0-9\:]+)\s*(.*?)\s*$/ )
       {
       my $key   = uc $1;
       my $value =    $2;
 
       $key = $MENU_KEY_SHORTCUTS{ $key } if exists $MENU_KEY_SHORTCUTS{ $key };
-      boom "unknown attribute key [$key] for menu [$menu_name] item [$item_name] at [$fname at $ln]" unless exists $MENU_ATTRS{ $item_name eq '@' ? '@' : 'ITEMS' }{ $key };
+      #boom "unknown attribute key [$key] for menu [$menu_name] item [$item_name] at [$fname at $ln]" unless exists $MENU_ATTRS{ $item_name eq '@' ? '@' : 'ITEMS' }{ $key };
+      if( ! exists $MENU_ATTRS{ $item_name eq '@' ? '@' : 'ITEMS' }{ $key } )
+        {
+        de_log( "error: menu: unknown attribute key [$key] for menu [$menu_name] item [$item_name] at [$fname at $ln]" );
+        $menu->{ $item_name }{ '__INVALID' }++;
+        }
 
       if( $value =~ /^(['"])(.*?)\1/ )
         {
@@ -344,7 +315,7 @@ sub __postprocess_menu_hash
   $menu->{ '@' }{ 'GRANT' } = {} unless $menu->{ '@' }{ 'GRANT' };
   $menu->{ '@' }{ 'DENY'  } = {} unless $menu->{ '@' }{ 'DENY'  };
 
-  print STDERR "MENU DES AFTER SELF PP [$menu_name]:" . Dumper( $menu );
+  #print STDERR "MENU DES AFTER SELF PP [$menu_name]:" . Dumper( $menu );
   # postprocessing FIELDs ---------------------------------------------------
 
   for my $item ( @items )
@@ -352,6 +323,12 @@ sub __postprocess_menu_hash
     next if $item eq '@';
 
     my $item_des = $menu->{ $item };
+    if( $item_des->{ '__INVALID' } )
+      {
+      # remove menu items with invalid attributes
+      delete $menu->{ $item };
+      next;
+      }
 
     # --- type ---------------------------------------------
     my @type = split /[,\s]+/, uc $item_des->{ 'TYPE' };
@@ -365,18 +342,33 @@ sub __postprocess_menu_hash
       my $submenu = shift @type;
       my $subm;
       $subm = __load_menu( $submenu ) if $submenu;
-      boom "unknown SUBMENU [$submenu] in menu [$menu_name] item [$item] from [@debug_origin]" unless $subm;
+      if( ! $subm )
+        {
+        de_log( "error: menu: unknown SUBMENU [$submenu] in menu [$menu_name] item [$item] from [@debug_origin]" );
+        # remove submenu item pointing to unknown menu
+        delete $menu->{ $item };
+        next;
+        }
       $item_des->{ 'SUBMENU_NAME' } = $submenu;
       }
     elsif( $type =~ /^(GRID|INSERT|EDIT)$/ )
       {
       my $table = shift @type;
-      boom "unknown table [$table] in menu [$menu_name] item [$item] from [@debug_origin]" unless des_exists( $table );
+      if( ! des_exists( $table ) )
+        {
+        de_log( "error: menu: unknown table [$table] in menu [$menu_name] item [$item] from [@debug_origin]" );
+        # remove item pointing to unknown table
+        delete $menu->{ $item };
+        next;
+        }
       $item_des->{ 'TABLE' } = $table;
       }
     else
       {
-      boom "invalid MENU TYPE [$type] in menu [$menu_name] item [$item] from [@debug_origin]";
+      de_log( "error: menu: invalid MENU TYPE [$type] in menu [$menu_name] item [$item] from [@debug_origin]" );
+      # remove item with unknown type
+      delete $menu->{ $item };
+      next;
       }
     $item_des->{ 'TYPE' } = $type;
 
@@ -405,7 +397,7 @@ sub __postprocess_menu_hash
 
     }
 
-  print STDERR "MENU DES POST PROCESSSED [$menu_name]:" . Dumper( $menu );
+  #print STDERR "MENU DES POST PROCESSSED [$menu_name]:" . Dumper( $menu );
 
   dlock $menu;
   #hash_lock_recursive( $des );

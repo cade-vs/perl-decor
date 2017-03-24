@@ -1,5 +1,4 @@
 
-  deny all
 
 =SYSTEM
 
@@ -9,7 +8,7 @@
 
 =TESTS
 
-  type  submenu TESTS
+  type  submenu TESTS_
 
 =ITEMS
 
