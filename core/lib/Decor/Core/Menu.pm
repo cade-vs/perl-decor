@@ -25,7 +25,7 @@ use Decor::Core::Table::Description;
 
 use Exporter;
 our @ISA    = qw( Exporter );
-our @EXPORT = qw( 
+our @EXPORT = qw(
 
                 de_menu_reset
 
@@ -33,7 +33,7 @@ our @EXPORT = qw(
 
                 de_get_menus_list
                 de_menu_get
-                
+
                 );
 
 # TODO: FIXME: handle LOOP errors!
@@ -55,7 +55,7 @@ my %MENU_KEY_TYPES  = (
 my %MENU_KEY_SHORTCUTS = (
                         'UNIQ' => 'UNIQUE', # not used
                         );
-                    
+
 my @TABLE_ATTRS = qw(
                       SCHEMA
                       LABEL
@@ -87,7 +87,7 @@ my %MENU_ATTRS = (
 #                           DENY   => 1,
 #                         },
 #                );
-               
+
 #my %TABLE_ATTRS = map { $_ => 1 } @TABLE_ATTRS;
 #hash_lock_recursive( \%TABLE_ATTRS );
 #my %FIELD_ATTRS = map { $_ => 1 } @FIELD_ATTRS;
@@ -102,7 +102,7 @@ sub de_menu_reset
 {
   %MENU_CACHE = ();
   $MENU_CACHE_PRELOADED = 0;
-  
+
   return 1;
 }
 
@@ -111,11 +111,11 @@ sub de_menu_reset
 sub __get_menus_dirs
 {
   return $MENU_CACHE{ 'MENUS_DIRS_AR' } if exists $MENU_CACHE{ 'MENUS_DIRS_AR' };
-  
+
   my $root         = de_root();
   my $app_path     = de_app_path();
   my $bundles_dirs = de_bundles_dirs();
-  
+
   my @dirs;
   push @dirs, "$root/core/menus";
   push @dirs, "$_/menus" for reverse @$bundles_dirs;
@@ -135,9 +135,9 @@ sub de_get_menus_list
   my $menus_dirs = __get_menus_dirs();
 
   #print STDERR 'TABLE MENU DIRS:' . Dumper( $menus_dirs );
-  
+
   my @menus;
-  
+
   for my $dir ( @$menus_dirs )
     {
     print STDERR "$dir/*.def\n";
@@ -162,11 +162,11 @@ sub __merge_menu_file
   my $opt       = shift || {};
 
   my $order = 0;
-  
+
   my $inf;
   open( $inf, $fname ) or boom "cannot open menu file [$fname]";
 
-  de_log_debug2( "menu open file: [$fname]" );  
+  de_log_debug2( "menu open file: [$fname]" );
 
   my $item_name = '@'; # self :) should be more like 0
   $menu->{ $item_name } ||= {};
@@ -176,7 +176,7 @@ sub __merge_menu_file
     # of all files merged, keep only the latest modification time
     $menu->{ $item_name }{ '_MTIME' } = $file_mtime;
     }
-  
+
   my $ln; # line number
   while( my $line = <$inf> )
     {
@@ -188,7 +188,7 @@ sub __merge_menu_file
     $line =~ s/\s*$//;
     next unless $line =~ /\S/;
     next if $line =~ /^([#;]|\/\/)/;
-    de_log_debug2( "        line: [$line]" );  
+    de_log_debug2( "        line: [$line]" );
 
 #    if( $line =~ /^=+\s*([a-zA-Z_][a-zA-Z_0-9]*)\s*(.*?)\s*$/ )
     if( $line =~ /^=+\s*(.*?)\s*$/ )
@@ -196,12 +196,12 @@ sub __merge_menu_file
          $item_name = uc( $1 );
       my $item_opts =     $2; # fixme: upcase/locase?
 
-      de_log_debug2( "       =item: [$item_name]" );  
-      
+      de_log_debug2( "       =item: [$item_name]" );
+
       $menu->{ $item_name } ||= {};
       $menu->{ $item_name }{ 'LABEL' } ||= $item_name;
       $menu->{ $item_name }{ '_ORDER' } = ++ $opt->{ '_ORDER' };
-      
+
       if( de_debug() )
         {
         $menu->{ $item_name }{ 'DEBUG::ORIGIN' } ||= [];
@@ -215,8 +215,8 @@ sub __merge_menu_file
       {
       my $name = $2;
       my $opts = $3; # options/arguments, FIXME: upcase/lowcase?
-  
-      de_log_debug2( "        isa:  [$name][$opts]" );  
+
+      de_log_debug2( "        isa:  [$name][$opts]" );
 
       my $isa = __load_menu_hash( $name );
 
@@ -224,8 +224,8 @@ sub __merge_menu_file
 
       my @opts = split /[\s,]+/, uc $opts;
 
-      #de_log_debug2( "        isa:  DUMP: " . Dumper($isa) );  
-      
+      #de_log_debug2( "        isa:  DUMP: " . Dumper($isa) );
+
       for my $opt ( @opts ) # FIXME: covers arg $opt
         {
         my $isa_item_name;
@@ -236,12 +236,12 @@ sub __merge_menu_file
         else
           {
           boom "isa/include error: invalid key [$opt] in [$name] at [$fname at $ln]";
-          }  
+          }
         boom "isa/include error: non existing key [$opt] in [$name] at [$fname at $ln]" if ! exists $isa->{ $isa_item_name };
         $menu->{ $item_name } ||= {};
         %{ $menu->{ $item_name } } = ( %{ $menu->{ $item_name } }, %{ dclone( $isa->{ $isa_item_name } ) } );
         }
-      
+
       next;
       }
 
@@ -264,22 +264,30 @@ sub __merge_menu_file
 
       de_log_debug2( "            key:  [$item_name]:[$key]=[$value]" );
 
+      if( $key eq 'GRANT' or $key eq 'DENY' )
+        {
+        $menu->{ $item_name }{ '__GDA'  } ||= [];
+        push @{ $menu->{ $item_name }{ '__GDA' } }, "$key  $value";
+
+        next;
+        }
+
       if( $MENU_KEY_TYPES{ $key } eq '@' )
         {
         $menu->{ $item_name }{ $key } ||= [];
         push @{ $menu->{ $item_name }{ $key } }, $value;
         }
       else
-        {  
+        {
         $menu->{ $item_name }{ $key } = $value;
         }
-      
+
       next;
       }
 
     }
   close( $inf );
-  
+
   return 1;
 }
 
@@ -313,9 +321,9 @@ sub __postprocess_menu_hash
   my $menu      = shift;
   my $menu_name = uc shift;
 ###  print STDERR "TABLE DES RAW [$table]:" . Dumper( $des );
-  
+
   boom "missing MENU (load error) for menu name [$menu_name]" unless $menu;
-  
+
   # postprocessing TABLE (self) ---------------------------------------------
   my @items  = sort { $menu->{ $a }{ '_ORDER' } <=> $menu->{ $b }{ '_ORDER' } } keys %{ $menu };
 
@@ -328,17 +336,17 @@ sub __postprocess_menu_hash
     next if exists $menu->{ '@' }{ $attr };
     $menu->{ '@' }{ $attr } = undef;
     }
-    
+
   # more postprocessing work
   $menu->{ '@' }{ '_MENU_NAME'   } = $menu_name;
   $menu->{ '@' }{ '_ITEMS_LIST'  } = \@items;
-  
+
   $menu->{ '@' }{ 'GRANT' } = {} unless $menu->{ '@' }{ 'GRANT' };
   $menu->{ '@' }{ 'DENY'  } = {} unless $menu->{ '@' }{ 'DENY'  };
 
-###  print STDERR "MENU DES AFTER SELF PP [$menu_name]:" . Dumper( $menu );
+  print STDERR "MENU DES AFTER SELF PP [$menu_name]:" . Dumper( $menu );
   # postprocessing FIELDs ---------------------------------------------------
-  
+
   for my $item ( @items )
     {
     next if $item eq '@';
@@ -350,7 +358,7 @@ sub __postprocess_menu_hash
     my $type = shift @type;
 
     my @debug_origin = exists $item_des->{ 'DEBUG::ORIGIN' } ? @{ $item_des->{ 'DEBUG::ORIGIN' } } : ();
-    
+
     # "high" level types
     if( $type eq 'SUBMENU' )
       {
@@ -369,16 +377,16 @@ sub __postprocess_menu_hash
     else
       {
       boom "invalid MENU TYPE [$type] in menu [$menu_name] item [$item] from [@debug_origin]";
-      }  
+      }
     $item_des->{ 'TYPE' } = $type;
-    
+
     # convert grant/deny list to access tree
     describe_preprocess_grant_deny( $item_des );
-#print Dumper( '-'x20, $menu_name, $item, $item_des );      
+#print Dumper( '-'x20, $menu_name, $item, $item_des );
 
     for my $grant_deny ( qw( GRANT DENY ) )
       {
-#print Dumper( $menu_name, $menu->{ '@' }{ $grant_deny } );      
+#print Dumper( $menu_name, $menu->{ '@' }{ $grant_deny } );
       for my $oper ( keys %{ $menu->{ '@' }{ $grant_deny } } )
         {
         next if exists $item_des->{ $grant_deny }{ $oper };
@@ -394,14 +402,14 @@ sub __postprocess_menu_hash
       next if exists $item_des->{ $attr };
       $item_des->{ $attr } = undef;
       }
-    
+
     }
-    
-  #print STDERR "MENU DES POST PROCESSSED [$menu_name]:" . Dumper( $menu );
+
+  print STDERR "MENU DES POST PROCESSSED [$menu_name]:" . Dumper( $menu );
 
   dlock $menu;
   #hash_lock_recursive( $des );
-  
+
   return $menu;
 }
 
@@ -417,7 +425,7 @@ sub __load_menu
     #de_log( "status: menu cache hit for [$menu_name]" );
     return $MENU_CACHE{ 'MENU_DES' }{ $menu_name };
     }
-  elsif( $MENU_CACHE_PRELOADED )  
+  elsif( $MENU_CACHE_PRELOADED )
     {
     return undef;
     }
@@ -433,7 +441,7 @@ sub __load_menu
   __postprocess_menu_hash( $menu, $menu_name );
 
   $MENU_CACHE{ 'MENU_DES' }{ $menu_name } = $menu;
-  
+
   return $menu;
 }
 
@@ -448,7 +456,7 @@ sub de_menu_get
     my $menus_dirs = __get_menus_dirs();
     boom "cannot find/load MENU for menu name [$menu_name] dirs [@$menus_dirs]";
     }
-  
+
   return $menu;
 }
 

@@ -357,7 +357,7 @@ sub __merge_table_des_file
         boom "isa/include error: cannot include unknown key [$arg] from [$name] at [$fname at $ln]" if ! exists $isa->{ $isa_category } or ! exists $isa->{ $isa_category }{ $isa_sect_name };
         $des->{ $isa_category }{ $isa_sect_name } ||= {};
 
-print Dumper( 'isa - ' x 10, $isa_category, $isa_sect_name, $isa->{ $isa_category }{ $isa_sect_name });
+#print STDERR Dumper( 'isa - ' x 10, $isa_category, $isa_sect_name, $isa->{ $isa_category }{ $isa_sect_name });
 
         %{ $des->{ $isa_category }{ $isa_sect_name } } = (
                                                          %{         $des->{ $isa_category }{ $isa_sect_name }   },
