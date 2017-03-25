@@ -663,6 +663,21 @@ sub select_first1
 
 #-----------------------------------------------------------------------------
 
+sub delete
+{
+  my $self = shift;
+
+  my $db_io = $self->{ 'DB::IO' };
+  
+  my $rc = $db_io->delete_id( $self->table(), $self->id() );
+  
+  $self->reset() if $rc;
+
+  return $rc;
+}
+
+#-----------------------------------------------------------------------------
+
 sub commit
 {
   my $self = shift;

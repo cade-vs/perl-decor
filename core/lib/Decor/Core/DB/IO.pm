@@ -333,11 +333,11 @@ sub __get_row_access_where_list
     my @oper_where;
     for my $field ( @$fields )
       {
-print STDERR "+++++++++++++++++++++++++++ [$oper][$field]\n";
+#print STDERR "+++++++++++++++++++++++++++ [$oper][$field]\n";
       next unless $field =~ /^_${oper}(_[A-Z_0-9]+)?$/;
 
       push @oper_where, "( $db_table.$field IN ( $groups_string ) )";
-print STDERR "+++++++++++++++++++++++++++ ( $db_table.$field IN ( $groups_string ) )\n";
+#print STDERR "+++++++++++++++++++++++++++ ( $db_table.$field IN ( $groups_string ) )\n";
       }
     next unless @oper_where > 0;
     my $oper_where = join ' OR ', @oper_where;
@@ -534,7 +534,7 @@ sub update
   #push @where, keys %{ $self->{ 'SELECT' }{ 'RESOLVE_WHERE' } };
   #delete $self->{ 'SELECT' }{ 'RESOLVE_WHERE' };
 
-  # TODO: support for _UG_* fields
+  # TODO: support for _UPDATE_* fields
 
   my $where_clause;
   if( @where )
@@ -566,6 +566,84 @@ sub update_id
   my $opts  = shift;
 
   return $self->update( $table, $data, '_ID = ?', { BIND => [ $id ] } );
+  # FIXME: must be resolved ID, i.e. ^ID
+}
+
+#-----------------------------------------------------------------------------
+
+sub delete
+{
+  my $self  = shift;
+  my $table = shift;
+  my $where = shift;
+  my $opts  = shift;
+
+  $self->__reshape( $table );
+
+  my $profile = $self->__get_profile();
+  if( $profile and $self->taint_mode_get( 'TABLE' ) )
+    {
+    $profile->check_access_table_boom( 'DELETE', $table );
+    }
+
+  my @where;
+  my @bind;
+
+  my $table_des = describe_table( $table );
+  my $db_table  = $table_des->get_db_table_name();
+
+  if( $where ne '' )
+    {
+    # FIXME: different databases support vastly differs as well :(
+    # resolve fields in where clause
+    #$where = $self->__resolve_clause_fields( $table, $where );
+
+    push @where, $where;
+    push @bind,  @{ $opts->{ 'BIND' } || [] };
+    }
+  else
+    {
+    # do not allow delete without WHERE!
+    boom "WHERE clause is mandatory for DELETE";
+    }
+
+  push @where, $self->__get_row_access_where_list( $table, 'OWNER', 'DELETE' );
+
+  # FIXME: different databases support vastly differs as well :(
+  #push @where, keys %{ $self->{ 'SELECT' }{ 'RESOLVE_WHERE' } };
+  #delete $self->{ 'SELECT' }{ 'RESOLVE_WHERE' };
+
+  # TODO: support for _DELETE_* fields
+
+  my $where_clause;
+  if( @where )
+    {
+    $where_clause = join( "\n    AND ", @where );
+    }
+
+  my $db_table = $table_des->get_db_table_name();
+  my $sql_stmt = "DELETE FROM\n    $db_table\nWHERE\n    $where_clause";
+
+  de_log_debug( "sql: ".__PACKAGE__."::update:\n---BEGIN SQL---\n$sql_stmt\n---SQL BIND ARGS---\n@bind\n---END SQL---" );
+
+#print STDERR Dumper( '-' x 72, __PACKAGE__ . "::DELETE: table [$table] sql/where/bind", $sql_stmt, $where_clause, \@bind, $self );
+
+  my $dbh = dsn_get_dbh_by_table( $table );
+  my $rc = $dbh->do( $sql_stmt, {}, ( @bind ) );
+
+  return $rc ? $rc : 0;
+}
+
+#-----------------------------------------------------------------------------
+
+sub delete_id
+{
+  my $self  = shift;
+  my $table = shift;
+  my $id    = shift;
+  my $opts  = shift;
+
+  return $self->delete( $table, '_ID = ?', { BIND => [ $id ] } );
   # FIXME: must be resolved ID, i.e. ^ID
 }
 

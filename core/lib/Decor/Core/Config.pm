@@ -113,7 +113,7 @@ sub de_config_merge_file
   my $inf;
   open( $inf, $fname ) or boom "cannot open config file [$fname]";
 
-  de_log_debug( "config: open: $fname" );  
+  de_debug( "config: open: $fname" );  
 
   my $sect_name = '@'; # self :) should be more like 0
   my $category  = '@';
@@ -136,7 +136,7 @@ sub de_config_merge_file
     $line =~ s/\s*$//;
     next unless $line =~ /\S/;
     next if $line =~ /^([#;]|\/\/)/;
-    de_log_debug( "        line: [$line]" );  
+    de_debug( "        line: [$line]" );  
 
     if( $line =~ /^=(([a-zA-Z_][a-zA-Z_0-9]*):\s*)?([a-zA-Z_][a-zA-Z_0-9]*)\s*(.*?)\s*$/ )
       {
@@ -146,7 +146,7 @@ sub de_config_merge_file
 
       boom "invalid category [$category] at [$fname:$ln]" if $categories and ! exists $categories->{ $category };
 
-      de_log_debug( "       =sect: [$category:$sect_name]" );  
+      de_debug( "       =sect: [$category:$sect_name]" );  
       
       $config->{ $category }{ $sect_name } ||= {};
       $config->{ $category }{ $sect_name }{ 'LABEL' } ||= $sect_name;
@@ -170,7 +170,7 @@ sub de_config_merge_file
   
       next unless $dirs and @$dirs > 0;
       
-      de_log_debug( "        isa:  [$name][$opts]" );  
+      de_debug( "        isa:  [$name][$opts]" );  
 
       my $isa = de_config_load( $name, $dirs );
 
@@ -178,7 +178,7 @@ sub de_config_merge_file
 
       my @opts = split /[\s,]+/, uc $opts;
 
-      de_log_debug( "        isa:  DUMP: " . Dumper($isa) );  
+      de_debug( "        isa:  DUMP: " . Dumper($isa) );  
       
       for my $opt ( @opts )
         {
@@ -219,7 +219,7 @@ sub de_config_merge_file
         $value = 1;
         }
 
-      de_log_debug( "            key:  [$sect_name]:[$key]=[$value]" );
+      de_debug( "            key:  [$sect_name]:[$key]=[$value]" );
 
       if( $key_types->{ $key } eq '@' )
         {
