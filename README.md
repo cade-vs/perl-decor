@@ -34,7 +34,7 @@ DECOR is written entirely in Perl 5, but client apps can be in any language.
 
 DECOR is licensed under GPLv2, for full text see file "COPYING".
 
-Further documentation can be found in "docs" directory.
+Further documentation can be found in !["docs"](docs) directory.
 
 Screenshots of a reference web interface can be found in "docs/screenshots"
 directory.
