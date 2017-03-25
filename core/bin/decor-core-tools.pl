@@ -15,6 +15,7 @@ use Decor::Core::Env;
 use Decor::Core::Log;
 use Decor::Core::Describe;
 use Decor::Core::DB::Record;
+use Decor::Core::DB::IO;
 use Decor::Shared::Utils;
 use Data::Tools;
 
@@ -29,8 +30,11 @@ options:
     -rr       -- log to both files and STDERR
     --        -- end of options
 commands:    
-  add-user  user_name        user_pass  <user_id>
-  user-pwd  user_name_or_id  user_pass
+  add-user   user_name        user_pass  <user_id>
+  user-pwd   user_name_or_id  user_pass
+  add-groups user_name_or_id  group1 group2...
+  del-groups user_name_or_id  group1 group2...
+  del-groups user_name_or_id  all
 notes:
   * first argument is application name and it is mandatory!
   * options cannot be grouped: -fd is invalid, correct is: -f -d
@@ -90,8 +94,26 @@ de_init( APP_NAME => $opt_app_name );
 
 my $cmd = lc shift @args;
 
-cmd_user_add( @args ) if $cmd eq 'add-user';
-cmd_user_pwd( @args )   if $cmd eq 'user-pwd';
+if( $cmd eq 'add-user' )
+  {
+  cmd_user_add( @args );
+  }
+elsif( $cmd eq 'user-pwd' )  
+  {
+  cmd_user_pwd( @args );
+  }
+elsif( $cmd eq 'add-groups' )  
+  {
+  add_groups( @args );
+  }
+elsif( $cmd eq 'del-groups' )  
+  {
+  del_groups( @args );
+  }
+else
+  {
+  die "unknown command [$cmd]\n";
+  }  
 
 #-----------------------------------------------------------------------------
 
@@ -141,24 +163,7 @@ sub cmd_user_pwd
 
   $pass = ask_pass() if $pass eq 'ask' or ! $pass;
   
-  my $user_rec = new Decor::Core::DB::Record;
-
-  if( $user =~ /^\d+$/ )
-    {
-    if( $user <= 0 or ! $user_rec->load( 'DE_USERS', $user ) )
-      {
-      print "error: user id [$user] not found\n";
-      return;
-      }
-    }
-  else
-    {  
-    if( $user eq '' or ! $user_rec->select_first1( 'DE_USERS', '.NAME = ?', { BIND => [ $user ] } ) )
-      {
-      print "error: user [$user] not found\n";
-      return;
-      }
-    }  
+  my $user_rec = find_user( $user );
 
   my $user_salt     = create_random_id( 128 );
   my $user_pass_hex = de_password_salt_hash( $pass, $user_salt ); 
@@ -176,6 +181,33 @@ sub cmd_user_pwd
   my $usid = $user_rec->id();
   my $name = $user_rec->read( 'NAME' );
   print "info: password changed for existing user [$name] with id [$usid]\n";
+}
+
+
+#-----------------------------------------------------------------------------
+
+sub find_user
+{
+  my $user = shift;
+
+  my $user_rec = new Decor::Core::DB::Record;
+
+  if( $user =~ /^\d+$/ )
+    {
+    if( $user <= 0 or ! $user_rec->load( 'DE_USERS', $user ) )
+      {
+      die "error: user id [$user] not found\n";
+      }
+    }
+  else
+    {  
+    if( $user eq '' or ! $user_rec->select_first1( 'DE_USERS', '.NAME = ?', { BIND => [ $user ] } ) )
+      {
+      die "error: user [$user] not found\n";
+      }
+    }  
+  
+  return $user_rec;  
 }
 
 #-----------------------------------------------------------------------------
@@ -199,6 +231,63 @@ sub ask_pass
   # TODO: password strength?
     
   return $pwd1;  
+}
+
+#-----------------------------------------------------------------------------
+
+sub add_groups
+{
+  my $user = shift;
+
+  my $user_rec = find_user( $user );
+  
+  my $dio = new Decor::Core::DB::IO;
+
+  my $user_id = $user_rec->id();
+  for my $group ( @_ )
+    {
+    if( $dio->read_first1_hashref( 'DE_USER_GROUP_MAP', 'USR = ? AND GRP = ?', { BIND => [ $user_id, $group ] } ) )
+      {
+      print "user [$user] id [$user_id] already has group [$group]\n";
+      }
+    else
+      {
+      my $rc = $dio->insert( 'DE_USER_GROUP_MAP', { USR => $user_id, GRP => $group } );
+      print "user [$user] id [$user_id] added group [$group] result record id: $rc\n";
+      }  
+    }
+  $user_rec->commit();
+}
+
+sub del_groups
+{
+  my $user = shift;
+  
+  my $user_rec = find_user( $user );
+
+  my $dio = new Decor::Core::DB::IO;
+
+  my $user_id = $user_rec->id();
+  
+  if( @_ == 1 and lc( $_[0] ) eq 'all' )
+    {
+    my $rc = $dio->delete( 'DE_USER_GROUP_MAP', 'USR = ?', { BIND => [ $user_id ] } );
+    print "user [$user] id [$user_id] removed all groups: $rc\n";
+    }
+  elsif( @_ > 1 )  
+    {
+    for my $group ( @_ )
+      {
+      my $rc = $dio->delete( 'DE_USER_GROUP_MAP', 'USR = ? AND GRP = ?', { BIND => [ $user_id, $group ] } );
+      my $rcs = $rc > 0 ? 'OK' : 'NOT_FOUND/ERROR';
+      print "user [$user] id [$user_id] removed group [$group] result: $rcs\n";
+      }
+    }
+  else
+    {
+    die "expected list of groups or 'all'\n";
+    }  
+  $user_rec->commit();
 }
 
 #-----------------------------------------------------------------------------
