@@ -7,6 +7,9 @@ sub main
 {
   my $reo = shift;
 
+  my $auto_user = $reo->{ 'ENV' }{ 'DECOR_AUTO_USER' };
+  my $auto_pass = $reo->{ 'ENV' }{ 'DECOR_AUTO_PASS' };
+
   my $ui = $reo->get_user_input();
 
   my $button    = $reo->get_input_button_and_remove();
@@ -15,10 +18,18 @@ sub main
   my $user;
   my $pass;
 
-  return "<#login_form>" unless $button eq 'LOGIN';
+  if( $auto_user and $auto_pass )
+    {
+    $user = $auto_user;
+    $pass = $auto_pass;
+    }
+  else
+    {  
+    return "<#login_form>" unless $button eq 'LOGIN';
 
-  my $user = $ui->{ 'USER' };
-  my $pass = $ui->{ 'PASS' };
+    $user = $ui->{ 'USER' };
+    $pass = $ui->{ 'PASS' };
+    }
   
   my ( $client, $status ) = $reo->de_login( $user, $pass );
 
