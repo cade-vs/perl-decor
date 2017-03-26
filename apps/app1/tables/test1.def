@@ -36,7 +36,8 @@ grant read to 999
 #grant read insert -> 990 | 100 + 22; 99 + ! 66
 
 
-grant update insert delete to 999; 100; 200+!2
+#grant update insert delete to 999; 100; 200+!2
+grant insert to 1;10
 
 =NAME
 

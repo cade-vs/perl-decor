@@ -359,14 +359,14 @@ sub __check_access_tree
         {
         my $grp = int( $1 );
 #print "profile access ! check: [$grp]\n";  
-        boom "group in grant|deny policy set for operation [$oper] is equal to zero [$grp] all groups must not be zero" if $grp == 0;
+        boom "group [$group] in grant|deny policy set for operation [$oper] is equal to zero [$grp] all groups must not be zero" if $grp == 0;
         $c++ if ! exists $groups->{ $grp } or ! ( $groups->{ $grp } > 0 );
         }
       else
         {
         my $grp = int( $group );
 #print "profile access   check: [$grp]\n";  
-        boom "group in grant|deny policy set for operation [$oper] is equal to zero [$grp] all groups must not be zero" if $grp == 0;
+        boom "group [$group] in grant|deny policy set for operation [$oper] is equal to zero [$grp] all groups must not be zero" if $grp == 0;
         $c++ if   exists $groups->{ $grp } and  ( $groups->{ $grp } > 0 );
         }  
       }  
