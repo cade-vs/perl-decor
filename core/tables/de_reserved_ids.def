@@ -3,7 +3,7 @@
   
 =USR
 
-  type  LINK  DE_USERS
+  type  LINK  DE_USERS      NAME
 
 =SESS
   
