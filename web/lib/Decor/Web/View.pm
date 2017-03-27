@@ -34,6 +34,7 @@ sub de_web_expand_resolve_fields_in_place
 
   my @res_fields;
 
+  #print STDERR Dumper( $fields, $tdes->{ 'FIELD' }, '---------------------------+++---'  );
   for( @$fields )
     {
     # resolve fields
@@ -41,7 +42,6 @@ sub de_web_expand_resolve_fields_in_place
       {
       ( $bfdes->{ $_ }, $lfdes->{ $_ } ) = $tdes->resolve_path( $_ );
       $basef->{ $_ } = $bfdes->{ $_ }->{ 'NAME' };
-      print STDERR Dumper( $_, $bfdes->{ $_ }, '---------------------------+++---'  );
       }
     else
       {

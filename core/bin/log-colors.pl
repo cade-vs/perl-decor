@@ -8,7 +8,7 @@ while(<>)
   {
   chomp;
   my $clr;
-  $clr = "1;31" if /error:/;
+  $clr = "1;31" if /error:|fatal:/;
   $clr = "36"   if /status:/;
   $clr = "1;33" if /info:/;
   print $esc, $clr, 'm' if $clr;

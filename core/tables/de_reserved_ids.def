@@ -7,7 +7,7 @@
 
 =SESS
   
-  type  LINK  DE_SESSIONS
+  type  LINK  DE_SESSIONS   CTIME
 
 =RESERVED_TABLE
 

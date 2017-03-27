@@ -35,6 +35,7 @@ our @EXPORT = qw(
                 preload_all_tables_descriptions
 
                 des_exists
+                des_exists_boom
 
                 des_table_get_fields_list
 
@@ -528,8 +529,8 @@ sub __postprocess_table_des_hash
     if( $type eq 'LINK' )
       {
       $fld_des->{ 'LINK_TYPE'    } = 'LINK';
-      $fld_des->{ 'LINKED_TABLE' } = shift @type;
-      $fld_des->{ 'LINKED_FIELD' } = shift @type;
+      $fld_des->{ 'LINKED_TABLE' } = shift @type || boom "missing LINK TABLE in table [$table] field [$field] from [@debug_origin]";
+      $fld_des->{ 'LINKED_FIELD' } = shift @type || boom "missing LINK FIELD in table [$table] field [$field] from [@debug_origin]";;
 
       $type = 'INT';
       @type = qw( 32 ); # length
@@ -537,8 +538,8 @@ sub __postprocess_table_des_hash
     elsif( $type eq 'BACKLINK' )
       {
       $fld_des->{ 'LINK_TYPE'        } = 'BACKLINK';
-      $fld_des->{ 'BACKLINKED_TABLE' } = shift @type;
-      $fld_des->{ 'BACKLINKED_KEY'   } = shift @type;
+      $fld_des->{ 'BACKLINKED_TABLE' } = shift @type || boom "missing BACKLINK TABLE in table [$table] field [$field] from [@debug_origin]";;
+      $fld_des->{ 'BACKLINKED_KEY'   } = shift @type || boom "missing BACKLINK KEY   in table [$table] field [$field] from [@debug_origin]";;
 
       $type = 'INT';
       @type = qw( 32 ); # length
@@ -675,6 +676,28 @@ sub __load_table_description
   return $des;
 }
 
+sub __check_table_des
+{
+  my $des = shift;
+
+  my @fields  = keys %{ $des->{ 'FIELD' } };
+  for my $field ( @fields )
+    {
+    my $fld_des = $des->{ 'FIELD' }{ $field };
+    
+    my $link_type = exists $fld_des->{ 'LINK_TYPE'    } ? $fld_des->{ 'LINK_TYPE'    } : undef;
+
+    # "high" level types
+    if( $link_type eq 'LINK' )
+      {
+      des_exists_boom( $fld_des->{ 'LINKED_TABLE' }, $fld_des->{ 'LINKED_FIELD' } );
+      }
+    elsif( $link_type eq 'BACKLINK' )
+      {
+      des_exists_boom( $fld_des->{ 'BACKLINKED_TABLE' }, $fld_des->{ 'BACKLINKED_KEY' } );
+      }
+    }
+}
 #-----------------------------------------------------------------------------
 
 sub describe_table
@@ -705,6 +728,8 @@ sub describe_table
     }
 
   $DES_CACHE{ 'TABLE_DES' }{ $table } = $des;
+  # NOTE! check MUST be done after TABLE_DES cache is filled with current table!
+  __check_table_des( $des ) if de_debug();
 
   return $des;
 }
@@ -722,6 +747,7 @@ sub preload_all_tables_descriptions
     };
 
   # TODO: clear TABLE_DES_RAW cache to free memory
+  delete $DES_CACHE{ 'TABLE_DES_RAW' };
 
   $DES_CACHE_PRELOADED = 1;
 }
@@ -821,6 +847,11 @@ sub describe_parse_access_line
 
 #-----------------------------------------------------------------------------
 
+sub des_exists_boom
+{
+  boom "unknown table|field|attribute [@_]" unless des_exists( @_ );
+}
+
 sub des_exists
 {
   boom "invalid number of arguments, expected (table,field,attr)" unless @_ > 0 and @_ < 4;
@@ -843,7 +874,7 @@ sub des_exists
   else
     {
     # table not loaded, unsure if exists
-    my $des = __load_table_description( $table );
+    my $des = describe_table( $table );
     return 1 if   $des and @_ == 1;
     return 0 if ! $des;
     }

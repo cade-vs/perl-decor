@@ -12,3 +12,9 @@
 
   label Add new item
   type  insert TEST1
+
+=STUDENTS
+
+  grant all
+  type  grid  form_students
+  
