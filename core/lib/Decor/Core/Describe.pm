@@ -729,7 +729,7 @@ sub describe_table
 
   $DES_CACHE{ 'TABLE_DES' }{ $table } = $des;
   # NOTE! check MUST be done after TABLE_DES cache is filled with current table!
-  __check_table_des( $des ) if de_debug();
+  __check_table_des( $des );
 
   return $des;
 }
