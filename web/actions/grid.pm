@@ -69,6 +69,8 @@ sub main
 
   my $fields = join ',', @fields, values %basef;
 
+  return "<#e_access>" unless $fields;
+
   my %filter;
 
   %filter = ( %filter, %$filter_param ) if $filter_param;

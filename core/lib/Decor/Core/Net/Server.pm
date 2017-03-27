@@ -13,6 +13,7 @@
 ##############################################################################
 package Decor::Core::Net::Server;
 use strict;
+use Data::Dumper;
 use Exception::Sink;
 use Data::Tools;
 use Decor::Core::DSN;
