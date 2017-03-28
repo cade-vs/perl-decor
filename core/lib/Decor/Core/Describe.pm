@@ -237,6 +237,7 @@ sub __merge_table_des_file
   my $sect_name = '@'; # self :) should be more like 0
   my $category  = '@';
   $des->{ $category }{ $sect_name } ||= {};
+  push @{ $des->{ $category }{ $sect_name }{ 'DEBUG::ORIGIN' } }, $fname;
   my $file_mtime = file_mtime( $fname );
   if( $des->{ $category }{ $sect_name }{ '_MTIME' } < $file_mtime )
     {
@@ -774,7 +775,7 @@ sub describe_preprocess_grant_deny
 
   for my $line ( @{ $hr->{ '__GDA' } } )
     {
-    my ( $ty, $ac, $op )  = describe_parse_access_line( $line );
+    my ( $ty, $ac, $op )  = describe_parse_access_line( $line, $hr );
     for my $o ( @$op )
       {
       $access{ $ty }{ $o } = $ac->{ $o };
@@ -793,6 +794,7 @@ sub describe_preprocess_grant_deny
 sub describe_parse_access_line
 {
   my $line = uc shift;
+  my $hr   = shift; # currently preprocessed field description, used for debug origin
 
   $line =~ s/^\s*//;
   $line =~ s/\s*$//;
@@ -821,9 +823,18 @@ sub describe_parse_access_line
 
   for my $op ( @opers )
     {
-    next unless $op eq 'ALL';
-    @opers = @OPERS;
-    last;
+    if( $op eq 'ALL' )
+      {
+      @opers = @OPERS;
+      last;
+      }
+    if( ! $OPERS{ $op } )
+      {
+      print STDERR Dumper( $hr );
+      my @debug_origin = exists $hr->{ 'DEBUG::ORIGIN' } ? @{ $hr->{ 'DEBUG::ORIGIN' } } : ();
+      de_log( "error: unknown operation [$op] in line [$line] at one of [@debug_origin]" );
+      next;
+      }
     }
 
   my %access;

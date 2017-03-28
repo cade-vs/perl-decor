@@ -88,7 +88,7 @@ sub main
   my $text_grid_navi_right;
   my $text_grid_navi_mid;
 
-  $text_grid_navi_left .= de_html_alink( $reo, 'new', "insert.svg Insert new record", 'Insert new record', ACTION => 'edit', ID => -1, TABLE => $table );
+  $text_grid_navi_left .= de_html_alink( $reo, 'new', "insert.svg Insert new record", 'Insert new record', ACTION => 'edit', ID => -1, TABLE => $table ) if $tdes->allows( 'INSERT' );
 
   $text_grid_head .= "<table class=grid cellspacing=0 cellpadding=0>";
   $text_grid_head .= "<tr class=grid-header>";
