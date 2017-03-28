@@ -830,7 +830,6 @@ sub describe_parse_access_line
       }
     if( ! $OPERS{ $op } )
       {
-      print STDERR Dumper( $hr );
       my @debug_origin = exists $hr->{ 'DEBUG::ORIGIN' } ? @{ $hr->{ 'DEBUG::ORIGIN' } } : ();
       de_log( "error: unknown operation [$op] in line [$line] at one of [@debug_origin]" );
       next;
