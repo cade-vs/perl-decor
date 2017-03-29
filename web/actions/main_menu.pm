@@ -60,7 +60,7 @@ sub main
     }
   $text .= "<td class=main-menu-fill>&nbsp;</td><td class=main-menu><#main_menu_fill></td></tr></table>";
   
-  print STDERR Dumper( '+++', $menu, $text );
+##  print STDERR Dumper( '+++', $menu, $text );
   return $text;
   return "MAIN MENU" . rand() . return "<#menu_inside_debug><xmp>" . Dumper( $menu ) . "</xmp>";
 }

@@ -1,9 +1,9 @@
 
 label  Test table 3
 
-grant insert update to 900
-grant read          to 900
-deny insert
+grant insert update to 900; 10
+grant read          to all
+#deny insert
 
 
 @isa  test2   cnt

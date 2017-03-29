@@ -39,10 +39,12 @@ sub main
   my $fields_ar        = $ps->{ 'FIELDS_WRITE_AR'  };
   my $edit_mode_insert = $ps->{ 'EDIT_MODE_INSERT' };
 
-  boom "FIELDS list empty" unless @$fields_ar;
+  return "<#access_denied>" unless @$fields_ar;
 
   my $row_data = $ps->{ 'ROW_DATA' };
   return "<#no_data>" unless $row_data;
+
+  my %write_data = map { $_ => $row_data->{ $_ } } @$fields_ar;
 
   my $res;
   if( $edit_mode_insert )
@@ -60,11 +62,11 @@ sub main
       $opt->{ 'LINK_TO_ID'    } = $lt_id;
       }
     
-    $res = $core->insert( $table, $row_data, $id, $opt );
+    $res = $core->insert( $table, \%write_data, $id, $opt );
     }
   else
     {
-    $res = $core->update( $table, $row_data, { ID => $id } );
+    $res = $core->update( $table, \%write_data, { ID => $id } );
     }  
 
   if( $res )

@@ -17,19 +17,19 @@ grant read          to 999
 =_OWNER
 
   type int
-  deny all to 999;
+  deny all
 
 =_OWNER_2
 
   type int
-  deny all to 999;
+  deny all
 
 =_READ_ACCESS
 
   type int
-  deny all to 999;
+  deny all
 
 =_UPDATE_OFFICE
 
   type int
-  deny all to 999
+  deny all

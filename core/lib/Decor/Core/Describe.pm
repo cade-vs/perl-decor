@@ -796,10 +796,12 @@ sub describe_parse_access_line
   my $line = uc shift;
   my $hr   = shift; # currently preprocessed field description, used for debug origin
 
+  my @debug_origin = exists $hr->{ 'DEBUG::ORIGIN' } ? @{ $hr->{ 'DEBUG::ORIGIN' } } : ();
+
   $line =~ s/^\s*//;
   $line =~ s/\s*$//;
 
-  boom "invalid access line [$line] expected [grant|deny <op> <op> <op> to <grp>; <grp> + <grp>; <grp> + !<grp>]"
+  boom "invalid access line [$line] expected [grant|deny <op> <op> <op> to <grp>; <grp> + <grp>; <grp> + !<grp>] at [@debug_origin]"
         unless $line =~ /^\s*(GRANT|DENY)\s+(([A-Z_0-9]+\s*?)+?)(\s+TO\s+([A-Z0-9!+;\s]+))?\s*$/;
 
   my $type_line   = $1;
@@ -830,7 +832,6 @@ sub describe_parse_access_line
       }
     if( ! $OPERS{ $op } )
       {
-      my @debug_origin = exists $hr->{ 'DEBUG::ORIGIN' } ? @{ $hr->{ 'DEBUG::ORIGIN' } } : ();
       de_log( "error: unknown operation [$op] in line [$line] at one of [@debug_origin]" );
       next;
       }

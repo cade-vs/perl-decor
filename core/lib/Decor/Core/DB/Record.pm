@@ -313,6 +313,12 @@ sub __create_empty_data
   if( $profile and $self->taint_mode_get( 'ROWS' ) )
     {
     # TODO: fill default values for _OPER_*
+    my $active_group = 999; # FIXME: get from user/profile
+    for my $field ( @{ $tdes->get_fields_list() } )
+      {
+      next unless $field =~ /^_(OWNER|READ|UPDATE|DELETE)(_|$)/;
+      $data{ $field } = $active_group;
+      }
     }
 
   $self->{ 'RECORD_MODIFIED' }++;
