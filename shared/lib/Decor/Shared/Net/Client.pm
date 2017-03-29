@@ -217,6 +217,7 @@ sub begin_user_pass
   # FIXME: TODO: if failed then disconnect?
 
   $self->{ 'CORE_SESSION_XTIME' } = $mo->{ 'XTIME' } || time() + 10*60;
+  $self->{ 'USER_GROUPS'        } = $mo->{ 'UGS'   } || {};
 
   return $mo->{ 'SID' };
 }
@@ -238,6 +239,7 @@ sub begin_user_session
   # FIXME: TODO: if failed then disconnect?
 
   $self->{ 'CORE_SESSION_XTIME' } = $mo->{ 'XTIME' } || time() + 10*60;
+  $self->{ 'USER_GROUPS'        } = $mo->{ 'UGS'   } || {};
 
   return $mo->{ 'SID' };
 }
@@ -249,6 +251,9 @@ sub end
   my %mi;
 
   $mi{ 'XT'    } = 'E';
+
+  delete $self->{ 'CORE_SESSION_XTIME' };
+  delete $self->{ 'USER_GROUPS'        };
   
   my $mo = $self->tx_msg( \%mi ) or return undef;
 

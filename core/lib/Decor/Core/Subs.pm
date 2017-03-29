@@ -266,6 +266,7 @@ sub sub_begin
   subs_set_dispatch_map( 'USER' );
 
   $mo->{ 'SID'   } = $sess_sid;
+  $mo->{ 'UGS'   } = { map { $_ => 1 } $profile->get_groups() }; # user groups
   # TODO: expire time, further advise
   $mo->{ 'XTIME' } = $sess->read( 'XTIME' );
   $mo->{ 'XS'    } = 'OK';

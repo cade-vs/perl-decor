@@ -94,6 +94,10 @@ sub main
   $text_grid_head .= "<tr class=grid-header>";
   $text_grid_head .= "<td class='grid-header fmt-left'>Ctrl</td>";
 
+$text .= "[@fields]<br>";
+  @fields = grep { /^_/ ? $reo->user_has_group( 1 ) ? 1 : 0 : 1 } @fields;
+$text .= "[@fields]";
+
   for my $field ( @fields )
     {
     my $bfdes     = $bfdes{ $field };

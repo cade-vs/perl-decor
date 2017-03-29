@@ -129,7 +129,8 @@ sub de_login
   if( $de_core_session_id )
     {
     my $user_shr = $self->get_user_session();
-    $user_shr->{ 'DECOR_CORE_SESSION_ID'   } = $de_core_session_id;
+    $user_shr->{ 'DECOR_CORE_SESSION_ID' } = $de_core_session_id;
+    $user_shr->{ 'USER_GROUPS'           } = $client->{ 'USER_GROUPS' } || {};
     $self->log( "status: login OK as user [$user] remote [$remote] core session [$de_core_session_id]" );
     return ( $client );
     }
@@ -236,6 +237,20 @@ sub ps_path_add
   push @ps_path, { PS_ID => $ps_id, ICON => $icon, TITLE => $title };
 
   return @ps_path;
+}
+
+
+### user related helpers #####################################################
+
+sub user_has_group
+{
+  my $self  = shift;
+  my $group = shift;
+
+  my $user_shr = $self->get_user_session();
+  return undef unless exists $user_shr->{ 'USER_GROUPS' };
+  return undef unless exists $user_shr->{ 'USER_GROUPS' }{ $group };
+  return $user_shr->{ 'USER_GROUPS' }{ $group };
 }
 
 #-----------------------------------------------------------------------------
