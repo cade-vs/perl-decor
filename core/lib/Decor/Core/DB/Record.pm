@@ -515,8 +515,9 @@ sub __resolve_field
         my $dbio = $self->{ 'DB::IO' };
         my $data = $dbio->read_first1_by_id_hashref( $linked_table, $next_id );
 
-        $self->{ 'RECORD_MODIFIED' }++;
-        $self->{ 'RECORD_IMODS'    }{ $linked_table }{ $next_id }++;
+        #FIXME: loadin path records is not a modification, remove after test
+        ###$self->{ 'RECORD_MODIFIED' }++;
+        ###$self->{ 'RECORD_IMODS'    }{ $linked_table }{ $next_id }++;
         $self->{ 'RECORD_DATA'     }{ $linked_table }{ $next_id } = $data;
         $self->{ 'RECORD_DATA_DB'  }{ $linked_table }{ $next_id } = { %$data }; # copy, used for profile checks
         }

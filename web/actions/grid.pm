@@ -101,7 +101,7 @@ sub main
     my $type_name = $lfdes->{ 'TYPE' }{ 'NAME' };
     my $fmt_class = $FMT_CLASSES{ $type_name } || 'fmt-left';
     my $blabel    = $bfdes->get_attr( qw( WEB GRID LABEL ) );
-    my $label = "$blabel";
+    my $label     = "$blabel";
     if( $bfdes ne $lfdes )
       {
       my $llabel     = $lfdes->get_attr( qw( WEB GRID LABEL ) );
