@@ -21,6 +21,8 @@ sub get_primary_group
 {
   my $self   = shift;
 
+use Data::Dumper;
+print STDERR "++++++++++++++++++++++++++++++++++++++++++++++++++++++[" . $self->read( 'PRIMARY_GROUP' ) . "]\n" . Dumper( $self );
   return $self->read( 'PRIMARY_GROUP' );
 }
 

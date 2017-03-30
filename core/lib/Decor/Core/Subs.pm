@@ -248,6 +248,9 @@ sub sub_begin
   $profile->add_groups( 999 ); # all/everybody
   $profile->remove_groups( 900, 901 ); # nobody
 
+  # primary group
+  $profile->set_primary_group( $user->get_primary_group() );
+
   # enable root access if user is root (id==1)
   $profile->enable_root_access() if $user->id() == 1;
 
@@ -367,6 +370,9 @@ sub __sub_begin_with_session_continue
   my $user_id = $session_rec->read( 'USR' );
   my $user_rec = new Decor::Core::DB::Record::User;
   $user_rec->load( 'DE_USERS', $user_id ) or boom "E_INTERNAL: cannot load USER with id [$user_id] from requested session [$user_sid] and remote [$remote]";
+
+use Data::Dumper;
+print STDERR "+++++++++++++++++++++SESSION FIND USER++++++++++++++++++++++++++[" . Dumper( $user_rec );
 
   subs_lock_current_user( $user_rec );
   subs_lock_current_session( $session_rec );

@@ -194,8 +194,8 @@ sub load
   $self->{ 'BASE_TABLE' } = $table;
   $self->{ 'BASE_ID'    } = $id;
 
-  $self->{ 'RECORD_DATA'    }{ $table }{ $id } = \%data;
-  $self->{ 'RECORD_DATA_DB' }{ $table }{ $id } = { %data }; # copy, used for profile checks
+  $self->{ 'RECORD_DATA'    }{ $table }{ $id } = $data;
+  $self->{ 'RECORD_DATA_DB' }{ $table }{ $id } = { %$data }; # copy, used for profile checks
 
   return $id;
 }
@@ -312,8 +312,7 @@ sub __create_empty_data
 
   if( $profile and $self->taint_mode_get( 'ROWS' ) )
     {
-    # TODO: fill default values for _OPER_*
-    my $active_group = 999; # FIXME: get from user/profile
+    my $active_group = $profile->get_primary_group();
     for my $field ( @{ $tdes->get_fields_list() } )
       {
       next unless $field =~ /^_(OWNER|READ|UPDATE|DELETE)(_|$)/;

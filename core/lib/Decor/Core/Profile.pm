@@ -28,9 +28,10 @@ sub __init
 {
   my $self = shift;
   
-  $self->{ 'GROUPS' } = {};
-  $self->{ 'CACHE'  } = {};
-  $self->{ 'VAR'    } = {};
+  $self->{ 'GROUPS'        } = {};
+  $self->{ 'PRIMARY_GROUP' } = 0;
+  $self->{ 'CACHE'         } = {};
+  $self->{ 'VAR'           } = {};
   
   $self->__lock_self_keys();
   1;
@@ -55,7 +56,7 @@ sub add_groups
   $self->{ 'CACHE' } = {};
   for my $group ( @groups )
     {
-    de_check_id_boom( $group, "invalid group id, number expected [$group]" );
+    de_check_id_boom( $group, "invalid group id [$group] expected number" );
     $group = int( $group );
 
     # skip ROOT and NOBODY groups, the must never appear inside profile
@@ -79,7 +80,7 @@ sub remove_groups
       $self->clear_groups();
       return;
       }
-    de_check_name_boom( $group, "invalid group id, number expected [$group]" );
+    de_check_name_boom( $group, "invalid group id [$group] expected number" );
     $group = int( $group );
     delete $self->{ 'GROUPS' }{ $group };
     }
@@ -109,6 +110,28 @@ sub clear_groups
 
   $self->{ 'CACHE'  } = {};
   $self->{ 'GROUPS' } = {};
+}
+
+### PRIMARY GROUP ############################################################
+
+sub set_primary_group
+{
+  my $self = shift;
+  my $group = shift;
+
+  de_check_id_boom( $group, "invalid group id [$group] expected number" );
+  $group = int( $group );
+
+  $self->{ 'PRIMARY_GROUP' } = $group;
+  
+  return $group;
+}
+
+sub get_primary_group
+{
+  my $self = shift;
+  
+  return $self->{ 'PRIMARY_GROUP' } || 0;
 }
 
 ### ROOT MANAGEMENT ##########################################################
