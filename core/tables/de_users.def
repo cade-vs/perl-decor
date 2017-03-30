@@ -24,6 +24,16 @@ system
   web.overflow  1
   password
 
+=PRIMARY_GROUP
+
+  label User primary group
+  type  link  DE_GROUPS   NAME
+
+=PRIVATE_GROUP
+
+  label User private group
+  type  link  DE_GROUPS   NAME
+
 =ACTIVE
 
   label User Active?

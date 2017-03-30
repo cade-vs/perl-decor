@@ -68,7 +68,7 @@ sub subs_set_current_user
 {
   my $user_rec = shift;
   
-  de_check_ref( $user_rec, 'Decor::Core::DB::Record', "invalid user object, expected [Decor::Core::DB::Record]" );
+  de_check_ref( $user_rec, 'Decor::Core::DB::Record::User', "invalid user object, expected [Decor::Core::DB::Record::User]" );
   boom "cannot replace currently locked user" if $USER_LOCKED;
   
   $USER = $user_rec;
@@ -107,7 +107,7 @@ sub subs_set_current_session
 {
   my $session_rec = shift;
   
-  de_check_ref( $session_rec, 'Decor::Core::DB::Record', "invalid session object, expected [Decor::Core::DB::Record]" );
+  de_check_ref( $session_rec, 'Decor::Core::DB::Record::Session', "invalid session object, expected [Decor::Core::DB::Record::Session]" );
   boom "cannot replace currently locked session" if $SESSION_LOCKED;
   
   $SESSION = $session_rec;

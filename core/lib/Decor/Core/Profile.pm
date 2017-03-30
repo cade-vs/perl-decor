@@ -151,7 +151,7 @@ sub add_groups_from_user
   
   my $user_id;
 
-  if( ref( $user ) eq 'Decor::Core::DB::Record' and ! $user->is_empty() and $user->table() eq 'DE_USERS' )
+  if( ref( $user ) eq 'Decor::Core::DB::Record::User' and ! $user->is_empty() and $user->table() eq 'DE_USERS' )
     {
     # record with loaded record from DE_USERS
     $user_id = $user->id();

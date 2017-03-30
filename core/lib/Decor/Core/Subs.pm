@@ -17,6 +17,8 @@ use Decor::Shared::Utils;
 use Decor::Core::Env;
 use Decor::Core::Log;
 use Decor::Core::DB::Record;
+use Decor::Core::DB::Record::User;
+use Decor::Core::DB::Record::Session;
 use Decor::Core::Subs::Env;
 use Decor::Core::Profile;
 use Decor::Core::Describe;
@@ -290,7 +292,7 @@ sub __sub_begin_with_user_pass
 
   my $time_now = time(); # to keep the same time for all data here
 
-  my $session_rec = new Decor::Core::DB::Record;
+  my $session_rec = new Decor::Core::DB::Record::Session;
 
   $session_rec->create( 'DE_SESSIONS' );
   $session_rec->write(
@@ -363,7 +365,7 @@ sub __sub_begin_with_session_continue
     }
 
   my $user_id = $session_rec->read( 'USR' );
-  my $user_rec = new Decor::Core::DB::Record;
+  my $user_rec = new Decor::Core::DB::Record::User;
   $user_rec->load( 'DE_USERS', $user_id ) or boom "E_INTERNAL: cannot load USER with id [$user_id] from requested session [$user_sid] and remote [$remote]";
 
   subs_lock_current_user( $user_rec );
@@ -378,7 +380,7 @@ sub __sub_find_user
 
   die "E_LOGIN: Invalid user login name [$user_name]" unless de_check_user_login_name(  $user_name );
 
-  my $user_rec = new Decor::Core::DB::Record;
+  my $user_rec = new Decor::Core::DB::Record::User;
 
   $user_rec->select( 'DE_USERS', 'NAME = ?', { BIND => [ $user_name ], LOCK => 1 } );
   if( $user_rec->next() )
@@ -398,7 +400,7 @@ sub __sub_find_and_check_user_pass
 
   my $user_rec = __sub_find_user( $user );
 
-  die "E_LOGIN: User not active [$user]"         unless $user_rec->read( 'ACTIVE' );
+  die "E_LOGIN: User not active [$user]"         unless $user_rec->is_active();
   die "E_LOGIN: Invalid user [$user] password"   unless de_check_user_pass_digest( $pass );
 
   my $user_pass = $user_rec->read( 'PASS' );
@@ -416,7 +418,7 @@ sub __sub_find_session
   boom "invalid session sid"   unless de_check_name( $session_sid );
   boom "invalid remote string" unless de_check_user_login_name( $remote );
 
-  my $session_rec = new Decor::Core::DB::Record;
+  my $session_rec = new Decor::Core::DB::Record::Session;
 
   $session_rec->select( 'DE_SESSIONS', 'SID = ? AND REMOTE = ? AND ACTIVE = ?', { BIND => [ $session_sid, $remote, 1 ], LOCK => 1 } );
   if( $session_rec->next() )
