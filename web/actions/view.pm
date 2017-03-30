@@ -66,7 +66,7 @@ sub main
     }
   my $row_id = $row_data->{ '_ID' };
 
-#  @fields = grep { /^_/ ? $reo->user_has_group( 1 ) ? 1 : 0 : 1 } @fields;
+  @fields = grep { /^_/ ? $reo->user_has_group( 1 ) ? 1 : 0 : 1 } @fields;
 
   for my $field ( @fields )
     {
