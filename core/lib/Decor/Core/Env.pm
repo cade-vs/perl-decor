@@ -42,6 +42,7 @@ use Data::Tools 1.09;
 
 use Decor::Shared::Utils;
 use Decor::Core::Config;
+use Decor::Core::Log;
 
 ### PRIVATE ##################################################################
 
@@ -83,11 +84,16 @@ sub de_init
 
   dlock $APP_NAME = $app_name;
 
-  boom "invalid ROOT directory [$ROOT] use either [/usr/local/decor] or DECOR_ROOT env var" unless $ROOT ne '' and -d $ROOT;
+  boom "invalid ROOT directory [$ROOT] use either [/usr/local/decor] or DECOR_CORE_ROOT env var" unless $ROOT ne '' and -d $ROOT;
 
   my $app_path = de_app_path();
 
   boom "cannot find/access application [$APP_NAME] path [$app_path]" unless -d $app_path;
+  
+  my $log_prefix = $init{ 'LOG_PREFIX' };
+  my $log_dir = "$ROOT/var/core/$app_name\_$</log/$log_prefix/";
+  dir_path_ensure( $log_dir ) or boom "cannot find/access log dir [$log_dir] for app [$APP_NAME] path [$app_path]";
+  de_set_log_dir( $log_dir );
 
   my $cfg = de_config_load_file( "$app_path/etc/app.conf" );
   if( $cfg )

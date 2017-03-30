@@ -24,6 +24,7 @@ our @EXPORT = qw(
                 $DE_LOG_TO_FILES
 
                 de_set_log_prefix
+                de_set_log_dir
                 
                 de_log
                 de_log_debug
