@@ -51,6 +51,8 @@ sub main
   return "<#no_data>" unless $row_data;
   my $row_id = $row_data->{ '_ID' };
 
+  @$fields_ar = grep { /^_/ ? $reo->user_has_group( 1 ) ? 1 : 0 : 1 } @$fields_ar;
+
   for my $field ( @$fields_ar )
     {
     my $fdes      = $tdes->{ 'FIELD' }{ $field };
