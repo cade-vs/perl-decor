@@ -13,6 +13,7 @@ grant read          to 999
   type int
 
   grant insert update to 222; 900; 33 + ! 44
+  grant update
   
 =_OWNER
 
@@ -33,3 +34,7 @@ grant read          to 999
 
   type int
   deny all
+
+=FILTER: MORE_CNT
+
+  sql_where  CNT > 0

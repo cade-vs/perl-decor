@@ -245,6 +245,8 @@ print STDERR Dumper( "error:", $fields_ar, $ps->{ 'ROW_DATA' }, 'insert', $edit_
       my ( $linked_table, $linked_field ) = $fdes->link_details();
       my $ldes = $core->describe( $linked_table );
 
+      my $select_filter_name = $fdes->get_attr( 'WEB', 'SELECT_FILTER' );
+
       my $combo = $fdes->get_attr( qw( WEB COMBO ) );
       if( $combo )
         {
@@ -282,7 +284,7 @@ print STDERR Dumper( "error:", $fields_ar, $ps->{ 'ROW_DATA' }, 'insert', $edit_
 
         my $lfields = join ',', '_ID', @lfields, values %basef;
 
-        my $combo_select = $core->select( $linked_table, $lfields );
+        my $combo_select = $core->select( $linked_table, $lfields, { 'FILTER_NAME' => $select_filter_name } );
 #$text .= "my $combo_select = $core->select( $linked_table, $lfields )<br>";
         while( my $hr = $core->fetch( $combo_select ) )
           {
@@ -329,7 +331,7 @@ print STDERR Dumper( "error:", $fields_ar, $ps->{ 'ROW_DATA' }, 'insert', $edit_
           $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "EDIT_LINKED_$field_id", "edit.svg", "Edit linked data", ACTION => 'edit', TABLE => $linked_table, ID => $field_data ) if $ldes->allows( 'UPDATE' );
           }
         $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "INSERT_LINKED_$field_id", "insert.svg",      "Insert new linked data", ACTION => 'edit', TABLE => $linked_table, ID => -1, RETURN_DATA_FROM => '_ID', RETURN_DATA_TO => $field ) if $ldes->allows( 'INSERT' );
-        $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "SELECT_LINKED_$field_id", "select-from.svg", "Select linked data",     ACTION => 'grid', TABLE => $linked_table, ID => -1, RETURN_DATA_FROM => '_ID', RETURN_DATA_TO => $field, GRID_MODE => 'SELECT', SELECT_KEY_DATA => $field_data ) if $ldes->allows( 'READ'   );
+        $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "SELECT_LINKED_$field_id", "select-from.svg", "Select linked data",     ACTION => 'grid', TABLE => $linked_table, ID => -1, RETURN_DATA_FROM => '_ID', RETURN_DATA_TO => $field, GRID_MODE => 'SELECT', SELECT_KEY_DATA => $field_data, FILTER_NAME => $select_filter_name ) if $ldes->allows( 'READ'   );
         }
       }
     elsif( $type_name eq 'INT' and $fdes->is_backlinked() )

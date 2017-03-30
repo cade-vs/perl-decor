@@ -333,6 +333,8 @@ sub select
   my $lock     = $opt->{ 'LOCK'   };
   my $order_by = $opt->{ 'ORDER_BY' };
   my $group_by = $opt->{ 'GROUP_BY' };
+  
+  my $filter_name = $opt->{ 'FILTER_NAME' };
 
   $fields = join( ',',      @$fields ) if ref( $fields ) eq 'ARRAY';
   $fields = join( ',', keys %$fields ) if ref( $fields ) eq 'HASH';
@@ -348,6 +350,7 @@ sub select
   $mi{ 'LOCK'     } = $lock;
   $mi{ 'ORDER_BY' } = $order_by;
   $mi{ 'GROUP_BY' } = $group_by;
+  $mi{ 'FILTER_NAME' } = $filter_name;
 
   my $mo = $self->tx_msg( \%mi ) or return undef;
 

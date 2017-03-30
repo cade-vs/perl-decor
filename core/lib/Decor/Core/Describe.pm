@@ -36,6 +36,7 @@ our @EXPORT = qw(
 
                 des_exists
                 des_exists_boom
+                des_exists_category
 
                 des_table_get_fields_list
 
@@ -92,9 +93,10 @@ my %DES_KEY_SHORTCUTS = (
                         );
 
 my %DES_CATEGORIES = (
-                       '@'     => 1,
-                       'FIELD' => 1,
-                       'INDEX' => 1
+                       '@'      => 1,
+                       'FIELD'  => 1,
+                       'INDEX'  => 1,
+                       'FILTER' => 1,
                      );
 
 
@@ -139,11 +141,16 @@ my %DES_ATTRS = (
                            DETAILS     => 3,
                            OVERFLOW    => 3,
                            COMBO       => 3, # requires link selection to be combo
+                           
+                           SELECT_FILTER => 3,
                          },
                   'INDEX' => {
                            FIELDS      => 1,
                            UNIQUE      => 1,
                            FIELDS      => 1,
+                         },
+                  'FILTER' => {
+                           SQL_WHERE   => 1,
                          },
                 );
 
@@ -865,6 +872,13 @@ sub des_exists_boom
 
 sub des_exists
 {
+  return des_exists_category( 'FIELD', @_ );
+}
+
+sub des_exists_category
+{
+  my $category = uc shift;
+  boom "invalid category [$category]" unless exists $DES_CATEGORIES{ $category };
   boom "invalid number of arguments, expected (table,field,attr)" unless @_ > 0 and @_ < 4;
 
   my $table = $_[0];
@@ -893,8 +907,10 @@ sub des_exists
   # table exists, but field check is expected
   my $field = $_[1];
   return 0 unless de_check_name( $field );
+  
+  return 0 unless exists $DES_CACHE{ 'TABLE_DES' }{ $table }{ $category };
 
-  if( exists $DES_CACHE{ 'TABLE_DES' }{ $table }{ 'FIELD' }{ $field } )
+  if( exists $DES_CACHE{ 'TABLE_DES' }{ $table }{ $category }{ $field } )
     {
     return 2 if @_ == 2;
     }
@@ -906,7 +922,7 @@ sub des_exists
   # table and field exist, but attribute check is expected
   my $attr = $_[2];
 
-  if( exists $DES_CACHE{ 'TABLE_DES' }{ $table }{ 'FIELD' }{ $field }{ $attr } )
+  if( exists $DES_CACHE{ 'TABLE_DES' }{ $table }{ $category }{ $field }{ $attr } )
     {
     return 3 if @_ == 3;
     }

@@ -371,9 +371,6 @@ sub __sub_begin_with_session_continue
   my $user_rec = new Decor::Core::DB::Record::User;
   $user_rec->load( 'DE_USERS', $user_id ) or boom "E_INTERNAL: cannot load USER with id [$user_id] from requested session [$user_sid] and remote [$remote]";
 
-use Data::Dumper;
-print STDERR "+++++++++++++++++++++SESSION FIND USER++++++++++++++++++++++++++[" . Dumper( $user_rec );
-
   subs_lock_current_user( $user_rec );
   subs_lock_current_session( $session_rec );
 
@@ -619,20 +616,38 @@ sub sub_select
   my $filter   =    $mi->{ 'FILTER' } || {};
   my $order_by = uc $mi->{ 'ORDER_BY' };
   my $group_by = uc $mi->{ 'GROUP_BY' };
+  my $filter_name = uc $mi->{ 'FILTER_NAME' };
 
   # FIXME: TODO: Subs/MessageCheck TABLE ID FIELDS LIMIT OFFSET FILTER validate_hash()
-  boom "invalid TABLE name [$table]"    unless de_check_name( $table );
+  boom "invalid TABLE name [$table]"    unless de_check_name( $table ) or ! des_exists( $table );
   boom "invalid FIELDS list [$fields]"  unless $fields   =~ /^([A-Z_0-9\.\,]+|COUNT\(\*\)|\*)$/o; # FIXME: more aggregate funcs
   boom "invalid ORDER BY [$order_by]"   unless $order_by =~ /^([A-Z_0-9\. ]*)$/o;
   boom "invalid GROUP BY [$group_by]"   unless $group_by =~ /^([A-Z_0-9\. ]*)$/o;
   boom "invalid LIMIT [$limit]"         unless $limit    =~ /^[0-9]*$/o;
   boom "invalid OFFSET [$offset]"       unless $offset   =~ /^[0-9]*$/o;
   boom "invalid FILTER [$filter]"       unless ref( $filter ) eq 'HASH';
+  boom "invalid FILTER_NAME name [$filter_name]"  unless $filter_name eq '' or de_check_name( $filter_name );
 
   # TODO: check TABLE READ ACCESS
 
+  my @where;
   my ( $where, $bind ) = __filter_to_where( $filter );
-  my $where_clause = join ' AND ', @$where;
+  
+  if( $filter_name )
+    {
+    if( des_exists_category( 'FILTER', $table, $filter_name ) )
+      {
+      my $tdes = describe_table( $table );
+      my $filter_name_sql = $tdes->{ 'FILTER' }{ $filter_name }{ 'SQL_WHERE' };
+      push @where, $filter_name_sql if $filter_name_sql;
+      }
+    else
+      {
+      boom "unknown FILTER_NAME name [$filter_name] for table [$table]";
+      }  
+    }
+  
+  my $where_clause = join ' AND ', @$where, @where;
 
   my $profile = subs_get_current_profile();
 
@@ -884,7 +899,7 @@ sub sub_recalc
   my $profile = subs_get_current_profile();
   $rec->set_profile_locked( $profile );
 
-  $rec->taint_mode_enable_all();
+  $rec->taint_mode_on( 'TABLE', 'ROWS' );
 
   if( $id )
     {

@@ -49,6 +49,7 @@ sub main
   return "<#e_internal>" unless $tdes;
 
   my $link_field_disable = $reo->param( 'LINK_FIELD_DISABLE' );
+  my $filter_name = $reo->param( 'FILTER_NAME' );
 
 #  print STDERR Dumper( $tdes );
 
@@ -75,8 +76,8 @@ sub main
 
   %filter = ( %filter, %$filter_param ) if $filter_param;
 
-  my $select = $core->select( $table, $fields, { FILTER => \%filter, OFFSET => $offset, LIMIT => $page_size, ORDER_BY => '_ID DESC' } ) if $fields;
-  my $scount = $core->count( $table, { FILTER => \%filter } ) if $select;
+  my $select = $core->select( $table, $fields, { FILTER => \%filter, FILTER_NAME => $filter_name, OFFSET => $offset, LIMIT => $page_size, ORDER_BY => '_ID DESC' } ) if $fields;
+  my $scount = $core->count( $table, { FILTER => \%filter, FILTER_NAME => $filter_name } ) if $select;
 
 #  $text .= "<br>";
   $text .= "<p>";

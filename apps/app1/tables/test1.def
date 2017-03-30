@@ -62,6 +62,7 @@ grant insert update to 1;10
 #  web.select-where    CNT > ?; 2
   web.combo     %40s=%-15s; NAME; CNT
 #  web.edit.mono
+  web.select_filter   MORE_CNT
 
 =BACKREF
 
