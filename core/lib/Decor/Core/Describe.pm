@@ -213,7 +213,7 @@ sub des_get_tables_list
 
   for my $dir ( @$tables_dirs )
     {
-    print STDERR "$dir/*.def\n";
+    #print STDERR "$dir/*.def\n";
     push @tables, ( sort( glob_tree( "$dir/*.def" ) ) );
     }
 
@@ -281,6 +281,9 @@ sub __merge_table_des_file
       $des->{ $category }{ $sect_name }{ 'LABEL' } ||= $sect_name;
       # FIXME: URGENT: copy only listed keys! no all
 ###      %{ $config->{ $category }{ $sect_name } } = ( %{ dclone( $config->{ '@' }{ '@' } ) }, %{ $config->{ $category }{ $sect_name } } );
+      $des->{ $category }{ $sect_name }{ '__GDA'  } = [ @{ $des->{ '@' }{ '@' }{ '__GDA'  } || [] } ];
+
+
       $des->{ $category }{ $sect_name }{ '_ORDER' } = ++ $opt->{ '_ORDER' };
 
       if( de_debug() )
@@ -434,9 +437,7 @@ sub __merge_table_des_file
                  $des->{ $category }{ $sect_name }{ '__GDL'  } = 1; # grant/deny local policy, discard ISA one
           }
 
-        $des->{ $category }{ $sect_name }{ '__GDA'  } ||= [];
         push @{ $des->{ $category }{ $sect_name }{ '__GDA' } }, "$key  $value";
-
         next;
         }
 
@@ -605,7 +606,9 @@ sub __postprocess_table_des_hash
     $fld_des->{ 'TYPE' } = $type_des;
 
     # convert grant/deny list to access tree
+#print STDERR "=====(GRANT DENY)==PRE+++ $table $field: " . Dumper( $des->{ 'FIELD' }{ $field } );
     describe_preprocess_grant_deny( $des->{ 'FIELD' }{ $field } );
+#print STDERR "=====(GRANT DENY)==REZ+++ $table $field: " . Dumper( $des->{ 'FIELD' }{ $field } );
 
     # FIXME: more categories INDEX: ACTION: etc.
     # inherit empty keys
@@ -615,9 +618,11 @@ sub __postprocess_table_des_hash
     #  # link missing attributes to self
     #  $des->{ 'FIELD' }{ $field }{ $attr } = $des->{ '@' }{ $attr };
     #  }
-
+=pod
     for my $grant_deny ( qw( GRANT DENY ) )
       {
+      
+      next;
       for my $oper ( keys %{ $des->{ '@' }{ $grant_deny } } )
         {
         next if exists $des->{ 'FIELD' }{ $field }{ $grant_deny }{ $oper };
@@ -625,13 +630,16 @@ sub __postprocess_table_des_hash
         $des->{ 'FIELD' }{ $field }{ $grant_deny }{ $oper } = $des->{ '@' }{ $grant_deny }{ $oper }
         }
       }
+=cut      
+#print STDERR "=====(GRANT DENY)==REZZZZ+++ $table $field: " . Dumper( $des->{ 'FIELD' }{ $field } );
 
     }
 
 
   # add empty keys to fields description before locking
-  for my $category ( qw( FIELD INDEX ) )
+  for my $category ( qw( FIELD INDEX FILTER ) )
     {
+    next unless exists $des->{ $category };
     for my $key ( keys %{ $des->{ $category } })
       {
       for my $attr ( grep { $DES_ATTRS{ $category }{ $_ } < 3 } keys %{ $DES_ATTRS{ $category } } )
@@ -738,6 +746,8 @@ sub describe_table
   $DES_CACHE{ 'TABLE_DES' }{ $table } = $des;
   # NOTE! check MUST be done after TABLE_DES cache is filled with current table!
   __check_table_des( $des );
+
+print STDERR "describe_table [$table] " . Dumper( $des );
 
   return $des;
 }

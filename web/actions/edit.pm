@@ -121,7 +121,7 @@ sub main
     $reo->ps_path_add( 'edit', qq( "Edit record data from "<b>$table_label</b>" ) );
     }
 
-print STDERR Dumper( "error:", $fields_ar, $ps->{ 'ROW_DATA' }, 'insert', $edit_mode_insert, 'allow', $tdes->allows( 'UPDATE' ) );
+#print STDERR Dumper( "error:", $fields_ar, $ps->{ 'ROW_DATA' }, 'insert', $edit_mode_insert, 'allow', $tdes->allows( 'UPDATE' ) );
 
   return "<#access_denied>" unless @$fields_ar;
   return "<#access_denied>" if   $edit_mode_insert and ! $tdes->allows( 'INSERT' );

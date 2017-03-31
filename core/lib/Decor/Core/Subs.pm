@@ -480,9 +480,12 @@ sub __replace_grant_deny
       $hrn->{ $grant_deny } = {};
       next;
       }
-    while( my ( $k, $v ) = each %{ $hrd->{ $grant_deny } } )
+#    while( my ( $k, $v ) = each %{ $hrd->{ $grant_deny } } )
+    for my $op ( keys %{ $hrd->{ $grant_deny } } )
       {
-      $hrn->{ $grant_deny }{ $k } = $profile->__check_access_tree( $k, $hrd->{ $grant_deny } );
+#my $res = $profile->__check_access_tree( $op, $hrd->{ $grant_deny } );
+#print STDERR "=====(@_)======+++++ [$res] <- $op, $grant_deny, " . Dumper( $hrd ) if $op eq 'INSERT';
+      $hrn->{ $grant_deny }{ $op } = $profile->__check_access_tree( $op, $hrd->{ $grant_deny } );
       }
     }
 
@@ -510,8 +513,10 @@ sub sub_describe
 
   my $new = clone( { %$des } );
 
+#print STDERR Dumper( '-'x100, $des );
   __replace_grant_deny( $profile, $new->{ '@' }, $des->{ '@' } );
-  delete $new->{ 'INDEX' };
+  delete $new->{ 'INDEX'  };
+  delete $new->{ 'FILTER' };
 
   for my $field ( @{ $new->{ '@' }{ '_FIELDS_LIST' } } )
     {
@@ -519,9 +524,10 @@ sub sub_describe
     my $hrn = $new->{ 'FIELD' }{ $field };
     #dunlock $hr;
     #dunlock $hr->{ 'DENY'  };
-    __replace_grant_deny( $profile, $hrn, $hrd );
+    __replace_grant_deny( $profile, $hrn, $hrd, $table, $field );
     delete $hrn->{ 'DEBUG::ORIGIN' };
     }
+#print STDERR Dumper( '='x100, $new );
 
   $mo->{ 'DES'   } = $new;
   $mo->{ 'XS'    } = 'OK';

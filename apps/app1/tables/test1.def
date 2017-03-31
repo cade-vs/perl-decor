@@ -2,8 +2,7 @@
 label My funny table
 
 
-grant read to 999
-
+grant read insert to 999
 grant insert update to 1;10
 
 =NAME
@@ -20,6 +19,7 @@ grant insert update to 1;10
 =SUMA
 
   type real .4
+  grant read
 
 =INDEX: TEST
 
