@@ -770,6 +770,9 @@ sub sub_insert
 
   # TODO: check TABLE INSERT ACCESS
 
+  $id ||= $data->{ '_ID' };
+  delete $data->{ '_ID' }; # it will be filled on record creation
+
   if( $id > 0 )
     {
     # TODO: check reserved IDs
@@ -789,7 +792,6 @@ sub sub_insert
                     'ACTIVE'      => 0,
                    );
     $res_rec->save();
-    $data->{ '_ID' } = $id;
     }
   else
     {
