@@ -77,3 +77,7 @@ grant insert update to 1;10
 
     type  date
 
+=DO: DATE_TEST
+
+  label   Test date switch
+  grant   execute

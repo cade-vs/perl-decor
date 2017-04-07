@@ -43,6 +43,13 @@ sub get_indexes_list
   return $self->{ '@' }{ '_INDEXES_LIST' };
 }
 
+sub get_dos_list
+{
+  my $self = shift;
+  
+  return $self->{ '@' }{ '_DOS_LIST' };
+}
+
 sub get_table_des
 {
   my $self  =    shift;
@@ -53,15 +60,29 @@ sub get_table_des
 sub get_field_des
 {
   my $self  =    shift;
-  my $field = uc shift;
 
-  if( ! exists $self->{ 'FIELD' }{ $field } )
+  return $self->get_category_des( 'FIELD', @_ );
+}
+
+sub get_category_des
+{
+  my $self     =    shift;
+  my $category = uc shift;
+  my $item     = uc shift;
+
+  if( $item eq '@' )
+    {
+    # shortcut to self, regardless category
+    return $self->{ '@' };
+    }
+  
+  if( ! exists $self->{ $category }{ $item } )
     {
     my $table = $self->get_table_name();
-    boom "unknown field [$field] for table [$table]";
+    boom "unknown category [$category] item [$item] for table [$table]";
     }
 
-  return $self->{ 'FIELD' }{ $field };
+  return $self->{ $category }{ $item };
 }
 
 sub get_index_des

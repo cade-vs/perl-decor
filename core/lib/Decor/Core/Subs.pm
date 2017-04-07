@@ -66,6 +66,7 @@ my %DISPATCH_MAP = (
                                    'COMMIT'   => \&sub_commit,
                                    'ROLLBACK' => \&sub_rollback,
                                    'LOGOUT'   => \&sub_logout,
+                                   'DO'       => \&sub_do,
                                  },
                    );
 
@@ -81,6 +82,7 @@ my %MAP_SHORTCUTS = (
                     'L'   => 'RECALC',
                     'M'   => 'MENU',
                     'N'   => 'NEXTID',
+                    'O'   => 'DO',
                     'P'   => 'PREPARE',
                     'R'   => 'ROLLBACK',
                     'S'   => 'SELECT',
@@ -518,15 +520,18 @@ sub sub_describe
   delete $new->{ 'INDEX'  };
   delete $new->{ 'FILTER' };
 
-  for my $field ( @{ $new->{ '@' }{ '_FIELDS_LIST' } } )
+  for my $cat ( qw( FIELD DO ) )
     {
-    my $hrd = $des->{ 'FIELD' }{ $field };
-    my $hrn = $new->{ 'FIELD' }{ $field };
-    #dunlock $hr;
-    #dunlock $hr->{ 'DENY'  };
-    __replace_grant_deny( $profile, $hrn, $hrd, $table, $field );
-    delete $hrn->{ 'DEBUG::ORIGIN' };
-    }
+    for my $field ( @{ $new->{ '@' }{ "_${cat}S_LIST" } } )
+      {
+      my $hrd = $des->{ $cat }{ $field };
+      my $hrn = $new->{ $cat }{ $field };
+      #dunlock $hr;
+      #dunlock $hr->{ 'DENY'  };
+      __replace_grant_deny( $profile, $hrn, $hrd, $table, $field );
+      delete $hrn->{ 'DEBUG::ORIGIN' };
+      }
+    }  
 #print STDERR Dumper( '='x100, $new );
 
   $mo->{ 'DES'   } = $new;
@@ -727,7 +732,7 @@ sub sub_get_next_id
 
   my $table  = uc $mi->{ 'TABLE'  };
 
-  boom "invalid TABLE name [$table]"    unless de_check_name( $table );
+  boom "invalid TABLE name [$table]"    unless de_check_name( $table ) or ! des_exists( $table );
 
   my $dbio = new Decor::Core::DB::IO;
   my $new_id = $dbio->get_next_table_id( $table );
@@ -764,11 +769,12 @@ sub sub_insert
   my $data   =    $mi->{ 'DATA'   };
   my $id     =    $mi->{ 'ID'     };
 
-  boom "invalid TABLE name [$table]"    unless de_check_name( $table );
+  boom "invalid TABLE name [$table]"    unless de_check_name( $table ) or ! des_exists( $table );
   boom "invalid DATA [$data]"           unless ref( $data ) eq 'HASH';
   boom "invalid ID [$id]"               unless de_check_id( $id );
 
-  # TODO: check TABLE INSERT ACCESS
+  my $profile = subs_get_current_profile();
+  boom "E_ACCESS: access denied oper [INSERT] for table [$table]" unless $profile->check_access_table( 'INSERT', $table );
 
   $id ||= $data->{ '_ID' };
   delete $data->{ '_ID' }; # it will be filled on record creation
@@ -802,7 +808,6 @@ sub sub_insert
 
   my $rec = new Decor::Core::DB::Record;
 
-  my $profile = subs_get_current_profile();
   $rec->set_profile_locked( $profile );
 
   $rec->taint_mode_enable_all();
@@ -849,16 +854,16 @@ sub sub_update
   my $lock   =    $mi->{ 'LOCK'   } ? 1 : 0;
   my $filter =    $mi->{ 'FILTER' } || {};
 
-  boom "invalid TABLE name [$table]"    unless de_check_name( $table );
+  boom "invalid TABLE name [$table]"    unless de_check_name( $table ) or ! des_exists( $table );
   boom "invalid DATA [$data]"           unless ref( $data ) eq 'HASH';
   boom "invalid ID [$id]"               unless de_check_id( $id );
   boom "invalid FILTER [$filter]"       unless ref( $filter ) eq 'HASH';
 
-  # TODO: check TABLE UPDATE ACCESS
+  my $profile = subs_get_current_profile();
+  boom "E_ACCESS: access denied oper [UPDATE] for table [$table]" unless $profile->check_access_table( 'UPDATE', $table );
 
   my $rec = new Decor::Core::DB::Record;
 
-  my $profile = subs_get_current_profile();
   $rec->set_profile_locked( $profile );
 
   $rec->taint_mode_enable_all();
@@ -890,7 +895,6 @@ sub sub_delete
   my $mo = shift;
 
   boom "sub_delete is not yet implemented";
-
 };
 
 sub sub_recalc
@@ -901,6 +905,9 @@ sub sub_recalc
   my $table  = uc $mi->{ 'TABLE'  };
   my $data   =    $mi->{ 'DATA'   };
   my $id     =    $mi->{ 'ID'     };
+
+  boom "invalid TABLE name [$table]"    unless de_check_name( $table ) or ! des_exists( $table );
+  boom "invalid ID [$id]"               unless de_check_id( $id );
 
   my $rec = new Decor::Core::DB::Record;
 
@@ -927,6 +934,53 @@ sub sub_recalc
 
   $mo->{ 'MERRS' } = $rec->{ 'METHOD:ERRORS' } if $rec->{ 'METHOD:ERRORS' };
   $mo->{ 'RDATA' } = $rec->read_hash_all();
+  $mo->{ 'XS'    } = 'OK';
+#print Dumper( $rec, $mi, $mo  );
+}
+
+sub sub_do
+{
+  my $mi = shift;
+  my $mo = shift;
+
+  my $table  = uc $mi->{ 'TABLE'  };
+  my $do     =    $mi->{ 'DO'     };
+  my $data   =    $mi->{ 'DATA'   };
+  my $id     =    $mi->{ 'ID'     };
+
+  boom "invalid TABLE name [$table]"    unless de_check_name( $table ) or ! des_exists( $table );
+  boom "invalid DO name [$do]"          unless de_check_name( $do ) or ! des_exists_category( 'DO', $table, $do );
+  boom "invalid DATA [$data]"           unless ref( $data ) eq 'HASH';
+  boom "invalid ID [$id]"               unless de_check_id( $id );
+
+  my $profile = subs_get_current_profile();
+  boom "E_ACCESS: access denied do [$do] for table [$table]" unless $profile->check_access_table_category( 'UPDATE', $table, 'DO', $do );
+
+  my $rec = new Decor::Core::DB::Record;
+
+  $rec->set_profile_locked( $profile );
+
+  $rec->taint_mode_on( 'TABLE', 'ROWS' );
+
+  if( $id )
+    {
+    $rec->load( $table, $id );
+    }
+  else
+    {
+    $rec->create_read_only( $table );
+    }
+
+  # $rec->write( %$data );
+
+  $rec->taint_mode_disable_all();
+
+  # TODO: recalc for insert/update
+  $rec->method( uc "DO_$do" );
+  $rec->save();
+
+  #$mo->{ 'MERRS' } = $rec->{ 'METHOD:ERRORS' } if $rec->{ 'METHOD:ERRORS' };
+  #$mo->{ 'RDATA' } = $rec->read_hash_all();
   $mo->{ 'XS'    } = 'OK';
 #print Dumper( $rec, $mi, $mo  );
 }

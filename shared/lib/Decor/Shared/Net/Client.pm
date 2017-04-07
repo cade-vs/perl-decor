@@ -21,7 +21,8 @@ use Data::Dumper;
 use Decor::Shared::Utils;
 use Decor::Shared::Net::Protocols;
 use Decor::Shared::Net::Client::Table::Description;
-use Decor::Shared::Net::Client::Table::Field::Description;
+use Decor::Shared::Net::Client::Table::Category::Field::Description;
+use Decor::Shared::Net::Client::Table::Category::Do::Description;
 
 sub new
 {
@@ -284,11 +285,15 @@ sub describe
   $mo->{ 'DES' }{ 'CACHE' } = {};
   $mo->{ 'DES' }{ ':CLIENT_OBJECT' } = $self;
   bless $mo->{ 'DES' }, 'Decor::Shared::Net::Client::Table::Description';
-  for my $field ( keys %{ $mo->{ 'DES' }{ 'FIELD' } } )
+  for my $cat ( qw( FIELD DO ) )
     {
-    $mo->{ 'DES' }{ 'FIELD' }{ $field }{ ':CLIENT_OBJECT' } = $self;
-    bless $mo->{ 'DES' }{ 'FIELD' }{ $field }, 'Decor::Shared::Net::Client::Table::Field::Description';
-    }
+    for my $item ( keys %{ $mo->{ 'DES' }{ $cat } } )
+      {
+      $mo->{ 'DES' }{ $cat }{ $item }{ ':CLIENT_OBJECT' } = $self;
+      my $p = uc( substr( $cat, 0, 1 ) ) . lc( substr( $cat, 1 ) );
+      bless $mo->{ 'DES' }{ $cat }{ $item }, "Decor::Shared::Net::Client::Table::Category::${p}::Description";
+      }
+    }  
   hash_lock_recursive( $mo->{ 'DES' } );
 #  lock_ref_keys( $mo->{ 'DES' } );  
   unlock_ref_keys( $mo->{ 'DES' }{ 'CACHE' } );
@@ -492,6 +497,32 @@ sub recalc
   my $mo = $self->tx_msg( \%mi ) or return undef;
 
   return wantarray ? ( $mo->{ 'RDATA' }, $mo->{ 'MERRS' } ) : $mo->{ 'RDATA' };
+}
+
+#-----------------------------------------------------------------------------
+
+sub do
+{
+  my $self = shift;
+
+  my $table  = uc shift;
+  my $do     = shift;
+  my $data   = shift;
+  my $id     = shift;
+  my $opt    = shift || {};
+  
+  my %mi;
+
+  $mi{ 'XT'     } = 'O';
+  $mi{ 'TABLE'  } = $table;
+  $mi{ 'DO'     } = $do;
+  $mi{ 'DATA'   } = $data;
+  $mi{ 'ID'     } = $id;
+
+  my $mo = $self->tx_msg( \%mi ) or return undef;
+
+  #return wantarray ? ( $mo->{ 'RDATA' }, $mo->{ 'MERRS' } ) : $mo->{ 'RDATA' };
+  return 1;
 }
 
 ### helpers ##################################################################

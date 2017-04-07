@@ -97,6 +97,7 @@ my %DES_CATEGORIES = (
                        'FIELD'  => 1,
                        'INDEX'  => 1,
                        'FILTER' => 1,
+                       'DO'     => 1,
                      );
 
 
@@ -151,6 +152,11 @@ my %DES_ATTRS = (
                          },
                   'FILTER' => {
                            SQL_WHERE   => 1,
+                         },
+                  'DO' => {
+                           LABEL       => 2,
+                           GRANT       => 1,
+                           DENY        => 1,
                          },
                 );
 
@@ -498,6 +504,7 @@ sub __postprocess_table_des_hash
   # postprocessing TABLE (self) ---------------------------------------------
   my @fields  = sort { $des->{ 'FIELD' }{ $a }{ '_ORDER' } <=> $des->{ 'FIELD' }{ $b }{ '_ORDER' } } keys %{ $des->{ 'FIELD' } };
   my @indexes = sort { $des->{ 'INDEX' }{ $a }{ '_ORDER' } <=> $des->{ 'INDEX' }{ $b }{ '_ORDER' } } keys %{ $des->{ 'INDEX' } };
+  my @dos     = sort { $des->{ 'INDEX' }{ $a }{ '_ORDER' } <=> $des->{ 'INDEX' }{ $b }{ '_ORDER' } } keys %{ $des->{ 'DO'    } };
 
   # move table config in more comfortable location
   $des->{ '@' } = $des->{ '@' }{ '@' };
@@ -516,6 +523,7 @@ sub __postprocess_table_des_hash
   $des->{ '@' }{ '_TABLE_NAME'   } = $table;
   $des->{ '@' }{ '_FIELDS_LIST'  } = \@fields;
   $des->{ '@' }{ '_INDEXES_LIST' } = \@indexes;
+  $des->{ '@' }{ '_DOS_LIST'     } = \@dos;
   $des->{ '@' }{ 'DSN'           } = uc( $des->{ '@' }{ 'DSN' } ) || 'MAIN';
 
   $des->{ '@' }{ 'GRANT' } = {} unless $des->{ '@' }{ 'GRANT' };
@@ -635,9 +643,13 @@ sub __postprocess_table_des_hash
 
     }
 
+  for my $do ( @dos )
+    {
+    describe_preprocess_grant_deny( $des->{ 'DO' }{ $do } );
+    }
 
   # add empty keys to fields description before locking
-  for my $category ( qw( FIELD INDEX FILTER ) )
+  for my $category ( qw( FIELD INDEX FILTER DO ) )
     {
     next unless exists $des->{ $category };
     for my $key ( keys %{ $des->{ $category } })
@@ -647,6 +659,7 @@ sub __postprocess_table_des_hash
         next if exists $des->{ $category }{ $key }{ $attr };
         $des->{ $category }{ $key }{ $attr } = undef;
         }
+      # TODO: delete __GDA unless $DEBUG  
       }
     }
 

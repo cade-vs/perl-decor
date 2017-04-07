@@ -35,4 +35,12 @@ sub on_more
   print "more test";
 }
 
+
+sub on_do_date_test
+{
+  my $r = shift;
+  
+  $r->write( 'DATE_TEST' => 123 );
+}
+
 1;

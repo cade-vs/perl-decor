@@ -141,6 +141,14 @@ sub main
   $text .= "<br>";
   $text .= de_html_alink_button( $reo, 'back', "&lArr; [~Back]", "Return to previous screen" );
   $text .= de_html_alink_button( $reo, 'new',  "Edit &uArr;", "Edit this record", ACTION => 'edit', ID => $id, TABLE => $table );
+  
+  for my $do ( @{ $tdes->get_category_list_by_oper( 'READ', 'DO' ) }  )
+    {
+    my $dodes   = $tdes->get_category_des( 'DO', $do );
+    next unless $dodes->allows( 'EXECUTE' );
+    my $dolabel = $dodes->get_attr( qw( WEB VIEW LABEL ) );
+    $text .= de_html_alink_button( $reo, 'new',  "$dolabel &sect;", "$dolabel", ACTION => 'do', DO => $do, ID => $id, TABLE => $table );
+    }
 
   return $text;
 }

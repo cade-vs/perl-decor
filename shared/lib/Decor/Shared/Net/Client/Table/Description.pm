@@ -49,33 +49,49 @@ sub get_label
 
 sub get_fields_list_by_oper
 {
+  my $self     = shift;
+  my $oper     = uc shift;
+
+  return $self->get_category_list_by_oper( $oper, 'FIELD' );
+}
+
+sub get_category_list_by_oper
+{
   my $self = shift;
   
-  my $oper = uc shift;
+  my $oper     = uc shift;
+  my $category = uc shift;
   
-  return $self->{ 'CACHE' }{ 'FIELDS_LIST_BY_OPER' }{ $oper } if exists $self->{ 'CACHE' }{ 'FIELDS_LIST_BY_OPER' }{ $oper };
+  return $self->{ 'CACHE' }{ 'LIST_BY_OPER' }{ $category }{ $oper } if exists $self->{ 'CACHE' }{ 'LIST_BY_OPER' }{ $category }{ $oper };
   
-  my @f;
+  my @items;
   
-  for my $f ( keys %{ $self->{ 'FIELD' } } )
+  for my $item ( keys %{ $self->{ $category } } )
     {
-    next unless $self->{ 'FIELD' }{ $f }->allows( $oper );
-    push @f, $f;
+    next unless $self->{ $category }{ $item }->allows( $oper );
+    push @items, $item;
     }
 
-  @f = sort { $self->{ 'FIELD' }{ $a }{ '_ORDER' } <=> $self->{ 'FIELD' }{ $b }{ '_ORDER' } } @f;
+  @items = sort { $self->{ $category }{ $a }{ '_ORDER' } <=> $self->{ $category }{ $b }{ '_ORDER' } } @items;
 
-  $self->{ 'CACHE' }{ 'FIELDS_LIST_BY_OPER' }{ $oper } = \@f;
+  $self->{ 'CACHE' }{ 'LIST_BY_OPER' }{ $category }{ $oper } = \@items;
   
-  return \@f;
+  return \@items;
 }
 
 sub get_field_des
 {
   my $self = shift;
-  my $f    = shift;
+  return $self->get_category_des( 'FIELD', @_ );
+}
+
+sub get_category_des
+{
+  my $self =    shift;
+  my $cat  = uc shift;
+  my $item = uc shift;
   
-  return $self->{ 'FIELD' }{ $f };
+  return $self->{ $cat }{ $item };
 }
 
 sub resolve_path

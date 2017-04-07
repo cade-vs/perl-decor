@@ -263,34 +263,7 @@ sub check_access_table_field
 
 print "check_access_table_field: [@_]\n";
 
-  $self->{ 'CACHE' }{ 'ACCESS' }{ 'TFO' }{ $table }{ $field } ||= {};
-  my $cache = $self->{ 'CACHE' }{ 'ACCESS' }{ 'TFO' }{ $table }{ $field };
-
-  if( $cache and exists $cache->{ $oper } )
-    {
-    $self->{ 'VAR' }{ 'CACHE_HITS' }++;
-    return $cache->{ $oper };
-    }
-  
-  my $fdes = describe_table_field( $table, $field );
-
-  if( $self->__check_access_tree( $oper, $fdes->{ 'DENY'  } ) )
-    {
-print "check_access_table_field: deny denied\n";
-    $cache->{ $oper } = 0;
-    return 0;
-    }
-    
-  if( $self->__check_access_tree( $oper, $fdes->{ 'GRANT' } ) )
-    {
-print "check_access_table_field: grant granted\n";
-    $cache->{ $oper } = 1;
-    return 1;
-    }
-  
-print "check_access_table_field: default denied\n";
-  $cache->{ $oper } = 0;
-  return 0;
+  return $self->check_access_table_category( $oper, $table, 'FIELD', $field );
 }
 
 sub check_access_table_field_boom
@@ -307,6 +280,50 @@ sub check_access_table_field_boom
   boom "EACCESS: [$oper] denied for table [$table] field [$field] res [$res]" unless $res;
   
   return $res;
+}
+
+sub check_access_table_category
+{
+  my $self = shift;
+
+  return 1 if $self->has_root_access();
+
+  my $oper  = uc $_[0];
+  my $table = uc $_[1];
+  my $cat   = uc $_[2]; # category
+  my $item  = uc $_[3]; # category item
+
+print "check_access_table_category: [@_]\n";
+
+  # TCO == table category oper
+  my $cache = $self->{ 'CACHE' }{ 'ACCESS' }{ 'TCO' }{ $table }{ $cat }{ $item } ||= {};
+
+  if( $cache and exists $cache->{ $oper } )
+    {
+    $self->{ 'VAR' }{ 'CACHE_HITS' }++;
+    return $cache->{ $oper };
+    }
+  
+  my $tdes = describe_table( $table );
+  my $cdes = $tdes->get_category_des( $cat, $item );
+
+  if( $self->__check_access_tree( $oper, $cdes->{ 'DENY'  } ) )
+    {
+print "check_access_table_category: deny denied\n";
+    $cache->{ $oper } = 0;
+    return 0;
+    }
+    
+  if( $self->__check_access_tree( $oper, $cdes->{ 'GRANT' } ) )
+    {
+print "check_access_table_category: grant granted\n";
+    $cache->{ $oper } = 1;
+    return 1;
+    }
+  
+print "check_access_table_category: default denied\n";
+  $cache->{ $oper } = 0;
+  return 0;
 }
 
 sub check_access_row
