@@ -838,6 +838,7 @@ sub sub_insert
     boom "invalid XS received from sub_update [$lt_table:$lt_id:$lt_field=$rec_id] while linking new insert data into [$table:$rec_id]" unless $uo->{ 'XS' } eq 'OK';
     }
 
+  $rec->inject_return_file_into_mo( $mo );
 
   $mo->{ 'NEW_ID' } = $rec->id();
   $mo->{ 'XS' } = 'OK';
@@ -887,6 +888,8 @@ sub sub_update
 
   $rec->save();
 
+  $rec->inject_return_file_into_mo( $mo );
+
   $mo->{ 'XS' } = 'OK';
 };
 
@@ -934,6 +937,8 @@ sub sub_recalc
   # TODO: recalc for insert/update
   $rec->__client_io_enable();
   $rec->method( 'RECALC' );
+
+  $rec->inject_return_file_into_mo( $mo );
 
   my $merrs = $rec->get_errors_hashref();
   $mo->{ 'MERRS' } = $merrs if $merrs;
@@ -985,6 +990,7 @@ sub sub_do
   $rec->save();
 
   $rec->inject_return_file_into_mo( $mo );
+
   #$mo->{ 'MERRS' } = $rec->{ 'METHOD:ERRORS' } if $rec->{ 'METHOD:ERRORS' };
   #$mo->{ 'RDATA' } = $rec->read_hash_all();
   $mo->{ 'XS'    } = 'OK';
