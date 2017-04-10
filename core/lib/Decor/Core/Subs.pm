@@ -816,6 +816,7 @@ sub sub_insert
   $rec->write( %$data );
 
   $rec->taint_mode_disable_all();
+  $rec->__client_io_enable();
   $rec->method( 'INSERT' );
 
   $rec->save();
@@ -881,6 +882,7 @@ sub sub_update
   $rec->write( %$data );
 
   $rec->taint_mode_disable_all();
+  $rec->__client_io_enable();
   $rec->method( 'UPDATE' );
 
   $rec->save();
@@ -907,7 +909,7 @@ sub sub_recalc
   my $id     =    $mi->{ 'ID'     };
 
   boom "invalid TABLE name [$table]"    unless de_check_name( $table ) or ! des_exists( $table );
-  boom "invalid ID [$id]"               unless de_check_id( $id );
+  boom "invalid ID [$id]"               if $id ne '' and ! de_check_id( $id );
 
   my $rec = new Decor::Core::DB::Record;
 
@@ -916,7 +918,7 @@ sub sub_recalc
 
   $rec->taint_mode_on( 'TABLE', 'ROWS' );
 
-  if( $id )
+  if( $id > 0 )
     {
     $rec->load( $table, $id );
     }
@@ -930,9 +932,11 @@ sub sub_recalc
   $rec->taint_mode_disable_all();
 
   # TODO: recalc for insert/update
+  $rec->__client_io_enable();
   $rec->method( 'RECALC' );
 
-  $mo->{ 'MERRS' } = $rec->{ 'METHOD:ERRORS' } if $rec->{ 'METHOD:ERRORS' };
+  my $merrs = $rec->get_errors_hashref();
+  $mo->{ 'MERRS' } = $merrs if $merrs;
   $mo->{ 'RDATA' } = $rec->read_hash_all();
   $mo->{ 'XS'    } = 'OK';
 #print Dumper( $rec, $mi, $mo  );
@@ -976,9 +980,11 @@ sub sub_do
   $rec->taint_mode_disable_all();
 
   # TODO: recalc for insert/update
+  $rec->__client_io_enable();
   $rec->method( uc "DO_$do" );
   $rec->save();
 
+  $rec->inject_return_file_into_mo( $mo );
   #$mo->{ 'MERRS' } = $rec->{ 'METHOD:ERRORS' } if $rec->{ 'METHOD:ERRORS' };
   #$mo->{ 'RDATA' } = $rec->read_hash_all();
   $mo->{ 'XS'    } = 'OK';

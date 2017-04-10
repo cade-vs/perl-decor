@@ -20,6 +20,8 @@ use Decor::Core::Describe;
 use Decor::Core::DB::IO;
 use Decor::Core::Code;
 
+use MIME::Base64;
+
 ##############################################################################
 
 # TODO: add profiles check and support
@@ -730,18 +732,45 @@ sub method
   return de_code_exec( 'tables', $self->table(), $name, $self, @_ );
 }
 
+### CLIENT IO ################################################################
+
+sub __client_io_enable
+{
+  my $self = shift;
+
+  $self->{ 'CLIENT:IO:ENABLED' } = 1;
+}
+
+sub __client_io_disable
+{
+  my $self = shift;
+
+  $self->{ 'CLIENT:IO:ENABLED' } = 0;
+}
+
+sub __check_client_io
+{
+  my $self = shift;
+  
+  boom "this record has CLIENT ID DISABLED so no api methods can be called" unless $self->{ 'CLIENT:IO:ENABLED' };
+}
+
+#-----------------------------------------------------------------------------
+
 sub reset_errors
 {
   my $self = shift;
 
-  delete $self->{ 'METHOD:ERRORS' };
+  $self->__check_client_io();
+  delete $self->{ 'CLIENT:IO:METHOD:ERRORS' };
 }
 
 sub method_add_error
 {
   my $self = shift;
 
-  push @{ $self->{ 'METHOD:ERRORS' }{ '*' } }, @_;
+  $self->__check_client_io();
+  push @{ $self->{ 'CLIENT:IO:METHOD:ERRORS' }{ '*' } }, @_;
 }
 
 sub method_add_field_error
@@ -749,10 +778,60 @@ sub method_add_field_error
   my $self = shift;
   my $name = uc shift;
 
-  push @{ $self->{ 'METHOD:ERRORS' }{ $name } }, @_;
+  $self->__check_client_io();
+  push @{ $self->{ 'CLIENT:IO:METHOD:ERRORS' }{ $name } }, @_;
+}
+
+sub get_errors_hashref
+{
+  my $self = shift;
+
+  $self->__check_client_io();
+  return $self->{ 'CLIENT:IO:METHOD:ERRORS' };
 }
 
 #-----------------------------------------------------------------------------
+
+our %MIME_TYPES = (
+                  HTML => 'text/html',
+                  TEXT => 'text/plain',
+                  JPG  => 'image/jpeg',
+                  JPEG => 'image/jpeg',
+                  GIF  => 'image/gif',
+                  PNG  => 'image/png',
+                  BIN  => 'application/octet-stream',
+                  );
+
+sub return_file_text
+{
+  my $self = shift;
+  my $text = shift;
+  my $type = uc shift || 'TEXT';
+  
+  $self->__check_client_io();
+  $self->{ 'CLIENT:IO:FILE:BODY' } = $text;
+  $self->{ 'CLIENT:IO:FILE:MIME' } = $MIME_TYPES{ $type } || $type;
+}
+
+sub get_return_file_body_mime
+{
+  my $self = shift;
+
+  $self->__check_client_io();
+  return ( $self->{ 'CLIENT:IO:FILE:BODY' }, $self->{ 'CLIENT:IO:FILE:MIME' } );
+}
+
+sub inject_return_file_into_mo
+{
+  my $self = shift;
+  my $mo   = shift;
+  
+  return unless $self->{ 'CLIENT:IO:FILE:BODY' } ne '' and $self->{ 'CLIENT:IO:FILE:MIME' };
+  
+  $mo->{ 'RETURN_FILE_BODY' } = encode_base64( $self->{ 'CLIENT:IO:FILE:BODY' } );
+  $mo->{ 'RETURN_FILE_MIME' } =                $self->{ 'CLIENT:IO:FILE:MIME' };
+  $mo->{ 'RETURN_FILE_XENC' } = 'BASE64';
+}
 
 ### EOF ######################################################################
 1;

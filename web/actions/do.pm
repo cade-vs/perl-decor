@@ -40,8 +40,28 @@ sub main
   
   $core->do( $table, $do, {}, $id );
   
-  $text .= "*** DONE ***";
+  my ( $file_body, $file_mime ) = $core->get_return_file_body_mime();
+  
+  my $html_file;
+  if( $file_mime ne '' )
+    {
+    if( $file_mime eq 'text/plain' )
+      {
+      $html_file .= "<xmp>$file_body</xmp>";
+      }
+    elsif( $file_mime eq 'text/html' )
+      {
+      $html_file .= $file_body;
+      }
+    else
+      {
+      $html_file .= "*** UNSUPPORTED DATA TYPE ***";
+      }  
+    }  
+  
+  $text .= $html_file || "*** DONE ***";
 
+  $text .= "<p>";
   $text .= de_html_alink_button( $reo, 'back', "&lArr; [~Continue]", "Return and continue on previous screen" );
 
   return $text;

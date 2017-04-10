@@ -40,7 +40,9 @@ sub on_do_date_test
 {
   my $r = shift;
   
-  $r->write( 'DATE_TEST' => 123 );
+  $r->write( 'DATE_TEST' => 2345678 );
+  
+  $r->return_file_text( '<h1>All is fine when fine all</h1>', 'html' );
 }
 
 1;

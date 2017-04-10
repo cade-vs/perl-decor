@@ -17,6 +17,7 @@ use IO::Socket::INET;
 use Data::Tools;
 use Exception::Sink;
 use Data::Dumper;
+use MIME::Base64;
 
 use Decor::Shared::Utils;
 use Decor::Shared::Net::Protocols;
@@ -187,8 +188,23 @@ sub tx_msg
   $self->{ 'STATUS_MSG'  } = $mo->{ 'XS_MSG' };
   $self->{ 'STATUS_REF'  } = $mo->{ 'XS_REF' };
 
+  if( $mo->{ 'RETURN_FILE_BODY' } ne '' )
+    {
+    # FIXME: use transfer encoding: $self->{ 'RETURN_FILE_XENC' }
+    $self->{ 'RETURN_FILE_BODY' } = decode_base64( $mo->{ 'RETURN_FILE_BODY' } );
+    $self->{ 'RETURN_FILE_MIME' } =                $mo->{ 'RETURN_FILE_MIME' };
+    }
+
   return undef unless $mo->{ 'XS' } eq 'OK';
   return $mo;
+}
+
+sub get_return_file_body_mime
+{
+  my $self = shift;
+
+  return () unless $self->{ 'RETURN_FILE_BODY' } ne '' and $self->{ 'RETURN_FILE_MIME' };
+  return ( $self->{ 'RETURN_FILE_BODY' }, $self->{ 'RETURN_FILE_MIME' } );
 }
 
 #-----------------------------------------------------------------------------
