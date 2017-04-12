@@ -15,8 +15,9 @@ use Data::Lock qw( dlock dunlock );
 
 use Exception::Sink;
 
-use Decor::Shared::Utils;
 use Decor::Core::Env;
+use Decor::Core::Utils;
+use Decor::Shared::Utils;
 
 use Exporter;
 our @ISA    = qw( Exporter );
@@ -37,47 +38,6 @@ our @EXPORT = qw(
 
 my %CODE_CACHE;
 
-sub __get_code_dirs
-{
-  my $ctype = lc shift;
-  
-  return $CODE_CACHE{ 'CODE_DIRS_AR' }{ $ctype } if exists $CODE_CACHE{ 'CODE_DIRS_AR' }{ $ctype };
-
-  de_check_name_boom( $ctype, "invalid CODE TYPE [$ctype]" );
-  
-  my $root         = de_root();
-  my $app_path     = de_app_path();
-  my $bundles_dirs = de_bundles_dirs();
-  
-  my @dirs;
-  push @dirs, "$app_path/$ctype";
-  push @dirs, "$_/$ctype" for reverse @$bundles_dirs;
-  push @dirs, "$root/core/$ctype";
-
-  $CODE_CACHE{ 'CODE_DIRS_AR' }{ $ctype } = \@dirs;
-
-  return \@dirs;
-}
-
-sub de_code_file_find
-{
-  my $ctype = lc shift;
-  my $name  = lc shift;
-  
-  de_check_name_boom( $ctype, "invalid CODE TYPE [$ctype]" );
-  de_check_name_boom( $name,  "invalid CODE NAME [$name]" );
-
-  my $dirs = __get_code_dirs( $ctype );
-
-  for my $dir ( @$dirs )
-    {
-    my $file = "$dir/$name.pm";
-    return $file if -e $file;
-    }
-  
-  return undef;
-}
-
 sub de_code_get_map
 {
   my $ctype = lc shift;
@@ -85,7 +45,7 @@ sub de_code_get_map
   
   return $CODE_CACHE{ 'CODE_MAPS' }{ $ctype }{ $name } if exists $CODE_CACHE{ 'CODE_MAPS' }{ $ctype }{ $name };
   
-  my $file = de_code_file_find( $ctype, $name );
+  my $file = de_core_subtype_file_find( $ctype, 'pm', $name );
   return undef unless $file;
 
   eval
@@ -131,7 +91,7 @@ sub de_code_exists
 
   my $map = de_code_get_map( $ctype, $name );
 
-print Dumper( 'de-code-exists'x10, $ctype, $name, $trigger, $map );
+#print Dumper( 'de-code-exists'x10, $ctype, $name, $trigger, $map );
   
   return undef unless $map;
   return undef unless exists $map->{ $trigger };

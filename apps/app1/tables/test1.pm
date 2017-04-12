@@ -42,7 +42,8 @@ sub on_do_date_test
   
   $r->write( 'DATE_TEST' => 2345678 );
   
-  $r->return_file_text( '<h1>All is fine when fine all</h1>', 'html' );
+  my $ff = $r->form_gen_data( 'test' );
+  $r->return_file_text( "<h1>All is fine when fine all</h1><h2>$ff</h2>", 'html' );
 }
 
 1;

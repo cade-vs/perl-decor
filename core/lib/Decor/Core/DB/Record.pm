@@ -19,6 +19,7 @@ use Decor::Core::DSN;
 use Decor::Core::Describe;
 use Decor::Core::DB::IO;
 use Decor::Core::Code;
+use Decor::Core::Form;
 
 use MIME::Base64;
 
@@ -831,6 +832,19 @@ sub inject_return_file_into_mo
   $mo->{ 'RETURN_FILE_BODY' } = encode_base64( $self->{ 'CLIENT:IO:FILE:BODY' } );
   $mo->{ 'RETURN_FILE_MIME' } =                $self->{ 'CLIENT:IO:FILE:MIME' };
   $mo->{ 'RETURN_FILE_XENC' } = 'BASE64';
+}
+
+#-----------------------------------------------------------------------------
+
+sub form_gen_data
+{
+  my $self      = shift;
+
+  my $form_name = shift;
+  my $data      = shift;
+  my $opts      = shift;
+  
+  return de_form_gen_rec_data( $form_name, $self, $data, $opts );
 }
 
 ### EOF ######################################################################
