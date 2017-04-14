@@ -15,6 +15,7 @@ use Exception::Sink;
 
 use Decor::Core::Env;
 use Decor::Core::Utils;
+use Decor::Core::Describe;
 use Decor::Shared::Utils;
 
 use Exporter;
@@ -37,8 +38,59 @@ sub de_form_gen_rec_data
   my $form_file = de_core_subtype_file_find( 'forms', 'txt', $form_name );
 
   my $form_text = file_load( $form_file );
+  
+  $form_text =~ s/\[(.*?)\]/__form_process_item( $1, $rec, $data, $opts )/gie;
 
   return $form_text;
+}
+
+sub __form_process_item
+{
+  my $item = uc shift;
+  my $rec  = shift;
+  my $data = shift;
+  my $opts = shift;
+
+  my $item_len = length $item;
+  my $item_align = '<';
+  
+  $item =~ s/^\s*//;
+  $item =~ s/\s*$//;
+  
+  my ( $name, $fmt ) = split /\s+/, $item, 2;
+
+  $item_len   = $1 if $fmt =~ /(\d+)/;
+  $item_align = $1 if $fmt =~ /([<=>])/;
+
+  my $value;
+  if( des_exists( $rec->table(), $name ) )
+    {
+    $value = $rec->read( $name );
+    }
+  elsif( exists $data->{ $name } )  
+    {
+    $value = $data->{ $name };
+    }
+  else
+    {
+    # TODO: warning: no such record field or data
+    }
+
+  if( $item_align eq '<' )
+    {
+    $value = str_pad( $value, $item_len );
+    }
+  elsif( $item_align eq '>' )
+    {
+    $value = str_pad( $value, -$item_len );
+    }
+  else
+    {
+    $value = str_pad_center( $value, $item_len );
+    }  
+
+  return $value;  
+  
 }
 
 

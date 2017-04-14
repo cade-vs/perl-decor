@@ -27,6 +27,7 @@ our @EXPORT = qw(
 
 my %SUBTYPE_DIRS_CACHE;
 
+# TODO: handle language translations
 sub de_get_core_subtype_dirs
 {
   my $subtype = lc shift;
