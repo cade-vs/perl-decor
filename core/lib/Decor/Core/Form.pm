@@ -17,6 +17,7 @@ use Decor::Core::Env;
 use Decor::Core::Utils;
 use Decor::Core::Describe;
 use Decor::Shared::Utils;
+use Decor::Shared::Types;
 
 use Exporter;
 our @ISA    = qw( Exporter );
@@ -59,21 +60,40 @@ sub __form_process_item
   
   my ( $name, $fmt ) = split /\s+/, $item, 2;
 
-  $item_len   = $1 if $fmt =~ /(\d+)/;
+  my $item_dot = 8;
+  ( $item_len, $item_dot ) = ( ( $1 || $item_len ), ( $3 || $4 ) ) if $fmt =~ /(\d+)(\.(\d+))?|\.(\d+)/;
   $item_align = $1 if $fmt =~ /([<=>])/;
+  my ( $item_format, $item_format_name ) = ( 1, $2 ) if $fmt =~ /F(\(\s*([A-Z]+)\s*\))?/;
+
+  my ( $bfdes, $lfdes ) = des_resolve_path( $rec->table(), $name );
 
   my $value;
-  if( des_exists( $rec->table(), $name ) )
+  if( $lfdes )
     {
     $value = $rec->read( $name );
+    if( $item_format )
+      {
+      my $ftype;
+      if( ! $item_format_name )
+        {
+        $ftype = $lfdes->{ 'TYPE' };
+        }
+      else
+        {
+        $ftype = { NAME => $item_format_name, DOT => $item_dot };
+        }  
+      $value = type_format( $value, $ftype );
+      }
     }
   elsif( exists $data->{ $name } )  
     {
     $value = $data->{ $name };
+    $value = type_format( $value, { NAME => $item_format_name, DOT => $item_dot } ) if $item_format;
     }
   else
     {
     # TODO: warning: no such record field or data
+    $value = '*?*';
     }
 
   if( $item_align eq '<' )

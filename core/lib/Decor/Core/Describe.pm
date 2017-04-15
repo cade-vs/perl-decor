@@ -42,6 +42,8 @@ our @EXPORT = qw(
 
                 describe_parse_access_line
                 describe_preprocess_grant_deny
+                
+                des_resolve_path
                 );
 
 # TODO: FIXME: handle LOOP errors!
@@ -965,6 +967,35 @@ sub des_table_get_fields_list
 
   my $des = describe_table( $table );
   return $des->get_fields_list();
+}
+
+sub des_resolve_path
+{
+  my $table = shift;
+  my $path  = shift;
+  
+  my @path = split /\./, $path;
+  
+  my $f     = shift @path;
+  my $tdes  = describe_table( $table );
+  my $bfdes = $tdes->get_field_des( $f );
+  my $cfdes = $bfdes;
+
+  while( @path )
+    {
+    # FIXME: TODO: URGENT: get ->is_linked() ASAP!
+    if( $cfdes->{ 'LINK_TYPE'    } ne 'LINK' )
+      {
+      boom "during path resolve of [$path] non-linked field [$f] is found";
+      }
+    # FIXME: TODO: URGENT: get ->link_details() ASAP!
+    my ( $table ) = $cfdes->{ 'LINKED_TABLE' };
+    my $ctdes = describe_table( $table );
+    $f = shift @path;
+    $cfdes = $ctdes->get_field_des( $f );
+    }
+  
+  return wantarray ? ( $bfdes, $cfdes ) : $cfdes;
 }
 
 ### EOF ######################################################################
