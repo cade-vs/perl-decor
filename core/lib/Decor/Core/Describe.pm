@@ -22,11 +22,13 @@ use Decor::Core::Env;
 use Decor::Core::Log;
 #use Decor::Core::Config;
 use Decor::Core::Table::Description;
+use Decor::Core::Table::Category::Description;
+use Decor::Core::Table::Category::Do::Description;
+use Decor::Core::Table::Category::Field::Description;
 
 use Exporter;
 our @ISA    = qw( Exporter );
 our @EXPORT = qw(
-
                 des_reset
 
                 des_get_tables_list
@@ -42,8 +44,6 @@ our @EXPORT = qw(
 
                 describe_parse_access_line
                 describe_preprocess_grant_deny
-                
-                des_resolve_path
                 );
 
 # TODO: FIXME: handle LOOP errors!
@@ -99,6 +99,11 @@ my %DES_CATEGORIES = (
                        'FIELD'  => 1,
                        'INDEX'  => 1,
                        'FILTER' => 1,
+                       'DO'     => 1,
+                     );
+
+my %BLESS_CATEGORIES = (
+                       'FIELD'  => 1,
                        'DO'     => 1,
                      );
 
@@ -662,6 +667,12 @@ sub __postprocess_table_des_hash
         $des->{ $category }{ $key }{ $attr } = undef;
         }
       # TODO: delete __GDA unless $DEBUG  
+
+      if( $BLESS_CATEGORIES{ $category } )
+        {
+        my $p = uc( substr( $category, 0, 1 ) ) . lc( substr( $category, 1 ) );
+        bless $des->{ $category }{ $key }, "Decor::Core::Table::Category::${p}::Description";
+        }
       }
     }
 
@@ -967,35 +978,6 @@ sub des_table_get_fields_list
 
   my $des = describe_table( $table );
   return $des->get_fields_list();
-}
-
-sub des_resolve_path
-{
-  my $table = shift;
-  my $path  = shift;
-  
-  my @path = split /\./, $path;
-  
-  my $f     = shift @path;
-  my $tdes  = describe_table( $table );
-  my $bfdes = $tdes->get_field_des( $f );
-  my $cfdes = $bfdes;
-
-  while( @path )
-    {
-    # FIXME: TODO: URGENT: get ->is_linked() ASAP!
-    if( $cfdes->{ 'LINK_TYPE'    } ne 'LINK' )
-      {
-      boom "during path resolve of [$path] non-linked field [$f] is found";
-      }
-    # FIXME: TODO: URGENT: get ->link_details() ASAP!
-    my ( $table ) = $cfdes->{ 'LINKED_TABLE' };
-    my $ctdes = describe_table( $table );
-    $f = shift @path;
-    $cfdes = $ctdes->get_field_des( $f );
-    }
-  
-  return wantarray ? ( $bfdes, $cfdes ) : $cfdes;
 }
 
 ### EOF ######################################################################

@@ -7,11 +7,8 @@
 ##  LICENSE: GPLv2
 ##
 ##############################################################################
-package Decor::Shared::Net::Client::Table::Category::Field::Description;
+package Decor::Core::Table::Category::Description;
 use strict;
-
-use parent 'Decor::Shared::Net::Client::Table::Category::Description';
-use parent 'Decor::Shared::Table::Category::Field::Description';
 
 use Data::Dumper;
 use Exception::Sink;
@@ -19,6 +16,12 @@ use Data::Tools;
 
 ##############################################################################
 
+sub describe
+{
+  my $self = shift;
+  
+  return describe_table( @_ );
+}
 
 ### EOF ######################################################################
 1;

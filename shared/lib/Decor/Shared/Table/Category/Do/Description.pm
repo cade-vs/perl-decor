@@ -7,12 +7,10 @@
 ##  LICENSE: GPLv2
 ##
 ##############################################################################
-package Decor::Shared::Net::Client::Table::Category::Field::Description;
+package Decor::Shared::Table::Category::Do::Description;
 use strict;
 
-use parent 'Decor::Shared::Net::Client::Table::Category::Description';
-use parent 'Decor::Shared::Table::Category::Field::Description';
-
+use parent 'Decor::Shared::Table::Category::Description';
 use Data::Dumper;
 use Exception::Sink;
 use Data::Tools;

@@ -7,11 +7,8 @@
 ##  LICENSE: GPLv2
 ##
 ##############################################################################
-package Decor::Shared::Net::Client::Table::Category::Field::Description;
+package Decor::Shared::Table::Category::Description;
 use strict;
-
-use parent 'Decor::Shared::Net::Client::Table::Category::Description';
-use parent 'Decor::Shared::Table::Category::Field::Description';
 
 use Data::Dumper;
 use Exception::Sink;
@@ -19,6 +16,31 @@ use Data::Tools;
 
 ##############################################################################
 
+sub describe
+{
+  boom "describe must be reimplemented in the subclass";
+}
+
+sub get_attr
+{
+  my $self = shift;
+  my @path = @_;
+
+  my $attr = pop @path;
+  
+  boom "missing ATTRIBUTE NAME argument" unless $attr;
+  
+  while( @path )
+    {
+    my $full_attr = join '.', @path, $attr;
+    return $self->{ $full_attr } if exists $self->{ $full_attr };
+    pop @path;
+    }
+
+  return undef unless exists $self->{ $attr };
+    
+  return $self->{ $attr };
+}
 
 ### EOF ######################################################################
 1;

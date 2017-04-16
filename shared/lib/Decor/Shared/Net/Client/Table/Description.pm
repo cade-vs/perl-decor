@@ -10,6 +10,8 @@
 package Decor::Shared::Net::Client::Table::Description;
 use strict;
 
+use parent 'Decor::Shared::Table::Description';
+
 use Data::Dumper;
 use Exception::Sink;
 use Data::Tools;
@@ -21,6 +23,13 @@ sub client
   my $self = shift;
   
   return $self->{ ':CLIENT_OBJECT' };
+}
+
+sub describe
+{
+  my $self = shift;
+  
+  return $self->client()->describe( @_ );
 }
 
 sub allows
@@ -38,13 +47,6 @@ sub allows
               or ( exists $self->{ '@' }{ 'GRANT' }{ 'ALL' } and $self->{ '@' }{ 'GRANT' }{ 'ALL' } );
   
   return 0;
-}
-
-sub get_label
-{
-  my $self = shift;
-
-  return $self->{ '@' }{ 'LABEL' };
 }
 
 sub get_fields_list_by_oper
@@ -77,47 +79,6 @@ sub get_category_list_by_oper
   $self->{ 'CACHE' }{ 'LIST_BY_OPER' }{ $category }{ $oper } = \@items;
   
   return \@items;
-}
-
-sub get_field_des
-{
-  my $self = shift;
-  return $self->get_category_des( 'FIELD', @_ );
-}
-
-sub get_category_des
-{
-  my $self =    shift;
-  my $cat  = uc shift;
-  my $item = uc shift;
-  
-  return $self->{ $cat }{ $item };
-}
-
-sub resolve_path
-{
-  my $self = shift;
-  my $path = shift;
-  
-  my @path = split /\./, $path;
-  
-  my $f  = shift @path;
-  my $bfdes = $self->get_field_des( $f );
-  my $cfdes = $bfdes;
-
-  while( @path )
-    {
-    if( ! $cfdes->is_linked() )
-      {
-      boom "during path resolve of [$path] non-linked field [$f] is found";
-      }
-    my ( $table ) = $cfdes->link_details();
-    my $ctdes = $self->client()->describe( $table );
-    $f = shift @path;
-    $cfdes = $ctdes->get_field_des( $f );
-    }
-  
-  return wantarray ? ( $bfdes, $cfdes ) : $cfdes;
 }
 
 ### EOF ######################################################################

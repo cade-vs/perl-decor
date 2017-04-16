@@ -23,6 +23,13 @@ sub client
   return $self->{ ':CLIENT_OBJECT' };
 }
 
+sub describe
+{
+  my $self = shift;
+  
+  return $self->client()->describe( @_ );
+}
+
 sub allows
 {
   my $self = shift;
@@ -43,28 +50,6 @@ print STDERR "================mid===========$oper================pre[$f]\n";
   
 print STDERR "==============================$oper================DENIED[$f]\n\n";
   return 0;
-}
-
-
-sub get_attr
-{
-  my $self = shift;
-  my @path = @_;
-
-  my $attr = pop @path;
-  
-  boom "missing ATTRIBUTE NAME argument" unless $attr;
-  
-  while( @path )
-    {
-    my $full_attr = join '.', @path, $attr;
-    return $self->{ $full_attr } if exists $self->{ $full_attr };
-    pop @path;
-    }
-
-  return undef unless exists $self->{ $attr };
-    
-  return $self->{ $attr };
 }
 
 ### EOF ######################################################################

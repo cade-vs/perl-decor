@@ -44,6 +44,8 @@ use Decor::Shared::Utils;
 use Decor::Core::Config;
 use Decor::Core::Log;
 
+$Data::Dumper::Sortkeys = 1;
+
 ### PRIVATE ##################################################################
 
 my $VERSION = '1.00';

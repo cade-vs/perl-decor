@@ -11,6 +11,7 @@ package Decor::Core::Table::Description;
 use strict;
 
 use parent 'Decor::Core::Base';
+use parent 'Decor::Shared::Table::Description';
 
 use Data::Dumper;
 use Exception::Sink;
@@ -21,6 +22,13 @@ use Decor::Core::Log;
 use Decor::Core::Config;
 
 ##############################################################################
+
+sub describe
+{
+  my $self = shift;
+  
+  return Decor::Core::Describe::describe_table( @_ );
+}
 
 sub get_table_name
 {
@@ -48,41 +56,6 @@ sub get_dos_list
   my $self = shift;
   
   return $self->{ '@' }{ '_DOS_LIST' };
-}
-
-sub get_table_des
-{
-  my $self  =    shift;
-  
-  return $self->{ '@' };
-}
-
-sub get_field_des
-{
-  my $self  =    shift;
-
-  return $self->get_category_des( 'FIELD', @_ );
-}
-
-sub get_category_des
-{
-  my $self     =    shift;
-  my $category = uc shift;
-  my $item     = uc shift;
-
-  if( $item eq '@' )
-    {
-    # shortcut to self, regardless category
-    return $self->{ '@' };
-    }
-  
-  if( ! exists $self->{ $category }{ $item } )
-    {
-    my $table = $self->get_table_name();
-    boom "unknown category [$category] item [$item] for table [$table]";
-    }
-
-  return $self->{ $category }{ $item };
 }
 
 sub get_index_des
