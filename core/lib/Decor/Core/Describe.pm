@@ -258,6 +258,7 @@ sub __merge_table_des_file
   my $category  = '@';
   $des->{ $category }{ $sect_name } ||= {};
   push @{ $des->{ $category }{ $sect_name }{ 'DEBUG::ORIGIN' } }, $fname;
+  $des->{ $category }{ $sect_name }{ 'NAME' } = $table;
   my $file_mtime = file_mtime( $fname );
   if( $des->{ $category }{ $sect_name }{ '_MTIME' } < $file_mtime )
     {

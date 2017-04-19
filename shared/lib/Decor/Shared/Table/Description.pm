@@ -35,6 +35,13 @@ sub get_table_des
   return $self->{ '@' };
 }
 
+sub get_table_name
+{
+  my $self  =    shift;
+  
+  return $self->{ '@' }{ 'NAME' };
+}
+
 sub get_field_des
 {
   my $self  =    shift;

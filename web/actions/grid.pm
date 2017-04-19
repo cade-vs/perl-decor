@@ -38,6 +38,9 @@ sub main
   my $ui = $reo->get_user_input();
   my $ps = $reo->get_page_session();
 
+  my $button    = $reo->get_input_button();
+  my $button_id = $reo->get_input_button_id();
+
   my $table  = $reo->param( 'TABLE'  );
   my $offset = $reo->param( 'OFFSET' );
   my $filter_param = $reo->param( 'FILTER' );
@@ -51,6 +54,22 @@ sub main
   $reo->ps_path_add( 'grid', qq( List data from "<b>$table_label</b>" ) );
 
   return "<#e_internal>" unless $tdes;
+
+  if( $button eq 'DO' and $button_id )
+    {
+    # FIXME: check if exists
+    my $do = $ps->{ ':DO_NAME_MAP' }{ $button_id };
+    #return "<#e_access>" unless $do;
+    
+    my @do_ids;
+    while( my ( $k, $v ) = each %$ui )
+      {
+      next unless $k =~ s/^VECB://;
+      next unless $v > 0;
+      push @do_ids, $ps->{ ':VECB_NAME_MAP' }{ $k } if exists $ps->{ ':VECB_NAME_MAP' }{ $k };
+      }
+    return $reo->forward_new( ACTION => 'do', DO => $do, IDS => \@do_ids, TABLE => $table ) if @do_ids;
+    }
 
   my $link_field_disable = $reo->param( 'LINK_FIELD_DISABLE' );
   my $filter_name = $reo->param( 'FILTER_NAME' );
@@ -132,6 +151,8 @@ sub main
   $grid_form_begin .= $grid_form->begin( NAME => "grid_edit_$table", DEFAULT_BUTTON => 'NOOP' );
   my $grid_form_id = $grid_form->get_id();
 
+  delete $ps->{ ':VECB_NAME_MAP' };
+
   my $row_counter;
   while( my $row_data = $core->fetch( $select ) )
     {
@@ -170,8 +191,8 @@ sub main
 
     if( @dos )
       {
-      my $cb_id = ++ $ps->{ ':CHECKBOX_NAME_MAP' }{ '*' };
-      $ps->{ ':CHECKBOX_NAME_MAP' }{ $cb_id } = $cb_id;
+      my $cb_id = ++ $ps->{ ':VECB_NAME_MAP' }{ '*' };
+      $ps->{ ':VECB_NAME_MAP' }{ $cb_id } = $id;
       $vec_ctrl .= $grid_form->checkbox_multi(
                                        NAME     => "VECB:$cb_id",
                                        ID       => "VECB:$cb_id",
@@ -306,13 +327,16 @@ sub main
     $text .= $text_grid_body;
     $text .= $text_grid_foot;
     $text .= $text_grid_navi;
-    
+
+    delete $ps->{ ':DO_NAME_MAP' };
     for my $do ( @dos )
       {
       my $dodes   = $tdes->get_category_des( 'DO', $do );
       my $dolabel = $dodes->get_attr( qw( WEB GRID LABEL ) );
       # FIXME: map DOs through $ps
-      $text .= $grid_form->button( NAME => "DO:$do", VALUE => $dolabel );
+      my $do_id = ++ $ps->{ ':DO_NAME_MAP' }{ '*' };
+      $ps->{ ':DO_NAME_MAP' }{ $do_id } = $do;
+      $text .= $grid_form->button( NAME => "DO:$do_id", VALUE => $dolabel );
       }
     
     $text .= $grid_form->end();

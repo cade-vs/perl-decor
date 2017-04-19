@@ -65,6 +65,7 @@ sub __form_process_item
   $item_align = $1 if $fmt =~ /([<=>])/;
   my ( $item_format, $item_format_name ) = ( 1, $2 ) if $fmt =~ /F(\(\s*([A-Z]+)\s*\))?/;
 
+  my $value;
   if( $data and exists $data->{ $name } )  
     {
     $value = $data->{ $name };
@@ -75,7 +76,6 @@ sub __form_process_item
     my $tdes = describe_table( $rec->table() );
     my ( $bfdes, $lfdes ) = $tdes->resolve_path( $name );
 
-    my $value;
     if( $lfdes )
       {
       $value = $rec->read( $name );
