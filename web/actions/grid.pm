@@ -34,6 +34,10 @@ sub main
 
   my $grid_mode  = $reo->param( 'GRID_MODE'  ) || 'NORMAL';
 
+  my $si = $reo->get_safe_input();
+  my $ui = $reo->get_user_input();
+  my $ps = $reo->get_page_session();
+
   my $table  = $reo->param( 'TABLE'  );
   my $offset = $reo->param( 'OFFSET' );
   my $filter_param = $reo->param( 'FILTER' );
@@ -115,6 +119,19 @@ sub main
     }
   $text_grid_head .= "</tr>";
 
+  my @dos;
+  for my $do ( @{ $tdes->get_category_list_by_oper( 'READ', 'DO' ) }  )
+    {
+    my $dodes   = $tdes->get_category_des( 'DO', $do );
+    next unless $dodes->allows( 'EXECUTE' );
+    push @dos, $do;
+    }
+
+  my $grid_form = new Web::Reactor::HTML::Form( REO_REACTOR => $reo );
+  my $grid_form_begin;
+  $grid_form_begin .= $grid_form->begin( NAME => "grid_edit_$table", DEFAULT_BUTTON => 'NOOP' );
+  my $grid_form_id = $grid_form->get_id();
+
   my $row_counter;
   while( my $row_data = $core->fetch( $select ) )
     {
@@ -151,7 +168,19 @@ sub main
     $vec_ctrl .= de_html_alink( $reo, 'new', "edit.svg", 'Edit this record', ACTION => 'edit', ID => $id, TABLE => $table ) if $tdes->allows( 'UPDATE' );
     $vec_ctrl .= de_html_alink( $reo, 'new', "copy.svg", 'Copy this record', ACTION => 'edit', ID =>  -1, TABLE => $table, COPY_ID => $id ) if $tdes->allows( 'INSERT' );
 
-    $text_grid_body .= "<td class='grid-data fmt-ctrl'>$vec_ctrl</td>";
+    if( @dos )
+      {
+      my $cb_id = ++ $ps->{ ':CHECKBOX_NAME_MAP' }{ '*' };
+      $ps->{ ':CHECKBOX_NAME_MAP' }{ $cb_id } = $cb_id;
+      $vec_ctrl .= $grid_form->checkbox_multi(
+                                       NAME     => "VECB:$cb_id",
+                                       ID       => "VECB:$cb_id",
+                                       VALUE    => 0,
+                                       RET      => [ '0', '1' ],
+                                       );
+      }
+
+    $text_grid_body .= "<td class='grid-data fmt-ctrl fmt-mono'>$vec_ctrl</td>";
     for my $field ( @fields )
       {
       my $bfdes     = $bfdes{ $field };
@@ -270,11 +299,24 @@ sub main
     # FIXME: use function!
     my $text_grid_navi = "<table width=100% style='white-space: nowrap'><tr><td align=left width=1%>$text_grid_navi_left</td><td align=center>$text_grid_navi_mid</td><td align=right width=1%>$text_grid_navi_right</td></tr></table>";
 
+    $text .= $grid_form_begin;
+    
     $text .= $text_grid_navi;
     $text .= $text_grid_head;
     $text .= $text_grid_body;
     $text .= $text_grid_foot;
     $text .= $text_grid_navi;
+    
+    for my $do ( @dos )
+      {
+      my $dodes   = $tdes->get_category_des( 'DO', $do );
+      my $dolabel = $dodes->get_attr( qw( WEB GRID LABEL ) );
+      # FIXME: map DOs through $ps
+      $text .= $grid_form->button( NAME => "DO:$do", VALUE => $dolabel );
+      }
+    
+    $text .= $grid_form->end();
+    
     }
 
 

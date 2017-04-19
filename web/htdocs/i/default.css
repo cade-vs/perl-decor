@@ -489,6 +489,7 @@ td.fmt-center
 td.fmt-mono
         {
         font-family: monospace;
+        white-space: nowrap;
         }
 
 td.fmt-ctrl
@@ -589,7 +590,7 @@ div.checkbox-0
         background-color: #422;
         border: solid 1px #644;
         padding: 0.5em;
-        display: table-cell;
+        display: inline;
         width: 3em;
         }
 
@@ -601,7 +602,7 @@ div.checkbox-1
         background-color: #242;
         border: solid 1px #464;
         padding: 0.5em;
-        display: table-cell;
+        display: inline;
         width: 3em;
         }
 

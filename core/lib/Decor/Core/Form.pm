@@ -65,36 +65,44 @@ sub __form_process_item
   $item_align = $1 if $fmt =~ /([<=>])/;
   my ( $item_format, $item_format_name ) = ( 1, $2 ) if $fmt =~ /F(\(\s*([A-Z]+)\s*\))?/;
 
-  my $tdes = describe_table( $rec->table() );
-  my ( $bfdes, $lfdes ) = $tdes->resolve_path( $name );
-
-  my $value;
-  if( $lfdes )
-    {
-    $value = $rec->read( $name );
-    if( $item_format )
-      {
-      my $ftype;
-      if( ! $item_format_name )
-        {
-        $ftype = $lfdes->{ 'TYPE' };
-        }
-      else
-        {
-        $ftype = { NAME => $item_format_name, DOT => $item_dot };
-        }  
-      $value = type_format( $value, $ftype );
-      }
-    }
-  elsif( exists $data->{ $name } )  
+  if( $data and exists $data->{ $name } )  
     {
     $value = $data->{ $name };
     $value = type_format( $value, { NAME => $item_format_name, DOT => $item_dot } ) if $item_format;
     }
+  elsif( $rec )
+    {  
+    my $tdes = describe_table( $rec->table() );
+    my ( $bfdes, $lfdes ) = $tdes->resolve_path( $name );
+
+    my $value;
+    if( $lfdes )
+      {
+      $value = $rec->read( $name );
+      if( $item_format )
+        {
+        my $ftype;
+        if( ! $item_format_name )
+          {
+          $ftype = $lfdes->{ 'TYPE' };
+          }
+        else
+          {
+          $ftype = { NAME => $item_format_name, DOT => $item_dot };
+          }  
+        $value = type_format( $value, $ftype );
+        }
+      }
+    else
+      {
+      # TODO: warning: no such record field or data
+      $value = '*?*';
+      }
+    }  
   else
     {
     # TODO: warning: no such record field or data
-    $value = '*?*';
+    $value = '*??*';
     }
 
   if( $item_align eq '<' )
