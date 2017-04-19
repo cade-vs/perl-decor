@@ -963,7 +963,7 @@ sub sub_do
   boom "invalid ID [$id]"               unless de_check_id( $id );
 
   my $profile = subs_get_current_profile();
-  boom "E_ACCESS: access denied do [$do] for table [$table]" unless $profile->check_access_table_category( 'UPDATE', $table, 'DO', $do );
+  boom "E_ACCESS: access denied do [$do] for table [$table]" unless $profile->check_access_table_category( 'EXECUTE', $table, 'DO', $do );
 
   my $rec = new Decor::Core::DB::Record;
 
