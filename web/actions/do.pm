@@ -25,6 +25,7 @@ sub main
 
   my $table  = $reo->param( 'TABLE' );
   my $id     = $reo->param( 'ID'    );
+  my $ids    = $reo->param( 'IDS'   );
   my $do     = $reo->param( 'DO'    );
 
   my $core = $reo->de_connect();
@@ -38,27 +39,34 @@ sub main
   
   return "<#access_denied>" unless $dodes->allows( 'EXECUTE' );
   
-  $core->do( $table, $do, {}, $id );
-  
-  my ( $file_body, $file_mime ) = $core->get_return_file_body_mime();
-  
+  my @ids;
+  push @ids, $id   if $id   > 0;
+  push @ids, @$ids if @$ids > 0;
+
   my $html_file;
-  if( $file_mime ne '' )
+  for my $id ( @ids )
     {
-    if( $file_mime eq 'text/plain' )
+    $core->do( $table, $do, {}, $id );
+    
+    my ( $file_body, $file_mime ) = $core->get_return_file_body_mime();
+    
+    if( $file_mime ne '' )
       {
-      $html_file .= "<xmp>$file_body</xmp>";
-      }
-    elsif( $file_mime eq 'text/html' )
-      {
-      $html_file .= $file_body;
-      }
-    else
-      {
-      $html_file .= "*** UNSUPPORTED DATA TYPE ***";
+      if( $file_mime eq 'text/plain' )
+        {
+        $html_file .= "<xmp>$file_body</xmp>";
+        }
+      elsif( $file_mime eq 'text/html' )
+        {
+        $html_file .= $file_body;
+        }
+      else
+        {
+        $html_file .= "*** UNSUPPORTED DATA TYPE ***";
+        }  
       }  
-    }  
-  
+    }
+
   $text .= $html_file || "*** DONE ***";
 
   $text .= "<p>";
