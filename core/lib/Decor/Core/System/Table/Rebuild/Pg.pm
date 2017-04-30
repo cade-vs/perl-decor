@@ -240,10 +240,13 @@ sub sequence_get_current_value
 #-----------------------------------------------------------------------------
 
 my %NATIVE_TYPES = (
-                   'INT'   => 'integer',
-                   'DATE'  => 'integer',
-                   'TIME'  => 'integer',
-                   'UTIME' => 'integer',
+                   'INT'      => 'integer',
+                   'DATE'     => 'integer',
+                   'TIME'     => 'integer',
+                   'UTIME'    => 'integer',
+                   
+                   'LINK'     => 'bigint',
+                   'BACKLINK' => 'bigint',
                    );
 
 sub get_native_type

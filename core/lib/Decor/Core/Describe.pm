@@ -17,6 +17,7 @@ use Data::Tools 1.09;
 use Tie::IxHash;
 use Data::Lock qw( dlock dunlock );
 
+use Decor::Shared::Types;
 use Decor::Shared::Utils;
 use Decor::Core::Env;
 use Decor::Core::Log;
@@ -72,14 +73,6 @@ my %TYPE_ATTRS = (
                       'LEN'    => undef,
                       'DOT'    => undef,
                  );
-my %FIELD_TYPES = (
-                      'CHAR'   => 1,
-                      'INT'    => 1,
-                      'REAL'   => 1,
-                      'TIME'   => 1,
-                      'DATE'   => 1,
-                      'UTIME'  => 1,
-                  );
 
 my %DES_KEY_TYPES  = (
                       'GRANT'  => '@',
@@ -109,10 +102,18 @@ my %BLESS_CATEGORIES = (
 
 
 my @TABLE_ATTRS = qw(
+                      TYPE
                       SCHEMA
                       LABEL
                       GRANT
                       DENY
+                    );
+
+my %TABLE_TYPES = (
+                      GENERIC  => 1,
+                      USER     => 1,
+                      SESSION  => 1,
+                      FILE     => 1,
                     );
 
 # LEGEND: 1 == core attribute, must not have attribute path
@@ -121,6 +122,7 @@ my @TABLE_ATTRS = qw(
 # LEGEND: 3 == remote/path attribute, it must have attribute path
 my %DES_ATTRS = (
                   '@' => {
+                           TYPE    => 1,
                            SCHEMA  => 1,
                            LABEL   => 1,
                            GRANT   => 1,
@@ -259,6 +261,7 @@ sub __merge_table_des_file
   $des->{ $category }{ $sect_name } ||= {};
   push @{ $des->{ $category }{ $sect_name }{ 'DEBUG::ORIGIN' } }, $fname;
   $des->{ $category }{ $sect_name }{ 'NAME' } = $table;
+  $des->{ $category }{ $sect_name }{ 'TYPE' } = 'GENERIC';
   my $file_mtime = file_mtime( $fname );
   if( $des->{ $category }{ $sect_name }{ '_MTIME' } < $file_mtime )
     {
@@ -279,7 +282,7 @@ sub __merge_table_des_file
     next if $line =~ /^([#;]|\/\/)/;
     de_log_debug2( "        line: [$line]" );
 
-    if( $line =~ /^=+\s*(([a-zA-Z_][a-zA-Z_0-9]*):\s*)?([a-zA-Z_][a-zA-Z_0-9]*)\s*(.*?)\s*$/ )
+    if( $line =~ /^\s*=+\s*(([a-zA-Z_][a-zA-Z_0-9]*):\s*)?([a-zA-Z_][a-zA-Z_0-9]*)\s*(.*?)\s*$/ )
       {
          $category  = uc( $2 || 'FIELD' );
          $sect_name = uc( $3 );
@@ -517,6 +520,14 @@ sub __postprocess_table_des_hash
   # move table config in more comfortable location
   $des->{ '@' } = $des->{ '@' }{ '@' };
 
+  # check table type
+  if( ! exists $TABLE_TYPES{ $des->{ '@' }{ 'TYPE' } } )
+    {
+    my $ttype = $des->{ '@' }{ 'TYPE' };
+    my @ttype = keys %TABLE_TYPES;
+    boom "unknown type [$ttype] for table [$table], expected one of (@ttype)";
+    }
+
   # convert grant/deny list to access tree
   describe_preprocess_grant_deny( $des->{ '@' } );
 
@@ -553,21 +564,13 @@ sub __postprocess_table_des_hash
     # "high" level types
     if( $type eq 'LINK' )
       {
-      $fld_des->{ 'LINK_TYPE'    } = 'LINK';
       $fld_des->{ 'LINKED_TABLE' } = shift @type || boom "missing LINK TABLE in table [$table] field [$field] from [@debug_origin]";
       $fld_des->{ 'LINKED_FIELD' } = shift @type || boom "missing LINK FIELD in table [$table] field [$field] from [@debug_origin]";;
-
-      $type = 'INT';
-      @type = qw( 32 ); # length
       }
     elsif( $type eq 'BACKLINK' )
       {
-      $fld_des->{ 'LINK_TYPE'        } = 'BACKLINK';
       $fld_des->{ 'BACKLINKED_TABLE' } = shift @type || boom "missing BACKLINK TABLE in table [$table] field [$field] from [@debug_origin]";;
       $fld_des->{ 'BACKLINKED_KEY'   } = shift @type || boom "missing BACKLINK KEY   in table [$table] field [$field] from [@debug_origin]";;
-
-      $type = 'INT';
-      @type = qw( 32 ); # length
       }
     elsif( $type eq 'BOOL' )
       {
@@ -576,8 +579,15 @@ sub __postprocess_table_des_hash
       $type = 'INT';
       @type = qw( 1 ); # length
       }
+    elsif( $type eq 'FILE' )
+      {
+      $fld_des->{ 'LINKED_TABLE' } = 'DE_FILES';
+      $fld_des->{ 'LINKED_FIELD' } = 'NAME';
 
-    boom "invalid FIELD TYPE [$type] in table [$table] field [$field] from [@debug_origin]" unless $FIELD_TYPES{ $type };
+      $type = 'LINK';
+      }
+
+    boom "invalid FIELD TYPE [$type] in table [$table] field [$field] from [@debug_origin]" unless exists $DE_TYPE_NAMES{ $type };
 
     $type_des->{ 'NAME' } = $type;
     if( $type eq 'CHAR' )
@@ -728,14 +738,14 @@ sub __check_table_des
     {
     my $fld_des = $des->{ 'FIELD' }{ $field };
     
-    my $link_type = exists $fld_des->{ 'LINK_TYPE'    } ? $fld_des->{ 'LINK_TYPE'    } : undef;
+    my $type = $fld_des->{ 'TYPE' }{ 'NAME' };
 
     # "high" level types
-    if( $link_type eq 'LINK' )
+    if( $type eq 'LINK' )
       {
       des_exists_boom( $fld_des->{ 'LINKED_TABLE' }, $fld_des->{ 'LINKED_FIELD' } );
       }
-    elsif( $link_type eq 'BACKLINK' )
+    elsif( $type eq 'BACKLINK' )
       {
       des_exists_boom( $fld_des->{ 'BACKLINKED_TABLE' }, $fld_des->{ 'BACKLINKED_KEY' } );
       }

@@ -77,7 +77,12 @@ grant insert update to 1;10
 
     type  date
 
+=REPORTING
+
+    type  file
+
 =DO: DATE_TEST
 
   label   Test date switch
   grant   execute
+

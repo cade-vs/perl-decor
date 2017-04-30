@@ -240,7 +240,7 @@ sub main
                                        CLEAR    => $clear_icon,
                                        );
       }
-    elsif( $type_name eq 'INT' and $fdes->is_linked() )
+    elsif( $type_name eq 'LINK' )
       {
       my ( $linked_table, $linked_field ) = $fdes->link_details();
       my $ldes = $core->describe( $linked_table );
@@ -334,7 +334,7 @@ sub main
         $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "SELECT_LINKED_$field_id", "select-from.svg", "Select linked data",     ACTION => 'grid', TABLE => $linked_table, ID => -1, RETURN_DATA_FROM => '_ID', RETURN_DATA_TO => $field, GRID_MODE => 'SELECT', SELECT_KEY_DATA => $field_data, FILTER_NAME => $select_filter_name ) if $ldes->allows( 'READ'   );
         }
       }
-    elsif( $type_name eq 'INT' and $fdes->is_backlinked() )
+    elsif( $type_name eq 'BACKLINK' )
       {
       my ( $backlinked_table, $backlinked_field ) = $bfdes->backlink_details();
       my $bltdes = $core->describe( $backlinked_table );

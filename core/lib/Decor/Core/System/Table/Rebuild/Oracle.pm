@@ -243,9 +243,12 @@ sub sequence_get_current_value
 #-----------------------------------------------------------------------------
 
 my %NATIVE_TYPES = (
-                   'DATE'  => [ 'number', 'number(38)' ],
-                   'TIME'  => [ 'number', 'number(38)' ],
-                   'UTIME' => [ 'number', 'number(38)' ],
+                   'DATE'     => [ 'number', 'number(38)' ],
+                   'TIME'     => [ 'number', 'number(38)' ],
+                   'UTIME'    => [ 'number', 'number(38)' ],
+
+                   'LINK'     => [ 'number', 'number(32)' ],
+                   'BACKLINK' => [ 'number', 'number(32)' ],
                    );
 
 sub get_native_type

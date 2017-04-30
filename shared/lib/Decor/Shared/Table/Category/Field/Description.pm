@@ -22,21 +22,21 @@ sub is_linked
 {
   my $self   = shift;
   
-  return exists $self->{ 'LINKED_TABLE' } ? 1 : undef;
+  return $self->{ 'TYPE' }{ 'NAME' } eq 'LINK';
 }
 
 sub is_backlinked
 {
   my $self   = shift;
   
-  return exists $self->{ 'BACKLINKED_TABLE' } ? 1 : undef;
+  return $self->{ 'TYPE' }{ 'NAME' } eq 'BACKLINK';
 }
 
 sub link_details
 {
   my $self   = shift;
   
-  if( exists $self->{ 'LINKED_TABLE' } )
+  if( $self->is_linked() )
     {
     return ( $self->{ 'LINKED_TABLE' }, $self->{ 'LINKED_FIELD' } );
     }
@@ -52,7 +52,7 @@ sub backlink_details
 {
   my $self   = shift;
 
-  if( exists $self->{ 'BACKLINKED_TABLE' } )  
+  if( $self->is_backlinked() )  
     {
     return ( $self->{ 'BACKLINKED_TABLE' }, $self->{ 'BACKLINKED_KEY' } );
     }

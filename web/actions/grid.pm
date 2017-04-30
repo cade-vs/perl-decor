@@ -68,6 +68,7 @@ sub main
       next unless $v > 0;
       push @do_ids, $ps->{ ':VECB_NAME_MAP' }{ $k } if exists $ps->{ ':VECB_NAME_MAP' }{ $k };
       }
+    $text .= "[@do_ids][$do]";
     return $reo->forward_new( ACTION => 'do', DO => $do, IDS => \@do_ids, TABLE => $table ) if @do_ids;
     }
 
@@ -245,7 +246,7 @@ sub main
             {
             $data_fmt   = "(empty)";
             }
-          $data_ctrl .= de_html_alink( $reo, 'new', 'view.svg View linked record',   undef,                ACTION => 'view', ID => $data_base, TABLE => $linked_table );
+          $data_ctrl .= de_html_alink( $reo, 'new', 'view.svg View linked record',   undef,                ACTION => 'view', ID => $data_base, TABLE => $linked_table ) if $data_base > 0;
           $data_ctrl .= "<br>\n";
           if( $ltdes->allows( 'UPDATE' ) and $data_base > 0 )
             {

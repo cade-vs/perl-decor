@@ -13,6 +13,8 @@ use strict;
 use Exporter;
 our @ISA    = qw( Exporter );
 our @EXPORT = qw(
+                  %DE_TYPE_NAMES
+                  
                   type_set_format
                   type_get_format
                   type_format
@@ -34,21 +36,29 @@ use Time::JulianDay;
 #use DateTime::Format::Strptime;
 use Hash::Util qw( lock_hashref unlock_hashref lock_ref_keys );
 
-my %TYPE_NAMES    = (
-                      INT    => 1,
-                      REAL   => 1,
-                      CHAR   => 1,
-                      DATE   => 1,
-                      TIME   => 1,
-                      UTIME  => 1,
+our %DE_TYPE_NAMES = (
+                      'INT'      => 1,
+                      'REAL'     => 1,
+                      'CHAR'     => 1,
+                      'DATE'     => 1,
+                      'TIME'     => 1,
+                      'UTIME'    => 1,
+                      
+                      'LINK'     => 1,
+                      'BACKLINK' => 1,
                     );
+dlock %DE_TYPE_NAMES;
+
 my %TYPE_DEFAULTS = (
-                      INT    => 0,
-                      REAL   => 0.0,
-                      CHAR   => '',
-                      DATE   => 0,
-                      TIME   => 0,
-                      UTIME  => 0,
+                      'INT'      => 0,
+                      'REAL'     => 0.0,
+                      'CHAR'     => '',
+                      'DATE'     => 0,
+                      'TIME'     => 0,
+                      'UTIME'    => 0,
+
+                      'LINK'     => 0,
+                      'BACKLINK' => 0,
                     );
 
 my $FMT_DATE_DMY = '%d.%m.%Y';
@@ -331,11 +341,12 @@ sub type_revert
 # convert decor internal data from one type to another
 sub type_convert
 {
+  boom "type_convert not yet implemented";
 }
 
 sub type_check_name
 {
-  return exists $TYPE_NAMES{ $_[0] };
+  return exists $DE_TYPE_NAMES{ $_[0] };
 }
 
 sub type_default
