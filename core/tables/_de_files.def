@@ -1,0 +1,16 @@
+
+=NAME
+
+    type  char  256
+
+=EXT
+
+    type  char  32
+    
+=MIME
+
+    type  char  64
+    
+=SIZE
+
+    type  int   32

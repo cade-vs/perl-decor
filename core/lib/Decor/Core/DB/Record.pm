@@ -42,6 +42,31 @@ sub __init
   1;
 }
 
+sub __reshape
+{
+  my $self   = shift;
+  my $table  = shift;
+  
+  my $tdes   = describe_table( $table );
+  my $ttype  = $tdes->type();
+  
+  my $reshape_class_name = "Decor::Core::DB::Record";
+  if( $ttype ne 'GENERIC' )
+    {
+    my $ttype = uc( substr( $ttype, 0, 1 ) ) . lc( substr( $ttype, 1 ) );
+    $reshape_class_name = "Decor::Core::DB::Record::$ttype";
+    }
+
+  return 0 if ref( $self ) eq $reshape_class_name;
+  
+  de_log_debug( "$self reshaped as '$reshape_class_name'" );
+  my $reshape_file_name = perl_package_to_file( $reshape_class_name );
+  require $reshape_file_name;
+  bless $self, $reshape_class_name;
+  
+  1;
+}
+
 sub reset
 {
   my $self = shift;
@@ -151,6 +176,8 @@ sub create
 
   $self->{ 'BASE_ID'    } = $new_id;
 
+  $self->__reshape( $table );
+
   return $new_id;
 }
 
@@ -199,6 +226,8 @@ sub load
 
   $self->{ 'RECORD_DATA'    }{ $table }{ $id } = $data;
   $self->{ 'RECORD_DATA_DB' }{ $table }{ $id } = { %$data }; # copy, used for profile checks
+
+  $self->__reshape( $table );
 
   return $id;
 }
@@ -608,6 +637,8 @@ sub select
 
   $self->reset();
   my $dbio = $self->{ 'SELECT::DB::IO' } = new Decor::Core::DB::IO;
+
+  $self->__reshape( $table );
 
   # TODO: copy taint mode to $dbio
 

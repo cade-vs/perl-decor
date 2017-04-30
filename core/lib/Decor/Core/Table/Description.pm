@@ -30,6 +30,13 @@ sub describe
   return Decor::Core::Describe::describe_table( @_ );
 }
 
+sub get_table_type
+{
+  my $self = shift;
+  
+  return $self->{ '@' }{ 'TYPE' };
+}
+
 sub get_table_name
 {
   my $self = shift;
