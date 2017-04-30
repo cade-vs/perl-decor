@@ -259,7 +259,7 @@ sub __merge_table_des_file
   my $sect_name = '@'; # self :) should be more like 0
   my $category  = '@';
   $des->{ $category }{ $sect_name } ||= {};
-  push @{ $des->{ $category }{ $sect_name }{ 'DEBUG::ORIGIN' } }, $fname;
+  push @{ $des->{ $category }{ $sect_name }{ '__DEBUG_ORIGIN' } }, $fname;
   $des->{ $category }{ $sect_name }{ 'NAME' } = $table;
   $des->{ $category }{ $sect_name }{ 'TYPE' } = 'GENERIC';
   my $file_mtime = file_mtime( $fname );
@@ -305,8 +305,8 @@ sub __merge_table_des_file
 
       if( de_debug() )
         {
-        $des->{ $category }{ $sect_name }{ 'DEBUG::ORIGIN' } ||= [];
-        push @{ $des->{ $category }{ $sect_name }{ 'DEBUG::ORIGIN' } }, $origin;
+        $des->{ $category }{ $sect_name }{ '__DEBUG_ORIGIN' } ||= [];
+        push @{ $des->{ $category }{ $sect_name }{ '__DEBUG_ORIGIN' } }, $origin;
         }
 
       next;
@@ -559,7 +559,7 @@ sub __postprocess_table_des_hash
     my @type = split /[,\s]+/, uc $fld_des->{ 'TYPE' };
     my $type = shift @type;
 
-    my @debug_origin = exists $fld_des->{ 'DEBUG::ORIGIN' } ? @{ $fld_des->{ 'DEBUG::ORIGIN' } } : ();
+    my @debug_origin = exists $fld_des->{ '__DEBUG_ORIGIN' } ? @{ $fld_des->{ '__DEBUG_ORIGIN' } } : ();
 
     # "high" level types
     if( $type eq 'LINK' )
@@ -850,7 +850,7 @@ sub describe_parse_access_line
   my $line = uc shift;
   my $hr   = shift; # currently preprocessed field description, used for debug origin
 
-  my @debug_origin = exists $hr->{ 'DEBUG::ORIGIN' } ? @{ $hr->{ 'DEBUG::ORIGIN' } } : ();
+  my @debug_origin = exists $hr->{ '__DEBUG_ORIGIN' } ? @{ $hr->{ '__DEBUG_ORIGIN' } } : ();
 
   $line =~ s/^\s*//;
   $line =~ s/\s*$//;
