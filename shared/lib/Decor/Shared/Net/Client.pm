@@ -174,6 +174,22 @@ sub tx_msg
     $self->disconnect();
     return undef;
     }
+  if( my $fh = $mi->{ '___SEND_FILE_HAND' } )
+    {
+    my $fsize = $mi->{ '___SEND_FILE_SIZE' };
+    my $read_size = 0;
+    my $data;
+    my $buf_size = 1024*1024;
+    my $read;
+    while(4)
+      {
+      $read = read( $fh, $data, $buf_size );
+      $read_size += $read;
+      socket_write( $socket, $data, length( $data ) );
+      last if $read < $buf_size;
+      }
+    # TODO: check if read_size == send file size, boom and disconnect on error
+    }
 
   my $mo;
   ( $mo, $ptype ) = de_net_protocol_read_message( $socket, $timeout );
@@ -182,7 +198,22 @@ sub tx_msg
     $self->disconnect();
     return undef;
     }
-
+  if( my $fh = $mi->{ '___RECV_FILE_HAND' } )
+    {
+    my $file_size = $mo->{ '___FILE_SIZE' };
+    my $buf_size  = 1024*1024;
+    my $read;
+    my $data;
+    while(4)
+      {
+      my $read_size = $file_size > $buf_size ? $buf_size : $file_size;
+      $read = socket_read( $socket, \$data, $read_size );
+      print $fo $data;
+      last unless $read > 0;
+      $file_size -= $read;
+      last if $file_size == 0;
+      }
+    }
 
   $self->{ 'STATUS'      } = $mo->{ 'XS'     };
   $self->{ 'STATUS_MSG'  } = $mo->{ 'XS_MSG' };
@@ -539,6 +570,67 @@ sub do
 
   #return wantarray ? ( $mo->{ 'RDATA' }, $mo->{ 'MERRS' } ) : $mo->{ 'RDATA' };
   return 1;
+}
+
+#-----------------------------------------------------------------------------
+
+sub file_save
+{
+  my $self   = shift;
+  my $fname  = shift;
+  
+  open my $fh, '<', $fname;
+  
+  return $self->file_save_fh( $fh, @_ );
+}
+
+sub file_save_fh
+{
+  my $self   = shift;
+  my $fh     = shift;
+  my $table  = uc shift;
+  my $name   = shift;
+  my $id     = shift;
+  my $opt    = shift;
+  
+  my %mi = ref( $opt ) eq 'HASH' ? %$opt : ();
+
+  seek( $fh, 0, 2 );
+  my $fsize = tell( $fh );
+  seek( $fh, 0, 0 );
+  
+  $mi->{ 'TABLE' } = $table;
+  $mi->{ 'ID'    } = $id;
+  $mi->{ 'NAME'  } = $name;
+  $mi->{ 'SIZE'  } = $size;
+
+  $mi->{ '___SEND_FILE_HAND' } = $fh;
+  $mi->{ '___SEND_FILE_SIZE' } = $fsize;
+
+  my $mo = $self->tx_msg( \%mi ) or return undef;
+  
+  return $mo->{ 'ID' } > 0 ? $mo->{ 'ID' } : undef;
+}
+
+#-----------------------------------------------------------------------------
+
+sub file_load
+{
+  my $self   = shift;
+  my $fname  = shift;
+  my $table  = uc shift;
+  my $id     = shift;
+
+  my %mi;
+
+  $mi->{ 'TABLE' } = $table;
+  $mi->{ 'ID'    } = $id;
+  
+  $mi->{ '___RECV_FILE_NAME' } = $fname;
+
+  my $mo = $self->tx_msg( \%mi ) or return undef;
+  
+  return $mo->{ 'ID' } > 0 ? $mo->{ 'ID' } : undef;
 }
 
 ### helpers ##################################################################

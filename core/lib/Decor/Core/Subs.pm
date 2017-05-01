@@ -12,6 +12,7 @@ use strict;
 use Data::Dumper;
 use Exception::Sink;
 use Data::Tools;
+use Data::Tools::Socket;
 
 use Decor::Shared::Utils;
 use Decor::Core::Env;
@@ -67,6 +68,8 @@ my %DISPATCH_MAP = (
                                    'ROLLBACK' => \&sub_rollback,
                                    'LOGOUT'   => \&sub_logout,
                                    'DO'       => \&sub_do,
+                                   'FSAVE'    => \&sub_file_save,
+                                   'FLOAD'    => \&sub_file_load,
                                  },
                    );
 
@@ -77,6 +80,8 @@ my %MAP_SHORTCUTS = (
                     'D'   => 'DESCRIBE',
                     'E'   => 'END',
                     'F'   => 'FETCH',
+                    'FS'  => 'FSAVE',
+                    'FL'  => 'FLOAD',
                     'H'   => 'FINISH',
                     'I'   => 'INSERT',
                     'L'   => 'RECALC',
@@ -995,6 +1000,125 @@ sub sub_do
   #$mo->{ 'RDATA' } = $rec->read_hash_all();
   $mo->{ 'XS'    } = 'OK';
 #print Dumper( $rec, $mi, $mo  );
+}
+
+sub sub_file_save
+{
+  my $mi = shift;
+  my $mo = shift;
+  my $socket = shift;
+
+  my $table  = uc $mi->{ 'TABLE'  };
+  my $id     =    $mi->{ 'ID'     };
+  my $name   =    $mi->{ 'NAME'   };
+  my $mime   =    $mi->{ 'MIME'   };
+  my $size   =    $mi->{ 'SIZE'   };
+
+  boom "invalid TABLE name [$table]"    unless de_check_name( $table ) or ! des_exists( $table );
+  boom "invalid ID [$id]"               if $id ne '' and ! de_check_id( $id );
+  boom "invalid SIZE [$size]"           unless $size > 0;
+
+  my $profile = subs_get_current_profile();
+  my $rec = new Decor::Core::DB::Record;
+  $rec->set_profile_locked( $profile );
+  $rec->taint_mode_enable_all();
+
+  my $des = describe_table( $table );
+  boom "E_ACCESS: FILE_SAVE access denied, table [$table] is not of type FILE" unless $des->get_table_type() eq 'FILE';
+  
+  if( $id ne '' )
+    {
+    $rec->select( $table, '_ID = ?', { BIND => [ $id ] } );
+    if( $rec->next() )
+      {
+      boom "E_ACCESS: FILE_SAVE access denied oper [UPDATE] for table [$table]" unless $profile->check_access_table( 'UPDATE', $table );
+      boom "E_ACCESS: FILE_SAVE access denied oper [UPDATE] for table [$table] record ID [$id]" unless $profile->check_access_row( 'UPDATE', $rec->table(), $rec );
+      }
+    else
+      {
+      boom "E_NOT_FOUND: FILE_LOAD access denied, FILE ID [$id] not found";
+      }  
+    }
+  else
+    {
+    boom "E_ACCESS: FILE_SAVE access denied oper [INSERT] for table [$table]" unless $profile->check_access_table( 'INSERT', $table );
+    $rec->create( $table );
+    }
+  $rec->write( NAME => $name, MIME => $mime, SIZE => $size );
+  
+  my $fname = $rec->get_file_name();
+  my $fname_part = $fname . '.part';
+  
+  # FIXME: move to server IO like in Client IO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  open( my $fo, '>', $fname_part );
+  my $buf_size = 1024*1024;
+  my $read;
+  my $data;
+  while(4)
+    {
+    my $read_size = $file_size > $buf_size ? $buf_size : $file_size;
+    $read = socket_read( $socket, \$data, $read_size );
+    print $fo $data;
+    last unless $read > 0;
+    $file_size -= $read;
+    last if $file_size == 0;
+    }
+  close( $fo );
+
+  $rec->save();
+  rename( $fname_part, $fname );
+
+  $mo->{ 'ID'   } = $rec->id();
+  
+  return 1;
+}
+
+sub sub_file_load
+{
+  my $mi = shift;
+  my $mo = shift;
+  my $socket = shift;
+
+  my $table  = uc $mi->{ 'TABLE'  };
+  my $id     =    $mi->{ 'ID'     };
+
+  boom "invalid TABLE name [$table]"    unless de_check_name( $table ) or ! des_exists( $table );
+  boom "invalid ID [$id]"               unless de_check_id( $id );
+
+  my $profile = subs_get_current_profile();
+  my $rec = new Decor::Core::DB::Record;
+  $rec->set_profile_locked( $profile );
+  $rec->taint_mode_enable_all();
+
+  my $des = describe_table( $table );
+  boom "E_ACCESS: FILE_LOAD access denied, table [$table] is not of type FILE" unless $des->get_table_type() eq 'FILE';
+
+  boom "E_ACCESS: FILE_LOAD access denied oper [READ] for table [$table]" unless $profile->check_access_table( 'READ', $table );
+
+  
+  $rec->select( $table, '_ID = ?', { BIND => [ $id ] } );
+  if( $rec->next() )
+    {
+    boom "E_ACCESS: FILE_LOAD access denied oper [READ] for table [$table] record ID [$id]" unless $profile->check_access_row( 'READ', $rec->table(), $rec );
+    }
+  else
+    {
+    boom "E_NOT_FOUND: FILE_LOAD access denied, FILE ID [$id] not found";
+    }  
+
+  my ( $name, $mime, $size ) = $rec->read( NAME, MIME, SIZE );
+  
+  my $fname = $rec->get_file_name();
+
+  $mo->{ '___SEND_FILE_NAME' } = $fname;
+  $mo->{ '___SEND_FILE_SIZE' } = $size;
+
+  $mo->{ 'NAME' } = $name;
+  $mo->{ 'MIME' } = $mime;
+  $mo->{ 'SIZE' } = $size;
+  $mo->{ 'ID'   } = $rec->id();
+  
+  return 1;
 }
 
 #--- CONTROLS/COMMIT/ROLLBACK/ETC. -------------------------------------------

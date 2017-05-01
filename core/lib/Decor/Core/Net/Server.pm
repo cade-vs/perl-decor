@@ -92,7 +92,7 @@ sub on_process
     my $xt_handler_res;
     eval
       {
-      $xt_handler_res = $self->on_process_xt_message( $mi, $mo );
+      $xt_handler_res = $self->on_process_xt_message( $mi, $mo, $socket );
       de_log_dumper2( "HANDLER MO RES " x 8, "$mo", $mo );
       };
     if( $@ or ! $xt_handler_res )
@@ -143,6 +143,12 @@ sub on_process
     de_log_debug( "debug: XTYPE [$xt] XSTATUS [$xs] DBI::errstr [$DBI::errstr]" );
 
     de_log_dumper2( "MO" x 16, $mo );
+    my $send_file_name = $mo->{ '___SEND_FILE_NAME' };
+    my $send_file_size = $mo->{ '___SEND_FILE_SIZE' };
+    delete $mo->{ '___SEND_FILE_NAME' };
+    delete $mo->{ '___SEND_FILE_SIZE' };
+    $mo->{ '__FILE_NAME' } = $send_file_size;
+    
     my $mo_res = de_net_protocol_write_message( $socket, $ptype, $mo );
 
     if( $mo_res == 0 )
@@ -150,6 +156,25 @@ sub on_process
       de_log( "error: error sending outgoing XTYPE message" );
       $self->break_main_loop();
       next;
+      }
+
+    if( $send_file_name and $send_file_size > 0 )
+      {
+      open( my $fi, '<', $send_file_name );
+
+      my $read_size = 0;
+      my $data;
+      my $buf_size = 1024*1024;
+      my $read;
+      while(4)
+        {
+        $read = read( $fh, $data, $buf_size );
+        $read_size += $read;
+        socket_write( $socket, $data, length( $data ) );
+        last if $read < $buf_size;
+        }
+      close( $fi );
+      # TODO: check if read_size == send file size, boom and disconnect on error
       }
     
     }
