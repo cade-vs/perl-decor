@@ -168,7 +168,7 @@ sub on_process
       my $read;
       while(4)
         {
-        $read = read( $fh, $data, $buf_size );
+        $read = read( $fi, $data, $buf_size );
         $read_size += $read;
         socket_write( $socket, $data, length( $data ) );
         last if $read < $buf_size;

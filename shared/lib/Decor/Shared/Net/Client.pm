@@ -208,7 +208,7 @@ sub tx_msg
       {
       my $read_size = $file_size > $buf_size ? $buf_size : $file_size;
       $read = socket_read( $socket, \$data, $read_size );
-      print $fo $data;
+      print $fh $data;
       last unless $read > 0;
       $file_size -= $read;
       last if $file_size == 0;
@@ -599,13 +599,13 @@ sub file_save_fh
   my $fsize = tell( $fh );
   seek( $fh, 0, 0 );
   
-  $mi->{ 'TABLE' } = $table;
-  $mi->{ 'ID'    } = $id;
-  $mi->{ 'NAME'  } = $name;
-  $mi->{ 'SIZE'  } = $size;
+  $mi{ 'TABLE' } = $table;
+  $mi{ 'ID'    } = $id;
+  $mi{ 'NAME'  } = $name;
+  $mi{ 'SIZE'  } = $fsize;
 
-  $mi->{ '___SEND_FILE_HAND' } = $fh;
-  $mi->{ '___SEND_FILE_SIZE' } = $fsize;
+  $mi{ '___SEND_FILE_HAND' } = $fh;
+  $mi{ '___SEND_FILE_SIZE' } = $fsize;
 
   my $mo = $self->tx_msg( \%mi ) or return undef;
   
@@ -623,10 +623,10 @@ sub file_load
 
   my %mi;
 
-  $mi->{ 'TABLE' } = $table;
-  $mi->{ 'ID'    } = $id;
+  $mi{ 'TABLE' } = $table;
+  $mi{ 'ID'    } = $id;
   
-  $mi->{ '___RECV_FILE_NAME' } = $fname;
+  $mi{ '___RECV_FILE_NAME' } = $fname;
 
   my $mo = $self->tx_msg( \%mi ) or return undef;
   

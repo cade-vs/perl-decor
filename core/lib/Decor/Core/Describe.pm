@@ -521,6 +521,7 @@ sub __postprocess_table_des_hash
   $des->{ '@' } = $des->{ '@' }{ '@' };
 
   # check table type
+  $des->{ '@' }{ 'TYPE' } = uc $des->{ '@' }{ 'TYPE' };
   if( ! exists $TABLE_TYPES{ $des->{ '@' }{ 'TYPE' } } )
     {
     my $ttype = $des->{ '@' }{ 'TYPE' };
@@ -784,7 +785,7 @@ sub describe_table
   # NOTE! check MUST be done after TABLE_DES cache is filled with current table!
   __check_table_des( $des );
 
-print STDERR "describe_table [$table] " . Dumper( $des );
+#print STDERR "describe_table [$table] " . Dumper( $des );
 
   return $des;
 }

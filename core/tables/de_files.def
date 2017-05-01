@@ -1,2 +1,8 @@
 
 @isa _DE_FILES *
+
+grant read insert update
+
+=NAME
+
+grant read insert update

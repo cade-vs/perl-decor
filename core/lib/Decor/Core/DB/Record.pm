@@ -17,6 +17,7 @@ use Decor::Shared::Types;
 use Decor::Shared::Utils;
 use Decor::Core::DSN;
 use Decor::Core::Describe;
+use Decor::Core::Log;
 use Decor::Core::DB::IO;
 use Decor::Core::Code;
 use Decor::Core::Form;
@@ -48,7 +49,7 @@ sub __reshape
   my $table  = shift;
   
   my $tdes   = describe_table( $table );
-  my $ttype  = $tdes->type();
+  my $ttype  = $tdes->get_table_type();
   
   my $reshape_class_name = "Decor::Core::DB::Record";
   if( $ttype ne 'GENERIC' )

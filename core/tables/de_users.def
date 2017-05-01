@@ -1,6 +1,7 @@
 
-label   System users
-system
+  type User
+  label   System users
+  system
 
 =NAME
 

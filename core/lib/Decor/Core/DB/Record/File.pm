@@ -7,7 +7,7 @@
 ##  LICENSE: GPLv2
 ##
 ##############################################################################
-package Decor::Core::DB::Record::User;
+package Decor::Core::DB::Record::File;
 use strict;
 
 use Exception::Sink;

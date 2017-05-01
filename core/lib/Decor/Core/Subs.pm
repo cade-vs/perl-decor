@@ -18,8 +18,6 @@ use Decor::Shared::Utils;
 use Decor::Core::Env;
 use Decor::Core::Log;
 use Decor::Core::DB::Record;
-use Decor::Core::DB::Record::User;
-use Decor::Core::DB::Record::Session;
 use Decor::Core::Subs::Env;
 use Decor::Core::Profile;
 use Decor::Core::Describe;
@@ -302,7 +300,7 @@ sub __sub_begin_with_user_pass
 
   my $time_now = time(); # to keep the same time for all data here
 
-  my $session_rec = new Decor::Core::DB::Record::Session;
+  my $session_rec = new Decor::Core::DB::Record;
 
   $session_rec->create( 'DE_SESSIONS' );
   $session_rec->write(
@@ -375,7 +373,7 @@ sub __sub_begin_with_session_continue
     }
 
   my $user_id = $session_rec->read( 'USR' );
-  my $user_rec = new Decor::Core::DB::Record::User;
+  my $user_rec = new Decor::Core::DB::Record;
   $user_rec->load( 'DE_USERS', $user_id ) or boom "E_INTERNAL: cannot load USER with id [$user_id] from requested session [$user_sid] and remote [$remote]";
 
   subs_lock_current_user( $user_rec );
@@ -390,7 +388,7 @@ sub __sub_find_user
 
   die "E_LOGIN: Invalid user login name [$user_name]" unless de_check_user_login_name(  $user_name );
 
-  my $user_rec = new Decor::Core::DB::Record::User;
+  my $user_rec = new Decor::Core::DB::Record;
 
   $user_rec->select( 'DE_USERS', 'NAME = ?', { BIND => [ $user_name ], LOCK => 1 } );
   if( $user_rec->next() )
@@ -428,7 +426,7 @@ sub __sub_find_session
   boom "invalid session sid"   unless de_check_name( $session_sid );
   boom "invalid remote string" unless de_check_user_login_name( $remote );
 
-  my $session_rec = new Decor::Core::DB::Record::Session;
+  my $session_rec = new Decor::Core::DB::Record;
 
   $session_rec->select( 'DE_SESSIONS', 'SID = ? AND REMOTE = ? AND ACTIVE = ?', { BIND => [ $session_sid, $remote, 1 ], LOCK => 1 } );
   if( $session_rec->next() )
@@ -1054,6 +1052,7 @@ sub sub_file_save
   my $buf_size = 1024*1024;
   my $read;
   my $data;
+  my $file_size = $size;
   while(4)
     {
     my $read_size = $file_size > $buf_size ? $buf_size : $file_size;
@@ -1106,7 +1105,7 @@ sub sub_file_load
     boom "E_NOT_FOUND: FILE_LOAD access denied, FILE ID [$id] not found";
     }  
 
-  my ( $name, $mime, $size ) = $rec->read( NAME, MIME, SIZE );
+  my ( $name, $mime, $size ) = $rec->read( qw( NAME MIME SIZE ) );
   
   my $fname = $rec->get_file_name();
 
