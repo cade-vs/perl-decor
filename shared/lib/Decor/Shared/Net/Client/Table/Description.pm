@@ -32,6 +32,13 @@ sub describe
   return $self->client()->describe( @_ );
 }
 
+sub get_table_type
+{
+  my $self = shift;
+  
+  return $self->{ '@' }{ 'TYPE' };
+}
+
 sub allows
 {
   my $self = shift;

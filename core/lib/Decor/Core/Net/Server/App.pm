@@ -20,8 +20,9 @@ sub on_process_xt_message
   my $self = shift;
   my $mi   = shift;
   my $mo   = shift;
+  my $socket = shift;
 
-  subs_process_xt_message( $mi, $mo );
+  subs_process_xt_message( $mi, $mo, $socket );
 
 #  de_log_dumper( "SUBS PROCESS " x 16, "$mi, $mo", $mi, $mo );
 

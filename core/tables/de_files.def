@@ -1,8 +1,10 @@
 
-@isa _DE_FILES *
+    type file
 
-grant read insert update
+    @isa _DE_FILES *
+
+    grant read insert update
 
 =NAME
 
-grant read insert update
+    grant read insert update

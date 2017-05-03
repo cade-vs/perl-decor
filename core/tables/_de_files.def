@@ -1,4 +1,6 @@
 
+grant insert update
+
 =NAME
 
     type  char  256
@@ -14,3 +16,7 @@
 =SIZE
 
     type  int   32
+
+=DES
+
+  type    char  128

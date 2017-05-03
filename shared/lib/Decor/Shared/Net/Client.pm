@@ -15,6 +15,7 @@ use Exception::Sink;
 use Hash::Util qw( lock_ref_keys unlock_ref_keys );
 use IO::Socket::INET;
 use Data::Tools;
+use Data::Tools::Socket;
 use Exception::Sink;
 use Data::Dumper;
 use MIME::Base64;
@@ -165,6 +166,13 @@ sub tx_msg
   $self->{ 'STATUS'      } = 'E_MSG';
   $self->{ 'STATUS_MSG'  } = 'Communication error';
   $self->{ 'STATUS_REF'  } = undef;
+
+  my $send_file_hand = $mi->{ '___SEND_FILE_HAND' };
+  my $send_file_size = $mi->{ '___SEND_FILE_SIZE' };
+  my $recv_file_hand = $mi->{ '___RECV_FILE_HAND' };
+  delete $mi->{ '___SEND_FILE_HAND' };
+  delete $mi->{ '___SEND_FILE_SIZE' };
+  delete $mi->{ '___RECV_FILE_HAND' };
   
   my $ptype = 'p'; # FIXME: config?
   
@@ -174,18 +182,18 @@ sub tx_msg
     $self->disconnect();
     return undef;
     }
-  if( my $fh = $mi->{ '___SEND_FILE_HAND' } )
+  if( $send_file_hand )
     {
-    my $fsize = $mi->{ '___SEND_FILE_SIZE' };
     my $read_size = 0;
     my $data;
     my $buf_size = 1024*1024;
     my $read;
     while(4)
       {
-      $read = read( $fh, $data, $buf_size );
+      $read = read( $send_file_hand, $data, $buf_size );
       $read_size += $read;
-      socket_write( $socket, $data, length( $data ) );
+      my $write = socket_write( $socket, $data, $read );
+print STDERR "+++++++++++++++++++++++ socket_write($read:$write) left($read_size)\n";
       last if $read < $buf_size;
       }
     # TODO: check if read_size == send file size, boom and disconnect on error
@@ -198,7 +206,7 @@ sub tx_msg
     $self->disconnect();
     return undef;
     }
-  if( my $fh = $mi->{ '___RECV_FILE_HAND' } )
+  if( $recv_file_hand )
     {
     my $file_size = $mo->{ '___FILE_SIZE' };
     my $buf_size  = 1024*1024;
@@ -208,7 +216,7 @@ sub tx_msg
       {
       my $read_size = $file_size > $buf_size ? $buf_size : $file_size;
       $read = socket_read( $socket, \$data, $read_size );
-      print $fh $data;
+      print $recv_file_hand $data;
       last unless $read > 0;
       $file_size -= $read;
       last if $file_size == 0;
@@ -599,8 +607,9 @@ sub file_save_fh
   my $fsize = tell( $fh );
   seek( $fh, 0, 0 );
   
+  $mi{ 'XT'    } = 'FS';
   $mi{ 'TABLE' } = $table;
-  $mi{ 'ID'    } = $id;
+  $mi{ 'ID'    } = $id if $id > 0;
   $mi{ 'NAME'  } = $name;
   $mi{ 'SIZE'  } = $fsize;
 
@@ -623,6 +632,7 @@ sub file_load
 
   my %mi;
 
+  $mi{ 'XT'    } = 'FL';
   $mi{ 'TABLE' } = $table;
   $mi{ 'ID'    } = $id;
   

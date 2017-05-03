@@ -170,7 +170,7 @@ sub on_process
         {
         $read = read( $fi, $data, $buf_size );
         $read_size += $read;
-        socket_write( $socket, $data, length( $data ) );
+        my $write = socket_write( $socket, $data, length( $data ) );
         last if $read < $buf_size;
         }
       close( $fi );

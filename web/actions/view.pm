@@ -104,11 +104,21 @@ sub main
       my $ltdes = $core->describe( $linked_table );
       $data_fmt = de_html_alink( $reo, 'new', $data_fmt, "View linked record", ACTION => 'view', ID => $data_base, TABLE => $linked_table );
       $data_ctrl .= de_html_alink( $reo, 'new', 'view.svg',   "View linked record",           ACTION => 'view', ID => $data_base, TABLE => $linked_table );
-      if( $ltdes->allows( 'INSERT' ) and $tdes->allows( 'UPDATE' ) and $bfdes->allows( 'UPDATE' ) )
+
+      if( $ltdes->get_table_type() eq 'FILE' )
         {
-        # FIXME: check for record access too!
-        $data_ctrl .= de_html_alink( $reo, 'new', 'insert.svg', "Insert and link a new record", ACTION => 'edit', ID => -1,         TABLE => $linked_table, LINK_TO_TABLE => $table, LINK_TO_FIELD => $base_field, LINK_TO_ID => $id );
+        $data_ctrl .= de_html_alink( $reo, 'new', 'file_new.svg', "Upload new file",                 ACTION => 'file_up', ID => -1, TABLE => $linked_table, LINK_TO_TABLE => $table, LINK_TO_FIELD => $base_field, LINK_TO_ID => $id );
+        $data_ctrl .= de_html_alink( $reo, 'new', 'file_up.svg',  "Upload and replace current file", ACTION => 'file_up', ID => $data_base, TABLE => $linked_table, LINK_TO_TABLE => $table, LINK_TO_FIELD => $base_field, LINK_TO_ID => $id );
+        $data_ctrl .= de_html_alink( $reo, 'new', 'file_dn.svg',  "Download current file",           ACTION => 'file_dn', ID => $data_base, TABLE => $linked_table );
         }
+      else
+        {
+        if( $ltdes->allows( 'INSERT' ) and $tdes->allows( 'UPDATE' ) and $bfdes->allows( 'UPDATE' ) )
+          {
+          # FIXME: check for record access too!
+          $data_ctrl .= de_html_alink( $reo, 'new', 'insert.svg', "Insert and link a new record", ACTION => 'edit', ID => -1,         TABLE => $linked_table, LINK_TO_TABLE => $table, LINK_TO_FIELD => $base_field, LINK_TO_ID => $id );
+          }
+        }  
       }
     elsif( $bfdes->is_backlinked() )
       {

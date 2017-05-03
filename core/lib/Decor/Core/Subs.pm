@@ -134,7 +134,8 @@ sub subs_process_xt_message
 {
   my $mi = shift;
   my $mo = shift;
-
+  my $socket = shift;
+  
   my $xt = uc $mi->{ 'XT' };
 
   $xt = $MAP_SHORTCUTS{ $xt } if exists $MAP_SHORTCUTS{ $xt };
@@ -147,7 +148,7 @@ sub subs_process_xt_message
 
   de_log_debug( "debug: processing XTYPE [$xt] xt code handle [$handle]" );
 
-  my $res = $handle->( $mi, $mo );
+  my $res = $handle->( $mi, $mo, $socket );
 }
 
 ##############################################################################
@@ -1057,12 +1058,16 @@ sub sub_file_save
     {
     my $read_size = $file_size > $buf_size ? $buf_size : $file_size;
     $read = socket_read( $socket, \$data, $read_size );
+#    print STDERR "++++++++++[$socket]+++++++++++++ $read_size, socket_read($read) left($file_size)\n";
     print $fo $data;
     last unless $read > 0;
     $file_size -= $read;
-    last if $file_size == 0;
+    last if $file_size <= 0;
     }
   close( $fo );
+
+  $rec->taint_mode_disable_all();
+  $rec->method( 'FILE_SAVE' );
 
   $rec->save();
   rename( $fname_part, $fname );

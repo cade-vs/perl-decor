@@ -24,11 +24,13 @@ sub get_file_name
 {
   my $self   = shift;
 
-  my $root   = de_root();
+  my $root     = de_root();
+  my $app_name = de_app_name();
+  
   my $table  = lc $self->table();
   my $id     =    $self->id();
   my $name = $self->read( 'NAME' );
-  $name =~ s/[^A-Z_\-0-9]+/_/g;
+  $name =~ s/[^A-Z_\-0-9]+/_/gi;
   my $path  = "$root/var/core/$app_name/files/$table";
   dir_path_ensure( $path ) or boom "cannot find/access FILES dir [$path] for table [$table] ID [$id] file name [$name]";
   my $fname = "$path/$id\_$name";

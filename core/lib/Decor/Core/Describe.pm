@@ -321,6 +321,8 @@ sub __merge_table_des_file
 
       my $isa = __load_table_description( $name );
 
+#print STDERR Dumper( "my isa = __load_table_description( $name );", $isa );
+
       boom "isa/include error: cannot load config [$name] at [$fname at $ln]" unless $isa;
 
       my @args = split /[\s,]+/, uc $args;
