@@ -102,7 +102,7 @@ sub main
       {
       my ( $linked_table, $linked_field ) = $bfdes->link_details();
       my $ltdes = $core->describe( $linked_table );
-      $data_fmt = de_html_alink( $reo, 'new', $data_fmt, "View linked record", ACTION => 'view', ID => $data_base, TABLE => $linked_table );
+      $data_fmt = de_html_alink( $reo, 'new', "($data_fmt)", "View linked record", ACTION => 'view', ID => $data_base, TABLE => $linked_table );
       $data_ctrl .= de_html_alink( $reo, 'new', 'view.svg',   "View linked record",           ACTION => 'view', ID => $data_base, TABLE => $linked_table );
 
       if( $ltdes->get_table_type() eq 'FILE' )

@@ -1043,11 +1043,14 @@ sub sub_file_save
     boom "E_ACCESS: FILE_SAVE access denied oper [INSERT] for table [$table]" unless $profile->check_access_table( 'INSERT', $table );
     $rec->create( $table );
     }
+
   $rec->write( NAME => $name, MIME => $mime, SIZE => $size );
   
-  my $fname = $rec->get_file_name();
+  my ( $fname, $fname_short ) = $rec->get_file_name();
   my $fname_part = $fname . '.part';
   
+  $rec->write( SYS_FNAME => $fname_short );
+
   # FIXME: move to server IO like in Client IO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   open( my $fo, '>', $fname_part );
   my $buf_size = 1024*1024;
@@ -1058,7 +1061,6 @@ sub sub_file_save
     {
     my $read_size = $file_size > $buf_size ? $buf_size : $file_size;
     $read = socket_read( $socket, \$data, $read_size );
-#    print STDERR "++++++++++[$socket]+++++++++++++ $read_size, socket_read($read) left($file_size)\n";
     print $fo $data;
     last unless $read > 0;
     $file_size -= $read;
@@ -1073,6 +1075,7 @@ sub sub_file_save
   rename( $fname_part, $fname );
 
   $mo->{ 'ID'   } = $rec->id();
+  $mo->{ 'XS'   } = 'OK';
   
   return 1;
 }
@@ -1121,6 +1124,7 @@ sub sub_file_load
   $mo->{ 'MIME' } = $mime;
   $mo->{ 'SIZE' } = $size;
   $mo->{ 'ID'   } = $rec->id();
+  $mo->{ 'XS'   } = 'OK';
   
   return 1;
 }

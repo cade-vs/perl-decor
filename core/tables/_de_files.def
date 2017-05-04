@@ -1,13 +1,13 @@
 
-grant insert update
+grant read insert update
 
 =NAME
 
     type  char  256
 
-=EXT
+=SYS_FNAME
 
-    type  char  32
+    type  char  256
     
 =MIME
 

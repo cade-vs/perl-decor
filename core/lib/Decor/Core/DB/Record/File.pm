@@ -29,13 +29,15 @@ sub get_file_name
   
   my $table  = lc $self->table();
   my $id     =    $self->id();
-  my $name = $self->read( 'NAME' );
+  my $name   = $self->read( 'NAME' );
+  my $ext    = $1 if $name =~ s/\.([a-z_0-9]+)$//i;
   $name =~ s/[^A-Z_\-0-9]+/_/gi;
   my $path  = "$root/var/core/$app_name/files/$table";
   dir_path_ensure( $path ) or boom "cannot find/access FILES dir [$path] for table [$table] ID [$id] file name [$name]";
-  my $fname = "$path/$id\_$name";
+  my $fname = "$path/$id.$name.$ext";
+  my $short = "$table/$id.$name.$ext";
 
-  return $fname;
+  return wantarray ? ( $fname, $short ) : $fname;
 }
 
 

@@ -193,7 +193,6 @@ sub tx_msg
       $read = read( $send_file_hand, $data, $buf_size );
       $read_size += $read;
       my $write = socket_write( $socket, $data, $read );
-print STDERR "+++++++++++++++++++++++ socket_write($read:$write) left($read_size)\n";
       last if $read < $buf_size;
       }
     # TODO: check if read_size == send file size, boom and disconnect on error

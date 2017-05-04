@@ -41,17 +41,30 @@ sub main
     {
 #print STDERR Dumper( '******************FILE UP', ref( $file_fh ), $file_upload );
 
-    my $new_id = $core->file_save_fh( $file_fh, $table, $file_upload, $id , { DES => $file_des } );
+    $file_upload =~ s/^.*?\/([^\/]+)$/$1/;
 
-###
+    my $new_id = $core->file_save_fh( $file_fh, $table, $file_upload, $id, { DES => $file_des } );
 
-    $text .= de_html_alink_button( $reo, 'back', "&lArr; [~Continue]", "Return and continue on previous screen" );
+    if( $new_id > 0 )
+      {
+      $reo->forward_back();
+      $text .= "<p>";
+      $text .= "<#upload_ok>";
+      $text .= "<p>";
+      $text .= "<a class=button reactor_back_href=?>&lArr; [~Continue]</a>";
+      }
+    else
+      {
+      $text .= "<p>";
+      $text .= "<#e_upload>";
+      $text .= "<p>";
+      $text .= "<#file_upload_form>";
+      }  
+
     }
   else
     {
-    $text = "<#file_upload_form>";
-    $text .= "<p>";
-    $text .= de_html_alink_button( $reo, 'back', "&lArr; [~Continue]", "Return and continue on previous screen" );
+    $text .= "<#file_upload_form>";
     }  
 
 
