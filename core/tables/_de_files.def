@@ -1,4 +1,6 @@
 
+@isa _DE_OWNERS _OWNER
+
 grant read insert update
 
 =NAME
