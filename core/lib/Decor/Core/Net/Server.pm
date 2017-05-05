@@ -16,6 +16,7 @@ use strict;
 use Data::Dumper;
 use Exception::Sink;
 use Data::Tools;
+use Data::Tools::Socket;
 use Decor::Core::DSN;
 use Decor::Core::Log;
 use Decor::Shared::Net::Protocols;
@@ -147,7 +148,7 @@ sub on_process
     my $send_file_size = $mo->{ '___SEND_FILE_SIZE' };
     delete $mo->{ '___SEND_FILE_NAME' };
     delete $mo->{ '___SEND_FILE_SIZE' };
-    $mo->{ '__FILE_NAME' } = $send_file_size;
+    $mo->{ '___FILE_SIZE' } = $send_file_size;
     
     my $mo_res = de_net_protocol_write_message( $socket, $ptype, $mo );
 
@@ -170,7 +171,7 @@ sub on_process
         {
         $read = read( $fi, $data, $buf_size );
         $read_size += $read;
-        my $write = socket_write( $socket, $data, length( $data ) );
+        my $write = socket_write( $socket, $data, $read );
         last if $read < $buf_size;
         }
       close( $fi );

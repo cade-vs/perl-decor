@@ -41,9 +41,11 @@ sub main
     {
 #print STDERR Dumper( '******************FILE UP', ref( $file_fh ), $file_upload );
 
+    my $mime = $ui->{ 'FILE_UPLOAD:UPLOAD_INFO' }{ 'Content-Type' };
+
     $file_upload =~ s/^.*?\/([^\/]+)$/$1/;
 
-    my $new_id = $core->file_save_fh( $file_fh, $table, $file_upload, $id, { DES => $file_des } );
+    my $new_id = $core->file_save_fh( $file_fh, $table, $file_upload, $id, { DES => $file_des, MIME => $mime } );
 
     if( $new_id > 0 )
       {

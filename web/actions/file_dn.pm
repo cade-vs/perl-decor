@@ -7,13 +7,15 @@
 ##  LICENSE: GPLv2
 ##
 ##############################################################################
-package decor::actions::do;
+package decor::actions::file_dn;
 use strict;
+use Data::Dumper;
+use File::Temp qw( tempfile );
+
 use Web::Reactor::HTML::Utils;
 use Web::Reactor::HTML::Layout;
 use Decor::Web::HTML::Utils;
 use Decor::Web::View;
-use Data::Dumper;
 
 sub main
 {
@@ -25,54 +27,21 @@ sub main
 
   my $table  = $reo->param( 'TABLE' );
   my $id     = $reo->param( 'ID'    );
-  my $ids    = $reo->param( 'IDS'   );
-  my $do     = $reo->param( 'DO'    );
 
   my $core = $reo->de_connect();
-  my $tdes = $core->describe( $table );
 
-  my $table_label = $tdes->get_label();
-
-  $reo->ps_path_add( 'do', qq( Do work on "<b>$table_label</b>" ) );
-
-  my $dodes   = $tdes->get_category_des( 'DO', $do );
+  my $file = $core->select_first1_by_id( $table, '*', $id );
+  return "<#e_access>" unless $file;
   
-  return "<#access_denied>" unless $dodes->allows( 'EXECUTE' );
-  
-  my @ids;
-  push @ids, $id   if $id   > 0;
-  push @ids, @$ids if @$ids > 0;
+  my $mime     = $file->{ 'MIME' } || 'application/octet-stream';
 
-  my $html_file;
-  for my $id ( @ids )
-    {
-    $core->do( $table, $do, {}, $id );
-    
-    my ( $file_body, $file_mime ) = $core->get_return_file_body_mime();
-    
-    if( $file_mime ne '' )
-      {
-      if( $file_mime eq 'text/plain' )
-        {
-        $html_file .= "<xmp>$file_body</xmp>";
-        }
-      elsif( $file_mime eq 'text/html' )
-        {
-        $html_file .= $file_body;
-        }
-      else
-        {
-        $html_file .= "*** UNSUPPORTED DATA TYPE ***";
-        }  
-      }  
-    }
+  my $fh = tempfile( DIR => '/tmp/', SUFFIX => '.tmp', UNLINK => 1 );
+  open( $fh, '+>', '/tmp/asdasdasdasdasdasd' );
 
-  $text .= $html_file || "*** DONE ***";
+  $core->file_load( $fh, $table, $id );
+  seek( $fh, 0, 0 );
 
-  $text .= "<p>";
-  $text .= de_html_alink_button( $reo, 'back', "&lArr; [~Continue]", "Return and continue on previous screen" );
-
-  return $text;
+  return $reo->render_data( undef, $mime, FH => $fh );
 }
 
 1;

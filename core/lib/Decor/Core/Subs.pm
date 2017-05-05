@@ -1048,6 +1048,16 @@ sub sub_file_save
   
   my ( $fname, $fname_short ) = $rec->get_file_name();
   my $fname_part = $fname . '.part';
+
+  if( ! $mime )
+    {
+    eval { require File::MimeInfo; };
+    if( ! $@ )
+      {
+      $mime = File::MimeInfo::mimetype( $fname );
+      $rec->write( MIME => $mime );
+      }
+    }
   
   $rec->write( SYS_FNAME => $fname_short );
 

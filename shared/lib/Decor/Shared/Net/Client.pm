@@ -205,9 +205,9 @@ sub tx_msg
     $self->disconnect();
     return undef;
     }
-  if( $recv_file_hand )
+  my $file_size = $mo->{ '___FILE_SIZE' };
+  if( $file_size > 0 )
     {
-    my $file_size = $mo->{ '___FILE_SIZE' };
     my $buf_size  = 1024*1024;
     my $read;
     my $data;
@@ -215,7 +215,7 @@ sub tx_msg
       {
       my $read_size = $file_size > $buf_size ? $buf_size : $file_size;
       $read = socket_read( $socket, \$data, $read_size );
-      print $recv_file_hand $data;
+      print $recv_file_hand $data if $recv_file_hand;
       last unless $read > 0;
       $file_size -= $read;
       last if $file_size == 0;
@@ -625,7 +625,7 @@ sub file_save_fh
 sub file_load
 {
   my $self   = shift;
-  my $fname  = shift;
+  my $fh     = shift;
   my $table  = uc shift;
   my $id     = shift;
 
@@ -635,7 +635,7 @@ sub file_load
   $mi{ 'TABLE' } = $table;
   $mi{ 'ID'    } = $id;
   
-  $mi{ '___RECV_FILE_NAME' } = $fname;
+  $mi{ '___RECV_FILE_HAND' } = $fh;
 
   my $mo = $self->tx_msg( \%mi ) or return undef;
   
