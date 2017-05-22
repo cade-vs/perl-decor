@@ -113,6 +113,10 @@ sub select
     if( $fields eq '*' )
       {
       @fields = @{ $table_des->get_fields_list() };
+      if( $profile and $self->taint_mode_get( 'FIELDS' ) )
+        {
+        @fields = grep { $profile->check_access_table_field( 'READ', $table, $_ ) } @fields;
+        }
       }
     else
       {
