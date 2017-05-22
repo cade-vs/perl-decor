@@ -66,6 +66,8 @@ sub main
     }
   my $row_id = $row_data->{ '_ID' };
 
+print STDERR Dumper( $row_data );
+
   @fields = grep { /^_/ ? $reo->user_has_group( 1 ) ? 1 : 0 : 1 } @fields;
 
   for my $field ( @fields )

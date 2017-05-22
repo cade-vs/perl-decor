@@ -32,6 +32,10 @@ sub main
   my $file_upload = $ui->{ 'FILE_UPLOAD' };
   my $file_des    = $ui->{ 'FILE_DES' };
 
+  my $lt_table = $reo->param( 'LINK_TO_TABLE' );
+  my $lt_field = $reo->param( 'LINK_TO_FIELD' );
+  my $lt_id    = $reo->param( 'LINK_TO_ID'    );
+
   my $core = $reo->de_connect();
   my $tdes = $core->describe( $table );
 
@@ -49,6 +53,12 @@ sub main
 
     if( $new_id > 0 )
       {
+      if( $lt_table and $lt_field and $lt_id > 0 )
+        {
+        $core->update( $lt_table, { $lt_field => $new_id }, { FILTER => { _ID => $lt_id } } );
+        # FIXME: check and report error
+        }
+
       $reo->forward_back();
       $text .= "<p>";
       $text .= "<#upload_ok>";
@@ -68,7 +78,6 @@ sub main
     {
     $text .= "<#file_upload_form>";
     }  
-
 
   return $text;
 }

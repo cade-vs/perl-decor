@@ -862,7 +862,7 @@ sub sub_update
 
   boom "invalid TABLE name [$table]"    unless de_check_name( $table ) or ! des_exists( $table );
   boom "invalid DATA [$data]"           unless ref( $data ) eq 'HASH';
-  boom "invalid ID [$id]"               unless de_check_id( $id );
+  boom "invalid ID [$id]"               if $id ne '' and ! de_check_id( $id );
   boom "invalid FILTER [$filter]"       unless ref( $filter ) eq 'HASH';
 
   my $profile = subs_get_current_profile();
