@@ -240,7 +240,8 @@ sub main
           my $ltdes = $core->describe( $linked_table );
           if( $data_base > 0 )
             {
-            $data_fmt   = de_html_alink( $reo, 'new', $data_fmt,                       "View linked record", ACTION => 'view', ID => $data_base, TABLE => $linked_table );
+            $data_fmt =~ s/\./&#46;/g;
+            $data_fmt   = de_html_alink( $reo, 'new', "$data_fmt",                       "View linked record", ACTION => 'view', ID => $data_base, TABLE => $linked_table );
             }
           else
             {

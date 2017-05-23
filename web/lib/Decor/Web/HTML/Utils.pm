@@ -71,7 +71,7 @@ sub __value_image_fix
 {
   my $value =    shift;
   #$value = "<img class=icon src=i/$value>" if $value =~ /^[a-z_0-9]+\.(png|jpg|jpeg|gif)$/i;
-  $value =~ s/^([a-z_\-0-9]+\.(png|jpg|jpeg|gif|svg))$/<img class=icon src=i\/$1>/g;
+  $value =~ s/([a-z_\-0-9]+\.(png|jpg|jpeg|gif|svg))/<img class=icon src=i\/$1>/g;
   return $value;
 }
 
