@@ -117,7 +117,7 @@ sub clear_groups
 sub set_primary_group
 {
   my $self = shift;
-  my $group = shift;
+  my $group = shift || 0;
 
   de_check_id_boom( $group, "invalid group id [$group] expected number" );
   $group = int( $group );

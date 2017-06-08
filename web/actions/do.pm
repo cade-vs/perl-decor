@@ -41,7 +41,7 @@ sub main
   
   my @ids;
   push @ids, $id   if $id   > 0;
-  push @ids, @$ids if @$ids > 0;
+  push @ids, @$ids if $ids and @$ids > 0;
 
   my $html_file;
   for my $id ( @ids )

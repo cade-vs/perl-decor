@@ -241,7 +241,16 @@ sub main
           if( $data_base > 0 )
             {
             $data_fmt =~ s/\./&#46;/g;
-            $data_fmt   = de_html_alink( $reo, 'new', "$data_fmt",                       "View linked record", ACTION => 'view', ID => $data_base, TABLE => $linked_table );
+            if( $ltdes->get_table_type() eq 'FILE' )
+              {
+              $data_fmt   = de_html_alink( $reo, 'new', "$data_fmt",                       "View linked record", ACTION => 'file_dn', ID => $data_base, TABLE => $linked_table );
+              $data_ctrl .= de_html_alink( $reo, 'new', 'file_dn.svg Download file',       undef,                ACTION => 'file_dn', ID => $data_base, TABLE => $linked_table );
+              $data_ctrl .= "<br>\n";
+              }
+            else
+              {  
+              $data_fmt   = de_html_alink( $reo, 'new', "$data_fmt",                       "View linked record", ACTION => 'view', ID => $data_base, TABLE => $linked_table );
+              }
             }
           else
             {
