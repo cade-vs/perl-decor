@@ -199,6 +199,7 @@ sub main
                                        ID       => "VECB:$cb_id",
                                        VALUE    => 0,
                                        RET      => [ '0', '1' ],
+                                       LABELS   => [ "<img class=check-0 src=i/check-0.svg>", "<img class=check-1 src=i/check-1.svg>" ],
                                        );
       }
 

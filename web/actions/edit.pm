@@ -353,10 +353,11 @@ sub main
       $field_input .= $edit_form->checkbox_multi(
                                        NAME     => "F:$field",
                                        ID       => $field_id,
-                                       VALUE => $field_data,
-                                       RET   => [ '0', '1' ],
+                                       VALUE    => $field_data,
+                                       RET      => [ '0', '1' ],
                                        ARGS     => $input_tag_args,
                                        CLEAR    => $clear_icon,
+                                       LABELS   => [ "<img class=check-0 src=i/check-0.svg>", "<img class=check-1 src=i/check-1.svg>" ],
                                        );
       }
     elsif( $type_name eq 'INT' )

@@ -52,10 +52,10 @@ a.button
         font-weight: bold;
         color: #000;
         background-color: #AAA;
-        padding-top:     2px;
-        padding-left:   12px;
-        padding-bottom:  3px;
-        padding-right:  13px;
+        padding-top:    0.5em;
+        padding-left:   2.5em;
+        padding-bottom: 0.5em;
+        padding-right:  2.5em;
         margin: 2px 2px 2px 2px;
         border-top:    solid 1px #FFF;
         border-left:   solid 1px #FFF;
@@ -66,10 +66,10 @@ a.button
 
 a.button:hover
         {
-        padding-top:     3px;
-        padding-left:   13px;
-        padding-bottom:  2px;
-        padding-right:  12px;
+        padding-top:    0.5em;
+        padding-left:   2.5em;
+        padding-bottom: 0.5em;
+        padding-right:  2.5em;
         border-top:    solid 1px #777;
         border-left:   solid 1px #777;
         border-bottom: solid 1px #FFF;
@@ -86,10 +86,7 @@ img
         cursor: pointer;
         color: #AAA;
         background-color: #223;
-        padding-top:     3px;
-        padding-left:    3px;
-        padding-bottom:  4px;
-        padding-right:   4px;
+        padding: 0.5em;
         border-top:    solid 1px #445;
         border-left:   solid 1px #445;
         border-bottom: solid 1px #334;
@@ -99,10 +96,7 @@ img
 
 .icon:hover
         {
-        padding-top:     4px;
-        padding-left:    4px;
-        padding-bottom:  3px;
-        padding-right:   3px;
+        padding: 0.5em;
         border-top:    solid 1px #334;
         border-left:   solid 1px #334;
         border-bottom: solid 1px #445;
@@ -505,7 +499,7 @@ input
         {
         color: #CCC;
         background-color: #252525;
-        padding: 5px;
+        padding: 0.5em;
         margin: 0 0 0 0;
         border:        none;
         border-left:   solid 1px #555;
@@ -583,27 +577,43 @@ div.popup-layer
 
 /*** check boxes ************************************************************/
 
-div.checkbox-0
+img.check-0
         {
-        text-align: center;
         color: #999;
-        background-color: #422;
-        border: solid 1px #644;
+        background-color: #722;
         padding: 0.5em;
-        display: inline;
-        width: 3em;
+        border-top:    solid 1px #833;
+        border-left:   solid 1px #833;
+        border-bottom: solid 1px #611;
+        border-right:  solid 1px #611;
         }
 
-div.checkbox-1
+img.check-0:hover
         {
-        text-align: center;
+        border-top:    solid 1px #611;
+        border-left:   solid 1px #611;
+        border-bottom: solid 1px #833;
+        border-right:  solid 1px #833;
+        }
+
+img.check-1
+        {
         color: #FFF;
         font-weight: bold;
         background-color: #242;
-        border: solid 1px #464;
         padding: 0.5em;
-        display: inline;
-        width: 3em;
+        border-top:    solid 1px #353;
+        border-left:   solid 1px #353;
+        border-bottom: solid 1px #121;
+        border-right:  solid 1px #121;
+        }
+
+img.check-1:hover
+        {
+        border-top:    solid 1px #121;
+        border-left:   solid 1px #121;
+        border-bottom: solid 1px #353;
+        border-right:  solid 1px #353;
         }
 
 /*** DECOR EOF **************************************************************/
