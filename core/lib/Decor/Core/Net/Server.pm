@@ -17,6 +17,8 @@ use Data::Dumper;
 use Exception::Sink;
 use Data::Tools;
 use Data::Tools::Socket;
+use Net::Waiter 1.02;
+
 use Decor::Core::DSN;
 use Decor::Core::Log;
 use Decor::Shared::Net::Protocols;
@@ -132,8 +134,9 @@ sub on_process
       # TODO: rollback?
       $mo = {};
       $mo->{ 'XS' } = "E_STATUS";
+      $self->break_main_loop();
+      next;
       }
-
 
     if( $mo->{ 'XS' } ne 'OK' )
       {
@@ -180,7 +183,6 @@ sub on_process
     
     }
   de_log_debug( "main loop did exit\n" );
- 
 }
 
 #-----------------------------------------------------------------------------

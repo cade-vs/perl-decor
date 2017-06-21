@@ -243,7 +243,7 @@ sub main
     elsif( $type_name eq 'LINK' )
       {
       my ( $linked_table, $linked_field ) = $fdes->link_details();
-      my $ldes = $core->describe( $linked_table );
+      my $ltdes = $core->describe( $linked_table );
 
       my $select_filter_name = $fdes->get_attr( 'WEB', 'SELECT_FILTER' );
 
@@ -269,7 +269,7 @@ sub main
         my $sel_hr     = {};
         $sel_hr->{ $field_data } = 1 if $field_data > 0;
 
-        my @lfields = @{ $ldes->get_fields_list_by_oper( 'READ' ) };
+        my @lfields = @{ $ltdes->get_fields_list_by_oper( 'READ' ) };
         unshift @lfields, $linked_field;
 
 ##        return "<#access_denied>" unless @fields;
@@ -278,7 +278,7 @@ sub main
         my %lfdes; # linked/last       field descriptions, indexed by field path, pointing to trail field
         my %basef; # base fields map, return base field NAME by field path
 
-        de_web_expand_resolve_fields_in_place( \@lfields, $ldes, \%bfdes, \%lfdes, \%basef );
+        de_web_expand_resolve_fields_in_place( \@lfields, $ltdes, \%bfdes, \%lfdes, \%basef );
 
       #$text .= Dumper( \%basef );
 
@@ -303,9 +303,11 @@ sub main
           }
 
         $field_input = $edit_form->combo( NAME => "F:$field", CLASS => $fmt_class, DATA => $combo_data, SELECTED => $sel_hr );
+        # end combo
         }
       else
         {
+        # is not combo, i.e. regular LINK
         my $lfdes = $fdes->describe_linked_field();
         my ( $link_path, $llfdes ) = $lfdes->expand_field_path();
         my $link_data = $core->read_field( $linked_table, $link_path, $field_data );
@@ -323,15 +325,27 @@ sub main
         $field_input = "<div class=link-data>$link_data_fmt</div>";
         }
 
-      if( ! $backlink_field_disable or $field ne $backlink_field_disable )
+      if( $ltdes->get_table_type() eq 'FILE' )
         {
         if( $field_data > 0 )
           {
-          $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "VIEW_LINKED_$field_id", "view.svg", "View linked data", ACTION => 'view', TABLE => $linked_table, ID => $field_data ) if $ldes->allows( 'READ'   );
-          $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "EDIT_LINKED_$field_id", "edit.svg", "Edit linked data", ACTION => 'edit', TABLE => $linked_table, ID => $field_data ) if $ldes->allows( 'UPDATE' );
+          $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "FILE_UPLOAD_REPLACE_$field_id", "file_up.svg", "Upload and replace current file", ACTION => 'file_up', TABLE => $linked_table, ID => $field_data ) if $ltdes->allows( 'UPDATE' );
+          $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "FILE_DOWNLOAD_$field_id",       "file_dn.svg", "Download current file",           ACTION => 'file_dn', TABLE => $linked_table, ID => $field_data ) if $ltdes->allows( 'READ' );
           }
-        $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "INSERT_LINKED_$field_id", "insert.svg",      "Insert new linked data", ACTION => 'edit', TABLE => $linked_table, ID => -1, RETURN_DATA_FROM => '_ID', RETURN_DATA_TO => $field ) if $ldes->allows( 'INSERT' );
-        $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "SELECT_LINKED_$field_id", "select-from.svg", "Select linked data",     ACTION => 'grid', TABLE => $linked_table, ID => -1, RETURN_DATA_FROM => '_ID', RETURN_DATA_TO => $field, GRID_MODE => 'SELECT', SELECT_KEY_DATA => $field_data, FILTER_NAME => $select_filter_name ) if $ldes->allows( 'READ'   );
+        else
+          {
+          $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "FILE_UPLOAD_NEW_$field_id", "file_new.svg", "Upload new file", ACTION => 'file_up', TABLE => $linked_table, ID => -1 ) if $ltdes->allows( 'INSERT' );
+          }
+        }
+      elsif( ! $backlink_field_disable or $field ne $backlink_field_disable )
+        {
+        if( $field_data > 0 )
+          {
+          $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "VIEW_LINKED_$field_id", "view.svg", "View linked data", ACTION => 'view', TABLE => $linked_table, ID => $field_data ) if $ltdes->allows( 'READ'   );
+          $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "EDIT_LINKED_$field_id", "edit.svg", "Edit linked data", ACTION => 'edit', TABLE => $linked_table, ID => $field_data ) if $ltdes->allows( 'UPDATE' );
+          }
+        $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "INSERT_LINKED_$field_id", "insert.svg",      "Insert new linked data", ACTION => 'edit', TABLE => $linked_table, ID => -1, RETURN_DATA_FROM => '_ID', RETURN_DATA_TO => $field ) if $ltdes->allows( 'INSERT' );
+        $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "SELECT_LINKED_$field_id", "select-from.svg", "Select linked data",     ACTION => 'grid', TABLE => $linked_table, ID => -1, RETURN_DATA_FROM => '_ID', RETURN_DATA_TO => $field, GRID_MODE => 'SELECT', SELECT_KEY_DATA => $field_data, FILTER_NAME => $select_filter_name ) if $ltdes->allows( 'READ'   );
         }
       }
     elsif( $type_name eq 'BACKLINK' )

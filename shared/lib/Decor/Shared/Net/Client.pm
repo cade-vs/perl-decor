@@ -158,7 +158,7 @@ sub tx_msg
   my $self = shift;
   my $mi = shift;
 
-  $self->check_connected();
+  return undef unless $self->is_connected();
 
   my $socket  = $self->{ 'SOCKET'  };
   my $timeout = $self->{ 'TIMEOUT' };
@@ -175,7 +175,7 @@ sub tx_msg
   delete $mi->{ '___RECV_FILE_HAND' };
   
   my $ptype = 'p'; # FIXME: config?
-  
+
   my $mi_res = de_net_protocol_write_message( $socket, $ptype, $mi, $timeout );
   if( $mi_res == 0 )
     {
@@ -184,6 +184,7 @@ sub tx_msg
     }
   if( $send_file_hand )
     {
+    return { XS => 'E_SOCKET' } unless $socket->connected() and socket_can_write( $socket );
     my $read_size = 0;
     my $data;
     my $buf_size = 1024*1024;
@@ -193,11 +194,11 @@ sub tx_msg
       $read = read( $send_file_hand, $data, $buf_size );
       $read_size += $read;
       my $write = socket_write( $socket, $data, $read );
-      last if $read < $buf_size;
+      last   if $write < $read;
+      last   if $read  < $buf_size;
       }
     # TODO: check if read_size == send file size, boom and disconnect on error
     }
-
   my $mo;
   ( $mo, $ptype ) = de_net_protocol_read_message( $socket, $timeout );
   if( ! $mo or ref( $mo ) ne 'HASH' )
@@ -208,6 +209,7 @@ sub tx_msg
   my $file_size = $mo->{ '___FILE_SIZE' };
   if( $file_size > 0 )
     {
+    return { XS => 'E_SOCKET' } unless socket_can_read( $socket );
     my $buf_size  = 1024*1024;
     my $read;
     my $data;

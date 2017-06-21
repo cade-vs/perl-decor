@@ -1,7 +1,8 @@
 
 @isa _DE_OWNERS _OWNER
 
-grant read insert update
+grant read
+
 
 =NAME
 
@@ -22,3 +23,4 @@ grant read insert update
 =DES
 
   type    char  128
+  grant   update

@@ -1044,6 +1044,7 @@ sub sub_file_save
     $rec->create( $table );
     }
 
+  $rec->taint_mode_disable_all();
   $rec->write( NAME => $name, MIME => $mime, SIZE => $size );
   
   my ( $fname, $fname_short ) = $rec->get_file_name();
@@ -1078,7 +1079,6 @@ sub sub_file_save
     }
   close( $fo );
 
-  $rec->taint_mode_disable_all();
   $rec->method( 'FILE_SAVE' );
 
   $rec->save();
