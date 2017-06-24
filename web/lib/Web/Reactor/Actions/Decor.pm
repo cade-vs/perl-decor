@@ -38,43 +38,33 @@ sub call
   my $name = lc shift;
   my %args = @_;
 
-  die "invalid action name, expected ALPHANUMERIC, got [$name]" unless $name =~ /^[a-z_\-0-9]+$/;
-
-  my $ap = $self->__find_act_pkg( $name );
-
-#  print STDERR Dumper( $name, $ap, \%args );
-
-  if( ! $ap )
+  my $reo = $self->get_reo();
+  
+  if( $name !~ /^[a-z_\-0-9]+$/ )
     {
-    boom "action package for action name [$name] not found";
+    $reo->log( "error: invalid action name [$name] expected ALPHANUMERIC" );
     return undef;
     }
 
-  # FIXME: move to global error/log reporting
-  print STDERR "reactor::actions::call [$name] action package found [$ap]\n";
+  my $cr = $self->__load_action_file( $name );
 
-  my $cr = \&{ "${ap}::main" }; # call/function reference
-
-  my $data;
-
-  $data = $cr->( $self->get_reo(), %args );
-
-  # print STDERR "reactor::actions::call result: $data\n";
+  my $data = $cr->( $reo, %args );
 
   return $data;
 }
 
-sub __find_act_pkg
+sub __load_action_file
 {
   my $self  = shift;
 
-  my $name = lc shift;
-  
-  my $act_cache = $self->{ 'ACT_PKG_CACHE' };
-  
-  return $act_cache->{ $name } if exists $act_cache->{ $name };
+  my $name = shift;
 
-  my $app_name = lc $self->{ 'ENV' }{ 'APP_NAME' };
+  my $reo = $self->get_reo();
+  
+  my $cr = $self->{ 'ACT_CODE_CACHE' }{ $name };
+  
+  return $cr if $cr;
+  
   my $dirs = $self->{ 'ENV' }{ 'ACTIONS_DIRS' } || [];
   
   my $found;
@@ -86,29 +76,28 @@ sub __find_act_pkg
     last;
     }
 
-  $act_cache->{ $name } = undef;
-
-  return unless $found;
+  return undef unless $found;
 
   my $ap = 'decor::actions::' . $name;
 
   eval
     {
+    delete $INC{ $found };
     require $found;
     };
   if( ! $@ )  
     {
-    print STDERR "LOADED! action: $ap [$found]\n";
-    $act_cache->{ $name } = $ap;
-    return $ap;
+    $reo->log_debug( "status: load action ok: $ap [$found]" );
+    $self->{ 'ACT_CODE_CACHE' }{ $name } = $cr = \&{ "${ap}::main" }; # call/function reference
+    return $cr;
     }
   elsif( $@ =~ /Can't locate $found/)
     {
-    print STDERR "NOT FOUND: action: $ap [$found]\n";
+    $reo->log( "error: action not found: $ap [$found]" );
     }
   else
     {
-    print STDERR "ERROR LOADING: action: $ap: $@ [$found]\n";
+    $reo->log( "error: load action failed: $ap: $@ [$found]" );
     }  
 
   return undef;

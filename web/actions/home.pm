@@ -3,7 +3,7 @@ use strict;
 
 sub main
 {
-  return "hellou! " . rand();
+  return "[$$] hellou! " . rand();
 }
 
 1;
