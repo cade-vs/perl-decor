@@ -48,6 +48,12 @@ sub call
 
   my $cr = $self->__load_action_file( $name );
 
+  if( ! $cr )
+    {
+    $reo->log( "error: cannot load action [$name]" );
+    return undef;
+    }
+
   my $data = $cr->( $reo, %args );
 
   return $data;
