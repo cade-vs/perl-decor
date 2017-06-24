@@ -51,7 +51,7 @@ sub new
             'DEBUG'          => 0,
             'APP_NAME'       => $APP_NAME,
             'APP_ROOT'       => $APP_ROOT,
-            'LIB_DIRS'       => [ "$APP_ROOT/lib", "$ROOT/shared/lib" ],
+            'LIB_DIRS'       => [ "$APP_ROOT/web/lib", "$APP_ROOT/lib", "$ROOT/shared/lib", "$ROOT/web/lib" ],
             'HTML_DIRS'      => $lang ?
                                     [
                                       "$APP_ROOT/web/html/$lang/",
