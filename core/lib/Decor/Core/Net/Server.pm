@@ -92,16 +92,16 @@ sub on_process
     $mi->{ 'XT_MC'    } = $mc;
     $mi->{ 'XT_REFH'  } = $xt_ref_hash;
 
-    my $xt_handler_res;
     eval
       {
-      $xt_handler_res = $self->on_process_xt_message( $mi, $mo, $socket );
+      $self->on_process_xt_message( $mi, $mo, $socket );
       de_log_dumper2( "HANDLER MO RES " x 8, "$mo", $mo );
       };
-    if( $@ or ! $xt_handler_res )
+    if( $@ )
       {
-      de_log( "error: XTYPE handler returned error [$xt_handler_res] or exception [$@]" );
-      $mo->{ 'XS' } = $@;
+      my $err_ref = create_random_id( 9, 'ABCDEFGHJKLMNPQRTVWXY0123456789' ); # print read safe
+      de_log( "error: XTYPE handler exception err_ref [$err_ref] details [$@]" );
+      $mo->{ 'XS' } = "E_INTERNAL: exception err_ref [$err_ref]";
       eval { dsn_rollback(); }; # FIXME: eval/break-main-loop
       if( $@ )
         {
@@ -141,9 +141,8 @@ sub on_process
     if( $xs ne 'OK' )
       {
       my $err_ref = create_random_id( 9, 'ABCDEFGHJKLMNPQRTVWXY0123456789' ); # print read safe
-      de_log( "error: reference: $err_ref" );
-      $mo->{ 'XS_REF' } = $err_ref;
-      de_log( "error: XTYPE [$xt] XSTATUS [$xs] DBI::errstr [$DBI::errstr] ref [$err_ref]" );
+      $mo->{ 'XS_ERR_REF' } = $err_ref;
+      de_log( "error: XTYPE [$xt] XSTATUS [$xs] DBI::errstr [$DBI::errstr] err_ref [$err_ref]" );
       }
     else
       {
