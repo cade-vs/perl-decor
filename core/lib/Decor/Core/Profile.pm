@@ -261,7 +261,7 @@ sub check_access_table_field
   my $table = uc $_[1];
   my $field = uc $_[2];
 
-print "check_access_table_field: [@_]\n";
+#print STDERR "check_access_table_field: [@_]\n";
 
   return $self->check_access_table_category( $oper, $table, 'FIELD', $field );
 }
@@ -293,7 +293,7 @@ sub check_access_table_category
   my $cat   = uc $_[2]; # category
   my $item  = uc $_[3]; # category item
 
-print "check_access_table_category: [@_]\n";
+#print STDERR "check_access_table_category: [@_]\n";
 
   # TCO == table category oper
   my $cache = $self->{ 'CACHE' }{ 'ACCESS' }{ 'TCO' }{ $table }{ $cat }{ $item } ||= {};
@@ -309,19 +309,19 @@ print "check_access_table_category: [@_]\n";
 
   if( $self->__check_access_tree( $oper, $cdes->{ 'DENY'  } ) )
     {
-print "check_access_table_category: deny denied\n";
+#print STDERR "check_access_table_category: deny denied\n";
     $cache->{ $oper } = 0;
     return 0;
     }
     
   if( $self->__check_access_tree( $oper, $cdes->{ 'GRANT' } ) )
     {
-print "check_access_table_category: grant granted\n";
+#print STDERR "check_access_table_category: grant granted\n";
     $cache->{ $oper } = 1;
     return 1;
     }
   
-print "check_access_table_category: default denied\n";
+#print STDERR "check_access_table_category: default denied\n";
   $cache->{ $oper } = 0;
   return 0;
 }
