@@ -138,13 +138,17 @@ sub on_process
       next;
       }
 
-    if( $mo->{ 'XS' } ne 'OK' )
+    if( $xs ne 'OK' )
       {
       my $err_ref = create_random_id( 9, 'ABCDEFGHJKLMNPQRTVWXY0123456789' ); # print read safe
       de_log( "error: reference: $err_ref" );
       $mo->{ 'XS_REF' } = $err_ref;
+      de_log( "error: XTYPE [$xt] XSTATUS [$xs] DBI::errstr [$DBI::errstr] ref [$err_ref]" );
       }
-    de_log_debug( "debug: XTYPE [$xt] XSTATUS [$xs] DBI::errstr [$DBI::errstr]" );
+    else
+      {
+      de_log_debug( "debug: XTYPE [$xt] XSTATUS [$xs]" );
+      }  
 
     de_log_dumper2( "MO" x 16, $mo );
     my $send_file_name = $mo->{ '___SEND_FILE_NAME' };
