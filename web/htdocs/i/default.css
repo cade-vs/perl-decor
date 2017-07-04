@@ -577,6 +577,17 @@ div.popup-layer
 
 /*** check boxes ************************************************************/
 
+img.check-unknown
+        {
+        color: #999;
+        background-color: #772;
+        padding: 0.5em;
+        border-top:    solid 1px #883;
+        border-left:   solid 1px #883;
+        border-bottom: solid 1px #661;
+        border-right:  solid 1px #661;
+        }
+
 img.check-0
         {
         color: #999;
