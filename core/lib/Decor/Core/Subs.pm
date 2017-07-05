@@ -583,25 +583,34 @@ sub __filter_to_where
     boom "invalid FILTER FIELD [$f]"  unless $f =~ /^[A-Z_0-9\.]+$/o;
 
     my $vref = ref( $v );
-    if( $vref eq 'HASH' )
-      {
-      my $op  = uc $v->{ 'OP'    };
-      my $val =    $v->{ 'VALUE' };
-      boom "invalid OPERATOR [$op]" unless exists $SELECT_WHERE_OPERATORS{ $op };
-      my $op = $SELECT_WHERE_OPERATORS{ $op };
+    $v = [ $v ] if $vref eq 'HASH';
+    $vref = ref( $v );
 
-      push @where, ".$f $op ?";
-      push @bind,  $val;
-      }
-    elsif( $vref eq 'ARRAY' )
+    if( $vref eq 'ARRAY' )
       {
-      # i.e. IN
-      my $vc = @$v;
-      my @inph = ( '?' ) x $vc; # IN place holders
-      my $inph = join ',', @inph;
+      for my $ff ( @$v )
+        {
+        my $op  = uc $v->{ 'OP'    };
+        my $val =    $v->{ 'VALUE' };
+        boom "invalid OPERATOR [$op]" unless exists $SELECT_WHERE_OPERATORS{ $op };
+        my $op = $SELECT_WHERE_OPERATORS{ $op };
 
-      push @where, ".$f IN ( $inph )";
-      push @bind,  @$v;
+        if( $op eq 'IN' )
+          {
+          $val = [ $val ] if ref( $val ) eq '';
+          my $vc = @$val;
+          my @inph = ( '?' ) x $vc; # IN place holders
+          my $inph = join ',', @inph;
+
+          push @where, ".$f IN ( $inph )";
+          push @bind,  @$v;
+          }
+        else
+          {  
+          push @where, ".$f $op ?";
+          push @bind,  $val;
+          }
+        }
       }
     elsif( $vref eq '' )
       {
