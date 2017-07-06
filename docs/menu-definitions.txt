@@ -6,7 +6,56 @@
 
   MENU DEFINITION
 
-  FIXME: to be completed.
+  Menu definitions are saved in separated files, named with the menu name.
+  For example, the file ADMIN.DEF in 'menus' directory contains 4 menu items:
+  
+  ------------------------------------------------------------------
+  
+  =SYSTEM                                                                                                                         
+                                                                                                                                  
+    type submenu  ADMIN                                                                                                           
+    deny all                                                                                                                      
+    grant access to all                                                                                                           
+                                                                                                                                  
+  =TESTS                                                                                                                          
+                                                                                                                                  
+    type  submenu TESTS                                                                                                           
+                                                                                                                                  
+  =ITEMS                                                                                                                          
+                                                                                                                                  
+    label List items                                                                                                              
+    type  grid  TEST1                                                                                                             
+                                                                                                                                  
+  =NEW_ITEM                                                                                                                       
+                                                                                                                                  
+    label Add new item                                                                                                            
+    type  insert TEST1                                                                                                            
+
+  ------------------------------------------------------------------
+
+  Each menu item begins with '=' followed by menu ID. Menu ID will be
+  used as a menu item label if 'label' is missing.
+  
+  'label' gives the 'user friendly' menu item description.
+  
+  'type' defines the menu item type. The following types are recognized:
+  
+      "grid" -- takes one argument, table name, displays grid with data
+      
+      "insert" -- takes one argument, table name, displays insert screen 
+      
+      "submenu" -- takes one argument, submenu name, forwards to new menu
+      
+  For 'grant' and 'deny' permissions, please, check the "table-definitions.txt"
+  file, section "PERMISSIONS, GRANT/DENY ACCESS".    
+
+  Menus are merged with the core root menus, however thyey are not shown
+  unless explicitly requested.
+  
+  Main menu is named simply 'main' and is the root menu, visible by all users.
+  
+  Each menu item, including submenu, can have different permissions and 
+  access groups.
 
   Meanwhile, see the demo applications in the "apps" directory:
 
