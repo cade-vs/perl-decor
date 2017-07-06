@@ -5,6 +5,7 @@
 ##   2014-2017 (c) Vladi Belperchinov-Shabanski "Cade"
 
 ![DECOR Screenshot](docs/screenshots/localhost_2017-07-06_04-00-23.png)
+![DECOR Screenshot](docs/screenshots/localhost_2017-03-07_13-50-43_excerpt.png)
 
 #  INTRODUCTION
 
