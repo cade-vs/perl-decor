@@ -96,15 +96,38 @@ sub main
 
   return "<#e_access>" unless $fields;
 
-  my %filter;
+  my $last_filter = $ps->{ 'FILTERS' }{ 'LAST' };
+  if( $last_filter and $reo->param_peek( 'USE_LAST_FILTER' ) )
+    {
+    $ps->{ 'FILTERS' }{ 'ACTIVE' } = $last_filter;
+    }  
 
-  %filter = ( %filter, %$filter_param ) if $filter_param;
+  my $active_filter = $ps->{ 'FILTERS' }{ 'ACTIVE' };
+  if( $active_filter and $reo->param_peek( 'REMOVE_ACTIVE_FILTER' ) )
+    {
+    $ps->{ 'FILTERS' }{ 'LAST' } = $ps->{ 'FILTERS' }{ 'ACTIVE' };
+    delete $ps->{ 'FILTERS' }{ 'ACTIVE' };
+    $active_filter = undef;
+    }
+  
+  my $filter;
 
-  my $select = $core->select( $table, $fields, { FILTER => \%filter, FILTER_NAME => $filter_name, OFFSET => $offset, LIMIT => $page_size, ORDER_BY => '_ID DESC' } ) if $fields;
-  my $scount = $core->count( $table, { FILTER => \%filter, FILTER_NAME => $filter_name } ) if $select;
+  if( $active_filter )
+    {
+    $filter = $active_filter->{ 'RULES' };
+    }
+  else
+    {  
+    $filter = { %$filter, %$filter_param } if $filter_param;
+    }
+
+  my $select = $core->select( $table, $fields, { FILTER => $filter, FILTER_NAME => $filter_name, OFFSET => $offset, LIMIT => $page_size, ORDER_BY => '_ID DESC' } ) if $fields;
+  my $scount = $core->count( $table, { FILTER => $filter, FILTER_NAME => $filter_name } ) if $select;
 
 #  $text .= "<br>";
   $text .= "<p>";
+
+#    $text .= "<xmp style='text-align: left;'>" . Dumper( $ps->{ 'FILTERS' } ) . "</xmp>";
 
   my $text_grid_head;
   my $text_grid_body;
@@ -114,7 +137,14 @@ sub main
   my $text_grid_navi_mid;
 
   $text_grid_navi_left .= de_html_alink( $reo, 'new', "insert.svg Insert new record", 'Insert new record', ACTION => 'edit',        TABLE => $table, ID => -1 ) if $tdes->allows( 'INSERT' );
-  $text_grid_navi_left .= de_html_alink( $reo, 'new', "filter.svg Filter records",    'Filter records',    ACTION => 'grid_filter', TABLE => $table           );
+  $text_grid_navi_left .= "&nbsp;";
+  
+  my $filter_link_label = $active_filter ? "Modify current filter" : "Filter records";
+  $text_grid_navi_left .= de_html_alink( $reo, 'new', "filter.svg $filter_link_label",    'Filter records',    ACTION => 'grid_filter', TABLE => $table           );
+  $text_grid_navi_left .= "&nbsp;";
+  $text_grid_navi_left .= de_html_alink( $reo, 'here', "delete.svg Remove current filter",    'Remove current filter', REMOVE_ACTIVE_FILTER => 1 ) if $active_filter;
+  $text_grid_navi_left .= "&nbsp;";
+  $text_grid_navi_left .= de_html_alink( $reo, 'here', "filter.svg Enable last used filter",    'Enable last used filter', USE_LAST_FILTER => 1      )if $last_filter and ! $active_filter;
 
   $text_grid_head .= "<table class=grid cellspacing=0 cellpadding=0>";
   $text_grid_head .= "<tr class=grid-header>";

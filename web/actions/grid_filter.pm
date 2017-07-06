@@ -61,6 +61,81 @@ sub main
   # handle redirects here
   de_web_handle_redirect_buttons( $reo );
 
+  if( $button eq 'OK' )
+    {
+    my $filter_rules = {};
+    my $filter_data  = {};
+    # compile rules
+    for my $field ( @$fields_ar )
+      {
+      my @field_filter;
+
+      next unless exists $ui_si{ "F:$field" };
+      
+      my $input_data = $ui_si{ "F:$field" };
+      $filter_data->{ $field  } = $input_data; 
+
+      $input_data =~ s/^\s*//;
+      $input_data =~ s/\s*$//;
+      next if $input_data eq '';
+
+      # FIXME: links paths...
+      my $fdes      = $tdes->{ 'FIELD' }{ $field };
+      my $bfdes     = $fdes; # keep sync code with view/preview/grid, bfdes is begin/origin-field
+      my $type      = $fdes->{ 'TYPE'  };
+      my $type_name = $fdes->{ 'TYPE'  }{ 'NAME' };
+
+      if( $type_name eq 'INT' and $fdes->{ 'BOOL' } )
+        {
+        next if $input_data == 0;
+        my $ind;
+        $ind = 0 if $input_data == 1;
+        $ind = 1 if $input_data == 2;
+        push @field_filter, { OP => '==', VALUE => $ind, };
+        }
+      elsif( $type_name eq 'CHAR' )
+        {
+        if( $input_data =~ s/\*/%/g )
+          {
+          push @field_filter, { OP => 'LIKE', VALUE => $input_data, };
+          }
+        else
+          {  
+          push @field_filter, { OP => '==', VALUE => $input_data, };
+          }
+        }  
+      else
+        {
+        if( $input_data =~ /(\S*)\s*\.\.+\s*(\S*)/ )
+          {
+          my $fr = $1;
+          my $to = $2;
+          next if $fr eq '' and $to eq '';
+          ( $fr, $to ) = ( $to, $fr ) if $fr ne '' and $to ne '' and $fr > $to;
+
+          $fr = type_revert( $fr, $type );
+          $to = type_revert( $to, $type );
+          
+          push @field_filter, { OP => '>=', VALUE => $fr, } if $fr ne '';
+          push @field_filter, { OP => '<=', VALUE => $to, } if $to ne '';
+          }
+        else
+          {  
+          push @field_filter, { OP => '==', VALUE => $input_data, };
+          }
+        }  
+
+      next unless @field_filter > 0;
+      $filter_rules->{ $field } = \@field_filter; 
+      }
+    
+#    $text .= "<xmp style='text-align: left;'>" . Dumper( $filter_rules, $filter_data ) . "</xmp>";
+    $rs->{ 'FILTERS' }{ 'ACTIVE' }{ 'RULES' } = $filter_rules;
+    $rs->{ 'FILTERS' }{ 'ACTIVE' }{ 'DATA'  } = $filter_data;
+    return $reo->forward_back();
+    }
+
+
 ###  my $select = $core->select( $table, $fields, { LIMIT => 1, FILTER => { '_ID' => $id } } );
 
   $text .= "<br>";
@@ -90,7 +165,7 @@ sub main
     my $type_name = $fdes->{ 'TYPE'  }{ 'NAME' };
     my $label     = $fdes->{ 'LABEL' } || $field;
 
-    my $input_data = $ui_si{ "F:$field" };
+    my $input_data = $ui_si{ "F:$field" } || ( $rs->{ 'FILTERS' }{ 'ACTIVE' } ? $rs->{ 'FILTERS' }{ 'ACTIVE' }{ 'DATA' }{ $field } : undef );
 
     my $field_error;
 

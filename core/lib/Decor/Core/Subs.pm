@@ -590,8 +590,8 @@ sub __filter_to_where
       {
       for my $ff ( @$v )
         {
-        my $op  = uc $v->{ 'OP'    };
-        my $val =    $v->{ 'VALUE' };
+        my $op  = uc $ff->{ 'OP'    };
+        my $val =    $ff->{ 'VALUE' };
         boom "invalid OPERATOR [$op]" unless exists $SELECT_WHERE_OPERATORS{ $op };
         my $op = $SELECT_WHERE_OPERATORS{ $op };
 
