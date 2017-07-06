@@ -106,7 +106,7 @@ sub main
         }  
       else
         {
-        if( $input_data =~ /(\S*)\s*\.\.+\s*(\S*)/ )
+        if( $input_data =~ /(\S*?)\s*\.\.+\s*(\S*)/ )
           {
           my $fr = $1;
           my $to = $2;
