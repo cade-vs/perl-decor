@@ -110,7 +110,7 @@ sub main
     $active_filter = undef;
     }
   
-  my $filter;
+  my $filter = {};
 
   if( $active_filter )
     {
