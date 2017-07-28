@@ -278,10 +278,11 @@ sub __merge_menu_hash
   push @menus_files, glob_tree( "$_/$menu_fname.def" ) for @$menus_dirs;
 
   my $c = 0;
+  my $opt = {};
   for my $file ( @menus_files )
     {
     $c++;
-    __merge_menu_file( $menu, $menu_name, $file, {} );
+    __merge_menu_file( $menu, $menu_name, $file, $opt );
     }
 
   return $c;
