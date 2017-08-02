@@ -36,12 +36,12 @@ DECOR is licensed under GPLv2, for full text see file "COPYING".
 
 Further documentation can be found in the !["docs"](docs) directory.
 
-Screenshots of a reference web interface can be found in "docs/screenshots"
-directory.
+Screenshots of a reference web interface can be found in 
+!["docs/screenshots"](docs/screenshots) directory.
 
 Questions, please, send to:
 
-  Vladi Belperchinov-Shabanski "Cade"
-  <cade@bis.bg> <cade@biscom.net> <cade@cpan.org>
-  https://github.com/cade-vs
-  github repo: git@github.com:cade-vs/perl-decor.git
+    Vladi Belperchinov-Shabanski "Cade"
+    <cade@bis.bg> <cade@biscom.net> <cade@cpan.org>
+    https://github.com/cade-vs
+    github repo: git@github.com:cade-vs/perl-decor.git
