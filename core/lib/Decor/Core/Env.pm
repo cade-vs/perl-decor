@@ -158,7 +158,8 @@ sub de_app_cfg
   my $key = shift;
   my $def = shift; # default value
 
-  boom "invalid APP_CFG key [$key]" unless exists $APP_CFG_KEYS{ $key };
+  # FIXME: URGENT! more flexible approach...
+  ### boom "invalid APP_CFG key [$key]" unless exists $APP_CFG_KEYS{ $key };
 
   my $res = ( exists $APP_CFG{ $key } and $APP_CFG{ $key } ne '' ) ? $APP_CFG{ $key } : $def;
 
