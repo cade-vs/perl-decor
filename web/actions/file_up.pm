@@ -36,6 +36,8 @@ sub main
   my $lt_field = $reo->param( 'LINK_TO_FIELD' );
   my $lt_id    = $reo->param( 'LINK_TO_ID'    );
 
+  my $rt_field = $reo->param( 'RETURN_DATA_TO' );
+
   my $core = $reo->de_connect();
   my $tdes = $core->describe( $table );
 
@@ -61,7 +63,11 @@ print STDERR Dumper( "******************FILE UP: post save, new id $new_id\n" );
         # FIXME: check and report error
         }
 
-      $reo->forward_back();
+      my %ret_opt;
+      
+      $ret_opt{ "F:$rt_field" } = $new_id if $rt_field;
+
+      $reo->forward_back( %ret_opt );
       $text .= "<p>";
       $text .= "<#upload_ok>";
       $text .= "<p>";

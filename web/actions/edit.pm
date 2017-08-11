@@ -334,7 +334,7 @@ sub main
           }
         else
           {
-          $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "FILE_UPLOAD_NEW_$field_id", "file_new.svg", "Upload new file", ACTION => 'file_up', TABLE => $linked_table, ID => -1 ) if $ltdes->allows( 'INSERT' );
+          $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "FILE_UPLOAD_NEW_$field_id", "file_new.svg", "Upload new file", ACTION => 'file_up', TABLE => $linked_table, ID => -1, RETURN_DATA_TO => $field ) if $ltdes->allows( 'INSERT' );
           }
         }
       elsif( ! $backlink_field_disable or $field ne $backlink_field_disable )
