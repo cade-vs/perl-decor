@@ -155,7 +155,7 @@ sub de_app_path
 
 sub de_app_cfg
 {
-  my $key = shift;
+  my $key = uc shift;
   my $def = shift; # default value
 
   # FIXME: URGENT! more flexible approach...
