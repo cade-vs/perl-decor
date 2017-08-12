@@ -7,11 +7,12 @@
 ##  LICENSE: GPLv2
 ##
 ##############################################################################
-package Decor::Core::Subs;
+package Decor::Core::Subs::Env;
 use strict;
 use Exception::Sink;
 use Data::Tools;
 use Decor::Core::Log;
+use Decor::Shared::Utils;
 
 use Exporter;
 our @ISA    = qw( Exporter );

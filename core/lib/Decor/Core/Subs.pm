@@ -794,7 +794,7 @@ sub sub_insert
 
   if( $id > 0 )
     {
-    # TODO: check reserved IDs
+    # TODO: check reserved IDs with common func! the same code in record::write
     my $user = subs_get_current_user();
     my $sess = subs_get_current_session();
 

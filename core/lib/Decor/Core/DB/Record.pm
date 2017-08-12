@@ -21,6 +21,7 @@ use Decor::Core::Log;
 use Decor::Core::DB::IO;
 use Decor::Core::Code;
 use Decor::Core::Form;
+use Decor::Core::Subs::Env;
 
 use MIME::Base64;
 
@@ -441,7 +442,7 @@ sub write
     my $field = shift( @data );
     my $value = shift( @data );
 
-    my ( $dst_table, $dst_field, $dst_id ) = $self->__resolve_field( $field, { WRITE => 1 } );
+    my ( $dst_table, $dst_field, $dst_id, $dst_fdes ) = $self->__resolve_field( $field, { WRITE => 1 } );
 
 #use Data::Dumper;
 #print Dumper( '--------', $self );
@@ -452,8 +453,42 @@ sub write
 #use Data::Dumper;
 #print Dumper( '--------oper: ', $oper, $dst_table, $dst_field );
       $profile->check_access_table_field_boom( $oper, $dst_table, $dst_field );
-      }
 
+      my $dst_fdes = describe_table_field( $dst_table, $dst_field );
+      my $dst_ftype_name = $dst_fdes->{ 'TYPE' }{ 'NAME' };
+
+    
+      LINKCHECK: while( $dst_ftype_name eq 'LINK' )
+      {
+        my $linked_table = $dst_fdes->{ 'LINKED_TABLE' };
+#  print STDERR "LINK-------------------------------CHECK--------------------- $dst_table, $dst_field, $dst_id => $linked_table:$field=$value\n";
+        if( $value == 0 )
+          {
+          # value is zero, which is ok, points the base record
+          $value = 0;
+          last LINKCHECK;
+          }
+
+        my $upd_rec = new Decor::Core::DB::Record;
+        $upd_rec->set_profile_locked( $profile );
+        $upd_rec->taint_mode_on( 'ROWS' );
+          
+        last LINKCHECK if $upd_rec->select_first1( $linked_table, '_ID = ?', { BIND => [ $value ] } );
+
+        my $user = subs_get_current_user();
+        my $sess = subs_get_current_session();
+
+        my $user_id = $user->id();
+        my $sess_id = $sess->id();
+        my $res_rec = new Decor::Core::DB::Record;
+
+        last LINKCHECK if $res_rec->select_first1( 'DE_RESERVED_IDS', 'USR = ? AND SESS = ? AND RESERVED_TABLE = ? AND RESERVED_ID = ? AND ACTIVE = ?', { BIND => [ $user_id, $sess_id, $linked_table, $value, 1 ] } );
+        
+        my $table = $self->table();
+        boom "E_ACCESS: Record::write(): LINK field [$table:$field=$value] points to a forbidden or invalid record [$dst_table:_ID:$value]";
+        }
+      }
+    
     # FIXME: check for number values
     next if $self->{ 'RECORD_DATA' }{ $dst_table }{ $dst_id }{ $dst_field } eq $value;
     # FIXME: IMPORTANT: check for DB data read for update records!
