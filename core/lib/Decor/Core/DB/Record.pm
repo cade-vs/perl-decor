@@ -582,6 +582,8 @@ sub __resolve_field
         my $dbio = $self->{ 'DB::IO' };
         my $data = $dbio->read_first1_by_id_hashref( $linked_table, $next_id );
 
+### FIXME: if $data is empty then boom()!?
+
         #FIXME: loadin path records is not a modification, remove after test
         ###$self->{ 'RECORD_MODIFIED' }++;
         ###$self->{ 'RECORD_IMODS'    }{ $linked_table }{ $next_id }++;
