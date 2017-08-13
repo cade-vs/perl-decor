@@ -66,7 +66,7 @@ sub main
     }
   my $row_id = $row_data->{ '_ID' };
 
-print STDERR Dumper( $row_data );
+#print STDERR Dumper( $row_data );
 
   @fields = grep { /^_/ ? $reo->user_has_group( 1 ) ? 1 : 0 : 1 } @fields;
 
@@ -137,8 +137,8 @@ print STDERR Dumper( $row_data );
       my $bltdes = $core->describe( $backlinked_table );
       my $linked_table_label = $bltdes->get_label();
 
-      $data_ctrl .= de_html_alink( $reo, 'new', 'grid.svg',   "View all backlinked records from <b>$linked_table_label</b>",  ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, FILTER => { $backlinked_field => $id } );
-      $data_ctrl .= de_html_alink( $reo, 'new', 'insert.svg', "Insert and link a new record into <b>$linked_table_label</b>", ACTION => 'edit', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, BACKLINK_FIELD_DISABLE => $backlinked_field );
+      $data_ctrl .= de_html_alink( $reo, 'new', 'grid.svg',   "View all backlinked records from <b>$linked_table_label</b>",  ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, FILTER => { $backlinked_field => $id } );
+      $data_ctrl .= de_html_alink( $reo, 'new', 'insert.svg', "Insert and link a new record into <b>$linked_table_label</b>", ACTION => 'edit', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, LINK_FIELD_DISABLE => $backlinked_field );
 
       my $count = $core->count( $backlinked_table, { FILTER => { $backlinked_field => $id } });
       $count = 'Unknown' if $count eq '';
