@@ -342,7 +342,7 @@ sub main
 
   if( $row_counter == 0 )
     {
-    $text .= "<p><div class=info-text>No data found -- $text_grid_navi_left</div>";
+    $text .= "<p><div class=info-text>No data found -- $text_grid_navi_left</div><p>";
     }
   else
     {
@@ -396,6 +396,7 @@ sub main
     
     }
 
+  $text .=  "<p>" . de_html_alink_button( $reo, 'back', "&lArr; Go back", "Go back to the previous screen"   );
 
   return $text;
 }
