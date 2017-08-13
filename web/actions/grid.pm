@@ -73,6 +73,7 @@ sub main
     }
 
   my $link_field_disable = $reo->param( 'LINK_FIELD_DISABLE' );
+  my $link_field_id      = $reo->param( 'LINK_FIELD_ID'      );
   my $filter_name = $reo->param( 'FILTER_NAME' );
 
 #  print STDERR Dumper( $tdes );
@@ -136,7 +137,16 @@ sub main
   my $text_grid_navi_right;
   my $text_grid_navi_mid;
 
-  $text_grid_navi_left .= de_html_alink( $reo, 'new', "insert.svg Insert new record", 'Insert new record', ACTION => 'edit',        TABLE => $table, ID => -1 ) if $tdes->allows( 'INSERT' );
+  
+  my %insert_new_opts;
+  
+  if( $link_field_disable )
+    {
+    $insert_new_opts{ "F:$link_field_disable" } = $link_field_id;
+    $insert_new_opts{ 'LINK_FIELD_DISABLE'    } = $link_field_disable;
+    }
+  
+  $text_grid_navi_left .= de_html_alink( $reo, 'new', "insert.svg Insert new record", 'Insert new record', ACTION => 'edit',        TABLE => $table, ID => -1, %insert_new_opts ) if $tdes->allows( 'INSERT' );
   $text_grid_navi_left .= "&nbsp;";
   
   my $filter_link_label = $active_filter ? "Modify current filter" : "Filter records";
@@ -307,9 +317,9 @@ sub main
       elsif( $bfdes->is_backlinked() )
         {
         my ( $backlinked_table, $backlinked_field ) = $bfdes->backlink_details();
-        $data_ctrl .= de_html_alink( $reo, 'new', 'insert.svg Insert and link a new record', undef, ACTION => 'edit', TABLE => $backlinked_table, ID => -1,  );
+        $data_ctrl .= de_html_alink( $reo, 'new', 'insert.svg Insert and link a new record', undef, ACTION => 'edit', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, LINK_FIELD_DISABLE => $backlinked_field );
         $data_ctrl .= "<br>\n";
-        $data_ctrl .= de_html_alink( $reo, 'new', 'grid.svg View linked records',            undef, ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, FILTER => { $backlinked_field => $id } );
+        $data_ctrl .= de_html_alink( $reo, 'new', 'grid.svg View linked records',            undef, ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, FILTER => { $backlinked_field => $id } );
         $data_ctrl .= "<br>\n";
         }
 
