@@ -224,7 +224,7 @@ sub main
 
     if( $type_name eq 'CHAR' )
       {
-      my $pass_type = 1 if $fdes->{ 'OPTIONS' }{ 'PWD' } or $field =~ /^PWD_/;
+      my $pass_type = 1 if $fdes->{ 'PASSWORD' } or $field =~ /^PWD_/;
       my $field_size = $type->{ 'LEN' };
       my $field_maxlen = $field_size;
       $field_size = 42 if $field_size > 42; # TODO: fixme

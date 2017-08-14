@@ -33,7 +33,7 @@ grant insert update to 1;10
 =DES
 
   type char 0
-  #opt   pass
+  password
 
 =AMOUNT1
 
