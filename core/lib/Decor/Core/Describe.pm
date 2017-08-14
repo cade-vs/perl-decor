@@ -830,6 +830,9 @@ sub describe_preprocess_grant_deny
 
   my %access = ( 'GRANT' => {}, 'DENY' => {} );
 
+  $hr->{ '__GDA' } = [ 'deny all', 'grant read' ] if $hr->{ 'READ_ONLY' };
+  $hr->{ '__GDA' } = [ 'deny all'               ] if $hr->{ 'SYSTEM'    };
+
   for my $line ( @{ $hr->{ '__GDA' } } )
     {
     my ( $ty, $ac, $op )  = describe_parse_access_line( $line, $hr );

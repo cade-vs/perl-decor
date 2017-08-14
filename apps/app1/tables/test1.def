@@ -54,6 +54,9 @@ grant insert update to 1;10
   type real
   index
   unique
+  #ro
+  #read_only
+  #system
 
 =REF
 
