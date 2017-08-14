@@ -321,6 +321,7 @@ sub main
         $data_ctrl .= "<br>\n";
         $data_ctrl .= de_html_alink( $reo, 'new', 'grid.svg View linked records',            undef, ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, FILTER => { $backlinked_field => $id } );
         $data_ctrl .= "<br>\n";
+        $data_fmt = ""; # TODO: hide count, which is currently unsupported
         }
 
       if( $lpassword )
