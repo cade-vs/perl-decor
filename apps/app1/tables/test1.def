@@ -5,6 +5,9 @@ label My funny table
 grant read insert to 999
 grant insert update to 1;10
 
+no_copy
+no_preview
+
 =NAME
 
   type char 1024

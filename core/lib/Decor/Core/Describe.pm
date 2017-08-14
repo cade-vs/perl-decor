@@ -122,12 +122,14 @@ my %TABLE_TYPES = (
 # LEGEND: 3 == remote/path attribute, it must have attribute path
 my %DES_ATTRS = (
                   '@' => {
-                           TYPE    => 1,
-                           SCHEMA  => 1,
-                           LABEL   => 1,
-                           GRANT   => 1,
-                           DENY    => 1,
-                           SYSTEM  => 1,
+                           TYPE        => 1,
+                           SCHEMA      => 1,
+                           LABEL       => 1,
+                           GRANT       => 1,
+                           DENY        => 1,
+                           SYSTEM      => 1,
+                           NO_COPY     => 1,
+                           NO_PREVIEW  => 1,
                          },
                   'FIELD' => {
                            TABLE       => 1,

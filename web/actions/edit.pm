@@ -485,7 +485,15 @@ sub main
 
   $text .= "<br>";
   $text .= de_html_alink_button( $reo, 'back', "&lArr; Cancel", "Cancel this operation"   );
-  $text .= de_html_form_button_redirect( $reo, 'here', $edit_form, 'PREVIEW', "[~Preview] &rArr;", "Preview data before save", ACTION => 'preview' );
+
+  if( $tdes->{ '@' }{ 'NO_PREVIEW' } )
+    {
+    $text .= de_html_form_button_redirect( $reo, 'here', $edit_form, 'OK', "[~OK] &rArr;", "Save data", ACTION => 'commit' );
+    }
+  else  
+    {
+    $text .= de_html_form_button_redirect( $reo, 'here', $edit_form, 'PREVIEW', "[~Preview] &rArr;", "Preview data before save", ACTION => 'preview' );
+    }
   $text .= $edit_form->end();
 
   return $text;
