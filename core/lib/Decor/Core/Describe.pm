@@ -151,6 +151,8 @@ my %DES_ATTRS = (
                            DETAILS     => 3,
                            OVERFLOW    => 3,
                            COMBO       => 3, # requires link selection to be combo
+                           ROWS        => 3, # show more rows in views
+                           HIDDEN      => 3, # hide field from views
                            
                            SELECT_FILTER => 3,
                          },

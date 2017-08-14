@@ -205,6 +205,8 @@ sub main
     my $type_name = $fdes->{ 'TYPE'  }{ 'NAME' };
     my $label     = $fdes->{ 'LABEL' } || $field;
 
+    next if $fdes->get_attr( 'WEB', 'HIDDEN' );
+
     my $field_data = $ps->{ 'ROW_DATA' }{ $field };
     my $field_data_usr_format = type_format( $field_data, $type );
 
@@ -225,20 +227,38 @@ sub main
     if( $type_name eq 'CHAR' )
       {
       my $pass_type = 1 if $fdes->{ 'PASSWORD' } or $field =~ /^PWD_/;
+      my $rows = $fdes->get_attr( 'WEB', 'ROWS' );
       my $field_size = $type->{ 'LEN' };
       my $field_maxlen = $field_size;
       $field_size = 42 if $field_size > 42; # TODO: fixme
-      $field_input .= $edit_form->input(
-                                       NAME     => "F:$field",
-                                       ID       => $field_id,
-                                       PASS     => $pass_type,
-                                       VALUE    => $field_data_usr_format,
-                                       SIZE     => $field_size,
-                                       MAXLEN   => $field_maxlen,
-                                       DISABLED => $field_disabled,
-                                       ARGS     => $input_tag_args,
-                                       CLEAR    => $clear_icon,
-                                       );
+      if( $rows > 1 )
+        {
+        $field_input .= $edit_form->textarea(
+                                         NAME     => "F:$field",
+                                         ID       => $field_id,
+                                         VALUE    => $field_data_usr_format,
+                                         COLS     => $field_size,
+                                         ROWS     => $rows,
+                                         MAXLEN   => $field_maxlen,
+                                         DISABLED => $field_disabled,
+                                         ARGS     => $input_tag_args,
+                                         CLEAR    => $clear_icon,
+                                         );
+        }
+      else
+        {  
+        $field_input .= $edit_form->input(
+                                         NAME     => "F:$field",
+                                         ID       => $field_id,
+                                         PASS     => $pass_type,
+                                         VALUE    => $field_data_usr_format,
+                                         SIZE     => $field_size,
+                                         MAXLEN   => $field_maxlen,
+                                         DISABLED => $field_disabled,
+                                         ARGS     => $input_tag_args,
+                                         CLEAR    => $clear_icon,
+                                         );
+        }                                 
       }
     elsif( $type_name eq 'LINK' )
       {
