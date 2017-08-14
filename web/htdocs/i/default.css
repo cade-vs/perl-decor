@@ -495,7 +495,7 @@ td.fmt-ctrl
 
 /*** form inputs ************************************************************/
 
-input
+input,textarea
         {
         color: #CCC;
         background-color: #252525;
@@ -506,43 +506,18 @@ input
         border-bottom: solid 1px #555;
         }
 
-input:hover
+input:hover,textarea:hover
         {
         border-left:   solid 1px #999;
         border-bottom: solid 1px #999;
         }
 
-input:focus
+input:focus,textarea:focus
         {
         border-left:   solid 1px #FFF;
         border-bottom: solid 1px #FFF;
         background-image: none;
         }
-
-textarea
-        {
-        color: #CCC;
-        background-color: #252525;
-        padding: 0.5em;
-        margin: 0 0 0 0;
-        border:        none;
-        border-left:   solid 1px #555;
-        border-bottom: solid 1px #555;
-        }
-
-textarea:hover
-        {
-        border-left:   solid 1px #999;
-        border-bottom: solid 1px #999;
-        }
-
-textarea:focus
-        {
-        border-left:   solid 1px #FFF;
-        border-bottom: solid 1px #FFF;
-        background-image: none;
-        }
-
 
 input.button
         {

@@ -105,24 +105,25 @@ sub main
       my ( $linked_table, $linked_field ) = $bfdes->link_details();
       my $ltdes = $core->describe( $linked_table );
       $data_fmt =~ s/\./&#46;/g;
-      $data_ctrl .= de_html_alink( $reo, 'new', 'view.svg',   "View linked record",           ACTION => 'view', ID => $data_base, TABLE => $linked_table );
 
       if( $ltdes->get_table_type() eq 'FILE' )
         {
-        $data_fmt = de_html_alink( $reo, 'new', "$data_fmt", "Download current file", ACTION => 'file_dn', ID => $data_base, TABLE => $linked_table );
-        
         if( $data_base > 0 )
           {
+          $data_fmt = de_html_alink( $reo, 'new', "$data_fmt", "Download current file", ACTION => 'file_dn', ID => $data_base, TABLE => $linked_table );
+          $data_ctrl .= de_html_alink( $reo, 'new', 'view.svg',   "View linked record",           ACTION => 'view', ID => $data_base, TABLE => $linked_table );
           $data_ctrl .= de_html_alink( $reo, 'new', 'file_up.svg',  "Upload and replace current file", ACTION => 'file_up', ID => $data_base, TABLE => $linked_table, LINK_TO_TABLE => $table, LINK_TO_FIELD => $base_field, LINK_TO_ID => $id );
+          $data_ctrl .= de_html_alink( $reo, 'new', 'file_dn.svg',  "Download current file",           ACTION => 'file_dn', ID => $data_base, TABLE => $linked_table );
           }
         else
           {
           $data_ctrl .= de_html_alink( $reo, 'new', 'file_new.svg', "Upload new file",                 ACTION => 'file_up', ID => -1,         TABLE => $linked_table, LINK_TO_TABLE => $table, LINK_TO_FIELD => $base_field, LINK_TO_ID => $id );
           }
-        $data_ctrl .= de_html_alink( $reo, 'new', 'file_dn.svg',  "Download current file",           ACTION => 'file_dn', ID => $data_base, TABLE => $linked_table );
         }
       else
         {
+        $data_ctrl .= de_html_alink( $reo, 'new', 'view.svg',   "View linked record",           ACTION => 'view', ID => $data_base, TABLE => $linked_table );
+        $data_ctrl .= de_html_alink( $reo, 'new', 'grid.svg',   "View all records from <b>$table_label</b>, linked to <b>$data_fmt</b>",  ACTION => 'grid', TABLE => $table, FILTER => { $base_field => $data_base } );
         $data_fmt = de_html_alink( $reo, 'new', "$data_fmt", "View linked record", ACTION => 'view', ID => $data_base, TABLE => $linked_table );
         if( $ltdes->allows( 'INSERT' ) and $tdes->allows( 'UPDATE' ) and $bfdes->allows( 'UPDATE' ) )
           {

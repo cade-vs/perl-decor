@@ -122,6 +122,8 @@ sub main
     $filter = { %$filter, %$filter_param } if $filter_param;
     }
 
+  $reo->ps_path_add( 'grid', qq( List data from "<b>$table_label</b> (filtered)" ) ) if $filter;
+
   my $select = $core->select( $table, $fields, { FILTER => $filter, FILTER_NAME => $filter_name, OFFSET => $offset, LIMIT => $page_size, ORDER_BY => '_ID DESC' } ) if $fields;
   my $scount = $core->count( $table, { FILTER => $filter, FILTER_NAME => $filter_name } ) if $select;
 
