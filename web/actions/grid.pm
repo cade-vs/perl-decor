@@ -37,6 +37,7 @@ sub main
   my $si = $reo->get_safe_input();
   my $ui = $reo->get_user_input();
   my $ps = $reo->get_page_session();
+  my $rs = $reo->get_page_session( 1 );
 
   my $button    = $reo->get_input_button();
   my $button_id = $reo->get_input_button_id();
@@ -117,10 +118,7 @@ sub main
     {
     $filter = $active_filter->{ 'RULES' };
     }
-  else
-    {  
-    $filter = { %$filter, %$filter_param } if $filter_param;
-    }
+  $filter = { %$filter, %$filter_param } if $filter_param;
 
   $reo->ps_path_add( 'grid', qq( List data from "<b>$table_label</b> (filtered)" ) ) if $filter;
 
@@ -148,15 +146,13 @@ sub main
     $insert_new_opts{ 'LINK_FIELD_DISABLE'    } = $link_field_disable;
     }
   
-  $text_grid_navi_left .= de_html_alink( $reo, 'new', "insert.svg Insert new record", 'Insert new record', ACTION => 'edit',        TABLE => $table, ID => -1, %insert_new_opts ) if $tdes->allows( 'INSERT' );
-  $text_grid_navi_left .= "&nbsp;";
+  $text_grid_navi_left .= de_html_alink_button( $reo, 'back', "&lArr; back", "Go back to the previous screen"   ) if $rs;
+  $text_grid_navi_left .= de_html_alink_button( $reo, 'new', "&oplus; Insert new record", 'Insert new record', ACTION => 'edit',        TABLE => $table, ID => -1, %insert_new_opts ) if $tdes->allows( 'INSERT' );
   
   my $filter_link_label = $active_filter ? "Modify current filter" : "Filter records";
-  $text_grid_navi_left .= de_html_alink( $reo, 'new', "filter.svg $filter_link_label",    'Filter records',    ACTION => 'grid_filter', TABLE => $table           );
-  $text_grid_navi_left .= "&nbsp;";
-  $text_grid_navi_left .= de_html_alink( $reo, 'here', "delete.svg Remove current filter",    'Remove current filter', REMOVE_ACTIVE_FILTER => 1 ) if $active_filter;
-  $text_grid_navi_left .= "&nbsp;";
-  $text_grid_navi_left .= de_html_alink( $reo, 'here', "filter.svg Enable last used filter",    'Enable last used filter', USE_LAST_FILTER => 1      )if $last_filter and ! $active_filter;
+  $text_grid_navi_left .= de_html_alink_button( $reo, 'new', "&cap; $filter_link_label",    'Filter records',    ACTION => 'grid_filter', TABLE => $table           );
+  $text_grid_navi_left .= de_html_alink_button( $reo, 'here', "&otimes; Remove filter",    'Remove current filter', REMOVE_ACTIVE_FILTER => 1 ) if $active_filter;
+  $text_grid_navi_left .= de_html_alink_button( $reo, 'here', "&cap; Enable last filter",    'Enable last used filter', USE_LAST_FILTER => 1      )if $last_filter and ! $active_filter;
 
   $text_grid_head .= "<table class=grid cellspacing=0 cellpadding=0>";
   $text_grid_head .= "<tr class=grid-header>";
@@ -345,7 +341,7 @@ sub main
 
   if( $row_counter == 0 )
     {
-    $text .= "<p><div class=info-text>No data found -- $text_grid_navi_left</div><p>";
+    $text .= "<p>$text_grid_navi_left<p><div class=error-text>No data found</div><p>";
     }
   else
     {
@@ -374,7 +370,7 @@ sub main
     $text_grid_navi_mid .= "rows $offset_from .. $offset_to ($page_size/$link_page_more/$link_page_less$link_page_all) of $scount";
 
     # FIXME: use function!
-    my $text_grid_navi = "<table width=100% style='white-space: nowrap'><tr><td align=left width=1%>$text_grid_navi_left</td><td align=center>$text_grid_navi_mid</td><td align=right width=1%>$text_grid_navi_right</td></tr></table>";
+    my $text_grid_navi = "<table width=100% class=grid-navi><tr><td align=left width=1%>$text_grid_navi_left</td><td align=center>$text_grid_navi_mid</td><td align=right width=1%>$text_grid_navi_right</td></tr></table>";
 
     $text .= $grid_form_begin;
     
@@ -399,7 +395,6 @@ sub main
     
     }
 
-  $text .=  "<p>" . de_html_alink_button( $reo, 'back', "&lArr; Go back", "Go back to the previous screen"   );
 
   return $text;
 }
