@@ -142,6 +142,7 @@ sub main
     my $raw_input_data = type_revert( $input_data, $type );
 
     $ps->{ 'ROW_DATA' }{ $field } = $raw_input_data;
+    
     }
 
   # recalc data
@@ -160,6 +161,19 @@ sub main
     return "<#e_internal>" . de_html_alink_button( $reo, 'back', "&lArr; Go back", "Go back to the previous screen"   );
     }
 
+  for my $field ( @$fields_ar )
+    {
+    my $raw_data = $ps->{ 'ROW_DATA' }{ $field };
+    my $fdes       = $tdes->{ 'FIELD' }{ $field };
+    my $type       = $fdes->{ 'TYPE'  };
+    next unless $fdes->{ 'REQUIRED' };
+    my $type_name = $type->{ 'NAME' };
+    next if $type_name eq 'CHAR' and $raw_data =~ /\S/;
+    next if $type_name ne 'CHAR' and $raw_data != 0;
+    
+    $calc_merrs ||= {};
+    push @{ $calc_merrs->{ $field } }, "This field is required!";
+    }
 
   if( ! ( ( $button_id eq 'PREVIEW' or $button_id eq 'OK' ) and $calc_merrs ) )
     {

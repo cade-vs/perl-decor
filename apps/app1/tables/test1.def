@@ -42,6 +42,7 @@ no-preview
 =AMOUNT1
 
   type real .2
+  required
 
 =AMOUNT2
 
@@ -79,7 +80,7 @@ no-preview
 =BOOL_TEST
 
   type bool
-
+  required
 
 =DATE_TEST
 
