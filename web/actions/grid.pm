@@ -147,12 +147,12 @@ sub main
     }
   
   $text_grid_navi_left .= de_html_alink_button( $reo, 'back', "&lArr; back", "Go back to the previous screen"   ) if $rs;
-  $text_grid_navi_left .= de_html_alink_button( $reo, 'new', "&oplus; Insert new record", 'Insert new record', ACTION => 'edit',        TABLE => $table, ID => -1, %insert_new_opts ) if $tdes->allows( 'INSERT' );
+  $text_grid_navi_left .= de_html_alink_button( $reo, 'new', "(+) Insert new record", 'Insert new record', ACTION => 'edit',        TABLE => $table, ID => -1, %insert_new_opts ) if $tdes->allows( 'INSERT' );
   
   my $filter_link_label = $active_filter ? "Modify current filter" : "Filter records";
-  $text_grid_navi_left .= de_html_alink_button( $reo, 'new', "&cap; $filter_link_label",    'Filter records',    ACTION => 'grid_filter', TABLE => $table           );
-  $text_grid_navi_left .= de_html_alink_button( $reo, 'here', "&otimes; Remove filter",    'Remove current filter', REMOVE_ACTIVE_FILTER => 1 ) if $active_filter;
-  $text_grid_navi_left .= de_html_alink_button( $reo, 'here', "&cap; Enable last filter",    'Enable last used filter', USE_LAST_FILTER => 1      )if $last_filter and ! $active_filter;
+  $text_grid_navi_left .= de_html_alink_button( $reo, 'new', "(&asymp;) $filter_link_label",    'Filter records',    ACTION => 'grid_filter', TABLE => $table           );
+  $text_grid_navi_left .= de_html_alink_button( $reo, 'here', "(x) Remove filter",    'Remove current filter', REMOVE_ACTIVE_FILTER => 1 ) if $active_filter;
+  $text_grid_navi_left .= de_html_alink_button( $reo, 'here', "(&lt;) Enable last filter",    'Enable last used filter', USE_LAST_FILTER => 1      ) if $last_filter and ! $active_filter;
 
   $text_grid_head .= "<table class=grid cellspacing=0 cellpadding=0>";
   $text_grid_head .= "<tr class=grid-header>";
