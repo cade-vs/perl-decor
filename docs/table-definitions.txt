@@ -105,15 +105,19 @@
   
         sets field type and type specs. available types are:
     
-        char  <len>
-        int   <len>
-        real  <len.dot>
-        link  link_table_name   link_table_field_name
+        char      <maxlength>
+        int       <maxlength>
+        bool
+        real      <precision.scale>
+        link      link_table_name  link_table_field_name
+        backlink  backlink_table   backlink_field
         date
         time
         utime
       
         "type" is mandatory, all fields need type.
+        
+        for detailed types description, see file "field-types.txt"
       
   "label"  (optional, default value is the field name)
   
@@ -132,6 +136,8 @@
   
         this field will be required to have data for insert and update, if
         grant/deny allows it.
+        
+        NOTE: for BOOL fields, it requires field to be selected as TRUE/YES.
 
   "unique"    (optional, value is optional and defaults to 1, shortcut: "uniq")
   

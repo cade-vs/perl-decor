@@ -1,0 +1,125 @@
+
+
+
+  DECOR APPLICATION MACHINERY
+  2014-2017 (c) Vladi Belperchinov-Shabanski "Cade"
+
+  FIELD TYPES
+  
+  available field types are:
+  
+  "char"
+  
+      CHAR types take one argument, which is maximum field length.
+      it holds arbitrary text data.
+      
+      argument is optional and has default value of 256
+  
+  "int"
+  
+      INT takes one argument, which is maximum number digits.
+      it holds any integer number (either negative, positive or zero).
+
+      argument is optional and by default is defined as the largest
+      allowed integer type supported by the currently selected RDBMS
+
+  "bool"
+
+      BOOL has no arguments and holds TRUE or FALSE.
+      
+      it is defined as shortest possible integer and value of 0 means FALSE
+      and value of 1 means TRUE. all values above 1 are converted to 1.
+  
+  "real"
+
+      REAL takes one argument, combined precision and scale as follows:
+      
+      precision.scale
+      
+      "precision" is the maximum full count of all significant digits
+      (including the fraction part).
+      
+      "scale" is maximum allowed digit count in the fraction part
+      (i.e. after the decimal dot)
+      
+      examples:
+      
+      10.5   -- allow 10 digit numbers, of which fraction can be max 5
+      22     -- allow 22 digits, without fraction part
+      .5     -- allow 18+5 significant digits, with 5 in the fraction part
+      
+      argument is optional and has default value of 36.18
+
+  "link"
+  
+      LINK takes two arguments, "linked table name" and "linked field name".
+      
+      this field holds the ID of the linked record in "linked table name".
+      "linked field name" is the field in "linked table name" which will
+      be shown on the screen.
+      
+      example:
+      
+          =CITY
+          
+          type  link  cities   name
+          
+      which means that current field "CITY" holds the ID of the selected
+      city from the table "CITIES" and the field "NAME" from table "CITIES" 
+      will be show in the place of "CITY".
+      
+      both arguments are mandatory and have no default value!
+  
+  "backlink"
+  
+      BACKLINK takes two arguments, "backlinked table name" and 
+      "backlinked field".
+      
+      this field is defined as integer and may hold the linked records count
+      in the future. however, currently, it has only screen control meaning
+      and shows all records from "backlinked table name" with "LINK"-type
+      field named "backlinked field", which is linked to the current record.
+      
+      example:
+      
+          =ADDRESSES
+          
+            type  backlink  ADDRESSES   CITY
+            
+      this field will show a button, which will display all records from 
+      the table ADDRESSES, which is linked to the current city (i.e. the
+      field CITY links to the current record ID).
+     
+      NOTE: LINK and BACKLINK are the two sides of a link between two tables.
+      BACKLINKs must always point to LINK-type field in the remote table.       
+  
+  "date"
+  
+      DATE has no arguments and holds calendar date.
+      
+      it is defined as integer and holds "Julian Date". it is converted to 
+      human readable form only for user screens as "year.months.day".
+
+      if "day" is ommited it is considered 1st of the month.
+      if "month" is omitted it is considered January.
+  
+  "time"
+
+      DATE has no arguments and holds time.
+      
+      it is defined as integer and holds number of seconds. it can be used
+      as day time or any time period. its user readable form is 
+      "hour:minutes:seconds".
+
+  "utime"
+
+      UTIME has no arguments and holds date+time timestamp.
+      
+      it is defined as integer and holds UNIX time (number of seconds since
+      the Epoch, 1970-01-01 00:00:00 +0000 UTC). its human readable form
+      combines date and time. on user input, time can be omitted and 
+      assumed 00:00:00. 
+      if day is ommited it is considered 1st of the month.
+      if month is omitted it is considered January.
+
+--
