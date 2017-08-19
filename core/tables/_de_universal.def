@@ -6,5 +6,6 @@
   type INT 32
   primary_key
   
-  grant read
+  read_only
+  web.hidden
 
