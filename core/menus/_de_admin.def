@@ -1,0 +1,15 @@
+
+deny  access to 999
+grant access to 1
+
+=users
+
+  type grid de_users
+
+=sessions
+
+  type grid de_sessions
+
+=all_tables
+
+  type submenu  _de_all_tables

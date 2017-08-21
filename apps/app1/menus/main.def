@@ -2,7 +2,7 @@
 
 =SYSTEM
 
-  type submenu  ADMIN
+  type submenu  _DE_ADMIN
   deny all
   grant access to all
 

@@ -547,13 +547,27 @@ sub sub_menu
   my $mi = shift;
   my $mo = shift;
 
-  my $menu_name = $mi->{ 'MENU' };
+  my $menu_name = uc $mi->{ 'MENU' };
 
   boom "invalid MENU name [$menu_name]"   unless de_check_name( $menu_name );
 
   my $profile = subs_get_current_profile();
 
   my $menu = de_menu_get( $menu_name );
+  
+  if( $profile->has_root_access() and $menu_name eq '_DE_ALL_TABLES' )
+    {
+    my $tables = des_get_tables_list();
+
+    my $o = 1;
+    for my $table ( sort @$tables )
+      {
+      $menu->{ $table }{ 'TYPE'   } = 'GRID';
+      $menu->{ $table }{ 'TABLE'  } = $table;
+      $menu->{ $table }{ 'GRANT'  }{ 'ACCESS' } = 1;
+      $menu->{ $table }{ '_ORDER' } = $o++;
+      };
+    }
 
   my $new = clone( { %$menu } );
 
