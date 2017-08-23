@@ -43,7 +43,8 @@ sub main
     elsif( $type eq 'GRID' )
       {
       my $table  = $item->{ 'TABLE'  };
-      $link = "<a class=main-menu reactor_none_href=?action=grid&table=$table>$label</a>";
+      my $filter_name = $item->{ 'FILTER_NAME' };
+      $link = "<a class=main-menu reactor_none_href=?action=grid&table=$table&filter_name=$filter_name>$label</a>";
       }
     elsif( $type eq 'INSERT' )
       {

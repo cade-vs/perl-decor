@@ -60,7 +60,8 @@ sub sub_menu
     elsif( $type eq 'GRID' )
       {
       my $table  = $item->{ 'TABLE'  };
-      push @res, "<a class=menu reactor_none_href=?action=grid&table=$table><img src=i/menu-item-grid.svg> $label</a>";
+      my $filter_name = $item->{ 'FILTER_NAME' };
+      push @res, "<a class=menu reactor_none_href=?action=grid&table=$table&filter_name=$filter_name><img src=i/menu-item-grid.svg> $label</a>";
       }
     elsif( $type eq 'INSERT' )
       {

@@ -78,6 +78,7 @@ my %MENU_ATTRS = (
                            DENY        => 1,
                            UNIQUE      => 1,
                            OPTIONS     => 1,
+                           FILTER_NAME => 1,
                          },
                 );
 

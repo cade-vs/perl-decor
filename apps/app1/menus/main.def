@@ -19,3 +19,10 @@
 
   label Add new item
   type  insert TEST1
+
+=TEST2
+
+  label List items
+  type  grid  TEST2
+  filter_name MORE_CNT
+
