@@ -213,7 +213,7 @@ sub __merge_menu_file
       next;
       }
 
-    if( $line =~ /^([a-zA-Z_0-9\:]+)\s*(.*?)\s*$/ )
+    if( $line =~ /^([a-zA-Z\-_0-9\.]+)\s*(.*?)\s*$/ )
       {
       my $key   = uc $1;
       my $value =    $2;
