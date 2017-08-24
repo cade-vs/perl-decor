@@ -111,10 +111,12 @@ sub de_html_alink_button
   my $hint  = shift; # link hover hint
   my %args  = @_;
 
-  my $class = $args{ 'CLASS' };
+  my $btype = $args{ 'BTYPE' };
   $value = __value_image_fix( $value );
 
-  return html_alink( $reo, $type, $value, { HINT => $hint, CLASS => 'button' }, %args );
+  $btype = "$btype-button" if $btype;
+
+  return html_alink( $reo, $type, $value, { HINT => $hint, CLASS => "button $btype" }, %args );
 }
 
 sub de_html_alink_icon

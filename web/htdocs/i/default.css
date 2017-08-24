@@ -46,37 +46,6 @@ a:hover {
         text-decoration-color: aqua;
         }
 
-a.button
-        {
-        cursor: pointer;
-        font-weight: bold;
-        color: #000;
-        background-color: #AAA;
-        padding-top:    0.25em;
-        padding-left:   1.00em;
-        padding-bottom: 0.25em;
-        padding-right:  1.00em;
-        margin:         0.20em;
-        border-top:    solid 1px #FFF;
-        border-left:   solid 1px #FFF;
-        border-bottom: solid 1px #777;
-        border-right:  solid 1px #777;
-        text-decoration: none;
-        }
-
-a.button:hover
-        {
-        padding-top:    0.25em;
-        padding-left:   1.00em;
-        padding-bottom: 0.25em;
-        padding-right:  1.00em;
-        margin:         0.20em;
-        border-top:    solid 1px #777;
-        border-left:   solid 1px #777;
-        border-bottom: solid 1px #FFF;
-        border-right:  solid 1px #FFF;
-        }
-
 img
         {
         vertical-align: middle;
@@ -533,6 +502,41 @@ input:focus,textarea:focus
         background-image: none;
         }
 
+/*** buttons ****************************************************************/
+
+/*
+
+a.button
+        {
+        cursor: pointer;
+        font-weight: bold;
+        color: #000;
+        background-color: #AAA;
+        padding-top:    0.25em;
+        padding-left:   1.00em;
+        padding-bottom: 0.25em;
+        padding-right:  1.00em;
+        margin:         0.20em;
+        border-top:    solid 1px #FFF;
+        border-left:   solid 1px #FFF;
+        border-bottom: solid 1px #777;
+        border-right:  solid 1px #777;
+        text-decoration: none;
+        }
+
+a.button:hover
+        {
+        padding-top:    0.25em;
+        padding-left:   1.00em;
+        padding-bottom: 0.25em;
+        padding-right:  1.00em;
+        margin:         0.20em;
+        border-top:    solid 1px #777;
+        border-left:   solid 1px #777;
+        border-bottom: solid 1px #FFF;
+        border-right:  solid 1px #FFF;
+        }
+
 input.button
         {
         cursor: pointer;
@@ -563,37 +567,96 @@ input.button:hover
         border-bottom: solid 1px #FFF;
         border-right:  solid 1px #FFF;
         }
+*/
 
-/*** buttons ****************************************************************/
-
-.nav-button
+.button
         {
         cursor: pointer;
         font-weight: bold;
+        color: #000;
+        background-color: #AAA;
         background-image: none;
+        text-decoration:  none;
         padding-top:    0.25em;
         padding-left:   1.00em;
         padding-bottom: 0.25em;
         padding-right:  1.00em;
         margin:         0.20em;
-        color: #FFF;
-        background-color: #26A;
-        border-top:    solid 1px #37B;
-        border-left:   solid 1px #37B;
-        border-bottom: solid 1px #159;
-        border-right:  solid 1px #159;
+        border-top:    solid 1px #FFF;
+        border-left:   solid 1px #FFF;
+        border-bottom: solid 1px #777;
+        border-right:  solid 1px #777;
         }
 
-.nav-button:hover
+.button:hover
         {
-        border-top:    solid 1px #159;
-        border-left:   solid 1px #159;
-        border-bottom: solid 1px #37B;
-        border-right:  solid 1px #37B;
+        color: #000;
         padding-top:    0.30em;
         padding-left:   1.05em;
         padding-bottom: 0.20em;
         padding-right:  0.95em;
+        margin:         0.20em;
+        border-top:    solid 1px #777;
+        border-left:   solid 1px #777;
+        border-bottom: solid 1px #FFF;
+        border-right:  solid 1px #FFF;
+        }
+
+.act-button
+        {
+        color: #FFF;
+        background-color: #262;
+        border-top:    solid 1px #484;
+        border-left:   solid 1px #484;
+        border-bottom: solid 1px #060;
+        border-right:  solid 1px #060;
+        }
+
+.act-button:hover
+        {
+        color: #FFF;
+        border-top:    solid 1px #060;
+        border-left:   solid 1px #060;
+        border-bottom: solid 1px #484;
+        border-right:  solid 1px #484;
+        }
+
+.nav-button
+        {
+        color: #FFF;
+        background-color: #159;
+        border-top:    solid 1px #37B;
+        border-left:   solid 1px #37B;
+        border-bottom: solid 1px #037;
+        border-right:  solid 1px #037;
+        }
+
+.nav-button:hover
+        {
+        color: #FFF;
+        border-top:    solid 1px #037;
+        border-left:   solid 1px #037;
+        border-bottom: solid 1px #37B;
+        border-right:  solid 1px #37B;
+        }
+
+.mod-button
+        {
+        color: #FFF;
+        background-color: #822;
+        border-top:    solid 1px #A44;
+        border-left:   solid 1px #A44;
+        border-bottom: solid 1px #600;
+        border-right:  solid 1px #600;
+        }
+
+.mod-button:hover
+        {
+        color: #FFF;
+        border-top:    solid 1px #600;
+        border-left:   solid 1px #600;
+        border-bottom: solid 1px #A44;
+        border-right:  solid 1px #A44;
         }
 
 

@@ -164,11 +164,11 @@ sub main
   $text .= "</table>";
 
   $text .= "<br>";
-  $text .= de_html_alink_button( $reo, 'back', "&lArr; [~Back]", "Return to previous screen" );
+  $text .= de_html_alink_button( $reo, 'back', "&lArr; [~Back]", "Return to previous screen", BTYPE => 'nav' );
   if( $tdes->allows( 'UPDATE' ) )
     {
     # FIXME: row access!
-    $text .= de_html_alink_button( $reo, 'new',  "Edit &uArr;", "Edit this record", ACTION => 'edit', ID => $id, TABLE => $table );
+    $text .= de_html_alink_button( $reo, 'new',  "Edit &uArr;", "Edit this record", BTYPE => 'mod', ACTION => 'edit', ID => $id, TABLE => $table );
     }
   
   for my $do ( @{ $tdes->get_category_list_by_oper( 'READ', 'DO' ) }  )

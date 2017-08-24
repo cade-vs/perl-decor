@@ -147,8 +147,8 @@ sub main
     $insert_new_opts{ 'LINK_FIELD_DISABLE'    } = $link_field_disable;
     }
   
-  $text_grid_navi_left .= de_html_alink_button( $reo, 'back', "&lArr; back", "Go back to the previous screen"   ) if $rs;
-  $text_grid_navi_left .= de_html_alink_button( $reo, 'new', "(+) Insert new record", 'Insert new record', ACTION => 'edit',        TABLE => $table, ID => -1, %insert_new_opts ) if $tdes->allows( 'INSERT' );
+  $text_grid_navi_left .= de_html_alink_button( $reo, 'back', "&lArr; back", "Go back to the previous screen", BTYPE => 'nav'   ) if $rs;
+  $text_grid_navi_left .= de_html_alink_button( $reo, 'new', "(+) Insert new record", 'Insert new record', BTYPE => 'act', ACTION => 'edit',        TABLE => $table, ID => -1, %insert_new_opts ) if $tdes->allows( 'INSERT' );
   
   my $filter_link_label = $active_filter ? "Modify current filter" : "Filter records";
   $text_grid_navi_left .= de_html_alink_button( $reo, 'new', "(&asymp;) $filter_link_label",    'Filter records',    ACTION => 'grid_filter', TABLE => $table           );
