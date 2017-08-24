@@ -55,9 +55,9 @@ img
         {
         cursor: pointer;
         color: #FFF;
-        background-color: #448;
         padding: 0.5em;
-        margin: 0.06em;
+        margin:  0.06em;
+        background-color: #448;
         border-top:    solid 1px #66A;
         border-left:   solid 1px #66A;
         border-bottom: solid 1px #226;
@@ -509,6 +509,7 @@ input:hover,textarea:hover
 
 input:focus,textarea:focus
         {
+        color: #FFF;
         background-color: #023;
         border-right:  solid 1px #999;
         border-bottom: solid 1px #999;
@@ -525,15 +526,22 @@ input:focus,textarea:focus
         background-color: #AAA;
         background-image: none;
         text-decoration:  none;
-        padding-top:    0.35em;
+        padding-top:    0.50em;
         padding-left:   1.00em;
-        padding-bottom: 0.35em;
+        padding-bottom: 0.50em;
         padding-right:  1.00em;
         margin:         0.20em;
         border-top:    solid 1px #FFF;
         border-left:   solid 1px #FFF;
         border-bottom: solid 1px #777;
         border-right:  solid 1px #777;
+
+        color: #FFF;
+        background-color: #448;
+        border-top:    solid 1px #66A;
+        border-left:   solid 1px #66A;
+        border-bottom: solid 1px #226;
+        border-right:  solid 1px #226;
         }
 
 .button:hover
@@ -543,7 +551,15 @@ input:focus,textarea:focus
         border-left:   solid 1px #777;
         border-bottom: solid 1px #FFF;
         border-right:  solid 1px #FFF;
+
+        color: #FFF;
+        background-color: #448;
+        border-top:    solid 1px #226;
+        border-left:   solid 1px #226;
+        border-bottom: solid 1px #66A;
+        border-right:  solid 1px #66A;
         }
+
 
 .act-button
         {
@@ -558,6 +574,7 @@ input:focus,textarea:focus
 .act-button:hover
         {
         color: #FFF;
+        background-color: #272;
         border-top:    solid 1px #060;
         border-left:   solid 1px #060;
         border-bottom: solid 1px #484;
@@ -577,6 +594,7 @@ input:focus,textarea:focus
 .nav-button:hover
         {
         color: #FFF;
+        background-color: #15A;
         border-top:    solid 1px #037;
         border-left:   solid 1px #037;
         border-bottom: solid 1px #37B;
@@ -596,6 +614,7 @@ input:focus,textarea:focus
 .mod-button:hover
         {
         color: #FFF;
+        background-color: #922;
         border-top:    solid 1px #600;
         border-left:   solid 1px #600;
         border-bottom: solid 1px #A44;
