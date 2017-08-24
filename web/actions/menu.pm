@@ -61,7 +61,15 @@ sub sub_menu
       {
       my $table  = $item->{ 'TABLE'  };
       my $filter_name = $item->{ 'FILTER_NAME' };
-      push @res, "<a class=menu reactor_none_href=?action=grid&table=$table&filter_name=$filter_name><img src=i/menu-item-grid.svg> $label</a>";
+      my $order_by    = $item->{ 'ORDER_BY'    };
+      my $href = $reo->args_type( 
+                                  'none', 
+                                  ACTION      => 'grid',
+                                  TABLE       => $table,
+                                  FILTER_NAME => $filter_name,
+                                  ORDER_BY    => $order_by,
+                                );
+      push @res, "<a class=menu href=?_=$href><img src=i/menu-item-grid.svg> $label</a>";
       }
     elsif( $type eq 'INSERT' )
       {

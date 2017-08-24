@@ -79,6 +79,7 @@ my %MENU_ATTRS = (
                            UNIQUE      => 1,
                            OPTIONS     => 1,
                            FILTER_NAME => 1,
+                           ORDER_BY    => 1,
                          },
                 );
 

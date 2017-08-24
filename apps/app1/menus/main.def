@@ -25,4 +25,5 @@
   label List items
   type  grid  TEST2
   filter_name MORE_CNT
+  order_by    CNT DESC
 

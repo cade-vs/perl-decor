@@ -44,7 +44,15 @@ sub main
       {
       my $table  = $item->{ 'TABLE'  };
       my $filter_name = $item->{ 'FILTER_NAME' };
-      $link = "<a class=main-menu reactor_none_href=?action=grid&table=$table&filter_name=$filter_name>$label</a>";
+      my $order_by    = $item->{ 'ORDER_BY'    };
+      my $href = $reo->args_type( 
+                                  'none', 
+                                  ACTION      => 'grid',
+                                  TABLE       => $table,
+                                  FILTER_NAME => $filter_name,
+                                  ORDER_BY    => $order_by,
+                                );
+      $link = "<a class=main-menu href=?_=$href>$label</a>";
       }
     elsif( $type eq 'INSERT' )
       {

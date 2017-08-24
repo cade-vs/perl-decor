@@ -70,8 +70,10 @@ sub de_html_form_button_redirect
 sub __value_image_fix
 {
   my $value =    shift;
+  my %args  = @_;
+  my $class = $args{ 'CLASS' } || 'icon';
   #$value = "<img class=icon src=i/$value>" if $value =~ /^[a-z_0-9]+\.(png|jpg|jpeg|gif)$/i;
-  $value =~ s/([a-z_\-0-9]+\.(png|jpg|jpeg|gif|svg))/<img class=icon src=i\/$1>/g;
+  $value =~ s/([a-z_\-0-9]+\.(png|jpg|jpeg|gif|svg))/<img class='$class' src=i\/$1>/g;
   return $value;
 }
 
@@ -81,11 +83,11 @@ sub de_html_alink
   my $type  = shift; # redirect type: new, back, here, none
   my $value = shift; # link text
   my $hint  = shift; # link hover hint
-  my @args  = @_;
+  my %args  = @_;
 
   $value = __value_image_fix( $value );
 
-  return html_alink( $reo, $type, $value, { HINT => $hint }, @args );
+  return html_alink( $reo, $type, $value, { HINT => $hint }, %args );
 }
 
 sub de_html_alink_block
@@ -94,11 +96,11 @@ sub de_html_alink_block
   my $type  = shift; # redirect type: new, back, here, none
   my $value = shift; # link text
   my $hint  = shift; # link hover hint
-  my @args  = @_;
+  my %args  = @_;
 
   $value = __value_image_fix( $value );
 
-  return html_alink( $reo, $type, $value, { HINT => $hint, CLASS => 'block' }, @args );
+  return html_alink( $reo, $type, $value, { HINT => $hint, CLASS => 'block' }, %args );
 }
 
 sub de_html_alink_button
@@ -107,11 +109,12 @@ sub de_html_alink_button
   my $type  = shift; # redirect type: new, back, here, none
   my $value = shift; # link text
   my $hint  = shift; # link hover hint
-  my @args  = @_;
+  my %args  = @_;
 
+  my $class = $args{ 'CLASS' };
   $value = __value_image_fix( $value );
 
-  return html_alink( $reo, $type, $value, { HINT => $hint, CLASS => 'button' }, @args );
+  return html_alink( $reo, $type, $value, { HINT => $hint, CLASS => 'button' }, %args );
 }
 
 sub de_html_alink_icon
@@ -122,7 +125,7 @@ sub de_html_alink_icon
   my $hint  = shift; # link hover hint
   my @args  = @_;
 
-  $value = __value_image_fix( $value );
+  $value = __value_image_fix( $value, CLASS => 'icon' );
 
   return html_alink( $reo, $type, $value, { HINT => $hint, CLASS => 'icon' }, @args );
 }

@@ -564,6 +564,39 @@ input.button:hover
         border-right:  solid 1px #FFF;
         }
 
+/*** buttons ****************************************************************/
+
+.nav-button
+        {
+        cursor: pointer;
+        font-weight: bold;
+        background-image: none;
+        padding-top:    0.25em;
+        padding-left:   1.00em;
+        padding-bottom: 0.25em;
+        padding-right:  1.00em;
+        margin:         0.20em;
+        color: #FFF;
+        background-color: #26A;
+        border-top:    solid 1px #37B;
+        border-left:   solid 1px #37B;
+        border-bottom: solid 1px #159;
+        border-right:  solid 1px #159;
+        }
+
+.nav-button:hover
+        {
+        border-top:    solid 1px #159;
+        border-left:   solid 1px #159;
+        border-bottom: solid 1px #37B;
+        border-right:  solid 1px #37B;
+        padding-top:    0.30em;
+        padding-left:   1.05em;
+        padding-bottom: 0.20em;
+        padding-right:  0.95em;
+        }
+
+
 /*** hover layer ************************************************************/
 
 div.hover-layer

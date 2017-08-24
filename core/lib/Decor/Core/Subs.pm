@@ -35,6 +35,8 @@ our @EXPORT = qw(
 
 # TODO: op triggers
 
+# TODO: row access
+
 ##############################################################################
 
 
@@ -659,8 +661,8 @@ sub sub_select
   # FIXME: TODO: Subs/MessageCheck TABLE ID FIELDS LIMIT OFFSET FILTER validate_hash()
   boom "invalid TABLE name [$table]"    unless de_check_name( $table ) or ! des_exists( $table );
   boom "invalid FIELDS list [$fields]"  unless $fields   =~ /^([A-Z_0-9\.\,]+|COUNT\(\*\)|\*)$/o; # FIXME: more aggregate funcs
-  boom "invalid ORDER BY [$order_by]"   unless $order_by =~ /^([A-Z_0-9\. ]*)$/o;
-  boom "invalid GROUP BY [$group_by]"   unless $group_by =~ /^([A-Z_0-9\. ]*)$/o;
+  boom "invalid ORDER BY [$order_by]"   unless $order_by =~ /^([A-Z_0-9\.\, ]*)$/o;
+  boom "invalid GROUP BY [$group_by]"   unless $group_by =~ /^([A-Z_0-9\.\, ]*)$/o;
   boom "invalid LIMIT [$limit]"         unless $limit    =~ /^[0-9]*$/o;
   boom "invalid OFFSET [$offset]"       unless $offset   =~ /^[0-9]*$/o;
   boom "invalid FILTER [$filter]"       unless ref( $filter ) eq 'HASH';

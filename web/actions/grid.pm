@@ -75,7 +75,8 @@ sub main
 
   my $link_field_disable = $reo->param( 'LINK_FIELD_DISABLE' );
   my $link_field_id      = $reo->param( 'LINK_FIELD_ID'      );
-  my $filter_name = $reo->param( 'FILTER_NAME' );
+  my $filter_name        = $reo->param( 'FILTER_NAME' );
+  my $order_by           = $reo->param( 'ORDER_BY' ) || '_ID DESC';
 
 #  print STDERR Dumper( $tdes );
 
@@ -122,7 +123,7 @@ sub main
 
   $reo->ps_path_add( 'grid', qq( List data from "<b>$table_label</b> (filtered)" ) ) if $filter;
 
-  my $select = $core->select( $table, $fields, { FILTER => $filter, FILTER_NAME => $filter_name, OFFSET => $offset, LIMIT => $page_size, ORDER_BY => '_ID DESC' } ) if $fields;
+  my $select = $core->select( $table, $fields, { FILTER => $filter, FILTER_NAME => $filter_name, OFFSET => $offset, LIMIT => $page_size, ORDER_BY => $order_by } ) if $fields;
   my $scount = $core->count( $table, { FILTER => $filter, FILTER_NAME => $filter_name } ) if $select;
 
 #  $text .= "<br>";
@@ -225,7 +226,7 @@ sub main
       $vec_ctrl .= de_html_alink( $reo, 'back', $select_icon, $select_hint, @return_args );
       }
 
-    $vec_ctrl .= de_html_alink( $reo, 'new', "view.svg", 'View this record', ACTION => 'view', ID => $id, TABLE => $table );
+    $vec_ctrl .= de_html_alink( $reo, 'new', "view.svg", 'View this record', CLASS => 'nav-button', ACTION => 'view', ID => $id, TABLE => $table );
     $vec_ctrl .= de_html_alink( $reo, 'new', "edit.svg", 'Edit this record', ACTION => 'edit', ID => $id, TABLE => $table ) if $tdes->allows( 'UPDATE' );
     $vec_ctrl .= de_html_alink( $reo, 'new', "copy.svg", 'Copy this record', ACTION => 'edit', ID =>  -1, TABLE => $table, COPY_ID => $id ) if $tdes->allows( 'INSERT' ) and ! $tdes->{ '@' }{ 'NO_COPY' };
 
