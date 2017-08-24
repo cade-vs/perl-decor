@@ -218,6 +218,8 @@ sub __merge_menu_file
       my $key   = uc $1;
       my $value =    $2;
 
+      $key =~ s/-/_/g;
+
       $key = $MENU_KEY_SHORTCUTS{ $key } if exists $MENU_KEY_SHORTCUTS{ $key };
       #boom "unknown attribute key [$key] for menu [$menu_name] item [$item_name] at [$fname at $ln]" unless exists $MENU_ATTRS{ $item_name eq '@' ? '@' : 'ITEMS' }{ $key };
       if( ! exists $MENU_ATTRS{ $item_name eq '@' ? '@' : 'ITEMS' }{ $key } )
