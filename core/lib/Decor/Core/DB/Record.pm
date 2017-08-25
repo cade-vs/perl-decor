@@ -377,21 +377,37 @@ sub __get_base_table_fields
   return $des->get_fields_list();
 }
 
-sub read
+sub __read
 {
   my $self = shift;
 
   boom "record is empty, cannot be read" if $self->is_empty();
+  
+  my $data_key = shift() ? 'RECORD_DATA_DB' : 'RECORD_DATA';
 
   my @res;
   for my $field ( @_ )
     {
     my ( $dst_table, $dst_field, $dst_id ) = $self->__resolve_field( $field );
 
-    push @res, $dst_table ? $self->{ 'RECORD_DATA' }{ $dst_table }{ $dst_id }{ $dst_field } : undef;
+    push @res, $dst_table ? $self->{ $data_key }{ $dst_table }{ $dst_id }{ $dst_field } : undef;
     }
 
   return wantarray ? @res : shift( @res );
+}
+
+# reads current value of the record data
+sub read
+{
+  my $self = shift;
+  return $self->__read( 0, @_ );
+}
+
+# reads original (database) value of the record data
+sub read_db
+{
+  my $self = shift;
+  return $self->__read( 1, @_ );
 }
 
 sub read_all
@@ -401,11 +417,20 @@ sub read_all
   return $self->read( @{ $self->__get_base_table_fields() } );
 }
 
-sub read_hash
+sub read_all_db
+{
+  my $self = shift;
+
+  return $self->read_db( @{ $self->__get_base_table_fields() } );
+}
+
+sub __read_hash
 {
   my $self = shift;
 
   boom "record is empty, cannot be read" if $self->is_empty();
+
+  my $data_key = shift() ? 'RECORD_DATA_DB' : 'RECORD_DATA';
 
   my @res;
   for my $field ( @_ )
@@ -413,10 +438,22 @@ sub read_hash
     my ( $dst_table, $dst_field, $dst_id ) = $self->__resolve_field( $field );
 
     push @res, $field;
-    push @res, $dst_table ? $self->{ 'RECORD_DATA' }{ $dst_table }{ $dst_id }{ $dst_field } : undef;
+    push @res, $dst_table ? $self->{ $data_key }{ $dst_table }{ $dst_id }{ $dst_field } : undef;
     }
 
   return wantarray ? @res : { @res };
+}
+
+sub read_hash
+{
+  my $self = shift;
+  return $self->__read_hash( 0, @_ );
+}
+
+sub read_hash_db
+{
+  my $self = shift;
+  return $self->__read_hash( 0, @_ );
 }
 
 sub read_hash_all
@@ -424,6 +461,13 @@ sub read_hash_all
   my $self = shift;
 
   return $self->read_hash( @{ $self->__get_base_table_fields() } );
+}
+
+sub read_hash_all_db
+{
+  my $self = shift;
+
+  return $self->read_hash_db( @{ $self->__get_base_table_fields() } );
 }
 
 sub write
