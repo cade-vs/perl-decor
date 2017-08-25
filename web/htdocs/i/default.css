@@ -37,13 +37,17 @@ body
 
 a       {
         color: aqua;
+        text-decoration: none;
         text-decoration-style: dotted;
         text-decoration-color: teal;
+        border-bottom: dotted 1px teal;
         }
 a:hover {
         color: aqua;
+        text-decoration: none;
         text-decoration-style: solid;
         text-decoration-color: aqua;
+        border-bottom: solid 1px aqua;
         }
 
 img
