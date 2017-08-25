@@ -11,6 +11,7 @@ package Decor::Web::View;
 use strict;
 use Data::Dumper;
 use Exception::Sink;
+use Time::JulianDay;
 use Data::Tools::Time;
 
 use Decor::Shared::Types;
@@ -112,6 +113,19 @@ sub de_web_format_field
       {
       my $sep  = $details > 1 ? '<br>' : '&Delta;';
       my $diff = unix_time_diff_in_words_relative( time() - $data );
+      $data_fmt .= " <span class=details-text>$sep $diff</span>";
+      }
+    }
+  elsif( $type_name eq 'DATE' )
+    {
+    return '&laquo;empty&raquo;' if $data == 0;
+    $data_fmt = type_format( $data, $fdes->{ 'TYPE' } );
+    my $details = $fdes->get_attr( 'WEB', $vtype, 'DETAILS' );
+
+    if( $details )
+      {
+      my $sep  = $details > 1 ? '<br>' : '&Delta;';
+      my $diff = julian_date_diff_in_words_relative( gm_julian_day(time()) - $data );
       $data_fmt .= " <span class=details-text>$sep $diff</span>";
       }
     }

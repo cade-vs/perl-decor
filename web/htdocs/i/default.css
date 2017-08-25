@@ -55,8 +55,8 @@ img
         {
         cursor: pointer;
         color: #FFF;
-        padding: 0.5em;
-        margin:  0.06em;
+        padding: 0.3em;
+        margin:  0.1em;
         background-color: #448;
         border-top:    solid 1px #66A;
         border-left:   solid 1px #66A;
@@ -76,13 +76,15 @@ img
 
 .icon-disabled
         {
-        color: #888;
-        background-color: #223;
-        padding-top:     3px;
-        padding-left:    3px;
-        padding-bottom:  4px;
-        padding-right:   4px;
-        border:        solid 1px #333;
+        color: #FFF;
+        padding: 0.3em;
+        margin:  0.1em;
+        background-color: #337;
+        border-top:    solid 1px #66A;
+        border-left:   solid 1px #66A;
+        border-bottom: solid 1px #226;
+        border-right:  solid 1px #226;
+        text-decoration: none;
         }
 
 a.icon
@@ -92,7 +94,9 @@ a.icon
         text-decoration: none;
         }
 
-h1      { margin: 2px 2px 2px 2px; }
+h1      { 
+        margin: 2px 2px 2px 2px; 
+        }
 
 div.error-text
         {
@@ -184,6 +188,7 @@ tr.main_body
 td.main_body
         {
         text-align: center;
+        vertical-align: top;
         }
 
 td.main_footer
@@ -362,6 +367,7 @@ td.view-header
 
 td.view-field
         {
+        height: 1.8em;
         background-color: #333;
         border-bottom: solid 1px #444;
         border-right: solid 1px #444;
@@ -379,7 +385,6 @@ td.view-value
         width: 50%;
         padding: 4px;
         padding-left: 8px;
-        vertical-align: top;
         }
 
 /*** grid *******************************************************************/
@@ -473,7 +478,7 @@ table.grid-navi
 
 table.grid-navi td
         {
-        padding: 0.8em;
+        padding: 0.2em;
         }
 
 
@@ -520,6 +525,7 @@ input:focus,textarea:focus
 
 .button
         {
+        display: inline-block;
         cursor: pointer;
         font-weight: bold;
         color: #000;
@@ -641,11 +647,12 @@ div.popup-layer
         {
         display: none;
         color: #000;
-        background-color: #446;
-        border: solid 1px #558;
+        background-color: #222;
+        border: solid 1px #555;
         white-space: nowrap;
         padding: 0.5em;
         padding-left: 1em;
+        opacity: 0.95;
         }
 
 /*** check boxes ************************************************************/
@@ -654,7 +661,7 @@ img.check-unknown
         {
         color: #999;
         background-color: #772;
-        padding: 0.5em;
+        padding: 0.4em;
         border-top:    solid 1px #883;
         border-left:   solid 1px #883;
         border-bottom: solid 1px #661;
@@ -665,7 +672,7 @@ img.check-0
         {
         color: #999;
         background-color: #722;
-        padding: 0.5em;
+        padding: 0.4em;
         border-top:    solid 1px #833;
         border-left:   solid 1px #833;
         border-bottom: solid 1px #611;
@@ -685,7 +692,7 @@ img.check-1
         color: #FFF;
         font-weight: bold;
         background-color: #242;
-        padding: 0.5em;
+        padding: 0.4em;
         border-top:    solid 1px #353;
         border-left:   solid 1px #353;
         border-bottom: solid 1px #121;

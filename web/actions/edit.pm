@@ -498,7 +498,7 @@ sub main
   $text .= "</table>";
 
   $text .= "<br>";
-  $text .= de_html_alink_button( $reo, 'back', "&lArr; Cancel", "Cancel this operation"   );
+  $text .= de_html_alink_button( $reo, 'back', "&lArr; Cancel", "Cancel this operation", BTYPE => 'nav'   );
 
   if( $tdes->{ '@' }{ 'NO_PREVIEW' } )
     {

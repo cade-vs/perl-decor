@@ -39,7 +39,7 @@ sub de_html_form_button_redirect
   my $name  = uc shift; # button name
   my $value = shift; # button text
   my $hint  = shift; # button hover hint
-  my @args  = @_;    # redirect data
+  my %args  = @_;    # redirect data
 
 #  my $href = $reo->args_type( $type, @args );
 
@@ -47,21 +47,24 @@ sub de_html_form_button_redirect
 
   my $ps = $reo->get_page_session();
 
-  $ps->{ 'BUTTON_REDIRECT' }{ $name } = [ $type, @args ];
+  $ps->{ 'BUTTON_REDIRECT' }{ $name } = [ $type, %args ];
 
   my $args;
 
   $args .= " $hl_handle ";
 
+  my $btype = $args{ 'BTYPE' };
+  $btype = "$btype-button" if $btype;
+
   my $text;
 
   if( $value =~ /([a-z_0-9]+\.(png|jpg|jpeg|gif|svg))/ )
     {
-    $text .= $form->image_button( NAME => "REDIRECT:$name", SRC => "i/$value", CLASS => 'icon', ARGS => $args );
+    $text .= $form->image_button( NAME => "REDIRECT:$name", SRC => "i/$value", CLASS => "icon $btype", ARGS => $args );
     }
   else
     {
-    $text .= $form->button( NAME => "REDIRECT:$name", VALUE => $value, ARGS => $args );
+    $text .= $form->button( NAME => "REDIRECT:$name", VALUE => $value, CLASS => "button $btype", ARGS => $args );
     }
 
   return $text;
@@ -111,9 +114,9 @@ sub de_html_alink_button
   my $hint  = shift; # link hover hint
   my %args  = @_;
 
-  my $btype = $args{ 'BTYPE' };
   $value = __value_image_fix( $value );
 
+  my $btype = $args{ 'BTYPE' };
   $btype = "$btype-button" if $btype;
 
   return html_alink( $reo, $type, $value, { HINT => $hint, CLASS => "button $btype" }, %args );

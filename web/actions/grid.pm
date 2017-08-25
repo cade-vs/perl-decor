@@ -127,7 +127,7 @@ sub main
   my $scount = $core->count( $table, { FILTER => $filter, FILTER_NAME => $filter_name } ) if $select;
 
 #  $text .= "<br>";
-  $text .= "<p>";
+#  $text .= "<p>";
 
 #    $text .= "<xmp style='text-align: left;'>" . Dumper( $ps->{ 'FILTERS' } ) . "</xmp>";
 
@@ -297,18 +297,18 @@ sub main
             {
             $data_fmt   = "(empty)";
             }
-          $data_ctrl .= de_html_alink( $reo, 'new', 'view.svg View linked record',   undef,                ACTION => 'view', ID => $data_base, TABLE => $linked_table ) if $data_base > 0;
+          $data_ctrl .= de_html_alink_button( $reo, 'new', '(o) View linked record',   undef,                ACTION => 'view', ID => $data_base, TABLE => $linked_table ) if $data_base > 0;
           $data_ctrl .= "<br>\n";
           if( $ltdes->allows( 'UPDATE' ) and $data_base > 0 )
             {
             # FIXME: check for record access too!
-            $data_ctrl .= de_html_alink( $reo, 'new', 'edit.svg Edit linked record', undef, ACTION => 'edit', ID => $data_base, TABLE => $linked_table );
+            $data_ctrl .= de_html_alink_button( $reo, 'new', '(v) Edit linked record', undef, BTYPE => 'mod', ACTION => 'edit', ID => $data_base, TABLE => $linked_table );
             $data_ctrl .= "<br>\n";
             }
           if( $ltdes->allows( 'INSERT' ) and $tdes->allows( 'UPDATE' ) and $bfdes->allows( 'UPDATE' ) )
             {
             # FIXME: check for record access too!
-            $data_ctrl .= de_html_alink( $reo, 'new', 'insert.svg Insert and link a new record', undef, ACTION => 'edit', ID => -1,         TABLE => $linked_table, LINK_TO_TABLE => $table, LINK_TO_FIELD => $base_field, LINK_TO_ID => $id );
+            $data_ctrl .= de_html_alink_button( $reo, 'new', '(+) Insert and link a new record', undef, BTYPE => 'act', ACTION => 'edit', ID => -1,         TABLE => $linked_table, LINK_TO_TABLE => $table, LINK_TO_FIELD => $base_field, LINK_TO_ID => $id );
             $data_ctrl .= "<br>\n";
             }
           }
@@ -316,9 +316,9 @@ sub main
       elsif( $bfdes->is_backlinked() )
         {
         my ( $backlinked_table, $backlinked_field ) = $bfdes->backlink_details();
-        $data_ctrl .= de_html_alink( $reo, 'new', 'insert.svg Insert and link a new record', undef, ACTION => 'edit', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, LINK_FIELD_DISABLE => $backlinked_field );
+        $data_ctrl .= de_html_alink_button( $reo, 'new', '(+) Insert and link a new record', undef, BTYPE => 'act', ACTION => 'edit', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, LINK_FIELD_DISABLE => $backlinked_field );
         $data_ctrl .= "<br>\n";
-        $data_ctrl .= de_html_alink( $reo, 'new', 'grid.svg View linked records',            undef, ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, FILTER => { $backlinked_field => $id } );
+        $data_ctrl .= de_html_alink_button( $reo, 'new', '(=) View linked records',          undef,                 ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, FILTER => { $backlinked_field => $id } );
         $data_ctrl .= "<br>\n";
         $data_fmt = ""; # TODO: hide count, which is currently unsupported
         }

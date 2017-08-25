@@ -85,6 +85,7 @@ no-preview
 =DATE_TEST
 
     type  date
+    web.view.details
 
 =REPORTING
 
