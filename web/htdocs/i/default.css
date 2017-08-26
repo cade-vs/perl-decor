@@ -570,6 +570,16 @@ input:focus,textarea:focus
         border-right:  solid 1px #66A;
         }
 
+.button:focus
+        {
+        color: #FFF;
+        background-color: #448;
+        border-top:    solid 1px #226;
+        border-left:   solid 1px #226;
+        border-bottom: solid 1px #66A;
+        border-right:  solid 1px #66A;
+        }
+
 
 .act-button
         {
