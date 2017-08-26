@@ -50,6 +50,12 @@ a:hover {
         border-bottom: solid 1px aqua;
         }
 
+a.plain
+        {
+        border: none;
+        text-decoration: none;
+        }
+
 img
         {
         vertical-align: middle;

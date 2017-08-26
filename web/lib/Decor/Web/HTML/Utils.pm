@@ -132,7 +132,7 @@ sub de_html_alink_icon
 
   $value = __value_image_fix( $value, CLASS => 'icon' );
 
-  return html_alink( $reo, $type, $value, { HINT => $hint, CLASS => 'icon' }, @args );
+  return html_alink( $reo, $type, $value, { HINT => $hint, CLASS => 'plain' }, @args );
 }
 
 sub de_html_popup_icon

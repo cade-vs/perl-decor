@@ -226,9 +226,9 @@ sub main
       $vec_ctrl .= de_html_alink( $reo, 'back', $select_icon, $select_hint, @return_args );
       }
 
-    $vec_ctrl .= de_html_alink( $reo, 'new', "view.svg", 'View this record', CLASS => 'nav-button', ACTION => 'view', ID => $id, TABLE => $table );
-    $vec_ctrl .= de_html_alink( $reo, 'new', "edit.svg", 'Edit this record', ACTION => 'edit', ID => $id, TABLE => $table ) if $tdes->allows( 'UPDATE' );
-    $vec_ctrl .= de_html_alink( $reo, 'new', "copy.svg", 'Copy this record', ACTION => 'edit', ID =>  -1, TABLE => $table, COPY_ID => $id ) if $tdes->allows( 'INSERT' ) and ! $tdes->{ '@' }{ 'NO_COPY' };
+    $vec_ctrl .= de_html_alink_icon( $reo, 'new', "view.svg", 'View this record', ACTION => 'view', ID => $id, TABLE => $table );
+    $vec_ctrl .= de_html_alink_icon( $reo, 'new', "edit.svg", 'Edit this record', ACTION => 'edit', ID => $id, TABLE => $table ) if $tdes->allows( 'UPDATE' );
+    $vec_ctrl .= de_html_alink_icon( $reo, 'new', "copy.svg", 'Copy this record', ACTION => 'edit', ID =>  -1, TABLE => $table, COPY_ID => $id ) if $tdes->allows( 'INSERT' ) and ! $tdes->{ '@' }{ 'NO_COPY' };
 
     if( @dos )
       {
