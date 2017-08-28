@@ -102,6 +102,7 @@ sub de_web_format_field
     {
     $data_fmt = $data > 0 ? '[&radic;]' : '[&nbsp;]';
     $data_fmt = [ "<img src=i/check-0.svg>", "<img src=i/check-1.svg>" ]->[ !! $data ];
+    $fmt_class .= " fmt-center";
     }
   elsif( $type_name eq 'UTIME' )
     {
@@ -135,7 +136,7 @@ sub de_web_format_field
     }
 
 
-  return wantarray ? ( $data_fmt, $fmt_class ) : $data_fmt;
+  return wantarray ? ( $data_fmt, ' ' . $fmt_class ) : $data_fmt;
 }
 
 1;

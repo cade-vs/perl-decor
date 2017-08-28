@@ -283,11 +283,14 @@ a.main-menu
         width:  100%;
         padding: 6px;
         text-decoration: none;
+        border: none;
         }
 
 a.main-menu:hover
         {
         color: #FFF;
+        text-decoration: none;
+        border: none;
         }
 
 /*** page sessions path ******************************************************/
@@ -337,11 +340,14 @@ a.menu
         width:  100%;
         padding: 4px;
         text-decoration: none;
+        border: none;
         }
 
 a.menu:hover
         {
         color: #FFF;
+        text-decoration: none;
+        border: none;
         }
 
 td.menu:hover
