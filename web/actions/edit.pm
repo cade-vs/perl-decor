@@ -346,6 +346,7 @@ sub main
         my ( $link_path, $llfdes ) = $lfdes->expand_field_path();
         my $link_data = $core->read_field( $linked_table, $link_path, $field_data );
         my $link_data_fmt;
+        my $link_data_class = 'link-data';
 
         if( $field_data > 0 )
           {
@@ -354,9 +355,10 @@ sub main
         else
           {
           $link_data_fmt = '(empty)';
+          $link_data_class = 'link-empty';
           }
 
-        $field_input = "<div class=link-data>$link_data_fmt</div>";
+        $field_input = "<div class='$link_data_class'>$link_data_fmt</div>";
         }
 
       if( $ltdes->get_table_type() eq 'FILE' )

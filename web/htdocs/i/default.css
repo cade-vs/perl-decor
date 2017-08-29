@@ -25,6 +25,7 @@ body
         font-size: 10pt;
         color: #DDD;
         background-color: #222;
+        background-image: url("main-background.png");
         height: 100%;
         }
 
@@ -135,7 +136,7 @@ div.info-text
 div.link-data
         {
         color: #CCC;
-        background-color: #313;
+        background-color: #113;
         padding: 0.5em;
         margin: 0 0 0 0;
         border:        none;
@@ -143,6 +144,16 @@ div.link-data
         border-bottom: solid 1px #555;
         }
 
+div.link-empty
+        {
+        color: #CCC;
+        background-color: #311;
+        padding: 0.5em;
+        margin: 0 0 0 0;
+        border:        none;
+        border-left:   solid 1px #555;
+        border-bottom: solid 1px #555;
+        }
 
 .warning
         {
@@ -512,6 +523,7 @@ input,textarea
         border-bottom: solid 1px #555;
         border-left:   solid 1px #000;
         border-top:    solid 1px #000;
+        background-image: url("input-background.png");
         }
 
 input:hover,textarea:hover
@@ -532,6 +544,7 @@ input:focus,textarea:focus
         {
         color: #FFF;
         background-color: #023;
+        background-color: #222;
         border-right:  solid 1px #999;
         border-bottom: solid 1px #999;
         background-image: none;
