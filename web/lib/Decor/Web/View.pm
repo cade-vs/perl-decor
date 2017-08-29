@@ -104,9 +104,14 @@ sub de_web_format_field
     $data_fmt = [ "<img src=i/check-0.svg>", "<img src=i/check-1.svg>" ]->[ !! $data ];
     $fmt_class .= " fmt-center";
     }
+  elsif( $type_name eq 'INT' or $type_name eq 'REAL' )
+    {
+    #$fmt_class .= $data > 0 ? " hi" : ""; # FIXME: move to field options
+    $data_fmt = type_format( $data, $fdes->{ 'TYPE' } );
+    }
   elsif( $type_name eq 'UTIME' )
     {
-    return '&laquo;empty&raquo;' if $data == 0;
+    return '&empty;' if $data == 0;
     $data_fmt = type_format( $data, $fdes->{ 'TYPE' } );
     my $details = $fdes->get_attr( 'WEB', $vtype, 'DETAILS' );
 
@@ -119,7 +124,7 @@ sub de_web_format_field
     }
   elsif( $type_name eq 'DATE' )
     {
-    return '&laquo;empty&raquo;' if $data == 0;
+    return '&empty;' if $data == 0; # -x-
     $data_fmt = type_format( $data, $fdes->{ 'TYPE' } );
     my $details = $fdes->get_attr( 'WEB', $vtype, 'DETAILS' );
 

@@ -273,7 +273,7 @@ sub main
             }
           else
             {
-            $data_fmt   = "(empty)";
+            $data_fmt   = "&empty;";
             }
           }
         else
@@ -296,7 +296,7 @@ sub main
             }
           else
             {
-            $data_fmt   = "(empty)";
+            $data_fmt   = "&empty;";
             }
           $data_ctrl .= de_html_alink_button( $reo, 'new', '(o) View linked record',   undef,                ACTION => 'view', ID => $data_base, TABLE => $linked_table ) if $data_base > 0;
           $data_ctrl .= "<br>\n";
@@ -326,7 +326,7 @@ sub main
 
       if( $lpassword )
         {
-        $data_fmt = "(hidden)";
+        $data_fmt = "(*****)";
         }
 
       if( $data_ctrl )

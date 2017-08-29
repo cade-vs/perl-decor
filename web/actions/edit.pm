@@ -354,7 +354,7 @@ sub main
           }
         else
           {
-          $link_data_fmt = '(empty)';
+          $link_data_fmt = '&empty;';
           $link_data_class = 'link-empty';
           }
 
