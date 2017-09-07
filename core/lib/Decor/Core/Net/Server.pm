@@ -100,8 +100,8 @@ sub on_process
     if( $@ )
       {
       my $err_ref = create_random_id( 9, 'ABCDEFGHJKLMNPQRTVWXY0123456789' ); # print read safe
-      de_log( "error: XTYPE handler exception err_ref [$err_ref] details [$@]" );
-      $mo->{ 'XS' } = "E_INTERNAL: exception err_ref [$err_ref]";
+      de_log( "error: XTYPE handler exception err_ref [$err_ref] details [$@]\n" );
+      $mo->{ 'XS' } = $@ || "E_INTERNAL: exception err_ref [$err_ref]";
       eval { dsn_rollback(); }; # FIXME: eval/break-main-loop
       if( $@ )
         {
