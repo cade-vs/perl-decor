@@ -3,7 +3,11 @@ use strict;
 
 sub main
 {
-  return "[$$] hellou! " . rand();
+  my $reo = shift;
+  
+  my $in = $reo->is_logged_in() ? "IN" : "OUT";
+
+  return "[$$] hellou! " . rand() . " [$in]";
 }
 
 1;
