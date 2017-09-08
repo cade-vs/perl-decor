@@ -69,6 +69,8 @@ sub main
     $res = $core->update( $table, \%write_data, { ID => $id } );
     }  
 
+#print STDERR Dumper( $res, $row_data, \%write_data );
+
   if( $res )
     {
     # no error, return to caller
@@ -80,6 +82,7 @@ sub main
     
     if( $return_data_from and $return_data_to )
       {
+      $row_data->{ '_ID' } = $id;
       push @return_args, ( "F:$return_data_to" => $row_data->{ $return_data_from } );
       }
     
