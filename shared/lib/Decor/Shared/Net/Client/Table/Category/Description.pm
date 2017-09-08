@@ -36,19 +36,12 @@ sub allows
   
   my $oper = uc shift;
 
-print STDERR Dumper( $self->{ 'GRANT' } );
-my $f = $self->{ 'NAME' };
-print STDERR "================allow=========$oper================pre[$f]\n";
-
   return 0 if    ( exists $self->{ 'DENY'  }{ $oper } and $self->{ 'DENY'  }{ $oper } ) 
               or ( exists $self->{ 'DENY'  }{ 'ALL' } and $self->{ 'DENY'  }{ 'ALL' } );
 
-print STDERR "================mid===========$oper================pre[$f]\n";
-              
   return 1 if    ( exists $self->{ 'GRANT' }{ $oper } and $self->{ 'GRANT' }{ $oper } ) 
               or ( exists $self->{ 'GRANT' }{ 'ALL' } and $self->{ 'GRANT' }{ 'ALL' } );
   
-print STDERR "==============================$oper================DENIED[$f]\n\n";
   return 0;
 }
 
