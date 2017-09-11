@@ -84,9 +84,8 @@ sub de_web_format_field
     my $maxlen = $fdes->get_attr( 'WEB', $vtype, 'MAXLEN' );
     if( $maxlen )
       {
-
       $maxlen = 16 if $maxlen <   0;
-      $maxlen = 16 if $maxlen > 256;
+      #$maxlen = 16 if $maxlen > 256;
       if( length( $data_fmt ) > $maxlen )
         {
         my $cut_len = int( ( $maxlen - 3 ) / 2 );
