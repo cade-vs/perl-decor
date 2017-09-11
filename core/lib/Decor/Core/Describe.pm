@@ -130,6 +130,10 @@ my %DES_ATTRS = (
                            SYSTEM      => 1,
                            NO_COPY     => 1,
                            NO_PREVIEW  => 1,
+
+                           ORDER_BY    => 1,
+                           
+                           NO_AUTOCOMPLETE => 3, # disable interface autocomplete
                          },
                   'FIELD' => {
                            TABLE       => 1,
@@ -156,7 +160,9 @@ my %DES_ATTRS = (
                            ROWS        => 3, # show more rows in views
                            HIDDEN      => 3, # hide field from views
                            
-                           SELECT_FILTER => 3,
+                           NO_AUTOCOMPLETE => 3, # disable interface autocomplete
+                           
+                           SELECT_FILTER   => 3,
                          },
                   'INDEX' => {
                            FIELDS      => 1,
