@@ -38,6 +38,7 @@ no-preview
   type char 128
   #password
   web.rows 5
+  web.grid.maxlen 12
 
 =AMOUNT1
 

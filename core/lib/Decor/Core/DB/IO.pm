@@ -14,6 +14,7 @@ use parent 'Decor::Core::DB';
 use Exception::Sink;
 use Data::Lock qw( dlock );
 use Data::Dumper;
+use Encode;    
 
 use Decor::Shared::Utils;
 use Decor::Core::Env;
@@ -372,7 +373,8 @@ sub fetch
   my $c = 0;
   for my $field ( @$select_fields )
     {
-    $data{ $field } = $data[ $c++ ];
+    # FIXME: move to an option should decode must be used or not
+    $data{ $field } = decode( 'UTF-8', $data[ $c++ ] );
     }
 
   return \%data;
