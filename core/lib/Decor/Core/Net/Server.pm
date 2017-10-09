@@ -170,11 +170,11 @@ sub on_process
       open( my $fi, '<', $send_file_name );
 
       my $read_size = 0;
-      my $data;
       my $buf_size = 1024*1024;
       my $read;
       while(4)
         {
+        my $data;
         $read = read( $fi, $data, $buf_size );
         $read_size += $read;
         my $write = socket_write( $socket, $data, $read );

@@ -1091,10 +1091,10 @@ sub sub_file_save
   open( my $fo, '>', $fname_part );
   my $buf_size = 1024*1024;
   my $read;
-  my $data;
   my $file_size = $size;
   while(4)
     {
+    my $data;
     my $read_size = $file_size > $buf_size ? $buf_size : $file_size;
     $read = socket_read( $socket, \$data, $read_size );
     print $fo $data;

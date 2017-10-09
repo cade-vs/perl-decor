@@ -212,9 +212,9 @@ sub tx_msg
     return { XS => 'E_SOCKET' } unless socket_can_read( $socket );
     my $buf_size  = 1024*1024;
     my $read;
-    my $data;
     while(4)
       {
+      my $data;
       my $read_size = $file_size > $buf_size ? $buf_size : $file_size;
       $read = socket_read( $socket, \$data, $read_size );
       print $recv_file_hand $data if $recv_file_hand;
