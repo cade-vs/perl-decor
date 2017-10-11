@@ -6,7 +6,7 @@ grant read insert to 999
 grant insert update to 1;10
 
 no-copy
-no-preview
+#no-preview
 
 =NAME
 

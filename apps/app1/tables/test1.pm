@@ -46,4 +46,10 @@ sub on_do_date_test
   $r->return_file_text( "<h1>All is fine when fine all</h1><h2>$ff</h2>", 'html' );
 }
 
+
+sub on_fetch
+{
+  print Dumper( \@_ );
+}
+
 1;

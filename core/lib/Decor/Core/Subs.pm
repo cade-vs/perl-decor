@@ -22,6 +22,7 @@ use Decor::Core::Subs::Env;
 use Decor::Core::Profile;
 use Decor::Core::Describe;
 use Decor::Core::Menu;
+use Decor::Core::Code;
 
 use Clone qw( clone );
 
@@ -696,7 +697,9 @@ sub sub_select
   $SELECT_MAP_COUNTER++;
   $SELECT_MAP_COUNT++;
   $select_handle = $SELECT_MAP_COUNTER;
-  my $dbio = $SELECT_MAP{ $select_handle } = new Decor::Core::DB::IO;
+  my $dbio = new Decor::Core::DB::IO;
+  $SELECT_MAP{ $select_handle }{ 'IO' } = $dbio;
+  $SELECT_MAP{ $select_handle }{ 'TN' } = $table;
   $dbio->set_profile_locked( $profile );
   $dbio->taint_mode_enable_all();
 
@@ -714,9 +717,15 @@ sub sub_fetch
 
   my $select_handle = $mi->{ 'SELECT_HANDLE' };
   boom "invalid SELECT_HANDLE [$select_handle]" unless exists $SELECT_MAP{ $select_handle };
-  my $dbio = $SELECT_MAP{ $select_handle };
+  my $dbio  = $SELECT_MAP{ $select_handle }{ 'IO' };
+  my $table = $SELECT_MAP{ $select_handle }{ 'TN' };
 
   my $hr = $dbio->fetch();
+
+  if( de_code_exists( 'tables', $table, 'FETCH' ) )
+    {
+    de_code_exec( 'tables', $table, 'FETCH', $hr );
+    }
 
   if( $hr )
     {
@@ -738,13 +747,14 @@ sub sub_finish
 
   my $select_handle = $mi->{ 'SELECT_HANDLE' };
   boom "invalid SELECT_HANDLE [$select_handle]" unless exists $SELECT_MAP{ $select_handle };
-  my $dbio = $SELECT_MAP{ $select_handle };
+  my $dbio = $SELECT_MAP{ $select_handle }{ 'IO' };
 
   $dbio->finish();
   delete $SELECT_MAP{ $select_handle };
   $SELECT_MAP_COUNT--;
   if( $SELECT_MAP_COUNT <= 0 )
     {
+    %SELECT_MAP         = ();
     $SELECT_MAP_COUNT   = 0;
     $SELECT_MAP_COUNTER = 0;
     }
