@@ -195,7 +195,7 @@ sub main
 
   my $edit_form = new Web::Reactor::HTML::Form( REO_REACTOR => $reo );
   my $edit_form_begin;
-  $edit_form_begin .= $edit_form->begin( NAME => "form_edit_$table", DEFAULT_BUTTON => 'PREVIEW' );
+  $edit_form_begin .= $edit_form->begin( NAME => "form_edit_$table", DEFAULT_BUTTON => 'REDIRECT:PREVIEW' );
   $edit_form_begin .= $edit_form->input( NAME => "ACTION", RETURN => "edit", HIDDEN => 1 );
   my $form_id = $edit_form->get_id();
   $edit_form_begin .= "<p>";
