@@ -50,6 +50,10 @@ sub on_do_date_test
 sub on_fetch
 {
   print Dumper( \@_ );
+  
+  my $hr = shift;
+  
+  $hr->{ 'AMOUNT4' } *= 67;
 }
 
 1;

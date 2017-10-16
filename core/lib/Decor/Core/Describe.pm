@@ -262,7 +262,7 @@ sub __merge_table_des_file
   my $order = 0;
 
   my $inf;
-  open( $inf, $fname ) or boom "cannot open table description file [$fname]";
+  open( $inf, "< :encoding(UTF-8)", $fname ) or boom "cannot open table description file [$fname]";
 
   de_log_debug( "table description open file: [$fname]" );
 

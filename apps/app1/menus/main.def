@@ -27,3 +27,6 @@
   filter-name MORE_CNT
   order-by    CNT DESC
 
+=MOTEN
+
+  type grid moten
