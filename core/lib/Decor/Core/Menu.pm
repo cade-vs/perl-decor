@@ -166,7 +166,7 @@ sub __merge_menu_file
   my $order = 0;
 
   my $inf;
-  open( $inf, $fname ) or boom "cannot open menu file [$fname]";
+  open( $inf, "< :encoding(UTF-8)", $fname ) or boom "cannot open menu file [$fname]";
 
   de_log_debug2( "menu open file: [$fname]" );
 
