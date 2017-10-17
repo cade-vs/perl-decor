@@ -374,7 +374,9 @@ sub fetch
   for my $field ( @$select_fields )
     {
     # FIXME: move to an option should decode must be used or not
-    $data{ $field } = decode( 'UTF-8', $data[ $c++ ] );
+    #$data{ $field } = decode( 'UTF-8', $data[ $c ] );
+    $data{ $field } = $data[ $c ];
+    $c++;
     }
 
   return \%data;
