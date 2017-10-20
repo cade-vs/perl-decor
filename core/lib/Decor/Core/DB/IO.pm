@@ -375,7 +375,8 @@ sub fetch
     {
     # FIXME: move to an option should decode must be used or not
     #$data{ $field } = decode( 'UTF-8', $data[ $c ] );
-    $data{ $field } = $data[ $c ];
+    $data{ $field } = decode( 'utf8', $data[ $c ] ); # it is expected to be UTF8, jist rise the flag
+    #$data{ $field } = $data[ $c ];
     $c++;
     }
 
