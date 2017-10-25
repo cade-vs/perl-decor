@@ -39,6 +39,7 @@ no-copy
   #password
   web.rows 5
   web.grid.maxlen 12
+  web.preview.maxlen 12
 
 =AMOUNT1
 

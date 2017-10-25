@@ -721,7 +721,7 @@ sub sub_fetch
   my $table = $SELECT_MAP{ $select_handle }{ 'TN' };
 
   my $hr = $dbio->fetch();
-
+                  
   if( de_code_exists( 'tables', $table, 'FETCH' ) )
     {
     de_code_exec( 'tables', $table, 'FETCH', $hr );

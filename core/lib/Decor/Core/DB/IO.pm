@@ -373,10 +373,7 @@ sub fetch
   my $c = 0;
   for my $field ( @$select_fields )
     {
-    # FIXME: move to an option should decode must be used or not
-    #$data{ $field } = decode( 'UTF-8', $data[ $c ] );
-    $data{ $field } = decode( 'utf8', $data[ $c ] ); # it is expected to be UTF8, jist rise the flag
-    #$data{ $field } = $data[ $c ];
+    $data{ $field } = $data[ $c ]; # data is expected to be UTF-8 with turned flag on
     $c++;
     }
 
