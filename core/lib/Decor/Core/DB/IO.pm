@@ -373,7 +373,7 @@ sub fetch
   my $c = 0;
   for my $field ( @$select_fields )
     {
-    $data{ $field } = $data[ $c ]; # data is expected to be UTF-8 with turned flag on
+    $data{ $field } = $data[ $c ];
     $c++;
     }
 
