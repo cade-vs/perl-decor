@@ -329,9 +329,9 @@ sub __merge_table_des_file
 
       de_log_debug2( "        isa:  [$name][$args]" );
 
-      my $isa = __load_table_description( $name );
+      my $isa = __load_table_raw_description( $name );
 
-#print STDERR Dumper( "my isa = __load_table_description( $name );", $isa );
+#print STDERR Dumper( "my isa = __load_table_raw_description( $name );", $isa );
 
       boom "isa/include error: cannot load config [$name] at [$fname at $ln]" unless $isa;
 
@@ -522,7 +522,7 @@ sub __postprocess_table_des_hash
 {
   my $des   = shift;
   my $table = uc shift;
-###  print STDERR "TABLE DES RAW [$table]:" . Dumper( $des );
+  # print STDERR "TABLE DES RAW [$table]($des):" . Dumper( $des );
 
   boom "missing description (load error) for table [$table]" unless $des;
 
@@ -702,7 +702,7 @@ sub __postprocess_table_des_hash
       }
     }
 
-  #print STDERR "TABLE DES POST PROCESSSED [$table]:" . Dumper( $des );
+  # print STDERR "TABLE DES POST PROCESSSED [$table]($des):" . Dumper( $des );
 
   bless $des, 'Decor::Core::Table::Description';
   dlock $des;
@@ -713,7 +713,7 @@ sub __postprocess_table_des_hash
 
 #-----------------------------------------------------------------------------
 
-sub __load_table_description
+sub __load_table_raw_description
 {
   my $table = uc shift;
 
@@ -783,11 +783,11 @@ sub describe_table
     boom "missing preload description for table [$table] dirs [@$tables_dirs]";
     }
 
-  my $des = __load_table_description( $table );
-
+  my $des = __load_table_raw_description( $table );
   if( $des )
     {
-    __postprocess_table_des_hash( $des, $table );
+    $des = dclone( $des );
+    $des = __postprocess_table_des_hash( $des, $table );
     }
   else
     {
@@ -796,7 +796,7 @@ sub describe_table
     }
 
   $DES_CACHE{ 'TABLE_DES' }{ $table } = $des;
-  # NOTE! check MUST be done after TABLE_DES cache is filled with current table!
+  # NOTE! check MUST be done after TABLE_DES cache is filled with current table description!
   __check_table_des( $des );
 
 #print STDERR "describe_table [$table] " . Dumper( $des );
