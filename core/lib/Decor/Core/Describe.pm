@@ -308,8 +308,7 @@ sub __merge_table_des_file
       $des->{ $category }{ $sect_name }{ 'LABEL' } ||= $sect_name;
       # FIXME: URGENT: copy only listed keys! no all
 ###      %{ $config->{ $category }{ $sect_name } } = ( %{ dclone( $config->{ '@' }{ '@' } ) }, %{ $config->{ $category }{ $sect_name } } );
-      $des->{ $category }{ $sect_name }{ '__GDA'  } = [ @{ $des->{ '@' }{ '@' }{ '__GDA'  } || [] } ];
-
+      $des->{ $category }{ $sect_name }{ '__GRANT_DENY_ACCUMULATOR'  } = [ @{ $des->{ '@' }{ '@' }{ '__GRANT_DENY_ACCUMULATOR'  } || [] } ];
 
       $des->{ $category }{ $sect_name }{ '_ORDER' } = ++ $opt->{ '_ORDER' };
 
@@ -462,13 +461,16 @@ sub __merge_table_des_file
       if( $key eq 'GRANT' or $key eq 'DENY' )
         {
         # special case
-        if( $des->{ $category }{ $sect_name }{ '__ISA'  } and ! $des->{ $category }{ $sect_name }{ '__GDL'  } )
+        if( $des->{ $category }{ $sect_name }{ '__ISA'  } and ! $des->{ $category }{ $sect_name }{ '__GRANT_DENY_NEW_POLICY'  } )
           {
-          delete $des->{ $category }{ $sect_name }{ '__GDA'  };     # grant/deny access accumulator array
-                 $des->{ $category }{ $sect_name }{ '__GDL'  } = 1; # grant/deny local policy, discard ISA one
+          # if this is ISA section, it may bring ISA grant/deny. 
+          # however if new grant/deny policy given in current table, old ones must be discarded
+          # this must happen only once!
+          delete $des->{ $category }{ $sect_name }{ '__GRANT_DENY_ACCUMULATOR' };     # grant/deny access accumulator array
+                 $des->{ $category }{ $sect_name }{ '__GRANT_DENY_NEW_POLICY'  } = 1; # grant/deny new (local) policy, discard ISA one
           }
 
-        push @{ $des->{ $category }{ $sect_name }{ '__GDA' } }, "$key  $value";
+        push @{ $des->{ $category }{ $sect_name }{ '__GRANT_DENY_ACCUMULATOR' } }, "$key  $value";
         next;
         }
 
@@ -692,7 +694,7 @@ sub __postprocess_table_des_hash
         next if exists $des->{ $category }{ $key }{ $attr };
         $des->{ $category }{ $key }{ $attr } = undef;
         }
-      # TODO: delete __GDA unless $DEBUG  
+      # TODO: delete __GRANT_DENY_ACCUMULATOR unless $DEBUG  
 
       if( $BLESS_CATEGORIES{ $category } )
         {
@@ -842,10 +844,10 @@ sub describe_preprocess_grant_deny
 
   my %access = ( 'GRANT' => {}, 'DENY' => {} );
 
-  $hr->{ '__GDA' } = [ 'deny all', 'grant read' ] if $hr->{ 'READ_ONLY' };
-  $hr->{ '__GDA' } = [ 'deny all'               ] if $hr->{ 'SYSTEM'    };
+  $hr->{ '__GRANT_DENY_ACCUMULATOR' } = [ 'deny all', 'grant read' ] if $hr->{ 'READ_ONLY' };
+  $hr->{ '__GRANT_DENY_ACCUMULATOR' } = [ 'deny all'               ] if $hr->{ 'SYSTEM'    };
 
-  for my $line ( @{ $hr->{ '__GDA' } } )
+  for my $line ( @{ $hr->{ '__GRANT_DENY_ACCUMULATOR' } } )
     {
     my ( $ty, $ac, $op )  = describe_parse_access_line( $line, $hr );
     for my $o ( @$op )
@@ -858,7 +860,7 @@ sub describe_preprocess_grant_deny
   $hr->{ 'GRANT' } = $access{ 'GRANT' };
   $hr->{ 'DENY'  } = $access{ 'DENY'  };
 
-  #print Dumper( "describe_preprocess_grant_deny DEBUG:", $hr->{ 'NAME' }, $hr->{ '__GDA' }, $hr->{ 'GRANT' }, $hr->{ 'DENY' } );
+  #print Dumper( "describe_preprocess_grant_deny DEBUG:", $hr->{ 'NAME' }, $hr->{ '__GRANT_DENY_ACCUMULATOR' }, $hr->{ 'GRANT' }, $hr->{ 'DENY' } );
 }
 
 #-----------------------------------------------------------------------------
