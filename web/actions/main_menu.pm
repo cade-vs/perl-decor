@@ -71,7 +71,7 @@ sub main
   
 ##  print STDERR Dumper( '+++', $menu, $text );
   return $text;
-  return "MAIN MENU" . rand() . return "<#menu_inside_debug><xmp>" . Dumper( $menu ) . "</xmp>";
+#  return "MAIN MENU" . rand() . return "<#menu_inside_debug><xmp>" . Dumper( $menu ) . "</xmp>";
 }
 
 1;
