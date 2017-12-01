@@ -241,8 +241,8 @@ sub __merge_menu_file
 
       if( $key eq 'GRANT' or $key eq 'DENY' )
         {
-        $menu->{ $item_name }{ '__GDA'  } ||= [];
-        push @{ $menu->{ $item_name }{ '__GDA' } }, "$key  $value";
+        $menu->{ $item_name }{ '__GRANT_DENY_ACCUMULATOR'  } ||= [];
+        push @{ $menu->{ $item_name }{ '__GRANT_DENY_ACCUMULATOR' } }, "$key  $value";
 
         next;
         }
