@@ -84,6 +84,8 @@ sub select
 
   boom "BIND opt must be ARRAY ref" if $opts->{ 'BIND' } and ref( $opts->{ 'BIND' } ) ne 'ARRAY';
 
+  $self->reset();
+
   $self->__reshape( $table );
 
   $self->finish();
@@ -358,6 +360,9 @@ sub __get_row_access_where_list
 sub fetch
 {
   my $self = shift;
+  
+  return undef if $self->{ 'SELECT' }{ 'EOD' };
+  
   my $sth = $self->{ 'SELECT' }{ 'STH' };
   boom "missing SELECT::STH! call select() before fetch()" unless $sth;
 
@@ -365,7 +370,11 @@ sub fetch
   boom "missing SELECT::DBH! call select() before fetch()" unless $dbh;
 
   my @data = $sth->fetchrow_array();
-  return undef unless @data;
+  if( ! @ data )
+    {
+    $self->{ 'SELECT' }{ 'EOD' } = 1; # end of data
+    return undef;
+    }
 
   my $select_fields = $self->{ 'SELECT' }{ 'FIELDS' };
   
