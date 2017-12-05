@@ -343,11 +343,11 @@ sub check_access_row
     {
     next unless $field =~ /^_${oper}(_[A-Z_0-9]+)?/;
 
-    my $sccnt++;
+    $sccnt++;
     my $grp = ref( $dsrc ) eq 'HASH' ? $dsrc->{ $field } : $dsrc->read( $field );
     my $res = $self->check_access( $grp );
 
-#print STDERR "--------------------------------check access row [$oper] [$table] [$dsrc] [$field]=>[$grp]==[$res] ($sccnt)\n";
+#print STDERR "--------------------------------check access row [$oper] [$table] [$dsrc] [$field]=>[$grp]==OK?[$res] SCCNT($sccnt)\n";
 
     return 1 if $res;
     }
