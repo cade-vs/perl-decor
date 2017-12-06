@@ -1071,6 +1071,9 @@ sub sub_access
 
   boom "E_ACCESS: record access denied oper [$oper] for table [$table] ID [$id]"
       unless $profile->check_access_row( $oper, $rec->table(), $rec );
+
+  boom "E_ACCESS: method access denied oper [$oper] for table [$table] ID [$id]"
+      unless $rec->method( 'ACCESS', $oper );
   
   $mo->{ 'XS'    } = 'OK';
 }

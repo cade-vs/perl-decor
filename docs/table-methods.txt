@@ -47,6 +47,13 @@
         ...
       }
 
+      sub on_access
+      {
+        my $current_record = shift;
+        my $operation      = shift;
+        ...
+      }
+
       1;
 
   Methods can be manually called on any record:
@@ -62,6 +69,8 @@
       RECALC   -- called on each page refresh on any INSERT or UPDATE screen
       INSERT   -- called before new record insert
       UPDATE   -- called before existing method update
+      ACCESS   -- called whenever operation needs to be checked if is allowed 
+                  on existing record
 
   Note that RECALC method is used only for user feedback! No data calculated
   by the RECALC will be passed back to INSERT or UPDATE methods. If INSERT
@@ -100,6 +109,21 @@
   Calling directly method handlers like "on_recalc( $current_record )" must
   be used only inside methods modules. In any other place record's "method"
   interface must be used!
+  
+  ACCESS method gets two arguments, the current record and the operation name
+  to be checked. Operation name is one of 'READ', 'UPDATE', 'DELETE'. If this
+  method exists and gets executed, this means that all other checks passed and
+  only this method decides if operation should be allowed. If method exits
+  with "TRUE" result (any positive number or non-empty string) and without 
+  rising any exception, operation will be allowed. If method returns false or
+  rises an exception, operation will be denied.
+  
+  ACCESS method is usually called from the client interfaces (WEB interface
+  for example) to decide if current operation should be presented to the user 
+  as allowed. In the WEB interface, it is called when existing record is 
+  about to be updated or deleted and if denied, no controls and/or buttons for
+  executing the operation will be shown on the screen.
+  
 
 --
 
