@@ -69,6 +69,7 @@ my %DISPATCH_MAP = (
                                    'ROLLBACK' => \&sub_rollback,
                                    'LOGOUT'   => \&sub_logout,
                                    'DO'       => \&sub_do,
+                                   'ACCESS'   => \&sub_access,
                                    'FSAVE'    => \&sub_file_save,
                                    'FLOAD'    => \&sub_file_load,
                                  },
@@ -94,6 +95,7 @@ my %MAP_SHORTCUTS = (
                     'S'   => 'SELECT',
                     'T'   => 'DELETE',
                     'U'   => 'UPDATE',
+                    'X'   => 'ACCESS',
                     );
 
 my $DISPATCH_MAP = 'MAIN';
@@ -1034,6 +1036,43 @@ sub sub_do
   #$mo->{ 'RDATA' } = $rec->read_hash_all();
   $mo->{ 'XS'    } = 'OK';
 #print Dumper( $rec, $mi, $mo  );
+}
+
+sub sub_access
+{
+  my $mi = shift;
+  my $mo = shift;
+  
+  my $table  = uc $mi->{ 'TABLE'  };
+  my $id     =    $mi->{ 'ID'     };
+  my $oper   = uc $mi->{ 'OPER'   };
+  my $data   =    $mi->{ 'DATA'   }; # not supported yet
+
+  boom "invalid TABLE name [$table]"    unless de_check_name( $table ) or ! des_exists( $table );
+  boom "invalid DATA [$data]"           if $data and ref( $data ) ne 'HASH';
+  boom "invalid ID [$id]"               unless de_check_id( $id );
+  boom "invalid OPER [$oper]"           unless de_check_name( $oper );
+
+  boom "E_ACCESS: invalid oper [$oper]" unless exists { 'READ' => 1, 'UPDATE' => 1, 'DELETE' => 1, }->{ $oper };
+
+  my $profile = subs_get_current_profile();
+  boom "E_ACCESS: access denied oper [$oper] for table [$table]" unless $profile->check_access_table( $oper, $table );
+  
+  boom "E_ACCESS: access denied: invalid record ID [$id] for table [$table]" unless $id > 0;
+
+  my $rec = new Decor::Core::DB::Record;
+
+  $rec->set_profile_locked( $profile );
+
+  $rec->taint_mode_enable_all();
+
+  boom "E_ACCESS: unable to load requested record TABLE [$table] ID [$id]"
+      unless $rec->select_first1( $table, "_ID = ?", { BIND => [ $id ] } );
+
+  boom "E_ACCESS: record access denied oper [$oper] for table [$table] ID [$id]"
+      unless $profile->check_access_row( $oper, $rec->table(), $rec );
+  
+  $mo->{ 'XS'    } = 'OK';
 }
 
 sub sub_file_save

@@ -126,6 +126,7 @@ sub main
   return "<#access_denied>" unless @$fields_ar;
   return "<#access_denied>" if   $edit_mode_insert and ! $tdes->allows( 'INSERT' );
   return "<#access_denied>" if ! $edit_mode_insert and ! $tdes->allows( 'UPDATE' );
+  return "<#access_denied>" if ! $edit_mode_insert and ! $core->access( 'UPDATE', $table, $id );
 
   my $fields = join ',', @$fields_ar;
 

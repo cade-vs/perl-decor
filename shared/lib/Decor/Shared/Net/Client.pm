@@ -624,12 +624,34 @@ sub file_save_fh
 
 #-----------------------------------------------------------------------------
 
+sub access
+{
+  my $self = shift;
+
+  my $oper   = uc shift;
+  my $table  = uc shift;
+  my $id     =    shift;
+  
+  my %mi;
+
+  $mi{ 'XT'    } = 'X';
+  $mi{ 'TABLE' } = $table;
+  $mi{ 'ID'    } = $id;
+  $mi{ 'OPER'  } = $oper;
+
+  my $mo = $self->tx_msg( \%mi ) or return undef;
+
+  return 1;
+}
+
+#-----------------------------------------------------------------------------
+
 sub file_load
 {
-  my $self   = shift;
-  my $fh     = shift;
+  my $self   =    shift;
+  my $fh     =    shift;
   my $table  = uc shift;
-  my $id     = shift;
+  my $id     =    shift;
 
   my %mi;
 
