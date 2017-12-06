@@ -319,6 +319,33 @@ sub end
 
 #-----------------------------------------------------------------------------
 
+sub check_user_password
+{
+  my $self = shift;
+  
+  my $user   = shift;
+  my $pass   = shift;
+  my $remote = shift;
+
+
+  my $mop = $self->tx_msg( { 'XT' => 'P', 'USER' => $user } ) or return undef;
+
+  my $user_salt  = $mop->{ 'USER_SALT'  };
+  my $login_salt = $mop->{ 'LOGIN_SALT' };
+
+  my %mi;
+
+  $mi{ 'XT'     } = 'B';
+  $mi{ 'USER'   } = $user;
+  $mi{ 'PASS'   } = de_password_salt_hash( de_password_salt_hash( $pass, $user_salt ), $login_salt );
+  
+  my $mo = $self->tx_msg( \%mi ) or return undef;
+
+  return 1;
+}
+
+#-----------------------------------------------------------------------------
+
 sub describe
 {
   my $self = shift;

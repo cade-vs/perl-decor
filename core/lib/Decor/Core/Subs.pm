@@ -72,6 +72,7 @@ my %DISPATCH_MAP = (
                                    'ACCESS'   => \&sub_access,
                                    'FSAVE'    => \&sub_file_save,
                                    'FLOAD'    => \&sub_file_load,
+                                   'PCHECK'   => \&sub_check_user_password,
                                  },
                    );
 
@@ -91,6 +92,7 @@ my %MAP_SHORTCUTS = (
                     'N'   => 'NEXTID',
                     'O'   => 'DO',
                     'P'   => 'PREPARE',
+                    'PC'  => 'PCHECK',
                     'R'   => 'ROLLBACK',
                     'S'   => 'SELECT',
                     'T'   => 'DELETE',
@@ -215,6 +217,10 @@ sub sub_begin_prepare
     my $user_rec = __sub_find_user( $user );
     $mo->{ 'USER_SALT'  } = $user_rec->read( 'PASS_SALT' );
     }
+  else
+    {
+    $mo->{ 'USER_SALT'  } = create_random_id( 128 );
+    }  
 
   $mo->{ 'XS'    } = 'OK';
   return 1;
@@ -468,6 +474,32 @@ sub sub_end
 
   $mo->{ 'XS'    } = 'OK';
 };
+
+#--- CHECK USER PASSWORD -----------------------------------------------------
+
+sub sub_check_user_password
+{
+  my $mi = shift;
+  my $mo = shift;
+
+  my $user     = $mi->{ 'USER'     };
+  my $pass     = $mi->{ 'PASS'     };
+
+  boom "login seed is empty, call XT=BEGIN_PREPARE first" unless $BEGIN_SALT;
+  my $begin_salt = $BEGIN_SALT;
+  $BEGIN_SALT = undef;
+
+
+  die "E_PASSWORD: Invalid user [$user] password"   unless de_check_user_pass_digest( $pass );
+
+  my $user_rec  = subs_get_current_user();
+  my $user_pass = $user_rec->read( 'PASS' );
+  # TODO: use configurable digests
+  #my $user_pass_hex = de_password_salt_hash( $pass, $salt );
+  #die "E_PASSWORD: Wrong user [$user] password"   unless $pass eq $user_pass_hex;
+
+  $mo->{ 'XS'    } = 'OK';
+}
 
 #--- DESCRIBE/MENU -----------------------------------------------------------
 
