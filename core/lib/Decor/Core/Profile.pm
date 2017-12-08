@@ -208,7 +208,7 @@ sub add_groups_from_user
     }
   $dbio->finish();  
 
-  de_log_debug( "debug: USER [$user] GROUPS ADDED: " . join( ',', $self->get_groups() ) );
+  de_log_debug( "debug: USER [$user] GROUPS ADDED: " . join( ',', sort { $a <=> $b } $self->get_groups() ) );
 
   return $cnt;  
 }
