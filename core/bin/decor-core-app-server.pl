@@ -34,6 +34,7 @@ options:
     -d        -- increase DEBUG level (can be used multiple times)
     -r        -- log to STDERR
     -rr       -- log to both files and STDERR
+    -rc       -- use ANSI-colored STDERR log messages (same as -rrc)
     --        -- end of options
 notes:
   * first argument is application name and it is mandatory!
@@ -67,10 +68,11 @@ while( @ARGV )
     print "status: option: listening on port [$opt_listen_port]\n";
     next;
     }
-  if( /-r(r)?/ )
+  if( /-r(r)?(c)?/ )
     {
     $DE_LOG_TO_STDERR = 1;
     $DE_LOG_TO_FILES  = $1 ? 1 : 0;
+    $DE_LOG_STDERR_COLORS = $2 ? 1 : 0;
     print "status: option: forwarding logs to STDERR\n";
     next;
     }

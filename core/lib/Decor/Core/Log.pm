@@ -22,6 +22,7 @@ our @EXPORT = qw(
 
                 $DE_LOG_TO_STDERR
                 $DE_LOG_TO_FILES
+                $DE_LOG_STDERR_COLORS
 
                 de_set_log_prefix
                 de_set_log_dir
@@ -39,9 +40,19 @@ our @EXPORT = qw(
 
                 );
 
-our $DE_LOG_TO_STDERR = 0;
-our $DE_LOG_TO_FILES  = 1;
+our $DE_LOG_TO_STDERR       = 0;
+our $DE_LOG_TO_FILES        = 1;
 our $DE_LOG_MAX_REPEAT_MSG  = 32;
+our $DE_LOG_STDERR_COLORS   = 0;
+
+my $MSG_TYPE_COLOR_RESET = chr(27) . '[0m';
+my %MSG_TYPE_COLOR = (
+                     error  => chr(27) . '[1,31m',
+                     fatal  => chr(27) . '[1,31m',
+                     status => chr(27) . '[36m',
+                     info   => chr(27) . '[1,33m',
+                     );
+
 
 # TODO: push/pop of temporary secondary prefixes (hints), use wrapper class
 
@@ -74,7 +85,7 @@ sub de_log
   
   chomp( @args );
 
-  $DE_LOG_TO_STDERR = 1 unless $DE_LOG_TO_FILES;
+  $DE_LOG_TO_STDERR = 1 if ! $DE_LOG_TO_STDERR and ! $DE_LOG_TO_FILES;
   
   for my $msg ( @args )
     {
@@ -91,31 +102,41 @@ sub de_log
     my @msg_types = ( $msg_type );
     push @msg_types, 'global' if $DE_LOG_TO_FILES and de_init_done();
 
+    my $tm = strftime( "%Y%m%d-%H%M%S", localtime() );
+    my $lp = "$tm ${DE_LOG_PREFIX}[$$]"; # log msg prefix
+
+    my @msg;
+    
+    push @msg, "$tm ${DE_LOG_PREFIX}[$$] this message was repeated $last_log_message_count times:\n"
+        if $last_log_message_count;
+    $last_log_message = $msg;
+    $last_log_message_count = 0;
+    push @msg, "$tm ${DE_LOG_PREFIX}[$$] $msg\n";
+
     # write in order to prevent deadlock caused by flock
     for my $msg_type ( sort @msg_types )
       {
-      my $fh = $de_log_files{ $msg_type };
-      if( de_init_done() and $DE_LOG_TO_FILES and -d $DE_LOG_DIR and ! $fh )
+
+      if( $DE_LOG_TO_FILES )
         {
-        open( $fh, ">>$DE_LOG_DIR/$msg_type.log" );
-        $de_log_files{ $msg_type } = $fh;
+        my $fh = $de_log_files{ $msg_type };
+        if( de_init_done() and $DE_LOG_TO_FILES and -d $DE_LOG_DIR and ! $fh )
+          {
+          open( $fh, ">>$DE_LOG_DIR/$msg_type.log" );
+          $de_log_files{ $msg_type } = $fh;
+          }
+        __log_to_file( $fh, @msg ) if $fh;
+        }  
+      if( $DE_LOG_TO_STDERR and $msg_type ne 'global' )  
+        {
+        if( $DE_LOG_STDERR_COLORS )
+          {
+          unshift @msg, $MSG_TYPE_COLOR{ $msg_type } if exists $MSG_TYPE_COLOR{ $msg_type };
+          push    @msg, $MSG_TYPE_COLOR_RESET;
+          }
+        __log_to_file( \*STDERR, @msg ); # only "global" to stderr
         }
-
-      my $tm = strftime( "%Y%m%d-%H%M%S", localtime() );
-      my $lp = "$tm ${DE_LOG_PREFIX}[$$]"; # log msg prefix
-
-      my @msg;
       
-      push @msg, "$tm ${DE_LOG_PREFIX}[$$] this message was repeated $last_log_message_count times:\n"
-          if $last_log_message_count;
-      $last_log_message = $msg;
-      $last_log_message_count = 0;
-      push @msg, "$tm ${DE_LOG_PREFIX}[$$] $msg\n";
-      
-      
-      __log_to_file( $fh, @msg ) if $fh;
-      next if $msg_type ne 'global' or ! $DE_LOG_TO_STDERR;
-      __log_to_file( \*STDERR, @msg );
       # msg_type
       }
     # msg
