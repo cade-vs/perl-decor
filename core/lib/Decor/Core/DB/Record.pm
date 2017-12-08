@@ -836,6 +836,14 @@ sub rollback_to_savepoint
 
 ### METHODS ##################################################################
 
+sub method_exists
+{
+  my $self = shift;
+  my $name = shift;
+
+  return de_code_exists( 'tables', $self->table(), $name );
+}
+
 sub method
 {
   my $self = shift;
