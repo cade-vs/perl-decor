@@ -10,19 +10,25 @@
 ##############################################################################
 use strict;
 use lib ( map { die "invalid DECOR_CORE_ROOT dir [$_]\n" unless -d; ( "$_/core/lib", "$_/shared/lib" ) } ( $ENV{ 'DECOR_CORE_ROOT' } || '/usr/local/decor' ) );
+use Data::Tools;
 use Decor::Core::Env;
 use Decor::Core::Log;
 use Decor::Core::Describe;
 use Decor::Core::Net::Server::App;
 use Decor::Shared::Net::Protocols;
+use Decor::Shared::Utils;
 
 INIT { $| = 1; }
+
+my $DEFAULT_SERVER_MODULE_PREFIX = "Decor::Core::Net::Server::";
+my $DEFAULT_SERVER_MODULE        = "App";
 
 my $opt_app_name;
 my $opt_no_fork = 0;
 my $opt_preload = 0;
 my $opt_listen_port = 42000;
 my $opt_net_protocols = '*';
+my $server_module = $DEFAULT_SERVER_MODULE;
 
 our $help_text = <<END;
 usage: $0 <options>
@@ -35,6 +41,7 @@ options:
     -r        -- log to STDERR
     -rr       -- log to both files and STDERR
     -rc       -- use ANSI-colored STDERR log messages (same as -rrc)
+    -u srvmod -- server module (default: App) AVOID IF UNSURE! USE -e FIRST!
     --        -- end of options
 notes:
   * first argument is application name and it is mandatory!
@@ -66,6 +73,15 @@ while( @ARGV )
     {
     $opt_listen_port = shift;
     print "status: option: listening on port [$opt_listen_port]\n";
+    next;
+    }
+  if( /-u/ )
+    {
+    die "-e must be specified before -u!\n" unless $opt_preload;
+    $server_module = shift;
+    $server_module = uc( substr( $server_module, 0, 1 ) ) . lc( substr( $server_module, 1 ) );
+    die "invalid server module name [$server_module] check -u parameter!\n" unless de_check_name( $server_module );
+    print "status: option: using server module [$DEFAULT_SERVER_MODULE_PREFIX$server_module]\n";
     next;
     }
   if( /-r(r)?(c)?/ )
@@ -125,8 +141,6 @@ my %srv_opt = (
               NO_FORK => $opt_no_fork,
               );
 
-my $server = new Decor::Core::Net::Server::App( %srv_opt );
-
 if( $opt_preload )
   {
   de_init( APP_NAME => $opt_app_name );
@@ -134,5 +148,20 @@ if( $opt_preload )
   }
 de_net_protocols_allow( $opt_net_protocols );
 
-print "info: starting server main listen loop...\n";
+my $server_pkg  = "$DEFAULT_SERVER_MODULE_PREFIX$server_module";
+my $server_file = perl_package_to_file( $server_pkg );
+
+print "info: starting server [$server_pkg] main listen loop on port [$opt_listen_port]...\n";
+
+eval
+  {
+  require $server_file;
+  };
+if( $@ )  
+  {
+  print "cannot load server module [$server_pkg] from file [$server_file]\n";
+  exit(111);
+  }
+
+my $server = new $server_pkg %srv_opt;
 $server->run();

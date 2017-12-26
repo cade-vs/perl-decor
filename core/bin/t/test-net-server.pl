@@ -24,7 +24,7 @@ $socket->autoflush(1);
 while(42)
   {
   my $mi = {};
-  print "enter query data?\n";
+  print "enter query data? end each message with '---' on a separate line.\n";
   while(<>)
     {
     chomp;

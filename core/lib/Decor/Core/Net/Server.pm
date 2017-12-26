@@ -154,7 +154,7 @@ sub on_process
     my $send_file_size = $mo->{ '___SEND_FILE_SIZE' };
     delete $mo->{ '___SEND_FILE_NAME' };
     delete $mo->{ '___SEND_FILE_SIZE' };
-    $mo->{ '___FILE_SIZE' } = $send_file_size;
+    $mo->{ '___FILE_SIZE' } = $send_file_size if $send_file_size > 0;
     
     my $mo_res = de_net_protocol_write_message( $socket, $ptype, $mo );
 
