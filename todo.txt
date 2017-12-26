@@ -24,3 +24,5 @@
 -- debug stack trace of calls sent over the comm between core/web/etc.
 
 -- debug stack on low-level calls (DB::IO)
+
+-- avoid DateTime.pm and all the mess
