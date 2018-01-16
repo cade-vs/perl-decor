@@ -23,6 +23,7 @@ use Decor::Core::Profile;
 use Decor::Core::Describe;
 use Decor::Core::Menu;
 use Decor::Core::Code;
+use Decor::Core::DSN;
 
 use Clone qw( clone );
 
@@ -58,14 +59,15 @@ my %DISPATCH_MAP = (
                                    'UPDATE'   => \&sub_update,
                                    'DELETE'   => \&sub_delete,
                                    'RECALC'   => \&sub_recalc,
-                                   'COMMIT'   => \&sub_commit,
-                                   'ROLLBACK' => \&sub_rollback,
                                    'LOGOUT'   => \&sub_logout,
                                    'DO'       => \&sub_do,
                                    'ACCESS'   => \&sub_access,
                                    'FSAVE'    => \&sub_file_save,
                                    'FLOAD'    => \&sub_file_load,
                                    'PCHECK'   => \&sub_check_user_password,
+                                   'WORK'     => \&sub_begin_work,
+                                   'COMMIT'   => \&sub_commit,
+                                   'ROLLBACK' => \&sub_rollback,
                                  },
                    );
 
@@ -90,6 +92,7 @@ my %MAP_SHORTCUTS = (
                     'S'   => 'SELECT',
                     'T'   => 'DELETE',
                     'U'   => 'UPDATE',
+                    'W'   => 'WORK',
                     'X'   => 'ACCESS',
                     );
 
@@ -837,7 +840,7 @@ sub sub_insert
 
   boom "invalid TABLE name [$table]"    unless de_check_name( $table ) or ! des_exists( $table );
   boom "invalid DATA [$data]"           unless ref( $data ) eq 'HASH';
-  boom "invalid ID [$id]"               unless de_check_id( $id );
+  boom "invalid ID [$id]"               if $id ne '' and ! de_check_id( $id );
 
   my $profile = subs_get_current_profile();
   boom "E_ACCESS: access denied oper [INSERT] for table [$table]" unless $profile->check_access_table( 'INSERT', $table );
@@ -1243,7 +1246,7 @@ sub sub_file_load
 
 #--- CONTROLS/COMMIT/ROLLBACK/ETC. -------------------------------------------
 
-sub begin_work
+sub sub_begin_work
 {
   my $mi = shift;
   my $mo = shift;

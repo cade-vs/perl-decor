@@ -693,6 +693,47 @@ sub file_load
   return $mo->{ 'ID' } > 0 ? $mo->{ 'ID' } : undef;
 }
 
+#--- MANUAL TRANSACTIONS -----------------------------------------------------
+
+sub begin_work
+{
+  my $self = shift;
+
+  my %mi;
+
+  $mi{ 'XT'    } = 'W';
+
+  my $mo = $self->tx_msg( \%mi ) or return undef;
+
+  return 1;
+}
+
+sub commit
+{
+  my $self = shift;
+
+  my %mi;
+
+  $mi{ 'XT'    } = 'C';
+
+  my $mo = $self->tx_msg( \%mi ) or return undef;
+
+  return 1;
+}
+
+sub rollback
+{
+  my $self = shift;
+
+  my %mi;
+
+  $mi{ 'XT'    } = 'R';
+
+  my $mo = $self->tx_msg( \%mi ) or return undef;
+
+  return 1;
+}
+
 ### helpers ##################################################################
 
 sub select_first1_by_id
