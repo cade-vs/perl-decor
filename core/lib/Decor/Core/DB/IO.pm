@@ -48,6 +48,7 @@ sub reset
 
   delete $self->{ 'TABLE'   };
   delete $self->{ 'SELECT'  };
+  delete $self->{ 'VIRTUAL' };
   
   1;
 }
@@ -133,12 +134,18 @@ sub select
 
   s/^\.// for @fields; # remove leading anchor (syntax sugar really)
 
-  @fields = sort @fields if de_debug();  
+  @fields = sort @fields if de_debug(); # TODO: keep description file order  
   
   dlock \@fields;
   $self->{ 'SELECT' }{ 'FIELDS'     } = \@fields;
   $self->{ 'SELECT' }{ 'TABLES'     }{ $db_table }++;
   $self->{ 'SELECT' }{ 'BASE_TABLE' } = $table;
+
+  if( $table_des->is_virtual() )
+    {
+    $self->{ 'VIRTUAL' }++;
+    return '0E0';
+    }
 
   my @where;
   my @bind;
@@ -205,7 +212,7 @@ sub select
 
   my $dbh = $self->{ 'SELECT' }{ 'DBH' } = dsn_get_dbh_by_table( $table );
   my $sth = $self->{ 'SELECT' }{ 'STH' } = $dbh->prepare( $sql_stmt );
-  
+
   my $retval = $sth->execute( @bind );
   $retval = ( $sth->rows() or '0E0' ) if $retval;
 
@@ -360,6 +367,8 @@ sub __get_row_access_where_list
 sub fetch
 {
   my $self = shift;
+
+  return undef if $self->{ 'VIRTUAL' };
   
   return undef if $self->{ 'SELECT' }{ 'EOD' };
   
@@ -433,6 +442,8 @@ sub insert
     }
 
   my $table_des = describe_table( $table );
+  
+  return 0 if $table_des->is_virtual();
 
   if( ! exists $data->{ "_ID" } )
     {
@@ -503,6 +514,8 @@ sub update
 
   my $table_des = describe_table( $table );
   my $db_table  = $table_des->get_db_table_name();
+
+  return 0 if $table_des->is_virtual();
 
   if( $where ne '' )
     {
@@ -607,6 +620,8 @@ sub delete
   my $table_des = describe_table( $table );
   my $db_table  = $table_des->get_db_table_name();
 
+  return 0 if $table_des->is_virtual();
+
   if( $where ne '' )
     {
     # FIXME: different databases support vastly differs as well :(
@@ -683,9 +698,11 @@ sub get_next_table_id
 
   $self->__reshape( $table );
 
-  my $des    = describe_table( $table );
-  my $db_seq = $des->get_db_sequence_name();
-  my $dsn    = $des->get_dsn_name();
+  my $table_des = describe_table( $table );
+  my $db_seq    = $table_des->get_db_sequence_name();
+  my $dsn       = $table_des->get_dsn_name();
+
+#  return undef if $table_des->is_virtual();
   
   my $new_id = $self->get_next_sequence( $db_seq, $dsn );
   de_log_debug( "debug: get_next_table_id: for table [$table] new val [$new_id]" );

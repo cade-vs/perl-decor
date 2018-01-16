@@ -133,6 +133,8 @@ my %DES_ATTRS = (
 
                            ORDER_BY    => 1,
                            
+                           VIRTUAL     => 1,
+                           
                            NO_AUTOCOMPLETE => 3, # disable interface autocomplete
                          },
                   'FIELD' => {

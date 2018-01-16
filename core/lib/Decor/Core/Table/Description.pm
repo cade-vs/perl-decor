@@ -30,6 +30,13 @@ sub describe
   return Decor::Core::Describe::describe_table( @_ );
 }
 
+sub is_virtual
+{
+  my $self = shift;
+  
+  return $self->{ '@' }{ 'VIRTUAL' };
+}
+
 sub get_table_type
 {
   my $self = shift;
