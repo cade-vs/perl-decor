@@ -33,6 +33,10 @@ our @EXPORT = qw(
                 subs_set_current_profile
                 subs_get_current_profile
                 subs_lock_current_profile
+                
+                subs_in_manual_transaction
+                subs_enable_manual_transaction
+                subs_disable_manual_transaction
 
                 );
 
@@ -47,6 +51,8 @@ my $PROFILE;
 my $USER_LOCKED;
 my $SESSION_LOCKED;
 my $PROFILE_LOCKED;
+
+my $IN_MANUAL_TRANSACTION;
 
 ##############################################################################
 
@@ -165,6 +171,23 @@ sub subs_lock_current_profile
   
   return $PROFILE;
 };
+
+#--- MANUAL TRANSACTIONS -----------------------------------------------------
+
+sub subs_in_manual_transaction
+{
+  return $IN_MANUAL_TRANSACTION;
+}
+
+sub subs_enable_manual_transaction
+{
+  $IN_MANUAL_TRANSACTION++;
+}
+
+sub subs_disable_manual_transaction
+{
+  $IN_MANUAL_TRANSACTION = undef;
+}
 
 ### EOF ######################################################################
 1;

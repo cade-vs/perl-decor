@@ -22,6 +22,7 @@ use Net::Waiter 1.02;
 use Decor::Core::DSN;
 use Decor::Core::Log;
 use Decor::Shared::Net::Protocols;
+use Decor::Core::Subs::Env;
 
 use parent qw( Net::Waiter );
 
@@ -102,6 +103,7 @@ sub on_process
       my $err_ref = create_random_id( 9, 'ABCDEFGHJKLMNPQRTVWXY0123456789' ); # print read safe
       de_log( "error: XTYPE handler exception err_ref [$err_ref] details [$@]\n" );
       $mo->{ 'XS' } = $@ || "E_INTERNAL: exception err_ref [$err_ref]";
+      subs_disable_manual_transaction();
       eval { dsn_rollback(); }; # FIXME: eval/break-main-loop
       if( $@ )
         {
@@ -110,7 +112,7 @@ sub on_process
         next;
         }
       }
-    else
+    elsif( ! subs_in_manual_transaction() )
       {
       eval { dsn_commit(); };
       if( $@ )

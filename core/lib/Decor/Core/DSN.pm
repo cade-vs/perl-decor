@@ -34,6 +34,7 @@ our @EXPORT = qw(
                 dsn_get_db_name
                 dsn_get_db_name_by_table
 
+                dsn_begin_work
                 dsn_commit
                 dsn_savepoint
                 dsn_rollback_to_savepoint
@@ -214,6 +215,12 @@ sub dsn_get_db_name
 }
 
 #-----------------------------------------------------------------------------
+
+sub dsn_begin_work
+{
+  # TODO: issue SQL BEGIN WORK [transaction type]
+  return 1; 
+}
 
 sub dsn_commit
 {

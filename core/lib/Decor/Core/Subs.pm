@@ -34,13 +34,6 @@ our @EXPORT = qw(
 
                 );
 
-# TODO: op triggers
-
-# TODO: row access
-
-##############################################################################
-
-
 ##############################################################################
 
 my %DISPATCH_MAP = (
@@ -1250,11 +1243,35 @@ sub sub_file_load
 
 #--- CONTROLS/COMMIT/ROLLBACK/ETC. -------------------------------------------
 
+sub begin_work
+{
+  my $mi = shift;
+  my $mo = shift;
+
+  subs_enable_manual_transaction();
+  dsn_begin_work();
+
+  $mo->{ 'XS' } = 'OK';
+}
+
 sub sub_commit
 {
   my $mi = shift;
   my $mo = shift;
 
+  subs_disable_manual_transaction();
+  dsn_commit();
+
+  $mo->{ 'XS' } = 'OK';
+};
+
+
+sub sub_commit
+{
+  my $mi = shift;
+  my $mo = shift;
+
+  subs_disable_manual_transaction();
   dsn_commit();
 
   $mo->{ 'XS' } = 'OK';
@@ -1266,6 +1283,7 @@ sub sub_rollback
   my $mi = shift;
   my $mo = shift;
 
+  subs_disable_manual_transaction();
   dsn_rollback();
 
   $mo->{ 'XS' } = 'OK';
