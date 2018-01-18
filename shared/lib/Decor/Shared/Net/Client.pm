@@ -103,6 +103,7 @@ sub connect
   my $self        = shift;
   my $server_addr = shift; # ip:port
   my $app_name    = shift;
+  my $opt         = shift;
 
   my $socket = IO::Socket::INET->new( PeerAddr => $server_addr, Timeout => 2.0 );
   
@@ -111,7 +112,8 @@ sub connect
     $socket->autoflush( 1 );
     $self->{ 'SERVER_ADDR' } = $server_addr;
     $self->{ 'SOCKET'      } = $socket;
-    
+
+    return 1 if $opt->{ 'MANUAL' };
     my $mo = $self->tx_msg( { 'XT' => 'CAPS', 'APP_NAME' => $app_name } );
     if( ! $mo )
       {

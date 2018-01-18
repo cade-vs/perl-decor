@@ -54,3 +54,8 @@
 
   label Previous login sessions
   type  backlink  de_sessions   usr
+
+=SESSIONLESS
+
+  label Sessionsless
+  type  bool
