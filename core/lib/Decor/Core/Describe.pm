@@ -136,6 +136,8 @@ my %DES_ATTRS = (
                            VIRTUAL     => 1,
                            
                            NO_AUTOCOMPLETE => 3, # disable interface autocomplete
+
+                           INSERT_CUE  => 3, # related "INSERT NEW" button label
                          },
                   'FIELD' => {
                            TABLE       => 1,
@@ -165,6 +167,12 @@ my %DES_ATTRS = (
                            NO_AUTOCOMPLETE => 3, # disable interface autocomplete
                            
                            SELECT_FILTER   => 3,
+                           
+                           SECTION_NAME    => 3,
+                           
+                           VIEW_CUE    => 3, # related "VIEW" button label
+                           EDIT_CUE    => 3, # related "EDIT" button label
+                           INSERT_CUE  => 3, # related "INSERT NEW" button label
                          },
                   'INDEX' => {
                            FIELDS      => 1,

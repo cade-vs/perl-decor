@@ -23,6 +23,7 @@ use MIME::Base64;
 use Decor::Shared::Utils;
 use Decor::Shared::Net::Protocols;
 use Decor::Shared::Net::Client::Table::Description;
+use Decor::Shared::Net::Client::Table::Category::Self::Description;
 use Decor::Shared::Net::Client::Table::Category::Field::Description;
 use Decor::Shared::Net::Client::Table::Category::Do::Description;
 
@@ -369,7 +370,8 @@ sub describe
 
   $mo->{ 'DES' }{ 'CACHE' } = {};
   $mo->{ 'DES' }{ ':CLIENT_OBJECT' } = $self;
-  bless $mo->{ 'DES' }, 'Decor::Shared::Net::Client::Table::Description';
+  bless $mo->{ 'DES' },        'Decor::Shared::Net::Client::Table::Description';
+  bless $mo->{ 'DES' }{ '@' }, 'Decor::Shared::Net::Client::Table::Category::Self::Description';
   for my $cat ( qw( FIELD DO ) )
     {
     for my $item ( keys %{ $mo->{ 'DES' }{ $cat } } )
