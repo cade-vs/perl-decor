@@ -51,8 +51,6 @@ sub main
   my $tdes = $core->describe( $table );
   my $sdes = $tdes->get_table_des(); # table "Self" description
 
-print STDERR "error: $sdes\n" . Dumper( $tdes );
-
   my $table_label = $tdes->get_label();
 
   $reo->ps_path_add( 'grid', qq( List data from "<b>$table_label</b>" ) );

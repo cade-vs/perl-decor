@@ -173,6 +173,7 @@ my %DES_ATTRS = (
                            VIEW_CUE    => 3, # related "VIEW" button label
                            EDIT_CUE    => 3, # related "EDIT" button label
                            INSERT_CUE  => 3, # related "INSERT NEW" button label
+                           SELECT_CUE  => 3, # related "SELECT" button label for LINK and BACKLINKs
                          },
                   'INDEX' => {
                            FIELDS      => 1,

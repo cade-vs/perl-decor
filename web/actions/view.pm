@@ -128,7 +128,8 @@ sub main
         if( $ltdes->allows( 'INSERT' ) and $tdes->allows( 'UPDATE' ) and $bfdes->allows( 'UPDATE' ) )
           {
           # FIXME: check for record access too!
-          $data_ctrl .= de_html_alink( $reo, 'new', 'insert.svg', "Insert and link a new record", ACTION => 'edit', ID => -1,         TABLE => $linked_table, LINK_TO_TABLE => $table, LINK_TO_FIELD => $base_field, LINK_TO_ID => $id );
+          my $insert_cue = $bfdes->get_attr( qw( WEB GRID INSERT_CUE ) ) || "Insert and link a new record";
+          $data_ctrl .= de_html_alink( $reo, 'new', 'insert.svg', $insert_cue, ACTION => 'edit', ID => -1,         TABLE => $linked_table, LINK_TO_TABLE => $table, LINK_TO_FIELD => $base_field, LINK_TO_ID => $id );
           }
         }  
       }

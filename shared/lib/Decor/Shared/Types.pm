@@ -27,13 +27,9 @@ use Exception::Sink;
 use Data::Tools 1.09;
 use Data::Lock qw( dlock dunlock );
 
-use DateTime;
-
 use Date::Format;
 use Date::Parse;
-#use Date::Calc;
 use Time::JulianDay;
-#use DateTime::Format::Strptime;
 use Hash::Util qw( lock_hashref unlock_hashref lock_ref_keys );
 
 our %DE_TYPE_NAMES = (
