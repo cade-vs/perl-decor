@@ -98,3 +98,15 @@ grant insert update to 1;10
   label   Test date switch
   grant   execute
 
+
+=ACTION: TEST
+
+  label   Go to whatever
+  target  IMPULSE
+  grant   all
+
+=ACTION: MYVIEW
+
+  label   My view
+  target  VIEW
+  grant   all

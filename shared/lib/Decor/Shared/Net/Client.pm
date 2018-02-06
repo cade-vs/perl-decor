@@ -26,6 +26,7 @@ use Decor::Shared::Net::Client::Table::Description;
 use Decor::Shared::Net::Client::Table::Category::Self::Description;
 use Decor::Shared::Net::Client::Table::Category::Field::Description;
 use Decor::Shared::Net::Client::Table::Category::Do::Description;
+use Decor::Shared::Net::Client::Table::Category::Action::Description;
 
 sub new
 {
@@ -372,7 +373,7 @@ sub describe
   $mo->{ 'DES' }{ ':CLIENT_OBJECT' } = $self;
   bless $mo->{ 'DES' },        'Decor::Shared::Net::Client::Table::Description';
   bless $mo->{ 'DES' }{ '@' }, 'Decor::Shared::Net::Client::Table::Category::Self::Description';
-  for my $cat ( qw( FIELD DO ) )
+  for my $cat ( qw( FIELD DO ACTION ) )
     {
     for my $item ( keys %{ $mo->{ 'DES' }{ $cat } } )
       {

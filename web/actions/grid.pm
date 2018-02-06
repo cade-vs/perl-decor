@@ -183,11 +183,19 @@ sub main
   $text_grid_head .= "</tr>";
 
   my @dos;
-  for my $do ( @{ $tdes->get_category_list_by_oper( 'READ', 'DO' ) }  )
+  for my $do ( @{ $tdes->get_category_list_by_oper( 'READ', 'DO' ) }  ) # FIXME: zashto read??
     {
     my $dodes   = $tdes->get_category_des( 'DO', $do );
     next unless $dodes->allows( 'EXECUTE' );
     push @dos, $do;
+    }
+
+  my @actions;
+  for my $act ( @{ $tdes->get_category_list_by_oper( 'READ', 'ACTION' ) }  ) # FIXME: zashto read??
+    {
+    my $actdes   = $tdes->get_category_des( 'ACTION', $act );
+    next unless $actdes->allows( 'EXECUTE' );
+    push @actions, $act;
     }
 
   my $grid_form = new Web::Reactor::HTML::Form( REO_REACTOR => $reo );
@@ -227,6 +235,17 @@ sub main
         $select_hint = 'This is the currently selected record';
         }
       $vec_ctrl .= de_html_alink( $reo, 'back', $select_icon, $select_hint, @return_args );
+      }
+
+
+    for my $act ( @actions )
+      {
+      my $actdes   = $tdes->get_category_des( 'ACTION', $act );
+      my $label  = $actdes->{ 'LABEL'  };
+      my $target = $actdes->{ 'TARGET' };
+      my $icon   = lc( $actdes->{ 'ICON'   } );
+      $icon = $icon =~ /^[a-z_0-9]+$/ ? "action_$icon.svg" : "action_generic.svg";
+      $vec_ctrl .= de_html_alink_icon( $reo, 'new', $icon, $label, ACTION => $target, ID => $id, TABLE => $table );
       }
 
     $vec_ctrl .= de_html_alink_icon( $reo, 'new', "view.svg", 'View this record', ACTION => 'view', ID => $id, TABLE => $table );

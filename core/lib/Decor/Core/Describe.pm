@@ -93,6 +93,7 @@ my %DES_CATEGORIES = (
                        'INDEX'  => 1,
                        'FILTER' => 1,
                        'DO'     => 1,
+                       'ACTION' => 1,
                      );
 
 my %BLESS_CATEGORIES = (
@@ -185,6 +186,13 @@ my %DES_ATTRS = (
                          },
                   'DO' => {
                            LABEL       => 2,
+                           GRANT       => 1,
+                           DENY        => 1,
+                         },
+                  'ACTION' => {
+                           LABEL       => 1,
+                           TARGET      => 1,
+                           ICON        => 1,
                            GRANT       => 1,
                            DENY        => 1,
                          },
@@ -540,9 +548,10 @@ sub __postprocess_table_des_hash
   boom "missing description (load error) for table [$table]" unless $des;
 
   # postprocessing TABLE (self) ---------------------------------------------
-  my @fields  = sort { $des->{ 'FIELD' }{ $a }{ '_ORDER' } <=> $des->{ 'FIELD' }{ $b }{ '_ORDER' } } keys %{ $des->{ 'FIELD' } };
-  my @indexes = sort { $des->{ 'INDEX' }{ $a }{ '_ORDER' } <=> $des->{ 'INDEX' }{ $b }{ '_ORDER' } } keys %{ $des->{ 'INDEX' } };
-  my @dos     = sort { $des->{ 'INDEX' }{ $a }{ '_ORDER' } <=> $des->{ 'INDEX' }{ $b }{ '_ORDER' } } keys %{ $des->{ 'DO'    } };
+  my @fields  = sort { $des->{ 'FIELD'  }{ $a }{ '_ORDER' } <=> $des->{ 'FIELD'  }{ $b }{ '_ORDER' } } keys %{ $des->{ 'FIELD'  } };
+  my @indexes = sort { $des->{ 'INDEX'  }{ $a }{ '_ORDER' } <=> $des->{ 'INDEX'  }{ $b }{ '_ORDER' } } keys %{ $des->{ 'INDEX'  } };
+  my @dos     = sort { $des->{ 'DO'     }{ $a }{ '_ORDER' } <=> $des->{ 'DO'     }{ $b }{ '_ORDER' } } keys %{ $des->{ 'DO'     } };
+  my @actions = sort { $des->{ 'ACTION' }{ $a }{ '_ORDER' } <=> $des->{ 'ACTION' }{ $b }{ '_ORDER' } } keys %{ $des->{ 'ACTION' } };
 
   # move table config in more comfortable location
   $des->{ '@' } = $des->{ '@' }{ '@' };
@@ -571,6 +580,7 @@ sub __postprocess_table_des_hash
   $des->{ '@' }{ '_FIELDS_LIST'  } = \@fields;
   $des->{ '@' }{ '_INDEXES_LIST' } = \@indexes;
   $des->{ '@' }{ '_DOS_LIST'     } = \@dos;
+  $des->{ '@' }{ '_ACTIONS_LIST' } = \@actions;
   $des->{ '@' }{ 'DSN'           } = uc( $des->{ '@' }{ 'DSN' } ) || 'MAIN';
 
   $des->{ '@' }{ 'GRANT' } = {} unless $des->{ '@' }{ 'GRANT' };
@@ -694,8 +704,13 @@ sub __postprocess_table_des_hash
     describe_preprocess_grant_deny( $des->{ 'DO' }{ $do } );
     }
 
+  for my $act ( @actions )
+    {
+    describe_preprocess_grant_deny( $des->{ 'ACTION' }{ $act } );
+    }
+
   # add empty keys to fields description before locking
-  for my $category ( qw( FIELD INDEX FILTER DO ) )
+  for my $category ( qw( FIELD INDEX FILTER DO ACTION ) )
     {
     next unless exists $des->{ $category };
     for my $key ( keys %{ $des->{ $category } })
