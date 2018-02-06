@@ -1232,6 +1232,8 @@ sub sub_file_load
   
   my $fname = $rec->get_file_name();
 
+  $size = -s $fname; # physical file size is always better than database saved one :)
+
   $mo->{ '___SEND_FILE_NAME' } = $fname;
   $mo->{ '___SEND_FILE_SIZE' } = $size;
 
