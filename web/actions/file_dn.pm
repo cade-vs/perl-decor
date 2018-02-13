@@ -34,6 +34,7 @@ sub main
   return "<#e_access>" unless $file;
   
   my $mime     = $file->{ 'MIME' } || 'application/octet-stream';
+  my $fname    = $file->{ 'NAME' } || 'n.a.or.unknown.data';
 
   my $fh = tempfile( DIR => '/tmp/', SUFFIX => '.tmp', UNLINK => 1 );
 ####  open( $fh, '>', '/tmp/asdasdasdasdasdasd' );
@@ -41,7 +42,7 @@ sub main
   $core->file_load( $fh, $table, $id );
   seek( $fh, 0, 0 );
 
-  return $reo->render_data( undef, $mime, FH => $fh );
+  return $reo->render_data( undef, $mime, FH => $fh, FILE_NAME => $fname );
 }
 
 1;
