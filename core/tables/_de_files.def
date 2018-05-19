@@ -1,8 +1,7 @@
 
 @isa _DE_OWNERS _OWNER
 
-grant read
-
+grant read to all
 
 =NAME
 
@@ -23,4 +22,4 @@ grant read
 =DES
 
   type    char  128
-  grant   update
+  grant   update to all

@@ -11,6 +11,7 @@ package Decor::Core::DB::Record;
 use strict;
 
 use parent 'Decor::Core::DB';
+use Encode;
 use Exception::Sink;
 
 use Decor::Shared::Types;
@@ -949,8 +950,8 @@ sub inject_return_file_into_mo
   my $mo   = shift;
   
   return unless $self->{ 'CLIENT:IO:FILE:BODY' } ne '' and $self->{ 'CLIENT:IO:FILE:MIME' };
-  
-  $mo->{ 'RETURN_FILE_BODY' } = encode_base64( $self->{ 'CLIENT:IO:FILE:BODY' } );
+
+  $mo->{ 'RETURN_FILE_BODY' } = encode_base64( Encode::is_utf8( $self->{ 'CLIENT:IO:FILE:BODY' } ) ? Encode::encode_utf8( $self->{ 'CLIENT:IO:FILE:BODY' } ) : $self->{ 'CLIENT:IO:FILE:BODY' } );
   $mo->{ 'RETURN_FILE_MIME' } =                $self->{ 'CLIENT:IO:FILE:MIME' };
   $mo->{ 'RETURN_FILE_XENC' } = 'BASE64';
 }
