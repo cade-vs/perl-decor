@@ -159,7 +159,7 @@ eval
   };
 if( $@ )  
   {
-  print "cannot load server module [$server_pkg] from file [$server_file]\n";
+  print "cannot load server module [$server_pkg] from file [$server_file] reason [$@]\n";
   exit(111);
   }
 
