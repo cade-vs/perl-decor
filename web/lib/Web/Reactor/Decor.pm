@@ -101,6 +101,8 @@ sub prep_process
 
 sub load_trans_file
 {
+  my $self = shift;
+
   return tr_hash_load( shift );
 }
 

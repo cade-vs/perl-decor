@@ -159,7 +159,7 @@ sub tr_hash_load
   my $fn = shift;
   my %tr;
   
-  for( split /\n/, file_load( $fn ) )
+  for( split /\n/, file_load( $fn, { encoding => 'UTF-8' } ) )
     {
     my ( $k, $v ) = split /=/, $_, 2;
     $k =~ s/\\=/=/g;
