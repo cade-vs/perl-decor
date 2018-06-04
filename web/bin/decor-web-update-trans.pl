@@ -81,6 +81,8 @@ die $help_text unless de_check_name( $opt_app_name ) and -d "$ROOT/apps/$opt_app
 die $help_text unless $opt_lang =~ /^[a-z][a-z]$/;
 
 my $TDIR = $opt_tdir || "$ROOT/apps/$opt_app_name/trans/";
+$TDIR .= "/$opt_lang";
+
 dir_path_ensure( $TDIR ) or die "error: cannot nesure directory existence for [$TDIR]\n";
 
 
@@ -101,6 +103,7 @@ push @files, glob_tree( $_ ) for @dirs;
 
 for my $file ( @files )
   {
+  print $fname;
   update_trans( $file, "web" );
   }
 
@@ -112,7 +115,7 @@ sub update_trans
   my $tfile = "$TDIR/$tname.tr";
   my $tr = hash_load( $tfile ) || {};
 
-print Dumper( $fname, $tr );
+#print Dumper( $fname, $tr );
 
 #  tie %$tr, 'Tie::IxHash';
 
