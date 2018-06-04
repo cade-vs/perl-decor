@@ -38,6 +38,8 @@ our @EXPORT = qw(
                 
                 de_password_salt_hash
 
+                tr_hash_save
+                tr_hash_load
                 );
 
 ##############################################################################
@@ -130,6 +132,43 @@ sub de_password_salt_hash
   my $salt = shift;
   
   return wp_hex( $salt . $pass );
+}
+
+#-----------------------------------------------------------------------------
+
+sub tr_hash_save
+{
+  my $fn = shift;
+  my $tr = shift;
+  
+  my $data;
+  for my $k ( sort keys %$tr )
+    {
+    my $v = $tr->{ $k };
+    $k =~ s/=/\\=/g;
+    $v =~ s/\\/\\\\/g;
+    $v =~ s/\n/\\n/g;
+    $data .= "$k=$v\n";
+    }
+  
+  return file_save( $fn, $data );
+}
+
+sub tr_hash_load
+{
+  my $fn = shift;
+  my %tr;
+  
+  for( split /\n/, file_load( $fn ) )
+    {
+    my ( $k, $v ) = split /=/, $_, 2;
+    $k =~ s/\\=/=/g;
+    $v =~ s/\\\\/\\/g;
+    $v =~ s/\\n/\n/g;
+    $tr{ $k } = $v;
+    }
+    
+  return \%tr;
 }
 
 ### EOF ######################################################################

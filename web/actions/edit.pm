@@ -159,7 +159,7 @@ sub main
     }
   else
     {
-    return "<#e_internal>" . de_html_alink_button( $reo, 'back', "&lArr; Go back", "Go back to the previous screen"   );
+    return "<#e_internal>" . de_html_alink_button( $reo, 'back', "&lArr; [~Go back]", "[~Go back to the previous screen]"   );
     }
 
   for my $field ( @$fields_ar )
@@ -173,7 +173,7 @@ sub main
     next if $type_name ne 'CHAR' and $raw_data != 0;
     
     $calc_merrs ||= {};
-    push @{ $calc_merrs->{ $field } }, "This field is required!";
+    push @{ $calc_merrs->{ $field } }, "[~This field is required]!";
     }
 
   if( ! ( ( $button_id eq 'PREVIEW' or $button_id eq 'OK' ) and $calc_merrs ) )
@@ -205,8 +205,8 @@ sub main
 
   $text .= "<table class=view cellspacing=0 cellpadding=0>";
   $text .= "<tr class=view-header>";
-  $text .= "<td class='view-header fmt-right'>Field</td>";
-  $text .= "<td class='view-header fmt-left' >Value</td>";
+  $text .= "<td class='view-header fmt-right'>[~Field]</td>";
+  $text .= "<td class='view-header fmt-left' >[~Value]</td>";
   $text .= "</tr>";
 
 ###  my $row_data = $core->fetch( $select );
@@ -366,20 +366,20 @@ sub main
         {
         if( $field_data > 0 )
           {
-          $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "FILE_UPLOAD_REPLACE_$field_id", "file_up.svg", "Upload and replace current file", ACTION => 'file_up', TABLE => $linked_table, ID => $field_data ) if $ltdes->allows( 'UPDATE' );
-          $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "FILE_DOWNLOAD_$field_id",       "file_dn.svg", "Download current file",           ACTION => 'file_dn', TABLE => $linked_table, ID => $field_data ) if $ltdes->allows( 'READ' );
+          $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "FILE_UPLOAD_REPLACE_$field_id", "file_up.svg", "[~Upload and replace current file]", ACTION => 'file_up', TABLE => $linked_table, ID => $field_data ) if $ltdes->allows( 'UPDATE' );
+          $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "FILE_DOWNLOAD_$field_id",       "file_dn.svg", "[~Download current file]",           ACTION => 'file_dn', TABLE => $linked_table, ID => $field_data ) if $ltdes->allows( 'READ' );
           }
         else
           {
-          $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "FILE_UPLOAD_NEW_$field_id", "file_new.svg", "Upload new file", ACTION => 'file_up', TABLE => $linked_table, ID => -1, RETURN_DATA_TO => $field ) if $ltdes->allows( 'INSERT' );
+          $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "FILE_UPLOAD_NEW_$field_id", "file_new.svg", "[~Upload new file]", ACTION => 'file_up', TABLE => $linked_table, ID => -1, RETURN_DATA_TO => $field ) if $ltdes->allows( 'INSERT' );
           }
         }
       elsif( ! $link_field_disable or $field ne $link_field_disable )
         {
         if( $field_data > 0 )
           {
-          $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "VIEW_LINKED_$field_id", "view.svg", "View linked data", ACTION => 'view', TABLE => $linked_table, ID => $field_data ) if $ltdes->allows( 'READ'   );
-          $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "EDIT_LINKED_$field_id", "edit.svg", "Edit linked data", ACTION => 'edit', TABLE => $linked_table, ID => $field_data ) if $ltdes->allows( 'UPDATE' );
+          $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "VIEW_LINKED_$field_id", "view.svg", "[~View linked data]", ACTION => 'view', TABLE => $linked_table, ID => $field_data ) if $ltdes->allows( 'READ'   );
+          $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "EDIT_LINKED_$field_id", "edit.svg", "[~Edit linked data]", ACTION => 'edit', TABLE => $linked_table, ID => $field_data ) if $ltdes->allows( 'UPDATE' );
           }
         my $insert_cue = $bfdes->get_attr( qw( WEB EDIT INSERT_CUE ) ) || "Insert and link a new record";
         my $select_cue = $bfdes->get_attr( qw( WEB EDIT SELECT_CUE ) ) || "Select linked record";
@@ -395,8 +395,8 @@ sub main
 
       my $count = $core->count( $backlinked_table, { FILTER => { $backlinked_field => $id } });
 
-      $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "GRID_BACKLINKED_$field_id",   "grid.svg",   "View all backlinked records from <b>$linked_table_label</b>",  ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, FILTER => { $backlinked_field => $id } ) if $bltdes->allows( 'READ' ) and $count > 0;
-      $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "INSERT_BACKLINKED_$field_id", "insert.svg", "Insert and link a new record into <b>$linked_table_label</b>", ACTION => 'edit', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, LINK_FIELD_DISABLE => $backlinked_field ) if $bltdes->allows( 'INSERT' );
+      $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "GRID_BACKLINKED_$field_id",   "grid.svg",   "[~View all backlinked records from] <b>$linked_table_label</b>",  ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, FILTER => { $backlinked_field => $id } ) if $bltdes->allows( 'READ' ) and $count > 0;
+      $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "INSERT_BACKLINKED_$field_id", "insert.svg", "[~Insert and link a new record into] <b>$linked_table_label</b>", ACTION => 'edit', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, LINK_FIELD_DISABLE => $backlinked_field ) if $bltdes->allows( 'INSERT' );
 
       $count = 'Unknown' if $count eq '';
 
@@ -452,7 +452,7 @@ sub main
                                        ARGS     => $input_tag_args,
                                        CLEAR    => $clear_icon,
                                        );
-      my $hl_handle = html_hover_layer( $reo, VALUE => "Set current date", DELAY => 250 );
+      my $hl_handle = html_hover_layer( $reo, VALUE => "[~Set current date]", DELAY => 250 );
       my $date_format = type_get_format( $type );
       $field_input .= qq(<a href='#' onClick='set_value( "$field_id", current_date( "$date_format" ) ); return false;' ><img class=icon src=i/set-time.svg $hl_handle></a>);
       }
@@ -468,7 +468,7 @@ sub main
                                        ARGS     => $input_tag_args,
                                        CLEAR    => $clear_icon,
                                        );
-      my $hl_handle = html_hover_layer( $reo, VALUE => "Set current time", DELAY => 250 );
+      my $hl_handle = html_hover_layer( $reo, VALUE => "[~Set current time]", DELAY => 250 );
       $field_input .= qq(<a href='#' onClick='set_value( "$field_id", current_time() ); return false;' ><img class=icon src=i/set-time.svg $hl_handle></a>);
       }
     elsif( $type_name eq 'UTIME' )
@@ -483,7 +483,7 @@ sub main
                                        ARGS     => $input_tag_args,
                                        CLEAR    => $clear_icon,
                                        );
-      my $hl_handle = html_hover_layer( $reo, VALUE => "Set current date+time", DELAY => 250 );
+      my $hl_handle = html_hover_layer( $reo, VALUE => "[~Set current date+time]", DELAY => 250 );
       my $date_format = type_get_format( $type );
       $field_input .= qq(<a href='#' onClick='set_value( "$field_id", current_utime( "$date_format" ) ); return false;' ><img class=icon src=i/set-time.svg $hl_handle></a>);
       }
@@ -503,15 +503,15 @@ sub main
   $text .= "</table>";
 
   $text .= "<br>";
-  $text .= de_html_alink_button( $reo, 'back', "&lArr; Cancel", "Cancel this operation", BTYPE => 'nav'   );
+  $text .= de_html_alink_button( $reo, 'back', "&lArr; [~Cancel]", "[~Cancel this operation]", BTYPE => 'nav'   );
 
   if( $tdes->{ '@' }{ 'NO_PREVIEW' } )
     {
-    $text .= de_html_form_button_redirect( $reo, 'here', $edit_form, 'OK', "[~OK] &rArr;", "Save data", ACTION => 'commit' );
+    $text .= de_html_form_button_redirect( $reo, 'here', $edit_form, 'OK', "[~OK] &rArr;", "[~Save data]", ACTION => 'commit' );
     }
   else  
     {
-    $text .= de_html_form_button_redirect( $reo, 'here', $edit_form, 'PREVIEW', "[~Preview] &rArr;", "Preview data before save", ACTION => 'preview' );
+    $text .= de_html_form_button_redirect( $reo, 'here', $edit_form, 'PREVIEW', "[~Preview] &rArr;", "[~Preview data before save]", ACTION => 'preview' );
     }
   $text .= $edit_form->end();
 

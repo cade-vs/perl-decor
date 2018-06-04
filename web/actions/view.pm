@@ -31,7 +31,7 @@ sub main
 
   my $table_label = $tdes->get_label();
 
-  $reo->ps_path_add( 'view', qq( View record data from "<b>$table_label</b>" ) );
+  $reo->ps_path_add( 'view', qq( [~View record data from] "<b>$table_label</b>" ) );
 
   my @fields = @{ $tdes->get_fields_list_by_oper( 'READ' ) };
 
@@ -62,7 +62,7 @@ sub main
   my $row_data = $core->fetch( $select );
   if( ! $row_data )
     {
-    return "<p><#no_data><p>" . de_html_alink_button( $reo, 'back', "Back", "Return to previous screen" );
+    return "<p><#no_data><p>" . de_html_alink_button( $reo, 'back', "[~Back]", "[~Return to previous screen]" );
     }
   my $row_id = $row_data->{ '_ID' };
 
@@ -110,25 +110,25 @@ sub main
         {
         if( $data_base > 0 )
           {
-          $data_fmt = de_html_alink( $reo, 'new', "$data_fmt", "Download current file", ACTION => 'file_dn', ID => $data_base, TABLE => $linked_table );
-          $data_ctrl .= de_html_alink( $reo, 'new', 'view.svg',   "View linked record",           ACTION => 'view', ID => $data_base, TABLE => $linked_table );
-          $data_ctrl .= de_html_alink( $reo, 'new', 'file_up.svg',  "Upload and replace current file", ACTION => 'file_up', ID => $data_base, TABLE => $linked_table, LINK_TO_TABLE => $table, LINK_TO_FIELD => $base_field, LINK_TO_ID => $id );
-          $data_ctrl .= de_html_alink( $reo, 'new', 'file_dn.svg',  "Download current file",           ACTION => 'file_dn', ID => $data_base, TABLE => $linked_table );
+          $data_fmt   = de_html_alink( $reo, 'new', "$data_fmt",    "[~Download current file]",           ACTION => 'file_dn', ID => $data_base, TABLE => $linked_table );
+          $data_ctrl .= de_html_alink( $reo, 'new', 'view.svg',     "[~View linked record]",              ACTION => 'view',    ID => $data_base, TABLE => $linked_table );
+          $data_ctrl .= de_html_alink( $reo, 'new', 'file_up.svg',  "[~Upload and replace current file]", ACTION => 'file_up', ID => $data_base, TABLE => $linked_table, LINK_TO_TABLE => $table, LINK_TO_FIELD => $base_field, LINK_TO_ID => $id );
+          $data_ctrl .= de_html_alink( $reo, 'new', 'file_dn.svg',  "[~Download current file]",           ACTION => 'file_dn', ID => $data_base, TABLE => $linked_table );
           }
         else
           {
-          $data_ctrl .= de_html_alink( $reo, 'new', 'file_new.svg', "Upload new file",                 ACTION => 'file_up', ID => -1,         TABLE => $linked_table, LINK_TO_TABLE => $table, LINK_TO_FIELD => $base_field, LINK_TO_ID => $id );
+          $data_ctrl .= de_html_alink( $reo, 'new', 'file_new.svg', "[~Upload new file]",                 ACTION => 'file_up', ID => -1,         TABLE => $linked_table, LINK_TO_TABLE => $table, LINK_TO_FIELD => $base_field, LINK_TO_ID => $id );
           }
         }
       else
         {
-        $data_ctrl .= de_html_alink( $reo, 'new', 'view.svg',   "View linked record",           ACTION => 'view', ID => $data_base, TABLE => $linked_table );
-        $data_ctrl .= de_html_alink( $reo, 'new', 'grid.svg',   "View all records from <b>$table_label</b>, linked to <b>$data_fmt</b>",  ACTION => 'grid', TABLE => $table, FILTER => { $base_field => $data_base } );
-        $data_fmt = de_html_alink( $reo, 'new', "$data_fmt", "View linked record", ACTION => 'view', ID => $data_base, TABLE => $linked_table );
+        $data_ctrl .= de_html_alink( $reo, 'new', 'view.svg',   "[~View linked record]",                                                        ACTION => 'view', ID => $data_base, TABLE => $linked_table );
+        $data_ctrl .= de_html_alink( $reo, 'new', 'grid.svg',   "[~View all records from] <b>$table_label</b>, [~linked to] <b>$data_fmt</b>",  ACTION => 'grid',                   TABLE => $table, FILTER => { $base_field => $data_base } );
+        $data_fmt = de_html_alink( $reo, 'new', "$data_fmt",    "[~View linked record]",                                                        ACTION => 'view', ID => $data_base, TABLE => $linked_table );
         if( $ltdes->allows( 'INSERT' ) and $tdes->allows( 'UPDATE' ) and $bfdes->allows( 'UPDATE' ) )
           {
           # FIXME: check for record access too!
-          my $insert_cue = $bfdes->get_attr( qw( WEB GRID INSERT_CUE ) ) || "Insert and link a new record";
+          my $insert_cue = $bfdes->get_attr( qw( WEB GRID INSERT_CUE ) ) || "[~Insert and link a new record]";
           $data_ctrl .= de_html_alink( $reo, 'new', 'insert.svg', $insert_cue, ACTION => 'edit', ID => -1,         TABLE => $linked_table, LINK_TO_TABLE => $table, LINK_TO_FIELD => $base_field, LINK_TO_ID => $id );
           }
         }  
@@ -139,16 +139,16 @@ sub main
       my $bltdes = $core->describe( $backlinked_table );
       my $linked_table_label = $bltdes->get_label();
 
-      $data_ctrl .= de_html_alink( $reo, 'new', 'grid.svg',   "View all backlinked records from <b>$linked_table_label</b>",  ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, FILTER => { $backlinked_field => $id } );
+      $data_ctrl .= de_html_alink( $reo, 'new', 'grid.svg',   "[~View all backlinked records from] <b>$linked_table_label</b>",  ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, FILTER => { $backlinked_field => $id } );
       if( $bltdes->allows( 'INSERT' ) )
         {
-        $data_ctrl .= de_html_alink( $reo, 'new', 'insert.svg', "Insert and link a new record into <b>$linked_table_label</b>", ACTION => 'edit', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, LINK_FIELD_DISABLE => $backlinked_field );
+        $data_ctrl .= de_html_alink( $reo, 'new', 'insert.svg', "[~Insert and link a new record into] <b>$linked_table_label</b>", ACTION => 'edit', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, LINK_FIELD_DISABLE => $backlinked_field );
         }
 
       my $count = $core->count( $backlinked_table, { FILTER => { $backlinked_field => $id } });
       $count = 'Unknown' if $count eq '';
 
-      $data_fmt = de_html_alink( $reo, 'new', "<b class=hi>$count</b> records from <b class=hi>$linked_table_label</b>",   "View all backlinked records from <b class=hi>$linked_table_label</b>",  ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, FILTER => { $backlinked_field => $id } );
+      $data_fmt = de_html_alink( $reo, 'new', "<b class=hi>$count</b> [~records from] <b class=hi>$linked_table_label</b>",   "[~View all backlinked records from] <b class=hi>$linked_table_label</b>",  ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, FILTER => { $backlinked_field => $id } );
       }
 
     if( $lpassword )
@@ -165,11 +165,11 @@ sub main
   $text .= "</table>";
 
   $text .= "<br>";
-  $text .= de_html_alink_button( $reo, 'back', "&lArr; [~Back]", "Return to previous screen", BTYPE => 'nav' );
+  $text .= de_html_alink_button( $reo, 'back', "&lArr; [~Back]", "[~Return to previous screen]", BTYPE => 'nav' );
   if( $tdes->allows( 'UPDATE' ) )
     {
     # FIXME: row access!
-    $text .= de_html_alink_button( $reo, 'new',  "Edit &uArr;", "Edit this record", BTYPE => 'mod', ACTION => 'edit', ID => $id, TABLE => $table );
+    $text .= de_html_alink_button( $reo, 'new',  "[~Edit] &uArr;", "[~Edit this record]", BTYPE => 'mod', ACTION => 'edit', ID => $id, TABLE => $table );
     }
   
   for my $do ( @{ $tdes->get_category_list_by_oper( 'READ', 'DO' ) }  )

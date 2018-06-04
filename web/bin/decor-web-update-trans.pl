@@ -103,7 +103,7 @@ push @files, glob_tree( $_ ) for @dirs;
 
 for my $file ( @files )
   {
-  print $fname;
+  print "$file\n";
   update_trans( $file, "web" );
   }
 
@@ -113,7 +113,7 @@ sub update_trans
   my $tname = shift; # trans file name to update
 
   my $tfile = "$TDIR/$tname.tr";
-  my $tr = hash_load( $tfile ) || {};
+  my $tr = tr_hash_load( $tfile ) || {};
 
 #print Dumper( $fname, $tr );
 
@@ -126,5 +126,7 @@ sub update_trans
     $tr->{ $_ } = $_;
     }
 
-  hash_save( $tfile, $tr );
+  tr_hash_save( $tfile, $tr );
 }
+
+### EOF ######################################################################

@@ -95,12 +95,12 @@ sub main
   
   $text .= "<table class=view cellspacing=0 cellpadding=0>";
   $text .= "<tr class=view-header>";
-  $text .= "<td class='view-header fmt-right'>Field</td>";
-  $text .= "<td class='view-header fmt-left' >Value</td>";
+  $text .= "<td class='view-header fmt-right'>[~Field]</td>";
+  $text .= "<td class='view-header fmt-left' >[~Value]</td>";
   $text .= "</tr>";
 
   $text .= "<tr class=view>";
-  $text .= "<td class='view-field' >Operation result</td>";
+  $text .= "<td class='view-field' >[~Operation result]</td>";
   $text .= "<td class='view-value' >$res_msg</td>";
   $text .= "</tr>";
 
@@ -109,8 +109,8 @@ sub main
 #  my $ok_hint = $edit_mode_insert ? "Confirm new record insert" : "Confirm record update";
   
   $text .= "<br>";
-  $text .= de_html_alink_button( $reo, 'here', "&lArr; [~Back]",     "Back to data edit screen", ACTION => 'edit'   );
-  $text .= de_html_alink_button( $reo, 'back', "[~Continue] &crarr;", "Operation done, continue..."       );
+  $text .= de_html_alink_button( $reo, 'here', "&lArr; [~Back]",     "[~Back to data edit screen]", ACTION => 'edit'   );
+  $text .= de_html_alink_button( $reo, 'back', "[~Continue] &crarr;", "[~Operation done, continue...]"       );
 #  $text .= de_html_alink_button( $reo, 'new',  "OK",     $ok_hint,                   ACTION => 'commit' );
 
   return $text;

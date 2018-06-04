@@ -24,6 +24,7 @@ use Data::Dumper;
 use Storable;
 
 use Decor::Shared::Net::Client;
+use Decor::Shared::Utils;
 
 our @ISA = qw( Web::Reactor );
 
@@ -95,6 +96,13 @@ sub prep_process
 
   return $text;
 };
+
+#-----------------------------------------------------------------------------
+
+sub load_trans_file
+{
+  return tr_hash_load( shift );
+}
 
 #-----------------------------------------------------------------------------
 

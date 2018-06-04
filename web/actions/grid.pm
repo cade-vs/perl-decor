@@ -122,7 +122,7 @@ sub main
     }
   $filter = { %{ $filter || {} }, %$filter_param } if $filter_param;
 
-  $reo->ps_path_add( 'grid', qq( List data from "<b>$table_label</b> (filtered)" ) ) if $filter;
+  $reo->ps_path_add( 'grid', qq( [~List data from] "<b>$table_label</b> ([~filtered])" ) ) if $filter;
 
   my $select = $core->select( $table, $fields, { FILTER => $filter, FILTER_NAME => $filter_name, OFFSET => $offset, LIMIT => $page_size, ORDER_BY => $order_by } ) if $fields;
   my $scount = $core->count( $table, { FILTER => $filter, FILTER_NAME => $filter_name } ) if $select;
@@ -148,15 +148,15 @@ sub main
     $insert_new_opts{ 'LINK_FIELD_DISABLE'    } = $link_field_disable;
     }
 
-  my $insert_cue = $sdes->get_attr( qw( WEB GRID INSERT_CUE ) ) || "Insert new record";
+  my $insert_cue = $sdes->get_attr( qw( WEB GRID INSERT_CUE ) ) || "[~Insert new record]";
   
-  $text_grid_navi_left .= de_html_alink_button( $reo, 'back', "&lArr; back", "Go back to the previous screen", BTYPE => 'nav'   ) if $rs;
-  $text_grid_navi_left .= de_html_alink_button( $reo, 'new', "(+) $insert_cue", 'Insert new record', BTYPE => 'act', ACTION => 'edit',        TABLE => $table, ID => -1, %insert_new_opts ) if $tdes->allows( 'INSERT' );
+  $text_grid_navi_left .= de_html_alink_button( $reo, 'back', "&lArr; [~back]", "[~Go back to the previous screen]", BTYPE => 'nav'   ) if $rs;
+  $text_grid_navi_left .= de_html_alink_button( $reo, 'new', "(+) $insert_cue", '[~Insert new record]', BTYPE => 'act', ACTION => 'edit',        TABLE => $table, ID => -1, %insert_new_opts ) if $tdes->allows( 'INSERT' );
   
-  my $filter_link_label = $active_filter ? "Modify current filter" : "Filter records";
-  $text_grid_navi_left .= de_html_alink_button( $reo, 'new', "(&asymp;) $filter_link_label",    'Filter records',    ACTION => 'grid_filter', TABLE => $table           );
-  $text_grid_navi_left .= de_html_alink_button( $reo, 'here', "(x) Remove filter",    'Remove current filter', REMOVE_ACTIVE_FILTER => 1 ) if $active_filter;
-  $text_grid_navi_left .= de_html_alink_button( $reo, 'here', "(&lt;) Enable last filter",    'Enable last used filter', USE_LAST_FILTER => 1      ) if $last_filter and ! $active_filter;
+  my $filter_link_label = $active_filter ? "[~Modify current filter]" : "[~Filter records]";
+  $text_grid_navi_left .= de_html_alink_button( $reo, 'new', "(&asymp;) $filter_link_label",    '[~Filter records]',    ACTION => 'grid_filter', TABLE => $table           );
+  $text_grid_navi_left .= de_html_alink_button( $reo, 'here', "(x) [~Remove filter]",    '[~Remove current filter]', REMOVE_ACTIVE_FILTER => 1 ) if $active_filter;
+  $text_grid_navi_left .= de_html_alink_button( $reo, 'here', "(&lt;) [~Enable last filter]",    '[~Enable last used filter]', USE_LAST_FILTER => 1      ) if $last_filter and ! $active_filter;
 
   $text_grid_head .= "<table class=grid cellspacing=0 cellpadding=0>";
   $text_grid_head .= "<tr class=grid-header>";
@@ -248,9 +248,9 @@ sub main
       $vec_ctrl .= de_html_alink_icon( $reo, 'new', $icon, $label, ACTION => $target, ID => $id, TABLE => $table );
       }
 
-    $vec_ctrl .= de_html_alink_icon( $reo, 'new', "view.svg", 'View this record', ACTION => 'view', ID => $id, TABLE => $table );
-    $vec_ctrl .= de_html_alink_icon( $reo, 'new', "edit.svg", 'Edit this record', ACTION => 'edit', ID => $id, TABLE => $table ) if $tdes->allows( 'UPDATE' );
-    $vec_ctrl .= de_html_alink_icon( $reo, 'new', "copy.svg", 'Copy this record', ACTION => 'edit', ID =>  -1, TABLE => $table, COPY_ID => $id ) if $tdes->allows( 'INSERT' ) and ! $tdes->{ '@' }{ 'NO_COPY' };
+    $vec_ctrl .= de_html_alink_icon( $reo, 'new', "view.svg", '[~View this record]', ACTION => 'view', ID => $id, TABLE => $table );
+    $vec_ctrl .= de_html_alink_icon( $reo, 'new', "edit.svg", '[~Edit this record]', ACTION => 'edit', ID => $id, TABLE => $table ) if $tdes->allows( 'UPDATE' );
+    $vec_ctrl .= de_html_alink_icon( $reo, 'new', "copy.svg", '[~Copy this record]', ACTION => 'edit', ID =>  -1, TABLE => $table, COPY_ID => $id ) if $tdes->allows( 'INSERT' ) and ! $tdes->{ '@' }{ 'NO_COPY' };
 
     if( @dos )
       {
@@ -342,8 +342,8 @@ sub main
         }
       elsif( $bfdes->is_backlinked() )
         {
-        my $view_cue   = $bfdes->get_attr( qw( WEB GRID VIEW_CUE   ) ) || "View linked records";
-        my $insert_cue = $bfdes->get_attr( qw( WEB GRID INSERT_CUE ) ) || "Insert and link a new record";
+        my $view_cue   = $bfdes->get_attr( qw( WEB GRID VIEW_CUE   ) ) || "[~View linked records]";
+        my $insert_cue = $bfdes->get_attr( qw( WEB GRID INSERT_CUE ) ) || "[~Insert and link a new record]";
         my ( $backlinked_table, $backlinked_field ) = $bfdes->backlink_details();
         $data_ctrl .= de_html_alink_button( $reo, 'new', "(+) $insert_cue", undef, BTYPE => 'act', ACTION => 'edit', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, LINK_FIELD_DISABLE => $backlinked_field );
         $data_ctrl .= "<br>\n";
