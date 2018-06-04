@@ -300,9 +300,9 @@ sub main
           }
         else
           {
-          my $view_cue   = $bfdes->get_attr( qw( WEB GRID VIEW_CUE   ) ) || "View linked record";
-          my $edit_cue   = $bfdes->get_attr( qw( WEB GRID EDIT_CUE   ) ) || "Edit linked record";
-          my $insert_cue = $bfdes->get_attr( qw( WEB GRID INSERT_CUE ) ) || "Insert and link a new record";
+          my $view_cue   = $bfdes->get_attr( qw( WEB GRID VIEW_CUE   ) ) || "[~View linked record]";
+          my $edit_cue   = $bfdes->get_attr( qw( WEB GRID EDIT_CUE   ) ) || "[~Edit linked record]";
+          my $insert_cue = $bfdes->get_attr( qw( WEB GRID INSERT_CUE ) ) || "[~Insert and link a new record]";
           
           my ( $linked_table, $linked_field ) = $bfdes->link_details();
           my $ltdes = $core->describe( $linked_table );
@@ -311,8 +311,8 @@ sub main
             $data_fmt =~ s/\./&#46;/g;
             if( $ltdes->get_table_type() eq 'FILE' )
               {
-              $data_fmt   = de_html_alink( $reo, 'new', "$data_fmt",                       $view_cue, ACTION => 'file_dn', ID => $data_base, TABLE => $linked_table );
-              $data_ctrl .= de_html_alink( $reo, 'new', 'file_dn.svg Download file',       undef,     ACTION => 'file_dn', ID => $data_base, TABLE => $linked_table );
+              $data_fmt   = de_html_alink( $reo, 'new', "$data_fmt",                          $view_cue, ACTION => 'file_dn', ID => $data_base, TABLE => $linked_table );
+              $data_ctrl .= de_html_alink( $reo, 'new', 'file_dn.svg [~Download file]',       undef,     ACTION => 'file_dn', ID => $data_base, TABLE => $linked_table );
               $data_ctrl .= "<br>\n";
               }
             else
@@ -374,7 +374,7 @@ sub main
 
   if( $row_counter == 0 )
     {
-    $text .= "<p>$text_grid_navi_left<p><div class=error-text>No data found</div><p>";
+    $text .= "<p>$text_grid_navi_left<p><div class=error-text>[~No data found]</div><p>";
     }
   else
     {
@@ -385,17 +385,17 @@ sub main
     $offset_prev = 0 if $offset_prev < 0;
     $offset_last = 0 if $offset_last < 0;
 
-    $text_grid_navi_mid .= $offset > 0 ? "<a reactor_here_href=?offset=0><img src=i/page-prev.svg> first page</a> | " : "<img src=i/page-prev.svg> first page | ";
-    $text_grid_navi_mid .= $offset > 0 ? "<a reactor_here_href=?offset=$offset_prev><img src=i/page-prev.svg> previous page</a> | " : "<img src=i/page-prev.svg> previous page | ";
-    $text_grid_navi_mid .= $offset_next < $scount ? "<a reactor_here_href=?offset=$offset_next>next page <img src=i/page-next.svg></a> | " : "next page <img src=i/page-next.svg> | ";
-    $text_grid_navi_mid .= $offset_next < $scount ? "<a reactor_here_href=?offset=$offset_last>last page <img src=i/page-next.svg></a> | " : "last page <img src=i/page-next.svg> | ";
+    $text_grid_navi_mid .= $offset > 0 ? "<a reactor_here_href=?offset=0><img src=i/page-prev.svg> [~first page]</a> | " : "<img src=i/page-prev.svg> [~first page] | ";
+    $text_grid_navi_mid .= $offset > 0 ? "<a reactor_here_href=?offset=$offset_prev><img src=i/page-prev.svg> previous page</a> | " : "<img src=i/page-prev.svg> [~previous page] | ";
+    $text_grid_navi_mid .= $offset_next < $scount ? "<a reactor_here_href=?offset=$offset_next>[~next page] <img src=i/page-next.svg></a> | " : "[~next page] <img src=i/page-next.svg> | ";
+    $text_grid_navi_mid .= $offset_next < $scount ? "<a reactor_here_href=?offset=$offset_last>[~last page] <img src=i/page-next.svg></a> | " : "[~last page] <img src=i/page-next.svg> | ";
 
     #$text_grid_navi .= "<a reactor_here_href=?offset=$offset_prev><img src=i/page-prev.svg> previous page</a> | <a reactor_here_href=?offset=$offset_next>next page <img src=i/page-next.svg> </a>";
     my $page_more = int( $page_size * 2 );
     my $page_less = int( $page_size / 2 );
-    my $link_page_more = de_html_alink( $reo, 'here', "+",       'Show more rows per page',   PAGE_SIZE => $page_more );
-    my $link_page_less = de_html_alink( $reo, 'here', "&mdash;", 'Show less rows per page',   PAGE_SIZE => $page_less );
-    my $link_page_all  = $scount <= 300 ? de_html_alink( $reo, 'here', "=",       'Show all rows in one page', PAGE_SIZE => $scount, OFFSET => 0 ) : '';
+    my $link_page_more = de_html_alink( $reo, 'here', "+",       '[~Show more rows per page]',   PAGE_SIZE => $page_more );
+    my $link_page_less = de_html_alink( $reo, 'here', "&mdash;", '[~Show less rows per page]',   PAGE_SIZE => $page_less );
+    my $link_page_all  = $scount <= 300 ? de_html_alink( $reo, 'here', "=",       '[~Show all rows in one page]', PAGE_SIZE => $scount, OFFSET => 0 ) : '';
     $link_page_all = "/$link_page_all" if $link_page_all;
 
     my $offset_from = $offset + 1;
