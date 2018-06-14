@@ -40,8 +40,8 @@ sub main
     }
 
   my $pc = @$ps_path;
-  my $pc_str = str_countable( $pc, "step", "steps" );
-  $text = "<tr class=ps-path><td class=ps-path>History: <b>$pc</b> $pc_str $text</td></tr>";
+  my $pc_str = str_countable( $pc, "[~step]", "[~steps]" );
+  $text = "<tr class=ps-path><td class=ps-path>[~History]: <b>$pc</b> $pc_str $text</td></tr>";
 
   return $text;
 }

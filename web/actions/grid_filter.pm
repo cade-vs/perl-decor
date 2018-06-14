@@ -150,8 +150,8 @@ sub main
 
   $text .= "<table class=view cellspacing=0 cellpadding=0>";
   $text .= "<tr class=view-header>";
-  $text .= "<td class='view-header fmt-right'>Field</td>";
-  $text .= "<td class='view-header fmt-left' >Value</td>";
+  $text .= "<td class='view-header fmt-right'>[~Field]</td>";
+  $text .= "<td class='view-header fmt-left' >[~Value]</td>";
   $text .= "</tr>";
 
 ###  my $row_data = $core->fetch( $select );
@@ -220,7 +220,7 @@ sub main
   $text .= "</table>";
 
   $text .= "<br>";
-  $text .= de_html_alink_button( $reo, 'back', "&lArr; Cancel", "Cancel this operation"   );
+  $text .= de_html_alink_button( $reo, 'back', "&lArr; [~Cancel]", "[~Cancel this operation]"   );
   $text .= $filter_form->button( NAME => 'OK', VALUE => "[~OK] &rArr;" );
 #  $text .= de_html_form_button( $reo, 'here', $filter_form, 'OK', "[~OK] &rArr;", "Filter records now" );
   $text .= $filter_form->end();

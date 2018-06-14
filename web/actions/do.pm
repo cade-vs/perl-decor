@@ -73,7 +73,7 @@ $file_body = Encode::decode_utf8( $file_body );
   $text .= $html_file || "*** DONE ***";
 
   $text .= "<p>";
-  $text .= de_html_alink_button( $reo, 'back', "&lArr; [~Continue]", "Return and continue on previous screen" );
+  $text .= de_html_alink_button( $reo, 'back', "&lArr; [~Continue]", "[~Return and continue on previous screen]" );
 
   return $text;
 }
