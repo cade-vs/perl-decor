@@ -49,6 +49,9 @@ sub main
     $core->do( $table, $do, {}, $id );
     
     my ( $file_body, $file_mime ) = $core->get_return_file_body_mime();
+
+use Encode;
+$file_body = Encode::decode_utf8( $file_body );
     
     if( $file_mime ne '' )
       {
