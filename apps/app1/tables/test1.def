@@ -35,6 +35,8 @@ grant insert update to 1;10
 
 =DES
 
+  label [~descr]
+
   type char 128
   #password
   web.rows 5
