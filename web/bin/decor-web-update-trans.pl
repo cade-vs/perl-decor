@@ -87,6 +87,9 @@ dir_path_ensure( $TDIR ) or die "error: cannot nesure directory existence for [$
 
 
 my @dirs = ( 
+             "$ROOT/core/tables/*.def", 
+             "$ROOT/apps/$opt_app_name/tables/*.def",
+
              "$ROOT/web/html/default/*.html", 
              "$ROOT/web/actions/*.pm", 
              "$ROOT/apps/$opt_app_name/web/html/default/*.html", 
