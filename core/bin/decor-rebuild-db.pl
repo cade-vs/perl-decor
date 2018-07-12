@@ -30,8 +30,6 @@ $Data::Dumper::Indent   = 3;
 
 ##############################################################################
 
-# TODO: add base records support (zero-id records)
-
 ##############################################################################
 
 my $opt_app_name;
@@ -367,6 +365,7 @@ sub table_alter
   my $db_table = $des->get_db_table_name();
 
   my @sql_columns;
+  my @sql_zero;
 
   my $fields = $des->get_fields_list();
   my $add_columns = 0;
@@ -401,7 +400,10 @@ sub table_alter
     
     #print Dumper( $field, $fld_des->{ 'TYPE' }, $native_type );
     
+    my $zero_data = $type_name eq 'CHAR' ? "''" : 0;
+    
     push @sql_columns, "$field $native_type $column_args";
+    push @sql_zero, "$field = $zero_data";
     $add_columns++;
     }
 
@@ -421,6 +423,9 @@ sub table_alter
   
   my $dbh = $dbo->get_dbh();
   $dbh->do( $sql_stmt );
+  
+  my $sql_zero = "UPDATE $table SET " . join( ',', @sql_zero );
+  $dbh->do( $sql_zero );
   
   return 1;
 }
