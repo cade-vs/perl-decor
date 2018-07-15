@@ -101,13 +101,13 @@ my @files;
 
 push @files, glob_tree( $_ ) for @dirs;
 
-#print Dumper( \@files );
+print Dumper( \@files );
 
 
 
 for my $file ( @files )
   {
-  print "$file\n";
+ # print "$file\n";
   update_trans( $file, "web" );
   }
 
@@ -119,8 +119,8 @@ sub update_trans
   my $tfile = "$TDIR/$tname.tr";
   my $tr = tr_hash_load( $tfile ) || {};
 
-#print Dumper( $fname, $tr );
-
+print "$fname=>$tfile\n";
+print Dumper( $fname, $tr );
 #  tie %$tr, 'Tie::IxHash';
 
   my $fdata = file_load( $fname );

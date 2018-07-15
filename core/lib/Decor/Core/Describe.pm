@@ -372,6 +372,10 @@ sub __merge_table_des_file
           {
           $isa_args{ $_ } = 1 for sort { $isa->{ 'FIELD' }{ $a }{ '_ORDER' } <=> $isa->{ 'FIELD' }{ $b }{ '_ORDER' } } keys %{ $isa->{ 'FIELD' } };
           }
+        elsif( $arg =~ s/\*/\.*?/g )
+          {
+          $isa_args{ $_ } = 1 for sort { $isa->{ 'FIELD' }{ $a }{ '_ORDER' } <=> $isa->{ 'FIELD' }{ $b }{ '_ORDER' } } grep { /$arg/ } keys %{ $isa->{ 'FIELD' } };
+          }
         elsif( $arg =~ s/^-// )
           {
           delete $isa_args{ $arg };
