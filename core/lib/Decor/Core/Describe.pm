@@ -340,7 +340,7 @@ sub __merge_table_des_file
       next;
       }
 
-    if( $line =~ /^@(isa|include)\s*([a-zA-Z_0-9]+)\s*(.*?)\s*$/ )
+    if( $line =~ /^\s*@(isa|include)\s*([a-zA-Z_0-9]+)\s*(.*?)\s*$/i )
       {
       my $name = $2;
       my $args = $3; # options/arguments, FIXME: upcase/lowcase?
@@ -351,11 +351,11 @@ sub __merge_table_des_file
 
 #print STDERR Dumper( "my isa = __load_table_raw_description( $name );", $isa );
 
-      boom "isa/include error: cannot load config [$name] at [$fname at $ln]" unless $isa;
+      boom "\@isa/\@include error: cannot load config [$name] at [$fname at $ln]" unless $isa;
 
       my @args = split /[\s,]+/, uc $args;
 
-      boom "isa/include error: empty argument list at [$fname at $ln]" unless @args;
+      boom "\@isa/\@include error: empty argument list at [$fname at $ln]" unless @args;
 
       my %isa_args;
       tie %isa_args, 'Tie::IxHash';
@@ -368,17 +368,13 @@ sub __merge_table_des_file
           $arg = '*';
           }
 
-        if( $arg eq '*' )
+        if( $arg =~ s/^-// and $arg =~ s/\*/\.*?/g )
           {
-          $isa_args{ $_ } = 1 for sort { $isa->{ 'FIELD' }{ $a }{ '_ORDER' } <=> $isa->{ 'FIELD' }{ $b }{ '_ORDER' } } keys %{ $isa->{ 'FIELD' } };
+          delete $isa_args{ $_ } for grep { $_ ne '_ID' } grep { /^$arg$/ } keys %{ $isa->{ 'FIELD' } };
           }
         elsif( $arg =~ s/\*/\.*?/g )
           {
-          $isa_args{ $_ } = 1 for sort { $isa->{ 'FIELD' }{ $a }{ '_ORDER' } <=> $isa->{ 'FIELD' }{ $b }{ '_ORDER' } } grep { /$arg/ } keys %{ $isa->{ 'FIELD' } };
-          }
-        elsif( $arg =~ s/^-// )
-          {
-          delete $isa_args{ $arg };
+          $isa_args{ $_ } = 1 for sort { $isa->{ 'FIELD' }{ $a }{ '_ORDER' } <=> $isa->{ 'FIELD' }{ $b }{ '_ORDER' } } grep { /^$arg$/ } keys %{ $isa->{ 'FIELD' } };
           }
         else
           {
@@ -409,7 +405,7 @@ sub __merge_table_des_file
           }
         else
           {
-          boom "isa/include error: invalid key [$arg] in [$name] at [$fname at $ln]";
+          boom "\@isa/\@include error: invalid key [$arg] in [$name] at [$fname at $ln]";
           }
 
         $isa_category = '@' if $isa_sect_name eq '@';
@@ -417,7 +413,7 @@ sub __merge_table_des_file
 #          {
 #          boom "isa/include error: cannot inherit kyes from different categories, got [$isa_category] expected [$category] key [$arg] in [$name] at [$fname at $ln]";
 #          }
-        boom "isa/include error: cannot include unknown key [$arg] from [$name] at [$fname at $ln]" if ! exists $isa->{ $isa_category } or ! exists $isa->{ $isa_category }{ $isa_sect_name };
+        boom "\@isa/\@include error: cannot include unknown key [$arg] from [$name] at [$fname at $ln]" if ! exists $isa->{ $isa_category } or ! exists $isa->{ $isa_category }{ $isa_sect_name };
         $des->{ $isa_category }{ $isa_sect_name } ||= {};
 
 #print STDERR Dumper( 'isa - ' x 10, $isa_category, $isa_sect_name, $isa->{ $isa_category }{ $isa_sect_name });
@@ -428,6 +424,23 @@ sub __merge_table_des_file
                                                          );
         $des->{ $category }{ $sect_name }{ '_ORDER' } = ++ $opt->{ '_ORDER' };
         $des->{ $isa_category }{ $isa_sect_name }{ '__ISA'  } = 1;
+        }
+
+      next;
+      }
+      
+    if( $line =~ /^\s*@(remove)\s*(.*?)\s*$/i )
+      {
+      my $args = $2; # options/arguments, FIXME: upcase/lowcase?
+      
+      my @args = split /[\s,]+/, uc $args;
+
+      boom "\@remove error: empty argument list at [$fname at $ln]" unless @args;
+
+      for my $arg ( @args )
+        {
+        $arg =~ s/\*/\.*?/g;
+        delete $des->{ 'FIELD' }{ $_ } for grep { $_ ne '_ID' } grep { /^$arg$/ } keys %{ $des->{ 'FIELD' } };
         }
 
       next;

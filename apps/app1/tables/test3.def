@@ -7,13 +7,14 @@ grant read          to all
 
 
 @isa  test2   cnt
-#@isa  test2     *
+@isa  test2     *  -_OW*
+#@remove cnt _ID
 
 =name
 
   type char 256
   
-=cnt
+=cnt2
 
   type int
 
