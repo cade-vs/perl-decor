@@ -62,6 +62,7 @@ while( @ARGV )
   if( /-f/ )
     {
     $opt_recreate = 1;
+    $opt_confirm_first = 1;
     print "option: recreate database objects\n";
     next;
     }
@@ -182,6 +183,12 @@ sub rebuild_table
   
   # handle tables -------------------------------
   my $table_db_des = $dbo->describe_db_table( $table, $schema );
+  
+  if( $des->is_virtual() )
+    {
+    de_log( "status: table [$table] is VIRTUAL: will be skipped!" );
+    return;
+    }
 
   #print Dumper( 'TABLE DB DES:', $table, $schema, $table_db_des );
 

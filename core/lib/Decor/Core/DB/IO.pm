@@ -443,7 +443,7 @@ sub insert
 
   my $table_des = describe_table( $table );
   
-  return 0 if $table_des->is_virtual();
+  return 1 if $table_des->is_virtual();
 
   if( ! exists $data->{ "_ID" } )
     {
@@ -515,7 +515,7 @@ sub update
   my $table_des = describe_table( $table );
   my $db_table  = $table_des->get_db_table_name();
 
-  return 0 if $table_des->is_virtual();
+  return 1 if $table_des->is_virtual();
 
   if( $where ne '' )
     {
@@ -620,7 +620,7 @@ sub delete
   my $table_des = describe_table( $table );
   my $db_table  = $table_des->get_db_table_name();
 
-  return 0 if $table_des->is_virtual();
+  return 1 if $table_des->is_virtual();
 
   if( $where ne '' )
     {
@@ -702,7 +702,7 @@ sub get_next_table_id
   my $db_seq    = $table_des->get_db_sequence_name();
   my $dsn       = $table_des->get_dsn_name();
 
-#  return undef if $table_des->is_virtual();
+  return 1 if $table_des->is_virtual();
   
   my $new_id = $self->get_next_sequence( $db_seq, $dsn );
   de_log_debug( "debug: get_next_table_id: for table [$table] new val [$new_id]" );

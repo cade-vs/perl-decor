@@ -29,3 +29,9 @@
   grant all
   label Testing virtual table
   type  insert  testv
+
+=TEST_HIRES_UTIME
+
+  grant all
+  label Test5
+  type  grid  TEST5

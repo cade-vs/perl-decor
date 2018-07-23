@@ -1,0 +1,27 @@
+
+@isa test4 **
+
+grant all
+
+
+=TWOONE
+
+  type  char  16
+  
+=I2
+
+  type  int
+  
+=C2
+
+  type  char  16
+
+=UT1
+
+  type  utime  .4
+  
+=UT2
+
+  type utime   
+  
+

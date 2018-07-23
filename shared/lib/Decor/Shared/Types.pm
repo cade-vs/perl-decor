@@ -25,6 +25,7 @@ our @EXPORT = qw(
 use Data::Dumper;
 use Exception::Sink;
 use Data::Tools 1.09;
+use Data::Tools::Math;
 use Data::Lock qw( dlock dunlock );
 
 use Date::Format;
@@ -128,7 +129,7 @@ my %FORMAT_SPECS = (
 
 my %FORMAT_DEFAULTS = (
                         'DATE'  => 'YMD',
-                        'TIME'  => '24',
+                        'TIME'  => '24H',
                         'UTIME' => 'YMD24Z',
                         'TZ'    => undef, # local machine TZ if empty
                       );
@@ -196,13 +197,23 @@ sub type_format
    {
    if ( $data >= 0 )
      {
-     my $h = int( ( $data / ( 60 * 60 ) ) );
-     my $m = int( ( $data % ( 60 * 60 ) ) / 60 );
-     my $s =        $data %   60;
+     my $time_int = int( $data );
+
+     my $h = int( ( $time_int / ( 60 * 60 ) ) );
+     my $m = int( ( $time_int % ( 60 * 60 ) ) / 60 );
+     my $s =        $time_int %   60;
 
      my @t = ( $s, $m, $h );
 
      my $fmt = $FORMAT_SPECS{ 'TIME' }{ $FORMATS{ 'TIME' } }{ 'FMT' };
+
+     my $dot = $type->{ 'DOT' };
+     if( $dot > 0 )
+       {
+       my $time_frac = str_pad( num_round( ( $data - $time_int ) * ( 10 ** $dot ), 0 ), -$dot, '0' );
+       $fmt =~ s/%S/%S.$time_frac/;
+       }
+
      return strftime( $fmt, @t );
      }
    else
@@ -214,11 +225,24 @@ sub type_format
    {
    if ( $data >= 0 )
      {
-     my @t = localtime( $data );
+     my $time_int = int( $data );
+     
+     my @t = localtime( $time_int );
 
      my $tz = $type->{ 'TZ' } || $FORMATS{ 'TZ' };
 
      my $fmt = $FORMAT_SPECS{ 'UTIME' }{ $FORMATS{ 'UTIME' } }{ 'FMT' };
+     
+     my $dot = $type->{ 'DOT' };
+     if( $dot > 0 )
+       {
+       my $time_frac = str_pad( num_round( ( $data - $time_int ) * ( 10 ** $dot ), 0 ), -$dot, '0' );
+       $fmt =~ s/%S/%S.$time_frac/;
+
+print STDERR ">>>>>>>>>>>>>>>>>>>>>>>>>>. [$fmt]\n";
+
+       }
+     
      return strftime( $fmt, @t, $tz );
      }
    else
@@ -292,11 +316,12 @@ sub type_revert
     }
   elsif ( $type_name eq "TIME" )
     {
-    $data =~ /^(\d+):(\d\d?)(:(\d\d?))?(\s*(AM|PM))?$/io || return undef;
+    $data =~ /^(\d+):(\d\d?)(:(\d\d?)(\.(\d+))?)?(\s*(AM|PM))?$/io || return undef;
     my $h = $1;
     my $m = $2;
     my $s = $4;
-    my $ampm = uc $6;
+    my $f = $6;
+    my $ampm = uc $8;
 
     if( $ampm )
       {
@@ -305,16 +330,19 @@ sub type_revert
       $h += 12 if $ampm eq 'PM' and $h != 12;
       }
 
-    return $h*60*60 + $m*60 + $s;
+    return ( $h*60*60 + $m*60 + $s ) . ".$f";
     }
   elsif ( $type_name eq "UTIME" )
     {
     my $fmt_name = $FORMATS{ 'DATE' };
     $data = __canonize_date_str( $data, $fmt_name );
 
-    return str2time( $data );
+    my $time_frac = $2 if $data =~ s/(\d\d?:\d\d?:\d\d?)(\.\d*)([^\.]*)$/$1/;
+    $time_frac = undef if $time_frac eq '.';
+
+    return str2time( $data ) . $time_frac;
     }
-    elsif ( $type_name eq "REAL" )
+  elsif ( $type_name eq "REAL" )
     {
     return undef if $data eq '';
     $data =~ s/[\s_\'\`]//go; # '

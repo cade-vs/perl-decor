@@ -684,6 +684,18 @@ sub __postprocess_table_des_hash
         boom "invalid FIELD type SPEC [$spec] for type [$type] in table [$table] field [$field] from [@debug_origin]";
         }
       }
+    elsif( $type eq 'UTIME' or $type eq 'TIME' )
+      {
+      my $spec = shift( @type );
+      my $dot = 0;
+      if( $spec ne '' and $spec =~ /^\.(\d+)$/ )
+        {
+        $dot = $1;
+        boom "invalid FIELD type SPEC [$spec] for type [$type] in table [$table] field [$field] from [@debug_origin] spec required range 0..9" unless $dot >= 0 and $dot <= 9;
+        }
+      $type_des->{ 'DOT' } = $dot;
+      }
+
     $fld_des->{ 'TYPE' } = $type_des;
 
     # convert grant/deny list to access tree

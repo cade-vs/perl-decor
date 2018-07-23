@@ -13,16 +13,53 @@ use lib ( $ENV{ 'DECOR_ROOT' } || '/usr/local/decor' ) . '/core/lib';
 use lib ( $ENV{ 'DECOR_ROOT' } || '/usr/local/decor' ) . '/shared/lib';
 
 use Time::HR;
+use Time::HiRes;
 use Date::Parse;
 use Data::Dumper;
 use Time::JulianDay;
+use Data::Tools;
+use Data::Tools::Math;
 
 use Decor::Shared::Types;
 
 type_set_format( { NAME => 'UTIME' }, 'MDY24Z' );
 type_set_format( { NAME => 'DATE'  }, 'MDY' );
 
-my $now = time();
+
+
+my $now = Time::HiRes::time();
+print "$now (now)\n";
+my $now_s = type_format( $now, { NAME => 'UTIME', DOT => 6 } );
+print "$now_s (local)\n";
+
+my $rev = type_revert( $now_s, { NAME => 'UTIME', DOT => 6 } );
+print "$rev (rev)\n\n";
+
+
+my $now_s = type_format( 123.0456, { NAME => 'TIME', DOT => 4 } );
+print "$now_s\n";
+
+my $rev = type_revert( $now_s, { NAME => 'TIME', DOT => 6 } );
+print "$rev (rev)\n\n";
+
+
+$now_s = "2018.07.23 02:34:43";
+my $rev = type_revert( $now_s, { NAME => 'UTIME', DOT => 6 } );
+print "$rev (rev) $now_s\n\n";
+
+
+ 
+my $now_s = type_format( 1532302710.1234, { NAME => 'UTIME', DOT => 0 } );
+print "$now_s\n";
+
+exit;
+
+
+
+
+
+
+
 
 my $s = gethrtime();
 
