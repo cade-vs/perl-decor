@@ -119,6 +119,67 @@ sub main
           {
           $data_ctrl .= de_html_alink( $reo, 'new', 'file_new.svg', "[~Upload new file]",                 ACTION => 'file_up', ID => -1,         TABLE => $linked_table, LINK_TO_TABLE => $table, LINK_TO_FIELD => $base_field, LINK_TO_ID => $id );
           }
+
+        my $session_keeper_data = $reo->args_new( ACTION => 'file_up', ID => $data_base, TABLE => $linked_table, LINK_TO_TABLE => $table, LINK_TO_FIELD => $base_field, LINK_TO_ID => $id );
+        my $session_keeper = "<input type=hidden name=_ value=$session_keeper_data>";
+          
+        $data_fmt   .= qq[
+        
+        <hr>
+        <span id=tttitle></span>
+
+        <img class=icon id=ttupload src=i/file_up.svg onclick='document.querySelector( "#inpp" ).click()'>
+        <img class=icon id=ttcancel src=i/check-0.svg style='display: none'>
+        
+        <form action="?" method=POST name=file_upload_form ENCTYPE="multipart/form-data">
+          $session_keeper
+          <input class=inp id=inpp type=file name=FILE_UPLOAD style='display: none' onchange='upload_file(this)'>
+        </form>
+        
+        <script>
+        
+        function upload_file( file_input )
+        {
+          var form = file_input.form;
+          var fname = file_input.files[0].name;
+
+          var data = new FormData( form );
+          var tt = document.querySelector( "#tttitle" );
+
+          var xhr    = new XMLHttpRequest();
+
+          var iupload = document.querySelector( "#ttupload" );
+          var icancel = document.querySelector( "#ttcancel" );
+          icancel.style.display = 'inline';
+          iupload.style.display = 'none';
+          icancel.onclick = function() { xhr.abort(); };
+          
+          xhr.upload.onload     = function() { tt.innerHTML = "<~Upload OK>: [" + fname + "]"; };
+          xhr.upload.onerror    = function() { tt.innerHTML = "<~Upload ERROR>"; };
+          xhr.upload.onabort    = function() { tt.innerHTML = "<~Upload ABORT>"; };
+          xhr.upload.onprogress = function( event ) {  tt.innerHTML = "Uploading: " + Math.round( event.loaded / event.total * 100 ) + "%" };
+          xhr.upload.onloadend  = function() { icancel.style.display = 'none'; iupload.style.display = 'inline'; };
+          
+          xhr.open( "POST", form.action );
+          xhr.send( data );
+
+        }
+        
+        </script>
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        ];  
         }
       else
         {

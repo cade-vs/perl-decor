@@ -51,9 +51,9 @@ sub main
 
     $file_upload =~ s/^.*?\/([^\/]+)$/$1/;
 
-print STDERR Dumper( "******************FILE UP: pre save\n" );
+#print STDERR Dumper( "******************FILE UP: pre save\n" );
     my $new_id = $core->file_save_fh( $file_fh, $table, $file_upload, $id, { DES => $file_des, MIME => $mime } );
-print STDERR Dumper( "******************FILE UP: post save, new id $new_id\n" );
+#print STDERR Dumper( "******************FILE UP: post save, new id $new_id\n" );
 
     if( $new_id > 0 )
       {
