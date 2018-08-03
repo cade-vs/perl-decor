@@ -621,11 +621,15 @@ sub __postprocess_table_des_hash
       {
       $fld_des->{ 'LINKED_TABLE' } = shift @type || boom "missing LINK TABLE in table [$table] field [$field] from [@debug_origin]";
       $fld_des->{ 'LINKED_FIELD' } = shift @type || boom "missing LINK FIELD in table [$table] field [$field] from [@debug_origin]";;
+      
+      $fld_des->{ 'LINKED_TABLE' } = $table if uc $fld_des->{ 'LINKED_TABLE' } eq '%TABLE';
       }
     elsif( $type eq 'BACKLINK' )
       {
       $fld_des->{ 'BACKLINKED_TABLE' } = shift @type || boom "missing BACKLINK TABLE in table [$table] field [$field] from [@debug_origin]";;
       $fld_des->{ 'BACKLINKED_KEY'   } = shift @type || boom "missing BACKLINK KEY   in table [$table] field [$field] from [@debug_origin]";;
+      
+      $fld_des->{ 'BACKLINKED_TABLE' } = $table if uc $fld_des->{ 'BACKLINKED_TABLE' } eq '%TABLE';
       }
     elsif( $type eq 'BOOL' )
       {
