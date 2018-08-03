@@ -28,8 +28,10 @@ sub main
 
   my $core = $reo->de_connect();
   my $tdes = $core->describe( $table );
+  my $sdes = $tdes->get_table_des(); # table "Self" description
 
   my $table_label = $tdes->get_label();
+  my $table_type  = $sdes->{ 'TYPE' };
 
   $reo->ps_path_add( 'view', qq( [~View record data from] "<b>$table_label</b>" ) );
 
@@ -120,14 +122,14 @@ sub main
           $data_ctrl .= de_html_alink( $reo, 'new', 'file_new.svg', "[~Upload new file]",                 ACTION => 'file_up', ID => -1,         TABLE => $linked_table, LINK_TO_TABLE => $table, LINK_TO_FIELD => $base_field, LINK_TO_ID => $id );
           }
 
-        my $session_keeper_data = $reo->args_new( ACTION => 'file_up', ID => $data_base, TABLE => $linked_table, LINK_TO_TABLE => $table, LINK_TO_FIELD => $base_field, LINK_TO_ID => $id );
+        my $session_keeper_data = $reo->args_new( ACTION => 'file_up', EMBEDDED => 1, ID => $data_base, TABLE => $linked_table, LINK_TO_TABLE => $table, LINK_TO_FIELD => $base_field, LINK_TO_ID => $id );
         my $session_keeper = "<input type=hidden name=_ value=$session_keeper_data>";
-          
+
+
+        $data_fmt = "<span id=tttitle>$data_fmt</span>";  
         $data_fmt   .= qq[
         
         <hr>
-        <span id=tttitle></span>
-
         <img class=icon id=ttupload src=i/file_up.svg onclick='document.querySelector( "#inpp" ).click()'>
         <img class=icon id=ttcancel src=i/check-0.svg style='display: none'>
         
@@ -154,10 +156,13 @@ sub main
           iupload.style.display = 'none';
           icancel.onclick = function() { xhr.abort(); };
           
-          xhr.upload.onload     = function() { tt.innerHTML = "<~Upload OK>: [" + fname + "]"; };
+          xhr.upload.onload     = function( event ) 
+          { 
+          tt.innerHTML = "<~Upload OK>: " + this.responseText + ""; 
+          };
           xhr.upload.onerror    = function() { tt.innerHTML = "<~Upload ERROR>"; };
           xhr.upload.onabort    = function() { tt.innerHTML = "<~Upload ABORT>"; };
-          xhr.upload.onprogress = function( event ) {  tt.innerHTML = "Uploading: " + Math.round( event.loaded / event.total * 100 ) + "%" };
+          xhr.upload.onprogress = function( event ) {  tt.innerHTML = "Uploading: fname (" + Math.round( event.loaded / event.total * 100 ) + "%)" };
           xhr.upload.onloadend  = function() { icancel.style.display = 'none'; iupload.style.display = 'inline'; };
           
           xhr.open( "POST", form.action );
@@ -231,6 +236,15 @@ sub main
     {
     # FIXME: row access!
     $text .= de_html_alink_button( $reo, 'new',  "[~Edit] &uArr;", "[~Edit this record]", BTYPE => 'mod', ACTION => 'edit', ID => $id, TABLE => $table );
+    }
+
+  if( $table_type eq 'FILE' )
+    {
+    my $download_cue = $sdes->get_attr( qw( WEB GRID DOWNLOAD_CUE ) ) || "[~Download this file]";
+    $text .= de_html_alink_button( $reo, 'new', "(&darr;) $download_cue", '[~Download this file]',   BTYPE => 'act', ACTION => 'file_dn',     TABLE => $table, ID => $id,                  );
+  
+    my $upload_cue = $sdes->get_attr( qw( WEB GRID UPLOAD_CUE ) ) || "[~Replace current file content]";
+    $text .= de_html_alink_button( $reo, 'new', "(&uarr;) $upload_cue", '[~Replace current file content]',   BTYPE => 'act', ACTION => 'file_up',     TABLE => $table, ID => $id,                  ) if $tdes->allows( 'INSERT' ) and $table_type eq 'FILE';
     }
   
   for my $do ( @{ $tdes->get_category_list_by_oper( 'READ', 'DO' ) }  )

@@ -52,6 +52,7 @@ sub main
   my $sdes = $tdes->get_table_des(); # table "Self" description
 
   my $table_label = $tdes->get_label();
+  my $table_type  = $sdes->{ 'TYPE' };
 
   $reo->ps_path_add( 'grid', qq( List data from "<b>$table_label</b>" ) );
 
@@ -149,9 +150,11 @@ sub main
     }
 
   my $insert_cue = $sdes->get_attr( qw( WEB GRID INSERT_CUE ) ) || "[~Insert new record]";
+  my $upload_cue = $sdes->get_attr( qw( WEB GRID UPLOAD_CUE ) ) || "[~Upload new file]";
   
   $text_grid_navi_left .= de_html_alink_button( $reo, 'back', "&lArr; [~back]", "[~Go back to the previous screen]", BTYPE => 'nav'   ) if $rs;
   $text_grid_navi_left .= de_html_alink_button( $reo, 'new', "(+) $insert_cue", '[~Insert new record]', BTYPE => 'act', ACTION => 'edit',        TABLE => $table, ID => -1, %insert_new_opts ) if $tdes->allows( 'INSERT' );
+  $text_grid_navi_left .= de_html_alink_button( $reo, 'new', "(&uarr;) $upload_cue", '[~Upload new file]',   BTYPE => 'act', ACTION => 'file_up',     TABLE => $table, ID => -1,                  ) if $tdes->allows( 'INSERT' ) and $table_type eq 'FILE';
   
   my $filter_link_label = $active_filter ? "[~Modify current filter]" : "[~Filter records]";
   $text_grid_navi_left .= de_html_alink_button( $reo, 'new', "(&asymp;) $filter_link_label",    '[~Filter records]',    ACTION => 'grid_filter', TABLE => $table           );
@@ -248,10 +251,11 @@ sub main
       $vec_ctrl .= de_html_alink_icon( $reo, 'new', $icon, $label, ACTION => $target, ID => $id, TABLE => $table );
       }
 
-    $vec_ctrl .= de_html_alink_icon( $reo, 'new', "view.svg", '[~View this record]', ACTION => 'view', ID => $id, TABLE => $table );
-    $vec_ctrl .= de_html_alink_icon( $reo, 'new', "edit.svg", '[~Edit this record]', ACTION => 'edit', ID => $id, TABLE => $table ) if $tdes->allows( 'UPDATE' );
-    $vec_ctrl .= de_html_alink_icon( $reo, 'new', "copy.svg", '[~Copy this record]', ACTION => 'edit', ID =>  -1, TABLE => $table, COPY_ID => $id ) if $tdes->allows( 'INSERT' ) and ! $tdes->{ '@' }{ 'NO_COPY' };
-
+    $vec_ctrl .= de_html_alink_icon( $reo, 'new', "view.svg",    '[~View this record]',      ACTION => 'view',    ID => $id, TABLE => $table );
+    $vec_ctrl .= de_html_alink_icon( $reo, 'new', "edit.svg",    '[~Edit this record]',      ACTION => 'edit',    ID => $id, TABLE => $table ) if $tdes->allows( 'UPDATE' );
+    $vec_ctrl .= de_html_alink_icon( $reo, 'new', "copy.svg",    '[~Copy this record]',      ACTION => 'edit',    ID =>  -1, TABLE => $table, COPY_ID => $id ) if $tdes->allows( 'INSERT' ) and ! $tdes->{ '@' }{ 'NO_COPY' };
+    $vec_ctrl .= de_html_alink_icon( $reo, 'new', 'file_dn.svg', '[~Download current file]', ACTION => 'file_dn', ID => $id, TABLE => $table ) if $table_type eq 'FILE';
+    
     if( @dos )
       {
       my $cb_id = ++ $ps->{ ':VECB_NAME_MAP' }{ '*' };

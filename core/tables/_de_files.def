@@ -23,3 +23,4 @@ grant read to all
 
   type    char  128
   grant   update to all
+

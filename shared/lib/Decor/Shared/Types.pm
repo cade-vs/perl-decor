@@ -239,7 +239,7 @@ sub type_format
        my $time_frac = str_pad( num_round( ( $data - $time_int ) * ( 10 ** $dot ), 0 ), -$dot, '0' );
        $fmt =~ s/%S/%S.$time_frac/;
 
-print STDERR ">>>>>>>>>>>>>>>>>>>>>>>>>>. [$fmt]\n";
+#print STDERR ">>>>>>>>>>>>>>>>>>>>>>>>>>. [$fmt]\n";
 
        }
      
