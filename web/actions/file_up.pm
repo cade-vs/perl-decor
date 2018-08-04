@@ -43,8 +43,6 @@ sub main
 
   my $text;
 
-        print STDERR "+++++++++++++++++++++++++++ UPLOAD\n";
-
   if( $file_upload )
     {
 #print STDERR Dumper( '******************FILE UP', ref( $file_fh ), $file_upload );
@@ -69,27 +67,10 @@ sub main
       
       $ret_opt{ "F:$rt_field" } = $new_id if $rt_field;
 
-      if( $reo->param( 'EMBEDDED' ) )
-        {
-        print STDERR de_html_alink( $reo, 'new', "$file_upload", "[~Download current file]", ACTION => 'file_dn', ID => $new_id, TABLE => $table );
-        print STDERR "+++++++++++++++++++++++++++ RET EMBED\n";
-        return de_html_alink( $reo, 'new', "$file_upload", "[~Download current file]", ACTION => 'file_dn', ID => $new_id, TABLE => $table );
-        }
-
       return $reo->forward_back( %ret_opt );
-      
-#      $text .= "<p>";
-#      $text .= "<#upload_ok>";
-#      $text .= "<p>";
-#      $text .= "<a class=button reactor_back_href=?>&lArr; [~Continue]</a>";
       }
     else
       {
-      if( $reo->param( 'EMBEDDED' ) )
-        {
-        print STDERR "+++++++++++++++++++++++++++ RET EMBED ERROR\n";
-        return "<~Error>";
-        }
       $text .= "<p>";
       $text .= "<#e_upload>";
       $text .= "<p>";
