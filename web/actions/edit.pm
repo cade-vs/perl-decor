@@ -362,6 +362,8 @@ sub main
         $field_input = "<div class='$link_data_class'>$link_data_fmt</div>";
         }
 
+      next if $link_field_disable and $link_field_disable eq $field;
+      
       if( $ltdes->get_table_type() eq 'FILE' )
         {
         if( $field_data > 0 )
@@ -374,7 +376,7 @@ sub main
           $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "FILE_UPLOAD_NEW_$field_id", "file_new.svg", "[~Upload new file]", ACTION => 'file_up', TABLE => $linked_table, ID => -1, RETURN_DATA_TO => $field ) if $ltdes->allows( 'INSERT' );
           }
         }
-      elsif( ! $link_field_disable or $field ne $link_field_disable )
+      else
         {
         if( $field_data > 0 )
           {

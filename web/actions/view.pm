@@ -144,7 +144,14 @@ sub main
       $data_ctrl .= de_html_alink( $reo, 'new', 'grid.svg',   "[~View all backlinked records from] <b>$linked_table_label</b>",  ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, FILTER => { $backlinked_field => $id } );
       if( $bltdes->allows( 'INSERT' ) )
         {
-        $data_ctrl .= de_html_alink( $reo, 'new', 'insert.svg', "[~Insert and link a new record into] <b>$linked_table_label</b>", ACTION => 'edit', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, LINK_FIELD_DISABLE => $backlinked_field );
+        if( $bltdes->get_table_type() eq 'FILE' )
+          {
+          $data_ctrl .= de_html_alink( $reo, 'new', 'file_new.svg', "[~Upload and link new files]", ACTION => 'file_up', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, LINK_FIELD_DISABLE => $backlinked_field, MULTI => 1 );
+          }
+        else
+          {
+          $data_ctrl .= de_html_alink( $reo, 'new', 'insert.svg', "[~Insert and link a new record into] <b>$linked_table_label</b>", ACTION => 'edit', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, LINK_FIELD_DISABLE => $backlinked_field );
+          }
         }
 
       my $count = $core->count( $backlinked_table, { FILTER => { $backlinked_field => $id } });

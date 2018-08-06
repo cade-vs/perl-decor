@@ -346,11 +346,24 @@ sub main
         }
       elsif( $bfdes->is_backlinked() )
         {
-        my $view_cue   = $bfdes->get_attr( qw( WEB GRID VIEW_CUE   ) ) || "[~View linked records]";
-        my $insert_cue = $bfdes->get_attr( qw( WEB GRID INSERT_CUE ) ) || "[~Insert and link a new record]";
         my ( $backlinked_table, $backlinked_field ) = $bfdes->backlink_details();
-        $data_ctrl .= de_html_alink_button( $reo, 'new', "(+) $insert_cue", undef, BTYPE => 'act', ACTION => 'edit', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, LINK_FIELD_DISABLE => $backlinked_field );
-        $data_ctrl .= "<br>\n";
+        my $bltdes = $core->describe( $backlinked_table );
+    
+        if( $bltdes->allows( 'INSERT' ) )
+          {
+          my $insert_cue = $bfdes->get_attr( qw( WEB GRID INSERT_CUE ) ) || "[~Insert and link a new record]";
+          $data_ctrl .= de_html_alink_button( $reo, 'new', "(+) $insert_cue", undef, BTYPE => 'act', ACTION => 'edit', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, LINK_FIELD_DISABLE => $backlinked_field );
+          $data_ctrl .= "<br>\n";
+
+          if( $bltdes->get_table_type() eq 'FILE' )
+            {
+            my $upload_cue = $sdes->get_attr( qw( WEB GRID UPLOAD_CUE ) ) || "[~Upload and link new files]";
+            $data_ctrl .= de_html_alink_button( $reo, 'new', "(&uarr;) $upload_cue", undef, BTYPE => 'act', ACTION => 'file_up', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, LINK_FIELD_DISABLE => $backlinked_field, MULTI => 1 );
+            $data_ctrl .= "<br>\n";
+            }
+          }  
+
+        my $view_cue   = $bfdes->get_attr( qw( WEB GRID VIEW_CUE   ) ) || "[~View linked records]";
         $data_ctrl .= de_html_alink_button( $reo, 'new', "(=) $view_cue",          undef,                 ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, FILTER => { $backlinked_field => $id } );
         $data_ctrl .= "<br>\n";
         

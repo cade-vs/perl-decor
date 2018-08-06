@@ -28,6 +28,7 @@ sub main
   my $multi  = $reo->param( 'MULTI' );
   
   my $ui = $reo->get_user_input();
+  my $si = $reo->get_safe_input();
 
   my $file_des    = $ui->{ 'FILE_DES' };
 
@@ -65,6 +66,14 @@ print STDERR Dumper( $ui );
       my $mime = $upload_fi->{ 'Content-Type' };
       my $new_id = $core->file_save_fh( $upload_fh, $table, $upload_fn, $id, { DES => $file_des, MIME => $mime } );
       
+      my @fields = grep s/^F://, keys %$si;
+      if( @fields > 0 )
+        {
+        my %data = map { $_ => $si->{ "F:$_" } } @fields;
+        $core->update( $table, \%data, { FILTER => { _ID => $new_id } } );
+        # FIXME: check for errors?
+        }
+      
       if( ! $multi )
         {
         if( $new_id > 0 )
@@ -72,6 +81,7 @@ print STDERR Dumper( $ui );
           if( $lt_table and $lt_field and $lt_id > 0 )
             {
             $core->update( $lt_table, { $lt_field => $new_id }, { FILTER => { _ID => $lt_id } } );
+            # FIXME: check for errors?
             }
           $ret_opt{ "F:$rt_field" } = $new_id if $rt_field;
           }

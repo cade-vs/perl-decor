@@ -22,6 +22,10 @@ grant all
   
 =UT2
 
-  type utime   
+  type utime
+  
+=MYFILES
+
+  type  backlink  myfiles   test5
   
 

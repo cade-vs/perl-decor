@@ -1,0 +1,17 @@
+                                                                                                                                
+    type file                                                                                                                   
+
+    @isa _DE_FILES *                                                                                                            
+                                                                                                                                
+    deny all to all                                                                                                             
+    grant read to all                                                                                                           
+    grant insert to all                                                                                                         
+    
+    label My Files
+                                                                                                                                
+                                                                                                                                
+=TEST5
+
+  type    link  test5   twoone
+  
+  
