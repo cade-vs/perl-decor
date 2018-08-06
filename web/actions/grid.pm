@@ -153,8 +153,8 @@ sub main
   my $upload_cue = $sdes->get_attr( qw( WEB GRID UPLOAD_CUE ) ) || "[~Upload new file]";
   
   $text_grid_navi_left .= de_html_alink_button( $reo, 'back', "&lArr; [~back]", "[~Go back to the previous screen]", BTYPE => 'nav'   ) if $rs;
-  $text_grid_navi_left .= de_html_alink_button( $reo, 'new', "(+) $insert_cue", '[~Insert new record]', BTYPE => 'act', ACTION => 'edit',        TABLE => $table, ID => -1, %insert_new_opts ) if $tdes->allows( 'INSERT' );
-  $text_grid_navi_left .= de_html_alink_button( $reo, 'new', "(&uarr;) $upload_cue", '[~Upload new file]',   BTYPE => 'act', ACTION => 'file_up',     TABLE => $table, ID => -1,                  ) if $tdes->allows( 'INSERT' ) and $table_type eq 'FILE';
+  $text_grid_navi_left .= de_html_alink_button( $reo, 'new', "(+) $insert_cue",      '[~Insert new record]', BTYPE => 'act', ACTION => 'edit',        TABLE => $table, ID => -1, %insert_new_opts ) if $tdes->allows( 'INSERT' );
+  $text_grid_navi_left .= de_html_alink_button( $reo, 'new', "(&uarr;) $upload_cue", '[~Upload new file]',   BTYPE => 'act', ACTION => 'file_up',     TABLE => $table, ID => -1, MULTI => 1       ) if $tdes->allows( 'INSERT' ) and $table_type eq 'FILE';
   
   my $filter_link_label = $active_filter ? "[~Modify current filter]" : "[~Filter records]";
   $text_grid_navi_left .= de_html_alink_button( $reo, 'new', "(&asymp;) $filter_link_label",    '[~Filter records]',    ACTION => 'grid_filter', TABLE => $table           );

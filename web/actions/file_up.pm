@@ -25,11 +25,10 @@ sub main
 
   my $table  = $reo->param( 'TABLE' );
   my $id     = $reo->param( 'ID'    );
+  my $multi  = $reo->param( 'MULTI' );
   
   my $ui = $reo->get_user_input();
 
-  my $file_fh     = $ui->{ 'FILE_UPLOAD:FH' };
-  my $file_upload = $ui->{ 'FILE_UPLOAD' };
   my $file_des    = $ui->{ 'FILE_DES' };
 
   my $lt_table = $reo->param( 'LINK_TO_TABLE' );
@@ -41,42 +40,53 @@ sub main
   my $core = $reo->de_connect();
   my $tdes = $core->describe( $table );
 
+
+  $multi = undef if $id > 0;
+  $reo->html_content( 'multiple' => 'multiple' ) if $multi;
+
   my $text;
 
-  if( $file_upload )
+  my $file_upload_count = $ui->{ 'FILE_UPLOAD:FC' };
+
+print STDERR Dumper( $ui );
+
+  if( $file_upload_count > 0 )
     {
-#print STDERR Dumper( '******************FILE UP', ref( $file_fh ), $file_upload );
+    my %ret_opt;
 
-    my $mime = $ui->{ 'FILE_UPLOAD:UPLOAD_INFO' }{ 'Content-Type' };
-
-    $file_upload =~ s/^.*?\/([^\/]+)$/$1/;
-
-#print STDERR Dumper( "******************FILE UP: pre save\n" );
-    my $new_id = $core->file_save_fh( $file_fh, $table, $file_upload, $id, { DES => $file_des, MIME => $mime } );
-#print STDERR Dumper( "******************FILE UP: post save, new id $new_id\n" );
-
-    if( $new_id > 0 )
+    for my $fc ( 0 .. $file_upload_count - 1 )
       {
-      if( $lt_table and $lt_field and $lt_id > 0 )
-        {
-        $core->update( $lt_table, { $lt_field => $new_id }, { FILTER => { _ID => $lt_id } } );
-        # FIXME: check and report error
-        }
+      my $upload_fh = $ui->{ "FILE_UPLOAD:FH:$fc" };
+      my $upload_fn = $ui->{ "FILE_UPLOAD:FN:$fc" };
+      my $upload_fi = $ui->{ "FILE_UPLOAD:FI:$fc" };
 
-      my %ret_opt;
       
-      $ret_opt{ "F:$rt_field" } = $new_id if $rt_field;
-
-      return $reo->forward_back( %ret_opt );
+      $upload_fn =~ s/^.*?\/([^\/]+)$/$1/;
+      my $mime = $upload_fi->{ 'Content-Type' };
+      my $new_id = $core->file_save_fh( $upload_fh, $table, $upload_fn, $id, { DES => $file_des, MIME => $mime } );
+      
+      if( ! $multi )
+        {
+        if( $new_id > 0 )
+          {
+          if( $lt_table and $lt_field and $lt_id > 0 )
+            {
+            $core->update( $lt_table, { $lt_field => $new_id }, { FILTER => { _ID => $lt_id } } );
+            }
+          $ret_opt{ "F:$rt_field" } = $new_id if $rt_field;
+          }
+        else
+          {
+          $text .= "<p>";
+          $text .= "<#e_upload>";
+          $text .= "<p>";
+          $text .= "<#file_upload_form>";
+          }  
+        last;
+        }
       }
-    else
-      {
-      $text .= "<p>";
-      $text .= "<#e_upload>";
-      $text .= "<p>";
-      $text .= "<#file_upload_form>";
-      }  
-
+      
+    return $reo->forward_back( %ret_opt );
     }
   else
     {

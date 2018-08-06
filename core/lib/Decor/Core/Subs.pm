@@ -1117,6 +1117,7 @@ sub sub_file_save
   my $name   =    $mi->{ 'NAME'   };
   my $mime   =    $mi->{ 'MIME'   };
   my $size   =    $mi->{ 'SIZE'   };
+  my $fdes   =    $mi->{ 'DES'    };
 
   boom "invalid TABLE name [$table]"    unless de_check_name( $table ) or ! des_exists( $table );
   boom "invalid ID [$id]"               if $id ne '' and ! de_check_id( $id );
@@ -1150,7 +1151,7 @@ sub sub_file_save
     }
 
   $rec->taint_mode_disable_all();
-  $rec->write( NAME => $name, MIME => $mime, SIZE => $size );
+  $rec->write( NAME => $name, MIME => $mime, SIZE => $size, DES => $fdes );
   
   my ( $fname, $fname_short ) = $rec->get_file_name();
   my $fname_part = $fname . '.part';
