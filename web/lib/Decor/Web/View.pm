@@ -106,7 +106,7 @@ sub de_web_format_field
   elsif( $type_name eq 'INT' or $type_name eq 'REAL' )
     {
     #$fmt_class .= $data > 0 ? " hi" : ""; # FIXME: move to field options
-    $data_fmt = type_format( $data, $fdes->{ 'TYPE' } );
+    $data_fmt = type_format_human( $data, $fdes->{ 'TYPE' } );
     }
   elsif( $type_name eq 'UTIME' )
     {

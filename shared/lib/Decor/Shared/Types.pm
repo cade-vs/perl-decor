@@ -1,7 +1,7 @@
 ##############################################################################
 ##
 ##  Decor application machinery core
-##  2014-2017 (c) Vladi Belperchinov-Shabanski "Cade"
+##  2014-2018 (c) Vladi Belperchinov-Shabanski "Cade"
 ##  <cade@bis.bg> <cade@biscom.net> <cade@cpan.org>
 ##
 ##  LICENSE: GPLv2
@@ -18,6 +18,7 @@ our @EXPORT = qw(
                   type_set_format
                   type_get_format
                   type_format
+                  type_format_human
                   type_revert
                   type_default
                 );
@@ -292,6 +293,23 @@ sub __canonize_date_str
     }
 
   return $date;
+}
+
+sub type_format_human
+{
+  my $data = shift;
+  my $type = shift; # hashref with type args
+  
+  my $fmt_data = type_format( $data, $type );
+
+  my $type_name = $type->{ 'NAME' };
+
+  if( $type_name eq "REAL" or $type_name eq "INT" )
+    {
+    $fmt_data = str_num_comma( $fmt_data );
+    }
+  
+  return $fmt_data;  
 }
 
 # converts from human/visible format to internal data

@@ -49,10 +49,11 @@ sub main
 
   my $file_upload_count = $ui->{ 'FILE_UPLOAD:FC' };
 
-print STDERR Dumper( $ui );
 
   if( $file_upload_count > 0 )
     {
+    my $errors;
+    
     my %ret_opt;
 
     for my $fc ( 0 .. $file_upload_count - 1 )
@@ -70,8 +71,11 @@ print STDERR Dumper( $ui );
       if( @fields > 0 )
         {
         my %data = map { $_ => $si->{ "F:$_" } } @fields;
-        $core->update( $table, \%data, { FILTER => { _ID => $new_id } } );
-        # FIXME: check for errors?
+        my $res = $core->update( $table, \%data, { FILTER => { _ID => $new_id } } );
+        if( ! $res )
+          {
+          $errors .= "<p>$upload_fn: error updating file information!";
+          }
         }
       
       if( ! $multi )
@@ -80,8 +84,11 @@ print STDERR Dumper( $ui );
           {
           if( $lt_table and $lt_field and $lt_id > 0 )
             {
-            $core->update( $lt_table, { $lt_field => $new_id }, { FILTER => { _ID => $lt_id } } );
-            # FIXME: check for errors?
+            my $res = $core->update( $lt_table, { $lt_field => $new_id }, { FILTER => { _ID => $lt_id } } );
+            if( ! $res )
+              {
+              $errors .= "<p>$upload_fn: error updating file information!";
+              }
             }
           $ret_opt{ "F:$rt_field" } = $new_id if $rt_field;
           }
@@ -95,8 +102,15 @@ print STDERR Dumper( $ui );
         last;
         }
       }
-      
-    return $reo->forward_back( %ret_opt );
+    
+    if( $errors )  
+      {
+      return $errors . "<p>" . de_html_alink_button( $reo, 'back', "[~Continue] &crarr;", "[~Operation done, continue...]"       );
+      }
+    else
+      {  
+      return $reo->forward_back( %ret_opt );
+      }
     }
   else
     {

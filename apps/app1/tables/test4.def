@@ -1,0 +1,7 @@
+
+@isa test2 *
+
+=NEWONE
+
+  type  char  16
+  
