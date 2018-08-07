@@ -90,6 +90,7 @@ sub main
 
 ### testing
 #push @fields, 'USR.ACTIVE';
+#push @fields, 'REF.NAME';
 
   my %bfdes; # base/begin/origin field descriptions, indexed by field path
   my %lfdes; # linked/last       field descriptions, indexed by field path, pointing to trail field

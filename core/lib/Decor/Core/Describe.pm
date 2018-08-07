@@ -58,6 +58,7 @@ my %OPERS = (
                       'DELETE'  => 1,
                       'EXECUTE' => 1,
                       'ACCESS'  => 1,
+                      'CROSS'   => 1,
                  );
 my @OPERS = keys %OPERS;
 

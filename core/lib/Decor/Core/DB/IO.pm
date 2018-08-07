@@ -252,7 +252,10 @@ sub __select_resolve_field
 
     if( $profile and $self->taint_mode_get( 'FIELDS' ) )
       {
-      $profile->check_access_table_field_boom( 'READ', $table_now, $field_now );
+      boom "cannot get across field, READ/CROSS denied, current position is [$table_now:$field_now]" 
+          unless
+             $profile->check_access_table_field( 'READ',  $table_now, $field_now )
+          or $profile->check_access_table_field( 'CROSS', $table_now, $field_now );
       }
     my $fld_des = describe_table_field( $table_now, $field_now );
 

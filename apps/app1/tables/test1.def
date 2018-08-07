@@ -77,6 +77,9 @@ grant insert update to 1;10
 #  web.edit.mono
   web.select_filter   MORE_CNT
 
+#deny all
+#grant cross 
+
 =BACKREF
 
   type backlink test3 PARENT
