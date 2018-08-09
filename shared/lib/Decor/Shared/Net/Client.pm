@@ -108,6 +108,7 @@ sub connect
   my $opt         = shift;
 
   my $socket = IO::Socket::INET->new( PeerAddr => $server_addr, Timeout => 2.0 );
+  binmode( $socket );
   
   if( $socket )
     {
@@ -621,6 +622,7 @@ sub file_save
   my $fname  = shift;
   
   open my $fh, '<', $fname;
+  binmode( $fh );
   
   return $self->file_save_fh( $fh, @_ );
 }
@@ -636,6 +638,7 @@ sub file_save_fh
   
   my %mi = ref( $opt ) eq 'HASH' ? %$opt : ();
 
+  binmode( $fh );
   seek( $fh, 0, 2 );
   my $fsize = tell( $fh );
   seek( $fh, 0, 0 );
@@ -691,6 +694,7 @@ sub file_load
   $mi{ 'TABLE' } = $table;
   $mi{ 'ID'    } = $id;
   
+  binmode( $fh );
   $mi{ '___RECV_FILE_HAND' } = $fh;
 
   my $mo = $self->tx_msg( \%mi ) or return undef;

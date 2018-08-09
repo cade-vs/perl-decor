@@ -9,6 +9,8 @@
 ##############################################################################
 package Decor::Core::Subs;
 use strict;
+use open ':std', ':encoding(UTF-8)';
+
 use Data::Dumper;
 use Exception::Sink;
 use Data::Tools;
@@ -1170,6 +1172,7 @@ sub sub_file_save
 
   # FIXME: move to server IO like in Client IO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   open( my $fo, '>', $fname_part );
+  binmode( $fo );
   my $buf_size = 1024*1024;
   my $read;
   my $file_size = $size;

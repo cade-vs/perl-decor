@@ -9,6 +9,7 @@
 ##############################################################################
 package Decor::Core::Log;
 use strict;
+use open ':std', ':encoding(UTF-8)';
 
 use POSIX;
 use Fcntl qw( :flock );                                                                                                         

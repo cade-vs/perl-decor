@@ -9,6 +9,7 @@
 ##############################################################################
 package Decor::Core::Config;
 use strict;
+use open ':std', ':encoding(UTF-8)';
 
 use Exporter;
 our @ISA    = qw( Exporter );
@@ -111,7 +112,7 @@ sub de_config_merge_file
   my $order = 0;
   
   my $inf;
-  open( $inf, "< :encoding(UTF-8)", $fname ) or boom "cannot open config file [$fname]";
+  open( $inf, "<", $fname ) or boom "cannot open config file [$fname]";
 
   de_debug( "config: open: $fname" );  
 

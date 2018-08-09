@@ -31,13 +31,14 @@ my $SERVER_IDLE_EXIT_ALARM     =  5*60; # seconds
 my $SERVER_IDLE_EXIT_ALARM_MIN =  1*60; # seconds
 my $SERVER_IDLE_EXIT_ALARM_MAX = 15*60; # seconds
 
-#sub on_accept_ok
-#{
-#  my $self = shift;
-#  my $sock = shift;
-#  my $peerhost = $sock->peerhost();
-#  print "client connected from $peerhost\n";
-#}
+sub on_accept_ok
+{
+  my $self = shift;
+  my $sock = shift;
+  binmode( $sock );
+  my $peerhost = $sock->peerhost();
+  de_log_debug( "client connected from $peerhost" );
+}
 
 sub on_process_xt_message
 {
@@ -170,6 +171,7 @@ sub on_process
     if( $send_file_name and $send_file_size > 0 )
       {
       open( my $fi, '<', $send_file_name );
+      binmode( $fi );
 
       my $read_size = 0;
       my $buf_size = 1024*1024;

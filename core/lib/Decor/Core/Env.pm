@@ -83,6 +83,8 @@ sub de_init
     }
 
   $_INIT_OK = 1;
+  
+  data_tools_set_file_io_encoding( 'UTF-8' );
 
   dlock $APP_NAME = $app_name;
 

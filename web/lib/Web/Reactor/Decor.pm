@@ -20,6 +20,7 @@ use strict;
 use Exporter;
 use Web::Reactor;
 use Exception::Sink;
+use Data::Tools;
 use Data::Dumper;
 use Storable;
 
@@ -33,6 +34,8 @@ sub new
   my $class = shift;
   my %env = @_;
   $class = ref( $class ) || $class;
+
+  data_tools_set_file_io_encoding( 'UTF-8' );
 
   my $ROOT     = $env{ 'DECOR_CORE_ROOT' } || '/usr/local/decor/';
 

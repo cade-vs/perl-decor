@@ -10,6 +10,8 @@
 ##############################################################################
 use strict;
 use lib ( map { die "invalid DECOR_CORE_ROOT dir [$_]\n" unless -d; ( "$_/core/lib", "$_/shared/lib" ) } ( $ENV{ 'DECOR_CORE_ROOT' } || '/usr/local/decor' ) );
+use open ':std', ':encoding(UTF-8)';
+
 use Data::Tools;
 use Decor::Core::Env;
 use Decor::Core::Log;
