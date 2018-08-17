@@ -1,0 +1,12 @@
+
+type map
+grant all
+
+
+=KEY_LEFT
+
+  type  link  test1   name
+
+=KEY_RIGHT
+
+  type  link  testw   name

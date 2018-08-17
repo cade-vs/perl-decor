@@ -117,6 +117,7 @@ my %TABLE_TYPES = (
                       USER     => 1,
                       SESSION  => 1,
                       FILE     => 1,
+                      MAP      => 1,
                     );
 
 # LEGEND: 1 == core attribute, must not have attribute path

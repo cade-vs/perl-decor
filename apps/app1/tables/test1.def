@@ -68,6 +68,10 @@ grant insert update to 1;10
   #system
   #web.hidden
 
+=TESTMAP
+
+  type  backlink  testmap key_left
+
 =REF
 
   type link test2 name

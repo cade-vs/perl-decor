@@ -71,5 +71,10 @@ sub __select_offset_clause
   return "OFFSET $offset ROWS";
 }
 
+sub __select_for_update_clause
+{
+  return "FOR UPDATE";
+}
+
 ### EOF ######################################################################
 1;

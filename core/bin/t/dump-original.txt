@@ -1,0 +1,432 @@
+des->{ FIELD }{ _READ_ACCESS }
+des->{ FIELD }{ NAME }
+des->{ FIELD }{ _ID }
+des->{ FIELD }{ _UPDATE_OFFICE }
+des->{ FIELD }{ NEWONE }
+des->{ FIELD }{ CNT }
+des->{ FIELD }{ _OWNER_2 }
+des->{ FIELD }{ _OWNER }
+des->{ @ }{ @ }
+$VAR1 = bless( {
+                 '@' => {
+                          'DENY' => {
+                                      'ACCESS' => 999,
+                                      'DELETE' => 999,
+                                      'EXECUTE' => 999,
+                                      'INSERT' => 999,
+                                      'READ' => 999,
+                                      'UPDATE' => 999
+                                    },
+                          'DSN' => 'MAIN',
+                          'GRANT' => {},
+                          'NAME' => 'TEST4',
+                          'TYPE' => 'GENERIC'
+                        },
+                 'DO' => {},
+                 'FIELD' => {
+                              'CNT' => bless( {
+                                              'DENY' => {
+                                                          'ACCESS' => 999,
+                                                          'DELETE' => 999,
+                                                          'EXECUTE' => 999
+                                                        },
+                                              'GRANT' => {
+                                                           'INSERT' => [
+                                                                       #0
+                                                                       [
+                                                                         #0
+                                                                         '222'
+                                                                       ],
+                                                                       #1
+                                                                       [
+                                                                         #0
+                                                                         '900'
+                                                                       ],
+                                                                       #2
+                                                                       [
+                                                                         #0
+                                                                         '33',
+                                                                         #1
+                                                                         '!44'
+                                                                       ]
+                                                                     ],
+                                                           'READ' => '999',
+                                                           'UPDATE' => 999
+                                                         },
+                                              'LABEL' => 'CNT',
+                                              'NAME' => 'CNT',
+                                              'TABLE' => 'TEST2',
+                                              'TYPE' => {
+                                                          'DOT' => undef,
+                                                          'LEN' => undef,
+                                                          'NAME' => 'INT'
+                                                        }
+                                            }, 'Decor::Core::Table::Category::Field::Description' ),
+                              'NAME' => bless( {
+                                               'DENY' => {
+                                                           'ACCESS' => 999,
+                                                           'DELETE' => 999,
+                                                           'EXECUTE' => 999
+                                                         },
+                                               'GRANT' => {
+                                                            'INSERT' => '999',
+                                                            'READ' => '999',
+                                                            'UPDATE' => '999'
+                                                          },
+                                               'LABEL' => 'NAME',
+                                               'NAME' => 'NAME',
+                                               'TABLE' => 'TEST2',
+                                               'TYPE' => {
+                                                           'DOT' => undef,
+                                                           'LEN' => '256',
+                                                           'NAME' => 'CHAR'
+                                                         }
+                                             }, 'Decor::Core::Table::Category::Field::Description' ),
+                              'NEWONE' => bless( {
+                                                 'DENY' => {
+                                                             'ACCESS' => 999,
+                                                             'DELETE' => 999,
+                                                             'EXECUTE' => 999,
+                                                             'INSERT' => 999,
+                                                             'READ' => 999,
+                                                             'UPDATE' => 999
+                                                           },
+                                                 'GRANT' => {},
+                                                 'LABEL' => 'NEWONE',
+                                                 'NAME' => 'NEWONE',
+                                                 'TABLE' => 'TEST4',
+                                                 'TYPE' => {
+                                                             'DOT' => undef,
+                                                             'LEN' => '16',
+                                                             'NAME' => 'CHAR'
+                                                           }
+                                               }, 'Decor::Core::Table::Category::Field::Description' ),
+                              '_ID' => bless( {
+                                              'DENY' => {
+                                                          'ACCESS' => 999,
+                                                          'DELETE' => 999,
+                                                          'EXECUTE' => 999,
+                                                          'INSERT' => 999,
+                                                          'UPDATE' => 999
+                                                        },
+                                              'GRANT' => {
+                                                           'READ' => 999
+                                                         },
+                                              'LABEL' => '_ID',
+                                              'NAME' => '_ID',
+                                              'PRIMARY_KEY' => '1',
+                                              'READ_ONLY' => '1',
+                                              'TABLE' => '_DE_UNIVERSAL',
+                                              'TYPE' => {
+                                                          'DOT' => undef,
+                                                          'LEN' => '32',
+                                                          'NAME' => 'INT'
+                                                        },
+                                              'WEB.HIDDEN' => '1'
+                                            }, 'Decor::Core::Table::Category::Field::Description' ),
+                              '_OWNER' => bless( {
+                                                 'DENY' => {
+                                                             'ACCESS' => 999,
+                                                             'DELETE' => 999,
+                                                             'EXECUTE' => 999,
+                                                             'INSERT' => 999,
+                                                             'READ' => 999,
+                                                             'UPDATE' => 999
+                                                           },
+                                                 'GRANT' => {},
+                                                 'LABEL' => '_OWNER',
+                                                 'NAME' => '_OWNER',
+                                                 'TABLE' => 'TEST2',
+                                                 'TYPE' => {
+                                                             'DOT' => undef,
+                                                             'LEN' => undef,
+                                                             'NAME' => 'INT'
+                                                           }
+                                               }, 'Decor::Core::Table::Category::Field::Description' ),
+                              '_OWNER_2' => bless( {
+                                                   'DENY' => {
+                                                               'ACCESS' => 999,
+                                                               'DELETE' => 999,
+                                                               'EXECUTE' => 999,
+                                                               'INSERT' => 999,
+                                                               'READ' => 999,
+                                                               'UPDATE' => 999
+                                                             },
+                                                   'GRANT' => {},
+                                                   'LABEL' => '_OWNER_2',
+                                                   'NAME' => '_OWNER_2',
+                                                   'TABLE' => 'TEST2',
+                                                   'TYPE' => {
+                                                               'DOT' => undef,
+                                                               'LEN' => undef,
+                                                               'NAME' => 'INT'
+                                                             }
+                                                 }, 'Decor::Core::Table::Category::Field::Description' ),
+                              '_READ_ACCESS' => bless( {
+                                                       'DENY' => {
+                                                                   'ACCESS' => 999,
+                                                                   'DELETE' => 999,
+                                                                   'EXECUTE' => 999,
+                                                                   'INSERT' => 999,
+                                                                   'READ' => 999,
+                                                                   'UPDATE' => 999
+                                                                 },
+                                                       'GRANT' => {},
+                                                       'LABEL' => '_READ_ACCESS',
+                                                       'NAME' => '_READ_ACCESS',
+                                                       'TABLE' => 'TEST2',
+                                                       'TYPE' => {
+                                                                   'DOT' => undef,
+                                                                   'LEN' => undef,
+                                                                   'NAME' => 'INT'
+                                                                 }
+                                                     }, 'Decor::Core::Table::Category::Field::Description' ),
+                              '_UPDATE_OFFICE' => bless( {
+                                                         'DENY' => {
+                                                                     'ACCESS' => 999,
+                                                                     'DELETE' => 999,
+                                                                     'EXECUTE' => 999,
+                                                                     'INSERT' => 999,
+                                                                     'READ' => 999,
+                                                                     'UPDATE' => 999
+                                                                   },
+                                                         'GRANT' => {},
+                                                         'LABEL' => '_UPDATE_OFFICE',
+                                                         'NAME' => '_UPDATE_OFFICE',
+                                                         'TABLE' => 'TEST2',
+                                                         'TYPE' => {
+                                                                     'DOT' => undef,
+                                                                     'LEN' => undef,
+                                                                     'NAME' => 'INT'
+                                                                   }
+                                                       }, 'Decor::Core::Table::Category::Field::Description' )
+                            },
+                 'INDEX' => {}
+               }, 'Decor::Core::Table::Description' );
+-------------------------------------------------------------------------------
+des->{ FIELD }{ TWOONE }
+des->{ FIELD }{ _READ_ACCESS }
+des->{ FIELD }{ NAME }
+des->{ FIELD }{ _ID }
+des->{ FIELD }{ _UPDATE_OFFICE }
+des->{ FIELD }{ NEWONE }
+des->{ FIELD }{ CNT }
+des->{ FIELD }{ _OWNER_2 }
+des->{ FIELD }{ _OWNER }
+des->{ @ }{ @ }
+$VAR1 = bless( {
+                 '@' => {
+                          'DENY' => {
+                                      'ACCESS' => 999,
+                                      'DELETE' => 999,
+                                      'EXECUTE' => 999,
+                                      'INSERT' => 999,
+                                      'READ' => 999,
+                                      'UPDATE' => 999
+                                    },
+                          'DSN' => 'MAIN',
+                          'GRANT' => {},
+                          'NAME' => 'TEST5',
+                          'TYPE' => 'GENERIC'
+                        },
+                 'DO' => {},
+                 'FIELD' => {
+                              'CNT' => bless( {
+                                              'DENY' => {
+                                                          'ACCESS' => 999,
+                                                          'DELETE' => 999,
+                                                          'EXECUTE' => 999
+                                                        },
+                                              'GRANT' => {
+                                                           'INSERT' => [
+                                                                       #0
+                                                                       [
+                                                                         #0
+                                                                         '222'
+                                                                       ],
+                                                                       #1
+                                                                       [
+                                                                         #0
+                                                                         '900'
+                                                                       ],
+                                                                       #2
+                                                                       [
+                                                                         #0
+                                                                         '33',
+                                                                         #1
+                                                                         '!44'
+                                                                       ]
+                                                                     ],
+                                                           'READ' => '999',
+                                                           'UPDATE' => 999
+                                                         },
+                                              'LABEL' => 'CNT',
+                                              'NAME' => 'CNT',
+                                              'TABLE' => 'TEST2',
+                                              'TYPE' => {
+                                                          'DOT' => undef,
+                                                          'LEN' => undef,
+                                                          'NAME' => 'INT'
+                                                        }
+                                            }, 'Decor::Core::Table::Category::Field::Description' ),
+                              'NAME' => bless( {
+                                               'DENY' => {
+                                                           'ACCESS' => 999,
+                                                           'DELETE' => 999,
+                                                           'EXECUTE' => 999
+                                                         },
+                                               'GRANT' => {
+                                                            'INSERT' => '999',
+                                                            'READ' => '999',
+                                                            'UPDATE' => '999'
+                                                          },
+                                               'LABEL' => 'NAME',
+                                               'NAME' => 'NAME',
+                                               'TABLE' => 'TEST2',
+                                               'TYPE' => {
+                                                           'DOT' => undef,
+                                                           'LEN' => '256',
+                                                           'NAME' => 'CHAR'
+                                                         }
+                                             }, 'Decor::Core::Table::Category::Field::Description' ),
+                              'NEWONE' => bless( {
+                                                 'DENY' => {
+                                                             'ACCESS' => 999,
+                                                             'DELETE' => 999,
+                                                             'EXECUTE' => 999,
+                                                             'INSERT' => 999,
+                                                             'READ' => 999,
+                                                             'UPDATE' => 999
+                                                           },
+                                                 'GRANT' => {},
+                                                 'LABEL' => 'NEWONE',
+                                                 'NAME' => 'NEWONE',
+                                                 'TABLE' => 'TEST4',
+                                                 'TYPE' => {
+                                                             'DOT' => undef,
+                                                             'LEN' => '16',
+                                                             'NAME' => 'CHAR'
+                                                           }
+                                               }, 'Decor::Core::Table::Category::Field::Description' ),
+                              'TWOONE' => bless( {
+                                                 'DENY' => {
+                                                             'ACCESS' => 999,
+                                                             'DELETE' => 999,
+                                                             'EXECUTE' => 999,
+                                                             'INSERT' => 999,
+                                                             'READ' => 999,
+                                                             'UPDATE' => 999
+                                                           },
+                                                 'GRANT' => {},
+                                                 'LABEL' => 'TWOONE',
+                                                 'NAME' => 'TWOONE',
+                                                 'TABLE' => 'TEST5',
+                                                 'TYPE' => {
+                                                             'DOT' => undef,
+                                                             'LEN' => '16',
+                                                             'NAME' => 'CHAR'
+                                                           }
+                                               }, 'Decor::Core::Table::Category::Field::Description' ),
+                              '_ID' => bless( {
+                                              'DENY' => {
+                                                          'ACCESS' => 999,
+                                                          'DELETE' => 999,
+                                                          'EXECUTE' => 999,
+                                                          'INSERT' => 999,
+                                                          'UPDATE' => 999
+                                                        },
+                                              'GRANT' => {
+                                                           'READ' => 999
+                                                         },
+                                              'LABEL' => '_ID',
+                                              'NAME' => '_ID',
+                                              'PRIMARY_KEY' => '1',
+                                              'READ_ONLY' => '1',
+                                              'TABLE' => '_DE_UNIVERSAL',
+                                              'TYPE' => {
+                                                          'DOT' => undef,
+                                                          'LEN' => '32',
+                                                          'NAME' => 'INT'
+                                                        },
+                                              'WEB.HIDDEN' => '1'
+                                            }, 'Decor::Core::Table::Category::Field::Description' ),
+                              '_OWNER' => bless( {
+                                                 'DENY' => {
+                                                             'ACCESS' => 999,
+                                                             'DELETE' => 999,
+                                                             'EXECUTE' => 999,
+                                                             'INSERT' => 999,
+                                                             'READ' => 999,
+                                                             'UPDATE' => 999
+                                                           },
+                                                 'GRANT' => {},
+                                                 'LABEL' => '_OWNER',
+                                                 'NAME' => '_OWNER',
+                                                 'TABLE' => 'TEST2',
+                                                 'TYPE' => {
+                                                             'DOT' => undef,
+                                                             'LEN' => undef,
+                                                             'NAME' => 'INT'
+                                                           }
+                                               }, 'Decor::Core::Table::Category::Field::Description' ),
+                              '_OWNER_2' => bless( {
+                                                   'DENY' => {
+                                                               'ACCESS' => 999,
+                                                               'DELETE' => 999,
+                                                               'EXECUTE' => 999,
+                                                               'INSERT' => 999,
+                                                               'READ' => 999,
+                                                               'UPDATE' => 999
+                                                             },
+                                                   'GRANT' => {},
+                                                   'LABEL' => '_OWNER_2',
+                                                   'NAME' => '_OWNER_2',
+                                                   'TABLE' => 'TEST2',
+                                                   'TYPE' => {
+                                                               'DOT' => undef,
+                                                               'LEN' => undef,
+                                                               'NAME' => 'INT'
+                                                             }
+                                                 }, 'Decor::Core::Table::Category::Field::Description' ),
+                              '_READ_ACCESS' => bless( {
+                                                       'DENY' => {
+                                                                   'ACCESS' => 999,
+                                                                   'DELETE' => 999,
+                                                                   'EXECUTE' => 999,
+                                                                   'INSERT' => 999,
+                                                                   'READ' => 999,
+                                                                   'UPDATE' => 999
+                                                                 },
+                                                       'GRANT' => {},
+                                                       'LABEL' => '_READ_ACCESS',
+                                                       'NAME' => '_READ_ACCESS',
+                                                       'TABLE' => 'TEST2',
+                                                       'TYPE' => {
+                                                                   'DOT' => undef,
+                                                                   'LEN' => undef,
+                                                                   'NAME' => 'INT'
+                                                                 }
+                                                     }, 'Decor::Core::Table::Category::Field::Description' ),
+                              '_UPDATE_OFFICE' => bless( {
+                                                         'DENY' => {
+                                                                     'ACCESS' => 999,
+                                                                     'DELETE' => 999,
+                                                                     'EXECUTE' => 999,
+                                                                     'INSERT' => 999,
+                                                                     'READ' => 999,
+                                                                     'UPDATE' => 999
+                                                                   },
+                                                         'GRANT' => {},
+                                                         'LABEL' => '_UPDATE_OFFICE',
+                                                         'NAME' => '_UPDATE_OFFICE',
+                                                         'TABLE' => 'TEST2',
+                                                         'TYPE' => {
+                                                                     'DOT' => undef,
+                                                                     'LEN' => undef,
+                                                                     'NAME' => 'INT'
+                                                                   }
+                                                       }, 'Decor::Core::Table::Category::Field::Description' )
+                            },
+                 'INDEX' => {}
+               }, 'Decor::Core::Table::Description' );
+-------------------------------------------------------------------------------

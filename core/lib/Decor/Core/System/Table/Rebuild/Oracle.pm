@@ -214,15 +214,36 @@ sub describe_db_sequence
 
 #-----------------------------------------------------------------------------
 
-sub sequence_create_sql
+sub sequence_create
 {
   my $self   = shift;
   my $des    = shift;
   my $start  = shift || 1;
 
   my $db_seq   = $des->get_db_sequence_name();
-  
-  return "CREATE SEQUENCE $db_seq INCREMENT BY 1 START WITH $start ORDER";
+  my $sql_stmt = "CREATE SEQUENCE $db_seq INCREMENT BY 1 START WITH $start ORDER";
+  de_log_debug( "debug: sequence_create: sql: [$sql_stmt]" );
+
+  my $dbh = $self->get_dbh();
+  my $res = $dbh->do( $sql_stmt );
+
+  return $res;
+}
+
+sub sequence_drop
+{
+  my $self   = shift;
+  my $des    = shift;
+  my $start  = shift || 1;
+
+  my $db_seq = $des->get_db_sequence_name();
+  de_log_debug( "debug: sequence_drop: sql: [$sql_stmt]" );
+  my $sql_stmt = "DROP SEQUENCE $db_seq";
+
+  my $dbh = $self->get_dbh();
+  my $res = $dbh->do( $sql_stmt );
+
+  return $res;
 }
 
 sub sequence_get_current_value

@@ -190,7 +190,7 @@ sub select
   
   my $limit_clause    = $self->__select_limit_clause( $limit   ) . "\n" if $limit  > 0;
   my $offset_clause   = $self->__select_offset_clause( $offset ) . "\n" if $offset > 0;
-  my $locking_clause  = "FOR UPDATE" if $opts->{ 'LOCK' }; # FIXME: support more locking clauses
+  my $locking_clause  = $self->__select_for_update_clause(     ) . "\n" if $opts->{ 'LOCK' }; # FIXME: support more locking clauses
   my $distinct_clause = "DISTINCT\n    " if $opts->{ 'DISTINCT' };
 
   # TODO: check for clauses collisions, i.e. FOR_UPDATE cannot be used with GROUP_BY, DISTINCT, etc.

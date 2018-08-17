@@ -439,6 +439,21 @@ sub table_alter
 
 #--- sequences ---------------------------------------------------------------
 
+sub sequence_create
+{
+  my $dbo  = shift;
+  my $des  = shift;
+  my $start_with = shift;
+  
+  my $table    = $des->get_table_name();
+  my $db_seq   = $des->get_db_sequence_name();
+
+  $dbo->sequence_create( $des, $start_with );
+  de_log( "info: create sequence for table [$table] db sequence [$db_seq] start with [$start_with]" );
+  
+  return 1;
+}
+
 sub sequence_drop
 {
   my $dbo  = shift;
@@ -447,32 +462,9 @@ sub sequence_drop
   my $table    = $des->get_table_name();
   my $db_seq   = $des->get_db_sequence_name();
   
-  my $dbh = $dbo->get_dbh();
-  my $sql_stmt = "DROP SEQUENCE $db_seq";
+  $dbo->sequence_drop( $des );
   de_log( "info: drop sequence for table [$table] db sequence [$db_seq]" );
-  de_log_debug( "debug: sql: [$sql_stmt]" );
-  $dbh->do( $sql_stmt );
 
-  return 1;
-}
-
-sub sequence_create
-{
-  my $dbo  = shift;
-  my $des  = shift;
-  my $start_with = shift;
-  
-  my $table    = $des->get_table_name();
-  my $db_table = $des->get_db_table_name();
-  my $db_seq   = $des->get_db_sequence_name();
-
-  my $dbh = $dbo->get_dbh();
-  
-  my $sql_stmt = $dbo->sequence_create_sql( $des, $start_with );
-  de_log( "info: create sequence for table [$table] db sequence [$db_seq] start with [$start_with]" );
-  de_log_debug( "debug: sql: [$sql_stmt]" );
-  $dbh->do( $sql_stmt );
-  
   return 1;
 }
 

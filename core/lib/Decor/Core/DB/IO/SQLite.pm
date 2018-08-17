@@ -7,7 +7,7 @@
 ##  LICENSE: GPLv2
 ##
 ##############################################################################
-package Decor::Core::DB::IO::Pg;
+package Decor::Core::DB::IO::SQLite;
 use strict;
 
 use Exception::Sink;
@@ -34,21 +34,16 @@ sub get_next_sequence
 
   my $dbh = dsn_get_dbh_by_name( $dsn );
 
-  my $sql_stmt = "SELECT NEXTVAL( '$db_seq' )";
+  my $ss  = "SELECT SV FROM DE_SYS_SQLITE_SEQUENCES WHERE SN = ?";
+  my $sth = $dbh->prepare( $ss );
+  $sth->execute( $db_seq ) or die "[$ss] exec failed: " . $sth->errstr;
+  my $hr = $sth->fetchrow_hashref();
+  my $sv = $hr->{ 'SV' };
 
-  my $sth = $dbh->prepare_cached( $sql_stmt );
+  my $ss  = "UPDATE DE_SYS_SQLITE_SEQUENCES SET SV = ? WHERE SN = ?";
+  $dbh->do( $ss, {}, $sv + 1, $db_seq );
 
-  my $hr = $dbh->selectrow_hashref( $sth );
-  if ( $hr and $hr->{ "NEXTVAL" } )
-    {
-    my $nextval = $hr->{ "NEXTVAL" };
-    de_log_debug( "debug: get_next_sequence: for sequence [$db_seq] new val [$nextval]" );
-    return $nextval;
-    }
-  else
-    {
-    boom "cannot read sequence [$db_seq]";
-    }
+  return $sv;
 }
 
 sub __select_limit_clause
@@ -69,7 +64,7 @@ sub __select_offset_clause
 
 sub __select_for_update_clause
 {
-  return "FOR UPDATE";
+  return undef;
 }
 
 ### EOF ######################################################################

@@ -58,14 +58,21 @@ sub sequence_get_current_value
 {
   my $self = shift;
   
-  boom "cannot call describe_db_sequences() from a base class";
+  boom "cannot call sequence_get_current_value() from a base class";
 }
 
-sub sequence_create_sql
+sub sequence_create
 {
   my $self = shift;
   
-  boom "cannot call describe_db_sequences() from a base class";
+  boom "cannot call sequence_create() from a base class";
+}
+
+sub sequence_drop
+{
+  my $self = shift;
+  
+  boom "cannot call sequence_drop() from a base class";
 }
 
 sub get_dbh

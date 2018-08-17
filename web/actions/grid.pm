@@ -78,7 +78,7 @@ sub main
   my $link_field_disable = $reo->param( 'LINK_FIELD_DISABLE' );
   my $link_field_id      = $reo->param( 'LINK_FIELD_ID'      );
   my $filter_name        = $reo->param( 'FILTER_NAME' );
-  my $order_by           = $reo->param( 'ORDER_BY' ) || $tdes->{ '@' }{ 'ORDER_BY' } || '_ID DESC';
+  my $order_by           = $reo->param( 'ORDER_BY' ) || $tdes->{ '@' }{ 'ORDER_BY' } || '._ID DESC';
   
 #  print STDERR Dumper( $tdes );
 
