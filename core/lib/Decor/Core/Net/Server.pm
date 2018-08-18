@@ -126,10 +126,10 @@ sub on_process
     
     my $xs = $mo->{ 'XS' };
     
-    if ( $xs =~ /^(OK|E_[A-Z_]+)(:\s*(.*?))?$/ )
+    if ( $xs =~ /^(OK|E_[A-Z_0-9]+)(:\s*(.*?))?$/ )
       {
       $mo->{ 'XS'     } = uc $1;
-      $mo->{ 'XS_MSG' } =    $3;
+      # $mo->{ 'XS_MSG' } =    $3; # error details message will not be reported back to client!
       }
     else  
       {

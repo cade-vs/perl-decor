@@ -102,9 +102,9 @@ sub __dsn_dbh_connect
 
   boom "invalid DSN name [$name]" unless exists $DSN->{ $name };
   
-  my $dsn = $DSN->{ $name }{ 'DSN'  };
-  my $usr = $DSN->{ $name }{ 'USER' };
-  my $pwd = $DSN->{ $name }{ 'PASS' };
+  my $dsn = $DSN->{ $name }{ 'DSN'     };
+  my $usr = $DSN->{ $name }{ 'USER'    };
+  my $pwd = $DSN->{ $name }{ 'PASS'    };
 
   my $dbh;
   my $timeout_reached;
@@ -140,6 +140,16 @@ sub __dsn_dbh_connect
   else
     {
     de_log_debug( "debug: DBH connected for DSN name [$name]" );
+    
+    # FIXME: add an etc/env option to use or skip this
+    # TODO: implement common instantiator of similar classes (factory :))
+    my $db_name = $DSN->{ $name }{ 'DB_NAME' };
+    my $dbn_class_name = "Decor::Core::DB::Setup::$db_name";
+    my $dbn_file_name  = perl_package_to_file( $dbn_class_name );
+    require $dbn_file_name;
+    my $dbno = new $dbn_class_name;
+    $dbno->setup_dbh( $dbh );
+    
     return $dbh;
     }
 }

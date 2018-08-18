@@ -444,6 +444,7 @@ sub __sub_find_session
     $session_rec->finish();
     return $session_rec;
     }
+  
   die "E_SESSION: Session not found [$session_sid] from remote [$remote]";
   return undef; # never reached
 };
