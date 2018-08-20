@@ -63,8 +63,8 @@ sub __dsn_parse_config
 {
   my $root         = de_root();
   my $stage_name   = de_app_name();
-  my $app_path     = de_app_path();
-  my $dsn_file     = "$app_path/etc/dsn.conf";
+  my $app_dir      = de_app_dir();
+  my $dsn_file     = "$app_dir/etc/dsn.conf";
   
   my $dsn = de_config_load_file( $dsn_file );
   $dsn = $dsn->{ '*' };

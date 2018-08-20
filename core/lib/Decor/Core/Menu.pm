@@ -116,13 +116,13 @@ sub __get_menus_dirs
   return $MENU_CACHE{ 'MENUS_DIRS_AR' } if exists $MENU_CACHE{ 'MENUS_DIRS_AR' };
 
   my $root         = de_root();
-  my $app_path     = de_app_path();
+  my $app_dir     = de_app_dir();
   my $bundles_dirs = de_bundles_dirs();
 
   my @dirs;
   push @dirs, "$root/core/menus";
   push @dirs, "$_/menus" for reverse @$bundles_dirs;
-  push @dirs, "$app_path/menus";
+  push @dirs, "$app_dir/menus";
 
   $MENU_CACHE{ 'MENUS_DIRS_AR' } = \@dirs;
 

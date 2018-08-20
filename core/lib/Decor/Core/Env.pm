@@ -20,7 +20,7 @@ our @EXPORT = qw(
                 de_init_done
 
                 de_app_name
-                de_app_path
+                de_app_dir
                 de_bundles
                 de_bundles_dirs
                 de_app_cfg
@@ -90,16 +90,16 @@ sub de_init
 
   boom "invalid ROOT directory [$ROOT] use either [/usr/local/decor] or DECOR_CORE_ROOT env var" unless $ROOT ne '' and -d $ROOT;
 
-  my $app_path = de_app_path();
+  my $app_dir = de_app_dir();
 
-  boom "cannot find/access application [$APP_NAME] path [$app_path]" unless -d $app_path;
+  boom "cannot find/access application [$APP_NAME] path [$app_dir]" unless -d $app_dir;
   
   my $log_prefix = $init{ 'LOG_PREFIX' };
   my $log_dir = "$ROOT/var/core/$app_name\_$</log/$log_prefix/";
-  dir_path_ensure( $log_dir ) or boom "cannot find/access log dir [$log_dir] for app [$APP_NAME] path [$app_path]";
+  dir_path_ensure( $log_dir ) or boom "cannot find/access log dir [$log_dir] for app [$APP_NAME] path [$app_dir]";
   de_set_log_dir( $log_dir );
 
-  my $cfg = de_config_load_file( "$app_path/etc/app.conf" );
+  my $cfg = de_config_load_file( "$app_dir/etc/app.conf" );
   if( $cfg )
     {
     %APP_CFG = %{ $cfg = $cfg->{ '@' }{ '@' } };
@@ -109,14 +109,17 @@ sub de_init
     %APP_CFG = ();
     }
   @BUNDLES = sort split /[\s\,]+/, $APP_CFG{ 'USE_BUNDLES' };
+  # FIXME: should allow excluding bundles for temporary or debug with "-bundle" f.e.
 
-  unshift @BUNDLES, sort ( read_dir_entries( "$app_path/bundles" ) );
+  # FIXME: should be used explicitly with use bundles?
+  # unshift @BUNDLES, sort ( read_dir_entries( "$app_dir/bundles" ) );
 
   for my $bundle ( @BUNDLES )
     {
+    boom "error: invalid bundle name [$bundle]! check USE_BUNDLES in app.conf" unless de_check_name( $bundle );
     # FIXME: bad logic, should not complain if no bundles are used at all, report locations and bundle name for other "not-found" errors
     my $found;
-    for my $bundle_dir ( ( "$app_path/bundles", "$ROOT/bundles" ) )
+    for my $bundle_dir ( ( "$app_dir/bundles", "$ROOT/bundles" ) )
       {
       if( -d "$bundle_dir/$bundle" )
         {
@@ -134,7 +137,7 @@ sub de_init
   dlock \@BUNDLES;
   dlock \@BUNDLES_DIRS;
 
-  @INC = ( "$app_path/lib", @ORIGINAL_INC );
+  @INC = ( "$app_dir/lib", @ORIGINAL_INC );
   #print STDERR Dumper( 'APP_CFG:', \%APP_CFG, 'BUNDLES:', \@BUNDLES, 'BUNDLES DIRS:', \@BUNDLES_DIRS );
 }
 
@@ -149,7 +152,7 @@ sub de_app_name
   return $APP_NAME;
 }
 
-sub de_app_path
+sub de_app_dir
 {
   boom "call de_init() first to initialize environment!" unless $_INIT_OK;
   return "$ROOT/apps/$APP_NAME";

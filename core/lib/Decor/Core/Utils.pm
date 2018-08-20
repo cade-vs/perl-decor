@@ -37,11 +37,11 @@ sub de_get_core_subtype_dirs
   de_check_name_boom( $subtype, "invalid dir SUBTYPE [$subtype]" );
   
   my $root         = de_root();
-  my $app_path     = de_app_path();
+  my $app_dir     = de_app_dir();
   my $bundles_dirs = de_bundles_dirs();
   
   my @dirs;
-  push @dirs, "$app_path/$subtype";
+  push @dirs, "$app_dir/$subtype";
   push @dirs, "$_/$subtype" for reverse @$bundles_dirs;
   push @dirs, "$root/core/$subtype";
 

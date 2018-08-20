@@ -10,37 +10,52 @@
 ##
 ##############################################################################
 use strict;
-
 use lib ( map { die "invalid DECOR_CORE_ROOT dir [$_]\n" unless -d; ( "$_/core/lib", "$_/shared/lib" ) } ( $ENV{ 'DECOR_CORE_ROOT' } || '/usr/local/decor' ) );
+use open ':std', ':encoding(UTF-8)';
 
 use Term::ReadKey;
 use Decor::Core::Env;
+use Decor::Core::DSN;
 use Decor::Core::Log;
 use Decor::Core::Describe;
 use Decor::Core::DB::Record;
 use Decor::Core::DB::IO;
 use Decor::Shared::Utils;
 use Data::Tools;
-
 use Data::Dumper;
+use Exception::Sink;
+
+data_tools_set_file_io_utf8();
 
 #print Dumper( [ parse_scsv_line( qq[; '  123'  ;testing   ;this\\;is it; "asd";qwe] ) ] );
 #die;
 
+my $p0 = file_name_ext( $0 );
+
 our $help_text = <<END;
-usage: $0 <options> application_name table files
+usage: $0 <options> application_name object_names
 options:
     -v        -- verbose output
+    -i        -- use file names as object_names
+    -t        -- use table names as object_names (default)
     -d        -- debug mode, can be used multiple times to rise debug level
     -r        -- log to STDERR
     -rr       -- log to both files and STDERR
+    -rc       -- use ANSI-colored STDERR log messages (same as -rrc)
     --        -- end of options
 notes:
+  * -t will search for files matching table names (see docs dir for details)
+  * object_names may be either table names or file names (see options above)
   * first argument is application name and it is mandatory!
   * options cannot be grouped: -rd is invalid, correct is: -r -d
+examples:
+  $p0 -v    table1 table2 table3
+  $p0 -v -t table1 table2 table3 
+  $p0 -v -i /path/to/files/*.def
 END
 
 my $opt_verbose;
+my $use_files;
 
 our @args;
 while( @ARGV )
@@ -57,17 +72,31 @@ while( @ARGV )
     print "option: debug level raised, now is [$level] \n";
     next;
     }
+  if( /^-t/ )
+    {
+    $use_files = 0;
+    print "option: using TABLE names\n";
+    next;
+    }
+  if( /^-i/ )
+    {
+    $use_files = 1;
+    print "option: using FILE names\n";
+    next;
+    }
     
   if( /^-v/ )
     {
     $opt_verbose = 1;
     next;
     }
-  if( /-r(r)?/ )
+  if( /-r(r)?(c)?/ )
     {
     $DE_LOG_TO_STDERR = 1;
     $DE_LOG_TO_FILES  = $1 ? 1 : 0;
-    print "option: forwarding logs to STDERR\n";
+    $DE_LOG_STDERR_COLORS = $2 ? 1 : 0;
+    print "status: option: forwarding logs to STDERR\n";
+    print "status: using ANSI colors in logs\n" if $DE_LOG_STDERR_COLORS;
     next;
     }
   if( /^(--?h(elp)?|help)$/io )
@@ -82,69 +111,97 @@ my $opt_app_name = shift @args;
 
 de_init( APP_NAME => $opt_app_name );
 
-my $table = lc shift @args;
+my @objects = @args;
+@objects = sort @objects if $use_files;
 
-my @files = @args;
+if( ! @objects )
+  {
+  print "error: missing objects names\n\n";
+  print $help_text;
+  exit;
+  }
 
-my $data = {};
+load_object( $_ ) for @objects;
 
-load_data_file( $table, $data, $_ ) for @files;
+dsn_commit();
 
-print Dumper( $data );
+##############################################################################
 
-=pod
+sub load_object
+{
+  my $object = shift;
 
-my $file  = shift @args;
-
-my $ucolumn = lc $opt{'ucolumn'} || '_id';
-
-open( my $if, "< :encoding(UTF-8)", $file ) or die "CANT OPEN DATA FILE $file";
-
-my $c;
-my @r; # row data
-my @f; # fields
-
-while ( <$if> ) {
-
-    chomp;
-
-    if ( !$c ) {
-        @f = split( /(?<=\\);/, $_ );
-        s/// for @f;
-        $c += 1;
-        next;
+  my $table;
+  my @files;
+  if( $use_files )
+    {
+    $table = uc file_name( $object );
+    @files = ( $object );
     }
+  else
+    {
+    $table = uc $object;
+    @files = find_files_for_table( $object );
+    die "error: cannot find any files for table [$object]\n" unless @files;
+    }  
 
-    @r = split(';',$_);
 
-    next unless @r;
-    
-    my $rec = new Decor::Core::DB::Record;
+  print "status: loading the following objects:\n";
+  print "        [$_]\n" for @files;
 
-    my %rowData;
-
-    for my $fl ( @f ) {
-        $rowData{lc $fl} = shift @r;
+  my $data = {};
+  for my $file ( @files )
+    {
+    my $c = load_data_file( $table, $data, $file );
+    print "status: [$table] <==($c)== [$file]\n";
     }
-
-
-    print "ROW $c DATA === ".Dumper(\%rowData);
-
-    $rec->select($table, "$ucolumn = ?", {BIND => [$rowData{lc $ucolumn}] });
-    $rec->create($table) unless $rec->next();
-
-    for my $fl ( @f ) {
-        $rec->write( $fl => $rowData{$fl} );
-    }
-
-    $rec->save();
-    $rec->commit();
-
-    $c++;
+  print Dumper( $data );
+  import_data( $table, $data );
 }
 
-close( $if );
-=cut
+##############################################################################
+
+sub import_data
+{
+  my $table = uc shift;
+  my $data  = shift;
+  
+  my $tdes = describe_table( $table );
+    
+  my $dbio = new Decor::Core::DB::IO;
+
+  my @protected_ids;
+  for my $id ( keys %$data )
+    {
+    push @protected_ids, $id if $data->{ $id }{ 'PROTECTED' } and $dbio->read_first1_hashref( $table, '._ID = ?', { BIND => [ $id ] } );
+    }
+  my $protected_ids = join ',', sort { $a <=> $b } @protected_ids;
+  my %protected_ids = map { $_ => 1 } @protected_ids;
+    
+  my $dbh = dsn_get_dbh_by_table( $table );
+  my $dd_stmt = "DELETE FROM $table WHERE _ID > 0 AND _ID NOT IN ( $protected_ids )";
+  print "status: TABLE cleanup SQL: $dd_stmt\n";
+  my $rc = $dbh->do( $dd_stmt );  
+  
+  for my $id ( keys %$data )
+    {
+    next if $protected_ids{ $id };
+    
+    $dbio->insert( $table, $data->{ $id }{ 'DATA' } );
+    }
+}
+
+##############################################################################
+
+sub find_files_for_table
+{
+  my $table = lc shift;
+  my @res;
+  
+  push @res, glob_tree( "$_/static/$table.def" ) for ( de_root(), de_bundles_dirs(), de_app_dir() );
+  return @res;
+}
+
 ##############################################################################
 
 sub load_data_file
@@ -155,7 +212,7 @@ sub load_data_file
 
   my $dbio = new Decor::Core::DB::IO;                                                                                           
 
-  open( my $if, "< :encoding(UTF-8)", $fname ) or die "cannot open static data file [$fname]\n";
+  open( my $if, '<', $fname ) or die "cannot open static data file [$fname]\n";
   
   my $c;
   my @fields;
@@ -166,11 +223,9 @@ sub load_data_file
     s/\s*$//;
     next unless /\S/;
 
-    my $fields = 1 if s/^\s*=//;
-    
     my @line = parse_scsv_line( $_ );
-    
-    if( $fields )
+
+    if( ! @fields )
       {
       @fields = @line;
       next;
@@ -182,17 +237,22 @@ sub load_data_file
     my %data;
     for my $field ( @fields )
       {
-      $data{ uc $field } = shift @line;
+      $data{ 'DATA' }{ uc $field } = shift @line;
       }
 
-    if( ! exists $data{ '_ID' } or $data{ '_ID' } == 0 )
+    if( $data{ 'DATA' }{ '_ID' } =~ s/^!// )
+      {
+      $data{ 'PROTECTED' } = 1;
+      }
+
+    if( ! exists $data{ 'DATA' }{ '_ID' } or $data{ 'DATA' }{ '_ID' } == 0 )
       {
       my $new_id = $dbio->get_next_table_id( $table );                                                                              
       print "requested new _ID [$new_id]\n";
-      $data{ '_ID' } = $new_id;
+      $data{ 'DATA' }{ '_ID' } = $new_id;
       }
 
-    $data_hr->{ $data{ '_ID' } } = { %{ $data_hr->{ $data{ '_ID' } } || {} }, %data };
+    $data_hr->{ $data{ 'DATA' }{ '_ID' } } = \%data;
     }
   close( $if );
   

@@ -233,13 +233,13 @@ sub __get_tables_dirs
   return $DES_CACHE{ 'TABLES_DIRS_AR' } if exists $DES_CACHE{ 'TABLES_DIRS_AR' };
 
   my $root         = de_root();
-  my $app_path     = de_app_path();
+  my $app_dir     = de_app_dir();
   my $bundles_dirs = de_bundles_dirs();
 
   my @dirs;
   push @dirs, "$root/core/tables";
   push @dirs, "$_/tables" for reverse @$bundles_dirs;
-  push @dirs, "$app_path/tables";
+  push @dirs, "$app_dir/tables";
 
   $DES_CACHE{ 'TABLES_DIRS_AR' } = \@dirs;
 
