@@ -48,10 +48,10 @@ our $DE_LOG_STDERR_COLORS   = 0;
 
 my $MSG_TYPE_COLOR_RESET = chr(27) . '[0m';
 my %MSG_TYPE_COLOR = (
-                     error  => chr(27) . '[1,31m',
-                     fatal  => chr(27) . '[1,31m',
+                     error  => chr(27) . '[1;31m',
+                     fatal  => chr(27) . '[1;31m',
                      status => chr(27) . '[36m',
-                     info   => chr(27) . '[1,33m',
+                     info   => chr(27) . '[1;33m',
                      );
 
 
@@ -96,11 +96,11 @@ sub de_log
       next;
       }
 
-    my $msg_type = 'unknown';
-    $msg_type = lc $1 if $msg =~ /^([a-z_]+):/;
-    next if $msg_type eq 'debug' and ! de_debug();
+    my $msg_in_type = 'unknown';
+    $msg_in_type = lc $1 if $msg =~ /^([a-z_]+):/;
+    next if $msg_in_type eq 'debug' and ! de_debug();
 
-    my @msg_types = ( $msg_type );
+    my @msg_types = ( $msg_in_type );
     push @msg_types, 'global' if $DE_LOG_TO_FILES and de_init_done();
 
     my $tm = strftime( "%Y%m%d-%H%M%S", localtime() );
@@ -117,7 +117,6 @@ sub de_log
     # write in order to prevent deadlock caused by flock
     for my $msg_type ( sort @msg_types )
       {
-
       if( $DE_LOG_TO_FILES )
         {
         my $fh = $de_log_files{ $msg_type };
@@ -128,18 +127,19 @@ sub de_log
           }
         __log_to_file( $fh, @msg ) if $fh;
         }  
-      if( $DE_LOG_TO_STDERR and $msg_type ne 'global' )  
-        {
-        if( $DE_LOG_STDERR_COLORS )
-          {
-          unshift @msg, $MSG_TYPE_COLOR{ $msg_type } if exists $MSG_TYPE_COLOR{ $msg_type };
-          push    @msg, $MSG_TYPE_COLOR_RESET;
-          }
-        __log_to_file( \*STDERR, @msg ); # only "global" to stderr
-        }
-      
       # msg_type
       }
+
+    if( $DE_LOG_TO_STDERR )  
+      {
+      if( $DE_LOG_STDERR_COLORS )
+        {
+        unshift @msg, $MSG_TYPE_COLOR{ $msg_in_type } if exists $MSG_TYPE_COLOR{ $msg_in_type };
+        push    @msg, $MSG_TYPE_COLOR_RESET;
+        }
+      __log_to_file( \*STDERR, @msg ); # only "global" to stderr
+      }
+
     # msg
     }
   
