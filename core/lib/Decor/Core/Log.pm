@@ -108,11 +108,11 @@ sub de_log
 
     my @msg;
     
-    push @msg, "$tm ${DE_LOG_PREFIX}[$$] this message was repeated $last_log_message_count times:\n"
+    push @msg, "$lp this message was repeated $last_log_message_count times:\n"
         if $last_log_message_count;
     $last_log_message = $msg;
     $last_log_message_count = 0;
-    push @msg, "$tm ${DE_LOG_PREFIX}[$$] $msg\n";
+    push @msg, "$lp $msg\n";
 
     # write in order to prevent deadlock caused by flock
     for my $msg_type ( sort @msg_types )
