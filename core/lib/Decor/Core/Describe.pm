@@ -371,9 +371,16 @@ sub __merge_table_des_file
           $arg = '*';
           }
 
-        if( $arg =~ s/^-// and $arg =~ s/\*/\.*?/g )
+        if( $arg =~ s/^-// )
           {
-          delete $isa_args{ $_ } for grep { $_ ne '_ID' } grep { /^$arg$/ } keys %{ $isa->{ 'FIELD' } };
+          if( $arg =~ s/\*/\.*?/g )
+            {
+            delete $isa_args{ $_ } for grep { $_ ne '_ID' } grep { /^$arg$/ } keys %{ $isa->{ 'FIELD' } };
+            }
+          else
+            {
+            delete $isa_args{ $arg };
+            }  
           }
         elsif( $arg =~ s/\*/\.*?/g )
           {
