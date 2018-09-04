@@ -13,7 +13,7 @@ use strict;
 use Data::Dumper;
 use Exception::Sink;
 use Data::Lock qw( dlock dunlock );
-
+use Decor::Core::Log;
 use parent 'Decor::Core::System::Table::Rebuild';
 
 ##############################################################################
@@ -239,8 +239,8 @@ sub sequence_drop
   my $start  = shift || 1;
 
   my $db_seq   = $des->get_db_sequence_name();
-  de_log_debug( "debug: sequence_drop: sql: [$sql_stmt]" );
   my $sql_stmt = "DROP SEQUENCE $db_seq";
+  de_log_debug( "debug: sequence_drop: sql: [$sql_stmt]" );
 
   my $dbh = $self->get_dbh();
   my $res = $dbh->do( $sql_stmt );
