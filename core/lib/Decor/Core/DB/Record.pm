@@ -832,7 +832,7 @@ sub rollback_to_savepoint
 
   my $des = describe_table( $self->table() );
   my $dsn = $des->get_dsn_name();
-  dsn_savepoint_to_savepoint( $sp_name, $dsn );
+  dsn_rollback_to_savepoint( $sp_name, $dsn );
 }
 
 ### METHODS ##################################################################
