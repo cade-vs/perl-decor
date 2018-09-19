@@ -108,10 +108,10 @@ sub connect
   my $opt         = shift;
 
   my $socket = IO::Socket::INET->new( PeerAddr => $server_addr, Timeout => 2.0 );
-  binmode( $socket );
   
   if( $socket )
     {
+    binmode( $socket );
     $socket->autoflush( 1 );
     $self->{ 'SERVER_ADDR' } = $server_addr;
     $self->{ 'SOCKET'      } = $socket;
