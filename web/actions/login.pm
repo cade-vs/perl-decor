@@ -33,8 +33,8 @@ sub main
   
   my ( $client, $status ) = $reo->de_login( $user, $pass );
 
-#  print STDERR Dumper( $reo );
-#  return "login res: client [$client] status [$status] ";
+  #print STDERR Dumper( $reo );
+  #return "login res: client [$client] status [$status] ";
 
   if( $client )
     {
