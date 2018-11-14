@@ -50,6 +50,7 @@ sub main
     
     my ( $file_body, $file_mime ) = $core->get_return_file_body_mime();
 
+# FIXME: URGENT: ONLY FOR TEXT MIMEs
 use Encode;
 $file_body = Encode::decode_utf8( $file_body );
     
@@ -71,10 +72,12 @@ $file_body = Encode::decode_utf8( $file_body );
     }
 
   $text .= $html_file || "*** DONE ***";
+  $reo->html_content_set( 'for_printer' => $html_file );
 
   $text .= "<p>";
   $text .= de_html_alink_button( $reo, 'back', "&lArr; [~Continue]", "[~Return and continue on previous screen]" );
-
+  $text .= "<a class=button href='javascript:window.print()'><~Print this text></a>";
+  
   return $text;
 }
 

@@ -101,9 +101,10 @@ sub on_process
       };
     if( $@ )
       {
+      my $ev = $@;
       my $err_ref = create_random_id( 9, 'ABCDEFGHJKLMNPQRTVWXY0123456789' ); # print read safe
-      de_log( "error: XTYPE handler exception err_ref [$err_ref] details [$@]\n" );
-      $mo->{ 'XS' } = $@ || "E_INTERNAL: exception err_ref [$err_ref]";
+      de_log( "error: XTYPE handler exception err_ref [$err_ref] details [$ev]\n" );
+      $mo->{ 'XS' } = $ev || "E_INTERNAL: exception err_ref [$err_ref]";
       subs_disable_manual_transaction();
       eval { dsn_rollback(); }; # FIXME: eval/break-main-loop
       if( $@ )

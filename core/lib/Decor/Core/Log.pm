@@ -83,7 +83,7 @@ my %de_log_files;
 sub de_log
 {
   my @args = @_;
-  
+
   chomp( @args );
 
   $DE_LOG_TO_STDERR = 1 if ! $DE_LOG_TO_STDERR and ! $DE_LOG_TO_FILES;
@@ -122,7 +122,7 @@ sub de_log
         my $fh = $de_log_files{ $msg_type };
         if( de_init_done() and $DE_LOG_TO_FILES and -d $DE_LOG_DIR and ! $fh )
           {
-          open( $fh, ">>$DE_LOG_DIR/$msg_type.log" );
+          open( $fh, '>>', "$DE_LOG_DIR/$msg_type.log" );
           $de_log_files{ $msg_type } = $fh;
           }
         __log_to_file( $fh, @msg ) if $fh;
@@ -142,7 +142,7 @@ sub de_log
 
     # msg
     }
-  
+
   1;  
 }
 
