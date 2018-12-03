@@ -1,7 +1,16 @@
 #!/usr/bin/perl
+##############################################################################
+##
+##  Decor application machinery core
+##  2014-2018 (c) Vladi Belperchinov-Shabanski "Cade"
+##  <cade@bis.bg> <cade@biscom.net> <cade@cpan.org>
+##
+##  LICENSE: GPLv2
+##
+##############################################################################
 use strict;
 
-INIT { $| = 1; }
+INIT { $|++; }
 
 my $esc = chr(27) . '[';
 while(<>)

@@ -1,5 +1,5 @@
 
-label My funny table
+label My funny table  1
 
 
 grant read insert to 999
@@ -106,6 +106,8 @@ grant insert update to 1;10
 
   label   Test date switch
   grant   execute
+  
+  web.print
 
 
 =ACTION: TEST

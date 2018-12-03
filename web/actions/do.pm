@@ -76,7 +76,7 @@ $file_body = Encode::decode_utf8( $file_body );
 
   $text .= "<p>";
   $text .= de_html_alink_button( $reo, 'back', "&lArr; [~Continue]", "[~Return and continue on previous screen]" );
-  $text .= "<a class=button href='javascript:window.print()'><~Print this text></a>";
+  $text .= "<a class=button href='javascript:window.print()'><~Print this text></a>" if $dodes->get_attr( 'WEB', 'PRINT' );
   
   return $text;
 }
