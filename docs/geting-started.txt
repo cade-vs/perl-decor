@@ -140,9 +140,14 @@
   access the app. Currently Decor offers WEB interface.
 
   WEB interface uses Web::Reactor and Data::Tools perl modules.
-  All of them can be obtained either from CPAN or from:
+  All of them can be obtained either from CPAN or from GITHUB:
 
-      https://github.com/cade-vs
+      https://github.com/cade-vs/perl-web-reactor
+      https://github.com/cade-vs/perl-data-tools
+      
+  It also need vFrame javascript libabry:
+  
+      https://github.com/cade-vs/js-vframe
 
   To enable the WEB interface follow these steps:
 
@@ -159,11 +164,12 @@
      cd /var/www/html/my_first_app
      cp -r /usr/local/decor/web/htdocs/i .
 
-  4. copy Web::Reactor javascript support from a unpacked installation:
+  4. copy Web::Reactor and vFrame javascript support files:
 
      cd /var/www/html/my_first_app
      mkdir js
      cp /usr/local/web-reactor/htdocs/reactor.js  js/
+     cp /usr/local/js-vframe/vframe.js            js/
 
   5. create index.cgi and make it executable:
 
