@@ -92,6 +92,8 @@ grant insert update to 1;10
 
   type bool
   required
+  web.grid.editable
+  web.view.editable
 
 =DATE_TEST
 

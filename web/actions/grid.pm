@@ -285,7 +285,7 @@ sub main
       my $data = $row_data->{ $field };
       my $data_base = $row_data->{ $basef{ $field } } if exists $basef{ $field };
 
-      my ( $data_fmt, $fmt_class_fld ) = de_web_format_field( $data, $lfdes, 'GRID' );
+      my ( $data_fmt, $fmt_class_fld ) = de_web_format_field( $data, $lfdes, 'GRID', { ID => $id } );
       my $data_ctrl;
       $fmt_class .= $fmt_class_fld;
 

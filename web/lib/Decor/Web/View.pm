@@ -100,7 +100,20 @@ sub de_web_format_field
   elsif( $type_name eq 'INT' and $fdes->{ 'BOOL' } )
     {
     $data_fmt = $data > 0 ? '[&radic;]' : '[&nbsp;]';
-    $data_fmt = [ "<img src=i/check-0.svg>", "<img src=i/check-1.svg>" ]->[ !! $data ];
+    if( $fdes->get_attr( 'WEB', $vtype, 'EDITABLE' ) )
+      {
+      $data_fmt = [ "<img class=check-0 src=i/check-0.svg>", "<img class=check-1 src=i/check-1.svg>" ]->[ !! $data ];
+      my $new_val = !!! $data || 0; # cap and reverse
+      my $table = $fdes->table();
+      my $fname = $fdes->name();
+      my $id    = $opts->{ 'ID' };
+      # FIXME: use reactor_none_href to avoid session creation?
+      $data_fmt = "<div class=vframe><a reactor_new_href=?_an=set_val&table=$table&fname=$fname&id=$id&value=$new_val&vtype=$vtype>$data_fmt</a></div>";
+      }
+    else
+      {
+      $data_fmt = [ "<img src=i/check-0.svg>", "<img src=i/check-1.svg>" ]->[ !! $data ];
+      }  
     $fmt_class .= " fmt-center";
     }
   elsif( $type_name eq 'INT' or $type_name eq 'REAL' )

@@ -167,6 +167,7 @@ my %DES_ATTRS = (
                            COMBO       => 3, # requires link selection to be combo
                            ROWS        => 3, # show more rows in views
                            HIDDEN      => 3, # hide field from views
+                           EDITABLE    => 3, # if this field is allowed to be editable in views
                            
                            NO_AUTOCOMPLETE => 3, # disable interface autocomplete
                            

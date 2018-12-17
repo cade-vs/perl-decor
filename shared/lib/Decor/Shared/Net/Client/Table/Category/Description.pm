@@ -30,6 +30,20 @@ sub describe
   return $self->client()->describe( @_ );
 }
 
+sub table
+{
+  my $self = shift;
+  
+  return $self->{ 'TABLE' };
+}
+
+sub name
+{
+  my $self = shift;
+  
+  return $self->{ 'NAME' };
+}
+
 sub allows
 {
   my $self = shift;

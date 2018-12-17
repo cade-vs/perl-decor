@@ -92,7 +92,7 @@ sub main
 
     my $data      = $row_data->{ $field };
     my $data_base = $row_data->{ $basef{ $field } } if exists $basef{ $field };
-    my $data_fmt  = de_web_format_field( $data, $lfdes, 'VIEW' );
+    my $data_fmt  = de_web_format_field( $data, $lfdes, 'VIEW', { ID => $id } );
     my $data_ctrl;
 
     my $overflow  = $bfdes->get_attr( qw( WEB VIEW OVERFLOW ) );
