@@ -149,29 +149,29 @@
   
       https://github.com/cade-vs/js-vframe
 
-  To enable the WEB interface follow these steps:
+  To enable the WEB interface continue with these steps:
 
-  1. enable CGI execution in your web http server.
+  9. enable CGI execution in your web http server.
 
-  2. create web-visible directory for your app.
+ 10. create web-visible directory for your app.
 
      cd /var/www/html
      (for example)
      mkdir my_first_app
 
-  3. copy or symlink decor htdocs images:
+ 11. copy or symlink decor htdocs images:
 
      cd /var/www/html/my_first_app
      cp -r /usr/local/decor/web/htdocs/i .
 
-  4. copy Web::Reactor and vFrame javascript support files:
+ 12. copy Web::Reactor and vFrame javascript support files:
 
      cd /var/www/html/my_first_app
      mkdir js
      cp /usr/local/web-reactor/htdocs/reactor.js  js/
      cp /usr/local/js-vframe/vframe.js            js/
 
-  5. create index.cgi and make it executable:
+ 13. create index.cgi and make it executable:
 
      cd /var/www/html/my_first_app
      (create index.cgi)
@@ -212,7 +212,7 @@
         }
      ---eof--------------------------
 
-  6. point your browser to the web-visible directory (probably it is something
+ 14. point your browser to the web-visible directory (probably it is something
      like: http://localhost/my_first_app if you are on the same machine) and
      login with previously created user.
 
