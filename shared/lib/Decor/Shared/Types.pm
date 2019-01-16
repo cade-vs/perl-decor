@@ -21,6 +21,13 @@ our @EXPORT = qw(
                   type_format_human
                   type_revert
                   type_default
+
+                  type_convert
+                  type_utime2time
+                  type_utime2date
+                  type_date2utime
+                  type_utime_split
+                  type_utime_merge
                 );
 
 use Data::Dumper;
@@ -358,7 +365,9 @@ sub type_revert
     my $time_frac = $2 if $data =~ s/(\d\d?:\d\d?:\d\d?)(\.\d*)([^\.]*)$/$1/;
     $time_frac = undef if $time_frac eq '.';
 
-    return str2time( $data ) . $time_frac;
+    my @data = ( $data );
+    push @data, $type->{ 'TZ' } if $type->{ 'TZ' } ne '';
+    return str2time( @data ) . $time_frac;
     }
   elsif ( $type_name eq "REAL" )
     {
@@ -380,12 +389,6 @@ sub type_revert
     }
 }
 
-# convert decor internal data from one type to another
-sub type_convert
-{
-  boom "type_convert not yet implemented";
-}
-
 sub type_check_name
 {
   return exists $DE_TYPE_NAMES{ $_[0] };
@@ -397,6 +400,61 @@ sub type_default
 
   boom "unknown type [$type_name]" unless exists $TYPE_DEFAULTS{ $type_name };
   return $TYPE_DEFAULTS{ $type_name };
+}
+
+# convert decor internal data from one type to another
+sub type_convert
+{
+  my $val = shift; # value
+  my $tfr = shift; # type from
+  my $tto = shift; # type to
+  my $opt = shift; # options, currently only TZ
+
+  my $tz  = $opt->{ 'TZ' } if exists $opt->{ 'TZ' };
+
+  if( $tfr eq 'UTIME' and $tto eq 'TIME'  )
+    {
+    return type_revert( substr( type_format( $val, { NAME => 'UTIME', 'TZ' => $tz } ), 11, 8 ), { NAME => 'TIME' } );
+    }
+  elsif( $tfr eq 'UTIME' and $tto eq 'DATE' )
+    {
+    return type_revert( substr( type_format( $val, { NAME => 'UTIME', 'TZ' => $tz } ), 0, 10 ), { NAME => 'DATE' } );
+    }
+  elsif( $tfr eq 'DATE' and $tto eq 'UTIME' )
+    {
+    return type_revert( type_format( $val, { NAME => 'DATE' } ), { NAME => 'UTIME', 'TZ' => $tz } );
+    }
+  else
+    {
+    die "r_type_convert: cannot convert to ($tto) from ($tfr)";
+    }
+}
+
+sub type_utime2time { return type_convert( shift(), 'UTIME', 'TIME', { TZ => shift() } ); }
+sub type_utime2date { return type_convert( shift(), 'UTIME', 'DATE', { TZ => shift() } ); }
+sub type_date2utime { return type_convert( shift(), 'DATE', 'UTIME', { TZ => shift() } ); }
+
+sub type_utime_split
+{
+  my $u = shift; # UTIME value
+  my $z = shift; # time zone
+
+  my $us = type_format( $u, { NAME => 'UTIME', 'TZ' => $z } );
+  my ( $ds, $ts ) = split / /, $us;
+
+  return ( type_revert( $ds, { NAME => 'DATE' } ), type_revert( $ts, { NAME => 'TIME' } ) );
+}
+
+sub type_utime_merge
+{
+  my $d = shift; # date
+  my $t = shift; # time
+  my $z = shift; # time zone
+
+  my $ds = type_format( $d, { NAME => 'DATE' } );
+  my $ts = type_format( $t, { NAME => 'TIME' } );
+
+  return type_revert( "$ds $ts", { NAME => 'UTIME', 'TZ' => $z } );
 }
 
 ### EOF ######################################################################
