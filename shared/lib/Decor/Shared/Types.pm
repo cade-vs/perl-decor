@@ -145,6 +145,17 @@ my %FORMAT_DEFAULTS = (
 
 my %FORMATS = %FORMAT_DEFAULTS;
 
+sub __check_format
+{
+  my $type_name = shift; # type name, UTIME, DATE, TIME
+  my $fmt       = shift; # format string
+
+  boom "unknown type [$type_name]" unless exists $FORMAT_SPECS{ $type_name };
+  boom "unknown format [$fmt] for type [$type_name]" unless exists $FORMAT_SPECS{ $type_name }{ $fmt };
+  
+  return $fmt;
+}
+
 sub type_set_format
 {
   my $type = shift; # hashref with type args
@@ -152,8 +163,7 @@ sub type_set_format
 
   my $type_name = $type->{ 'NAME' };
 
-  boom "unknown type [$type_name]" unless exists $FORMAT_SPECS{ $type_name };
-  boom "unknown format [$fmt] for type [$type_name]" unless exists $FORMAT_SPECS{ $type_name }{ $fmt };
+  __check_format( $type_name, $fmt );
 
   my $old_fmt = $FORMATS{ $type_name };
   $FORMATS{ $type_name } = $fmt;
@@ -193,7 +203,9 @@ sub type_format
 
      my @t = ( undef, undef, undef, $d, $m - 1, $y - 1900 );
 
-     my $fmt = $FORMAT_SPECS{ 'DATE' }{ $FORMATS{ 'DATE' } }{ 'FMT' };
+     my $fmt_name = $FORMATS{ 'DATE' };
+     $fmt_name = __check_format( $type_name, $type->{ 'FMT' } ) if $type->{ 'FMT' };
+     my $fmt = $FORMAT_SPECS{ 'DATE' }{ $fmt_name }{ 'FMT' };
      return strftime( $fmt, @t );
      }
    else
@@ -213,7 +225,9 @@ sub type_format
 
      my @t = ( $s, $m, $h );
 
-     my $fmt = $FORMAT_SPECS{ 'TIME' }{ $FORMATS{ 'TIME' } }{ 'FMT' };
+     my $fmt_name = $FORMATS{ 'TIME' };
+     $fmt_name = __check_format( $type_name, $type->{ 'FMT' } ) if $type->{ 'FMT' };
+     my $fmt = $FORMAT_SPECS{ 'TIME' }{ $fmt_name }{ 'FMT' };
 
      my $dot = $type->{ 'DOT' };
      if( $dot > 0 )
@@ -239,16 +253,16 @@ sub type_format
 
      my $tz = $type->{ 'TZ' } || $FORMATS{ 'TZ' };
 
-     my $fmt = $FORMAT_SPECS{ 'UTIME' }{ $FORMATS{ 'UTIME' } }{ 'FMT' };
+     my $fmt_name = $FORMATS{ 'UTIME' };
+     $fmt_name = __check_format( $type_name, $type->{ 'FMT' } ) if $type->{ 'FMT' };
+     my $fmt = $FORMAT_SPECS{ 'UTIME' }{ $fmt_name }{ 'FMT' };
      
      my $dot = $type->{ 'DOT' };
      if( $dot > 0 )
        {
        my $time_frac = str_pad( num_round( ( $data - $time_int ) * ( 10 ** $dot ), 0 ), -$dot, '0' );
        $fmt =~ s/%S/%S.$time_frac/;
-
 #print STDERR ">>>>>>>>>>>>>>>>>>>>>>>>>>. [$fmt]\n";
-
        }
      
      return strftime( $fmt, @t, $tz );
@@ -332,6 +346,7 @@ sub type_revert
     return undef if $data =~ m/^\s*(n\/a|\(?empty\)?)\s*$/;
 
     my $fmt_name = $FORMATS{ 'DATE' };
+    $fmt_name = __check_format( $type_name, $type->{ 'FMT' } ) if $type->{ 'FMT' };
     $data = __canonize_date_str( $data, $fmt_name );
 
     my ( $y, $m, $d ) = ( $1, $2, $3 ) if $data =~ /^(\d\d\d\d)[\.\/\-](\d\d?)[\.\/\-](\d\d?)$/o;
@@ -359,7 +374,8 @@ sub type_revert
     }
   elsif ( $type_name eq "UTIME" )
     {
-    my $fmt_name = $FORMATS{ 'DATE' };
+    my $fmt_name = $FORMATS{ 'UTIME' };
+    $fmt_name = __check_format( $type_name, $type->{ 'FMT' } ) if $type->{ 'FMT' };
     $data = __canonize_date_str( $data, $fmt_name );
 
     my $time_frac = $2 if $data =~ s/(\d\d?:\d\d?:\d\d?)(\.\d*)([^\.]*)$/$1/;

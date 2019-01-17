@@ -31,8 +31,8 @@ my $now = Time::HiRes::time();
 my $now_s = type_format( $now, { NAME => 'UTIME' } );
 print "[$now] $now_s (now)\n";
 
-my $date = type_convert( $now, 'UTIME' => 'DATE' );
-my $date_s = type_format( $date, { NAME => 'DATE' } );
+my $date = type_convert( $now, 'UTIME' => 'DATE' ) + 11;
+my $date_s = type_format_human( $date, { NAME => 'DATE' } );
 print "[$date] $date_s\n";
 
 my $time = type_convert( $now, 'UTIME' => 'TIME', { TZ => 'GMT' } );

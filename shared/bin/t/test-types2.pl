@@ -29,7 +29,7 @@ type_set_format( { NAME => 'DATE'  }, 'MDY' );
 
 my $now = Time::HiRes::time();
 print "$now (now)\n";
-my $now_s = type_format( $now, { NAME => 'UTIME', DOT => 6 } );
+my $now_s = type_format( $now, { NAME => 'UTIME', DOT => 6, FMT => 'YMD12Z' } );
 print "$now_s (local)\n";
 
 my $rev = type_revert( $now_s, { NAME => 'UTIME', DOT => 6 } );
