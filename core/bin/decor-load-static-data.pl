@@ -180,7 +180,7 @@ sub import_data
     
   my $dbh = dsn_get_dbh_by_table( $table );
   my $protected = "AND _ID NOT IN ( $protected_ids )" if $protected_ids;
-  my $dd_stmt = "DELETE FROM $table WHERE _ID > 0 $protected";
+  my $dd_stmt = "DELETE FROM $table WHERE _ID > 0 AND _ID < 10000 $protected";
   print "status: TABLE cleanup SQL: $dd_stmt\n";
   my $rc = $dbh->do( $dd_stmt );  
   
