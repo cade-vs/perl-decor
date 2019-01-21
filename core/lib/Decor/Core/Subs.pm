@@ -337,7 +337,7 @@ sub __sub_begin_with_user_pass
     if( $@ )
       {
       $session_rec->rollback_to_savepoint( $sp_name );
-      de_log_debug( "debug: error: session create failed, will retry [$@]" );
+      de_log_debug( "debug: error: session create hit existing session, retry [$@]" );
       }
     else
       {
