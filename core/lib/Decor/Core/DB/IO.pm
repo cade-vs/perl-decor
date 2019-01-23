@@ -718,8 +718,8 @@ sub read_first1_hashref
 {
   my $self  = shift;
   my $table = shift;
-  my $where  = shift;
-  my $opts   = shift; 
+  my $where = shift;
+  my $opts  = shift; 
 
   $self->select( $table, '*', $where, $opts );
   my $data = $self->fetch();
@@ -736,6 +736,20 @@ sub read_first1_by_id_hashref
   my $opts  = shift || {}; 
 
   return $self->read_first1_hashref( $table, '._ID = ?', { %$opts, BIND => [ $id ] } );
+}
+
+sub count
+{
+  my $self  = shift;
+  my $table = shift;
+  my $where = shift;
+  my $opts  = shift; 
+
+  $self->select( $table, 'COUNT(*)', $where, $opts );
+  my $data = $self->fetch();
+  $self->finish();
+  
+  return $data->{ 'COUNT(*)' };
 }
 
 
