@@ -167,6 +167,16 @@ sub import_data
   my $data  = shift;
   
   my $tdes = describe_table( $table );
+
+  my $des = describe_table( $table );
+  my $fields = $des->get_fields_list();
+  my %data_default;
+  for my $field ( @$fields )
+    {
+    my $fdes      = $des->get_field_des( $field );
+    my $type_name = $fdes->{ 'TYPE' }{ 'NAME' };
+    $data_default{ $field } = $type_name eq 'CHAR' ? '' : 0;
+    }
     
   my $dbio = new Decor::Core::DB::IO;
 
@@ -188,7 +198,7 @@ sub import_data
     {
     next if $protected_ids{ $id };
     
-    $dbio->insert( $table, $data->{ $id }{ 'DATA' } );
+    $dbio->insert( $table, { %data_default, %{ $data->{ $id }{ 'DATA' } } } );
     }
 }
 
