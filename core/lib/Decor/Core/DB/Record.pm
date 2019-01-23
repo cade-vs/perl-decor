@@ -784,6 +784,18 @@ sub select_first1
   return defined $res ? $res : undef;
 }
 
+sub count
+{
+  my $self = shift;
+  my $where = shift;
+  my $opts  = shift; 
+  
+  my $dbio = $self->{ 'DB::IO' };
+  my $tble = $self->table();
+
+  return $dbio->count( $table, $where, $opts );
+}
+
 #-----------------------------------------------------------------------------
 
 sub delete
