@@ -790,8 +790,8 @@ sub count
   my $where = shift;
   my $opts  = shift; 
   
-  my $dbio = $self->{ 'DB::IO' };
-  my $tble = $self->table();
+  my $dbio  = $self->{ 'DB::IO' };
+  my $table = $self->table();
 
   return $dbio->count( $table, $where, $opts );
 }
