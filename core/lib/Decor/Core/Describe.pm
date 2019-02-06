@@ -430,10 +430,14 @@ sub __merge_table_des_file
 
 #print STDERR Dumper( 'isa - ' x 10, $isa_category, $isa_sect_name, $isa->{ $isa_category }{ $isa_sect_name });
 
-        %{ $des->{ $isa_category }{ $isa_sect_name } } = (
-                                                         %{         $des->{ $isa_category }{ $isa_sect_name }   },
-                                                         %{ dclone( $isa->{ $isa_category }{ $isa_sect_name } ) },
-                                                         );
+        my %isa_def = %{ dclone( $isa->{ $isa_category }{ $isa_sect_name } ) };
+ 
+        # TODO: preserve ISA grant/deny on request...
+        $isa_def{ '__GRANT_DENY_ACCUMULATOR' } = [ @{ $des->{ '@' }{ '@' }{ '__GRANT_DENY_ACCUMULATOR'  } || [] } ];
+        $isa_def{ '__GRANT_DENY_NEW_POLICY'  } = 1; # grant/deny new (local) policy, discard ISA one
+
+
+        %{ $des->{ $isa_category }{ $isa_sect_name } } = ( %{ $des->{ $isa_category }{ $isa_sect_name } }, %isa_def );
         $des->{ $category }{ $sect_name }{ '_ORDER' } = ++ $opt->{ '_ORDER' };
         $des->{ $isa_category }{ $isa_sect_name }{ '__ISA'  } = 1;
         }
