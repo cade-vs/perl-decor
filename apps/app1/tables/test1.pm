@@ -56,4 +56,18 @@ sub on_fetch
   $hr->{ 'AMOUNT4' } *= 67;
 }
 
+sub on_insert
+{
+  my $r = shift;
+  
+  $r->return_file_text( "<h1>Insert processed fine, here is a cookie:</h1><h2>".rand(137137137)."</h2>", 'html' );
+}
+
+sub on_update
+{
+  my $r = shift;
+  
+  #$r->return_file_text( "<h1>Insert processed fine, here is a cookie:</h1><h2>".rand(137137137)."</h2>", 'html' );
+}
+
 1;

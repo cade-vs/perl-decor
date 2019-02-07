@@ -376,8 +376,9 @@ sub type_revert
     {
     my $fmt_name = $FORMATS{ 'UTIME' };
     $fmt_name = __check_format( $type_name, $type->{ 'FMT' } ) if $type->{ 'FMT' };
+print STDERR ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>> >>> [$data] ($fmt_name)\n";
     $data = __canonize_date_str( $data, $fmt_name );
-
+print STDERR ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>> <<< [$data]\n";
     my $time_frac = $2 if $data =~ s/(\d\d?:\d\d?:\d\d?)(\.\d*)([^\.]*)$/$1/;
     $time_frac = undef if $time_frac eq '.';
 

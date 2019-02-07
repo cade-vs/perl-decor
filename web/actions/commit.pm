@@ -70,6 +70,7 @@ sub main
     }  
 
 #print STDERR Dumper( $res, $row_data, \%write_data );
+#print STDERR Dumper( $res, $core );
 
   if( $res )
     {
@@ -85,8 +86,39 @@ sub main
       $row_data->{ '_ID' } = $id;
       push @return_args, ( "F:$return_data_to" => $row_data->{ $return_data_from } );
       }
+ 
+    my ( $file_body, $file_mime ) = $core->get_return_file_body_mime();
+
+    # FIXME: URGENT: ONLY FOR TEXT MIMEs
+    use Encode;
+    $file_body = Encode::decode_utf8( $file_body );
     
-    $reo->forward_back( @return_args );
+    if( $file_mime eq '' )
+      {
+      # no return file, go back now
+      $reo->forward_back( @return_args );
+      }
+    else  
+      {
+      my $html_file;
+      if( $file_mime eq 'text/plain' )
+        {
+        $html_file .= "<xmp>$file_body</xmp>";
+        }
+      elsif( $file_mime eq 'text/html' )
+        {
+        $html_file .= $file_body;
+        }
+      else
+        {
+        $html_file .= "*** UNSUPPORTED DATA TYPE ***";
+        }  
+      $text .= "<p>";
+      $text .= $html_file;
+      $text .= "<p><br>";
+      $text .= de_html_alink_button( $reo, 'back', "[~Continue] &crarr;", "[~Operation done, continue...]"       );
+      }  
+    return $text;
     }
 
   my $res_msg = $res ? "OK" : "Error";
