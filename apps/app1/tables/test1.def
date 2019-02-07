@@ -8,6 +8,8 @@ grant insert update to 1;10
 #no-copy
 #no-preview
 
+web.grid.fields_list  name  ctime   suma     ref.name
+
 =NAME
 
   type char 1024
@@ -23,6 +25,8 @@ grant insert update to 1;10
 
   type real .4
   grant read
+  web.grid.hide
+
 
 =INDEX: TEST
 

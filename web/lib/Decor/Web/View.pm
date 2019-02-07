@@ -34,6 +34,7 @@ sub de_web_expand_resolve_fields_in_place
   my $basef  = shift; # base fields
 
   my @res_fields;
+  my $table = $tdes->get_table_name();
 
   #print STDERR Dumper( $fields, $tdes->{ 'FIELD' }, '---------------------------+++---'  );
   for( @$fields )
@@ -46,6 +47,7 @@ sub de_web_expand_resolve_fields_in_place
       }
     else
       {
+      boom "unknown FIELD NAME [$_] for TABLE [$table]" unless exists $tdes->{ 'FIELD' }{ $_ };
       my $fdes    = $tdes->{ 'FIELD' }{ $_ };
       if( $fdes->is_linked() )
         {

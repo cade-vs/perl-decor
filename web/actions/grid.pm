@@ -86,7 +86,10 @@ sub main
   $page_size = 300 if $page_size >  300;
   $offset = 0 if $offset < 0;
 
-  my @fields = @{ $tdes->get_fields_list_by_oper( 'READ' ) };
+  my @fields;
+  my $fields_list = uc $sdes->get_attr( qw( WEB GRID FIELDS_LIST ) );
+  @fields = split /[\s\,\;]+/, $fields_list if $fields_list;
+  @fields = @{ $tdes->get_fields_list_by_oper( 'READ' ) } unless @fields > 0;
 
 ### testing
 #push @fields, 'USR.ACTIVE';
@@ -174,6 +177,9 @@ sub main
     my $lfdes     = $lfdes{ $field };
     my $type_name = $lfdes->{ 'TYPE' }{ 'NAME' };
     my $fmt_class = $FMT_CLASSES{ $type_name } || 'fmt-left';
+
+    next if $bfdes->get_attr( qw( WEB GRID HIDE ) );
+
     my $blabel    = $bfdes->get_attr( qw( WEB GRID LABEL ) );
     my $label     = "$blabel";
     if( $bfdes ne $lfdes )
@@ -277,6 +283,8 @@ sub main
       my $lfdes     = $lfdes{ $field };
       my $type_name = $lfdes->{ 'TYPE' }{ 'NAME' };
       my $fmt_class = $FMT_CLASSES{ $type_name } || 'fmt-left';
+
+      next if $bfdes->get_attr( qw( WEB GRID HIDE ) );
 
       my $lpassword = $lfdes->get_attr( 'PASSWORD' ) ? 1 : 0;
 

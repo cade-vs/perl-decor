@@ -142,6 +142,7 @@ my %DES_ATTRS = (
                            NO_AUTOCOMPLETE => 3, # disable interface autocomplete
 
                            INSERT_CUE  => 3, # related "INSERT NEW" button label
+                           FIELDS_LIST => 3, # fields to be shown
                          },
                   'FIELD' => {
                            TABLE       => 1,
@@ -179,6 +180,8 @@ my %DES_ATTRS = (
                            EDIT_CUE    => 3, # related "EDIT" button label
                            INSERT_CUE  => 3, # related "INSERT NEW" button label
                            SELECT_CUE  => 3, # related "SELECT" button label for LINK and BACKLINKs
+                           SHOW        => 3,
+                           HIDE        => 3,
                          },
                   'INDEX' => {
                            FIELDS      => 1,
