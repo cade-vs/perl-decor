@@ -35,3 +35,8 @@
   grant all
   label Test5
   type  grid  TEST5
+
+=KERNEL
+
+  type  url   http://kernel.org
+  

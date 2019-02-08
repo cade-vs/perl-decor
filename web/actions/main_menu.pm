@@ -59,6 +59,11 @@ sub main
       my $table  = $item->{ 'TABLE'  };
       $link = "<a class=menu reactor_none_href=?action=edit&table=$table&id=-1>$label</a>";
       }
+    elsif( $type eq 'URL' )
+      {
+      my $url  = $item->{ 'URL'  };
+      $link = "<a class=menu target=_blank href=$url>$label</a>";
+      }
     else
       {
       $reo->log( "error: main-menu: invalid item [$key] type [$type]" );

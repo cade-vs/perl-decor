@@ -46,6 +46,7 @@ my %MENU_TYPES = (
                       'SUBMENU' => 1,
                       'INSERT'  => 1,
                       'EDIT'    => 1,
+                      'URL'     => 1,
                  );
 
 my %MENU_KEY_TYPES  = (
@@ -357,7 +358,7 @@ sub __postprocess_menu_hash
         }
       $item_des->{ 'SUBMENU_NAME' } = $submenu;
       }
-    elsif( $type =~ /^(GRID|INSERT|EDIT)$/ ) # FIXME: use %MENU_TYPES
+    elsif( $type =~ /^(GRID|INSERT|EDIT)$/ )
       {
       my $table = shift @type;
       if( ! des_exists( $table ) )
@@ -368,6 +369,11 @@ sub __postprocess_menu_hash
         next;
         }
       $item_des->{ 'TABLE' } = $table;
+      }
+    elsif( $type =~ /^(URL)$/ )
+      {
+      my $url = shift @type;
+      $item_des->{ 'URL' } = $url;
       }
     else
       {

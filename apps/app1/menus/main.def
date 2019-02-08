@@ -30,3 +30,9 @@
 =MOTEN
 
   type grid moten
+
+=KERNEL
+
+  type  url   http://kernel.org
+  
+  

@@ -76,6 +76,11 @@ sub sub_menu
       my $table  = $item->{ 'TABLE'  };
       push @res, "<a class=menu reactor_none_href=?action=edit&table=$table&id=-1><img src=i/menu-item-insert.svg> $label</a>";
       }
+    elsif( $type eq 'URL' )
+      {
+      my $url  = $item->{ 'URL'  };
+      push @res, "<a class=menu target=_blank href=$url><img src=i/menu-item-url.svg> $label</a>";
+      }
     else
       {
       $reo->log( "error: menu: invalid item [$key] type [$type]" );
