@@ -33,7 +33,7 @@ sub main
 
     my $label = $item->{ 'LABEL' } || $key;
     my $type  = $item->{ 'TYPE'  };
-    
+
     my $link;
     if( $type eq 'SUBMENU' )
       {

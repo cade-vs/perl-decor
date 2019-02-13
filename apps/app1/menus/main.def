@@ -22,7 +22,7 @@
 
 =TEST2
 
-  label List items
+  label [~List items]
   type  grid  TEST2
   filter-name MORE_CNT
   order-by    CNT DESC
