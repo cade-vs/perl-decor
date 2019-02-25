@@ -87,7 +87,7 @@ sub main
   $offset = 0 if $offset < 0;
 
   my @fields;
-  my $fields_list = uc $sdes->get_attr( qw( WEB GRID FIELDS_LIST ) );
+  my $fields_list = '_ID,' . uc $sdes->get_attr( qw( WEB GRID FIELDS_LIST ) );
   @fields = split /[\s\,\;]+/, $fields_list if $fields_list;
   @fields = @{ $tdes->get_fields_list_by_oper( 'READ' ) } unless @fields > 0;
 
@@ -348,7 +348,7 @@ sub main
           if( $ltdes->allows( 'INSERT' ) and $tdes->allows( 'UPDATE' ) and $bfdes->allows( 'UPDATE' ) )
             {
             # FIXME: check for record access too!
-            $data_ctrl .= de_html_alink_button( $reo, 'new', "(+) $insert_cue", undef, BTYPE => 'act', ACTION => 'edit', ID => -1,         TABLE => $linked_table, LINK_TO_TABLE => $table, LINK_TO_FIELD => $base_field, LINK_TO_ID => $id );
+            $data_ctrl .= de_html_alink_button_fill( $reo, 'new', "(+) $insert_cue", undef, BTYPE => 'act', ACTION => 'edit', ID => -1,         TABLE => $linked_table, LINK_TO_TABLE => $table, LINK_TO_FIELD => $base_field, LINK_TO_ID => $id );
             $data_ctrl .= "<br>\n";
             }
           }
@@ -361,7 +361,7 @@ sub main
         if( $bltdes->allows( 'INSERT' ) )
           {
           my $insert_cue = $bfdes->get_attr( qw( WEB GRID INSERT_CUE ) ) || "[~Insert and link a new record]";
-          $data_ctrl .= de_html_alink_button( $reo, 'new', "(+) $insert_cue", undef, BTYPE => 'act', ACTION => 'edit', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, LINK_FIELD_DISABLE => $backlinked_field );
+          $data_ctrl .= de_html_alink_button_fill( $reo, 'new', "(+) $insert_cue", undef, BTYPE => 'act', ACTION => 'edit', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, LINK_FIELD_DISABLE => $backlinked_field );
           $data_ctrl .= "<br>\n";
 
           if( $bltdes->get_table_type() eq 'FILE' )
