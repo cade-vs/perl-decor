@@ -34,7 +34,8 @@ sub main
 
   my $ps = $reo->get_page_session();
 
-  my $fields_ar        = $ps->{ 'FIELDS_WRITE_AR'  };
+  #my $fields_ar        = $ps->{ 'FIELDS_WRITE_AR'  };
+  my $fields_ar        = $tdes->get_fields_list_by_oper( 'READ' )
   my $edit_mode_insert = $ps->{ 'EDIT_MODE_INSERT' };
 
   return "<#access_denied>" unless @$fields_ar;
