@@ -13,6 +13,7 @@ use Web::Reactor::HTML::Utils;
 use Decor::Web::HTML::Utils;
 use Decor::Web::View;
 use Data::Dumper;
+use Data::Tools 1.21;
 
 my %FMT_CLASSES = (
                   'CHAR'  => 'fmt-left',
@@ -87,8 +88,8 @@ sub main
   $offset = 0 if $offset < 0;
 
   my @fields;
-  my $fields_list = '_ID,' . uc $sdes->get_attr( qw( WEB GRID FIELDS_LIST ) );
-  @fields = split /[\s\,\;]+/, $fields_list if $fields_list;
+  my $fields_list = uc $sdes->get_attr( qw( WEB GRID FIELDS_LIST ) );
+  @fields = list_uniq( '_ID', split( /[\s\,\;]+/, $fields_list ) ) if $fields_list;
   @fields = @{ $tdes->get_fields_list_by_oper( 'READ' ) } unless @fields > 0;
 
 ### testing
