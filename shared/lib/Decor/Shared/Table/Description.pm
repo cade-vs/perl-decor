@@ -96,5 +96,20 @@ sub resolve_path
   return wantarray ? ( $bfdes, $cfdes ) : $cfdes;
 }
 
+sub sort_cat_by_order
+{
+  my $self = shift;
+  my $cat  = shift;
+  
+  return sort { $self->{ $cat }{ $a }{ '_ORDER' } <=> $self->{ $cat }{ $b }{ '_ORDER' } } @_;
+}
+
+sub sort_fields_by_order
+{
+  my $self = shift;
+  
+  return $self->sort_cat_by_order( 'FIELD', @_ );
+}
+
 ### EOF ######################################################################
 1;

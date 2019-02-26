@@ -337,12 +337,12 @@ sub main
             {
             $data_fmt   = "&empty;";
             }
-          $data_ctrl .= de_html_alink_button( $reo, 'new', "(o) $view_cue",   undef,                ACTION => 'view', ID => $data_base, TABLE => $linked_table ) if $data_base > 0;
+          $data_ctrl .= de_html_alink_button_fill( $reo, 'new', "(o) $view_cue",   undef,                ACTION => 'view', ID => $data_base, TABLE => $linked_table ) if $data_base > 0;
           $data_ctrl .= "<br>\n";
           if( $ltdes->allows( 'UPDATE' ) and $data_base > 0 )
             {
             # FIXME: check for record access too!
-            $data_ctrl .= de_html_alink_button( $reo, 'new', "(v) $edit_cue", undef, BTYPE => 'mod', ACTION => 'edit', ID => $data_base, TABLE => $linked_table );
+            $data_ctrl .= de_html_alink_button_fill( $reo, 'new', "(v) $edit_cue", undef, BTYPE => 'mod', ACTION => 'edit', ID => $data_base, TABLE => $linked_table );
             $data_ctrl .= "<br>\n";
             }
           if( $ltdes->allows( 'INSERT' ) and $tdes->allows( 'UPDATE' ) and $bfdes->allows( 'UPDATE' ) )

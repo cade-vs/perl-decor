@@ -10,6 +10,7 @@
 package decor::actions::preview;
 use strict;
 use Data::Dumper;
+use Data::Tools;
 use Exception::Sink;
 
 use Web::Reactor::HTML::Utils;
@@ -35,8 +36,12 @@ sub main
   my $ps = $reo->get_page_session();
 
   my $fields_ar        = $ps->{ 'FIELDS_WRITE_AR'  };
-  #my $fields_ar        = $tdes->get_fields_list_by_oper( 'READ' )
   my $edit_mode_insert = $ps->{ 'EDIT_MODE_INSERT' };
+
+  push @$fields_ar, @{ $tdes->get_fields_list_by_oper( 'READ' ) };
+  @$fields_ar = $tdes->sort_fields_by_order( list_uniq( @$fields_ar ) );
+  
+  #print STDERR Dumper( '*'x200, $fields_ar, $tdes );
 
   return "<#access_denied>" unless @$fields_ar;
 

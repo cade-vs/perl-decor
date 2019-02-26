@@ -23,6 +23,7 @@ our @EXPORT = qw(
                 de_html_alink
                 de_html_alink_block
                 de_html_alink_button
+                de_html_alink_button_fill
                 de_html_alink_icon
 
                 de_html_popup_icon
@@ -120,6 +121,22 @@ sub de_html_alink_button
   $btype = "$btype-button" if $btype;
 
   return html_alink( $reo, $type, $value, { HINT => $hint, CLASS => "button $btype" }, %args );
+}
+
+sub de_html_alink_button_fill
+{
+  my $reo   = shift; # web::reactor object
+  my $type  = shift; # redirect type: new, back, here, none
+  my $value = shift; # link text
+  my $hint  = shift; # link hover hint
+  my %args  = @_;
+
+  $value = __value_image_fix( $value );
+
+  my $btype = $args{ 'BTYPE' };
+  $btype = "$btype-button" if $btype;
+
+  return html_alink( $reo, $type, $value, { HINT => $hint, CLASS => "button $btype fill" }, %args );
 }
 
 sub de_html_alink_icon
