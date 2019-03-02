@@ -1,0 +1,14 @@
+_ID;NAME
+
+1;root
+
+900;nobody
+901;nobody
+
+909;guest
+
+961;ignore ownership globally
+966;allow read globally
+967;restrict all modifications globally
+
+999;everybody

@@ -224,7 +224,7 @@ sub check_access
   my $group = int( $_[0] );
   return 0 if $group == 0;
   
-  return $self->{ 'GROUPS' }{ $group } if exists $self->{ 'GROUPS' }{ $group };
+  return exists $self->{ 'GROUPS' }{ $group } ? $self->{ 'GROUPS' }{ $group } : 0;
 }
 
 sub check_access_table
@@ -296,6 +296,9 @@ sub check_access_table_category
   my $cat   = uc $_[2]; # category
   my $item  = uc $_[3]; # category item
 
+  return 1 if $oper eq 'READ' and exists $self->{ 'GROUPS' }{ 966 }
+  return 0 if $oper ne 'READ' and exists $self->{ 'GROUPS' }{ 967 }
+
 #print STDERR "check_access_table_category: [@_]\n";
 
   # TCO == table category oper
@@ -338,6 +341,9 @@ sub check_access_row
   my $oper  = uc $_[0];
   my $table = uc $_[1];
   my $dsrc  =    $_[2]; # data source, hashref or record object
+
+  return 1 if $oper eq 'READ' and exists $self->{ 'GROUPS' }{ 966 }
+  return 0 if $oper ne 'READ' and exists $self->{ 'GROUPS' }{ 967 }
 
   my $fields = des_table_get_fields_list( $table );
   my $sccnt = 0; # security checks count

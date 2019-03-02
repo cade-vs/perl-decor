@@ -1,5 +1,4 @@
 _id;name
-!1;root
 99;default
 
 110;admin
@@ -9,4 +8,3 @@ _id;name
 
 !200;Public
 
-999;change_pass

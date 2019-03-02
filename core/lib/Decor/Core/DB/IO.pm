@@ -329,6 +329,7 @@ sub __get_row_access_where_list
   if( $profile )
     {
     return () if     $profile->has_root_access();
+    return () if     $profile->check_access( 961 ); # ignore ownership globally
     return () unless $self->taint_mode_get( 'ROWS' );
     }
   else
