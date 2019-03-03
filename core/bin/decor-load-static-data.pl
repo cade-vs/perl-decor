@@ -112,6 +112,7 @@ my $opt_app_name = shift @args;
 de_init( APP_NAME => $opt_app_name );
 
 my @objects = @args;
+@objects = sort @{ des_get_tables_list() } if ! $use_files and ! @objects;
 @objects = sort @objects if $use_files;
 
 if( ! @objects )
@@ -142,7 +143,11 @@ sub load_object
     {
     $table = uc $object;
     @files = find_files_for_table( $object );
-    die "error: cannot find any files for table [$object]\n" unless @files;
+    if( ! @files )
+      {
+      print "warning: cannot find any files for table [$object]\n";
+      return;
+      }
     }  
 
 
