@@ -35,15 +35,15 @@ sub main
 
   my $ps = $reo->get_page_session();
 
-  my $fields_ar        = $ps->{ 'FIELDS_WRITE_AR'  };
+  my @fields           = @{ $ps->{ 'FIELDS_WRITE_AR'  } };
   my $edit_mode_insert = $ps->{ 'EDIT_MODE_INSERT' };
 
-  push @$fields_ar, @{ $tdes->get_fields_list_by_oper( 'READ' ) };
-  @$fields_ar = $tdes->sort_fields_by_order( list_uniq( @$fields_ar ) );
+  push @fields, @{ $tdes->get_fields_list_by_oper( 'READ' ) };
+  @fields = $tdes->sort_fields_by_order( list_uniq( @fields ) );
   
-  #print STDERR Dumper( '*'x200, $fields_ar, $tdes );
+  #print STDERR Dumper( '*'x200, \@fields, $tdes );
 
-  return "<#access_denied>" unless @$fields_ar;
+  return "<#access_denied>" unless @fields;
 
   my $text .= "<br>";
 
@@ -57,9 +57,9 @@ sub main
   return "<#no_data>" unless $row_data;
   my $row_id = $row_data->{ '_ID' };
 
-  @$fields_ar = grep { /^_/ ? $reo->user_has_group( 1 ) ? 1 : 0 : 1 } @$fields_ar;
+  @fields = grep { /^_/ ? $reo->user_has_group( 1 ) ? 1 : 0 : 1 } @fields;
 
-  for my $field ( @$fields_ar )
+  for my $field ( @fields )
     {
     my $fdes      = $tdes->{ 'FIELD' }{ $field };
     my $bfdes     = $fdes; # keep sync code with view/grid, bfdes is begin/origin-field
