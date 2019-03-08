@@ -55,6 +55,8 @@ sub main
 
   my $text .= "<br>";
 
+  my $custom_css = lc "css_$table";
+  $text .= "<#$custom_css>";
   $text .= "<table class=view cellspacing=0 cellpadding=0>";
   $text .= "<tr class=view-header>";
   $text .= "<td class='view-header fmt-right'>Field</td>";
@@ -166,9 +168,10 @@ sub main
       }
 
     my $data_layout = html_layout_2lr( $data_fmt, $data_ctrl, '<==1>' );
+    my $base_field_class = lc "css_view_class_$base_field";
     $text .= "<tr class=view>";
-    $text .= "<td class='view-field' >$label</td>";
-    $text .= "<td class='view-value' >$data_layout</td>";
+    $text .= "<td class='view-field  $base_field_class' >$label</td>";
+    $text .= "<td class='view-value  $base_field_class' >$data_layout</td>";
     $text .= "</tr>\n";
     }
   $text .= "</table>";

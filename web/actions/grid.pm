@@ -166,6 +166,9 @@ sub main
   $text_grid_navi_left .= de_html_alink_button( $reo, 'here', "(x) [~Remove filter]",    '[~Remove current filter]', REMOVE_ACTIVE_FILTER => 1 ) if $active_filter;
   $text_grid_navi_left .= de_html_alink_button( $reo, 'here', "(&lt;) [~Enable last filter]",    '[~Enable last used filter]', USE_LAST_FILTER => 1      ) if $last_filter and ! $active_filter;
 
+  my $custom_css = lc "css_$table";
+  $text .= "<#$custom_css>";
+
   $text_grid_head .= "<table class=grid cellspacing=0 cellpadding=0>";
   $text_grid_head .= "<tr class=grid-header>";
   $text_grid_head .= "<td class='grid-header fmt-left'>Ctrl</td>";
@@ -393,7 +396,8 @@ sub main
         $data_fmt = "<table cellspacing=0 cellpadding=0 width=100%><tr><td align=left>$data_fmt</td><td align=right>&nbsp;$data_ctrl</td></tr></table>";
         }
 
-      $text_grid_body .= "<td class='grid-data $fmt_class'>$data_fmt</td>";
+      my $base_field_class = lc "css_grid_class_$base_field";
+      $text_grid_body .= "<td class='grid-data $fmt_class  $base_field_class'>$data_fmt</td>";
       }
     $text_grid_body .= "</tr>";
     }

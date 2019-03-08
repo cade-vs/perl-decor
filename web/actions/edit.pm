@@ -203,6 +203,8 @@ sub main
 
   $text .= $edit_form_begin;
 
+  my $custom_css = lc "css_$table";
+  $text .= "<#$custom_css>";
   $text .= "<table class=view cellspacing=0 cellpadding=0>";
   $text .= "<tr class=view-header>";
   $text .= "<td class='view-header fmt-right'>[~Field]</td>";
@@ -221,6 +223,8 @@ sub main
     my $label     = $fdes->{ 'LABEL' } || $field;
 
     next if $fdes->get_attr( 'WEB', 'HIDDEN' );
+
+    my $base_field = $field;
 
     my $field_data = $ps->{ 'ROW_DATA' }{ $field };
     my $field_data_usr_format = type_format( $field_data, $type );
@@ -497,9 +501,10 @@ sub main
     $field_error = "<div class=warning align=right>$field_error</div>" if $field_error;
 
     my $input_layout = html_layout_2lr( $field_input, $field_input_ctrl, '<==1>' );
+    my $base_field_class = lc "css_edit_class_$base_field";
     $text .= "<tr class=view>\n";
-    $text .= "<td class='view-field'>$label$field_error</td>\n";
-    $text .= "<td class='view-value' >$input_layout</td>\n";
+    $text .= "<td class='view-field  $base_field_class'>$label$field_error</td>\n";
+    $text .= "<td class='view-value  $base_field_class' >$input_layout</td>\n";
     $text .= "</tr>\n";
     }
   $text .= "</table>";
