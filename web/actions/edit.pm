@@ -222,7 +222,7 @@ sub main
     my $type_name = $fdes->{ 'TYPE'  }{ 'NAME' };
     my $label     = $fdes->{ 'LABEL' } || $field;
 
-    next if $fdes->get_attr( 'WEB', 'HIDDEN' );
+    next if $fdes->get_attr( 'WEB', ( $edit_mode_insert ? 'INSERT' : 'UPDATE' ), 'HIDE' );
 
     my $base_field = $field;
 

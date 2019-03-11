@@ -7,6 +7,9 @@ grant read          to 999
 =name
 
   type char 256
+#  web.grid.hide
+#  web.insert.hide
+#  web.update.hide
   
 =cnt
 
