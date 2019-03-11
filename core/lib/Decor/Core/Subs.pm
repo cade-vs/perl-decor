@@ -979,9 +979,10 @@ sub sub_recalc
   my $mi = shift;
   my $mo = shift;
 
-  my $table  = uc $mi->{ 'TABLE'  };
-  my $data   =    $mi->{ 'DATA'   };
-  my $id     =    $mi->{ 'ID'     };
+  my $table  = uc   $mi->{ 'TABLE'  };
+  my $data   =      $mi->{ 'DATA'   };
+  my $id     =      $mi->{ 'ID'     };
+  my $insert = 1 if $mi->{ 'INSERT' };
 
   boom "invalid TABLE name [$table]"    unless de_check_name( $table ) or ! des_exists( $table );
   boom "invalid ID [$id]"               if $id ne '' and ! de_check_id( $id );
@@ -993,13 +994,13 @@ sub sub_recalc
 
   $rec->taint_mode_on( 'TABLE', 'ROWS' );
 
-  if( $id > 0 )
+  if( $insert )
     {
-    $rec->load( $table, $id );
+    $rec->create_read_only( $table, $id );
     }
   else
     {
-    $rec->create_read_only( $table );
+    $rec->load( $table, $id );
     }
 
   $rec->write( %$data );

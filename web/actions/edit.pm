@@ -151,8 +151,7 @@ sub main
   #$edit_mode_insert = $ps->{ 'EDIT_MODE_INSERT' };
 
   my $calc_in  = { map { $_ => $ps->{ 'ROW_DATA' }{ $_ } } @$fields_ar };
-  my $calc_id  = $id unless $edit_mode_insert;
-  my ( $calc_out, $calc_merrs )= $core->recalc( $table, $calc_in, $calc_id );
+  my ( $calc_out, $calc_merrs )= $core->recalc( $table, $calc_in, $id, $edit_mode_insert );
   if( $calc_out )
     {
     $ps->{ 'ROW_DATA' } = $calc_out;

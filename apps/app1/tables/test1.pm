@@ -23,6 +23,14 @@ sub on_recalc
   $r->method_add_error( 'Field sum cannot be above 500' ) if $sum > 500;
 
   print Dumper( 'RECALC-'x10, $r );
+  
+  
+  my $sr = $r->select_siblings( 'BACKREF' );
+  while( $sr->next() )
+    {
+    print Dumper( 'SIBLING-'x10, $sr );
+    }
+  
 }
 
 sub on_test

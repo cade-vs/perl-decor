@@ -189,9 +189,10 @@ sub create_read_only
   my $self  = shift;
 
   my $table = uc shift;
+  my $id    =    shift;
 
   $self->set_read_only();
-  return $self->create( $table );
+  return $self->create( $table, $id );
 }
 
 sub load
@@ -845,6 +846,28 @@ sub rollback_to_savepoint
   my $des = describe_table( $self->table() );
   my $dsn = $des->get_dsn_name();
   dsn_rollback_to_savepoint( $sp_name, $dsn );
+}
+
+### HELPERS ##################################################################
+
+sub select_siblings
+{
+  my $self  = shift;
+  my $field = shift;
+  
+  my $fdes = describe_table_field( $self->table(), $field );
+  my $ftype_name = $fdes->{ 'TYPE' }{ 'NAME' };
+  
+  boom "cannot select siblings of [$field] it is not a BACKLINK field" unless $ftype_name eq 'BACKLINK';
+  
+  my ( $backlinked_table, $backlinked_field ) = $fdes->backlink_details();
+  my $base_id = $self->id();
+  
+  my $srec = new Decor::Core::DB::Record;
+  
+  $srec->select( $backlinked_table, "$backlinked_field = ?", { BIND => [ $base_id ] } );
+  
+  return $srec;
 }
 
 ### METHODS ##################################################################

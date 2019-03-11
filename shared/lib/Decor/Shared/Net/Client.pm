@@ -574,6 +574,7 @@ sub recalc
   my $table  = uc shift;
   my $data   = shift;
   my $id     = shift;
+  my $insert = shift;
   my $opt    = shift || {};
   
   my %mi;
@@ -582,6 +583,7 @@ sub recalc
   $mi{ 'TABLE'  } = $table;
   $mi{ 'DATA'   } = $data;
   $mi{ 'ID'     } = $id;
+  $mi{ 'INSERT' } = 1 if $insert;
 
   my $mo = $self->tx_msg( \%mi ) or return undef;
 
