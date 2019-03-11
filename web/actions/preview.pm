@@ -47,6 +47,8 @@ sub main
 
   my $text .= "<br>";
 
+  my $custom_css = lc "css_$table";
+  $text .= "<#$custom_css>";
   $text .= "<table class=view cellspacing=0 cellpadding=0>";
   $text .= "<tr class=view-header>";
   $text .= "<td class='view-header fmt-right'>[~Field]</td>";
@@ -65,6 +67,8 @@ sub main
     my $bfdes     = $fdes; # keep sync code with view/grid, bfdes is begin/origin-field
     my $type_name = $fdes->{ 'TYPE'  }{ 'NAME' };
     my $label     = $fdes->get_attr( qw( WEB PREVIEW LABEL ) );
+
+    my $base_field = $field;
 
     my $data = $row_data->{ $field };
     my $data_fmt = de_web_format_field( $data, $fdes, 'PREVIEW' );
@@ -105,9 +109,10 @@ sub main
       $data_fmt = qq( <b class=hi>$count</b> [~records from] <b class=hi>$linked_table_label</b> );
       }
 
+    my $base_field_class = lc "css_preview_class_$base_field";
     $text .= "<tr class=view>";
-    $text .= "<td class='view-field' >$label</td>";
-    $text .= "<td class='view-value' >$data_fmt</td>";
+    $text .= "<td class='view-field  $base_field_class' >$label</td>";
+    $text .= "<td class='view-value  $base_field_class' >$data_fmt</td>";
     $text .= "</tr>";
     }
   $text .= "</table>";
