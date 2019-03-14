@@ -25,15 +25,20 @@ sub main
 
   my $text;
 
-  my $table   = $reo->param( 'TABLE'   );
-  my $id      = $reo->param( 'ID'      );
+#  my $table   = $reo->param( 'TABLE'   );
+#  my $id      = $reo->param( 'ID'      );
+
+
+  my $core = $reo->de_connect();
+
+  my $ps = $reo->get_page_session();
+
+  my $table   = $ps->{ 'TABLE'   };
+  my $id      = $ps->{ 'ID'      };
 
   return "<#e_data>" unless $table and $id;
 
-  my $core = $reo->de_connect();
   my $tdes = $core->describe( $table );
-
-  my $ps = $reo->get_page_session();
 
   my @fields           = @{ $ps->{ 'FIELDS_WRITE_AR'  } };
   my $edit_mode_insert = $ps->{ 'EDIT_MODE_INSERT' };
