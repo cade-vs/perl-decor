@@ -102,7 +102,8 @@ sub main
 
   de_web_expand_resolve_fields_in_place( \@fields, $tdes, \%bfdes, \%lfdes, \%basef );
 
-  my $fields = join ',', grep { $_ ne $link_field_disable and $_ !~ /^$link_field_disable\./ } @fields, values %basef;
+  # FIXME: cleanup the following grep!
+  my $fields = join ',', grep { $link_field_disable ? ( $_ ne $link_field_disable and $_ !~ /^$link_field_disable\./ ) : 1 } @fields, values %basef;
 
   return "<#e_access>" unless $fields;
 
@@ -182,6 +183,9 @@ sub main
     my $type_name = $lfdes->{ 'TYPE' }{ 'NAME' };
     my $fmt_class = $FMT_CLASSES{ $type_name } || 'fmt-left';
 
+    my $base_field = $bfdes->{ 'NAME' };
+
+    next if $link_field_disable and $base_field eq $link_field_disable;
     next if $bfdes->get_attr( qw( WEB GRID HIDE ) );
 
     my $blabel    = $bfdes->get_attr( qw( WEB GRID LABEL ) );
@@ -303,17 +307,10 @@ sub main
 
       if( $bfdes->is_linked() )
         {
+
         if( $link_field_disable and $base_field eq $link_field_disable )
           {
-          if( $data_base > 0 )
-            {
-            # TODO: highlight disabled links
-            # $data_fmt   = $data_fmt;
-            }
-          else
-            {
-            $data_fmt   = "&empty;";
-            }
+          next;
           }
         else
           {
