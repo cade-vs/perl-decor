@@ -102,7 +102,7 @@ sub main
 
   de_web_expand_resolve_fields_in_place( \@fields, $tdes, \%bfdes, \%lfdes, \%basef );
 
-  my $fields = join ',', @fields, values %basef;
+  my $fields = join ',', grep { $_ ne $link_field_disable and $_ !~ /^$link_field_disable\./ } @fields, values %basef;
 
   return "<#e_access>" unless $fields;
 
@@ -131,7 +131,7 @@ sub main
   $reo->ps_path_add( 'grid', qq( [~List data from] "<b>$table_label</b> ([~filtered])" ) ) if $filter;
 
   my $select = $core->select( $table, $fields, { FILTER => $filter, FILTER_NAME => $filter_name, OFFSET => $offset, LIMIT => $page_size, ORDER_BY => $order_by } ) if $fields;
-  my $scount = $core->count( $table, { FILTER => $filter, FILTER_NAME => $filter_name } ) if $select;
+  my $scount = $core->count( $table,           { FILTER => $filter, FILTER_NAME => $filter_name } ) if $select;
 
 #  $text .= "<br>";
 #  $text .= "<p>";
