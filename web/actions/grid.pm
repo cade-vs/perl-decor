@@ -107,6 +107,14 @@ sub main
 
   return "<#e_access>" unless $fields;
 
+  my $detach_field = $reo->param( 'DETACH_FIELD' );
+  my $detach_id    = $reo->param( 'DETACH_ID'    );
+  if( $detach_field and $detach_id > 0 )
+    {
+    my $res = $core->update( $table, { $detach_field => 0 }, { ID => $detach_id } );
+    # FIXME: handle $res?
+    }
+
   my $last_filter = $ps->{ 'FILTERS' }{ 'LAST' };
   if( $last_filter and $reo->param_peek( 'USE_LAST_FILTER' ) )
     {
@@ -266,10 +274,16 @@ sub main
       $vec_ctrl .= de_html_alink_icon( $reo, 'new', $icon, $label, ACTION => $target, ID => $id, TABLE => $table );
       }
 
-    $vec_ctrl .= de_html_alink_icon( $reo, 'new', "view.svg",    '[~View this record]',      ACTION => 'view',    ID => $id, TABLE => $table );
-    $vec_ctrl .= de_html_alink_icon( $reo, 'new', "edit.svg",    '[~Edit this record]',      ACTION => 'edit',    ID => $id, TABLE => $table ) if $tdes->allows( 'UPDATE' );
+    if( $link_field_disable )
+      {
+      # FIXME: check if this is only for backlinked data!?
+      $vec_ctrl .= de_html_alink_icon( $reo, 'here', "detach.svg",  { CLASS => 'plain', HINT => '[~Detach this record from the parent]', CONFIRM => '[~Are you sure you want to DETACH this record from the parent record?]' },  DETACH_FIELD => $link_field_disable, DETACH_ID => $id );
+      }
+
+    $vec_ctrl .= de_html_alink_icon( $reo, 'new', "view.svg",    '[~View this record]',      ACTION => 'view',    ID => $id, TABLE => $table                 );
+    $vec_ctrl .= de_html_alink_icon( $reo, 'new', "edit.svg",    '[~Edit this record]',      ACTION => 'edit',    ID => $id, TABLE => $table                 ) if $tdes->allows( 'UPDATE' );
     $vec_ctrl .= de_html_alink_icon( $reo, 'new', "copy.svg",    '[~Copy this record]',      ACTION => 'edit',    ID =>  -1, TABLE => $table, COPY_ID => $id ) if $tdes->allows( 'INSERT' ) and ! $tdes->{ '@' }{ 'NO_COPY' };
-    $vec_ctrl .= de_html_alink_icon( $reo, 'new', 'file_dn.svg', '[~Download current file]', ACTION => 'file_dn', ID => $id, TABLE => $table ) if $table_type eq 'FILE';
+    $vec_ctrl .= de_html_alink_icon( $reo, 'new', 'file_dn.svg', '[~Download current file]', ACTION => 'file_dn', ID => $id, TABLE => $table                 ) if $table_type eq 'FILE';
     
     if( @dos )
       {

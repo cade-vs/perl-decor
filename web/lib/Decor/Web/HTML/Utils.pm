@@ -90,8 +90,10 @@ sub de_html_alink
   my %args  = @_;
 
   $value = __value_image_fix( $value );
+  
+  my $opt = ref( $hint ) eq 'HASH' ? $hint : { HINT => $hint };
 
-  return html_alink( $reo, $type, $value, { HINT => $hint }, %args );
+  return html_alink( $reo, $type, $value, $opt, %args );
 }
 
 sub de_html_alink_block
@@ -149,7 +151,9 @@ sub de_html_alink_icon
 
   $value = __value_image_fix( $value, CLASS => 'icon' );
 
-  return html_alink( $reo, $type, $value, { HINT => $hint, CLASS => 'plain' }, @args );
+  my $opt = ref( $hint ) eq 'HASH' ? $hint : { HINT => $hint, CLASS => 'plain' };
+
+  return html_alink( $reo, $type, $value, $opt, @args );
 }
 
 sub de_html_popup_icon
