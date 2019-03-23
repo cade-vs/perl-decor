@@ -428,10 +428,10 @@ sub main
     $offset_prev = 0 if $offset_prev < 0;
     $offset_last = 0 if $offset_last < 0;
 
-    $text_grid_navi_mid .= $offset > 0 ? "<a reactor_here_href=?offset=0><img src=i/page-prev.svg> [~first page]</a> | " : "<img src=i/page-prev.svg> [~first page] | ";
-    $text_grid_navi_mid .= $offset > 0 ? "<a reactor_here_href=?offset=$offset_prev><img src=i/page-prev.svg> previous page</a> | " : "<img src=i/page-prev.svg> [~previous page] | ";
-    $text_grid_navi_mid .= $offset_next < $scount ? "<a reactor_here_href=?offset=$offset_next>[~next page] <img src=i/page-next.svg></a> | " : "[~next page] <img src=i/page-next.svg> | ";
-    $text_grid_navi_mid .= $offset_next < $scount ? "<a reactor_here_href=?offset=$offset_last>[~last page] <img src=i/page-next.svg></a> | " : "[~last page] <img src=i/page-next.svg> | ";
+    $text_grid_navi_mid .= $offset > 0 ? "<a reactor_here_href=?offset=0><img src=i/page-prev.svg> [~first]</a> | " : "<img src=i/page-prev.svg> [~first] | ";
+    $text_grid_navi_mid .= $offset > 0 ? "<a reactor_here_href=?offset=$offset_prev><img src=i/page-prev.svg> previous</a> | " : "<img src=i/page-prev.svg> [~previous] | ";
+    $text_grid_navi_mid .= $offset_next < $scount ? "<a reactor_here_href=?offset=$offset_next>[~next] <img src=i/page-next.svg></a> | " : "[~next] <img src=i/page-next.svg> | ";
+    $text_grid_navi_mid .= $offset_next < $scount ? "<a reactor_here_href=?offset=$offset_last>[~last] <img src=i/page-next.svg></a> | " : "[~last] <img src=i/page-next.svg> | ";
 
     #$text_grid_navi .= "<a reactor_here_href=?offset=$offset_prev><img src=i/page-prev.svg> previous page</a> | <a reactor_here_href=?offset=$offset_next>next page <img src=i/page-next.svg> </a>";
     my $page_more = int( $page_size * 2 );
@@ -443,7 +443,14 @@ sub main
 
     my $offset_from = $offset + 1;
     my $offset_to   = $offset + $row_counter;
-    $text_grid_navi_mid .= "rows $offset_from .. $offset_to ($page_size/$link_page_more/$link_page_less$link_page_all) of $scount";
+    if( $scount < 5 )
+      {
+      $text_grid_navi_mid .= "[~rows]: $scount";
+      }
+    else  
+      {
+      $text_grid_navi_mid .= "[~rows]: $offset_from .. $offset_to ($page_size/$link_page_more/$link_page_less$link_page_all) of $scount";
+      }
 
     # FIXME: use function!
     my $text_grid_navi = "<table width=100% class=grid-navi><tr><td align=left width=1%>$text_grid_navi_left</td><td align=center>$text_grid_navi_mid</td><td align=right width=1%>$text_grid_navi_right</td></tr></table>";
