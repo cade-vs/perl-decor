@@ -194,6 +194,72 @@ sub main
                                        LABELS   => [ "<img class=check-unknown src=i/check-unknown.svg>", "<img class=check-0 src=i/check-0.svg>", "<img class=check-1 src=i/check-1.svg>" ],
                                        );
       }
+    if( $bfdes->is_linked() )
+      {
+      my ( $linked_table, $linked_field ) = $bfdes->link_details();
+      my $ltdes = $core->describe( $linked_table );
+      
+      my $combo = $fdes->get_attr( qw( WEB COMBO ) );
+      my $spf_fmt;
+      my @spf_fld;
+      if( $combo == 1 )
+        {
+        $spf_fmt = "%s";
+        @spf_fld = ( $linked_field );
+        }
+      else
+        {
+        my @v = split /\s*;\s*/, $combo;
+        $spf_fmt = shift @v;
+        @spf_fld = @v;
+        }
+
+      my $combo_data = [];
+      my $sel_hr     = {};
+      $sel_hr->{ $input_data } = 1 if $input_data > 0;
+
+      my @lfields = @{ $ltdes->get_fields_list_by_oper( 'READ' ) };
+      unshift @lfields, $linked_field;
+
+      my %bfdes; # base/begin/origin field descriptions, indexed by field path
+      my %lfdes; # linked/last       field descriptions, indexed by field path, pointing to trail field
+      my %basef; # base fields map, return base field NAME by field path
+
+      de_web_expand_resolve_fields_in_place( \@lfields, $ltdes, \%bfdes, \%lfdes, \%basef );
+
+    #$text .= Dumper( \%basef );
+
+      my $lfields = join ',', '_ID', @lfields, values %basef;
+
+      my $combo_select = $core->select( $linked_table, $lfields, { ORDER_BY => '._ID' } );
+      
+      push @$combo_data, { KEY => '', VALUE => '--' };
+      
+#$text .= "my $combo_select = $core->select( $linked_table, $lfields )<br>";
+      while( my $hr = $core->fetch( $combo_select ) )
+        {
+        my @value = map { $hr->{ $_ } } @spf_fld;
+        my $value = sprintf( $spf_fmt, @value );
+
+#$text .= "[$spf_fmt][@spf_fld][$value][@value]<br>";
+        $value =~ s/\s/&nbsp;/g;
+        push @$combo_data, { KEY => $hr->{ '_ID' }, VALUE => $value };
+        }
+
+      my $fmt_class;
+      if( $fdes->get_attr( 'WEB', 'EDIT', 'MONO' ) )
+        {
+        $fmt_class .= " fmt-mono";
+        }
+
+      $field_input = $filter_form->combo( NAME => "F:$field", CLASS => $fmt_class, DATA => $combo_data, SELECTED => $sel_hr );
+      }
+    elsif( $bfdes->is_backlinked() )
+      {
+      # cannot be filtered for now...
+      # should be used as INT, to filter backlinked records count
+      next;
+      }
     else
       {
       my $field_size = 64;

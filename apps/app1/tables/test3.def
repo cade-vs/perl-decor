@@ -25,4 +25,4 @@ grant read          to all
 =PARENT
 
   type  link  test1 name
-  deny  update
+  #deny  update

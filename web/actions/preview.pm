@@ -126,7 +126,7 @@ sub main
 
   $text .= "<br>";
   $text .= de_html_alink_button( $reo, 'back', "&lArr; [~Cancel]", "[~Cancel this operation]"                        );
-  $text .= de_html_alink_button( $reo, 'here', "&lArr; [~Back]",   "[~Back to data edit screen]", ACTION => 'edit'   );
+  $text .= de_html_alink_button( $reo, 'here', "[~Edit] &uArr;",   "[~Back to data edit screen]", BTYPE => 'mod', ACTION => 'edit'   );
   $text .= de_html_alink_button( $reo, 'here', "[~OK] &radic;",     $ok_hint,                     ACTION => 'commit' );
 
   return $text;
