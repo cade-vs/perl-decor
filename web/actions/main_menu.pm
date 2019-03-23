@@ -19,15 +19,17 @@ sub main
 
   my $core = $reo->de_connect();
   my $menu = $core->menu( 'MAIN' );
+#print STDERR Dumper( '******************************', $menu, $core );
+
 
   my $text;
-
 
   $text .= "<table class=main-menu cellspacing=0 cellpadding=0 width=100%><tr class=main-menu>";
   for my $key ( sort { $menu->{ $a }{ '_ORDER' } <=> $menu->{ $b }{ '_ORDER' } } keys %$menu )
     {
     next if $key eq '@';
     my $item = $menu->{ $key };
+
     next unless $item->{ 'GRANT' }{ 'ACCESS' } or $item->{ 'GRANT' }{ 'ALL' };
     next if     $item->{ 'DENY'  }{ 'ACCESS' } or $item->{ 'DENY'  }{ 'ALL' };
 

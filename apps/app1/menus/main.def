@@ -1,5 +1,4 @@
 
-
 =SYSTEM
 
   type submenu  _DE_ADMIN
@@ -14,6 +13,7 @@
 
   label List items
   type  grid  TEST1
+  grant access to all
 
 =NEW_ITEM
 

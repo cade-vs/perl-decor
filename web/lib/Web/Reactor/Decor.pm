@@ -163,8 +163,8 @@ sub de_connect
   my %opt = @_;
 
   boom "need to be logged in first" unless $self->is_logged_in();
-
-  return $self->{ 'DECOR_CLIENT_OBJECT' } if $self->{ 'DECOR_CLIENT_OBJECT' };
+  
+  return $self->{ 'DECOR_CLIENT_OBJECT' } if $self->{ 'DECOR_CLIENT_OBJECT' } and $self->{ 'DECOR_CLIENT_OBJECT' }->is_connected();
 
   my $de_core_app     = $self->{ 'ENV' }{ 'DECOR_CORE_APP'       };
   my $de_core_host    = $self->{ 'ENV' }{ 'DECOR_CORE_HOST'      };

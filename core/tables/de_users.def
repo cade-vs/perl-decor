@@ -35,6 +35,11 @@
   label User private group
   type  link  DE_GROUPS   NAME
 
+=GROUPS
+
+  label Attached groups
+  type  backlink  DE_USER_GROUP_MAP   USR
+
 =ACTIVE
 
   label User Active?
@@ -53,7 +58,7 @@
 =LOGIN_SESSIONS
 
   label Previous login sessions
-  type  backlink  de_sessions   usr
+  type  backlink  DE_SESSIONS   USR
 
 =SESSIONLESS
 

@@ -274,7 +274,8 @@ sub main
       $vec_ctrl .= de_html_alink_icon( $reo, 'new', $icon, $label, ACTION => $target, ID => $id, TABLE => $table );
       }
 
-    if( $link_field_disable )
+#    print STDERR Dumper( '**------*******---'x 10, $link_field_disable, $tdes->{ 'FIELD' }{ $link_field_disable } );
+    if( $link_field_disable and exists $tdes->{ 'FIELD' }{ $link_field_disable } and $tdes->{ 'FIELD' }{ $link_field_disable }->allows( 'UPDATE' ) )
       {
       # FIXME: check if this is only for backlinked data!?
       $vec_ctrl .= de_html_alink_icon( $reo, 'here', "detach.svg",  { CLASS => 'plain', HINT => '[~Detach this record from the parent]', CONFIRM => '[~Are you sure you want to DETACH this record from the parent record?]' },  DETACH_FIELD => $link_field_disable, DETACH_ID => $id );

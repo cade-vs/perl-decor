@@ -1,13 +1,14 @@
 
 label  Test table 3
 
+@isa  test2     *
+
 grant insert update to 900; 10
 grant read          to all
 #deny insert
 
 
 @isa  test2   cnt
-@isa  test2     *  -_OW*
 #@remove cnt _ID
 
 =name
@@ -24,3 +25,4 @@ grant read          to all
 =PARENT
 
   type  link  test1 name
+  deny  update

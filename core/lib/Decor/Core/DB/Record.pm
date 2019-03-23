@@ -367,11 +367,11 @@ sub __create_empty_data
 
 # this module handles high-level, structured system/staged database io
 
-sub __get_base_table_fields
+sub get_fields_list
 {
   my $self = shift;
 
-  boom "record is empty, cannot be read/written" if $self->is_empty();
+  boom "record is empty, cannot be inspected: get_fields_list()" unless exists $self->{ 'BASE_TABLE' };
 
   my $base_table = $self->{ 'BASE_TABLE' };
 
@@ -397,12 +397,38 @@ sub __read
 
   return wantarray ? @res : shift( @res );
 }
+    
+sub __read_formatted
+{
+  my $self     = shift;
+  my $data_key = shift;
+  
+  my $tdes = describe_table( $self->table() );
+  
+  my @res;
+  for my $f ( @_ )
+    {
+    my $v    = $self->__read( $data_key, $f );
+    my $type = $tdes->{ 'FIELD' }{ $f }{ 'TYPE' };
+    my $vf   = type_format( $v, $type );
+    push @res, $vf;
+    }
+
+  return wantarray ? @res : shift( @res );
+}
 
 # reads current value of the record data
 sub read
 {
   my $self = shift;
   return $self->__read( 0, @_ );
+}
+
+sub read_formatted
+{
+  my $self = shift;
+  
+  return $self->__read_formatted( 0, @_ );
 }
 
 # reads original (database) value of the record data
@@ -412,18 +438,24 @@ sub read_db
   return $self->__read( 1, @_ );
 }
 
+sub read_db_formatted
+{
+  my $self = shift;
+  return $self->__read_formatted( 1, @_ );
+}
+
 sub read_all
 {
   my $self = shift;
 
-  return $self->read( @{ $self->__get_base_table_fields() } );
+  return $self->read( @{ $self->get_fields_list() } );
 }
 
 sub read_all_db
 {
   my $self = shift;
 
-  return $self->read_db( @{ $self->__get_base_table_fields() } );
+  return $self->read_db( @{ $self->get_fields_list() } );
 }
 
 sub __read_hash
@@ -462,14 +494,14 @@ sub read_hash_all
 {
   my $self = shift;
 
-  return $self->read_hash( @{ $self->__get_base_table_fields() } );
+  return $self->read_hash( @{ $self->get_fields_list() } );
 }
 
 sub read_hash_all_db
 {
   my $self = shift;
 
-  return $self->read_hash_db( @{ $self->__get_base_table_fields() } );
+  return $self->read_hash_db( @{ $self->get_fields_list() } );
 }
 
 sub write
@@ -724,6 +756,7 @@ sub select
 
   $self->__reshape( $table );
 
+  $self->{ 'BASE_TABLE' } = $table;
   # TODO: copy taint mode to $dbio
 
   my $fields = des_table_get_fields_list( $table );

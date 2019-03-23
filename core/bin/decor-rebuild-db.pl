@@ -190,9 +190,9 @@ sub rebuild_table
     return;
     }
 
-  #print Dumper( 'TABLE DB DES:', $table, $schema, $table_db_des );
+  #print Dumper( 'TABLE DB DES:', $table, $schema, $table_db_des, $opt_recreate );
 
-  if( $opt_recreate and $table_db_des )
+  if( $opt_recreate )
     {
     table_drop( $dbo, $des );
     $table_db_des = undef;

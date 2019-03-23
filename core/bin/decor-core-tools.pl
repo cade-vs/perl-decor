@@ -30,6 +30,7 @@ options:
     -rr       -- log to both files and STDERR
     --        -- end of options
 commands:    
+  list-users
   add-user   user_name        user_pass  <user_id>
   user-pwd   user_name_or_id  user_pass
   add-groups user_name_or_id  group1 group2...
@@ -94,7 +95,11 @@ de_init( APP_NAME => $opt_app_name );
 
 my $cmd = lc shift @args;
 
-if( $cmd eq 'add-user' )
+if( $cmd eq 'list-users' )  
+  {
+  cmd_list_users( @args );
+  }
+elsif( $cmd eq 'add-user' )
   {
   cmd_user_add( @args );
   }
@@ -208,6 +213,51 @@ sub find_user
     }  
   
   return $user_rec;  
+}
+
+#-----------------------------------------------------------------------------
+
+sub cmd_list_users
+{
+  my $user_rec = new Decor::Core::DB::Record;
+  $user_rec->select( 'DE_USERS' );
+  
+#  use Data::Dumper;
+#  print Dumper($user_rec);
+  
+  my $ufields = $user_rec->get_fields_list();
+  while( $user_rec->next() )
+    {
+    print "-----------------------------------------------------------\n";
+    for my $field ( @$ufields )
+      {
+      my $value = $user_rec->read_formatted( $field );
+      $value = "<".length($value).">" if $field =~ /^(PASS|PASS_SALT)$/;
+      print "$field:\t$value\n";
+      if( $field eq 'LAST_LOGIN_SESSION' )
+        {
+        my $ll = new Decor::Core::DB::Record;
+        $ll->load( 'DE_SESSIONS', $value );
+        for my $fll ( @{ $ll->get_fields_list() } )
+          {
+          my $vll = $ll->read_formatted( $fll );
+          print "\t\t$fll:\t$vll\n";
+          }
+        next;
+        }
+      if( $field eq 'GROUPS' )
+        {
+        print "\t\t";
+        my $gg = $user_rec->select_siblings( 'GROUPS' );
+        while( $gg->next() )
+          {
+          print $gg->read( 'GRP' ) . ",";
+          }
+        print "\n";
+        next;
+        }
+      }
+    }
 }
 
 #-----------------------------------------------------------------------------

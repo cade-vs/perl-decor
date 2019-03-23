@@ -55,7 +55,7 @@ sub __load_db_des
   
   my $db_filename = $dbh->sqlite_db_filename();
   my $des_filename = "$db_filename.dddes";
-  
+
   return {} unless -e $des_filename;
   
   my $des = lock_retrieve( $des_filename );

@@ -1,7 +1,6 @@
 
 label My funny table  1
 
-
 grant read insert to 999
 grant insert update to 1;10
 

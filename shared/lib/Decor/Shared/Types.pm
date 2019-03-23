@@ -251,10 +251,10 @@ sub type_format
      
      my @t = localtime( $time_int );
 
-     my $tz = $type->{ 'TZ' } || $FORMATS{ 'TZ' };
+     my $tz = exists $type->{ 'TZ' } ? ( $type->{ 'TZ' } || $FORMATS{ 'TZ' } ) : $FORMATS{ 'TZ' };
 
      my $fmt_name = $FORMATS{ 'UTIME' };
-     $fmt_name = __check_format( $type_name, $type->{ 'FMT' } ) if $type->{ 'FMT' };
+     $fmt_name = __check_format( $type_name, $type->{ 'FMT' } ) if exists $type->{ 'FMT' } and $type->{ 'FMT' };
      my $fmt = $FORMAT_SPECS{ 'UTIME' }{ $fmt_name }{ 'FMT' };
      
      my $dot = $type->{ 'DOT' };
