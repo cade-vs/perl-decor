@@ -1,0 +1,17 @@
+
+deny to all
+
+=CACHE_KEY
+  type    char    1024
+  index
+  unique
+  
+=CACHE_DATA
+  type    char    text
+  
+=CTIME
+  type    utime
+
+=MTIME
+  type    utime
+
