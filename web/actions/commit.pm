@@ -26,6 +26,7 @@ sub main
 
   # FIXME: invalidate session first!!!
   my $ps = $reo->get_page_session();
+  my $rs = $reo->get_page_session( 1 );
 
   my $table   = $ps->{ 'TABLE'   };
   my $id      = $ps->{ 'ID'      };
@@ -78,6 +79,10 @@ sub main
   if( $res )
     {
     # no error, return to caller
+    
+    $reo->forward( '_R' => $rs->{ ':ID' }, ACTION => 'DO', TABLE => $table, ID => $id, DO => 'POST_INSERT' ) if   $edit_mode_insert and $tdes->exists( 'DO', 'POST_INSERT' );
+    $reo->forward( '_R' => $rs->{ ':ID' }, ACTION => 'DO', TABLE => $table, ID => $id, DO => 'POST_UPDATE' ) if ! $edit_mode_insert and $tdes->exists( 'DO', 'POST_UPDATE' );
+
 
     my $return_data_from = $reo->param( 'RETURN_DATA_FROM' );
     my $return_data_to   = $reo->param( 'RETURN_DATA_TO'   );

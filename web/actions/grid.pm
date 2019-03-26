@@ -467,6 +467,8 @@ sub main
     for my $do ( @dos )
       {
       my $dodes   = $tdes->get_category_des( 'DO', $do );
+      next unless $dodes->allows( 'EXECUTE' );
+      next if  $dodes->get_attr( qw( WEB GRID HIDE  ) );
       my $dolabel = $dodes->get_attr( qw( WEB GRID LABEL ) );
       # FIXME: map DOs through $ps
       my $do_id = ++ $ps->{ ':DO_NAME_MAP' }{ '*' };

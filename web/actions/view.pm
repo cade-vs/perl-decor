@@ -197,6 +197,7 @@ sub main
     {
     my $dodes   = $tdes->get_category_des( 'DO', $do );
     next unless $dodes->allows( 'EXECUTE' );
+    next if  $dodes->get_attr( qw( WEB GRID HIDE  ) );
     my $dolabel = $dodes->get_attr( qw( WEB VIEW LABEL ) );
     $text .= de_html_alink_button( $reo, 'new',  "$dolabel &sect;", "$dolabel", ACTION => 'do', DO => $do, ID => $id, TABLE => $table );
     }

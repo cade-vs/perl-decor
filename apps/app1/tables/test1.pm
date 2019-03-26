@@ -85,4 +85,21 @@ sub on_update
   #$r->return_file_text( "<h1>Insert processed fine, here is a cookie:</h1><h2>".rand(137137137)."</h2>", 'html' );
 }
 
+
+sub on_do_post_insert
+{
+  my $r = shift;
+  
+  $r->return_file_text( "<h1>Post Insert Here</h1>", 'html' );
+}
+
+sub on_do_post_update
+{
+  my $r = shift;
+  
+  $r->return_file_text( "<h1>Post Insert Here</h1>", 'html' );
+}
+
+
+
 1;

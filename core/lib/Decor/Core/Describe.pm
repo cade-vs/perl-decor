@@ -196,6 +196,7 @@ my %DES_ATTRS = (
                            GRANT       => 1,
                            DENY        => 1,
                            PRINT       => 3,
+                           HIDE        => 3,
                          },
                   'ACTION' => {
                            LABEL       => 1,

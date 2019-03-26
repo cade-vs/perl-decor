@@ -70,6 +70,18 @@ sub get_category_des
   return $self->{ $category }{ $item };
 }
 
+sub exists
+{
+  my $self     =    shift;
+  my $category = uc shift;
+  my $item     = uc shift;
+  
+  return undef unless exists $self->{ $category };
+  return undef unless exists $self->{ $category }{ $item };
+  
+  return 1;
+}
+
 sub resolve_path
 {
   my $self = shift;

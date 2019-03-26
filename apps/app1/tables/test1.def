@@ -126,3 +126,10 @@ web.grid.fields_list  name  ctime   suma     ref.name
   label   My view
   target  VIEW
   grant   all
+
+=DO: POST_INSERT
+
+  grant   execute
+  
+  web.hide
+  web.print
