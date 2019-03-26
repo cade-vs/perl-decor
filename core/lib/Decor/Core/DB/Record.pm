@@ -24,6 +24,7 @@ use Decor::Core::Code;
 use Decor::Core::Form;
 use Decor::Core::Subs::Env;
 
+use Data::Tools 1.22;
 use MIME::Base64;
 
 ##############################################################################
@@ -946,6 +947,13 @@ sub __check_client_io
   boom "this record has CLIENT ID DISABLED so no api methods can be called" unless $self->{ 'CLIENT:IO:ENABLED' };
 }
 
+sub __check_edit_cache_sid
+{
+  my $self = shift;
+  
+  boom "this record does not have EDIT_CACHE_SID so cache data is disabled" unless $self->{ 'EDIT_CACHE_SID' };
+}
+
 #-----------------------------------------------------------------------------
 
 sub reset_errors
@@ -1035,6 +1043,72 @@ sub form_gen_data
   my $opts      = shift;
   
   return de_form_gen_rec_data( $form_name, $self, $data, $opts );
+}
+
+#-----------------------------------------------------------------------------
+
+sub __edit_cache_set_key
+{
+  my $self      = shift;
+  
+  my $ec_sid = shift;
+  
+  # FIXME: encode base64 if non-printable?
+  $self->{ 'EDIT_CACHE_SID' } = $ec_sid;
+}
+
+sub edit_cache_get
+{
+  my $self      = shift;
+  
+  $self->__check_edit_cache_sid();
+  $self->{ 'EDIT_CACHE_SID:MODIFIED' }++;
+  
+  my $ec_sid = $self->{ 'EDIT_CACHE_SID'      };
+
+  my $dbio  = $self->{ 'DB::IO' };
+
+  my $chr;
+  my $hr = $dbio->read_first1_hashref( 'DE_EDIT_CACHE', 'CACHE_KEY = ?', { BIND => [ $ec_sid ], LOCK => 1 } );
+  if( $hr )
+    {
+    $chr = ref_thaw( $hr->{ 'CACHE_DATA' } );
+    }
+  else
+    {
+    $chr = {};
+    }  
+  $self->{ 'EDIT_CACHE_SID:DATA' } = $chr;
+
+use Data::Dumper;
+print STDERR Dumper( '++++++++!!!+++++++', $hr, $chr );
+  
+  return $chr;
+}
+
+sub edit_cache_save
+{
+  my $self      = shift;
+  
+  $self->__check_edit_cache_sid();
+  return unless $self->{ 'EDIT_CACHE_SID:MODIFIED' } > 0;
+  $self->{ 'EDIT_CACHE_SID:MODIFIED' } = 0;
+
+  my $ec_sid = $self->{ 'EDIT_CACHE_SID'      };
+  my $ec_fdt = $self->{ 'EDIT_CACHE_SID:DATA' };
+
+  my $dbio  = $self->{ 'DB::IO' };
+  
+  my $res = $dbio->update( 'DE_EDIT_CACHE', { 'CACHE_DATA' => ref_freeze( $ec_fdt ), MTIME => time() }, 'CACHE_KEY = ?', { BIND => [ $ec_sid ] } );
+  if( $res < 1 )
+    {
+    $res = $dbio->insert( 'DE_EDIT_CACHE', { 'CACHE_KEY' => $ec_sid, 'CACHE_DATA' => ref_freeze( $ec_fdt ), CTIME => time() },  );
+    }
+
+use Data::Dumper;
+print STDERR Dumper( '+++++++----------', $res, $ec_fdt );
+
+  return $res;
 }
 
 ### EOF ######################################################################

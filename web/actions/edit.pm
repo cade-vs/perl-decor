@@ -10,6 +10,7 @@
 package decor::actions::edit;
 use strict;
 use Data::Dumper;
+use Data::Tools;
 use Exception::Sink;
 
 use Decor::Shared::Types;
@@ -41,6 +42,9 @@ sub main
   my $si = $reo->get_safe_input();
   my $ui = $reo->get_user_input();
   my $ps = $reo->get_page_session();
+  my $us = $reo->get_user_session();
+  
+  $ps->{ 'EDIT_SID' } = $us->{ ':ID' } . '.' . $ps->{ ':ID' } . '.' . create_random_id( 64 ) unless $ps->{ 'EDIT_SID' };
 
   my $button    = $reo->get_input_button();
   my $button_id = $reo->get_input_button_id();
@@ -151,7 +155,7 @@ sub main
   #$edit_mode_insert = $ps->{ 'EDIT_MODE_INSERT' };
 
   my $calc_in  = { map { $_ => $ps->{ 'ROW_DATA' }{ $_ } } @$fields_ar };
-  my ( $calc_out, $calc_merrs )= $core->recalc( $table, $calc_in, $id, $edit_mode_insert );
+  my ( $calc_out, $calc_merrs )= $core->recalc( $table, $calc_in, $id, $edit_mode_insert, { 'EDIT_SID' => $ps->{ 'EDIT_SID' } } );
   if( $calc_out )
     {
     $ps->{ 'ROW_DATA' } = $calc_out;

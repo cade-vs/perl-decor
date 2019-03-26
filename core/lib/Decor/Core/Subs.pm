@@ -797,6 +797,20 @@ sub sub_finish
 
 #--- INSERT/UPDATE/DELETE ----------------------------------------------------
 
+sub __sub_attach_edit_cache_sid_to_rec
+{
+  my $mi  = shift;
+  my $rec = shift;
+
+  return unless exists $mi->{ 'EDIT_SID' } and $mi->{ 'EDIT_SID' };
+  my $esid = $mi->{ 'EDIT_SID' };
+
+  my $sess = subs_get_current_session();
+  my $sess_sid = $sess->read( 'SID' );
+  
+  $rec->__edit_cache_set_key( $sess_sid . '.' . $esid );
+}
+
 sub sub_get_next_id
 {
   my $mi = shift;
@@ -888,8 +902,10 @@ sub sub_insert
   $rec->write( %$data );
 
   $rec->taint_mode_disable_all();
+  __sub_attach_edit_cache_sid_to_rec( $mi, $rec );
   $rec->__client_io_enable();
   $rec->method( 'INSERT' );
+  $rec->edit_cache_save();
 
   $rec->save();
 
@@ -955,8 +971,10 @@ sub sub_update
   $rec->write( %$data );
 
   $rec->taint_mode_disable_all();
+  __sub_attach_edit_cache_sid_to_rec( $mi, $rec );
   $rec->__client_io_enable();
   $rec->method( 'UPDATE' );
+  $rec->edit_cache_save();
 
   $rec->save();
 
@@ -1008,8 +1026,10 @@ sub sub_recalc
   $rec->taint_mode_disable_all();
 
   # TODO: recalc for insert/update
+  __sub_attach_edit_cache_sid_to_rec( $mi, $rec );
   $rec->__client_io_enable();
   $rec->method( 'RECALC' );
+  $rec->edit_cache_save();
 
   $rec->inject_return_file_into_mo( $mo );
 

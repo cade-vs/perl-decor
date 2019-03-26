@@ -47,10 +47,11 @@ sub main
   my %write_data = map { $_ => $row_data->{ $_ } } @$fields_ar;
 
   my $res;
+  my $opt = {};
+  $opt->{ 'EDIT_SID' } = $ps->{ 'EDIT_SID' } if $ps->{ 'EDIT_SID' };
+  
   if( $edit_mode_insert )
     {
-    my $opt = {};
-    
     my $lt_table = $reo->param( 'LINK_TO_TABLE' );
     my $lt_field = $reo->param( 'LINK_TO_FIELD' );
     my $lt_id    = $reo->param( 'LINK_TO_ID'    );
@@ -66,7 +67,9 @@ sub main
     }
   else
     {
-    $res = $core->update( $table, \%write_data, { ID => $id } );
+    $opt->{ 'ID' } = $id;
+    
+    $res = $core->update( $table, \%write_data, $opt );
     }  
 
 #print STDERR Dumper( $res, $row_data, \%write_data );

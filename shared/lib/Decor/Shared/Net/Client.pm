@@ -519,6 +519,8 @@ sub insert
   $mi{ 'DATA'   } = $data;
   $mi{ 'ID'     } = $id;
 
+  $mi{ 'EDIT_SID' } = $opt->{ 'EDIT_SID' } if exists $opt->{ 'EDIT_SID' };
+
 #print STDERR Dumper( $opt );
   
   for( qw( LINK_TO_TABLE LINK_TO_FIELD LINK_TO_ID ) )
@@ -553,6 +555,8 @@ sub update
   $mi{ 'ID'     } = $id;
   $mi{ 'LOCK'   } = $lock;
 
+  $mi{ 'EDIT_SID' } = $opt->{ 'EDIT_SID' } if exists $opt->{ 'EDIT_SID' };
+
   my $mo = $self->tx_msg( \%mi ) or return undef;
 
   return 1;
@@ -584,6 +588,8 @@ sub recalc
   $mi{ 'DATA'   } = $data;
   $mi{ 'ID'     } = $id;
   $mi{ 'INSERT' } = 1 if $insert;
+  
+  $mi{ 'EDIT_SID' } = $opt->{ 'EDIT_SID' } if exists $opt->{ 'EDIT_SID' };
 
   my $mo = $self->tx_msg( \%mi ) or return undef;
 

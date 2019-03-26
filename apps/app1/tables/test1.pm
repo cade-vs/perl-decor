@@ -23,7 +23,11 @@ sub on_recalc
   $r->method_add_error( 'Field sum cannot be above 500' ) if $sum > 500;
 
   print Dumper( 'RECALC-'x10, $r );
-  
+
+  my $cc = $r->edit_cache_get();
+  my $ccr = ++$cc->{ 'TEST_EDIT_CACHE_COUNT' };
+
+  $r->write( DES => $ccr );
   
   my $sr = $r->select_siblings( 'BACKREF' );
   while( $sr->next() )
@@ -68,7 +72,10 @@ sub on_insert
 {
   my $r = shift;
   
-  $r->return_file_text( "<h1>Insert processed fine, here is a cookie:</h1><h2>".rand(137137137)."</h2>", 'html' );
+  my $cc = $r->edit_cache_get();
+  my $ccr = $cc->{ 'TEST_EDIT_CACHE_COUNT' }++;
+  
+  $r->return_file_text( "<h1>Insert processed fine, here is a cookie:</h1><h2>".rand(137137137)."</h2> cache($ccr)", 'html' );
 }
 
 sub on_update
