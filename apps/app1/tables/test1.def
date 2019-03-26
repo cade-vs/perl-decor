@@ -133,3 +133,10 @@ web.grid.fields_list  name  ctime   suma     ref.name
   
   web.hide
   web.print
+
+=DO: POST_UPDATE
+
+  grant   execute
+  
+  web.hide
+  web.print
