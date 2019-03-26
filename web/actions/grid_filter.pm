@@ -202,7 +202,7 @@ sub main
       my $combo = $fdes->get_attr( qw( WEB COMBO ) );
       my $spf_fmt;
       my @spf_fld;
-      if( $combo == 1 )
+      if( $combo == 1 or $combo eq '' )
         {
         $spf_fmt = "%s";
         @spf_fld = ( $linked_field );
