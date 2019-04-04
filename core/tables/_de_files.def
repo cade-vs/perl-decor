@@ -15,7 +15,7 @@ grant read to all
     
 =MIME
 
-    type  char  64
+    type  char  256
     
 =SIZE
 
