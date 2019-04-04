@@ -299,7 +299,7 @@ sub __merge_table_des_file
   $des->{ $category }{ $sect_name } ||= {};
   push @{ $des->{ $category }{ $sect_name }{ '__DEBUG_ORIGIN' } }, $fname;
   $des->{ $category }{ $sect_name }{ 'NAME' } = $table;
-  $des->{ $category }{ $sect_name }{ 'TYPE' } = 'GENERIC';
+  $des->{ $category }{ $sect_name }{ 'TYPE' } ||= 'GENERIC';
   my $file_mtime = file_mtime( $fname );
   if( $des->{ $category }{ $sect_name }{ '_MTIME' } < $file_mtime )
     {
