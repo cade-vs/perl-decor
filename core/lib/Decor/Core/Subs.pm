@@ -537,6 +537,23 @@ sub __replace_grant_deny
     delete $hrn->{ 'GRANT' }{ $oper };
     }
 
+  if( $profile->check_access( 966 ) )
+    {
+    for( qw( READ CROSS ACCESS ) )
+      {
+      delete $hrn->{ 'DENY' }{ $_ };
+      $hrn->{ 'GRANT' }{ $_ } = 966;
+      }
+    }
+  if( $profile->check_access( 967 ) )
+    {
+    for( qw( INSERT UPDATE DELETE EXECUTE ) )
+      {
+      delete $hrn->{ 'GRANT' }{ $_ };
+      $hrn->{ 'DENY' }{ $_ } = 967;
+      }
+    }
+
   return 1;
 };
 
@@ -591,7 +608,7 @@ sub sub_menu
 
   my $menu = de_menu_get( $menu_name );
   
-  if( $profile->has_root_access() and $menu_name eq '_DE_ALL_TABLES' )
+  if( ( $profile->has_root_access() or $profile->check_access( 966 ) ) and $menu_name eq '_DE_ALL_TABLES' )
     {
     my $tables = des_get_tables_list();
 
@@ -860,6 +877,7 @@ sub sub_insert
   boom "invalid ID [$id]"               if $id ne '' and ! de_check_id( $id );
 
   my $profile = subs_get_current_profile();
+  boom "E_ACCESS: user group 967 has global write restriction" if $profile->check_access( 967 ); # FIXME: move to common
   boom "E_ACCESS: access denied oper [INSERT] for table [$table]" unless $profile->check_access_table( 'INSERT', $table );
 
   $id ||= $data->{ '_ID' };
@@ -950,6 +968,7 @@ sub sub_update
   boom "invalid FILTER [$filter]"       unless ref( $filter ) eq 'HASH';
 
   my $profile = subs_get_current_profile();
+  boom "E_ACCESS: user group 967 has global write restriction" if $profile->check_access( 967 ); # FIXME: move to common
   boom "E_ACCESS: access denied oper [UPDATE] for table [$table]" unless $profile->check_access_table( 'UPDATE', $table );
 
   my $rec = new Decor::Core::DB::Record;
@@ -989,6 +1008,8 @@ sub sub_delete
   my $mi = shift;
   my $mo = shift;
 
+  my $profile = subs_get_current_profile();
+  boom "E_ACCESS: user group 967 has global write restriction" if $profile->check_access( 967 ); # FIXME: move to common
   boom "sub_delete is not yet implemented";
 };
 
@@ -1056,6 +1077,7 @@ sub sub_do
   boom "invalid ID [$id]"               unless de_check_id( $id );
 
   my $profile = subs_get_current_profile();
+  boom "E_ACCESS: user group 967 has global write restriction" if $profile->check_access( 967 ); # FIXME: move to common
   boom "E_ACCESS: access denied do [$do] for table [$table]" unless $profile->check_access_table_category( 'EXECUTE', $table, 'DO', $do );
 
   my $rec = new Decor::Core::DB::Record;

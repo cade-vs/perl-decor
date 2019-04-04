@@ -92,7 +92,7 @@ sub select
   $self->finish();
 
   my $profile = $self->__get_profile();
-  if( $profile and $self->taint_mode_get( 'TABLE' ) )
+  if( $profile and $self->taint_mode_get( 'TABLE' ) and ! $profile->check_access( 966 ) )
     {
     $profile->check_access_table_boom( 'READ', $table );
     }
@@ -117,7 +117,7 @@ sub select
     if( $fields eq '*' )
       {
       @fields = @{ $table_des->get_fields_list() };
-      if( $profile and $self->taint_mode_get( 'FIELDS' ) )
+      if( $profile and $self->taint_mode_get( 'FIELDS' ) and ! $profile->check_access( 966 ) )
         {
         @fields = grep { $profile->check_access_table_field( 'READ', $table, $_ ) } @fields;
         }
@@ -440,6 +440,10 @@ sub insert
   $self->__reshape( $table );
 
   my $profile = $self->__get_profile();
+  if( $profile and $profile->check_access( 967 ) )
+    {
+    boom "E_ACCESS: user group 967 has global write restriction";
+    }
   if( $profile and $self->taint_mode_get( 'TABLE' ) )
     {
     $profile->check_access_table_boom( 'INSERT', $table );
@@ -508,6 +512,10 @@ sub update
   $self->__reshape( $table );
 
   my $profile = $self->__get_profile();
+  if( $profile and $profile->check_access( 967 ) )
+    {
+    boom "E_ACCESS: user group 967 has global write restriction";
+    }
   if( $profile and $self->taint_mode_get( 'TABLE' ) )
     {
     $profile->check_access_table_boom( 'UPDATE', $table );
@@ -613,6 +621,10 @@ sub delete
   $self->__reshape( $table );
 
   my $profile = $self->__get_profile();
+  if( $profile and $profile->check_access( 967 ) )
+    {
+    boom "E_ACCESS: user group 967 has global write restriction";
+    }
   if( $profile and $self->taint_mode_get( 'TABLE' ) )
     {
     $profile->check_access_table_boom( 'DELETE', $table );

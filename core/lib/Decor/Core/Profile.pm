@@ -227,6 +227,13 @@ sub check_access
   return exists $self->{ 'GROUPS' }{ $group } ? $self->{ 'GROUPS' }{ $group } : 0;
 }
 
+sub check_access_boom
+{
+  my $self = shift;
+
+  boom "EACCESS: [@_] denied" unless $self->check_access( @_ );
+}
+
 sub check_access_table
 {
   my $self = shift;

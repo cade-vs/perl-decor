@@ -19,7 +19,7 @@ sub main
 
   my $core = $reo->de_connect();
   my $menu = $core->menu( 'MAIN' );
-#print STDERR Dumper( '******************************', $menu, $core );
+print STDERR Dumper( '******************************', $menu, $core );
 
 
   my $text;
