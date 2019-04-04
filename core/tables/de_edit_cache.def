@@ -1,5 +1,5 @@
 
-deny to all
+deny all
 
 =CACHE_KEY
   type    char    1024

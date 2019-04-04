@@ -1090,6 +1090,7 @@ sub edit_cache_save
 {
   my $self      = shift;
   
+  return undef unless $self->{ 'EDIT_CACHE_SID' };
   $self->__check_edit_cache_sid();
   return unless $self->{ 'EDIT_CACHE_SID:MODIFIED' } > 0;
   $self->{ 'EDIT_CACHE_SID:MODIFIED' } = 0;
