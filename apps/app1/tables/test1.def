@@ -70,6 +70,12 @@ web.grid.fields_list  name  ctime   suma     ref.name
   #read_only
   #system
   #web.hidden
+  
+=GRP
+  type link DE_GROUPS NAME
+  deny all to all
+  grant all to 1
+  label [~Group]
 
 =TESTMAP
 

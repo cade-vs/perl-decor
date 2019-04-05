@@ -877,7 +877,7 @@ sub sub_insert
   boom "invalid ID [$id]"               if $id ne '' and ! de_check_id( $id );
 
   my $profile = subs_get_current_profile();
-  boom "E_ACCESS: user group 967 has global write restriction" if $profile->check_access( 967 ); # FIXME: move to common
+  boom "E_ACCESS: user group 967 has global write restriction" if ! $profile->has_root_access() and $profile->check_access( 967 ); # FIXME: move to common
   boom "E_ACCESS: access denied oper [INSERT] for table [$table]" unless $profile->check_access_table( 'INSERT', $table );
 
   $id ||= $data->{ '_ID' };
@@ -968,7 +968,7 @@ sub sub_update
   boom "invalid FILTER [$filter]"       unless ref( $filter ) eq 'HASH';
 
   my $profile = subs_get_current_profile();
-  boom "E_ACCESS: user group 967 has global write restriction" if $profile->check_access( 967 ); # FIXME: move to common
+  boom "E_ACCESS: user group 967 has global write restriction" if ! $profile->has_root_access() and $profile->check_access( 967 ); # FIXME: move to common
   boom "E_ACCESS: access denied oper [UPDATE] for table [$table]" unless $profile->check_access_table( 'UPDATE', $table );
 
   my $rec = new Decor::Core::DB::Record;
@@ -1009,7 +1009,7 @@ sub sub_delete
   my $mo = shift;
 
   my $profile = subs_get_current_profile();
-  boom "E_ACCESS: user group 967 has global write restriction" if $profile->check_access( 967 ); # FIXME: move to common
+  boom "E_ACCESS: user group 967 has global write restriction" if ! $profile->has_root_access() and $profile->check_access( 967 ); # FIXME: move to common
   boom "sub_delete is not yet implemented";
 };
 
@@ -1077,7 +1077,7 @@ sub sub_do
   boom "invalid ID [$id]"               unless de_check_id( $id );
 
   my $profile = subs_get_current_profile();
-  boom "E_ACCESS: user group 967 has global write restriction" if $profile->check_access( 967 ); # FIXME: move to common
+  boom "E_ACCESS: user group 967 has global write restriction" if ! $profile->has_root_access() and $profile->check_access( 967 ); # FIXME: move to common
   boom "E_ACCESS: access denied do [$do] for table [$table]" unless $profile->check_access_table_category( 'EXECUTE', $table, 'DO', $do );
 
   my $rec = new Decor::Core::DB::Record;

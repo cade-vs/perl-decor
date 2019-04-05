@@ -440,7 +440,7 @@ sub insert
   $self->__reshape( $table );
 
   my $profile = $self->__get_profile();
-  if( $profile and $profile->check_access( 967 ) )
+  if( $profile and ! $profile->has_root_access() and $profile->check_access( 967 ) )
     {
     boom "E_ACCESS: user group 967 has global write restriction";
     }
@@ -512,7 +512,7 @@ sub update
   $self->__reshape( $table );
 
   my $profile = $self->__get_profile();
-  if( $profile and $profile->check_access( 967 ) )
+  if( $profile and ! $profile->has_root_access() and $profile->check_access( 967 ) )
     {
     boom "E_ACCESS: user group 967 has global write restriction";
     }
@@ -621,7 +621,7 @@ sub delete
   $self->__reshape( $table );
 
   my $profile = $self->__get_profile();
-  if( $profile and $profile->check_access( 967 ) )
+  if( $profile and ! $profile->has_root_access() and $profile->check_access( 967 ) )
     {
     boom "E_ACCESS: user group 967 has global write restriction";
     }
