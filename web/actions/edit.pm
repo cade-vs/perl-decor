@@ -326,7 +326,9 @@ sub main
 
         my $lfields = join ',', '_ID', @lfields, values %basef;
 
-        my $combo_select = $core->select( $linked_table, $lfields, { 'FILTER_NAME' => $select_filter_name, ORDER_BY => '._ID' } );
+        my $orderby = $fdes->get_attr( qw( WEB COMBO ORDERBY ) ) || '._ID';
+
+        my $combo_select = $core->select( $linked_table, $lfields, { 'FILTER_NAME' => $select_filter_name, ORDER_BY => $orderby } );
 #$text .= "my $combo_select = $core->select( $linked_table, $lfields )<br>";
         while( my $hr = $core->fetch( $combo_select ) )
           {
