@@ -45,6 +45,10 @@ sub main
   my $row_data = $ps->{ 'ROW_DATA' };
   return "<#no_data>" unless $row_data;
 
+  return "<#invalid_page_session>" if $ps->{ ':INVALID' };
+  $ps->{ ':INVALID' } = scalar localtime();
+  $reo->save();
+
   my %write_data = map { $_ => $row_data->{ $_ } } @$fields_ar;
 
   my $res;
@@ -128,6 +132,11 @@ sub main
       }  
     return $text;
     }
+  else
+    {
+    # error occured, allow page reload (repeat action)
+    delete $ps->{ ':INVALID' };
+    }  
 
   my $res_msg = $res ? "OK" : "Error";
 

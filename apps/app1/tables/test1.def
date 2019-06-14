@@ -87,7 +87,7 @@ web.grid.fields_list  name  ctime   suma     ref.name
 
 #  web.select-where    CNT > ?; 2
   web.combo            %40s=%-15s; NAME; CNT
-  web.combo.orderby    NAME
+  web.combo.orderby    CNT, NAME DESC
 #  web.edit.mono
   web.select_filter   MORE_CNT
 
