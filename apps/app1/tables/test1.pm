@@ -14,13 +14,13 @@ sub on_recalc
   $r->write( AMOUNT4 => $sum );
   $r->write( CTIME   => time() );
 
-  $r->method_add_field_error( 'AMOUNT4', 'Field sum cannot be less than 100' ) if $sum < 100;
-  $r->method_add_field_error( 'AMOUNT4', 'Field sum cannot be above 500' ) if $sum > 500;
-  $r->method_add_field_error( 'AMOUNT4', 'Field sum cannot be above 500' ) if $sum > 500;
+#  $r->method_add_field_error( 'AMOUNT4', 'Field sum cannot be less than 100' ) if $sum < 100;
+#  $r->method_add_field_error( 'AMOUNT4', 'Field sum cannot be above 500' ) if $sum > 500;
+#  $r->method_add_field_error( 'AMOUNT4', 'Field sum cannot be above 500' ) if $sum > 500;
 
-  $r->method_add_error( 'Field sum cannot be above 500' ) if $sum > 500;
-  $r->method_add_error( 'Field sum cannot be above 500' ) if $sum > 500;
-  $r->method_add_error( 'Field sum cannot be above 500' ) if $sum > 500;
+#  $r->method_add_error( 'Field sum cannot be above 500' ) if $sum > 500;
+#  $r->method_add_error( 'Field sum cannot be above 500' ) if $sum > 500;
+#  $r->method_add_error( 'Field sum cannot be above 500' ) if $sum > 500;
 
   print Dumper( 'RECALC-'x10, $r );
 
@@ -58,7 +58,6 @@ sub on_do_date_test
   $r->return_file_text( "<h1>All is fine when fine all</h1><h2>$ff</h2>", 'html' );
 }
 
-
 sub on_fetch
 {
   print Dumper( \@_ );
@@ -86,14 +85,14 @@ sub on_update
 }
 
 
-sub on_do_post_insert
+sub on_do_post_insert11
 {
   my $r = shift;
   
   $r->return_file_text( "<h1>Post Insert Here</h1>", 'html' );
 }
 
-sub on_do_post_update
+sub on_do_post_update22
 {
   my $r = shift;
   

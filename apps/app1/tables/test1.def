@@ -134,14 +134,14 @@ web.grid.fields_list  name  ctime   suma     ref.name
   target  VIEW
   grant   all
 
-=DO: POST_INSERT
+=DO: POST_INSERT11
 
   grant   execute
   
   web.hide
   web.print
 
-=DO: POST_UPDATE
+=DO: POST_UPDATE22
 
   grant   execute
   

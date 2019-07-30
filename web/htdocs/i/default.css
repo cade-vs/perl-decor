@@ -244,6 +244,12 @@ td.main_footer
         {
         div#div_for_screen { display: none;  }
         div#div_for_print  { display: block; }
+        body
+              {
+              color: #000;
+              background-color: #FFF;
+              background-image: none;
+              }
         }
 
 /*** logo head table ********************************************************/

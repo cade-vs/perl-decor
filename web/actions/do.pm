@@ -71,7 +71,8 @@ $file_body = Encode::decode_utf8( $file_body );
       }  
     }
 
-  $text .= $html_file || "*** DONE ***";
+  $html_file ||= "*** DONE ***"; # FIXME: must be more meaningful text :)
+  $text .= $html_file;
   $reo->html_content_set( 'for_printer' => $html_file );
 
   $text .= "<p>";
