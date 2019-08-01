@@ -147,3 +147,7 @@ web.grid.fields_list  name  ctime   suma     ref.name
   
   web.hide
   web.print
+
+=DO: STANDALONE
+
+  grant   execute

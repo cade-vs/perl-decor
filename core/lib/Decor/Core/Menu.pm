@@ -47,6 +47,7 @@ my %MENU_TYPES = (
                       'INSERT'  => 1,
                       'EDIT'    => 1,
                       'URL'     => 1,
+                      'DO'      => 1,
                  );
 
 my %MENU_KEY_TYPES  = (
@@ -374,6 +375,11 @@ sub __postprocess_menu_hash
       {
       my $url = shift @type;
       $item_des->{ 'URL' } = $url;
+      }
+    elsif( $type =~ /^(DO)$/ )
+      {
+      $item_des->{ 'TABLE' } = shift @type;
+      $item_des->{ 'DO'    } = shift @type;
       }
     else
       {

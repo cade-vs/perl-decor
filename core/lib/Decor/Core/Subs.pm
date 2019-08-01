@@ -1074,7 +1074,7 @@ sub sub_do
   boom "invalid TABLE name [$table]"    unless de_check_name( $table ) or ! des_exists( $table );
   boom "invalid DO name [$do]"          unless de_check_name( $do ) or ! des_exists_category( 'DO', $table, $do );
   boom "invalid DATA [$data]"           unless ref( $data ) eq 'HASH';
-  boom "invalid ID [$id]"               unless de_check_id( $id );
+  boom "invalid ID [$id]"               unless $id eq '' or de_check_id( $id );
 
   my $profile = subs_get_current_profile();
   boom "E_ACCESS: user group 967 has global write restriction" if ! $profile->has_root_access() and $profile->check_access( 967 ); # FIXME: move to common

@@ -604,7 +604,7 @@ sub do
 
   my $table  = uc shift;
   my $do     = shift;
-  my $data   = shift;
+  my $data   = shift || {};
   my $id     = shift;
   my $opt    = shift || {};
   
@@ -614,7 +614,7 @@ sub do
   $mi{ 'TABLE'  } = $table;
   $mi{ 'DO'     } = $do;
   $mi{ 'DATA'   } = $data;
-  $mi{ 'ID'     } = $id;
+  $mi{ 'ID'     } = $id   if $id > 0;
 
   my $mo = $self->tx_msg( \%mi ) or return undef;
 

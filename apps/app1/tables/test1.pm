@@ -99,6 +99,11 @@ sub on_do_post_update22
   $r->return_file_text( "<h1>Post Insert Here</h1>", 'html' );
 }
 
-
+sub on_do_standalone
+{
+  my $r = shift;
+  
+  $r->return_file_text( "<h1>STANDALONE DO! :)</h1>", 'html' );
+}
 
 1;

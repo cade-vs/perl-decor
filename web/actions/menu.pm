@@ -76,6 +76,12 @@ sub sub_menu
       my $table  = $item->{ 'TABLE'  };
       push @res, "<a class=menu reactor_none_href=?action=edit&table=$table&id=-1><img src=i/menu-item-insert.svg> $label</a>";
       }
+    elsif( $type eq 'DO' )
+      {
+      my $table  = $item->{ 'TABLE'  };
+      my $do     = $item->{ 'DO'     };
+      push @res, "<a class=menu reactor_none_href=?action=do&table=$table&do=$do><img src=i/menu-item-do.svg> $label</a>";
+      }
     elsif( $type eq 'URL' )
       {
       my $url  = $item->{ 'URL'  };

@@ -40,3 +40,7 @@
 
   type  url   http://kernel.org
   
+=STANDALONE
+
+  type    do    test1   standalone
+  label   run standalone do

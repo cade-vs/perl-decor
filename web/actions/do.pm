@@ -44,33 +44,47 @@ sub main
   push @ids, @$ids if $ids and @$ids > 0;
 
   my $html_file;
-  for my $id ( @ids )
+  if( @ids > 0 )
     {
-    $core->do( $table, $do, {}, $id );
-    
-    my ( $file_body, $file_mime ) = $core->get_return_file_body_mime();
+    for my $id ( @ids )
+      {
+      $core->do( $table, $do, {}, $id );
+      
+      my ( $file_body, $file_mime ) = $core->get_return_file_body_mime();
 
 # FIXME: URGENT: ONLY FOR TEXT MIMEs
 use Encode;
 $file_body = Encode::decode_utf8( $file_body );
-    
-    if( $file_mime ne '' )
-      {
-      if( $file_mime eq 'text/plain' )
+      
+      if( $file_mime ne '' )
         {
-        $html_file .= "<xmp>$file_body</xmp>";
-        }
-      elsif( $file_mime eq 'text/html' )
-        {
-        $html_file .= $file_body;
-        }
-      else
-        {
-        $html_file .= "*** UNSUPPORTED DATA TYPE ***";
+        if( $file_mime eq 'text/plain' )
+          {
+          $html_file .= "<xmp>$file_body</xmp>";
+          }
+        elsif( $file_mime eq 'text/html' )
+          {
+          $html_file .= $file_body;
+          }
+        else
+          {
+          $html_file .= "*** UNSUPPORTED DATA TYPE ***";
+          }  
         }  
-      }  
+      }
     }
+  else
+    {
+$text .= "[@ids]";
 
+    $core->do( $table, $do );
+    my ( $file_body, $file_mime ) = $core->get_return_file_body_mime();
+# FIXME: URGENT: ONLY FOR TEXT MIMEs
+use Encode;
+$file_body = Encode::decode_utf8( $file_body );
+    $html_file .= $file_body;
+    }  
+  
   $html_file ||= "*** DONE ***"; # FIXME: must be more meaningful text :)
   $text .= $html_file;
   $reo->html_content_set( 'for_printer' => $html_file );
