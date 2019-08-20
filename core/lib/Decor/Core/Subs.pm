@@ -895,7 +895,7 @@ sub sub_insert
     my $res_rec = new Decor::Core::DB::Record;
 
     boom "E_ACCESS: invalid RESERVED_ID [$id] for table [$table] user [$user_id] session [$sess_id]"
-        unless $res_rec->select_first1( 'DE_RESERVED_IDS', 'USR = ? AND SESS = ? AND RESERVED_TABLE = ? AND RESERVED_ID = ? AND ACTIVE = ?', { BIND => [ $user_id, $sess_id, $table, $id, 1 ] } );
+        unless $res_rec->select_first1( 'DE_RESERVED_IDS', 'USR = ? AND SESS = ? AND RESERVED_TABLE = ? AND RESERVED_ID = ? AND ACTIVE = ?', { BIND => [ $user_id, $sess_id, $table, $id, 1 ], LOCK => 1 } );
 
     $res_rec->write(
                     'ETIME'       => time(),

@@ -12,6 +12,7 @@ use strict;
 
 use FindBin;
 use lib '/usr/local/decor/core/lib';
+use lib '/usr/local/decor/shared/lib';
 use lib $FindBin::Bin . "/../../lib";
 
 use Time::HR;
