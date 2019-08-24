@@ -125,9 +125,9 @@ sub main
   my $ok_hint = $edit_mode_insert ? "[~Confirm new record insert]" : "[~Confirm record update]";
 
   $text .= "<br>";
-  $text .= de_html_alink_button( $reo, 'back', "&lArr; [~Cancel]", "[~Cancel this operation]"                        );
+  $text .= de_html_alink_button( $reo, 'back', "&lArr; [~Cancel]", "[~Cancel this operation]"                                        );
   $text .= de_html_alink_button( $reo, 'here', "[~Edit] &uArr;",   "[~Back to data edit screen]", BTYPE => 'mod', ACTION => 'edit'   );
-  $text .= de_html_alink_button( $reo, 'here', "[~OK] &radic;",     $ok_hint,                     ACTION => 'commit', DISABLE_ON_CLICK => 10 );
+  $text .= de_html_alink_button( $reo, 'here', "[~OK] &radic;",     $ok_hint,                                     ACTION => 'commit', DISABLE_ON_CLICK => 10 );
 
   return $text;
 }

@@ -684,6 +684,35 @@ input:focus,textarea:focus
         border-right:  solid 1px #A44;
         }
 
+.disabled-button
+        {
+        color: #FFF;
+        background-color: #BBB;
+        border-top:    solid 1px #FFF;
+        border-left:   solid 1px #FFF;
+        border-bottom: solid 1px #888;
+        border-right:  solid 1px #888;
+        }
+
+.disabled-button:hover
+        {
+        color: #FFF;
+        background-color: #BBB;
+        border-top:    solid 1px #FFF;
+        border-left:   solid 1px #FFF;
+        border-bottom: solid 1px #888;
+        border-right:  solid 1px #888;
+        }
+
+.disabled-button:focus
+        {
+        color: #FFF;
+        background-color: #BBB;
+        border-top:    solid 1px #FFF;
+        border-left:   solid 1px #FFF;
+        border-bottom: solid 1px #888;
+        border-right:  solid 1px #888;
+        }
 
 /*** hover layer ************************************************************/
 
