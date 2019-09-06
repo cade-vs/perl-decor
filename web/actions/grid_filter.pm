@@ -65,25 +65,48 @@ sub main
     {
     my $filter_rules = {};
     my $filter_data  = {};
+
+    my @fields = @$fields_ar;
+    
+    my %bfdes; # base/begin/origin field descriptions, indexed by field path
+    my %lfdes; # linked/last       field descriptions, indexed by field path, pointing to trail field
+    my %basef; # base fields map, return base field NAME by field path
+
+    de_web_expand_resolve_fields_in_place( \@fields, $tdes, \%bfdes, \%lfdes, \%basef );
+
+#      print STDERR "<hr><h2></h2><xmp style='text-align: left'>" . Dumper( \@fields, \%basef, \%bfdes, \%lfdes ) . "</xmp>";
+
     # compile rules
-    for my $field ( @$fields_ar )
+    for my $field_ex ( @fields )
       {
       my @field_filter;
+
+      my $field     = $basef{ $field_ex } || $field_ex;
+      my $field_out = $field;
 
       next unless exists $ui_si{ "F:$field" };
       
       my $input_data = $ui_si{ "F:$field" };
-      $filter_data->{ $field  } = $input_data; 
+      $filter_data->{ $field_out } = $input_data; 
 
       $input_data =~ s/^\s*//;
       $input_data =~ s/\s*$//;
       next if $input_data eq '';
 
       # FIXME: links paths...
-      my $fdes      = $tdes->{ 'FIELD' }{ $field };
-      my $bfdes     = $fdes; # keep sync code with view/preview/grid, bfdes is begin/origin-field
+      my $bfdes     = $bfdes{ $field_ex };
+      my $fdes      = $bfdes;
+
+      my $combo = $fdes->get_attr( qw( WEB COMBO ) );
+      if( $bfdes->is_linked() and ! $combo )
+        {
+        $fdes      = $lfdes{ $field_ex };
+        $field_out = $field_ex;
+        }
+      
       my $type      = $fdes->{ 'TYPE'  };
       my $type_name = $fdes->{ 'TYPE'  }{ 'NAME' };
+
 
       if( $type_name eq 'INT' and $fdes->{ 'BOOL' } )
         {
@@ -126,7 +149,7 @@ sub main
         }  
 
       next unless @field_filter > 0;
-      $filter_rules->{ $field } = \@field_filter; 
+      $filter_rules->{ $field_out } = \@field_filter; 
       }
     
 #    $text .= "<xmp style='text-align: left;'>" . Dumper( $filter_rules, $filter_data ) . "</xmp>";
@@ -178,6 +201,7 @@ sub main
     my $input_tag_args;
     my $field_disabled;
 
+    my $combo = $fdes->get_attr( qw( WEB COMBO ) );
 
     if( $type_name eq 'INT' and $fdes->{ 'BOOL' } )
       {
@@ -194,12 +218,11 @@ sub main
                                        LABELS   => [ "<img class=check-unknown src=i/check-unknown.svg>", "<img class=check-0 src=i/check-0.svg>", "<img class=check-1 src=i/check-1.svg>" ],
                                        );
       }
-    if( $bfdes->is_linked() )
+    elsif( $bfdes->is_linked() and $combo )
       {
       my ( $linked_table, $linked_field ) = $bfdes->link_details();
       my $ltdes = $core->describe( $linked_table );
       
-      my $combo = $fdes->get_attr( qw( WEB COMBO ) );
       my $spf_fmt;
       my @spf_fld;
       if( $combo == 1 or $combo eq '' )
@@ -227,9 +250,9 @@ sub main
 
       de_web_expand_resolve_fields_in_place( \@lfields, $ltdes, \%bfdes, \%lfdes, \%basef );
 
-    #$text .= Dumper( \%basef );
-
       my $lfields = join ',', '_ID', @lfields, values %basef;
+
+      # $text .= "<hr><h2>$field</h2><xmp style='text-align: left'>" . Dumper( \@lfields, $lfields, \%basef, \%bfdes, \%lfdes ) . "</xmp>";
 
       my $combo_select = $core->select( $linked_table, $lfields, { ORDER_BY => '._ID' } );
       

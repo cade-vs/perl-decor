@@ -145,7 +145,7 @@ sub load_object
     @files = find_files_for_table( $object );
     if( ! @files )
       {
-      print "warning: cannot find any files for table [$object]\n";
+      print "notice: no files for table [$object] \t-- skipped\n";
       return;
       }
     }  
