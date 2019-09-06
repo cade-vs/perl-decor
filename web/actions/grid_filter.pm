@@ -144,7 +144,8 @@ sub main
           }
         else
           {  
-          push @field_filter, { OP => '==', VALUE => $input_data, };
+          my $eq = type_revert( $input_data, $type );
+          push @field_filter, { OP => '==', VALUE => $eq, };
           }
         }  
 
