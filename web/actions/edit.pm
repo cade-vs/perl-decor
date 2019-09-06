@@ -154,11 +154,17 @@ sub main
   #$fields_ar        = $ps->{ 'FIELDS_WRITE_AR' };
   #$edit_mode_insert = $ps->{ 'EDIT_MODE_INSERT' };
 
+  if( $edit_mode_insert and $si->{ 'USE_LAST_DATA' } and exists $us->{ 'LAST_ROW_DATA' }{ $table } )
+    {
+    $ps->{ 'ROW_DATA'      } = $us->{ 'LAST_ROW_DATA' }{ $table };
+    $ps->{ 'ALREADY_USED_LAST_DATA' } = 1;
+    }
+
   my $calc_in  = { map { $_ => $ps->{ 'ROW_DATA' }{ $_ } } @$fields_ar };
   my ( $calc_out, $calc_merrs )= $core->recalc( $table, $calc_in, $id, $edit_mode_insert, { 'EDIT_SID' => $ps->{ 'EDIT_SID' } } );
   if( $calc_out )
     {
-    $ps->{ 'ROW_DATA' } = $calc_out;
+    $ps->{ 'ROW_DATA'      } = $calc_out;
     }
   else
     {
@@ -179,6 +185,11 @@ sub main
     push @{ $calc_merrs->{ $field } }, "[~This field is required]!";
     }
 
+  if( $button_id eq 'PREVIEW' or $button_id eq 'OK' )
+    {
+    $us->{ 'LAST_ROW_DATA' }{ $table } = $calc_out if $edit_mode_insert;
+    }
+    
   if( ! ( ( $button_id eq 'PREVIEW' or $button_id eq 'OK' ) and $calc_merrs ) )
     {
     # handle redirects here
@@ -515,6 +526,11 @@ sub main
 
   $text .= "<br>";
   $text .= de_html_alink_button( $reo, 'back', "&lArr; [~Cancel]", "[~Cancel this operation]", BTYPE => 'nav'   );
+
+  if( $edit_mode_insert and exists $us->{ 'LAST_ROW_DATA' }{ $table } and ! $ps->{ 'ALREADY_USED_LAST_DATA' } )
+    {
+    $text .= de_html_alink_button( $reo, 'here', "&copy; [~Fill last used data]", "[~Fill last used data]", BTYPE => 'nav', USE_LAST_DATA => 1   );
+    }
 
   if( $tdes->{ '@' }{ 'NO_PREVIEW' } )
     {
