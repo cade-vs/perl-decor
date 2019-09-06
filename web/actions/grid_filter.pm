@@ -254,7 +254,8 @@ sub main
 
       # $text .= "<hr><h2>$field</h2><xmp style='text-align: left'>" . Dumper( \@lfields, $lfields, \%basef, \%bfdes, \%lfdes ) . "</xmp>";
 
-      my $combo_select = $core->select( $linked_table, $lfields, { ORDER_BY => '._ID' } );
+      my $combo_orderby = $fdes->get_attr( qw( WEB COMBO ORDERBY ) ) || join( ',', @spf_fld );
+      my $combo_select  = $core->select( $linked_table, $lfields, { ORDER_BY => $combo_orderby } );
       
       push @$combo_data, { KEY => '', VALUE => '--' };
       
