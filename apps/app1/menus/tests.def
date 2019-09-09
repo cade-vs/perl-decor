@@ -42,5 +42,6 @@
   
 =STANDALONE
 
+  grant access to all
   type    do    test1   standalone
   label   run standalone do

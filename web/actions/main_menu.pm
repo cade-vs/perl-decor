@@ -66,6 +66,12 @@ print STDERR Dumper( '******************************', $menu, $core );
       my $url  = $item->{ 'URL'  };
       $link = "<a class=menu target=_blank href=$url>$label</a>";
       }
+    elsif( $type eq 'DO' )
+      {
+      my $table  = $item->{ 'TABLE'  };
+      my $do     = $item->{ 'DO'     };
+      $link = "<a class=menu reactor_none_href=?action=do&table=$table&do=$do>$label</a>";
+      }
     else
       {
       $reo->log( "error: main-menu: invalid item [$key] type [$type]" );

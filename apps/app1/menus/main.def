@@ -36,3 +36,10 @@
   type  url   http://kernel.org
   
   
+
+  
+=STANDALONE
+
+  grant access to all
+  type    do    test1   standalone
+  label   run standalone do
