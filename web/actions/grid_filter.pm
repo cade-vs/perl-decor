@@ -45,44 +45,46 @@ sub main
 
   my $table_label = $tdes->get_label();
 
-  my $fields_ar;
-  $fields_ar = $tdes->get_fields_list_by_oper( 'READ' );
+  my @fields = @{ $tdes->get_fields_list_by_oper( 'READ' ) };
 
   $reo->ps_path_add( 'filter', qq( "Filter records from "<b>$table_label</b>" ) );
 
-#print STDERR Dumper( "error:", $fields_ar, $ps->{ 'ROW_DATA' }, 'insert', $edit_mode_insert, 'allow', $tdes->allows( 'UPDATE' ) );
+#print STDERR Dumper( "error:", \@fields, $ps->{ 'ROW_DATA' }, 'insert', $edit_mode_insert, 'allow', $tdes->allows( 'UPDATE' ) );
 
-  return "<#access_denied>" unless @$fields_ar;
+  return "<#access_denied>" unless @fields > 0;
 
-  my $fields = join ',', @$fields_ar;
+  my $fields = join ',', @fields;
 
   my %ui_si = ( %$ui, %$si ); # merge inputs, SAFE_INPUT has priority
 
   # handle redirects here
   de_web_handle_redirect_buttons( $reo );
 
+  my %bfdes; # base/begin/origin field descriptions, indexed by field path
+  my %lfdes; # linked/last       field descriptions, indexed by field path, pointing to trail field
+  my %basef; # base fields map, return base field NAME by field path
+
+  de_web_expand_resolve_fields_in_place( \@fields, $tdes, \%bfdes, \%lfdes, \%basef );
+
   if( $button eq 'OK' )
     {
     my $filter_rules = {};
     my $filter_data  = {};
 
-    my @fields = @$fields_ar;
-    
-    my %bfdes; # base/begin/origin field descriptions, indexed by field path
-    my %lfdes; # linked/last       field descriptions, indexed by field path, pointing to trail field
-    my %basef; # base fields map, return base field NAME by field path
-
-    de_web_expand_resolve_fields_in_place( \@fields, $tdes, \%bfdes, \%lfdes, \%basef );
-
 #      print STDERR "<hr><h2></h2><xmp style='text-align: left'>" . Dumper( \@fields, \%basef, \%bfdes, \%lfdes ) . "</xmp>";
 
     # compile rules
-    for my $field_ex ( @fields )
+    for my $field ( @fields )
       {
       my @field_filter;
 
-      my $field     = $basef{ $field_ex } || $field_ex;
-      my $field_out = $field;
+      my $bfdes     = $bfdes{ $field };
+      my $lfdes     = $lfdes{ $field };
+
+      my $fdes      = $bfdes;
+
+      my $base_field = $bfdes->{ 'NAME' };
+      my $field_out  = $base_field;
 
       next unless exists $ui_si{ "F:$field" };
       
@@ -93,15 +95,12 @@ sub main
       $input_data =~ s/\s*$//;
       next if $input_data eq '';
 
-      # FIXME: links paths...
-      my $bfdes     = $bfdes{ $field_ex };
-      my $fdes      = $bfdes;
-
-      my $combo = $fdes->get_attr( qw( WEB COMBO ) );
+      
+      my $combo = $bfdes->get_attr( qw( WEB COMBO ) );
       if( $bfdes->is_linked() and ! $combo )
         {
-        $fdes      = $lfdes{ $field_ex };
-        $field_out = $field_ex;
+        $fdes      = $lfdes;
+        $field_out = $field;
         }
       
       my $type      = $fdes->{ 'TYPE'  };
@@ -181,15 +180,24 @@ sub main
 ###  my $row_data = $core->fetch( $select );
 ###  my $row_id = $row_data->{ '_ID' };
 
-  for my $field ( @$fields_ar )
+  for my $field ( @fields )
     {
-    my $fdes      = $tdes->{ 'FIELD' }{ $field };
-    my $bfdes     = $fdes; # keep sync code with view/preview/grid, bfdes is begin/origin-field
-    my $type      = $fdes->{ 'TYPE'  };
-    my $type_name = $fdes->{ 'TYPE'  }{ 'NAME' };
-    my $label     = $fdes->{ 'LABEL' } || $field;
+    my $bfdes     = $bfdes{ $field };
+    my $lfdes     = $lfdes{ $field };
+    my $type      = $lfdes->{ 'TYPE'  };
+    my $type_name = $lfdes->{ 'TYPE'  }{ 'NAME' };
 
-    next if $fdes->get_attr( 'WEB', 'HIDDEN' );
+    my $base_field = $bfdes->{ 'NAME' };
+
+    next if $bfdes->get_attr( 'WEB', 'HIDDEN' );
+
+    my $blabel    = $bfdes->get_attr( qw( WEB GRID LABEL ) );
+    my $label     = "$blabel";
+    if( $bfdes ne $lfdes )
+      {
+      my $llabel     = $lfdes->get_attr( qw( WEB GRID LABEL ) );
+      $label .= "/$llabel";
+      }
 
     my $input_data = $ui_si{ "F:$field" } || ( $rs->{ 'FILTERS' }{ 'ACTIVE' } ? $rs->{ 'FILTERS' }{ 'ACTIVE' }{ 'DATA' }{ $field } : undef );
 
@@ -202,9 +210,9 @@ sub main
     my $input_tag_args;
     my $field_disabled;
 
-    my $combo = $fdes->get_attr( qw( WEB COMBO ) );
+    my $combo = $bfdes->get_attr( qw( WEB COMBO ) );
 
-    if( $type_name eq 'INT' and $fdes->{ 'BOOL' } )
+    if( $type_name eq 'INT' and $bfdes->{ 'BOOL' } )
       {
       $input_data = 0 if $input_data < 0;
       $input_data = 2 if $input_data > 2;
@@ -255,7 +263,7 @@ sub main
 
       # $text .= "<hr><h2>$field</h2><xmp style='text-align: left'>" . Dumper( \@lfields, $lfields, \%basef, \%bfdes, \%lfdes ) . "</xmp>";
 
-      my $combo_orderby = $fdes->get_attr( qw( WEB COMBO ORDERBY ) ) || join( ',', @spf_fld );
+      my $combo_orderby = $bfdes->get_attr( qw( WEB COMBO ORDERBY ) ) || join( ',', @spf_fld );
       my $combo_select  = $core->select( $linked_table, $lfields, { ORDER_BY => $combo_orderby } );
       
       push @$combo_data, { KEY => '', VALUE => '--' };
@@ -272,7 +280,7 @@ sub main
         }
 
       my $fmt_class;
-      if( $fdes->get_attr( 'WEB', 'EDIT', 'MONO' ) )
+      if( $bfdes->get_attr( 'WEB', 'EDIT', 'MONO' ) )
         {
         $fmt_class .= " fmt-mono";
         }
@@ -290,7 +298,7 @@ sub main
       my $field_size = 64;
       my $field_maxlen = $field_size;
       $field_input .= $filter_form->input(
-                                       NAME     => "F:$field",
+                                       NAME     => "F:$field+",
                                        ID       => $field_id,
                                        VALUE    => $input_data,
                                        SIZE     => $field_size,
