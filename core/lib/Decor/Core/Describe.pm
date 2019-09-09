@@ -167,6 +167,7 @@ my %DES_ATTRS = (
                            OVERFLOW    => 3,
                            COMBO       => 3, # requires link selection to be combo
                            ORDERBY     => 3,
+                           DISTINCT    => 3,
                            ROWS        => 3, # show more rows in views
                            HIDDEN      => 3, # hide field from views
                            EDITABLE    => 3, # if this field is allowed to be editable in views

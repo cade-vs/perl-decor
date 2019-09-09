@@ -75,7 +75,7 @@ $file_body = Encode::decode_utf8( $file_body );
     }
   else
     {
-$text .= "[@ids]";
+# $text .= "[@ids]";
 
     $core->do( $table, $do );
     my ( $file_body, $file_mime ) = $core->get_return_file_body_mime();

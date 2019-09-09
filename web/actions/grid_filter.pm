@@ -263,8 +263,20 @@ sub main
 
       # $text .= "<hr><h2>$field</h2><xmp style='text-align: left'>" . Dumper( \@lfields, $lfields, \%basef, \%bfdes, \%lfdes ) . "</xmp>";
 
+      my $combo_filter;
+      if( $bfdes->get_attr( qw( WEB COMBO DISTINCT ) ) )
+        {
+        my $ds  = $core->select( $table, $base_field, { DISTINCT => 1 } );
+        my @di;
+        while( my $hr = $core->fetch( $ds ) )
+          {
+          push @di, $hr->{ $base_field };
+          }
+        $combo_filter = { '_ID' => { OP => 'IN', VALUE => \@di } };
+        }  
+
       my $combo_orderby = $bfdes->get_attr( qw( WEB COMBO ORDERBY ) ) || join( ',', @spf_fld );
-      my $combo_select  = $core->select( $linked_table, $lfields, { ORDER_BY => $combo_orderby } );
+      my $combo_select  = $core->select( $linked_table, $lfields, { FILTER => $combo_filter, ORDER_BY => $combo_orderby } );
       
       push @$combo_data, { KEY => '', VALUE => '--' };
       

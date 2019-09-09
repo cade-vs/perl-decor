@@ -427,6 +427,7 @@ sub select
   my $lock     = $opt->{ 'LOCK'   };
   my $order_by = $opt->{ 'ORDER_BY' };
   my $group_by = $opt->{ 'GROUP_BY' };
+  my $distinct = $opt->{ 'DISTINCT' };
   
   my $filter_name = $opt->{ 'FILTER_NAME' };
 
@@ -444,6 +445,7 @@ sub select
   $mi{ 'LOCK'     } = $lock;
   $mi{ 'ORDER_BY' } = $order_by;
   $mi{ 'GROUP_BY' } = $group_by;
+  $mi{ 'DISTINCT' } = $distinct;
   $mi{ 'FILTER_NAME' } = $filter_name;
 
   my $mo = $self->tx_msg( \%mi ) or return undef;
