@@ -109,6 +109,7 @@ my %SELECT_WHERE_OPERATORS = (
                     '>='   => '>=',
                     '<>'   => '<>',
                     'LIKE' => 'LIKE',
+                    'IN'   => 'IN',
                     'eq'   => '=',
                     'lt'   => '<',
                     'le'   => '<=',
@@ -670,7 +671,7 @@ sub __filter_to_where
           my $inph = join ',', @inph;
 
           push @where, ".$f IN ( $inph )";
-          push @bind,  @$v;
+          push @bind,  @$val;
           }
         else
           {  
@@ -707,6 +708,7 @@ sub sub_select
   my $filter   =    $mi->{ 'FILTER' } || {};
   my $order_by = uc $mi->{ 'ORDER_BY' };
   my $group_by = uc $mi->{ 'GROUP_BY' };
+  my $distinct =    $mi->{ 'DISTINCT' } ? 1 : 0;
   my $filter_name = uc $mi->{ 'FILTER_NAME' };
 
   # FIXME: TODO: Subs/MessageCheck TABLE ID FIELDS LIMIT OFFSET FILTER validate_hash()
@@ -753,7 +755,7 @@ sub sub_select
   $dbio->set_profile_locked( $profile );
   $dbio->taint_mode_enable_all();
 
-  my $res = $dbio->select( $table, $fields, $where_clause, { BIND => $bind, LIMIT => $limit, OFFSET => $offset, ORDER_BY => $order_by, GROUP_BY => $group_by } );
+  my $res = $dbio->select( $table, $fields, $where_clause, { BIND => $bind, LIMIT => $limit, OFFSET => $offset, ORDER_BY => $order_by, GROUP_BY => $group_by, DISTINCT => $distinct } );
 
   $mo->{ 'SELECT_HANDLE' } = $select_handle;
   $mo->{ 'XS'            } = 'OK';
