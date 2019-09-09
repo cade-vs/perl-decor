@@ -298,7 +298,7 @@ sub main
       my $field_size = 64;
       my $field_maxlen = $field_size;
       $field_input .= $filter_form->input(
-                                       NAME     => "F:$field+",
+                                       NAME     => "F:$field",
                                        ID       => $field_id,
                                        VALUE    => $input_data,
                                        SIZE     => $field_size,
