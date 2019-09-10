@@ -1,0 +1,28 @@
+label Dimension Time
+deny all to all
+grant all to 1
+grant read to all
+
+@include _DIMENSION * -_OWNER
+
+=VALUE
+type DATE
+
+=YEAR
+type int
+
+=MONTH
+type int
+
+=DAY
+type int
+
+=DOY
+type int
+
+=DOW
+type int
+
+=IS_WEEKEND
+type bool
+

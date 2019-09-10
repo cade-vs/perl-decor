@@ -1,0 +1,24 @@
+label Dimension
+deny all to all
+grant all to 1
+grant read to all
+
+@include _DE_OWNERS _OWNER
+
+=UID
+type char 128
+
+=ATTRIBUTES
+type char 1000
+
+=CUMMULATIVE
+type int
+
+=VALUE
+type real
+
+=DIM_TIME
+type link DIMENSION_TIME UID
+
+=ACTIVE
+type int

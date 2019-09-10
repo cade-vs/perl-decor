@@ -1,0 +1,10 @@
+label Регистрационна форма за ученици
+
+@include _form *
+
+grant read insert to 1;10
+
+=EXAM
+label Изберете изпит
+type link LIST NAME
+web.combo     %-40s; NAME

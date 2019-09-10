@@ -1,0 +1,18 @@
+
+grant all to all
+
+=DATE
+label Date
+type utime
+
+=NAME
+label Трите имена
+type char 50
+
+=EMAIL
+label Вашият имеил
+type char 50
+
+=PHONE
+label Телефон
+type char 20
