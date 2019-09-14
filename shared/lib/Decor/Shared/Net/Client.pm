@@ -40,7 +40,7 @@ sub new
              };
   bless $self, $class;
 
-  $self->{ 'TIMEOUT' } = 60 if $self->{ 'TIMEOUT' } < 1;
+  $self->{ 'TIMEOUT' } = 20*60 if $self->{ 'TIMEOUT' } < 1;
   
   de_obj_add_debug_info( $self );
   $self->__init();

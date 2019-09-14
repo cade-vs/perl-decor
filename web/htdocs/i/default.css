@@ -686,6 +686,7 @@ input:focus,textarea:focus
 
 .disabled-button
         {
+        text-decoration-line: line-through;
         color: #FFF;
         background-color: #BBB;
         border-top:    solid 1px #FFF;
@@ -696,6 +697,7 @@ input:focus,textarea:focus
 
 .disabled-button:hover
         {
+        text-decoration-line: line-through;
         color: #FFF;
         background-color: #BBB;
         border-top:    solid 1px #FFF;
@@ -706,6 +708,7 @@ input:focus,textarea:focus
 
 .disabled-button:focus
         {
+        text-decoration-line: line-through;
         color: #FFF;
         background-color: #BBB;
         border-top:    solid 1px #FFF;
