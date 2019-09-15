@@ -32,6 +32,7 @@ grant all
   type  link  test2 name
   web.combo
   web.combo.distinct
+  web.combo.orderby name desc
   
 =PRICE
 

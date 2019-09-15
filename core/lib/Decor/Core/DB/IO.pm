@@ -174,10 +174,10 @@ sub select
   $where = $self->__resolve_clause_fields( $table, $where ) if $where ne '';
 
   my $order_by = $opts->{ 'ORDER_BY' };
-  $order_by = "ORDER BY\n    " . $self->__resolve_clause_fields( $table, $order_by ) if $order_by ne '';
+  $order_by = "ORDER BY\n    " . $self->__resolve_all_fields( $table, $order_by ) if $order_by ne '';
 
   my $group_by = $opts->{ 'GROUP_BY' };
-  $group_by = "GROUP BY\n    " . $self->__resolve_clause_fields( $table, $group_by ) if $group_by ne '';
+  $group_by = "GROUP BY\n    " . $self->__resolve_all_fields( $table, $group_by ) if $group_by ne '';
 
   # TODO: use inner or left outer joins, instead of simple where join
   # TODO: add option for inner, outer or full joins!
@@ -299,7 +299,7 @@ sub __resolve_single_field
 
 #print Dumper( "__where_resolve_field = [$field]" );
 
-   $field = substr( $field, 1 ); # skips leading anchor (.)
+   $field =~ s/^\.//; # skips leading anchor (.)
 
    my ( $resolved_alias, $resolved_table, $resolved_field ) = $self->__select_resolve_field( $table, $field );
 
@@ -318,6 +318,22 @@ sub __resolve_clause_fields
   $clause =~ s/((?<![A-Z_0-9])|^)((\.[A-Z_0-9]+)+)/$self->__resolve_single_field( $table, $2 )/gie;
   
   return $clause;
+}
+
+sub __resolve_all_fields
+{
+   my $self   = shift;
+   my $table  = shift;
+   my $fields = shift;
+
+   my @fields = split /,/, $fields;
+   for( @fields )
+     {
+     s/^\.//;
+     $_ =~ s/^\s*([A-Z_0-9\.]+)/$self->__resolve_single_field( $table, $1 )/ie;
+     }
+  
+  return join( ',', @fields );
 }
 
 sub __get_row_access_where_list
