@@ -114,16 +114,20 @@ sub de_init
   # FIXME: should be used explicitly with use bundles?
   # unshift @BUNDLES, sort ( read_dir_entries( "$app_dir/bundles" ) );
 
+  my @inc;
+
   for my $bundle ( @BUNDLES )
     {
-    boom "error: invalid bundle name [$bundle]! check USE_BUNDLES in app.conf" unless de_check_name( $bundle );
+    boom "error: invalid bundle name [$bundle]! check USE_BUNDLES in app.conf" unless de_check_name_ext( $bundle );
     # FIXME: bad logic, should not complain if no bundles are used at all, report locations and bundle name for other "not-found" errors
     my $found;
     for my $bundle_dir ( ( "$app_dir/bundles", "$ROOT/bundles" ) )
       {
       if( -d "$bundle_dir/$bundle" )
         {
-        push @BUNDLES_DIRS, "$bundle_dir/$bundle";
+        my $bd = "$bundle_dir/$bundle";
+        push @BUNDLES_DIRS, $bd;
+        push @inc, "$bd/lib";
         $found = 1;
         last;
         }
@@ -137,7 +141,9 @@ sub de_init
   dlock \@BUNDLES;
   dlock \@BUNDLES_DIRS;
 
-  @INC = ( "$app_dir/lib", @ORIGINAL_INC );
+  push @inc, "$app_dir/lib";
+  
+  @INC = ( @inc, @ORIGINAL_INC );
   #print STDERR Dumper( 'APP_CFG:', \%APP_CFG, 'BUNDLES:', \@BUNDLES, 'BUNDLES DIRS:', \@BUNDLES_DIRS );
 }
 

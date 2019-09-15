@@ -20,6 +20,8 @@ our @EXPORT = qw(
 
                 de_check_name
                 de_check_name_boom
+                de_check_name_ext
+                de_check_name_ext_boom
                 de_check_id
                 de_check_id_boom
                 
@@ -57,6 +59,21 @@ sub de_check_name_boom
   my $msg  = shift || "invalid NAME [$name]";
   
   de_check_name( $name ) or boom $msg;
+}
+
+sub de_check_name_ext
+{
+  my $name = shift;
+  
+  return $name =~ /^[a-zA-Z_0-9\-]+$/o ? 1 : 0;
+}
+
+sub de_check_name_ext_boom
+{
+  my $name = shift;
+  my $msg  = shift || "invalid NAME [$name]";
+  
+  de_check_name_ext( $name ) or boom $msg;
 }
 
 sub de_check_id

@@ -294,7 +294,7 @@ sub __merge_table_des_file
   my $inf;
   open( $inf, "<", $fname ) or boom "cannot open table description file [$fname]";
 
-  de_log_debug( "table description open file: [$fname]" );
+  de_log_debug2( "table description open file: [$fname]" );
 
   my $sect_name = '@'; # self :) should be more like 0
   my $category  = '@';
