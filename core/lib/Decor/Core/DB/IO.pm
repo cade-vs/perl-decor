@@ -24,10 +24,8 @@ use Decor::Core::Log;
 
 ##############################################################################
 
-# TODO: add profiles check and support
 # TODO: add select _OWNER* and _READ* 'in' sets
 # TODO: check for valid opers
-# TODO: add select READ for taint mode FIELDS check
 # TODO: add dot-path where fields support for update()
 # TODO: add resolve checks for inter cross-DSN links
 
@@ -174,10 +172,10 @@ sub select
   $where = $self->__resolve_clause_fields( $table, $where ) if $where ne '';
 
   my $order_by = $opts->{ 'ORDER_BY' };
-  $order_by = "ORDER BY\n    " . $self->__resolve_all_fields( $table, $order_by ) if $order_by ne '';
+  $order_by = "ORDER BY\n    " . $self->__resolve_all_fields( $table, $order_by, { 'UNTAINT_FIELDS' => 1 } ) if $order_by ne '';
 
   my $group_by = $opts->{ 'GROUP_BY' };
-  $group_by = "GROUP BY\n    " . $self->__resolve_all_fields( $table, $group_by ) if $group_by ne '';
+  $group_by = "GROUP BY\n    " . $self->__resolve_all_fields( $table, $group_by, { 'UNTAINT_FIELDS' => 1 } ) if $group_by ne '';
 
   # TODO: use inner or left outer joins, instead of simple where join
   # TODO: add option for inner, outer or full joins!
@@ -234,6 +232,7 @@ sub __select_resolve_field
   my $self   = shift;
   my $table  = uc shift;
   my $field  = uc shift; # userid.info.des.asd.qwe
+  my $opt    = shift || {};
 
   my @field = split /\./, $field;
   my $table_now = $table;
@@ -250,12 +249,13 @@ sub __select_resolve_field
     {
     $field_now = shift @field;
 
-    if( $profile and $self->taint_mode_get( 'FIELDS' ) )
+    if( ! $opt->{ 'UNTAINT_FIELDS' } and $profile and $self->taint_mode_get( 'FIELDS' ) )
       {
       boom "cannot get across field, READ/CROSS denied, current position is [$table_now:$field_now]" 
           unless
              $profile->check_access_table_field( 'READ',  $table_now, $field_now )
-          or $profile->check_access_table_field( 'CROSS', $table_now, $field_now );
+          or 
+             $profile->check_access_table_field( 'CROSS', $table_now, $field_now );
       }
     my $fld_des = describe_table_field( $table_now, $field_now );
 
@@ -296,12 +296,13 @@ sub __resolve_single_field
    my $self   = shift;
    my $table  = shift;
    my $field  = uc shift; # userid.info.des.asd.qwe
+   my $opt    = shift || {};
 
 #print Dumper( "__where_resolve_field = [$field]" );
 
    $field =~ s/^\.//; # skips leading anchor (.)
 
-   my ( $resolved_alias, $resolved_table, $resolved_field ) = $self->__select_resolve_field( $table, $field );
+   my ( $resolved_alias, $resolved_table, $resolved_field ) = $self->__select_resolve_field( $table, $field, $opt );
 
 #print Dumper( \@_, "$resolved_alias.$resolved_field" );
 
@@ -314,10 +315,11 @@ sub __resolve_clause_fields
    my $self   = shift;
    my $table  = shift;
    my $clause = shift;
+   my $opt    = shift || {};
 
-  $clause =~ s/((?<![A-Z_0-9])|^)((\.[A-Z_0-9]+)+)/$self->__resolve_single_field( $table, $2 )/gie;
+   $clause =~ s/((?<![A-Z_0-9])|^)((\.[A-Z_0-9]+)+)/$self->__resolve_single_field( $table, $2, $opt )/gie;
   
-  return $clause;
+   return $clause;
 }
 
 sub __resolve_all_fields
@@ -325,12 +327,13 @@ sub __resolve_all_fields
    my $self   = shift;
    my $table  = shift;
    my $fields = shift;
+   my $opt    = shift || {};
 
    my @fields = split /,/, $fields;
    for( @fields )
      {
      s/^\.//;
-     $_ =~ s/^\s*([A-Z_0-9\.]+)/$self->__resolve_single_field( $table, $1 )/ie;
+     $_ =~ s/^\s*([A-Z_0-9\.]+)/$self->__resolve_single_field( $table, $1, $opt )/ie;
      }
   
   return join( ',', @fields );

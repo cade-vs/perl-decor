@@ -17,6 +17,7 @@ grant read          to 999
 
   grant insert update to 10; 222; 900; 33 + ! 44
   grant update
+  deny read
   
 =_OWNER
 
