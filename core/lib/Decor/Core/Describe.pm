@@ -187,6 +187,9 @@ my %DES_ATTRS = (
                            SELECT_CUE  => 3, # related "SELECT" button label for LINK and BACKLINKs
                            SHOW        => 3,
                            HIDE        => 3,
+                           
+                           DETAILS_FIELDS => 3,
+                           DETAILS_COUNT  => 3,
                          },
                   'INDEX' => {
                            FIELDS      => 1,

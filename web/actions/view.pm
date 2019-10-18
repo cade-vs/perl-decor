@@ -99,6 +99,7 @@ sub main
     my $data_base = $row_data->{ $basef{ $field } } if exists $basef{ $field };
     my $data_fmt  = de_web_format_field( $data, $lfdes, 'VIEW', { ID => $id } );
     my $data_ctrl;
+    my $field_details;
 
     my $overflow  = $bfdes->get_attr( qw( WEB VIEW OVERFLOW ) );
     if( $overflow )
@@ -163,6 +164,23 @@ sub main
       $count = 'Unknown' if $count eq '';
 
       $data_fmt = de_html_alink( $reo, 'new', "<b class=hi>$count</b> [~records from] <b class=hi>$linked_table_label</b>",   "[~View all backlinked records from] <b class=hi>$linked_table_label</b>",  ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, FILTER => { $backlinked_field => $id } );
+
+      my $details_fields = $bfdes->get_attr( qw( WEB EDIT DETAILS_FIELDS ) );
+      if( $details_fields and $count > 0 )
+        {
+        my $details_limit = $bfdes->get_attr( qw( WEB EDIT DETAILS_LIMIT ) ) || 16;
+        $field_details .= "<p>" . de_data_grid( $core, $backlinked_table, $details_fields, { FILTER => { $backlinked_field => $id }, LIMIT => $details_limit } ) ;
+
+        $field_details .= de_html_alink_button( $reo, 'new', '[~View all records]',   "[~View all backlinked records from] <b>$linked_table_label</b>",  BTYPE => 'nav', ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, FILTER => { $backlinked_field => $id } );
+        if( $bltdes->get_table_type() eq 'FILE' )
+          {
+          $field_details .= de_html_alink_button( $reo, 'new', '[~Upload new file]', "[~Upload and link new files]", BTYPE => 'act', ACTION => 'file_up', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, LINK_FIELD_DISABLE => $backlinked_field, MULTI => 1 );
+          }
+        else
+          {
+          $field_details .= de_html_alink_button( $reo, 'new', '[~Insert new record]', "[~Insert and link a new record into] <b>$linked_table_label</b>", BTYPE => 'act', ACTION => 'edit', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, LINK_FIELD_DISABLE => $backlinked_field );
+          }
+        }
       }
 
     if( $lpassword )
@@ -172,6 +190,10 @@ sub main
 
     my $data_layout = html_layout_2lr( $data_fmt, $data_ctrl, '<==1>' );
     my $base_field_class = lc "css_view_class_$base_field";
+    if( $field_details )
+      {
+      $data_layout .= $field_details;
+      }
     $text .= "<tr class=view>";
     $text .= "<td class='view-field  $base_field_class' >$label</td>";
     $text .= "<td class='view-value  $base_field_class' >$data_layout</td>";

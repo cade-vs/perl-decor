@@ -256,6 +256,7 @@ sub main
     my $field_input_ctrl;
     my $input_tag_args;
     my $field_disabled;
+    my $field_details;
 
     if( $type_name eq 'CHAR' )
       {
@@ -422,6 +423,17 @@ sub main
       $count = 'Unknown' if $count eq '';
 
       $field_input = "<b class=hi>$count</b> records from <b class=hi>$linked_table_label</b>";
+      
+      my $details_fields = $bfdes->get_attr( qw( WEB EDIT DETAILS_FIELDS ) );
+      if( $details_fields and $count > 0 )
+        {
+        my $details_limit = $bfdes->get_attr( qw( WEB EDIT DETAILS_LIMIT ) ) || 16;
+        $field_details .= "<p>" . de_data_grid( $core, $backlinked_table, $details_fields, { FILTER => { $backlinked_field => $id }, LIMIT => $details_limit } ) ;
+
+        $field_details .= de_html_form_button_redirect( $reo, 'new', $edit_form, "GRID_BACKLINKED_$field_id",   "[~View/modify all records]",  "[~View all backlinked records from] <b>$linked_table_label</b>",  BTYPE => 'nav', ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, FILTER => { $backlinked_field => $id } ) if $bltdes->allows( 'READ' ) and $count > 0;
+        $field_details .= de_html_form_button_redirect( $reo, 'new', $edit_form, "INSERT_BACKLINKED_$field_id", "[~Insert new record]", "[~Insert and link a new record into] <b>$linked_table_label</b>", BTYPE => 'act', ACTION => 'edit', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, ID => -1, "F:$backlinked_field" => $id ) if $bltdes->allows( 'INSERT' );
+        }
+      # EXPERIMENT: :)) $field_input .= "<p><div class=vframe><a reactor_new_href=?action=grid&table=$backlinked_table>show</a></div>";
       }
     elsif( $type_name eq 'INT' and $fdes->{ 'BOOL' } )
       {
@@ -517,6 +529,11 @@ sub main
 
     my $input_layout = html_layout_2lr( $field_input, $field_input_ctrl, '<==1>' );
     my $base_field_class = lc "css_edit_class_$base_field";
+    
+    if( $field_details )
+      {
+      $input_layout .= $field_details;
+      }
     $text .= "<tr class=view>\n";
     $text .= "<td class='view-field  $base_field_class'>$label$field_error</td>\n";
     $text .= "<td class='view-value  $base_field_class' >$input_layout</td>\n";
