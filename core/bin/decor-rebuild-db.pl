@@ -123,7 +123,7 @@ print "rebuilding tables: @tables\n";
 
 my $cc;
 my $ac = @tables;
-for my $table ( @tables )
+for my $table ( sort @tables )
   {
   $cc++;
   my $prc = sprintf "%6.2f", 100*$cc/$ac;
