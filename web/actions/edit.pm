@@ -411,7 +411,7 @@ sub main
     elsif( $type_name eq 'BACKLINK' )
       {
       my ( $backlinked_table, $backlinked_field ) = $bfdes->backlink_details();
-      my $bltdes = $core->describe( $backlinked_table );
+      my $bltdes = $core->describe( $backlinked_table ) or next;
       my $linked_table_label = $bltdes->get_label();
 
       my $count = $core->count( $backlinked_table, { FILTER => { $backlinked_field => $id } });

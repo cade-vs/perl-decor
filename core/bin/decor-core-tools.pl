@@ -31,11 +31,14 @@ options:
     --        -- end of options
 commands:    
   list-users
-  add-user   user_name        user_pass  <user_id>
-  user-pwd   user_name_or_id  user_pass
-  add-groups user_name_or_id  group1 group2...
-  del-groups user_name_or_id  group1 group2...
-  del-groups user_name_or_id  all
+  create-group  group_name                  <group id>
+  create-user   user_name        user_pass  <user_id>
+  user-pwd      user_name_or_id  user_pass
+  add-groups    user_name_or_id  group1 group2...
+  del-groups    user_name_or_id  group1 group2...
+  del-groups    user_name_or_id  all
+
+  user-set-active-groups  user_name_or_id  primary_group_name_or_id private_group_name_or_id
 notes:
   * first argument is application name and it is mandatory!
   * options cannot be grouped: -fd is invalid, correct is: -f -d
@@ -99,9 +102,13 @@ if( $cmd eq 'list-users' )
   {
   cmd_list_users( @args );
   }
-elsif( $cmd eq 'add-user' )
+elsif( $cmd eq 'create-user' )
   {
-  cmd_user_add( @args );
+  cmd_create_user( @args );
+  }
+elsif( $cmd eq 'create-group' )
+  {
+  cmd_create_group( @args );
   }
 elsif( $cmd eq 'user-pwd' )  
   {
@@ -115,6 +122,10 @@ elsif( $cmd eq 'del-groups' )
   {
   del_groups( @args );
   }
+elsif( $cmd eq 'user-set-active-groups' )  
+  {
+  user_set_active_groups( @args );
+  }
 else
   {
   die "unknown command [$cmd]\n";
@@ -122,7 +133,7 @@ else
 
 #-----------------------------------------------------------------------------
 
-sub cmd_user_add
+sub cmd_create_user
 {
   my $user = shift;
   my $pass = shift;
@@ -157,6 +168,35 @@ sub cmd_user_add
   my $usid = $user_rec->id();
   my $name = $user_rec->read( 'NAME' );
   print "info: new user [$name] created with id [$usid]\n";
+}
+
+#-----------------------------------------------------------------------------
+
+sub cmd_create_group
+{
+  my $grp  = shift;
+  my $gid  = shift;
+  
+  my $grp_rec = new Decor::Core::DB::Record;
+
+  if( $grp_rec->select_first1( 'DE_GROUPS', '.NAME = ?', { BIND => [ $grp ] } ) )
+    {
+    $gid = $grp_rec->id();
+    print "error: group [$grp] already exists with id [$gid]\n";
+    return;
+    }
+
+  $grp_rec->create( 'DE_GROUPS', $gid );
+  
+  $grp_rec->write( 
+                    NAME      => $grp, 
+                  );
+  
+  $grp_rec->save();
+  $grp_rec->commit();
+  
+  my $gid = $grp_rec->id();
+  print "info: new group [$grp] created with id [$gid]\n";
 }
 
 #-----------------------------------------------------------------------------
@@ -215,6 +255,30 @@ sub find_user
   return $user_rec;  
 }
 
+sub find_group
+{
+  my $grp = shift;
+
+  my $grp_rec = new Decor::Core::DB::Record;
+
+  if( $grp =~ /^\d+$/ )
+    {
+    if( $grp <= 0 or ! $grp_rec->load( 'DE_GROUPS', $grp ) )
+      {
+      die "error: group id [$grp] not found\n";
+      }
+    }
+  else
+    {  
+    if( $grp eq '' or ! $grp_rec->select_first1( 'DE_GROUPS', '.NAME = ?', { BIND => [ $grp ] } ) )
+      {
+      die "error: group [$grp] not found\n";
+      }
+    }  
+  
+  return $grp_rec;  
+}
+
 #-----------------------------------------------------------------------------
 
 sub cmd_list_users
@@ -237,7 +301,7 @@ sub cmd_list_users
       if( $field eq 'LAST_LOGIN_SESSION' )
         {
         my $ll = new Decor::Core::DB::Record;
-        $ll->load( 'DE_SESSIONS', $value );
+        next unless $ll->load( 'DE_SESSIONS', $value );
         for my $fll ( @{ $ll->get_fields_list() } )
           {
           my $vll = $ll->read_formatted( $fll );
@@ -338,6 +402,28 @@ sub del_groups
     die "expected list of groups or 'all'\n";
     }  
   $user_rec->commit();
+}
+
+#-----------------------------------------------------------------------------
+
+sub user_set_active_groups
+{
+  my $user = shift;
+  my $pgrp  = shift; # primary group
+  my $vgrp  = shift; # private group
+  
+  my $user_rec = find_user( $user );
+  my $pgrp_rec = find_group( $pgrp  );
+  my $vgrp_rec = find_group( $vgrp  );
+  
+  $user_rec->write( 'PRIMARY_GROUP' => $pgrp_rec->id() );
+  $user_rec->write( 'PRIVATE_GROUP' => $vgrp_rec->id() );
+  
+  $user_rec->save();
+  $user_rec->commit();
+
+  print "ok\n";
+  
 }
 
 #-----------------------------------------------------------------------------

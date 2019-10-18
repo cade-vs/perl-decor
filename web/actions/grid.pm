@@ -12,6 +12,7 @@ use strict;
 use Web::Reactor::HTML::Utils;
 use Decor::Web::HTML::Utils;
 use Decor::Web::View;
+use Decor::Web::Utils;
 use Data::Dumper;
 use Data::Tools 1.21;
 
@@ -164,11 +165,13 @@ sub main
     }
 
   my $insert_cue = $sdes->get_attr( qw( WEB GRID INSERT_CUE ) ) || "[~Insert new record]";
+  my $update_cue = $sdes->get_attr( qw( WEB GRID UPDATE_CUE ) ) || "[~Edit this record]";
   my $upload_cue = $sdes->get_attr( qw( WEB GRID UPLOAD_CUE ) ) || "[~Upload new file]";
+  my ( $copy_cue, $copy_cue_hint ) = de_web_get_cue( $sdes, qw( WEB GRID COPY_CUE ) );
   
   $text_grid_navi_left .= de_html_alink_button( $reo, 'back', "&lArr; [~back]", "[~Go back to the previous screen]", BTYPE => 'nav'   ) if $rs;
-  $text_grid_navi_left .= de_html_alink_button( $reo, 'new', "(+) $insert_cue",      '[~Insert new record]', BTYPE => 'act', ACTION => 'edit',        TABLE => $table, ID => -1, %insert_new_opts ) if $tdes->allows( 'INSERT' );
-  $text_grid_navi_left .= de_html_alink_button( $reo, 'new', "(&uarr;) $upload_cue", '[~Upload new file]',   BTYPE => 'act', ACTION => 'file_up',     TABLE => $table, ID => -1, MULTI => 1       ) if $tdes->allows( 'INSERT' ) and $table_type eq 'FILE';
+  $text_grid_navi_left .= de_html_alink_button( $reo, 'new', "(+) $insert_cue",      $insert_cue, BTYPE => 'act', ACTION => 'edit',        TABLE => $table, ID => -1, %insert_new_opts ) if $tdes->allows( 'INSERT' );
+  $text_grid_navi_left .= de_html_alink_button( $reo, 'new', "(&uarr;) $upload_cue", $upload_cue,   BTYPE => 'act', ACTION => 'file_up',     TABLE => $table, ID => -1, MULTI => 1       ) if $tdes->allows( 'INSERT' ) and $table_type eq 'FILE';
   
   my $filter_link_label = $active_filter ? "[~Modify current filter]" : "[~Filter records]";
   $text_grid_navi_left .= de_html_alink_button( $reo, 'new', "(&asymp;) $filter_link_label",    '[~Filter records]',    ACTION => 'grid_filter', TABLE => $table           );
@@ -281,9 +284,9 @@ sub main
       $vec_ctrl .= de_html_alink_icon( $reo, 'here', "detach.svg",  { CLASS => 'plain', HINT => '[~Detach this record from the parent]', CONFIRM => '[~Are you sure you want to DETACH this record from the parent record?]' },  DETACH_FIELD => $link_field_disable, DETACH_ID => $id );
       }
 
-    $vec_ctrl .= de_html_alink_icon( $reo, 'new', "view.svg",    '[~View this record]',      ACTION => 'view',    ID => $id, TABLE => $table                 );
-    $vec_ctrl .= de_html_alink_icon( $reo, 'new', "edit.svg",    '[~Edit this record]',      ACTION => 'edit',    ID => $id, TABLE => $table                 ) if $tdes->allows( 'UPDATE' );
-    $vec_ctrl .= de_html_alink_icon( $reo, 'new', "copy.svg",    '[~Copy this record]',      ACTION => 'edit',    ID =>  -1, TABLE => $table, COPY_ID => $id ) if $tdes->allows( 'INSERT' ) and ! $tdes->{ '@' }{ 'NO_COPY' };
+    $vec_ctrl .= de_html_alink_icon( $reo, 'new', "view.svg",    '[~View this record]',      ACTION => 'view',    ID => $id, TABLE => $table, LINK_FIELD_DISABLE => $link_field_disable  );
+    $vec_ctrl .= de_html_alink_icon( $reo, 'new', "edit.svg",    $update_cue,                ACTION => 'edit',    ID => $id, TABLE => $table                 ) if $tdes->allows( 'UPDATE' );
+    $vec_ctrl .= de_html_alink_icon( $reo, 'new', "copy.svg",    ( $copy_cue_hint || $copy_cue ),                  ACTION => 'edit',    ID =>  -1, TABLE => $table, COPY_ID => $id ) if $tdes->allows( 'INSERT' ) and ! $tdes->{ '@' }{ 'NO_COPY' };
     $vec_ctrl .= de_html_alink_icon( $reo, 'new', 'file_dn.svg', '[~Download current file]', ACTION => 'file_dn', ID => $id, TABLE => $table                 ) if $table_type eq 'FILE';
     
     if( @dos )
@@ -322,7 +325,6 @@ sub main
 
       if( $bfdes->is_linked() )
         {
-
         if( $link_field_disable and $base_field eq $link_field_disable )
           {
           next;
@@ -392,7 +394,6 @@ sub main
         $data_ctrl .= de_html_alink_button( $reo, 'new', "(=) $view_cue",          undef,                 ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, FILTER => { $backlinked_field => $id } );
         $data_ctrl .= "<br>\n";
         
-        $data_fmt = ""; # TODO: hide count, which is currently unsupported
         my $bcnt = $core->count( $backlinked_table, { FILTER => { $backlinked_field => $id } } );
         $data_fmt = $bcnt || '';
         }

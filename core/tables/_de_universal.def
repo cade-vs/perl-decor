@@ -1,6 +1,10 @@
 
   deny all
 
+  web.insert_cue  Create NEW record
+  web.update_cue  Modify THIS record
+  web.copy_cue    Copy this record; Create NEW record based on this one
+
 =_ID
 
   type INT 32

@@ -142,6 +142,9 @@ my %DES_ATTRS = (
                            NO_AUTOCOMPLETE => 3, # disable interface autocomplete
 
                            INSERT_CUE  => 3, # related "INSERT NEW" button label
+                           UPDATE_CUE  => 3, # related "UPDATE" button label
+                           DELETE_CUE  => 3, # related "DELETE" button label
+                           COPY_CUE    => 3, # related "DELETE" button label
                            FIELDS_LIST => 3, # fields to be shown
                          },
                   'FIELD' => {

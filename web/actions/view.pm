@@ -13,6 +13,7 @@ use Web::Reactor::HTML::Utils;
 use Web::Reactor::HTML::Layout;
 use Decor::Web::HTML::Utils;
 use Decor::Web::View;
+use Decor::Web::Utils;
 use Data::Dumper;
 
 sub main
@@ -35,7 +36,9 @@ sub main
 
   $reo->ps_path_add( 'view', qq( [~View record data from] "<b>$table_label</b>" ) );
 
-  my @fields = @{ $tdes->get_fields_list_by_oper( 'READ' ) };
+  my $link_field_disable = $reo->param( 'LINK_FIELD_DISABLE' );
+
+  my @fields = grep { $link_field_disable ne $_ } @{ $tdes->get_fields_list_by_oper( 'READ' ) };
 
   return "<#access_denied>" unless @fields;
 
@@ -180,8 +183,17 @@ sub main
   $text .= de_html_alink_button( $reo, 'back', "&lArr; [~Back]", "[~Return to previous screen]", BTYPE => 'nav' );
   if( $tdes->allows( 'UPDATE' ) )
     {
+    my $update_cue = $sdes->get_attr( qw( WEB GRID UPDATE_CUE ) ) || "[~Edit this record]";
     # FIXME: row access!
-    $text .= de_html_alink_button( $reo, 'new',  "[~Edit] &uArr;", "[~Edit this record]", BTYPE => 'mod', ACTION => 'edit', ID => $id, TABLE => $table );
+    $text .= de_html_alink_button( $reo, 'new',  "$update_cue &uArr;", $update_cue, BTYPE => 'mod', ACTION => 'edit', ID => $id, TABLE => $table, LINK_FIELD_DISABLE => $link_field_disable );
+    }
+
+  if( $tdes->allows( 'INSERT' ) )
+    {
+    # my $copy_cue = $sdes->get_attr( qw( WEB GRID COPY_CUE ) ) || "[~Copy this record as new]";
+    my ( $copy_cue, $copy_cue_hint ) = de_web_get_cue( $sdes, qw( WEB GRID COPY_CUE ) );
+    # FIXME: row access!
+    $text .= de_html_alink_button( $reo, 'new',  "$copy_cue &uArr;", $copy_cue_hint, BTYPE => 'act', ACTION => 'edit', ID =>  -1, TABLE => $table, COPY_ID => $id );
     }
 
   if( $table_type eq 'FILE' )
