@@ -18,6 +18,13 @@ use Data::Tools;
 
 ##############################################################################
 
+sub get_table_name
+{
+  my $self  =    shift;
+  
+  return $self->{ 'TABLE' };
+}
+
 sub is_linked
 {
   my $self   = shift;

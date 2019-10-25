@@ -118,6 +118,7 @@ sub main
         {
         if( $data_base > 0 )
           {
+          # my $cue_dn_file = de_web_get_cue( qw( ) );
           $data_fmt   = de_html_alink( $reo, 'new', "$data_fmt",    "[~Download current file]",           ACTION => 'file_dn', ID => $data_base, TABLE => $linked_table );
           $data_ctrl .= de_html_alink( $reo, 'new', 'view.svg',     "[~View linked record]",              ACTION => 'view',    ID => $data_base, TABLE => $linked_table );
           $data_ctrl .= de_html_alink( $reo, 'new', 'file_up.svg',  "[~Upload and replace current file]", ACTION => 'file_up', ID => $data_base, TABLE => $linked_table, LINK_TO_TABLE => $table, LINK_TO_FIELD => $base_field, LINK_TO_ID => $id );
@@ -136,7 +137,7 @@ sub main
         if( $ltdes->allows( 'INSERT' ) and $tdes->allows( 'UPDATE' ) and $bfdes->allows( 'UPDATE' ) )
           {
           # FIXME: check for record access too!
-          my $insert_cue = $bfdes->get_attr( qw( WEB GRID INSERT_CUE ) ) || "[~Insert and link a new record]";
+          my $insert_cue = $bfdes->get_attr( qw( WEB VIEW LINK_INSERT_CUE ) ) || "[~Insert and link a new record]";
           $data_ctrl .= de_html_alink( $reo, 'new', 'insert.svg', $insert_cue, ACTION => 'edit', ID => -1,         TABLE => $linked_table, LINK_TO_TABLE => $table, LINK_TO_FIELD => $base_field, LINK_TO_ID => $id );
           }
         }  
@@ -147,7 +148,9 @@ sub main
       my $bltdes = $core->describe( $backlinked_table );
       my $linked_table_label = $bltdes->get_label();
 
-      $data_ctrl .= de_html_alink( $reo, 'new', 'grid.svg',   "[~View all backlinked records from] <b>$linked_table_label</b>",  ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, FILTER => { $backlinked_field => $id } );
+    my ( $backlink_insert_cue, $backlink_insert_cue_hint ) = de_web_get_cue( $bfes, qw( WEB VIEW BACKLINK_INSERT_CUE ) );
+
+      $data_ctrl .= de_html_alink( $reo, 'new', 'grid.svg',   "[~View all connected records from] <b>$linked_table_label</b>",  ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, FILTER => { $backlinked_field => $id } );
       if( $bltdes->allows( 'INSERT' ) )
         {
         if( $bltdes->get_table_type() eq 'FILE' )
@@ -156,7 +159,7 @@ sub main
           }
         else
           {
-          $data_ctrl .= de_html_alink( $reo, 'new', 'insert.svg', "[~Insert and link a new record into] <b>$linked_table_label</b>", ACTION => 'edit', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, LINK_FIELD_DISABLE => $backlinked_field );
+          $data_ctrl .= de_html_alink( $reo, 'new', 'insert.svg', "[~Create and connect a new record into] <b>$linked_table_label</b>", ACTION => 'edit', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, LINK_FIELD_DISABLE => $backlinked_field );
           }
         }
 
@@ -171,14 +174,14 @@ sub main
         my $details_limit = $bfdes->get_attr( qw( WEB EDIT DETAILS_LIMIT ) ) || 16;
         $field_details .= "<p>" . de_data_grid( $core, $backlinked_table, $details_fields, { FILTER => { $backlinked_field => $id }, LIMIT => $details_limit } ) ;
 
-        $field_details .= de_html_alink_button( $reo, 'new', '[~View all records]',   "[~View all backlinked records from] <b>$linked_table_label</b>",  BTYPE => 'nav', ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, FILTER => { $backlinked_field => $id } );
+        $field_details .= de_html_alink_button( $reo, 'new', '[~View all records]',   "[~View all connected records from] <b>$linked_table_label</b>",  BTYPE => 'nav', ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, FILTER => { $backlinked_field => $id } );
         if( $bltdes->get_table_type() eq 'FILE' )
           {
           $field_details .= de_html_alink_button( $reo, 'new', '[~Upload new file]', "[~Upload and link new files]", BTYPE => 'act', ACTION => 'file_up', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, LINK_FIELD_DISABLE => $backlinked_field, MULTI => 1 );
           }
         else
           {
-          $field_details .= de_html_alink_button( $reo, 'new', '[~Insert new record]', "[~Insert and link a new record into] <b>$linked_table_label</b>", BTYPE => 'act', ACTION => 'edit', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, LINK_FIELD_DISABLE => $backlinked_field );
+          $field_details .= de_html_alink_button( $reo, 'new', '[~Create new record]', "[~Create and connect a new record into] <b>$linked_table_label</b>", BTYPE => 'act', ACTION => 'edit', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, LINK_FIELD_DISABLE => $backlinked_field );
           }
         }
       }

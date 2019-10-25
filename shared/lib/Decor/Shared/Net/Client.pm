@@ -12,7 +12,8 @@ use strict;
 use Exporter;
 use Exception::Sink;
 
-use Hash::Util qw( lock_ref_keys unlock_ref_keys );
+use Hash::Util   qw( lock_ref_keys unlock_ref_keys );
+use Scalar::Util qw( weaken );
 use IO::Socket::INET;
 use Data::Tools;
 use Data::Tools::Socket;
@@ -379,6 +380,7 @@ sub describe
     for my $item ( keys %{ $mo->{ 'DES' }{ $cat } } )
       {
       $mo->{ 'DES' }{ $cat }{ $item }{ ':CLIENT_OBJECT' } = $self;
+      weaken( $mo->{ 'DES' }{ $cat }{ $item }{ ':CLIENT_OBJECT' } );
       my $p = uc( substr( $cat, 0, 1 ) ) . lc( substr( $cat, 1 ) );
       bless $mo->{ 'DES' }{ $cat }{ $item }, "Decor::Shared::Net::Client::Table::Category::${p}::Description";
       }

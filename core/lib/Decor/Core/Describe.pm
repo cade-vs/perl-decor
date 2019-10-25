@@ -185,6 +185,8 @@ my %DES_ATTRS = (
                            EDIT_CUE    => 3, # related "EDIT" button label
                            INSERT_CUE  => 3, # related "INSERT NEW" button label
                            SELECT_CUE  => 3, # related "SELECT" button label for LINK and BACKLINKs
+                           LINK_INSERT_CUE => 3,
+                           
                            SHOW        => 3,
                            HIDE        => 3,
                            

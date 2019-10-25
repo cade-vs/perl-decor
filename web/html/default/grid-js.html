@@ -1,0 +1,60 @@
+
+<script type="text/javascript">
+
+function on_keypress( ev )
+{
+  if( ev.key == '{' )
+    {
+    var el = document.getElementById( 'a-nav-page-first' );
+    if ( el ) document.location = el.href;
+    return false;
+    }
+  if( ev.key == '}' )
+    {
+    var el = document.getElementById( 'a-nav-page-last' );
+    if ( el ) document.location = el.href;
+    return false;
+    }
+  if( ev.key == '[' )
+    {
+    var el = document.getElementById( 'a-nav-page-prev' );
+    if ( el ) document.location = el.href;
+    return false;
+    }
+  if( ev.key == ']' )
+    {
+    var el = document.getElementById( 'a-nav-page-next' );
+    if ( el ) document.location = el.href;
+    return false;
+    }
+  if( ev.key == '+' )
+    {
+    var el = document.getElementById( 'a-nav-page-more' );
+    if ( el ) document.location = el.href;
+    return false;
+    }
+  if( ev.key == '-' )
+    {
+    var el = document.getElementById( 'a-nav-page-less' );
+    if ( el ) document.location = el.href;
+    return false;
+    }
+  if( ev.key == '=' )
+    {
+    var el = document.getElementById( 'a-nav-page-all' );
+    if ( el ) document.location = el.href;
+    return false;
+    }
+  if( ev.key == '*' )
+    {
+    var el = document.getElementById( 'a-nav-page-reset' );
+    if ( el ) document.location = el.href;
+    return false;
+    }
+  return;
+}
+
+document.onkeypress = on_keypress;
+
+</script>
+

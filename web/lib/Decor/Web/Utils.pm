@@ -50,9 +50,12 @@ sub de_web_handle_redirect_buttons
   return $reo->forward_type( @{ $ps->{ 'BUTTON_REDIRECT' }{ $button_id } } );  
 }
 
+##############################################################################
+
 sub de_web_get_cue
 {
   my $des_obj = shift;
+  
   my $cue = $des_obj->get_attr( @_ );
   my @cue = split /\s*;\s*/, $cue;
   if( wantarray() and @cue > 1 )
