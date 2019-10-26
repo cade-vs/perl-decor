@@ -196,7 +196,7 @@ sub de_connect
   if( $session_ok )
     {
     $self->log( "status: connect OK with session [$de_core_session_id] remote [$remote]" );
-    $self->set_user_session_expire_time( $client->{ 'CORE_SESSION_XTIME' } + 60 );
+    $self->set_user_session_expire_time( $client->{ 'CORE_SESSION_XTIME' } );
 
     $self->{ 'DECOR_CLIENT_OBJECT' } = $client;
     return $client;
@@ -207,6 +207,7 @@ sub de_connect
     $self->logout();
     delete $self->{ 'DECOR_CLIENT_OBJECT' };
     $self->log( "error: connect FAILED with session [$de_core_session_id] remote [$remote]:\n" . Dumper( $client ) );
+
     $self->render( PAGE => 'error', 'main_action' => "<#$status>" );
     return undef;
     }

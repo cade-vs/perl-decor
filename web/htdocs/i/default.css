@@ -168,7 +168,9 @@ div.link-empty
 
 .warning
         {
-        background-color: #522;
+        font-weight: bold;
+        color: #FFF;
+        background-color: #822;
         border: solid 1px #633;
         padding: 2px;
         margin: 2px 2px 2px 2px;
