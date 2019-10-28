@@ -456,6 +456,10 @@ sub main
       $text_grid_navi_mid .= "[~rows]: $offset_from .. $offset_to ($page_size/$link_page_more/$link_page_less$link_page_all$link_page_reset) of $scount";
       }
 
+
+    my $nav_keys_help = $reo->prep_load_file( undef, 'grid_nav_keys_help' );
+    my $hl_nav_handle = html_hover_layer( $reo, VALUE => $nav_keys_help, DELAY => 300 );
+    $text_grid_navi_mid .= " <span $hl_nav_handle>(?)</span>";
     # FIXME: use function!
     my $text_grid_navi = "<table width=100% class=grid-navi><tr><td align=left width=1%>$text_grid_navi_left</td><td align=center>$text_grid_navi_mid</td><td align=right width=1%>$text_grid_navi_right</td></tr></table>";
 
@@ -483,7 +487,7 @@ sub main
     $text .= $grid_form->end();
     }
 
-  $text .= "<#grid-js>"; # grid keyboard navigation and more
+  $text .= "<#grid_js>"; # grid keyboard navigation and more
 
   return $text;
 }
