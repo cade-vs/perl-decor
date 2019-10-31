@@ -14,7 +14,15 @@
 
      you can clone or download Decor from:
 
-        https://github.com/cade-vs
+         https://github.com/cade-vs
+         
+     to git clone:
+     
+         git clone https://github.com/cade-vs/perl-decor.git    
+
+  1.1 to get further Decor deps and setup instructions, run:
+    
+         decor/bin/decor-easy-setup.pl
 
   2. go to the decor applications directory and create directory for the new
      application. this directory name will be the actual application name:
