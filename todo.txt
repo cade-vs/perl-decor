@@ -25,6 +25,4 @@
 
 -- debug stack on low-level calls (DB::IO)
 
--- avoid DateTime.pm and all the mess
-
 -- docs for custom server modules! app1 [Decor::Core::Net::Server::Echo]
