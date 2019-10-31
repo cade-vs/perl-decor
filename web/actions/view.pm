@@ -148,7 +148,7 @@ sub main
       my $bltdes = $core->describe( $backlinked_table );
       my $linked_table_label = $bltdes->get_label();
 
-    my ( $backlink_insert_cue, $backlink_insert_cue_hint ) = de_web_get_cue( $bfes, qw( WEB VIEW BACKLINK_INSERT_CUE ) );
+    my ( $backlink_insert_cue, $backlink_insert_cue_hint ) = de_web_get_cue( $bfdes, qw( WEB VIEW BACKLINK_INSERT_CUE ) );
 
       $data_ctrl .= de_html_alink( $reo, 'new', 'grid.svg',   "[~View all connected records from] <b>$linked_table_label</b>",  ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, FILTER => { $backlinked_field => $id } );
       if( $bltdes->allows( 'INSERT' ) )

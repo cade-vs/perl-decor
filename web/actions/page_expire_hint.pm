@@ -12,7 +12,8 @@ sub main
 
   my $expire_time = $reo->get_user_session_expire_time() - time();
 
-  return undef if $exp_time < 1;
+  # do not report if below zero (disabled) or above 1 hour
+  return undef if $expire_time < 1 or $expire_time > 3600; 
 
   $text .= <<END;
 
@@ -26,6 +27,7 @@ sub main
   function report_page_expire_time()
   {
     var el = document.getElementById( 'page_expire_time_hint' );
+    if( ! el ) return;
 
     if( page_expire_time > 0 )
       {
