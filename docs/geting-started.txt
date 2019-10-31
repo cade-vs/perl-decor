@@ -2,7 +2,7 @@
 
 
   DECOR APPLICATION MACHINERY
-  2014-2017 (c) Vladi Belperchinov-Shabanski "Cade"
+  2014-2019 (c) Vladi Belperchinov-Shabanski "Cade"
 
   GETING STARTED/BOOTSTRAPPING NEW APPLICATION
 
@@ -182,7 +182,7 @@
 
      index.cgi contains the following:
 
-     ---begin-of-dsn.conf------------
+     ---begin-of-index.cgi------------
      #!/usr/bin/perl
      use strict;
      use lib '/usr/local/web-reactor/lib';

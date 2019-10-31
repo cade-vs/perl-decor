@@ -2,7 +2,7 @@
 
 
   DECOR APPLICATION MACHINERY
-  2014-2017 (c) Vladi Belperchinov-Shabanski "Cade"
+  2014-2019 (c) Vladi Belperchinov-Shabanski "Cade"
 
   TABLE DEFINITION
 
@@ -54,18 +54,19 @@
   
   There are special catch-all keywords for opers and groups:
   
-  grant all to all
-  grant all
-  deny  all  
+      grant all to all
+      grant all
+      deny  all  
 
   Operations are predefined and currently supported are:
   
-  read
-  insert
-  update
-  delete
-  execute
-  access
+      read
+      insert
+      update
+      delete
+      execute
+      access
+      cross
   
   All of them are defined for the whole table and for the specific table field
   separately. All fields without grant/deny lines inherit table ones. Not all
@@ -82,17 +83,17 @@
   Table fields (or columns) are defined with '=' followed by the field name
   and mandatory and optional field attributes on the following lines:
   
-  ---begin-of-file-----
+      ---begin-of-file-----
 
-  =USER_NAME
+      =USER_NAME
 
-  label           User full name
-  web.grid.label  User
-  type        char 256
-  unique
-  required
-  
-  ---cut---------------
+      label           User full name
+      web.grid.label  User
+      type        char 256
+      unique
+      required
+      
+      ---cut---------------
 
   In this example new field "USER_NAME" is defined, with generic label and
   grid specific label (not all attribute allows specifications).
@@ -172,14 +173,14 @@
   All tables can contain and complex index definitions. Indexes are defined by
   "=INDEX:" followed by the index name:
   
-  ---begin-of-file-----
+      ---begin-of-file-----
 
-  =INDEX: INDEX_NAME
-  
-  fields  field1  field2 ...
-  unique
+      =INDEX: INDEX_NAME
+      
+      fields  field1  field2 ...
+      unique
 
-  ---cut---------------
+      ---cut---------------
 
   Available attributes are:
   

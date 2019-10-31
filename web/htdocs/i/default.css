@@ -581,10 +581,12 @@ input:focus,textarea:focus
         background-color: #AAA;
         background-image: none;
         text-decoration:  none;
+
         padding-top:    0.50em;
         padding-left:   1.00em;
         padding-bottom: 0.50em;
         padding-right:  1.00em;
+
         margin:         0.20em;
         border-top:    solid 1px #FFF;
         border-left:   solid 1px #FFF;
