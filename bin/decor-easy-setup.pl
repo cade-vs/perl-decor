@@ -16,7 +16,7 @@ mkdir( $easy_lib ) unless -d $easy_lib;
 
 chdir( $easy_dir ) or die "cannot create or chdir to [$easy_dir] $!\n";
 
-for my $pmod ( qw( perl-web-reactor perl-data-tools perl-exception-sink ) )
+for my $pmod ( qw( perl-web-reactor perl-data-tools perl-exception-sink js-vframe ) )
   {
   print "\n\nUPDATING GIT REPO: $pmod...\n\n";
   
@@ -63,13 +63,21 @@ you should export:
 create http/apache web dir, for example:
 
     /var/www/html/decor
+
+--------------------------------------------------------------------
     
 copy:
-
-    $easy_dir/perl-web-reactor/htdocs/reactor.js
-    
+        $easy_dir/perl-web-reactor/htdocs/reactor.js
+        $easy_dir/js-vframe/vframe.js
 to:
+        /var/www/html/decor/js/
+    
+--------------------------------------------------------------------
 
-    /var/www/html/decor/js/    
+copy or symlink directory:
+        $root/web/htdocs/i
+as:
+        /var/www/html/decor/i
+
 
 END
