@@ -20,9 +20,10 @@
      
          git clone https://github.com/cade-vs/perl-decor.git    
 
-  1.1 to get further Decor deps and setup instructions, run:
+  NOTE: to get further Decor deps and setup instructions, run:
     
-         decor/bin/decor-easy-setup.pl
+        cd /usr/local/decor/bin/
+        ./decor-easy-setup.pl
 
   2. go to the decor applications directory and create directory for the new
      application. this directory name will be the actual application name:
@@ -158,6 +159,11 @@
       https://github.com/cade-vs/js-vframe
 
   To enable the WEB interface continue with these steps:
+  
+  NOTE: for easy setup of all Decor deps and further setup instructions, run:
+    
+        decor/bin/install-cpan-perl-modules.sh   (as root!)
+        decor/bin/decor-easy-setup.pl
 
   9. enable CGI execution in your web http server for:
   
@@ -169,6 +175,17 @@
      cd /var/www/html
      (for example)
      mkdir my_first_app
+
+  NOTE: for easy setup of steps from 11 to 13 run:
+    
+        cd /usr/local/decor/bin/
+        ./decor-easy-cgi-install.pl  app-name  target-http-dir
+        
+        example:
+        
+        cd /usr/local/decor/bin/
+        ./decor-easy-cgi-install.pl  my_first_app  /var/www/html/my_first_app
+
 
  11. copy or symlink decor htdocs images:
 
