@@ -1,0 +1,29 @@
+#!/usr/bin/perl
+use strict;
+use lib '[--DECOR_ROOT--]/easy/lib';
+use lib '[--DECOR_ROOT--]/web/lib', 
+use lib '[--DECOR_ROOT--]/shared/lib';
+use Web::Reactor::Decor;
+use Data::Dumper;
+use Time::HR;
+
+my $DECOR_APP_NAME  = '[--DECOR_APP--]';
+my $DECOR_CORE_ROOT = '[--DECOR_ROOT--]';
+
+my $reo = Web::Reactor::Decor->new(
+            APP_NAME               => $DECOR_APP_NAME,
+            DECOR_CORE_ROOT        => $DECOR_CORE_ROOT,
+            DECOR_CORE_HOST        => 'localhost:42000',
+            DECOR_CORE_APP         => $DECOR_APP_NAME,
+            DEBUG                  => 0,
+            LANG                   => 'en',
+            SESS_VAR_DIR           => "$DECOR_CORE_ROOT/easy/var",
+            DISABLE_SECURE_COOKIES => 0,
+          );
+
+eval { $reo->run(); };
+if( $@ )
+  {
+  print STDERR "DECOR CGI EXCEPTION: $@";
+  print "content-type: text/html\n\nsystem is temporary unavailable";
+  }

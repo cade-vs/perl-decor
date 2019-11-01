@@ -159,7 +159,10 @@
 
   To enable the WEB interface continue with these steps:
 
-  9. enable CGI execution in your web http server.
+  9. enable CGI execution in your web http server for:
+  
+     *.cgi
+     *.pl
 
  10. create web-visible directory for your app.
 
