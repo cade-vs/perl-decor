@@ -381,6 +381,10 @@ sub describe
       {
       $mo->{ 'DES' }{ $cat }{ $item }{ ':CLIENT_OBJECT' } = $self;
       weaken( $mo->{ 'DES' }{ $cat }{ $item }{ ':CLIENT_OBJECT' } );
+      
+      $mo->{ 'DES' }{ $cat }{ $item }{ ':SELF_DES' } = $mo->{ 'DES' }{ '@' };
+      weaken( $mo->{ 'DES' }{ $cat }{ $item }{ ':SELF_DES' } );
+      
       my $p = uc( substr( $cat, 0, 1 ) ) . lc( substr( $cat, 1 ) );
       bless $mo->{ 'DES' }{ $cat }{ $item }, "Decor::Shared::Net::Client::Table::Category::${p}::Description";
       }

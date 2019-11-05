@@ -46,23 +46,27 @@
      dsn.conf contains the following:
 
      ---begin-of-dsn.conf------------
+     
      =MAIN
 
      DSN   dbi:Pg:dbname=decor
      USER  decor-user
      PASS  decor-pass
+     
      ---eof--------------------------
 
      it defines 'MAIN' database connector, used for all core operations.
      dsn.conf may containg multiple database connectors with different names
-     byt "MAIN" is mandatory and need to be defined always.
+     but "MAIN" is mandatory!
 
      then create app.conf with the following:
 
      ---begin-of-app.conf------------
+     
      use_bundles base
 
      session_expire_time   840
+     
      ---eof--------------------------
 
      "use_bundles" defines list of bundles to be used. bundles are sets of

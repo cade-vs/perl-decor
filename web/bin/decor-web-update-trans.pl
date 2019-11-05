@@ -21,6 +21,8 @@ my $ROOT = $ENV{ 'DECOR_CORE_ROOT' } || '/usr/local/decor';
 $Data::Dumper::Sortkeys = 1;
 $Data::Dumper::Indent   = 3;
 
+data_tools_set_file_io_utf8();
+
 my $opt_app_name;
 my $opt_lang;
 my $opt_verbose;

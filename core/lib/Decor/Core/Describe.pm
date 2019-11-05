@@ -145,6 +145,10 @@ my %DES_ATTRS = (
                            UPDATE_CUE  => 3, # related "UPDATE" button label
                            DELETE_CUE  => 3, # related "DELETE" button label
                            COPY_CUE    => 3, # related "DELETE" button label
+                           INSERT_LINK_CUE => 3,
+                           UPLOAD_LINK_CUE => 3,
+                           EDIT_LINK_CUE   => 3,
+
                            FIELDS_LIST => 3, # fields to be shown
                          },
                   'FIELD' => {
@@ -185,7 +189,9 @@ my %DES_ATTRS = (
                            EDIT_CUE    => 3, # related "EDIT" button label
                            INSERT_CUE  => 3, # related "INSERT NEW" button label
                            SELECT_CUE  => 3, # related "SELECT" button label for LINK and BACKLINKs
-                           LINK_INSERT_CUE => 3,
+                           INSERT_LINK_CUE => 3,
+                           UPLOAD_LINK_CUE => 3,
+                           EDIT_LINK_CUE   => 3,
                            
                            SHOW        => 3,
                            HIDE        => 3,
@@ -216,6 +222,11 @@ my %DES_ATTRS = (
                            DENY        => 1,
                          },
                 );
+
+my %COPY_CATEGORY_ATTRS = (
+                          FIELD => {
+                                   },
+                          );
 
 #my %DES_LINK_ATTRS = (
 #                  'FIELD' => {
@@ -344,8 +355,10 @@ sub __merge_table_des_file
       $des->{ $category }{ $sect_name }{ 'TABLE' }   = $table;
       $des->{ $category }{ $sect_name }{ 'NAME'  }   = $sect_name;
       $des->{ $category }{ $sect_name }{ 'LABEL' } ||= $sect_name;
-      # FIXME: URGENT: copy only listed keys! no all
-###      %{ $config->{ $category }{ $sect_name } } = ( %{ dclone( $config->{ '@' }{ '@' } ) }, %{ $config->{ $category }{ $sect_name } } );
+      if( exists $COPY_CATEGORY_ATTRS{ $category } )
+        {
+        $des->{ $category }{ $sect_name }{ $_ } = $des->{ '@' }{ '@' }{ $_ } for keys %{ $COPY_CATEGORY_ATTRS{ $category } };
+        }
       $des->{ $category }{ $sect_name }{ '__GRANT_DENY_ACCUMULATOR'  } = [ @{ $des->{ '@' }{ '@' }{ '__GRANT_DENY_ACCUMULATOR'  } || [] } ];
 
       $des->{ $category }{ $sect_name }{ '_ORDER' } = ++ $opt->{ '_ORDER' };

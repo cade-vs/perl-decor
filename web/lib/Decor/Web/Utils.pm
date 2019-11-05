@@ -57,11 +57,26 @@ sub de_web_get_cue
   my $des_obj = shift;
   
   my $cue = $des_obj->get_attr( @_ );
-  my @cue = split /\s*;\s*/, $cue;
-  if( wantarray() and @cue > 1 )
+  if( ! $cue and ! $des_obj->is_self_category() )
     {
-    return @cue[ 0 ] if $cue[ 1 ] eq '-';
-    return @cue[ 0, 1 ];
+#use Data::Dumper;
+#print STDERR Dumper( '+-*-' x 200, $des_obj->is_self_category(), $des_obj );
+
+    $cue = $des_obj->get_self_des()->get_attr( @_ );
+    }
+  
+  my @cue = split /\s*;\s*/, $cue;
+  if( wantarray() )
+    {
+    if( @cue > 1 )
+      {
+      return @cue[ 0 ] if $cue[ 1 ] eq '-';
+      return @cue[ 0, 1 ];
+      }
+    else
+      {
+      return @cue[ 0, 0 ];
+      }  
     }
   else
     {

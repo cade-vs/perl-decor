@@ -1,9 +1,12 @@
 
   deny all
 
-  web.insert_cue  Create NEW record
-  web.update_cue  Modify THIS record
-  web.copy_cue    Copy this record; Create NEW record based on this one
+  web.insert_cue  [~Create new record]
+  web.update_cue  [~Modify this record]
+  web.copy_cue    [~Copy this record]; [~Create new record based on this one]
+  
+  web.insert_link_cue  [~Insert and link a new record]
+  web.upload_link_cue  [~Upload and link new file]
 
 =_ID
 

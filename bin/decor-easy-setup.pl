@@ -72,26 +72,4 @@ to install http index.cgi use:
 
     $root/bin/decro-easy-cgi-install.pl  app-name  target-http-dir
 
-otherwise to manually install http index.cgi:
-
-create http/apache web dir, for example:
-
-    /var/www/html/decor
-
---------------------------------------------------------------------
-    
-copy:
-        $easy_dir/perl-web-reactor/htdocs/reactor.js
-        $easy_dir/js-vframe/vframe.js
-to:
-        /var/www/html/decor/js/
-    
---------------------------------------------------------------------
-
-copy or symlink directory:
-        $root/web/htdocs/i
-as:
-        /var/www/html/decor/i
-
-
 END

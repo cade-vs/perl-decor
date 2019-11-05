@@ -16,6 +16,11 @@ use Data::Tools;
 
 ##############################################################################
 
+sub is_self_category
+{
+  return undef;
+}
+
 sub describe
 {
   boom "describe must be reimplemented in the subclass";
@@ -40,6 +45,20 @@ sub get_attr
   return undef unless exists $self->{ $attr };
     
   return $self->{ $attr };
+}
+
+sub get_self_des
+{
+  my $self = shift;
+
+  if( $self->is_self_category() )
+    {
+    return $self;
+    }
+  else
+    {  
+    return $self->{ ':SELF_DES' } if exists $self->{ ':SELF_DES' };
+    }
 }
 
 ### EOF ######################################################################

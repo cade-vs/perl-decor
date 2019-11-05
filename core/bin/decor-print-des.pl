@@ -112,8 +112,16 @@ if( ! $opt_verbose )
   $des->{ '@' } = $des->{ '@' }{ '@' };
   delete $des->{ '@' }{ '@' };
   }
+
+  
 if( @args )
   {
+  if( @args == 1 and $args[0] eq '@' )
+    {
+    print "--- TABLE [$t] SELF [@]" . "-" x 42 . "\n";
+    print Dumper( $des->{ '@' } );
+    @args = ();
+    }
   for my $f ( @args )
     {
     print "--- TABLE [$t] FIELD [$f]" . "-" x 42 . "\n";

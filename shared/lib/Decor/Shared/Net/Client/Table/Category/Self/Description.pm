@@ -11,7 +11,7 @@ package Decor::Shared::Net::Client::Table::Category::Self::Description;
 use strict;
 
 use parent 'Decor::Shared::Net::Client::Table::Category::Description';
-use parent 'Decor::Shared::Table::Category::Description';
+use parent 'Decor::Shared::Table::Category::Self::Description';
 
 use Data::Dumper;
 use Exception::Sink;
