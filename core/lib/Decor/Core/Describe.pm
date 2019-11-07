@@ -141,13 +141,19 @@ my %DES_ATTRS = (
                            
                            NO_AUTOCOMPLETE => 3, # disable interface autocomplete
 
+                           VIEW_CUE    => 3,
                            INSERT_CUE  => 3, # related "INSERT NEW" button label
                            UPDATE_CUE  => 3, # related "UPDATE" button label
                            DELETE_CUE  => 3, # related "DELETE" button label
                            COPY_CUE    => 3, # related "DELETE" button label
-                           INSERT_LINK_CUE => 3,
-                           UPLOAD_LINK_CUE => 3,
-                           EDIT_LINK_CUE   => 3,
+                           
+                           VIEW_LINK_CUE     => 3,
+                           INSERT_LINK_CUE   => 3,
+                           UPDATE_LINK_CUE   => 3,
+                           DETACH_LINK_CUE   => 3,
+                           UPLOAD_LINK_CUE   => 3,
+                           DOWNLOAD_LINK_CUE => 3,
+                           DOWNLOAD_FILE_CUE => 3,
 
                            FIELDS_LIST => 3, # fields to be shown
                          },
@@ -185,13 +191,12 @@ my %DES_ATTRS = (
                            
                            SECTION_NAME    => 3,
                            
-                           VIEW_CUE    => 3, # related "VIEW" button label
-                           EDIT_CUE    => 3, # related "EDIT" button label
-                           INSERT_CUE  => 3, # related "INSERT NEW" button label
-                           SELECT_CUE  => 3, # related "SELECT" button label for LINK and BACKLINKs
-                           INSERT_LINK_CUE => 3,
-                           UPLOAD_LINK_CUE => 3,
-                           EDIT_LINK_CUE   => 3,
+                           VIEW_LINK_CUE     => 3,
+                           INSERT_LINK_CUE   => 3,
+                           UPDATE_LINK_CUE   => 3,
+                           DETACH_LINK_CUE   => 3,
+                           UPLOAD_LINK_CUE   => 3,
+                           DOWNLOAD_LINK_CUE => 3,
                            
                            SHOW        => 3,
                            HIDE        => 3,

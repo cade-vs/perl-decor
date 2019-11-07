@@ -56,7 +56,7 @@ sub main
   my $table_label = $tdes->get_label();
   my $table_type  = $sdes->{ 'TYPE' };
 
-  $reo->ps_path_add( 'grid', qq( List data from "<b>$table_label</b>" ) );
+  $reo->ps_path_add( 'grid', qq( [~List data from] "<b>$table_label</b>" ) );
 
   return "<#e_internal>" unless $tdes;
 
@@ -164,10 +164,12 @@ sub main
     $insert_new_opts{ 'LINK_FIELD_DISABLE'    } = $link_field_disable;
     }
 
+  my ( $view_cue,   $view_cue_hint   ) = de_web_get_cue( $sdes, qw( WEB GRID VIEW_CUE   ) );
   my ( $insert_cue, $insert_cue_hint ) = de_web_get_cue( $sdes, qw( WEB GRID INSERT_CUE ) );
   my ( $update_cue, $update_cue_hint ) = de_web_get_cue( $sdes, qw( WEB GRID UPDATE_CUE ) );
   my ( $upload_cue, $upload_cue_hint ) = de_web_get_cue( $sdes, qw( WEB GRID UPLOAD_CUE ) );
   my ( $copy_cue,   $copy_cue_hint   ) = de_web_get_cue( $sdes, qw( WEB GRID COPY_CUE   ) );
+  my ( $download_file_cue, $download_file_cue_hint ) = de_web_get_cue( $sdes, qw( WEB GRID DOWNLOAD_FILE_CUE ) );
   
   $text_grid_navi_left .= de_html_alink_button( $reo, 'back', "&lArr; [~back]", "[~Go back to the previous screen]", BTYPE => 'nav'   ) if $rs;
   $text_grid_navi_left .= de_html_alink_button( $reo, 'new', "(+) $insert_cue",      $insert_cue_hint,  BTYPE => 'act', ACTION => 'edit',        TABLE => $table, ID => -1, %insert_new_opts ) if $tdes->allows( 'INSERT' );
@@ -280,14 +282,15 @@ sub main
 #    print STDERR Dumper( '**------*******---'x 10, $link_field_disable, $tdes->{ 'FIELD' }{ $link_field_disable } );
     if( $link_field_disable and exists $tdes->{ 'FIELD' }{ $link_field_disable } and $tdes->{ 'FIELD' }{ $link_field_disable }->allows( 'UPDATE' ) )
       {
+      my ( $detach_link_cue, $detach_link_cue_hint ) = de_web_get_cue( $tdes->{ 'FIELD' }{ $link_field_disable }, qw( WEB GRID DETACH_LINK_CUE   ) );
       # FIXME: check if this is only for backlinked data!?
-      $vec_ctrl .= de_html_alink_icon( $reo, 'here', "detach.svg",  { CLASS => 'plain', HINT => '[~Detach this record from the parent]', CONFIRM => '[~Are you sure you want to DETACH this record from the parent record?]' },  DETACH_FIELD => $link_field_disable, DETACH_ID => $id );
+      $vec_ctrl .= de_html_alink_icon( $reo, 'here', "detach.svg",  { CLASS => 'plain', HINT => $detach_link_cue_hint, CONFIRM => '[~Are you sure you want to DETACH this record from the parent record?]' },  DETACH_FIELD => $link_field_disable, DETACH_ID => $id );
       }
 
-    $vec_ctrl .= de_html_alink_icon( $reo, 'new', "view.svg",    '[~View this record]',      ACTION => 'view',    ID => $id, TABLE => $table, LINK_FIELD_DISABLE => $link_field_disable  );
-    $vec_ctrl .= de_html_alink_icon( $reo, 'new', "edit.svg",    $update_cue_hint,                ACTION => 'edit',    ID => $id, TABLE => $table                 ) if $tdes->allows( 'UPDATE' );
-    $vec_ctrl .= de_html_alink_icon( $reo, 'new', "copy.svg",    $copy_cue_hint,                  ACTION => 'edit',    ID =>  -1, TABLE => $table, COPY_ID => $id ) if $tdes->allows( 'INSERT' ) and ! $tdes->{ '@' }{ 'NO_COPY' };
-    $vec_ctrl .= de_html_alink_icon( $reo, 'new', 'file_dn.svg', '[~Download current file]', ACTION => 'file_dn', ID => $id, TABLE => $table                 ) if $table_type eq 'FILE';
+    $vec_ctrl .= de_html_alink_icon( $reo, 'new', "view.svg",    $view_cue_hint,          ACTION => 'view',    ID => $id, TABLE => $table, LINK_FIELD_DISABLE => $link_field_disable  );
+    $vec_ctrl .= de_html_alink_icon( $reo, 'new', "edit.svg",    $update_cue_hint,        ACTION => 'edit',    ID => $id, TABLE => $table                 ) if $tdes->allows( 'UPDATE' );
+    $vec_ctrl .= de_html_alink_icon( $reo, 'new', "copy.svg",    $copy_cue_hint,          ACTION => 'edit',    ID =>  -1, TABLE => $table, COPY_ID => $id ) if $tdes->allows( 'INSERT' ) and ! $tdes->{ '@' }{ 'NO_COPY' };
+    $vec_ctrl .= de_html_alink_icon( $reo, 'new', 'file_dn.svg', $download_file_cue_hint, ACTION => 'file_dn', ID => $id, TABLE => $table                 ) if $table_type eq 'FILE';
     
     if( @dos )
       {

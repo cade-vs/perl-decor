@@ -6,4 +6,8 @@
   label Group name
   type char 128
   
+=USERS
+
+  label Users in this group
+  type  backlink  DE_USER_GROUP_MAP   GRP
 

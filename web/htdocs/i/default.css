@@ -328,9 +328,11 @@ a.main-menu:hover
 
 tr.ps-path
         {
-        background-color: #224;
+        background-color: #335;
+        color: #FA5;
+        font-weight: bold;
         vertical-align: middle;
-        white-space: nowrap;
+        white-space: normal;
         border-bottom: solid 1px #66A;
         }
 

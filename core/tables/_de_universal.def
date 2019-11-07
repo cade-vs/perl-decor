@@ -1,12 +1,19 @@
 
   deny all
 
+  web.view_cue    [~View record]
   web.insert_cue  [~Create new record]
   web.update_cue  [~Modify this record]
+  web.delete_cue  [~Delete this record]
   web.copy_cue    [~Copy this record]; [~Create new record based on this one]
   
-  web.insert_link_cue  [~Insert and link a new record]
-  web.upload_link_cue  [~Upload and link new file]
+  web.view_link_cue      [~View linked record]
+  web.insert_link_cue    [~Insert and link a new record]
+  web.update_link_cue    [~Modify linked record]
+  web.detach_link_cue    [~Detach linked record]
+  web.upload_link_cue    [~Upload and link new file]
+  web.download_link_cue  [~Download linked file]
+  web.download_file_cue  [~Download]; [~Download this file]
 
 =_ID
 

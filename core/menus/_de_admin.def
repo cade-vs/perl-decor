@@ -6,6 +6,10 @@ grant access to 1
 
   type grid de_users
 
+=groups
+
+  type grid de_groups
+
 =sessions
 
   type grid de_sessions

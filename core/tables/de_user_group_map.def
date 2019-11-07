@@ -5,11 +5,15 @@
 
   label User
   type link DE_USERS NAME
+
+  web.detach_link_cue    [~Remove group from the user]
   
 =GRP
 
   label Group
   type link DE_GROUPS NAME
+
+  web.detach_link_cue    [~Remove user from the group]
   
 
   
