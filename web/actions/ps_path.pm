@@ -20,22 +20,25 @@ sub main
   
   my $text;
   
+  my $path_count = @$ps_path;
   for my $p ( @$ps_path )
     {
+    $path_count--;
     my $pp_id = $p->{ 'PS_ID' };
     my $icon  = $p->{ 'ICON'  };
     my $title = $p->{ 'TITLE' };
     
-    if( $pp_id eq $ps_id )
+    if( $path_count <= 0 )
       {
       # current page session
-      $text .= " <b>&raquo;</b> <img class=icon-disabled src=i/$icon> $title";
+      $text .= " <b>:</b>  <img class=icon-disabled src=i/$icon> $title";
       }
     else
       {
       # previous page session
       my $alink = de_html_alink( $reo, 'none', "$icon", $title, _P => $pp_id );
-      $text .= " <b>&raquo;</b> $alink";
+      $text .= " <b>:</b> $alink";
+      # $text .= " $title" if $path_count <= 1;
       }  
     }
 
