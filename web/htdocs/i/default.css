@@ -77,8 +77,10 @@ img
         {
         cursor: pointer;
         color: #FFF;
-        padding: 0.3em;
+        height: 2.2em;
+        padding: 0.4em;
         margin:  0.1em;
+        background-image: none;
         background-color: #448;
         border-top:    solid 1px #66A;
         border-left:   solid 1px #66A;
@@ -403,6 +405,11 @@ table.view
         color: #CCC;
         border-collapse: collapse;
         border: solid 1px #555;
+        }
+
+tr.view
+        {
+        height: 3em;
         }
 
 td.view-header
@@ -751,6 +758,8 @@ div.popup-layer
         }
 
 /*** check boxes ************************************************************/
+
+/* TODO: fix height equal to .icon */
 
 img.check-unknown
         {
