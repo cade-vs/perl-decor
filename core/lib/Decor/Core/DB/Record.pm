@@ -771,7 +771,7 @@ sub next
   my $self  = shift;
 
   my $dbio = $self->{ 'SELECT::DB::IO' };
-  boom "cannot call select() before next()" unless $dbio;
+  boom "cannot call next() before successful select()" unless $dbio;
 
   # TODO: add at least base_table, even no data found at all
 
