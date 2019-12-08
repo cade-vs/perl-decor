@@ -47,6 +47,8 @@ sub main
 
   my @fields = @{ $tdes->get_fields_list_by_oper( 'READ' ) };
 
+#print STDERR Dumper( "READ fields: ", \@fields );
+
   $reo->ps_path_add( 'filter', qq( "Filter records from "<b>$table_label</b>" ) );
 
 #print STDERR Dumper( "error:", \@fields, $ps->{ 'ROW_DATA' }, 'insert', $edit_mode_insert, 'allow', $tdes->allows( 'UPDATE' ) );

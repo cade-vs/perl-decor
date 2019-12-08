@@ -513,6 +513,7 @@ sub __replace_grant_deny
     {
     $hrn->{ 'GRANT' } = { ALL => 1 };
     $hrn->{ 'DENY'  } = {};
+    delete $hrn->{ 'WEB.HIDDEN' };
     return 1;
     }
 
