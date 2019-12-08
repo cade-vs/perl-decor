@@ -235,6 +235,7 @@ sub main
     my $type      = $fdes->{ 'TYPE'  };
     my $type_name = $fdes->{ 'TYPE'  }{ 'NAME' };
     my $label     = $fdes->{ 'LABEL' } || $field;
+    my $flen      = $type->{ 'LEN' };
 
     next if $fdes->get_attr( 'WEB', ( $edit_mode_insert ? 'INSERT' : 'UPDATE' ), 'HIDE' );
 
@@ -262,7 +263,7 @@ sub main
       {
       my $pass_type = 1 if $fdes->{ 'PASSWORD' } or $field =~ /^PWD_/;
       my $rows = $fdes->get_attr( 'WEB', 'ROWS' );
-      my $field_size = $type->{ 'LEN' };
+      my $field_size = $flen;
       my $field_maxlen = $field_size;
       $field_size = 42 if $field_size > 42; # TODO: fixme
       if( $rows > 1 )
@@ -456,11 +457,12 @@ sub main
       }
     elsif( $type_name eq 'INT' )
       {
+      my $field_size = $flen < 32 ? $flen : 32;
       $field_input .= $edit_form->input(
                                        NAME     => "F:$field",
                                        ID       => $field_id,
                                        VALUE    => $field_data_usr_format,
-                                       SIZE     => 32,
+                                       SIZE     => $field_size,
                                        MAXLEN   => 64,
                                        DISABLED => $field_disabled,
                                        ARGS     => $input_tag_args,
@@ -469,11 +471,12 @@ sub main
       }
     elsif( $type_name eq 'REAL' )
       {
+      my $field_size = $flen < 32 ? $flen : 32;
       $field_input .= $edit_form->input(
                                        NAME     => "F:$field",
                                        ID       => $field_id,
                                        VALUE    => $field_data_usr_format,
-                                       SIZE     => 32,
+                                       SIZE     => $field_size,
                                        MAXLEN   => 64,
                                        DISABLED => $field_disabled,
                                        ARGS     => $input_tag_args,
