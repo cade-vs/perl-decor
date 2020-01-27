@@ -619,6 +619,8 @@ sub __resolve_field
       return ( $current_table, $current_field, $current_id );
       }
 
+    boom "cannot resolve table/field [$current_table/$current_field] it is not a link field" unless $field_des->is_linked();
+
     my $linked_table = $field_des->{ 'LINKED_TABLE' };
     boom "cannot resolve table/field [$current_table/$current_field] invalid linked table [$linked_table]" unless des_exists( $linked_table );
     my $next_id = $self->{ 'RECORD_DATA'  }{ $current_table }{ $current_id }{ $current_field };

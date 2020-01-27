@@ -27,6 +27,8 @@ sub on_recalc
   my $cc = $r->edit_cache_get();
   my $ccr = ++$cc->{ 'TEST_EDIT_CACHE_COUNT' };
 
+  #$r->read( 'AMOUNT1.ASD' );
+
   $r->write( DES => $ccr );
   
   my $sr = $r->select_siblings( 'BACKREF' );
