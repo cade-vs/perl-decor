@@ -340,7 +340,7 @@ sub table_create
     my $column_args;
     
     $column_args .= " PRIMARY KEY" if $fld_des->{ 'PRIMARY_KEY' };
-    $column_args .= " NOT NULL"    if $fld_des->{ 'REQUIRED' };
+    $column_args .= " NOT NULL"    if $fld_des->{ 'NOTNULL' };
     $column_args .= " UNIQUE"      if $fld_des->{ 'UNIQUE' };
     
     my $native_type = $dbo->get_native_type( $fld_des->{ 'TYPE' } );

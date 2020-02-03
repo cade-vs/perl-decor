@@ -169,6 +169,7 @@ my %DES_ATTRS = (
                            READ_ONLY   => 1, # field is visible but not allowed for modification
                            PRIMARY_KEY => 1,
                            REQUIRED    => 1,
+                           NOTNULL     => 1,
                            UNIQUE      => 1,
                            INDEX       => 1,
                            BOOL        => 1,

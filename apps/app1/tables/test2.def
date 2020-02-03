@@ -42,3 +42,14 @@ grant read          to 999
 =FILTER: MORE_CNT
 
   sql_where  CNT > 0
+
+
+=TESTREQ
+
+  type  int
+  required
+
+=TESTREQCHAR
+
+  type  char 32
+  required
