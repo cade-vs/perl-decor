@@ -10,6 +10,8 @@
 package Decor::Core::Env;
 use strict;
 
+use Decor::Shared::Types;
+
 use Exporter;
 BEGIN
 {
@@ -142,6 +144,9 @@ sub de_init
   dlock \@BUNDLES_DIRS;
 
   push @inc, "$app_dir/lib";
+
+
+  type_set_format({NAME => 'UTIME'},'YMD24');
   
   @INC = ( @inc, @ORIGINAL_INC );
   #print STDERR Dumper( 'APP_CFG:', \%APP_CFG, 'BUNDLES:', \@BUNDLES, 'BUNDLES DIRS:', \@BUNDLES_DIRS );

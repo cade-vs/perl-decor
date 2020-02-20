@@ -398,6 +398,7 @@ sub main
         $data_ctrl .= de_html_alink_button( $reo, 'new', "(=) $view_cue",          undef,                 ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, FILTER => { $backlinked_field => $id } );
         $data_ctrl .= "<br>\n";
         
+        $data_fmt = ""; # TODO: hide count, which is currently unsupported
         my $bcnt = $core->count( $backlinked_table, { FILTER => { $backlinked_field => $id } } );
         $data_fmt = $bcnt || '';
         }
@@ -489,6 +490,7 @@ sub main
       }
     
     $text .= $grid_form->end();
+    
     }
 
   $text .= "<#grid_js>"; # grid keyboard navigation and more

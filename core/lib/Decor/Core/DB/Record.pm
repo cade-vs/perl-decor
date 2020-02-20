@@ -362,8 +362,6 @@ sub __create_empty_data
   $self->{ 'RECORD_IMODS'  }{ $table }{ $new_id }++;
   $self->{ 'RECORD_DATA'   }{ $table }{ $new_id } = \%data;
 
-
-
   return $new_id;
 
 }
