@@ -151,3 +151,8 @@ web.grid.fields_list  name  ctime   suma     ref.name  BACKREF
 =DO: STANDALONE
 
   grant   execute
+
+=TEST_WLINK
+
+  type  char  128
+  wlink

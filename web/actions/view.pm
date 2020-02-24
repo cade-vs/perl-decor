@@ -108,12 +108,40 @@ sub main
       $data_fmt = "<form><input value='$data_fmt' style='width: 96%' readonly></form>";
       }
 
-    if( $bfdes->is_linked() )
+    if( $bfdes->is_linked() or ( $type_name eq 'CHAR' and $bfdes->{ 'WLINK' } ) )
       {
-      my ( $linked_table, $linked_field ) = $bfdes->link_details();
+      my ( $linked_table, $linked_field );
+      if( $type_name eq 'CHAR' and $bfdes->{ 'WLINK' } ) 
+        {
+        ( $linked_table, $data_base, $linked_field ) = ( $1, $2, undef ) if $data =~ /([A-Z_0-9]+)\[(\d+)\]/;
+        ( $linked_table, $data_base, $linked_field ) = ( $1, $2, $4    ) if $data =~ /([A-Z_0-9]+):(\d+)(:([A-Z_0-9]+))?/;
+
+        my $ltdes = $core->describe( $linked_table );
+        if( $ltdes )
+          {
+          my $linked_table_label = $ltdes->get_label();
+          if( $linked_field )
+            {
+            $data_fmt = $core->read_field( $linked_table, $linked_field, $data_base );
+            my $lfdes = $ltdes->get_field_des( $linked_field );
+            $data_fmt  = de_web_format_field( $data_fmt, $lfdes, 'VIEW', { ID => $data_base } );
+            }
+          else
+            {
+            $data_fmt = "[~Linked to a record from:] $linked_table_label";
+            }  
+          } # ltdes  
+        }
+      else
+        {
+        ( $linked_table, $linked_field ) = $bfdes->link_details();
+        }  
+
       my $ltdes = $core->describe( $linked_table );
       $data_fmt =~ s/\./&#46;/g;
 
+      if( $ltdes )
+      {
       if( $ltdes->get_table_type() eq 'FILE' )
         {
         if( $data_base > 0 )
@@ -141,6 +169,11 @@ sub main
           $data_ctrl .= de_html_alink( $reo, 'new', 'insert.svg', $insert_cue, ACTION => 'edit', ID => -1,         TABLE => $linked_table, LINK_TO_TABLE => $table, LINK_TO_FIELD => $base_field, LINK_TO_ID => $id );
           }
         }  
+        } # if $ltdes
+        else
+        {
+        $data_fmt = "[~(n/a)]";
+        }
       }
     elsif( $bfdes->is_backlinked() )
       {
@@ -188,7 +221,7 @@ sub main
 
     if( $lpassword )
       {
-      $data_fmt = "(hidden)";
+      $data_fmt = "[~(hidden)]";
       }
 
     my $data_layout = html_layout_2lr( $data_fmt, $data_ctrl, '<==1>' );

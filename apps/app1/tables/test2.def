@@ -44,12 +44,12 @@ grant read          to 999
   sql_where  CNT > 0
 
 
-=TESTREQ
-
-  type  int
-  required
-
-=TESTREQCHAR
-
-  type  char 32
-  required
+#=TESTREQ
+#
+#  type  int
+#  required
+#
+#=TESTREQCHAR
+#
+#  type  char 32
+#  required

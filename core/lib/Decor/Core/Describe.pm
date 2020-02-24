@@ -204,6 +204,8 @@ my %DES_ATTRS = (
                            
                            DETAILS_FIELDS => 3,
                            DETAILS_COUNT  => 3,
+                           
+                           WLINK        => 1,
                          },
                   'INDEX' => {
                            FIELDS      => 1,
@@ -954,6 +956,7 @@ sub describe_preprocess_grant_deny
 
   $hr->{ '__GRANT_DENY_ACCUMULATOR' } = [ 'deny all', 'grant read' ] if $hr->{ 'READ_ONLY' };
   $hr->{ '__GRANT_DENY_ACCUMULATOR' } = [ 'deny all'               ] if $hr->{ 'SYSTEM'    };
+  $hr->{ '__GRANT_DENY_ACCUMULATOR' } = [ @{ $hr->{ '__GRANT_DENY_ACCUMULATOR' } }, 'deny insert update'     ] if $hr->{ 'WLINK'     };
 
   for my $line ( @{ $hr->{ '__GRANT_DENY_ACCUMULATOR' } } )
     {
