@@ -119,7 +119,7 @@ sub main
       if( $bfdes->is_widelinked() ) 
         {
         $same_data_search = $data; # FIXME: !!!
-        ( $linked_table, $data_base, $linked_field ) = type_widelink_parse( $data );
+        ( $linked_table, $data_base, $linked_field ) = type_widelink_parse2( $data );
 
         my $ltdes = $core->describe( $linked_table );
         if( $ltdes )

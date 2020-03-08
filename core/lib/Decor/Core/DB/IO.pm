@@ -585,7 +585,9 @@ sub update
     my $fld_des = $table_des->get_field_des( $field );
     my $field_type_name = $fld_des->{ 'TYPE' }{ 'NAME' };
     
-    $value = 0 if $field_type_name ne 'CHAR' and $value == 0;
+    # TODO: FIXME: stupid :)
+    $value = 0 if $field_type_name ne 'CHAR' and $field_type_name ne 'WIDELINK' and $value == 0;
+    
     $columns .= "$field=?,";
     push @values, $value;
     }

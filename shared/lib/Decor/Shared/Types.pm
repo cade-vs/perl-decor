@@ -10,6 +10,8 @@
 package Decor::Shared::Types;
 use strict;
 
+use Decor::Shared::Utils;
+
 use Exporter;
 our @ISA    = qw( Exporter );
 our @EXPORT = qw(
@@ -31,6 +33,7 @@ our @EXPORT = qw(
                   
                   type_widelink_construct
                   type_widelink_parse
+                  type_widelink_parse2
                 );
 
 use Data::Dumper;
@@ -486,7 +489,7 @@ sub type_widelink_construct
   my $field = $args{ 'FIELD' };
   
   boom "type_widelink_construct: invalid TABLE [$table]" unless de_check_name( $table );
-  boom "type_widelink_construct: invalid ID [$id]"       unless de_check_id( $table );
+  boom "type_widelink_construct: invalid ID [$id]"       unless de_check_id( $id );
   boom "type_widelink_construct: invalid FIELD [$field]" if $field and ! de_check_name( $field );
   
   return "$table:$id:$field";
@@ -515,6 +518,12 @@ sub type_widelink_parse
   return $hr;
 }
 
+sub type_widelink_parse2
+{
+  my $wh;
+  eval { $wh = type_widelink_parse( @_ ); };
+  return wantarray ? ( $wh->{ 'TABLE' }, $wh->{ 'ID' }, $wh->{ 'FIELD' } ) : $wh;
+}
 
 ### EOF ######################################################################
 1;

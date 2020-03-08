@@ -133,6 +133,11 @@
           # to parse WIDELINK database data:
           my ( $table, $id, $field ) = type_widelink_parse( $database_data );
           
+          type_widelink_parse() will raise and exception if $database_data
+          is not properly constructed WIDELINK data. if you do not wish
+          to have an exception here you can use type_widelink_parse2() which
+          will return empty array or undef if there is an error.
+          
           Records has own API, which uses the one above:
           
           use Decor::Core::DB::Record;

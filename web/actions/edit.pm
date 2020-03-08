@@ -443,6 +443,11 @@ sub main
         }
       # EXPERIMENT: :)) $field_input .= "<p><div class=vframe><a reactor_new_href=?action=grid&table=$backlinked_table>show</a></div>";
       }
+    elsif( $type_name eq 'WIDELINK' )
+      {
+      # TODO: nothing for now, could display view information as in action view
+      next;
+      }
     elsif( $type_name eq 'INT' and $fdes->{ 'BOOL' } )
       {
       $field_input .= $edit_form->checkbox_multi(

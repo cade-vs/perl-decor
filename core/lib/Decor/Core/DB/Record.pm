@@ -563,7 +563,7 @@ sub write
           if( $linked_table eq '' or $linked_id == 0 )
             {
             # value is zero, which is ok, points the base record
-            $linked_id = 0;
+            $linked_id = 'x';
             last LINKCHECK;
             }
           }  
@@ -1156,11 +1156,11 @@ sub write_widelink
   my $lfield = shift;
   
   my $data = type_widelink_construct( TABLE => $table, ID => $id, FIELD => $lfield );
-  
+
   # if $data is constructed then all are checked, check for existing table
-  boom "rec::write_widelink: TABLE [$table] does not exist" unless des_exists( $linked_table )
+  boom "rec::write_widelink: TABLE [$table] does not exist" unless des_exists( $table );
   
-  $self->write( $field, $data );
+  return $self->write( $field => $data );
 }
 
 sub read_widelink

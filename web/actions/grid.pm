@@ -352,7 +352,7 @@ sub main
           else
             {
             # $bfdes->is_widelinked()
-            ( $linked_table, $linked_id, $linked_field ) = type_widelink_parse( $data );
+            ( $linked_table, $linked_id, $linked_field ) = type_widelink_parse2( $data );
             if( $linked_table )
               {
               $data_fmt = '';
@@ -409,7 +409,7 @@ sub main
               $data_ctrl .= de_html_alink_button_fill( $reo, 'new', "(v) $edit_cue", undef, BTYPE => 'mod', ACTION => 'edit', ID => $linked_id, TABLE => $linked_table );
               $data_ctrl .= "<br>\n";
               }
-            if( $ltdes->allows( 'INSERT' ) and $tdes->allows( 'UPDATE' ) and $bfdes->allows( 'UPDATE' ) )
+            if( $bfdes->is_linked() and $ltdes->allows( 'INSERT' ) and $tdes->allows( 'UPDATE' ) and $bfdes->allows( 'UPDATE' ) )
               {
               # FIXME: check for record access too!
               $data_ctrl .= de_html_alink_button_fill( $reo, 'new', "(+) $insert_cue", undef, BTYPE => 'act', ACTION => 'edit', ID => -1,         TABLE => $linked_table, LINK_TO_TABLE => $table, LINK_TO_FIELD => $base_field, LINK_TO_ID => $id );

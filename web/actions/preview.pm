@@ -9,11 +9,14 @@
 ##############################################################################
 package decor::actions::preview;
 use strict;
+
 use Data::Dumper;
 use Data::Tools 1.21;
 use Exception::Sink;
 
 use Web::Reactor::HTML::Utils;
+
+use Decor::Shared::Types;
 use Decor::Web::HTML::Utils;
 use Decor::Web::View;
 
@@ -78,29 +81,56 @@ sub main
     my $data = $row_data->{ $field };
     my $data_fmt = de_web_format_field( $data, $fdes, 'PREVIEW' );
 
-    if( $bfdes->is_linked() )
+    if( $bfdes->is_linked() or $bfdes->is_widelinked() )
       {
-      my ( $linked_table, $linked_field ) = $bfdes->link_details();
-      my $ltdes = $core->describe( $linked_table );
+      
+      my ( $linked_table, $linked_id, $linked_field );
+      if( $bfdes->is_widelinked() ) 
+        {
+        ( $linked_table, $linked_id, $linked_field ) = type_widelink_parse2( $data );
 
-      my $ldes = $core->describe( $linked_table );
-      my @lfields = @{ $ldes->get_fields_list_by_oper( 'READ' ) };
+        my $ltdes = $core->describe( $linked_table );
+        if( $ltdes )
+          {
+          my $linked_table_label = $ltdes->get_label();
+          if( $linked_field )
+            {
+            $data_fmt = $core->read_field( $linked_table, $linked_field, $linked_id );
+            my $lfdes = $ltdes->get_field_des( $linked_field );
+            $data_fmt  = de_web_format_field( $data_fmt, $lfdes, 'VIEW', { ID => $linked_id } );
+            }
+          else
+            {
+            $data_fmt = "[~Linked to a record from:] $linked_table_label";
+            }  
+          } # ltdes  
+        else
+          {
+          $data_fmt = "&empty; ( $linked_table | $linked_id | $linked_field ) $data";
+          }  
+        }
+      else
+        {
+        ( $linked_table, $linked_field ) = $bfdes->link_details();
+        my $ldes = $core->describe( $linked_table );
+        my @lfields = @{ $ldes->get_fields_list_by_oper( 'READ' ) };
 
-###      return "<#access_denied>" unless @fields;
+  ###      return "<#access_denied>" unless @fields;
 
-      my %bfdes; # base/begin/origin field descriptions, indexed by field path
-      my %lfdes; # linked/last       field descriptions, indexed by field path, pointing to trail field
-      my %basef; # base fields map, return base field NAME by field path
+        my %bfdes; # base/begin/origin field descriptions, indexed by field path
+        my %lfdes; # linked/last       field descriptions, indexed by field path, pointing to trail field
+        my %basef; # base fields map, return base field NAME by field path
 
-      de_web_expand_resolve_fields_in_place( \@lfields, $ldes, \%bfdes, \%lfdes, \%basef );
+        de_web_expand_resolve_fields_in_place( \@lfields, $ldes, \%bfdes, \%lfdes, \%basef );
 
-    #$text .= Dumper( \%basef );
+      #$text .= Dumper( \%basef );
 
-      my $lfields = join ',', @lfields, values %basef;
+        my $lfields = join ',', @lfields, values %basef;
 
-      my $lrow_data = $core->select_first1_by_id( $linked_table, $lfields, $data );
+        my $lrow_data = $core->select_first1_by_id( $linked_table, $lfields, $data );
 
-      $data_fmt = de_web_format_field( $lrow_data->{ $linked_field }, $lfdes{ $linked_field }, 'PREVIEW' );
+        $data_fmt = de_web_format_field( $lrow_data->{ $linked_field }, $lfdes{ $linked_field }, 'PREVIEW' );
+        }  
       }
     elsif( $bfdes->is_backlinked() )
       {

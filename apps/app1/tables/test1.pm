@@ -36,7 +36,11 @@ sub on_recalc
     {
     print Dumper( 'SIBLING-'x10, $sr );
     }
+
+  my $wh = $r->read_widelink( 'TEST_WLINK' );
+  print Dumper( 'WIDELINK-'x10, $wh );
   
+  #$r->write_widelink( 'TEST_WLINK', 'MOTEN', 10030, 'PEND' );
 }
 
 sub on_test
@@ -82,6 +86,8 @@ sub on_insert
 sub on_update
 {
   my $r = shift;
+
+  my $wh = $r->write_widelink( 'TEST_WLINK', 'MOTEN', 10030, 'PEND' );
   
   #$r->return_file_text( "<h1>Insert processed fine, here is a cookie:</h1><h2>".rand(137137137)."</h2>", 'html' );
 }
