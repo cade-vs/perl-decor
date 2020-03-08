@@ -112,11 +112,13 @@ sub main
       $data_fmt = "<form><input value='$data_fmt' style='width: 96%' readonly></form>";
       }
 
+    my $same_data_search; # FIXME: !!!
     if( $bfdes->is_linked() or $bfdes->is_widelinked() )
       {
       my ( $linked_table, $linked_field );
       if( $bfdes->is_widelinked() ) 
         {
+        $same_data_search = $data; # FIXME: !!!
         ( $linked_table, $data_base, $linked_field ) = type_widelink_parse( $data );
 
         my $ltdes = $core->describe( $linked_table );
@@ -137,6 +139,7 @@ sub main
         }
       else
         {
+        $same_data_search = $data_base; # FIXME: !!!
         ( $linked_table, $linked_field ) = $bfdes->link_details();
         }  
 
@@ -163,9 +166,9 @@ sub main
       else
         {
         $data_ctrl .= de_html_alink( $reo, 'new', 'view.svg',   "[~View linked record]",                                                        ACTION => 'view', ID => $data_base, TABLE => $linked_table );
-        $data_ctrl .= de_html_alink( $reo, 'new', 'grid.svg',   "[~View all records from] <b>$table_label</b>, [~linked to] <b>$data_fmt</b>",  ACTION => 'grid',                   TABLE => $table, FILTER => { $base_field => $data_base } );
+        $data_ctrl .= de_html_alink( $reo, 'new', 'grid.svg',   "[~View all records from] <b>$table_label</b>, [~linked to] <b>$data_fmt</b>",  ACTION => 'grid',                   TABLE => $table, FILTER => { $base_field => $same_data_search } );
         $data_fmt = de_html_alink( $reo, 'new', "$data_fmt",    "[~View linked record]",                                                        ACTION => 'view', ID => $data_base, TABLE => $linked_table );
-        if( $ltdes->allows( 'INSERT' ) and $tdes->allows( 'UPDATE' ) and $bfdes->allows( 'UPDATE' ) )
+        if( $bfdes->is_linked() and $ltdes->allows( 'INSERT' ) and $tdes->allows( 'UPDATE' ) and $bfdes->allows( 'UPDATE' ) )
           {
           # FIXME: check for record access too!
           my $insert_cue = $bfdes->get_attr( qw( WEB VIEW LINK_INSERT_CUE ) ) || "[~Insert and link a new record]";
