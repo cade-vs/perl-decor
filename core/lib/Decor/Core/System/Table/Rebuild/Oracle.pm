@@ -322,6 +322,13 @@ sub get_native_type
       $native = "number";
       }  
     }
+  elsif( $name eq 'WIDELINK' )
+    {
+    $len =  64 if $len <  64;
+    $len = 256 if $len > 256;
+    $base = "varchar2";
+    $native = "$base($len)";
+    }
   else
     {
     ( $base, $native ) = @{ $NATIVE_TYPES{ $name } };

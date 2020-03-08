@@ -673,14 +673,22 @@ sub __postprocess_table_des_hash
       $fld_des->{ 'LINKED_TABLE' } = shift @type || boom "missing LINK TABLE in table [$table] field [$field] from [@debug_origin]";
       $fld_des->{ 'LINKED_FIELD' } = shift @type || boom "missing LINK FIELD in table [$table] field [$field] from [@debug_origin]";;
       
-      $fld_des->{ 'LINKED_TABLE' } = $table if uc $fld_des->{ 'LINKED_TABLE' } eq '%TABLE';
+      $fld_des->{ 'LINKED_TABLE' } = $table if uc $fld_des->{ 'LINKED_TABLE' } eq '%TABLE'; # self-link
       }
-    elsif( $type eq 'BACKLINK' )
+    elsif( $type eq 'BACKLINK' or $type eq 'BACK' )
       {
+      $type = 'BACKLINK';
       $fld_des->{ 'BACKLINKED_TABLE' } = shift @type || boom "missing BACKLINK TABLE in table [$table] field [$field] from [@debug_origin]";;
       $fld_des->{ 'BACKLINKED_KEY'   } = shift @type || boom "missing BACKLINK KEY   in table [$table] field [$field] from [@debug_origin]";;
       
-      $fld_des->{ 'BACKLINKED_TABLE' } = $table if uc $fld_des->{ 'BACKLINKED_TABLE' } eq '%TABLE';
+      $fld_des->{ 'BACKLINKED_TABLE' } = $table if uc $fld_des->{ 'BACKLINKED_TABLE' } eq '%TABLE'; # self-backlink
+      }
+    if( $type eq 'WIDELINK' or $type eq 'WIDE' )
+      {
+      $type = 'WIDELINK';
+
+      my $len = shift( @type ) || 128;
+      $type_des->{ 'LEN' } = $len;
       }
     elsif( $type eq 'BOOL' )
       {
@@ -956,7 +964,12 @@ sub describe_preprocess_grant_deny
 
   $hr->{ '__GRANT_DENY_ACCUMULATOR' } = [ 'deny all', 'grant read' ] if $hr->{ 'READ_ONLY' };
   $hr->{ '__GRANT_DENY_ACCUMULATOR' } = [ 'deny all'               ] if $hr->{ 'SYSTEM'    };
-  $hr->{ '__GRANT_DENY_ACCUMULATOR' } = [ @{ $hr->{ '__GRANT_DENY_ACCUMULATOR' } }, 'deny insert update'     ] if $hr->{ 'WLINK'     };
+  
+  if( exists $hr->{ 'TYPE' } and ref( $hr->{ 'TYPE' } ) eq 'HASH' and exists $hr->{ 'TYPE' }{ 'NAME' } and $hr->{ 'TYPE' }{ 'NAME' } eq 'WIDELINK' )
+    {
+    # WIDELINKs are system and are forbidden for insert and update
+    $hr->{ '__GRANT_DENY_ACCUMULATOR' } = [ @{ $hr->{ '__GRANT_DENY_ACCUMULATOR' } }, 'deny insert update'     ];
+    }
 
   for my $line ( @{ $hr->{ '__GRANT_DENY_ACCUMULATOR' } } )
     {

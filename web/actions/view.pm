@@ -9,12 +9,16 @@
 ##############################################################################
 package decor::actions::view;
 use strict;
+
+use Data::Dumper;
 use Web::Reactor::HTML::Utils;
 use Web::Reactor::HTML::Layout;
+
+use Decor::Shared::Types;
 use Decor::Web::HTML::Utils;
 use Decor::Web::View;
 use Decor::Web::Utils;
-use Data::Dumper;
+
 
 sub main
 {
@@ -108,13 +112,12 @@ sub main
       $data_fmt = "<form><input value='$data_fmt' style='width: 96%' readonly></form>";
       }
 
-    if( $bfdes->is_linked() or ( $type_name eq 'CHAR' and $bfdes->{ 'WLINK' } ) )
+    if( $bfdes->is_linked() or $bfdes->is_widelinked() )
       {
       my ( $linked_table, $linked_field );
-      if( $type_name eq 'CHAR' and $bfdes->{ 'WLINK' } ) 
+      if( $bfdes->is_widelinked() ) 
         {
-        ( $linked_table, $data_base, $linked_field ) = ( $1, $2, undef ) if $data =~ /([A-Z_0-9]+)\[(\d+)\]/;
-        ( $linked_table, $data_base, $linked_field ) = ( $1, $2, $4    ) if $data =~ /([A-Z_0-9]+):(\d+)(:([A-Z_0-9]+))?/;
+        ( $linked_table, $data_base, $linked_field ) = type_widelink_parse( $data );
 
         my $ltdes = $core->describe( $linked_table );
         if( $ltdes )

@@ -39,6 +39,13 @@ sub is_backlinked
   return $self->{ 'TYPE' }{ 'NAME' } eq 'BACKLINK';
 }
 
+sub is_widelinked
+{
+  my $self   = shift;
+  
+  return $self->{ 'TYPE' }{ 'NAME' } eq 'WIDELINK';
+}
+
 sub link_details
 {
   my $self   = shift;

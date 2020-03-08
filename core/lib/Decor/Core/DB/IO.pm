@@ -257,15 +257,17 @@ sub __select_resolve_field
           or 
              $profile->check_access_table_field( 'CROSS', $table_now, $field_now );
       }
-    my $fld_des = describe_table_field( $table_now, $field_now );
 
     if( @field == 0 )
       {
       return ( $alias_now, $table_now, $field_now );
       } 
 
+    my $fld_des = describe_table_field( $table_now, $field_now );
+    boom "cannot resolve field, current position is NOT A LINK [$table_now:$field_now] in field path [$field]" unless $fld_des->is_linked();
+
     my $table_next = $fld_des->{ 'LINKED_TABLE' };
-    boom "cannot resolve field, current position is [$table_now:$field_now]" unless $table_next;
+    boom "cannot resolve field, current position is [$table_now:$field_now] in field path [$field]" unless des_exists( $table_next );
 
     # FIXME: check for cross-DSN links
    

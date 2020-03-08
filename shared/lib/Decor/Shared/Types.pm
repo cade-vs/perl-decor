@@ -28,6 +28,9 @@ our @EXPORT = qw(
                   type_date2utime
                   type_utime_split
                   type_utime_merge
+                  
+                  type_widelink_construct
+                  type_widelink_parse
                 );
 
 use Data::Dumper;
@@ -51,6 +54,7 @@ our %DE_TYPE_NAMES = (
                       
                       'LINK'     => 1,
                       'BACKLINK' => 1,
+                      'WIDELINK' => 1,
                     );
 dlock %DE_TYPE_NAMES;
 
@@ -64,6 +68,7 @@ my %TYPE_DEFAULTS = (
 
                       'LINK'     => 0,
                       'BACKLINK' => 0,
+                      'WIDELINK' => '',
                     );
 
 my $FMT_DATE_DMY = '%d.%m.%Y';
@@ -443,7 +448,7 @@ sub type_convert
     }
   else
     {
-    die "r_type_convert: cannot convert to ($tto) from ($tfr)";
+    boom "type_convert: cannot convert to ($tto) from ($tfr)";
     }
 }
 
@@ -473,6 +478,45 @@ sub type_utime_merge
 
   return type_revert( "$ds $ts", { NAME => 'UTIME', 'TZ' => $z } );
 }
+
+sub type_widelink_construct
+{
+  my $hr = shift;
+  
+  my $table = $hr->{ 'TABLE' };
+  my $id    = $hr->{ 'ID'    };
+  my $field = $hr->{ 'FIELD' };
+  
+  boom "type_widelink_construct: invalid TABLE [$table]" unless de_check_name( $table );
+  boom "type_widelink_construct: invalid ID [$id]"       unless de_check_id( $table );
+  boom "type_widelink_construct: invalid FIELD [$field]" if $field and ! de_check_name( $field );
+  
+  return "$table:$id:$field";
+}
+
+sub type_widelink_parse
+{
+  my $data = shift;
+
+  if( $data eq '' )
+    {
+    return () if wantarray;
+    return undef;
+    }
+  
+  $data = "$1:$2:" if $data =~ /([A-Z_0-9]+)\[(\d+)\]/; # FIXME: compatibility, must be removed in the future
+  boom "type_widelink_parse: invalid WIDELINK data [$data]" unless $data =~ /^([a-zA-Z_0-9]+):([0-9]+):([a-zA-Z_0-9]+)?$/;
+
+  return ( $1, $2, $3 ) if wantarray;
+  
+  my $hr;
+  $hr->{ 'TABLE' } = $1;
+  $hr->{ 'ID'    } = $2;
+  $hr->{ 'FIELD' } = $3 if $3;
+  
+  return $hr;
+}
+
 
 ### EOF ######################################################################
 1;

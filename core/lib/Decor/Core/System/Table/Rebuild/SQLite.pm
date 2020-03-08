@@ -323,6 +323,7 @@ my %NATIVE_TYPES = (
                    
                    'LINK'     => 'INTEGER',
                    'BACKLINK' => 'INTEGER',
+                   'WIDELINK' => 'TEXT',
                    );
 
 sub get_native_type

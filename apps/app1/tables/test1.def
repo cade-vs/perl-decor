@@ -154,5 +154,4 @@ web.grid.fields_list  name  ctime   suma     ref.name  BACKREF
 
 =TEST_WLINK
 
-  type  char  128
-  wlink
+  type  wide

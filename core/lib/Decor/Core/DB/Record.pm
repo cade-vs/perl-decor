@@ -13,6 +13,8 @@ use strict;
 use parent 'Decor::Core::DB';
 use Encode;
 use Exception::Sink;
+use Data::Tools 1.22;
+use MIME::Base64;
 
 use Decor::Shared::Types;
 use Decor::Shared::Utils;
@@ -24,8 +26,6 @@ use Decor::Core::Code;
 use Decor::Core::Form;
 use Decor::Core::Subs::Env;
 
-use Data::Tools 1.22;
-use MIME::Base64;
 
 ##############################################################################
 
@@ -534,25 +534,47 @@ sub write
       $profile->check_access_table_field_boom( $oper, $dst_table, $dst_field );
 
       my $dst_fdes = describe_table_field( $dst_table, $dst_field );
-      my $dst_ftype_name = $dst_fdes->{ 'TYPE' }{ 'NAME' };
-
     
-      LINKCHECK: while( $dst_ftype_name eq 'LINK' )
-      {
-        my $linked_table = $dst_fdes->{ 'LINKED_TABLE' };
-#  print STDERR "LINK-------------------------------CHECK--------------------- $dst_table, $dst_field, $dst_id => $linked_table:$field=$value\n";
-        if( $value == 0 )
+      LINKCHECK: while( $dst_fdes->is_linked() or $dst_fdes->is_widelinked() )
+        {
+        my $linked_table;
+        my $linked_id;
+        
+        if( $dst_fdes->is_linked() )
           {
-          # value is zero, which is ok, points the base record
-          $value = 0;
-          last LINKCHECK;
+          $linked_table = $dst_fdes->{ 'LINKED_TABLE' };
+          $linked_id    = $value;
+          if( $linked_id == 0 )
+            {
+            # value is zero, which is ok, points the base record
+            $value = 0;
+            last LINKCHECK;
+            }
           }
+        else
+          {
+          # $dst_ftype_name eq 'WIDELINK'
+          if( $value eq '' )
+            {
+            # value is empty, which is ok, does not point to any record
+            last LINKCHECK;
+            }
+          ( $linked_table, $linked_id ) = type_widelink_parse( $value );
+          if( $linked_table eq '' or $linked_id == 0 )
+            {
+            # value is zero, which is ok, points the base record
+            $linked_id = 0;
+            last LINKCHECK;
+            }
+          }  
+        
+#  print STDERR "LINK-------------------------------CHECK--------------------- $dst_table, $dst_field, $dst_id => $linked_table:$field=$value\n";
 
         my $upd_rec = new Decor::Core::DB::Record;
         $upd_rec->set_profile_locked( $profile );
         $upd_rec->taint_mode_on( 'ROWS' );
           
-        last LINKCHECK if $upd_rec->select_first1( $linked_table, '_ID = ?', { BIND => [ $value ] } );
+        last LINKCHECK if $upd_rec->select_first1( $linked_table, '_ID = ?', { BIND => [ $linked_id ] } );
 
         my $user = subs_get_current_user();
         my $sess = subs_get_current_session();
@@ -561,7 +583,7 @@ sub write
         my $sess_id = $sess->id();
         my $res_rec = new Decor::Core::DB::Record;
 
-        last LINKCHECK if $res_rec->select_first1( 'DE_RESERVED_IDS', 'USR = ? AND SESS = ? AND RESERVED_TABLE = ? AND RESERVED_ID = ? AND ACTIVE = ?', { BIND => [ $user_id, $sess_id, $linked_table, $value, 1 ] } );
+        last LINKCHECK if $res_rec->select_first1( 'DE_RESERVED_IDS', 'USR = ? AND SESS = ? AND RESERVED_TABLE = ? AND RESERVED_ID = ? AND ACTIVE = ?', { BIND => [ $user_id, $sess_id, $linked_table, $linked_id, 1 ] } );
         
         my $table = $self->table();
         boom "E_ACCESS: Record::write(): LINK field [$table:$field=$value] points to a forbidden or invalid record [$dst_table:_ID:$value]";
@@ -610,18 +632,32 @@ sub __resolve_field
   while(4)
     {
 #print "debug: record resolve table [$current_table] field [$current_field] id [$current_id] fields [@fields]\n";
-    my $field_des = describe_table_field( $current_table, $current_field );
-
     if( @fields == 0 )
       {
       return ( $current_table, $current_field, $current_id );
       }
+    my $field_des = describe_table_field( $current_table, $current_field );
+    my $field_type_name = $field_des->{ 'TYPE' }{ 'NAME' };
 
     boom "cannot resolve table/field [$current_table/$current_field] it is not a link field" unless $field_des->is_linked();
 
-    my $linked_table = $field_des->{ 'LINKED_TABLE' };
+    my $linked_table;
+    my $next_id;
+    if( $field_type_name eq 'LINK' )
+      {
+      $linked_table = $field_des->{ 'LINKED_TABLE' };
+      $next_id      = $self->{ 'RECORD_DATA'  }{ $current_table }{ $current_id }{ $current_field };
+      }
+    elsif( $field_type_name eq 'WIDELINK' )  
+      {
+      ( $linked_table, $next_id ) = type_widelink_parse( $self->{ 'RECORD_DATA'  }{ $current_table }{ $current_id }{ $current_field } );
+      }
+    else
+      {
+      boom "cannot resolve field, current position is NOT A LINK or WIDELINK [$current_table:$current_field] in field path [$field]";
+      }  
+
     boom "cannot resolve table/field [$current_table/$current_field] invalid linked table [$linked_table]" unless des_exists( $linked_table );
-    my $next_id = $self->{ 'RECORD_DATA'  }{ $current_table }{ $current_id }{ $current_field };
 
     if( $next_id == 0 )
       {
@@ -1082,9 +1118,6 @@ sub edit_cache_get
     }  
   $self->{ 'EDIT_CACHE_SID:DATA' } = $chr;
 
-use Data::Dumper;
-print STDERR Dumper( '++++++++!!!+++++++', $hr, $chr );
-  
   return $chr;
 }
 
@@ -1107,9 +1140,6 @@ sub edit_cache_save
     {
     $res = $dbio->insert( 'DE_EDIT_CACHE', { 'CACHE_KEY' => $ec_sid, 'CACHE_DATA' => ref_freeze( $ec_fdt ), CTIME => time() },  );
     }
-
-use Data::Dumper;
-print STDERR Dumper( '+++++++----------', $res, $ec_fdt );
 
   return $res;
 }
