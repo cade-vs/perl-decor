@@ -7,7 +7,7 @@ grant insert update to 1;10
 #no-copy
 #no-preview
 
-web.grid.fields_list  name  ctime   suma     ref.name  BACKREF
+web.grid.fields_list  name  ctime   suma     ref.name  BACKREF test_wlink
 
 =NAME
 

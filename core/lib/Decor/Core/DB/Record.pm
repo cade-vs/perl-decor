@@ -1144,5 +1144,32 @@ sub edit_cache_save
   return $res;
 }
 
+#-----------------------------------------------------------------------------
+
+sub write_widelink
+{
+  my $self  = shift;
+
+  my $field  = shift;
+  my $table  = shift;
+  my $id     = shift;
+  my $lfield = shift;
+  
+  my $data = type_widelink_construct( TABLE => $table, ID => $id, FIELD => $lfield );
+  
+  # if $data is constructed then all are checked, check for existing table
+  boom "rec::write_widelink: TABLE [$table] does not exist" unless des_exists( $linked_table )
+  
+  $self->write( $field, $data );
+}
+
+sub read_widelink
+{
+  my $self  = shift;
+
+  my $field  = shift;
+  return type_widelink_parse( $self->read( $field ) );
+}
+
 ### EOF ######################################################################
 1;

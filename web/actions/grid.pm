@@ -9,12 +9,16 @@
 ##############################################################################
 package decor::actions::grid;
 use strict;
+
+use Data::Dumper;
+use Data::Tools 1.21;
+
 use Web::Reactor::HTML::Utils;
+
+use Decor::Shared::Types;
 use Decor::Web::HTML::Utils;
 use Decor::Web::View;
 use Decor::Web::Utils;
-use Data::Dumper;
-use Data::Tools 1.21;
 
 my %FMT_CLASSES = (
                   'CHAR'  => 'fmt-left',
@@ -327,7 +331,7 @@ sub main
       my $data_ctrl;
       $fmt_class .= $fmt_class_fld;
 
-      if( $bfdes->is_linked() )
+      if( $bfdes->is_linked() or $bfdes->is_widelinked() )
         {
         if( $link_field_disable and $base_field eq $link_field_disable )
           {
@@ -339,40 +343,79 @@ sub main
           my $edit_cue   = $bfdes->get_attr( qw( WEB GRID EDIT_CUE   ) ) || "[~Edit linked record]";
           my $insert_cue = $bfdes->get_attr( qw( WEB GRID INSERT_CUE ) ) || "[~Insert and link a new record]";
           
-          my ( $linked_table, $linked_field ) = $bfdes->link_details();
-          my $ltdes = $core->describe( $linked_table );
-          if( $data_base > 0 )
+          my ( $linked_table, $linked_id, $linked_field );
+          if( $bfdes->is_linked() ) 
             {
-            $data_fmt =~ s/\./&#46;/g;
-            if( $ltdes->get_table_type() eq 'FILE' )
-              {
-              $data_fmt   = de_html_alink( $reo, 'new', "$data_fmt",                          $view_cue, ACTION => 'file_dn', ID => $data_base, TABLE => $linked_table );
-              $data_ctrl .= de_html_alink( $reo, 'new', 'file_dn.svg [~Download file]',       undef,     ACTION => 'file_dn', ID => $data_base, TABLE => $linked_table );
-              $data_ctrl .= "<br>\n";
-              }
-            else
-              {  
-              $data_fmt   = de_html_alink( $reo, 'new', "$data_fmt",                       $view_cue, ACTION => 'view', ID => $data_base, TABLE => $linked_table );
-              }
+            ( $linked_table, $linked_field ) = $bfdes->link_details();
+            $linked_id = $data_base;
             }
           else
             {
-            $data_fmt   = "&empty;";
-            }
-          $data_ctrl .= de_html_alink_button_fill( $reo, 'new', "(o) $view_cue",   undef,                ACTION => 'view', ID => $data_base, TABLE => $linked_table ) if $data_base > 0;
-          $data_ctrl .= "<br>\n";
-          if( $ltdes->allows( 'UPDATE' ) and $data_base > 0 )
+            # $bfdes->is_widelinked()
+            ( $linked_table, $linked_id, $linked_field ) = type_widelink_parse( $data );
+            if( $linked_table )
+              {
+              $data_fmt = '';
+              }
+            else
+              {
+              $data_fmt   = "&empty;";
+              }  
+            }  
+          
+          if( $linked_table )
             {
-            # FIXME: check for record access too!
-            $data_ctrl .= de_html_alink_button_fill( $reo, 'new', "(v) $edit_cue", undef, BTYPE => 'mod', ACTION => 'edit', ID => $data_base, TABLE => $linked_table );
+            my $ltdes = $core->describe( $linked_table );
+            
+            my $linked_table_label = $ltdes->get_label();
+            if( $bfdes->is_widelinked() )
+              {
+              if( $linked_field )
+                {
+                $data_fmt = $core->read_field( $linked_table, $linked_field, $linked_id );
+                my $lfdes = $ltdes->get_field_des( $linked_field );
+                $data_fmt  = de_web_format_field( $data_fmt, $lfdes, 'VIEW', { ID => $linked_id } );
+                }
+              else
+                {
+                $data_fmt  = '. . .';
+            $data_fmt = "&raquo; $linked_table_label";
+                }  
+              }
+            
+            if( $linked_id > 0 )
+              {
+              $data_fmt =~ s/\./&#46;/g;
+              if( $ltdes->get_table_type() eq 'FILE' )
+                {
+                $data_fmt   = de_html_alink( $reo, 'new', "$data_fmt",                          $view_cue, ACTION => 'file_dn', ID => $linked_id, TABLE => $linked_table );
+                $data_ctrl .= de_html_alink( $reo, 'new', 'file_dn.svg [~Download file]',       undef,     ACTION => 'file_dn', ID => $linked_id, TABLE => $linked_table );
+                $data_ctrl .= "<br>\n";
+                }
+              else
+                {  
+                $data_fmt   = de_html_alink( $reo, 'new', "$data_fmt",                       $view_cue, ACTION => 'view', ID => $linked_id, TABLE => $linked_table );
+                }
+              }
+            else
+              {
+              $data_fmt   = "&empty;";
+              }
+            $data_ctrl .= de_html_alink_button_fill( $reo, 'new', "(o) $view_cue",   undef,                ACTION => 'view', ID => $linked_id, TABLE => $linked_table ) if $linked_id > 0;
             $data_ctrl .= "<br>\n";
-            }
-          if( $ltdes->allows( 'INSERT' ) and $tdes->allows( 'UPDATE' ) and $bfdes->allows( 'UPDATE' ) )
-            {
-            # FIXME: check for record access too!
-            $data_ctrl .= de_html_alink_button_fill( $reo, 'new', "(+) $insert_cue", undef, BTYPE => 'act', ACTION => 'edit', ID => -1,         TABLE => $linked_table, LINK_TO_TABLE => $table, LINK_TO_FIELD => $base_field, LINK_TO_ID => $id );
-            $data_ctrl .= "<br>\n";
-            }
+            if( $ltdes->allows( 'UPDATE' ) and $linked_id > 0 )
+              {
+              # FIXME: check for record access too!
+              $data_ctrl .= de_html_alink_button_fill( $reo, 'new', "(v) $edit_cue", undef, BTYPE => 'mod', ACTION => 'edit', ID => $linked_id, TABLE => $linked_table );
+              $data_ctrl .= "<br>\n";
+              }
+            if( $ltdes->allows( 'INSERT' ) and $tdes->allows( 'UPDATE' ) and $bfdes->allows( 'UPDATE' ) )
+              {
+              # FIXME: check for record access too!
+              $data_ctrl .= de_html_alink_button_fill( $reo, 'new', "(+) $insert_cue", undef, BTYPE => 'act', ACTION => 'edit', ID => -1,         TABLE => $linked_table, LINK_TO_TABLE => $table, LINK_TO_FIELD => $base_field, LINK_TO_ID => $id );
+              $data_ctrl .= "<br>\n";
+              }
+            } # if $linked_table  
           }
         }
       elsif( $bfdes->is_backlinked() )

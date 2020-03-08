@@ -73,7 +73,7 @@
       
       both arguments are mandatory and have no default value!
   
-  "backlink"
+  "backlink" (can be specified also as "back")
   
       BACKLINK takes two arguments, "backlinked table name" and 
       "backlinked field".
@@ -95,6 +95,56 @@
      
       NOTE: LINK and BACKLINK are the two sides of a link between two tables.
       BACKLINKs must always point to LINK-type field in the remote table.       
+
+  "widelink" (can be specified also as "wide")
+  
+      WIDELINK does not have arguments.
+      
+      this field is defined as char/text field and holds link to any record
+      in the database! it has table name, id and (optional) field to which
+      it links.
+      
+      WIDELINKs are read-only types and can be written only by methods.
+      no user interface for managing them exists except view and edit on
+      the linked record.
+      
+      example:
+      
+          =SOURCE_THING
+          
+            type  widelink
+            
+      this field will show all LINK buttons depending on permissions
+      (usually just view button and edit button if there is permission
+      to edit the linked record but it can show file upload/download
+      buttons if linked to FILE type table).
+     
+      NOTE: LINK and WIDELINK are essentially the same thing but the
+      linked table name appears respectively in the table description
+      or the WIDELINK field database data.
+      
+      there are WIDELINK specific API to read and write:
+      
+          use Decor::Shared::Types;
+      
+          # for "constructing" WIDELINK database data:
+          my $database_data = type_widelink_construct( $table, $id, $field );
+          
+          # to parse WIDELINK database data:
+          my ( $table, $id, $field ) = type_widelink_parse( $database_data );
+          
+          Records has own API, which uses the one above:
+          
+          use Decor::Core::DB::Record;
+          
+          $rec->write_widelink( $wl_field, $link_table, $link_id, $link_field);
+          
+          my ( $linked_table, $linked_id, $linked_field ) =
+                                             $rec->read_widelink( $wl_field );
+                                             
+          my $widelink_hashref = $rec->read_widelink( $wl_field );
+          # $widelink_hashref hash will have TABLE, ID and FIELD keys
+          
   
   "date"
   

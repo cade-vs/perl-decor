@@ -381,9 +381,7 @@ sub type_revert
     {
     my $fmt_name = $FORMATS{ 'UTIME' };
     $fmt_name = __check_format( $type_name, $type->{ 'FMT' } ) if $type->{ 'FMT' };
-print STDERR ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>> >>> [$data] ($fmt_name)\n";
     $data = __canonize_date_str( $data, $fmt_name );
-print STDERR ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>> <<< [$data]\n";
     my $time_frac = $2 if $data =~ s/(\d\d?:\d\d?:\d\d?)(\.\d*)([^\.]*)$/$1/;
     $time_frac = undef if $time_frac eq '.';
 
@@ -481,11 +479,11 @@ sub type_utime_merge
 
 sub type_widelink_construct
 {
-  my $hr = shift;
+  my %args = @_;
   
-  my $table = $hr->{ 'TABLE' };
-  my $id    = $hr->{ 'ID'    };
-  my $field = $hr->{ 'FIELD' };
+  my $table = $args{ 'TABLE' };
+  my $id    = $args{ 'ID'    };
+  my $field = $args{ 'FIELD' };
   
   boom "type_widelink_construct: invalid TABLE [$table]" unless de_check_name( $table );
   boom "type_widelink_construct: invalid ID [$id]"       unless de_check_id( $table );
