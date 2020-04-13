@@ -24,7 +24,7 @@
       it holds any integer number (either negative, positive or zero).
 
       argument is optional and by default is defined as the largest
-      allowed integer type supported by the currently selected RDBMS
+      allowed integer type supported by the currently selected database.
 
   "bool"
 

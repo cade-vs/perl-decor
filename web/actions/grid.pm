@@ -327,9 +327,10 @@ sub main
       my $data = $row_data->{ $field };
       my $data_base = $row_data->{ $basef{ $field } } if exists $basef{ $field };
 
-      my ( $data_fmt, $fmt_class_fld ) = de_web_format_field( $data, $lfdes, 'GRID', { ID => $id } );
+      my ( $data_fmt, $fmt_class_fld ) = de_web_format_field( $data, $lfdes, 'GRID', { ID => $id, REO => $reo, CORE => $core } );
       my $data_ctrl;
       $fmt_class .= $fmt_class_fld;
+
 
       if( $bfdes->is_linked() or $bfdes->is_widelinked() )
         {
@@ -378,10 +379,20 @@ sub main
                 }
               else
                 {
-                $data_fmt  = '. . .';
-            $data_fmt = "&raquo; $linked_table_label";
+                $data_fmt = "[~Linked to a record from:] $linked_table_label";
                 }  
               }
+            else
+              {
+              if( $bfdes->get_attr( 'WEB', 'GRID', 'EDITABLE' ) )
+                {
+                ( $data_fmt, $fmt_class_fld ) = de_web_format_field( $linked_id, $bfdes, 'GRID', { ID => $id, REO => $reo, CORE => $core } );
+                }
+              else
+                {
+                ( $data_fmt, $fmt_class_fld ) = de_web_format_field( $data, $lfdes, 'GRID', { ID => $id, REO => $reo, CORE => $core } );
+                }  
+              }  
             
             if( $linked_id > 0 )
               {
@@ -394,7 +405,7 @@ sub main
                 }
               else
                 {  
-                $data_fmt   = de_html_alink( $reo, 'new', "$data_fmt",                       $view_cue, ACTION => 'view', ID => $linked_id, TABLE => $linked_table );
+                ###$data_fmt   = de_html_alink( $reo, 'new', "$data_fmt",                       $view_cue, ACTION => 'view', ID => $linked_id, TABLE => $linked_table );
                 }
               }
             else
@@ -454,7 +465,7 @@ sub main
       if( $data_ctrl )
         {
         $data_ctrl = de_html_popup_icon( $reo, 'more.svg', $data_ctrl );
-        $data_fmt = "<table cellspacing=0 cellpadding=0 width=100%><tr><td align=left>$data_fmt</td><td align=right>&nbsp;$data_ctrl</td></tr></table>";
+        $data_fmt = "<table cellspacing=0 cellpadding=0 width=100%><tr><td align=left width=100%>$data_fmt</td><td align=right>&nbsp;$data_ctrl</td></tr></table>";
         }
 
       my $base_field_class = lc "css_grid_class_$base_field";
@@ -462,6 +473,7 @@ sub main
       }
     $text_grid_body .= "</tr>";
     }
+  
   $text_grid_foot .= "</table>";
 
   if( $row_counter == 0 )
