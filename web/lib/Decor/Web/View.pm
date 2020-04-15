@@ -162,7 +162,7 @@ sub de_web_format_field
     my $lfdes = $ltdes->get_field_des( $linked_field );
 
     my $linked_data = $core->read_field( $linked_table, $linked_field, $field_data );
-    $data_fmt = type_format( $linked_data, $lfdes->{ 'TYPE' } );
+    $data_fmt = $field_data > 0 ? type_format( $linked_data, $lfdes->{ 'TYPE' } ) : '&empty;';
 
     my $select_filter_name = $fdes->get_attr( 'WEB', 'SELECT_FILTER' );
 
@@ -198,7 +198,7 @@ sub de_web_format_field
     my $vframe_id = 'VFRGE_' . $reo->html_new_id();
 
     my $combo_text;
-    $combo_text .= "<a class=grid-link-select-option reactor_new_href=?_an=set_val&table=$table&fname=$fname&id=$id&value=0&vtype=$vtype data-vframe-target=$vframe_id>--</a>";
+    $combo_text .= "<a class=grid-link-select-option reactor_new_href=?_an=set_val&table=$table&fname=$fname&id=$id&value=0&vtype=$vtype data-vframe-target=$vframe_id>&empty;</a>";
     while( my $hr = $core->fetch( $combo_select ) )
       {
       my @value = map { $hr->{ $_ } } @spf_fld;

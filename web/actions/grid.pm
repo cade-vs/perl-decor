@@ -394,7 +394,7 @@ sub main
                 }  
               }  
             
-            if( $linked_id > 0 )
+            if( 1 or $linked_id > 0 )
               {
               $data_fmt =~ s/\./&#46;/g;
               if( $ltdes->get_table_type() eq 'FILE' )

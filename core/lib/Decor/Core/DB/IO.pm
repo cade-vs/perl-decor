@@ -300,7 +300,7 @@ sub __resolve_single_field
    my $field  = uc shift; # userid.info.des.asd.qwe
    my $opt    = shift || {};
 
-#print Dumper( "__where_resolve_field = [$field]" );
+#print Dumper( "__resolve_single_field = [$field]" );
 
    $field =~ s/^\.//; # skips leading anchor (.)
 
@@ -318,6 +318,8 @@ sub __resolve_clause_fields
    my $table  = shift;
    my $clause = shift;
    my $opt    = shift || {};
+
+#print Dumper( "__resolve_clause_fields = [$table] [$clause]" );
 
    $clause =~ s/((?<![A-Z_0-9])|^)((\.[A-Z_0-9]+)+)/$self->__resolve_single_field( $table, $2, $opt )/gie;
   

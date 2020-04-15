@@ -81,7 +81,7 @@ while( @ARGV )
     $opt_verbose = 1;
     next;
     }
-  if( /-r(r)?/ )
+  if( /^-r(r)?/ )
     {
     $DE_LOG_TO_STDERR = 1;
     $DE_LOG_TO_FILES  = $1 ? 1 : 0;
@@ -107,7 +107,7 @@ die "no data in config file or other file error [$cfn]\n" unless $cfg;
 
 print Dumper( $cfg );
 
-for my $bd ( grep { $_ ne '.' } keys %$cfg )
+for my $bd ( grep { $_ ne '.' and $_ ne '' } keys %$cfg )
   {
   beam_data( $bd, $cfg->{ $bd } );
   }
