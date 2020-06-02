@@ -75,14 +75,15 @@ my %MENU_ATTRS = (
                            OPTIONS => 1,
                          },
                   'ITEMS' => {
-                           TYPE        => 1,
-                           LABEL       => 1,
-                           GRANT       => 1,
-                           DENY        => 1,
-                           UNIQUE      => 1,
-                           OPTIONS     => 1,
-                           FILTER_NAME => 1,
-                           ORDER_BY    => 1,
+                           TYPE          => 1,
+                           LABEL         => 1,
+                           GRANT         => 1,
+                           DENY          => 1,
+                           UNIQUE        => 1,
+                           OPTIONS       => 1,
+                           FILTER_NAME   => 1,
+                           FILTER_METHOD => 1,
+                           ORDER_BY      => 1,
                          },
                 );
 

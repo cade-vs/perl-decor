@@ -710,7 +710,8 @@ sub sub_select
   my $order_by = uc $mi->{ 'ORDER_BY' };
   my $group_by = uc $mi->{ 'GROUP_BY' };
   my $distinct =    $mi->{ 'DISTINCT' } ? 1 : 0;
-  my $filter_name = uc $mi->{ 'FILTER_NAME' };
+  my $filter_name   = uc $mi->{ 'FILTER_NAME' };
+  my $filter_method = uc $mi->{ 'FILTER_METHOD' };
 
   # FIXME: TODO: Subs/MessageCheck TABLE ID FIELDS LIMIT OFFSET FILTER validate_hash()
   boom "invalid TABLE name [$table]"    unless de_check_name( $table ) or ! des_exists( $table );
@@ -721,6 +722,7 @@ sub sub_select
   boom "invalid OFFSET [$offset]"       unless $offset   =~ /^[0-9]*$/o;
   boom "invalid FILTER [$filter]"       unless ref( $filter ) eq 'HASH';
   boom "invalid FILTER_NAME name [$filter_name]"  unless $filter_name eq '' or de_check_name( $filter_name );
+  boom "invalid FILTER_METHOD name [$filter_method]"  unless $filter_method eq '' or de_check_name( $filter_method );
 
   # TODO: check TABLE READ ACCESS
 
@@ -753,6 +755,7 @@ sub sub_select
   my $dbio = new Decor::Core::DB::IO;
   $SELECT_MAP{ $select_handle }{ 'IO' } = $dbio;
   $SELECT_MAP{ $select_handle }{ 'TN' } = $table;
+  $SELECT_MAP{ $select_handle }{ 'FM' } = $filter_method;
   $dbio->set_profile_locked( $profile );
   $dbio->taint_mode_enable_all();
 
@@ -772,12 +775,24 @@ sub sub_fetch
   boom "invalid SELECT_HANDLE [$select_handle]" unless exists $SELECT_MAP{ $select_handle };
   my $dbio  = $SELECT_MAP{ $select_handle }{ 'IO' };
   my $table = $SELECT_MAP{ $select_handle }{ 'TN' };
+  my $fmeth = $SELECT_MAP{ $select_handle }{ 'FM' };
 
   my $hr = $dbio->fetch();
                   
   if( de_code_exists( 'tables', $table, 'FETCH' ) )
     {
     de_code_exec( 'tables', $table, 'FETCH', $hr );
+    }
+
+  if( $hr and $fmeth and de_code_exists( 'tables', $table, "FILTER_METHOD_$fmeth" ) )
+    {
+    my $res = de_code_exec( 'tables', $table, "FILTER_METHOD_$fmeth", $hr );
+    if( ! $res )
+      {
+      $mo->{ 'XA'   } = 'A_NEXT'; # advice
+      $mo->{ 'XS'   } = 'OK';
+      return;
+      }
     }
 
   if( $hr )

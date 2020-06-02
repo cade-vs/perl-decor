@@ -84,6 +84,7 @@ sub main
   my $link_field_disable = $reo->param( 'LINK_FIELD_DISABLE' );
   my $link_field_id      = $reo->param( 'LINK_FIELD_ID'      );
   my $filter_name        = $reo->param( 'FILTER_NAME' );
+  my $filter_method      = $reo->param( 'FILTER_METHOD' );
   my $order_by           = $reo->param( 'ORDER_BY' ) || $tdes->{ '@' }{ 'ORDER_BY' } || '._ID DESC';
   
 #  print STDERR Dumper( $tdes );
@@ -144,8 +145,14 @@ sub main
 
   $reo->ps_path_add( 'grid', qq( [~List data from] "<b>$table_label</b> ([~filtered])" ) ) if $filter;
 
-  my $select = $core->select( $table, $fields, { FILTER => $filter, FILTER_NAME => $filter_name, OFFSET => $offset, LIMIT => $page_size, ORDER_BY => $order_by } ) if $fields;
-  my $scount = $core->count( $table,           { FILTER => $filter, FILTER_NAME => $filter_name } ) if $select;
+  if( $filter_method )
+    {
+    $offset     = 0;
+    $page_size  = 1_000_000;
+    }
+
+  my $select = $core->select( $table, $fields, { FILTER => $filter, FILTER_NAME => $filter_name, FILTER_METHOD => $filter_method, OFFSET => $offset, LIMIT => $page_size, ORDER_BY => $order_by } ) if $fields;
+  my $scount = $core->count( $table,           { FILTER => $filter, FILTER_NAME => $filter_name } ) if $select and ! $filter_method;
 
 #  $text .= "<br>";
 #  $text .= "<p>";

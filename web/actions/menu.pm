@@ -60,14 +60,16 @@ sub sub_menu
     elsif( $type eq 'GRID' )
       {
       my $table  = $item->{ 'TABLE'  };
-      my $filter_name = $item->{ 'FILTER_NAME' };
-      my $order_by    = $item->{ 'ORDER_BY'    };
+      my $filter_name   = $item->{ 'FILTER_NAME'   };
+      my $filter_method = $item->{ 'FILTER_METHOD' };
+      my $order_by      = $item->{ 'ORDER_BY'      };
       my $href = $reo->args_type( 
                                   'none', 
-                                  ACTION      => 'grid',
-                                  TABLE       => $table,
-                                  FILTER_NAME => $filter_name,
-                                  ORDER_BY    => $order_by,
+                                  ACTION        => 'grid',
+                                  TABLE         => $table,
+                                  FILTER_NAME   => $filter_name,
+                                  FILTER_METHOD => $filter_method,
+                                  ORDER_BY      => $order_by,
                                 );
       push @res, "<a class=menu href=?_=$href><img src=i/menu-item-grid.svg> $label</a>";
       }

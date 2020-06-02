@@ -27,6 +27,14 @@
   filter-name MORE_CNT
   order-by    CNT DESC
 
+=ITEMS_FM
+
+  label List items (Filter method)
+  type  grid  TEST2
+  grant access to all
+  filter-method   filter1
+
+
 =MOTEN
 
   type grid moten

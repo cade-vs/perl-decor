@@ -199,5 +199,7 @@
   manually and then decor-rebuild-db.pl can recreate it. This is intentional
   and has no other workaround.
       
+  INDEXES DEFINITIONS
 
+  FIXME: TODO: filter definitions
 --

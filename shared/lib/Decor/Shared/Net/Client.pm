@@ -435,7 +435,8 @@ sub select
   my $group_by = $opt->{ 'GROUP_BY' };
   my $distinct = $opt->{ 'DISTINCT' };
   
-  my $filter_name = $opt->{ 'FILTER_NAME' };
+  my $filter_name   = $opt->{ 'FILTER_NAME'   };
+  my $filter_method = $opt->{ 'FILTER_METHOD' };
 
   $fields = join( ',',      @$fields ) if ref( $fields ) eq 'ARRAY';
   $fields = join( ',', keys %$fields ) if ref( $fields ) eq 'HASH';
@@ -452,7 +453,9 @@ sub select
   $mi{ 'ORDER_BY' } = $order_by;
   $mi{ 'GROUP_BY' } = $group_by;
   $mi{ 'DISTINCT' } = $distinct;
-  $mi{ 'FILTER_NAME' } = $filter_name;
+  
+  $mi{ 'FILTER_NAME'   } = $filter_name;
+  $mi{ 'FILTER_METHOD' } = $filter_method;
 
   my $mo = $self->tx_msg( \%mi ) or return undef;
 
@@ -472,7 +475,16 @@ sub fetch
   $mi{ 'XT' } = 'F';
   $mi{ 'SELECT_HANDLE'  } = $select_handle;
 
-  my $mo = $self->tx_msg( \%mi ) or return undef;
+  my $mo;
+  
+  my $limit = 1_000_000; # ENEXT is limited to 1M
+  while(4)
+    {
+    last unless $limit--;
+    $mo = $self->tx_msg( \%mi ) or return undef;
+    next if $mo->{ 'XS' } eq 'OK' and $mo->{ 'XA' } eq 'A_NEXT';
+    last;
+    }
 
   return $mo->{ 'DATA' };
 }

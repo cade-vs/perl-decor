@@ -28,4 +28,14 @@ sub on_access_disabled
   return $r > 0.5;
 }
 
+sub on_filter_method_filter1
+{
+  my $hr = shift;
+
+my $rr = $hr->{ 'NAME' } =~ /^M/;
+print "++++++++++++++++++++++++++++++++(( $rr ))++++++++++++++++++$hr->{ '_ID' } [$hr->{ 'NAME' }]\n" . Dumper( $hr );
+
+  return $rr;
+}
+
 1;
