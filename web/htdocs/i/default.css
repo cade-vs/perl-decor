@@ -98,6 +98,46 @@ img
         border-right:  solid 1px #66A;
         }
 
+.act-icon
+        {
+        color: #FFF;
+        background-color: #262;
+        border-top:    solid 1px #484;
+        border-left:   solid 1px #484;
+        border-bottom: solid 1px #060;
+        border-right:  solid 1px #060;
+        }
+
+.act-icon:hover
+        {
+        color: #FFF;
+        background-color: #272;
+        border-top:    solid 1px #060;
+        border-left:   solid 1px #060;
+        border-bottom: solid 1px #484;
+        border-right:  solid 1px #484;
+        }
+
+.mod-icon
+        {
+        color: #FFF;
+        background-color: #822;
+        border-top:    solid 1px #A44;
+        border-left:   solid 1px #A44;
+        border-bottom: solid 1px #600;
+        border-right:  solid 1px #600;
+        }
+
+.mod-icon:hover
+        {
+        color: #FFF;
+        background-color: #922;
+        border-top:    solid 1px #600;
+        border-left:   solid 1px #600;
+        border-bottom: solid 1px #A44;
+        border-right:  solid 1px #A44;
+        }
+
 .icon-disabled
         {
         color: #FFF;
@@ -787,6 +827,7 @@ select:hover,.grid-link-select:hover
 
 div.hover-layer
         {
+        margin: 0px;
         display: none;
         color: #FFF;
         background-color: #550;
@@ -866,5 +907,13 @@ img.check-1:hover
         border-bottom: solid 1px #353;
         border-right:  solid 1px #353;
         }
+
+/*** other ******************************************************************/
+
+div.vframe
+        {
+        display: inline;
+        }
+
 
 /*** DECOR EOF **************************************************************/

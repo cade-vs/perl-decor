@@ -18,6 +18,7 @@ use Web::Reactor::HTML::Utils;
 use Decor::Shared::Types;
 use Decor::Web::HTML::Utils;
 use Decor::Web::View;
+use Decor::Web::Grid;
 use Decor::Web::Utils;
 
 my %FMT_CLASSES = (
@@ -295,7 +296,8 @@ sub main
       {
       my ( $detach_link_cue, $detach_link_cue_hint ) = de_web_get_cue( $tdes->{ 'FIELD' }{ $link_field_disable }, qw( WEB GRID DETACH_LINK_CUE   ) );
       # FIXME: check if this is only for backlinked data!?
-      $vec_ctrl .= de_html_alink_icon( $reo, 'here', "detach.svg",  { CLASS => 'plain', HINT => $detach_link_cue_hint, CONFIRM => '[~Are you sure you want to DETACH this record from the parent record?]' },  DETACH_FIELD => $link_field_disable, DETACH_ID => $id );
+      # $vec_ctrl .= de_html_alink_icon( $reo, 'here', "detach.svg",  { CLASS => 'plain', HINT => $detach_link_cue_hint, CONFIRM => '[~Are you sure you want to DETACH this record from the parent record?]' }, ITYPE => 'mod', DETACH_FIELD => $link_field_disable, DETACH_ID => $id );
+      $vec_ctrl .= '<div class=vframe>' . de_web_grid_backlink_detach_attach_icon( $reo, $core, $table, $link_field_disable, $id, $link_field_id, $link_field_id, ) . "</div>";
       }
 
     $vec_ctrl .= de_html_alink_icon( $reo, 'new', "view.svg",    $view_cue_hint,          ACTION => 'view',    ID => $id, TABLE => $table, LINK_FIELD_DISABLE => $link_field_disable  );

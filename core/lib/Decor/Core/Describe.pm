@@ -151,6 +151,7 @@ my %DES_ATTRS = (
                            INSERT_LINK_CUE   => 3,
                            UPDATE_LINK_CUE   => 3,
                            DETACH_LINK_CUE   => 3,
+                           ATTACH_LINK_CUE   => 3,
                            UPLOAD_LINK_CUE   => 3,
                            DOWNLOAD_LINK_CUE => 3,
                            DOWNLOAD_FILE_CUE => 3,
@@ -196,6 +197,7 @@ my %DES_ATTRS = (
                            INSERT_LINK_CUE   => 3,
                            UPDATE_LINK_CUE   => 3,
                            DETACH_LINK_CUE   => 3,
+                           ATTACH_LINK_CUE   => 3,
                            UPLOAD_LINK_CUE   => 3,
                            DOWNLOAD_LINK_CUE => 3,
                            

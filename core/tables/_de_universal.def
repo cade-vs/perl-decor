@@ -11,6 +11,7 @@
   web.insert_link_cue    [~Insert and link a new record]
   web.update_link_cue    [~Modify linked record]
   web.detach_link_cue    [~Detach linked record]
+  web.attach_link_cue    [~Attach this record]
   web.upload_link_cue    [~Upload and link new file]
   web.download_link_cue  [~Download linked file]
   web.download_file_cue  [~Download]; [~Download this file]

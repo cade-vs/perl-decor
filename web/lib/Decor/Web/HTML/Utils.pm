@@ -148,13 +148,18 @@ sub de_html_alink_icon
   my $type  = shift; # redirect type: new, back, here, none
   my $value = shift; # link text
   my $hint  = shift; # link hover hint
-  my @args  = @_;
+  my %args  = @_;
 
-  $value = __value_image_fix( $value, CLASS => 'icon' );
+  # TODO: FIXME: fix the opt/args mess here!
 
-  my $opt = ref( $hint ) eq 'HASH' ? $hint : { HINT => $hint, CLASS => 'plain' };
+  my $itype = $args{ 'ITYPE' };
+  $itype = "$itype-icon" if $itype;
 
-  return html_alink( $reo, $type, $value, $opt, @args );
+  $value = __value_image_fix( $value, CLASS => "icon $itype" );
+
+  my $opt = ref( $hint ) eq 'HASH' ? $hint : { HINT => $hint, CLASS => "plain" };
+
+  return html_alink( $reo, $type, $value, $opt, %args );
 }
 
 sub de_html_popup
