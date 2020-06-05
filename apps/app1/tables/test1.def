@@ -102,7 +102,7 @@ web.grid.fields_list  name  ctime   suma  BOOL_TEST ref  ref.name  BACKREF BACKR
 =BACKREF_NOT_ATTACHED
 
   type backlink test3 PARENT
-  web.grid.backlink_grid_mode not-attached
+  web.grid.backlink_grid_mode detached
 
 =BOOL_TEST
 

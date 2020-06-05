@@ -458,7 +458,7 @@ sub main
             }
           }  
 
-        my $backlink_id_value = $bfdes->get_attr( 'WEB', 'GRID', 'BACKLINK_GRID_MODE' ) =~ /NOT[_-]ATTACHED/i ? 0 : $id;
+        my $backlink_id_value = uc( $bfdes->get_attr( 'WEB', 'GRID', 'BACKLINK_GRID_MODE' ) ) eq 'DETACHED' ? 0 : $id;
         
         my $view_cue   = $bfdes->get_attr( qw( WEB GRID VIEW_CUE   ) ) || "[~View linked records]";
         $data_ctrl .= de_html_alink_button( $reo, 'new', "(=) $view_cue",          undef,                 ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => $backlink_id_value, FILTER => { $backlinked_field => $backlink_id_value } );
