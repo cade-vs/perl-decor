@@ -84,6 +84,7 @@ sub main
 
   my $link_field_disable = $reo->param( 'LINK_FIELD_DISABLE' );
   my $link_field_id      = $reo->param( 'LINK_FIELD_ID'      );
+  my $link_field_value   = $reo->param( 'LINK_FIELD_VALUE'   );
   my $filter_name        = $reo->param( 'FILTER_NAME' );
   my $filter_method      = $reo->param( 'FILTER_METHOD' );
   my $order_by           = $reo->param( 'ORDER_BY' ) || $tdes->{ '@' }{ 'ORDER_BY' } || '._ID DESC';
@@ -291,13 +292,13 @@ sub main
       $vec_ctrl .= de_html_alink_icon( $reo, 'new', $icon, $label, ACTION => $target, ID => $id, TABLE => $table );
       }
 
-#    print STDERR Dumper( '**------*******---'x 10, $link_field_disable, $tdes->{ 'FIELD' }{ $link_field_disable } );
+    print STDERR Dumper( '**------*******---'x 10, $link_field_disable, Dumper( $row_data ) );
     if( $link_field_disable and exists $tdes->{ 'FIELD' }{ $link_field_disable } and $tdes->{ 'FIELD' }{ $link_field_disable }->allows( 'UPDATE' ) )
       {
       my ( $detach_link_cue, $detach_link_cue_hint ) = de_web_get_cue( $tdes->{ 'FIELD' }{ $link_field_disable }, qw( WEB GRID DETACH_LINK_CUE   ) );
       # FIXME: check if this is only for backlinked data!?
       # $vec_ctrl .= de_html_alink_icon( $reo, 'here', "detach.svg",  { CLASS => 'plain', HINT => $detach_link_cue_hint, CONFIRM => '[~Are you sure you want to DETACH this record from the parent record?]' }, ITYPE => 'mod', DETACH_FIELD => $link_field_disable, DETACH_ID => $id );
-      $vec_ctrl .= '<div class=vframe>' . de_web_grid_backlink_detach_attach_icon( $reo, $core, $table, $link_field_disable, $id, $link_field_id, $link_field_id, ) . "</div>";
+      $vec_ctrl .= '<div class=vframe>' . de_web_grid_backlink_detach_attach_icon( $reo, $core, $table, $link_field_disable, $id, $link_field_id, $link_field_value, ) . "</div>";
       }
 
     $vec_ctrl .= de_html_alink_icon( $reo, 'new', "view.svg",    $view_cue_hint,          ACTION => 'view',    ID => $id, TABLE => $table, LINK_FIELD_DISABLE => $link_field_disable  );
@@ -457,12 +458,14 @@ sub main
             }
           }  
 
+        my $backlink_id_value = $bfdes->get_attr( 'WEB', 'GRID', 'BACKLINK_GRID_MODE' ) =~ /NOT[_-]ATTACHED/i ? 0 : $id;
+        
         my $view_cue   = $bfdes->get_attr( qw( WEB GRID VIEW_CUE   ) ) || "[~View linked records]";
-        $data_ctrl .= de_html_alink_button( $reo, 'new', "(=) $view_cue",          undef,                 ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, FILTER => { $backlinked_field => $id } );
+        $data_ctrl .= de_html_alink_button( $reo, 'new', "(=) $view_cue",          undef,                 ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => $backlink_id_value, FILTER => { $backlinked_field => $backlink_id_value } );
         $data_ctrl .= "<br>\n";
         
         $data_fmt = ""; # TODO: hide count, which is currently unsupported
-        my $bcnt = $core->count( $backlinked_table, { FILTER => { $backlinked_field => $id } } );
+        my $bcnt = $core->count( $backlinked_table, { FILTER => { $backlinked_field => $backlink_id_value } } );
         $data_fmt = $bcnt || '';
         }
 

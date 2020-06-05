@@ -207,6 +207,8 @@ my %DES_ATTRS = (
                            DETAILS_FIELDS => 3,
                            DETAILS_COUNT  => 3,
                            
+                           BACKLINK_GRID_MODE => 3,
+                           
                            WLINK        => 1,
                          },
                   'INDEX' => {

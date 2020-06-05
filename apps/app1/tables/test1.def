@@ -7,7 +7,7 @@ grant insert update to 1;10
 #no-copy
 #no-preview
 
-web.grid.fields_list  name  ctime   suma  BOOL_TEST ref  ref.name  BACKREF test_wlink
+web.grid.fields_list  name  ctime   suma  BOOL_TEST ref  ref.name  BACKREF BACKREF_NOT_ATTACHED test_wlink
 
 =NAME
 
@@ -98,6 +98,11 @@ web.grid.fields_list  name  ctime   suma  BOOL_TEST ref  ref.name  BACKREF test_
 =BACKREF
 
   type backlink test3 PARENT
+
+=BACKREF_NOT_ATTACHED
+
+  type backlink test3 PARENT
+  web.grid.backlink_grid_mode not-attached
 
 =BOOL_TEST
 
