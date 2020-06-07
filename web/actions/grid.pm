@@ -466,7 +466,7 @@ sub main
         $data_ctrl .= "<br>\n";
 
         my $view_unattached_cue   = $bfdes->get_attr( qw( WEB GRID VIEW_UNATTACHED_CUE   ) ) || "[~View unattached records]";
-        $data_ctrl .= de_html_alink_button( $reo, 'new', "(=) $view_unattached_cue",          undef,                 ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => 0, FILTER => { $backlinked_field => 0 } );
+        $data_ctrl .= de_html_alink_button( $reo, 'new', "(+) $view_unattached_cue",          undef,                 ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => 0, FILTER => { $backlinked_field => 0 } );
         $data_ctrl .= "<br>\n";
 
         
