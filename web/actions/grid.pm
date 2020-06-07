@@ -459,13 +459,19 @@ sub main
           }  
 
         my $backlink_id_value = uc( $bfdes->get_attr( 'WEB', 'GRID', 'BACKLINK_GRID_MODE' ) ) eq 'DETACHED' ? 0 : $id;
+        # FIXME: todo, should be an if()
         
-        my $view_cue   = $bfdes->get_attr( qw( WEB GRID VIEW_CUE   ) ) || "[~View linked records]";
-        $data_ctrl .= de_html_alink_button( $reo, 'new', "(=) $view_cue",          undef,                 ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => $backlink_id_value, FILTER => { $backlinked_field => $backlink_id_value } );
+        my $view_attached_cue   = $bfdes->get_attr( qw( WEB GRID VIEW_ATTACHED_CUE   ) ) || "[~View attached records]";
+        $data_ctrl .= de_html_alink_button( $reo, 'new', "(=) $view_attached_cue",           undef,                 ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => $id, FILTER => { $backlinked_field => $id } );
         $data_ctrl .= "<br>\n";
+
+        my $view_unattached_cue   = $bfdes->get_attr( qw( WEB GRID VIEW_UNATTACHED_CUE   ) ) || "[~View unattached records]";
+        $data_ctrl .= de_html_alink_button( $reo, 'new', "(=) $view_unattached_cue",          undef,                 ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => 0, FILTER => { $backlinked_field => 0 } );
+        $data_ctrl .= "<br>\n";
+
         
         $data_fmt = ""; # TODO: hide count, which is currently unsupported
-        my $bcnt = $core->count( $backlinked_table, { FILTER => { $backlinked_field => $backlink_id_value } } );
+        my $bcnt = $core->count( $backlinked_table, { FILTER => { $backlinked_field => $id } } );
         $data_fmt = $bcnt || '';
         }
 
