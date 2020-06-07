@@ -84,7 +84,7 @@ sub main
 
   my $link_field_disable = $reo->param( 'LINK_FIELD_DISABLE' );
   my $link_field_id      = $reo->param( 'LINK_FIELD_ID'      );
-  my $link_field_value   = $reo->param( 'LINK_FIELD_VALUE'   );
+#  my $link_field_value   = $reo->param( 'LINK_FIELD_VALUE'   );
   my $filter_name        = $reo->param( 'FILTER_NAME' );
   my $filter_method      = $reo->param( 'FILTER_METHOD' );
   my $order_by           = $reo->param( 'ORDER_BY' ) || $tdes->{ '@' }{ 'ORDER_BY' } || '._ID DESC';
@@ -111,7 +111,8 @@ sub main
   de_web_expand_resolve_fields_in_place( \@fields, $tdes, \%bfdes, \%lfdes, \%basef );
 
   # FIXME: cleanup the following grep!
-  my $fields = join ',', grep { $link_field_disable ? ( $_ ne $link_field_disable and $_ !~ /^$link_field_disable\./ ) : 1 } @fields, values %basef;
+#  my $fields = join ',', grep { $link_field_disable ? ( $_ ne $link_field_disable and $_ !~ /^$link_field_disable\./ ) : 1 } @fields, values %basef;
+  my $fields = join ',', @fields, values %basef;
 
   return "<#e_access>" unless $fields;
 
@@ -253,6 +254,7 @@ sub main
   while( my $row_data = $core->fetch( $select ) )
     {
     my $id = $row_data->{ '_ID' };
+    my $link_field_value = $row_data->{ $link_field_disable };
 
     my $row_class = $row_counter++ % 2 ? 'grid-1' : 'grid-2';
     $text_grid_body .= "<tr class=$row_class>";
@@ -292,7 +294,7 @@ sub main
       $vec_ctrl .= de_html_alink_icon( $reo, 'new', $icon, $label, ACTION => $target, ID => $id, TABLE => $table );
       }
 
-    print STDERR Dumper( '**------*******---'x 10, $link_field_disable, Dumper( $row_data ) );
+#    print STDERR Dumper( '**------*******---'x 10, $link_field_disable, $link_field_value, Dumper( $row_data ) );
     if( $link_field_disable and exists $tdes->{ 'FIELD' }{ $link_field_disable } and $tdes->{ 'FIELD' }{ $link_field_disable }->allows( 'UPDATE' ) )
       {
       my ( $detach_link_cue, $detach_link_cue_hint ) = de_web_get_cue( $tdes->{ 'FIELD' }{ $link_field_disable }, qw( WEB GRID DETACH_LINK_CUE   ) );
@@ -458,20 +460,29 @@ sub main
             }
           }  
 
-        my $backlink_id_value = uc( $bfdes->get_attr( 'WEB', 'GRID', 'BACKLINK_GRID_MODE' ) ) eq 'DETACHED' ? 0 : $id;
-        # FIXME: todo, should be an if()
-        
-        my $view_attached_cue   = $bfdes->get_attr( qw( WEB GRID VIEW_ATTACHED_CUE   ) ) || "[~View attached records]";
-        $data_ctrl .= de_html_alink_button( $reo, 'new', "(=) $view_attached_cue",           undef,                 ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => $id, FILTER => { $backlinked_field => $id } );
-        $data_ctrl .= "<br>\n";
-
-        my $view_unattached_cue   = $bfdes->get_attr( qw( WEB GRID VIEW_UNATTACHED_CUE   ) ) || "[~View unattached records]";
-        $data_ctrl .= de_html_alink_button( $reo, 'new', "(+) $view_unattached_cue",          undef,                 ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => 0, FILTER => { $backlinked_field => 0 } );
-        $data_ctrl .= "<br>\n";
-
-        
         $data_fmt = ""; # TODO: hide count, which is currently unsupported
-        my $bcnt = $core->count( $backlinked_table, { FILTER => { $backlinked_field => $id } } );
+        my $bcnt = 'n/a';
+        if( uc( $bfdes->get_attr( 'WEB', 'GRID', 'BACKLINK_GRID_MODE' ) ) eq 'ALL' )
+          {
+          my $view_attached_cue   = $bfdes->get_attr( qw( WEB GRID VIEW_ATTACHED_CUE   ) ) || "[~View attached records]";
+          $data_ctrl .= de_html_alink_button( $reo, 'new', "(*) $view_attached_cue",           undef,                 ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => $id, FILTER => { $backlinked_field => [ { OP => 'IN', VALUE => [ $id, 0 ] } ] } );
+          $data_ctrl .= "<br>\n";
+          
+          $bcnt = $core->count( $backlinked_table, { FILTER => { $backlinked_field => [ { OP => 'IN', VALUE => [ $id, 0 ] } ] } } );
+          }
+        else
+          {  
+          my $view_attached_cue   = $bfdes->get_attr( qw( WEB GRID VIEW_ATTACHED_CUE   ) ) || "[~View attached records]";
+          $data_ctrl .= de_html_alink_button( $reo, 'new', "(=) $view_attached_cue",           undef,                 ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => $id, FILTER => { $backlinked_field => $id } );
+          $data_ctrl .= "<br>\n";
+
+          my $view_unattached_cue   = $bfdes->get_attr( qw( WEB GRID VIEW_UNATTACHED_CUE   ) ) || "[~View unattached records]";
+          $data_ctrl .= de_html_alink_button( $reo, 'new', "(+) $view_unattached_cue",          undef,                 ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => 0, FILTER => { $backlinked_field => 0 } );
+          $data_ctrl .= "<br>\n";
+          
+          $bcnt = $core->count( $backlinked_table, { FILTER => { $backlinked_field => $id } } );
+          # my $ucnt = $core->count( $backlinked_table, { FILTER => { $backlinked_field =>   0 } } );
+          }
         $data_fmt = $bcnt || '';
         }
 

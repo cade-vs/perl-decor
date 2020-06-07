@@ -8,6 +8,8 @@
   web.copy_cue    [~Copy this record]; [~Create new record based on this one]
   
   web.view_link_cue      [~View linked record]
+  web.view_attached_cue  [~View linked records]
+  web.view_detached_cue  [~View not-linked records]
   web.insert_link_cue    [~Insert and link a new record]
   web.update_link_cue    [~Modify linked record]
   web.detach_link_cue    [~Detach linked record]

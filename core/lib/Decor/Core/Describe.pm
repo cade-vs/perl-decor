@@ -148,6 +148,8 @@ my %DES_ATTRS = (
                            COPY_CUE    => 3, # related "DELETE" button label
                            
                            VIEW_LINK_CUE     => 3,
+                           VIEW_ATTACHED_CUE => 3,
+                           VIEW_DETACHED_CUE => 3,
                            INSERT_LINK_CUE   => 3,
                            UPDATE_LINK_CUE   => 3,
                            DETACH_LINK_CUE   => 3,
@@ -194,6 +196,8 @@ my %DES_ATTRS = (
                            SECTION_NAME    => 3,
                            
                            VIEW_LINK_CUE     => 3,
+                           VIEW_ATTACHED_CUE => 3,
+                           VIEW_DETACHED_CUE => 3,
                            INSERT_LINK_CUE   => 3,
                            UPDATE_LINK_CUE   => 3,
                            DETACH_LINK_CUE   => 3,

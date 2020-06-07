@@ -644,6 +644,8 @@ sub __filter_to_where
 {
   my $filter = shift;
 
+  de_log_dumper( "__filter_to_where: ", $filter );
+
   my @where;
   my @bind;
   while( my ( $f, $v ) = each %$filter )
@@ -675,7 +677,7 @@ sub __filter_to_where
           push @bind,  @$val;
           }
         else
-          {  
+          {
           push @where, ".$f $op ?";
           push @bind,  $val;
           }

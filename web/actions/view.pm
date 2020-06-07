@@ -189,8 +189,15 @@ sub main
 
       my ( $backlink_insert_cue, $backlink_insert_cue_hint ) = de_web_get_cue( $bfdes, qw( WEB VIEW BACKLINK_INSERT_CUE ) );
 
-      $data_ctrl .= de_html_alink( $reo, 'new', 'grid.svg',   "[~View all connected records from] <b>$linked_table_label</b>",  ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => $id, FILTER => { $backlinked_field => $id } );
-      $data_ctrl .= de_html_alink( $reo, 'new', 'attach.svg', "[~View NOT connected records from] <b>$linked_table_label</b>",  ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE =>   0, FILTER => { $backlinked_field =>   0 } );
+      if( uc( $bfdes->get_attr( 'WEB', 'GRID', 'BACKLINK_GRID_MODE' ) ) eq 'ALL' )
+        {
+        $data_ctrl .= de_html_alink( $reo, 'new', 'grid.svg',   "[~View all related records from] <b>$linked_table_label</b>",  ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => $id, FILTER => { $backlinked_field => [ { OP => 'IN', VALUE => [ $id, 0 ] } ] } );
+        }
+      else
+        {
+        $data_ctrl .= de_html_alink( $reo, 'new', 'grid.svg',   "[~View all connected records from] <b>$linked_table_label</b>",  ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => $id, FILTER => { $backlinked_field => $id } );
+        $data_ctrl .= de_html_alink( $reo, 'new', 'attach.svg', "[~View NOT connected records from] <b>$linked_table_label</b>",  ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE =>   0, FILTER => { $backlinked_field =>   0 } );
+        }  
 
       if( $bltdes->allows( 'INSERT' ) )
         {
@@ -210,7 +217,7 @@ sub main
 
       $data_fmt = undef;
       $data_fmt .= de_html_alink( $reo, 'new', "<b class=hi>$count</b> [~records from] <b class=hi>$linked_table_label</b>",   "[~View all backlinked records from] <b class=hi>$linked_table_label</b>",  ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_VALUE => $id, FILTER => { $backlinked_field => $id } );
-      $data_fmt .= de_html_alink( $reo, 'new', " ( + $uncount NOT connected records)",   "[~View all backlinked records from] <b class=hi>$linked_table_label</b>",  ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_VALUE => 0, FILTER => { $backlinked_field => 0 } ) if $uncount > 0;
+      $data_fmt .= de_html_alink( $reo, 'new', " ( + <b class=hi>$uncount</b> [~NOT connected records])",   "[~View all backlinked records from] <b class=hi>$linked_table_label</b>",  ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_VALUE => 0, FILTER => { $backlinked_field => 0 } ) if $uncount > 0;
 
       my $details_fields = $bfdes->get_attr( qw( WEB EDIT DETAILS_FIELDS ) );
       if( $details_fields and $count > 0 )
@@ -218,9 +225,16 @@ sub main
         my $details_limit = $bfdes->get_attr( qw( WEB EDIT DETAILS_LIMIT ) ) || 16;
         $field_details .= "<p>" . de_data_grid( $core, $backlinked_table, $details_fields, { FILTER => { $backlinked_field => $id }, LIMIT => $details_limit } ) ;
 
-        # TODO: FIXME: option for parent grid mode
-        $field_details .= de_html_alink_button( $reo, 'new', '[~View attached records]',     "[~View all connected records from] <b>$linked_table_label</b>",  BTYPE => 'nav', ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => $id, FILTER => { $backlinked_field => $id } );
-        $field_details .= de_html_alink_button( $reo, 'new', '[~View unattached records]',   "[~View all not connected records from] <b>$linked_table_label</b>",  BTYPE => 'nav', ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => 0, FILTER => { $backlinked_field => 0 } );
+        if( uc( $bfdes->get_attr( 'WEB', 'GRID', 'BACKLINK_GRID_MODE' ) ) eq 'ALL' )
+          {
+          $field_details .= de_html_alink_button( $reo, 'new', '[~View all related records]',   "[~View all related records from] <b>$linked_table_label</b>",  BTYPE => 'nav', ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => $id, FILTER => { $backlinked_field => [ { OP => 'IN', VALUE => [ $id, 0 ] } ] } );
+          }
+        else
+          {  
+          $field_details .= de_html_alink_button( $reo, 'new', '[~View attached records]',     "[~View all connected records from] <b>$linked_table_label</b>",  BTYPE => 'nav', ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => $id, FILTER => { $backlinked_field => $id } );
+          $field_details .= de_html_alink_button( $reo, 'new', '[~View unattached records]',   "[~View all not connected records from] <b>$linked_table_label</b>",  BTYPE => 'nav', ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => 0, FILTER => { $backlinked_field => 0 } );
+          }
+        
         if( $bltdes->get_table_type() eq 'FILE' )
           {
           $field_details .= de_html_alink_button( $reo, 'new', '[~Upload new file]', "[~Upload and link new files]", BTYPE => 'act', ACTION => 'file_up', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, LINK_FIELD_DISABLE => $backlinked_field, MULTI => 1 );
