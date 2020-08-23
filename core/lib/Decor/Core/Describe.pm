@@ -520,6 +520,13 @@ sub __merge_table_des_file
         $key = $3;
         }
 
+
+      if( $key_path eq '' and exists $DE_TYPE_NAMES{ $key } )
+        {
+        $value = "$key $value";
+        $key   = 'TYPE';
+        }
+
       my $error_location = "[$key_path$key] for table [$table] category [$category] section [$sect_name] at [$fname at $ln]";
 
       $key = $DES_KEY_SHORTCUTS{ $key } if exists $DES_KEY_SHORTCUTS{ $key };
@@ -796,7 +803,6 @@ sub __postprocess_table_des_hash
       }
 =cut      
 #print STDERR "=====(GRANT DENY)==REZZZZ+++ $table $field: " . Dumper( $des->{ 'FIELD' }{ $field } );
-
     }
 
   for my $do ( @dos )
