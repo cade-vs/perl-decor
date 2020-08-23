@@ -108,8 +108,8 @@ my %PROTOCOL_LOADED;
 sub load_protocol
 {
   my $ptype = shift;
+  return if exists $PROTOCOL_LOADED{ $ptype };
   boom "unknown or forbidden PROTOCOL_TYPE requested [$ptype] expected one of [" . join( ',', keys %PROTOCOL_ALLOW ) . "]" unless exists $PROTOCOL_ALLOW{ $ptype };
-  return if $PROTOCOL_LOADED{ $ptype };
   eval
     {
     my $pm_file = perl_package_to_file( $PROTOCOL_TYPES{ $ptype }{ 'require' } );
