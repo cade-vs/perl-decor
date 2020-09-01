@@ -13,6 +13,7 @@ web.grid.fields_list  name  ctime   suma  BOOL_TEST ref  ref.name  BACKREF BACKR
 
   type char 1024
 
+#  password
 #  unique
   required
 

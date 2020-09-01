@@ -290,7 +290,6 @@ sub __select_resolve_field
     $alias_now = $alias_next;
     #     $field_now = shift @field;
   }
-
 }
 
 sub __resolve_single_field
@@ -406,7 +405,7 @@ sub fetch
   boom "missing SELECT::DBH! call select() before fetch()" unless $dbh;
 
   my @data = $sth->fetchrow_array();
-  if( ! @ data )
+  if( ! @data )
     {
     $self->{ 'SELECT' }{ 'EOD' } = 1; # end of data
     return undef;

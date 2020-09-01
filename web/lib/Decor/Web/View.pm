@@ -87,11 +87,14 @@ sub de_web_format_field
   my $data_fmt;
   my $fmt_class;
 
+  my $password = $fdes->get_attr( 'PASSWORD' ) ? 1 : 0;
 
   if( $type_name eq 'CHAR' )
     {
     $data_fmt = type_format( $field_data, $fdes->{ 'TYPE' } );
 
+    $data_fmt = "[~(hidden)]" if $password and $data_fmt ne '';
+    
     my $maxlen = $fdes->get_attr( 'WEB', $vtype, 'MAXLEN' );
     if( $maxlen )
       {

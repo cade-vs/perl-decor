@@ -2,7 +2,7 @@
 
 
   DECOR APPLICATION MACHINERY
-  2014-2019 (c) Vladi Belperchinov-Shabanski "Cade"
+  2014-2020 (c) Vladi Belperchinov-Shabanski "Cade"
 
   TABLE DEFINITION
 
@@ -116,7 +116,14 @@
         time
         utime
       
-        "type" is mandatory, all fields need type.
+        "type" is mandatory, all fields need type! however "type" keyword can
+        be omitted and only type itself be given, i.e. instead of:
+        
+            type  char  32 
+            
+        you can give just:
+        
+            char  32
         
         for detailed types description, see file "field-types.txt"
       
