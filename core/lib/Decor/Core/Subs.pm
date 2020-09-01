@@ -730,6 +730,13 @@ sub sub_select
 
   my @where;
   my ( $where, $bind ) = __filter_to_where( $filter );
+
+  if( des_exists_category( 'FILTER', $table, 'DEFAULT_SELECT' ) )
+    {
+    my $tdes = describe_table( $table );
+    my $filter_name_sql = $tdes->{ 'FILTER' }{ 'DEFAULT_SELECT' }{ 'SQL_WHERE' };
+    push @where, $filter_name_sql if $filter_name_sql;
+    }
   
   if( $filter_name )
     {

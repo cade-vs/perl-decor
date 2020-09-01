@@ -44,6 +44,11 @@ grant read          to 999
   sql_where  CNT > 0
 
 
+=FILTER: DEFAULT_SELECT
+
+  sql_where  NAME like 'M%'
+
+
 #=TESTREQ
 #
 #  type  int
