@@ -752,7 +752,7 @@ sub sub_select
       }  
     }
   
-  my $where_clause = join ' AND ', @$where, @where;
+  my $where_clause = join ' AND ', map { "( $_ )" } ( @$where, @where );
 
   my $profile = subs_get_current_profile();
 
