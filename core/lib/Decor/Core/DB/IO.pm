@@ -81,7 +81,7 @@ sub select
   my $where  = shift;
   my $opts   = shift;
   
-  $opts->{ 'BIND' } = $opts if ref( $opts ) eq 'ARRAY'; # directy BIND values
+  $opts = { 'BIND' => $opts } if ref( $opts ) eq 'ARRAY'; # directy BIND values
 
   boom "BIND opt must be ARRAY ref" if $opts->{ 'BIND' } and ref( $opts->{ 'BIND' } ) ne 'ARRAY';
 
