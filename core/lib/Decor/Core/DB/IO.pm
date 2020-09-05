@@ -81,7 +81,7 @@ sub select
   my $where  = shift;
   my $opts   = shift;
   
-  $opts = { 'BIND' => $opts } if ref( $opts ) eq 'ARRAY'; # directy BIND values
+  $opts = { 'BIND' => $opts } if ref( $opts ) eq 'ARRAY'; # directly BIND values
 
   boom "BIND opt must be ARRAY ref" if $opts->{ 'BIND' } and ref( $opts->{ 'BIND' } ) ne 'ARRAY';
 
@@ -553,6 +553,8 @@ sub update
 
   return 1 if $table_des->is_virtual();
 
+  $opts = { 'BIND' => $opts } if ref( $opts ) eq 'ARRAY'; # directly BIND values
+
   if( $where ne '' )
     {
     # FIXME: different databases support vastly differs as well :(
@@ -663,6 +665,8 @@ sub delete
   my $db_table  = $table_des->get_db_table_name();
 
   return 1 if $table_des->is_virtual();
+
+  $opts = { 'BIND' => $opts } if ref( $opts ) eq 'ARRAY'; # directly BIND values
 
   if( $where ne '' )
     {
