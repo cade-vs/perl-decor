@@ -79,7 +79,9 @@ sub select
   my $table  = uc shift;
   my $fields = shift; # can be string, array ref or hash ref
   my $where  = shift;
-  my $opts   = shift; 
+  my $opts   = shift;
+  
+  $opts->{ 'BIND' } = $opts if ref( $opts ) eq 'ARRAY'; # directy BIND values
 
   boom "BIND opt must be ARRAY ref" if $opts->{ 'BIND' } and ref( $opts->{ 'BIND' } ) ne 'ARRAY';
 
