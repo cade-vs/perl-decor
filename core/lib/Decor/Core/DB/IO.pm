@@ -202,7 +202,9 @@ sub select
   push @where, $where if $where;
   push @bind,  @{ $opts->{ 'BIND' } } if $opts->{ 'BIND' };
 
-  my $select_tables = join ",\n    ", keys %{ $self->{ 'SELECT' }{ 'TABLES' } };
+print STDERR Dumper( '+'x77, $self->{ 'SELECT' }, '+'x77,);
+
+  my $select_tables = $db_table . "\n" . __explain_join_tree( $self->{ 'SELECT' }{ 'JOIN_TREE' }{ 'NEXT' } );
   my $select_fields = join ",\n    ", @select_fields;
   my $select_where  = "WHERE\n    " . join( "\n    AND ", @where );
   
@@ -246,6 +248,10 @@ sub __select_resolve_field
 
   my $profile = $self->__get_profile();
 
+  $self->{ 'SELECT' }{ 'JOIN_TREE' } ||= {};
+
+  my $join_tree = $self->{ 'SELECT' }{ 'JOIN_TREE' }; # new/next join
+
   #   while( @field )
   while(4)
     {
@@ -272,26 +278,58 @@ sub __select_resolve_field
     boom "cannot resolve field, current position is [$table_now:$field_now] in field path [$field]" unless des_exists( $table_next );
 
     # FIXME: check for cross-DSN links
-   
-    $alias_key .= "$field.";
-    $alias_next = $self->{ 'SELECT' }{ 'TABLES_ALIASES' }{ $alias_key };
-    if( ! $alias_next )
+    if( ! exists $join_tree->{ 'NEXT' }{ $field_now } )
       {
-      $alias_next = $self->{ 'SELECT' }{ 'TABLES_ALIASES' }{ $alias_key } 
-                 = "_TABLE_ALIAS_" . ++$self->{ 'SELECT' }{ 'TABLES_ALIASES_COUNT' };
-      }
-   
-    my $db_table_next = describe_table( $table_next )->get_db_table_name();
-    $self->{ 'SELECT' }{ 'TABLES' }{ "$db_table_next   $alias_next" }++;
+      print STDERR Dumper( '>'x44, "NEW FIELD: $field_now" );
+      $join_tree = $join_tree->{ 'NEXT' }{ $field_now } = {};
 
-    # FIXME: use inner or left outer joins, instead of simple where join
-    # FIXME: add option for inner, outer or full joins!
-    $self->{ 'SELECT' }{ 'RESOLVE_WHERE' }{ "$alias_now.$field_now = $alias_next._ID" }++;
-   
+      my $alias_counter = sprintf( "%04d", ++ $self->{ 'SELECT' }{ 'TABLES_ALIASES_COUNT' } );
+      boom "__select_resolve_field(): table alias limit of 9999 is already reached" unless $alias_counter < 9998;
+      $join_tree->{ 'TABLE'       } = $table_next;
+      my $db_table_next = $join_tree->{ 'DB_TABLE'    } = describe_table( $table_next )->get_db_table_name();
+      $alias_next       = $join_tree->{ 'TABLE_ALIAS' } = "_TABLE_ALIAS_$alias_counter";
+
+      my $join_type = "INNER "; # to be precise :)
+      $join_type = "RIGHT OUTER " if $opt->{ 'JOIN_TYPE' } eq 'OUTER';
+      $join_tree->{ 'JOIN' } = $join_type . "JOIN $db_table_next $alias_next";
+      $join_tree->{ 'ON'   } = "ON $alias_now.$field_now = $alias_next._ID";
+      }
+    else
+      {  
+      $join_tree  = $join_tree->{ 'NEXT' }{ $field_now };
+      $alias_next = $join_tree->{ 'TABLE_ALIAS' };
+      }
+
+print STDERR Dumper( '1*'x77, $self->{ 'SELECT' }{ 'JOIN_TREE' }, '+'x77,);
+
     $table_now = $table_next;
     $alias_now = $alias_next;
-    #     $field_now = shift @field;
   }
+}
+
+sub __explain_join_tree
+{
+  my $join_tree = shift;
+  my $level     = shift() + 1;
+
+  my $text;
+
+  my $padding = '  ' x ( $level + 1 );
+
+  return unless $join_tree;
+  for my $field ( sort { $join_tree->{ $a }{ 'TABLE_ALIAS' } cmp $join_tree->{ $b }{ 'TABLE_ALIAS' } } keys %$join_tree )
+    {
+    my $join_next = $join_tree->{ $field };
+
+    my $join = $join_next->{ 'JOIN' };
+    my $next = exists $join_next->{ 'NEXT' } ? __explain_join_tree( $join_next->{ 'NEXT' }, $level ) : undef;
+    my $on   = $join_next->{ 'ON'   };
+    $text .= "$padding$join\n";
+    $text .= $next;
+    $text .= "$padding$on\n";
+    }
+  
+  return $text;  
 }
 
 sub __resolve_single_field
