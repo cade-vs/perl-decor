@@ -38,6 +38,11 @@ sub on_accept_ok
   binmode( $sock );
   my $peerhost = $sock->peerhost();
   de_log_debug( "client connected from $peerhost" );
+  if( $self->ssl_in_use() )
+    {
+    my $cn = $self->get_client_socket()->peer_certificate( 'cn' );
+    de_log_debug( "peer certificate COMMON NAME [$cn]\n" );
+    }
 }
 
 sub on_process_xt_message

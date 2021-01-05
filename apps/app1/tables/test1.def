@@ -93,8 +93,13 @@ web.grid.fields_list  name  ctime   suma  BOOL_TEST ref  ref.name  BACKREF BACKR
   web.select_filter   MORE_CNT
   web.grid.editable
 
+
 #deny all
 #grant cross 
+
+=REF2
+
+  type link test2 name
 
 =BACKREF
 

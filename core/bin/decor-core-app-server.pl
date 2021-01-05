@@ -31,20 +31,29 @@ my $opt_preload = 0;
 my $opt_listen_port = 42000;
 my $opt_net_protocols = '*';
 my $server_module = $DEFAULT_SERVER_MODULE;
+my $opt_ssl;
+my %opt_ssl;
+
+eval { require IO::Socket::SSL; };
+my $no_ssl = $@ if $@;
 
 our $help_text = <<END;
 usage: $0 <options>
 options:
-    -p port   -- port number for incoming connections (default $opt_listen_port)
-    -f        -- run in foreground (no fork) mode
-    -e app    -- preload application (will serve only single app)
-    -t psj    -- allow network protocol formats (p=storable,s=stacker,j=json)
-    -d        -- increase DEBUG level (can be used multiple times)
-    -r        -- log to STDERR
-    -rr       -- log to both files and STDERR
-    -rc       -- use ANSI-colored STDERR log messages (same as -rrc)
-    -u srvmod -- server module (default: App) AVOID IF UNSURE! USE -e FIRST!
-    --        -- end of options
+    -p port    -- port number for incoming connections (default $opt_listen_port)
+    -f         -- run in foreground (no fork) mode
+    -e app     -- preload application (will serve only single app)
+    -t psj     -- allow network protocol formats (p=storable,s=stacker,j=json)
+    -d         -- increase DEBUG level (can be used multiple times)
+    -r         -- log to STDERR
+    -rr        -- log to both files and STDERR
+    -rc        -- use ANSI-colored STDERR log messages (same as -rrc)
+    -u srvmod  -- server module (default: App) AVOID IF UNSURE! USE -e FIRST!
+    -sc cert   -- file with SSL/X509 certificate
+    -sk key    -- file with SSl/X509 certificate key
+    -su bundle -- file with trusted SSL/X509 certificate issuers
+                  if -su given, all clients' certificates will be verified!
+    --         -- end of options
 notes:
   * first argument is application name and it is mandatory!
   * options cannot be grouped: -fd is invalid, correct is: -f -d
@@ -100,6 +109,34 @@ while( @ARGV )
     print "status: option: allowed network protocols [$opt_net_protocols]\n";
     next;
     }
+  if( /-sc/ )
+    {
+    die "error: SSL not available: $no_ssl" if $no_ssl;
+    $opt_ssl{ 'SSL_cert_file' } = shift;
+    die "error: cannot read SSL server certificate file [$opt_ssl{ 'SSL_cert_file' }]" unless -r $opt_ssl{ 'SSL_cert_file' };
+    print "status: option: SSL server certificate file [$opt_ssl{ 'SSL_cert_file' }]\n";
+    $opt_ssl{ 'SSL' } = 1;
+    next;
+    }
+  if( /-sk/ )
+    {
+    die "error: SSL not available: $no_ssl" if $no_ssl;
+    $opt_ssl{ 'SSL_key_file' } = shift;
+    die "error: cannot read SSL server certificate key [$opt_ssl{ 'SSL_key_file' }]" unless -r $opt_ssl{ 'SSL_key_file' };
+    print "status: option: SSL server certificate key [$opt_ssl{ 'SSL_key_file' }]\n";
+    $opt_ssl{ 'SSL' } = 1;
+    next;
+    }
+  if( /-su/ )
+    {
+    die "error: SSL not available: $no_ssl" if $no_ssl;
+    $opt_ssl{ 'SSL_ca_file' } = shift;
+    die "error: cannot read SSL server trusted certificates [$opt_ssl{ 'SSL_ca_file' }]" unless -r $opt_ssl{ 'SSL_ca_file' };
+    print "status: option: SSL server trusted certificates [$opt_ssl{ 'SSL_ca_file' }]\n";
+    $opt_ssl{ 'SSL_verify_mode' } = IO::Socket::SSL::SSL_VERIFY_PEER();
+    $opt_ssl{ 'SSL' } = 1;
+    next;
+    }
   if( /-e/ )
     {
     $opt_preload  = 1;
@@ -122,7 +159,6 @@ while( @ARGV )
   }
 
 
-
 if( $opt_preload )
   {
   if( $opt_app_name =~ /^[A-Z_0-9]+$/i )
@@ -141,6 +177,9 @@ if( $opt_preload )
 my %srv_opt = (
               PORT    => $opt_listen_port,
               NO_FORK => $opt_no_fork,
+              SSL     => $opt_ssl,
+              
+              %opt_ssl
               );
 
 if( $opt_preload )
@@ -165,5 +204,6 @@ if( $@ )
   exit(111);
   }
 
+print "server started with pid [$$]\n";
 my $server = new $server_pkg %srv_opt;
 $server->run();

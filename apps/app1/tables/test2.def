@@ -41,12 +41,15 @@ grant read          to 999
 
 =FILTER: MORE_CNT
 
-  sql_where  CNT > 0
-
+  sql_where  .CNT > 0
 
 =FILTER: DEFAULT_SELECT
 
-  sql_where  NAME like 'M%'
+  sql_where  .NAME like 'M%'
+
+=REF3
+
+  type link test3 name
 
 
 #=TESTREQ

@@ -20,7 +20,7 @@ my $client = new Decor::Shared::Net::Client;
 
 $| = 1;
 
-$client->connect( $host ) or die "cannot connect";
+$client->connect( $host ) or die "cannot connect to [$host] error [$!]";
 
 $client->begin_user_pass( 'test', 'test123', 'local' ) or die "cannot begin with user pass";
 
