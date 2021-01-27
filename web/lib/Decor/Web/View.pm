@@ -87,7 +87,7 @@ sub de_web_format_field
   my $data_fmt;
   my $fmt_class;
 
-  my $password = $fdes->get_attr( 'PASSWORD' ) ? 1 : 0;
+  my $password = ( $fdes->get_attr( 'PASSWORD' ) or $fname =~ /^PWD_/ ) ? 1 : 0;
 
   if( $type_name eq 'CHAR' )
     {
