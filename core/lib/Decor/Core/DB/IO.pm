@@ -202,7 +202,7 @@ sub select
   push @where, $where if $where;
   push @bind,  @{ $opts->{ 'BIND' } } if $opts->{ 'BIND' };
 
-print STDERR Dumper( '+'x77, $self->{ 'SELECT' }, '+'x77,);
+print STDERR Dumper( '+--'x77, $self->{ 'SELECT' }, '+--'x77,);
 
   my $select_tables = $db_table . "\n" . __explain_join_tree( $self->{ 'SELECT' }{ 'JOIN_TREE' }{ 'NEXT' } );
   my $select_fields = join ",\n    ", @select_fields;

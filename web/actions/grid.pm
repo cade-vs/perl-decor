@@ -157,6 +157,8 @@ sub main
   my $select = $core->select( $table, $fields, { FILTER => $filter, FILTER_NAME => $filter_name, FILTER_METHOD => $filter_method, OFFSET => $offset, LIMIT => $page_size, ORDER_BY => $order_by } ) if $fields;
   my $scount = $core->count( $table,           { FILTER => $filter, FILTER_NAME => $filter_name } ) if $select and ! $filter_method;
 
+  $ps->{ 'GRID_EXPORT' } = $fields ? [ $table, $fields, { FILTER => $filter, FILTER_NAME => $filter_name, FILTER_METHOD => $filter_method, OFFSET => 0, LIMIT => 8192, ORDER_BY => $order_by } ] : undef;
+
 #  $text .= "<br>";
 #  $text .= "<p>";
 
@@ -406,7 +408,7 @@ sub main
                 }  
               }  
             
-            if( 1 or $linked_id > 0 )
+            if( $linked_id > 0 )
               {
               $data_fmt =~ s/\./&#46;/g;
               if( $ltdes->get_table_type() eq 'FILE' )
@@ -549,6 +551,9 @@ sub main
     my $nav_keys_help = $reo->prep_load_file( undef, 'grid_nav_keys_help' );
     my $hl_nav_handle = html_hover_layer( $reo, VALUE => $nav_keys_help, DELAY => 300 );
     $text_grid_navi_mid .= " <span $hl_nav_handle>(?)</span>";
+    
+    $text_grid_navi_right .= de_html_alink( $reo, 'new', "(&darr;)",       { HINT => '[~Download data as CSV]' }, ACTION => 'grid_export', TABLE => $table );
+
     # FIXME: use function!
     my $text_grid_navi = "<table width=100% class=grid-navi><tr><td align=left width=1%>$text_grid_navi_left</td><td align=center>$text_grid_navi_mid</td><td align=right width=1%>$text_grid_navi_right</td></tr></table>";
 

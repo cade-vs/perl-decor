@@ -26,3 +26,24 @@
 -- debug stack on low-level calls (DB::IO)
 
 -- docs for custom server modules! app1 [Decor::Core::Net::Server::Echo]
+
+-- HTML5 extras:
+    * required fields
+    * input types: number, email, etc.
+    * form validation(?)
+    * placeholder text
+    * autofocus fields
+    
+-- DOs buttons show/disable based on "depend on FIELD_NAME" (true/false)
+-- DOs buttons show/disable based on "depend on FIELD_NAME" (groups strings?)
+
+-- read record with full access policies and DOs, etc.
+
+-- select visible columns in grid
+
+-- select which columns to be displayed on filter
+
+-- export grid as comma separated data
+
+
+
