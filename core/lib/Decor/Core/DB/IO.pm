@@ -202,7 +202,7 @@ sub select
   push @where, $where if $where;
   push @bind,  @{ $opts->{ 'BIND' } } if $opts->{ 'BIND' };
 
-print STDERR Dumper( '+--'x77, $self->{ 'SELECT' }, '+--'x77,);
+  #print STDERR Dumper( '+--'x77, $self->{ 'SELECT' }, '+--'x77,);
 
   my $select_tables = $db_table . "\n" . __explain_join_tree( $self->{ 'SELECT' }{ 'JOIN_TREE' }{ 'NEXT' } );
   my $select_fields = join ",\n    ", @select_fields;
@@ -280,7 +280,7 @@ sub __select_resolve_field
     # FIXME: check for cross-DSN links
     if( ! exists $join_tree->{ 'NEXT' }{ $field_now } )
       {
-      print STDERR Dumper( '>'x44, "NEW FIELD: $field_now" );
+      #print STDERR Dumper( '>'x44, "NEW FIELD: $field_now" );
       $join_tree = $join_tree->{ 'NEXT' }{ $field_now } = {};
 
       my $alias_counter = sprintf( "%04d", ++ $self->{ 'SELECT' }{ 'TABLES_ALIASES_COUNT' } );
@@ -300,7 +300,7 @@ sub __select_resolve_field
       $alias_next = $join_tree->{ 'TABLE_ALIAS' };
       }
 
-print STDERR Dumper( '1*'x77, $self->{ 'SELECT' }{ 'JOIN_TREE' }, '+'x77,);
+    #print STDERR Dumper( '1*'x77, $self->{ 'SELECT' }{ 'JOIN_TREE' }, '+'x77,);
 
     $table_now = $table_next;
     $alias_now = $alias_next;
