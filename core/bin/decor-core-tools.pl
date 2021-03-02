@@ -37,6 +37,8 @@ commands:
   add-groups    user_name_or_id  group1 group2...
   del-groups    user_name_or_id  group1 group2...
   del-groups    user_name_or_id  all
+  user-enable   user_name_or_id
+  user-disable  user_name_or_id
 
   user-set-active-groups  user_name_or_id  primary_group_name_or_id private_group_name_or_id
 notes:
@@ -113,6 +115,14 @@ elsif( $cmd eq 'create-group' )
 elsif( $cmd eq 'user-pwd' )  
   {
   cmd_user_pwd( @args );
+  }
+elsif( $cmd eq 'user-enable' )  
+  {
+  cmd_user_enable_disable( 1, @args );
+  }
+elsif( $cmd eq 'user-disable' )  
+  {
+  cmd_user_enable_disable( 0, @args );
   }
 elsif( $cmd eq 'add-groups' )  
   {
@@ -228,6 +238,25 @@ sub cmd_user_pwd
   print "info: password changed for existing user [$name] with id [$usid]\n";
 }
 
+#-----------------------------------------------------------------------------
+
+sub cmd_user_enable_disable
+{
+  my $state = shift;
+  my $user = shift;
+
+  my $user_rec = find_user( $user );
+  
+  $user_rec->write( 'ACTIVE' => $state );
+  
+  $user_rec->save();
+  $user_rec->commit();
+  
+  my $ss = $state ? 'enabled' : 'disabled';
+  my $usid = $user_rec->id();
+  my $name = $user_rec->read( 'NAME' );
+  print "info: user account [$name] with id [$usid] is now $ss\n";
+}
 
 #-----------------------------------------------------------------------------
 
