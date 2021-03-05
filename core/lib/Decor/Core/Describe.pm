@@ -370,7 +370,7 @@ sub __merge_table_des_file
       $des->{ $category }{ $sect_name } ||= {};
       $des->{ $category }{ $sect_name }{ 'TABLE' }   = $table;
       $des->{ $category }{ $sect_name }{ 'NAME'  }   = $sect_name;
-      $des->{ $category }{ $sect_name }{ 'LABEL' } ||= $sect_name;
+      $des->{ $category }{ $sect_name }{ 'LABEL' } ||= uc( substr( $sect_name, 0, 1 ) ) . lc( substr( $sect_name, 1 ) );
       if( exists $COPY_CATEGORY_ATTRS{ $category } )
         {
         $des->{ $category }{ $sect_name }{ $_ } = $des->{ '@' }{ '@' }{ $_ } for keys %{ $COPY_CATEGORY_ATTRS{ $category } };
