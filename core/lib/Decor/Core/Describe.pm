@@ -189,6 +189,7 @@ my %DES_ATTRS = (
                            HIDDEN      => 3, # hide field from views
                            EDITABLE    => 3, # if this field is allowed to be editable in views
                            
+                           HIDE_IF_EMPTY   => 3, # hide field if it is empty
                            NO_AUTOCOMPLETE => 3, # disable interface autocomplete
                            
                            SELECT_FILTER   => 3,

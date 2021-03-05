@@ -105,6 +105,8 @@ sub main
     my $data_ctrl;
     my $field_details;
 
+    next if $bfdes->get_attr( qw( WEB VIEW HIDE_IF_EMPTY ) ) and $data eq ''; # TODO: FIXME: by type? eq '', == 0, etc.
+
     my $overflow  = $bfdes->get_attr( qw( WEB VIEW OVERFLOW ) );
     if( $overflow )
       {
