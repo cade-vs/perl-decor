@@ -234,17 +234,17 @@ sub main
           }
         else
           {  
-          $field_details .= de_html_alink_button( $reo, 'new', '[~View attached records]',     "[~View all connected records from] <b>$linked_table_label</b>",  BTYPE => 'nav', ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => $id, FILTER => { $backlinked_field => $id } );
-          $field_details .= de_html_alink_button( $reo, 'new', '[~View unattached records]',   "[~View all not connected records from] <b>$linked_table_label</b>",  BTYPE => 'nav', ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => 0, FILTER => { $backlinked_field => 0 } );
+          $field_details .= de_html_alink_button( $reo, 'new', ' <img src=i/grid.svg> [~View attached records]',     "[~View all connected records from] <b>$linked_table_label</b>",  BTYPE => 'nav', ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => $id, FILTER => { $backlinked_field => $id } );
+          $field_details .= de_html_alink_button( $reo, 'new', ' <img src=i/attach.svg> [~View unattached records]',   "[~View all not connected records from] <b>$linked_table_label</b>",  BTYPE => 'nav', ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => 0, FILTER => { $backlinked_field => 0 } );
           }
         
         if( $bltdes->get_table_type() eq 'FILE' )
           {
-          $field_details .= de_html_alink_button( $reo, 'new', '[~Upload new file]', "[~Upload and link new files]", BTYPE => 'act', ACTION => 'file_up', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, LINK_FIELD_DISABLE => $backlinked_field, MULTI => 1 );
+          $field_details .= de_html_alink_button( $reo, 'new', '  <img src=i/file_new.svg> [~Upload new file]', "[~Upload and link new files]", BTYPE => 'act', ACTION => 'file_up', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, LINK_FIELD_DISABLE => $backlinked_field, MULTI => 1 );
           }
         else
           {
-          $field_details .= de_html_alink_button( $reo, 'new', '[~Create new record]', "[~Create and connect a new record into] <b>$linked_table_label</b>", BTYPE => 'act', ACTION => 'edit', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, LINK_FIELD_DISABLE => $backlinked_field );
+          $field_details .= de_html_alink_button( $reo, 'new', '  <img src=i/insert.svg> [~Create new record]', "[~Create and connect a new record into] <b>$linked_table_label</b>", BTYPE => 'act', ACTION => 'edit', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, LINK_FIELD_DISABLE => $backlinked_field );
           }
         $no_layout_ctrls = 1;
         }
