@@ -104,6 +104,7 @@ sub main
     my $data_fmt  = de_web_format_field( $data, $lfdes, 'VIEW', { ID => $id } );
     my $data_ctrl;
     my $field_details;
+    my $no_layout_ctrls = 0;
 
     next if $bfdes->get_attr( qw( WEB VIEW HIDE_IF_EMPTY ) ) and $data eq ''; # TODO: FIXME: by type? eq '', == 0, etc.
 
@@ -225,7 +226,7 @@ sub main
       if( $details_fields and $count > 0 )
         {
         my $details_limit = $bfdes->get_attr( qw( WEB EDIT DETAILS_LIMIT ) ) || 16;
-        $field_details .= "<p>" . de_data_grid( $core, $backlinked_table, $details_fields, { FILTER => { $backlinked_field => $id }, LIMIT => $details_limit } ) ;
+        $field_details .= de_data_grid( $core, $backlinked_table, $details_fields, { FILTER => { $backlinked_field => $id }, LIMIT => $details_limit } ) ;
 
         if( uc( $bfdes->get_attr( 'WEB', 'GRID', 'BACKLINK_GRID_MODE' ) ) eq 'ALL' )
           {
@@ -245,6 +246,7 @@ sub main
           {
           $field_details .= de_html_alink_button( $reo, 'new', '[~Create new record]', "[~Create and connect a new record into] <b>$linked_table_label</b>", BTYPE => 'act', ACTION => 'edit', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, LINK_FIELD_DISABLE => $backlinked_field );
           }
+        $no_layout_ctrls = 1;
         }
       }
 
@@ -253,16 +255,19 @@ sub main
       $data_fmt = "[~(hidden)]";
       }
 
-    my $data_layout = html_layout_2lr( $data_fmt, $data_ctrl, '<==1>' );
+    my $data_layout = $no_layout_ctrls ? $data_fmt : html_layout_2lr( $data_fmt, $data_ctrl, '<==1>' );
     my $base_field_class = lc "css_view_class_$base_field";
-    if( $field_details )
-      {
-      $data_layout .= $field_details;
-      }
     $text .= "<tr class=view>";
     $text .= "<td class='view-field  $base_field_class' >$label</td>";
     $text .= "<td class='view-value  $base_field_class' >$data_layout</td>";
     $text .= "</tr>\n";
+    if( $field_details )
+      {
+      $text .= "<tr class=view>";
+      $text .= "<td colspan=2 class='details-fields' >$field_details</td>";
+      $text .= "</tr>\n";
+      #$data_layout .= $field_details;
+      }
     }
   $text .= "</table>";
 
