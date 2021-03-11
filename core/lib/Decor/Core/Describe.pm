@@ -113,11 +113,11 @@ my @TABLE_ATTRS = qw(
                     );
 
 my %TABLE_TYPES = (
-                      GENERIC  => 1,
-                      USER     => 1,
-                      SESSION  => 1,
-                      FILE     => 1,
-                      MAP      => 1,
+                      'GENERIC'  => 1,
+                      'USER'     => 1,
+                      'SESSION'  => 1,
+                      'FILE'     => 1,
+                      'MAP'      => 1,
                     );
 
 # LEGEND: 1 == core attribute, must not have attribute path
@@ -721,6 +721,13 @@ sub __postprocess_table_des_hash
       $type = 'LINK';
       }
 
+    if( exists $DE_LTYPE_NAMES{ $type } )
+      {
+      $type_des->{ 'LNAME' } = $type;
+      @type = ( @{ $DE_LTYPE_NAMES{ $type } } );
+      $type = shift @type;
+      }
+      
     boom "invalid FIELD TYPE [$type] in table [$table] field [$field] from [@debug_origin]" unless exists $DE_TYPE_NAMES{ $type };
 
     $type_des->{ 'NAME' } = $type;

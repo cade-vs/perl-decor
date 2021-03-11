@@ -83,10 +83,11 @@ sub main
 
   for my $field ( @fields )
     {
-    my $bfdes     = $bfdes{ $field };
-    my $lfdes     = $lfdes{ $field };
-    my $type_name = $lfdes->{ 'TYPE' }{ 'NAME' };
-    my $blabel    = $bfdes->get_attr( qw( WEB VIEW LABEL ) );
+    my $bfdes      = $bfdes{ $field };
+    my $lfdes      = $lfdes{ $field };
+    my $type_name  = $lfdes->{ 'TYPE' }{ 'NAME'  };
+    my $type_lname = $lfdes->{ 'TYPE' }{ 'LNAME' };
+    my $blabel     = $bfdes->get_attr( qw( WEB VIEW LABEL ) );
 
     my $lpassword = $lfdes->get_attr( 'PASSWORD' ) ? 1 : 0;
 
@@ -253,6 +254,11 @@ sub main
     if( $lpassword )
       {
       $data_fmt = "[~(hidden)]";
+      }
+
+    if( $type_name eq 'CHAR' and $type_lname eq 'LOCATION' )
+      {
+      $data_fmt = de_html_alink_button( $reo, 'new', " <img src=i/map_location.svg> $data_fmt", "[~View map location]", ACTION => 'map_location', LL => $data );
       }
 
     my $data_layout = $no_layout_ctrls ? $data_fmt : html_layout_2lr( $data_fmt, $data_ctrl, '<==1>' );

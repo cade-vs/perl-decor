@@ -923,4 +923,25 @@ div.vframe
         background-color: #222;
         }
 
+/*** map locations **********************************************************/
+
+div#map
+        {
+        border:    solid 2px #F53;
+        height: 80%;
+        }
+
+table.map-layout
+        {
+        border:    solid 2px #0F0;
+        height: 100%;
+        vertical-align: top;
+        }
+td.map-layout
+        {
+        vertical-align: top;
+        border:    solid 2px #00F;
+        height: 100%;
+        }
+
 /*** DECOR EOF **************************************************************/

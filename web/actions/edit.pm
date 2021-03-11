@@ -230,12 +230,13 @@ sub main
 
   for my $field ( @$fields_ar )
     {
-    my $fdes      = $tdes->{ 'FIELD' }{ $field };
-    my $bfdes     = $fdes; # keep sync code with view/preview/grid, bfdes is begin/origin-field
-    my $type      = $fdes->{ 'TYPE'  };
-    my $type_name = $fdes->{ 'TYPE'  }{ 'NAME' };
-    my $label     = $fdes->{ 'LABEL' } || $field;
-    my $flen      = $type->{ 'LEN' };
+    my $fdes       = $tdes->{ 'FIELD' }{ $field };
+    my $bfdes      = $fdes; # keep sync code with view/preview/grid, bfdes is begin/origin-field
+    my $type       = $fdes->{ 'TYPE'  };
+    my $type_name  = $fdes->{ 'TYPE'  }{ 'NAME' };
+    my $type_lname = $fdes->{ 'TYPE' }{ 'LNAME' };
+    my $label      = $fdes->{ 'LABEL' } || $field;
+    my $flen       = $type->{ 'LEN' };
 
     next if $fdes->get_attr( 'WEB', ( $edit_mode_insert ? 'INSERT' : 'UPDATE' ), 'HIDE' );
 
@@ -294,6 +295,11 @@ sub main
                                          CLEAR    => $clear_icon,
                                          );
         }                                 
+      
+      if( $type_lname eq 'LOCATION' )
+        {
+        $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "SELECT_MAP_LOCATION_$field_id", "map_location.svg", "[~Select map location]", ACTION => 'map_location', RETURN_DATA_TO => $field, LL => $field_data );
+        }
       }
     elsif( $type_name eq 'LINK' )
       {
@@ -545,14 +551,17 @@ sub main
     my $input_layout = html_layout_2lr( $field_input, $field_input_ctrl, '<==1>' );
     my $base_field_class = lc "css_edit_class_$base_field";
     
-    if( $field_details )
-      {
-      $input_layout .= $field_details;
-      }
     $text .= "<tr class=view>\n";
     $text .= "<td class='view-field  $base_field_class'>$label$field_error</td>\n";
     $text .= "<td class='view-value  $base_field_class' >$input_layout</td>\n";
     $text .= "</tr>\n";
+    if( $field_details )
+      {
+      $text .= "<tr class=view>";
+      $text .= "<td colspan=2 class='details-fields' >$field_details</td>";
+      $text .= "</tr>\n";
+      #$data_layout .= $field_details;
+      }
     }
   $text .= "</table>";
 

@@ -16,6 +16,7 @@ use Exporter;
 our @ISA    = qw( Exporter );
 our @EXPORT = qw(
                   %DE_TYPE_NAMES
+                  %DE_LTYPE_NAMES
                   
                   type_set_format
                   type_get_format
@@ -58,6 +59,12 @@ our %DE_TYPE_NAMES = (
                       'LINK'     => 1,
                       'BACKLINK' => 1,
                       'WIDELINK' => 1,
+                    );
+dlock %DE_TYPE_NAMES;
+
+our %DE_LTYPE_NAMES = (
+                      'LOCATION' => [ 'CHAR', 256 ],
+                      'EMAIL'    => [ 'CHAR', 256 ],
                     );
 dlock %DE_TYPE_NAMES;
 
