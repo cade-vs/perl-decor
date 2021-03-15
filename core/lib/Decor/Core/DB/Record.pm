@@ -957,6 +957,8 @@ sub method
   my $self = shift;
   my $name = shift;
 
+  boom "cannot execute methods on EMPTY record" if $self->is_empty();
+
   return undef unless de_code_exists( 'tables', $self->table(), $name );
 
   return de_code_exec( 'tables', $self->table(), $name, $self, @_ );
