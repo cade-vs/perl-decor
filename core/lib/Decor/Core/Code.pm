@@ -48,6 +48,7 @@ sub de_code_get_map
   my $file = de_core_subtype_file_find( $ctype, 'pm', $name );
   return undef unless $file;
 
+
   eval
     {
     require $file;
@@ -62,7 +63,6 @@ sub de_code_get_map
   boom "missing decor::${ctype}::${name}:: namespace for DECOR user code" unless exists $main::{ 'decor::' }{ $ctype . '::' }{ $name . '::' };
   
   my %map;
-  
   while( my ( $k, $v ) = each %{ $main::{ 'decor::' }{ $ctype . '::' }{ $name . '::' } } )
     {
     #print "$k $v\n";
@@ -87,7 +87,7 @@ sub de_code_exists
 
   de_check_name_boom( $name,  "invalid CODE TRIGGER name [$trigger]" );
 
-  $trigger = "ON_$trigger";
+  $trigger = "ON_$trigger" unless $trigger =~ /^ON_/;
 
   my $map = de_code_get_map( $ctype, $name );
 
@@ -127,7 +127,7 @@ sub de_code_exec
   
   boom "requested exec for TRIGGER [$trigger] but it does not exist for code type [$ctype] name [$name]" unless de_code_exists( $ctype, $name, $trigger );
 
-  $trigger = "ON_$trigger";
+  $trigger = "ON_$trigger" unless $trigger =~ /^ON_/;
 
   return $map->{ $trigger }->( @_ );
 }

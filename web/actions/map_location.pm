@@ -48,7 +48,7 @@ sub main
 #      }
     }
 
-  my $tomtom_key = 'avMDGVzmtZpGcDkRKH6KmhpR0OgUrn3i';
+  my $tomtom_key = 'TODO:get-from-config';
 
   my $location_form = new Web::Reactor::HTML::Form( REO_REACTOR => $reo );
   my $location_form_begin;
@@ -63,8 +63,6 @@ sub main
     ( $lla, $llo, $llz ) = ( $1, $3, ( $6 || 8 ) );
     }
 
-
-print STDERR ">>>>>>>>>>>>>>>>222>>>>>>>>>>> [$ll]( $llo, $lla, $llz )\n";
 
   my $back_button = de_html_alink_button( $reo, 'back', "&lArr; [~Back]", "[~Return to previous screen]", BTYPE => 'nav' );;
 

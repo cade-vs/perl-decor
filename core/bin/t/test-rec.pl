@@ -35,5 +35,6 @@ print "root is: $root\n";
 my $tdes = describe_table( 'test1' );
 
 my $rec = new Decor::Core::DB::Record;
+$rec->create( 'TEST1' );
 
-$rec->method( 'TEST' );
+$rec->method( 'RECALC' );
