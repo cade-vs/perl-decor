@@ -29,7 +29,6 @@ sub main
   my $ps = $reo->get_page_session();
   my $rs = $reo->get_page_session( 1 );
 
-
   my $core = $reo->de_connect();
 
   my $button    = $reo->get_input_button();
@@ -48,7 +47,9 @@ sub main
 #      }
     }
 
-  my $tomtom_key = 'TODO:get-from-config';
+  my $map_cfg = $reo->de_load_cfg( 'map' );
+
+  my $tomtom_key = $map_cfg->{ '@' }{ '@' }{ 'TOMTOM_KEY' }; # FIXME
 
   my $location_form = new Web::Reactor::HTML::Form( REO_REACTOR => $reo );
   my $location_form_begin;
@@ -70,22 +71,22 @@ sub main
 
 <table width=100% class=map-layout>
 <tr>
-    <td width=10% align=left>
+    <td align=left>
       $back_button
     </td>
-    <td width=40% align=left>
+    <td align=left>
       $location_form_begin
       <button form=$location_form_id name=BUTTON:SELECT class='button act-button'><img src=i/map_location.svg> Select this location</button>
       <input  form=$location_form_id id=marker_location_xyz name=marker_location_xyz>
       <input  form=$location_form_id type=submit value='Go to' class='button nav-button'>
     </td>
-    <td width=25%>
+    <td>
       <form onsubmit='event.preventDefault(); geo_search();'>
       <input id=geo_search_input name=geo_search_input>
       <input type=submit value=Search class='button nav-button'>
       </form>
     </td>
-    <td width=25% align=right>
+    <td align=right>
       zoom to 
       <a href='javascript:zoom_to_country_level();'>country</a>
       |
@@ -233,8 +234,15 @@ sub main
       console.log(result);
       if( result.results.length > 0 )
         {
-        set_marker_to_lnglat( result.results[0].position );
-        map.setCenter( marker.getLngLat() );
+        if( $allow_map_select )
+          {
+          set_marker_to_lnglat( result.results[0].position, 1 );
+          map.setCenter( marker.getLngLat() );
+          }
+        else
+          {
+          map.setCenter( result.results[0].position );
+          }  
         map.zoomTo( 14 );
         }
     };

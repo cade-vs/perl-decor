@@ -347,16 +347,17 @@ sub main
 
         my $combo_orderby = $fdes->get_attr( qw( WEB COMBO ORDERBY ) ) || join( ',', @spf_fld );
         my $combo_select = $core->select( $linked_table, $lfields, { 'FILTER_NAME' => $select_filter_name, ORDER_BY => $combo_orderby } );
-        push @$combo_data, { KEY => 0, VALUE => '--' };
+        push @$combo_data, { KEY => 0, VALUE => '&empty;' };
 #$text .= "my $combo_select = $core->select( $linked_table, $lfields )<br>";
         while( my $hr = $core->fetch( $combo_select ) )
           {
           my @value = map { $hr->{ $_ } } @spf_fld;
+          my $key   = $hr->{ '_ID' };
           my $value = sprintf( $spf_fmt, @value );
 
-#$text .= "[$spf_fmt][@spf_fld][$value][@value]<br>";
+#$text .= "$key -- [$spf_fmt][@spf_fld][$value][@value]<br>";
           $value =~ s/\s/&nbsp;/g;
-          push @$combo_data, { KEY => $hr->{ '_ID' }, VALUE => $value };
+          push @$combo_data, { KEY => $key, VALUE => $value };
           }
 
         my $fmt_class;
@@ -395,7 +396,7 @@ sub main
       if( $field_data > 0 )
         {
         my $detach_cue = $bfdes->get_attr( qw( WEB EDIT DETACH_LINKED_CUE ) ) || "[~Detach linked record]";
-        $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "DETACH_LINKED_$field_id", "detach.svg",      $detach_cue, "F:$field" => 0 );
+        $field_input_ctrl .= de_html_form_button_redirect( $reo, 'here', $edit_form, "DETACH_LINKED_$field_id", "detach.svg",      $detach_cue, "F:$field" => 0 );
         }
       
       if( $ltdes->get_table_type() eq 'FILE' )

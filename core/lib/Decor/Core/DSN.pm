@@ -17,8 +17,9 @@ use Data::Tools 1.09;
 use Data::Lock qw( dlock dunlock );
 
 use Data::Dumper;
+
+use Decor::Shared::Config;
 use Decor::Core::Env;
-use Decor::Core::Config;
 use Decor::Core::Describe;
 use Decor::Core::Log;
 

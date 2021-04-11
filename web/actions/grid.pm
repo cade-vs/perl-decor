@@ -9,6 +9,7 @@
 ##############################################################################
 package decor::actions::grid;
 use strict;
+use utf8;
 
 use Data::Dumper;
 use Data::Tools 1.21;
@@ -61,7 +62,8 @@ sub main
   my $table_label = $tdes->get_label();
   my $table_type  = $sdes->{ 'TYPE' };
 
-  $reo->ps_path_add( 'grid', qq( [~List data from] "<b>$table_label</b>" ) );
+  my $browser_window_title = qq( [~List data from] "<b>$table_label</b>" );
+  $reo->ps_path_add( 'grid', $browser_window_title );
 
   return "<#e_internal>" unless $tdes;
 
@@ -78,7 +80,7 @@ sub main
       next unless $v > 0;
       push @do_ids, $ps->{ ':VECB_NAME_MAP' }{ $k } if exists $ps->{ ':VECB_NAME_MAP' }{ $k };
       }
-    $text .= "[@do_ids][$do]";
+    # $text .= "[@do_ids][$do]";
     return $reo->forward_new( ACTION => 'do', DO => $do, IDS => \@do_ids, TABLE => $table ) if @do_ids;
     }
 
@@ -146,8 +148,6 @@ sub main
     }
   $filter = { %{ $filter || {} }, %$filter_param } if $filter_param;
 
-  $reo->ps_path_add( 'grid', qq( [~List data from] "<b>$table_label</b> ([~filtered])" ) ) if $filter;
-
   if( $filter_method )
     {
     $offset     = 0;
@@ -156,6 +156,10 @@ sub main
 
   my $select = $core->select( $table, $fields, { FILTER => $filter, FILTER_NAME => $filter_name, FILTER_METHOD => $filter_method, OFFSET => $offset, LIMIT => $page_size, ORDER_BY => $order_by } ) if $fields;
   my $scount = $core->count( $table,           { FILTER => $filter, FILTER_NAME => $filter_name } ) if $select and ! $filter_method;
+
+  $browser_window_title .= " | $scount [~record(s)]";
+  $browser_window_title .= " , [~filtered]" if $filter;
+  $reo->ps_path_add( 'grid', $browser_window_title );
 
   $ps->{ 'GRID_EXPORT' } = $fields ? [ $table, $fields, { FILTER => $filter, FILTER_NAME => $filter_name, FILTER_METHOD => $filter_method, OFFSET => 0, LIMIT => 8192, ORDER_BY => $order_by } ] : undef;
 
@@ -470,6 +474,7 @@ sub main
           $data_ctrl .= de_html_alink_button( $reo, 'new', "(*) $view_attached_cue",           undef,                 ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => $id, FILTER => { $backlinked_field => [ { OP => 'IN', VALUE => [ $id, 0 ] } ] } );
           $data_ctrl .= "<br>\n";
           
+          # TODO: option to avoid count
           $bcnt = $core->count( $backlinked_table, { FILTER => { $backlinked_field => [ { OP => 'IN', VALUE => [ $id, 0 ] } ] } } );
           }
         else
@@ -482,7 +487,9 @@ sub main
           $data_ctrl .= de_html_alink_button( $reo, 'new', "(+) $view_unattached_cue",          undef,                 ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => 0, FILTER => { $backlinked_field => 0 } );
           $data_ctrl .= "<br>\n";
           
+          # TODO: option to avoid count
           $bcnt = $core->count( $backlinked_table, { FILTER => { $backlinked_field => $id } } );
+          # TODO: option to allow unattached count
           # my $ucnt = $core->count( $backlinked_table, { FILTER => { $backlinked_field =>   0 } } );
           }
         $data_fmt = $bcnt || '';
@@ -503,6 +510,7 @@ sub main
       $text_grid_body .= "<td class='grid-data $fmt_class  $base_field_class'>$data_fmt</td>";
       }
     $text_grid_body .= "</tr>";
+
     }
   
   $text_grid_foot .= "</table>";

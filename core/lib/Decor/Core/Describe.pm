@@ -159,6 +159,9 @@ my %DES_ATTRS = (
                            DOWNLOAD_FILE_CUE => 3,
 
                            FIELDS_LIST => 3, # fields to be shown
+                           
+                           RECORD_NAME => 3, # interpolated list of fields, describing current record
+
                          },
                   'FIELD' => {
                            TABLE       => 1,

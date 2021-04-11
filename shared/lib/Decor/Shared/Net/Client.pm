@@ -367,7 +367,7 @@ sub describe
   $mi{ 'XT'    } = 'D';
   $mi{ 'TABLE' } = $table;
 
-  my $mo = $self->tx_msg( \%mi ) or return undef;
+  my $mo = $self->tx_msg( \%mi ) or return undef; # TODO: boom "describe: cannot get description for table [$table]";
 
   $self->{ 'CACHE' }{ 'DESCRIBE' }{ $table } = $mo->{ 'DES' };
 
@@ -468,6 +468,8 @@ sub fetch
 
   my $select_handle = shift;
 
+#print STDERR Dumper( "++++++++++++++++----FETCH--FETCH--FETCH----$select_handle-------->>>>>>>>>>>>>>>>>" );
+
   return undef unless $select_handle;
 
   my %mi;
@@ -485,6 +487,11 @@ sub fetch
     next if $mo->{ 'XS' } eq 'OK' and $mo->{ 'XA' } eq 'A_NEXT';
     last;
     }
+
+use Data::Dumper;
+use Exception::Sink;
+#print STDERR Dumper( '++++++++++++++++---------------->>>>>>>>>>>>>>>>>', $select_handle, $mo, Exception::Sink::get_stack_trace() );
+#print STDERR Dumper( "++++++++++++++++----FETCH--FETCH--FETCH------------>>>>>>  $select_handle  >>>>>>>>>>>", $select_handle, $mo );
 
   return $mo->{ 'DATA' };
 }

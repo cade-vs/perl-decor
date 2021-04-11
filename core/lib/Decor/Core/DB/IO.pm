@@ -435,7 +435,6 @@ sub fetch
   my $self = shift;
 
   return undef if $self->{ 'VIRTUAL' };
-  
   return undef if $self->{ 'SELECT' }{ 'EOD' };
   
   my $sth = $self->{ 'SELECT' }{ 'STH' };

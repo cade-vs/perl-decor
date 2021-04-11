@@ -87,7 +87,7 @@ sub on_process
       }
 
     my $xt = uc $mi->{ 'XT' };
-    de_log_dumper2( "MI" x 16, $mi );
+    de_log_dumper2( "MIMI" x 16, $mi );
 
     # TODO: check incoming message
 
@@ -102,7 +102,7 @@ sub on_process
     eval
       {
       $self->on_process_xt_message( $mi, $mo, $socket );
-      de_log_dumper2( "HANDLER MO RES " x 8, "$mo", $mo );
+      # de_log_dumper2( "HANDLER MO RES " x 8, "$mo", $mo );
       };
     if( $@ )
       {
@@ -158,7 +158,7 @@ sub on_process
       de_log_debug( "debug: XTYPE [$xt] XSTATUS [$xs]" );
       }  
 
-    de_log_dumper2( "MO" x 16, $mo );
+    de_log_dumper2( "MOMO" x 16, $mo );
     my $send_file_name = $mo->{ '___SEND_FILE_NAME' };
     my $send_file_size = $mo->{ '___SEND_FILE_SIZE' };
     delete $mo->{ '___SEND_FILE_NAME' };

@@ -10,8 +10,6 @@
 package Decor::Core::Env;
 use strict;
 
-use Decor::Shared::Types;
-
 use Exporter;
 BEGIN
 {
@@ -42,15 +40,16 @@ use Data::Dumper;
 use Exception::Sink;
 use Data::Tools 1.09;
 
+use Decor::Shared::Types;
 use Decor::Shared::Utils;
-use Decor::Core::Config;
+use Decor::Shared::Config;
 use Decor::Core::Log;
 
 $Data::Dumper::Sortkeys = 1;
 
 ### PRIVATE ##################################################################
 
-my $VERSION = '1.00';
+my $VERSION = '1.01';
 my $ROOT    = $ENV{ 'DECOR_CORE_ROOT' } || '/usr/local/decor';
 my $DEBUG   = 0;
 
@@ -67,6 +66,7 @@ my %APP_CFG_KEYS = (
 
 my @BUNDLES;
 my @BUNDLES_DIRS;
+my @ETC_DIRS;
 
 ### PUBLIC ###################################################################
 
@@ -117,11 +117,13 @@ sub de_init
   # unshift @BUNDLES, sort ( read_dir_entries( "$app_dir/bundles" ) );
 
   my @inc;
+  my @etc;
 
   for my $bundle ( @BUNDLES )
     {
     boom "error: invalid bundle name [$bundle]! check USE_BUNDLES in app.conf" unless de_check_name_ext( $bundle );
-    # FIXME: bad logic, should not complain if no bundles are used at all, report locations and bundle name for other "not-found" errors
+    # FIXME: bad logic, should not complain if no bundles are used at all, 
+    # report locations and bundle name for other "not-found" errors
     my $found;
     for my $bundle_dir ( ( "$app_dir/bundles", "$ROOT/bundles" ) )
       {
@@ -130,6 +132,7 @@ sub de_init
         my $bd = "$bundle_dir/$bundle";
         push @BUNDLES_DIRS, $bd;
         push @inc, "$bd/lib";
+        push @etc, "$bd/etc";
         $found = 1;
         last;
         }
@@ -140,11 +143,14 @@ sub de_init
       }
     }
 
+  push @inc, "$app_dir/lib";
+  push @etc, "$app_dir/etc";
+
+  @ETC_DIRS = ( @etc, $ROOT . '/core/lib' );
+
   dlock \@BUNDLES;
   dlock \@BUNDLES_DIRS;
-
-  push @inc, "$app_dir/lib";
-
+  dlock \@ETC_DIRS;
 
   type_set_format({NAME => 'UTIME'},'YMD24');
   

@@ -24,6 +24,11 @@ our @EXPORT = qw(
                 de_check_name_ext_boom
                 de_check_id
                 de_check_id_boom
+
+                de_check_fname
+                de_check_fname_boom
+                de_check_fpath
+                de_check_fpath_boom
                 
                 de_check_user_login_name
                 de_check_user_pass_digest
@@ -91,6 +96,38 @@ sub de_check_id_boom
   de_check_id( $id ) or boom $msg;
 }
 
+sub de_check_fname
+{
+  my $fname = shift;
+
+  # this will not handle all file names! it is intentionally restrictive!
+  return $fname =~ /^[a-zA-Z_0-9\-]+(\.[a-zA-Z_0-9\-]+)?$/o ? 1 : 0;
+}
+
+sub de_check_fname_boom
+{
+  my $fname = shift;
+  my $msg   = shift || "invalid FILE NAME [$fname]";
+  
+  de_check_fname( $fname ) or boom $msg;
+}
+
+sub de_check_fpath
+{
+  my $fpath = shift;
+
+  # this will not handle all file names/paths! it is intentionally restrictive!
+  return $fpath =~ /^\/?([a-zA-Z_0-9\-]+(\.[a-zA-Z_0-9\-]+)?\/)*[a-zA-Z_0-9\-]+(\.[a-zA-Z_0-9\-]+)?$/o ? 1 : 0;
+}
+
+sub de_check_fpath_boom
+{
+  my $fpath = shift;
+  my $msg   = shift || "invalid FILE PATH/NAME [$fpath]";
+  
+  de_check_fpath( $fpath ) or boom $msg;
+}
+
 sub de_check_user_login_name
 {
   my $name = shift;
@@ -107,9 +144,7 @@ sub de_check_user_pass_digest
 
 sub de_reload_config
 {
-
-die 'de_reload_config: is not implemented';
-
+  die 'de_reload_config: is not implemented';
 };
 
 sub de_obj_add_debug_info

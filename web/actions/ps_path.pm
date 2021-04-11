@@ -36,7 +36,7 @@ sub main
     else
       {
       # previous page session
-      my $alink = de_html_alink( $reo, 'none', "$icon", $title, _P => $pp_id );
+      my $alink = de_html_alink( $reo, 'none', "$icon", { CLASS => 'plain', HINT => $title }, _P => $pp_id );
       $text .= " <b>:</b> $alink";
       # $text .= " $title" if $path_count <= 1;
       }  

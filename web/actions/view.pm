@@ -38,7 +38,8 @@ sub main
   my $table_label = $tdes->get_label();
   my $table_type  = $sdes->{ 'TYPE' };
 
-  $reo->ps_path_add( 'view', qq( [~View record data from] "<b>$table_label</b>" ) );
+  my $browser_window_title = qq( [~View a record from] "<b>$table_label</b>" );
+  $reo->ps_path_add( 'view', $browser_window_title );
 
   my $link_field_disable = $reo->param( 'LINK_FIELD_DISABLE' );
 
@@ -76,6 +77,11 @@ sub main
     return "<p><#no_data><p>" . de_html_alink_button( $reo, 'back', "[~Back]", "[~Return to previous screen]" );
     }
   my $row_id = $row_data->{ '_ID' };
+
+  my $record_name     = $sdes->get_attr( qw( WEB VIEW RECORD_NAME ) );
+  $record_name =~ s/\$([A-Z_0-9]+)/exists $row_data->{ $1 } ? $row_data->{ $1 } : undef/gie;
+  $browser_window_title .= "| $record_name";
+  $reo->ps_path_add( 'view', $browser_window_title );
 
 #print STDERR Dumper( $row_data );
 

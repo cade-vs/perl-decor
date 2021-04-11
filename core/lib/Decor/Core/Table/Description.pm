@@ -18,8 +18,8 @@ use Exception::Sink;
 use Data::Tools;
 
 use Decor::Shared::Utils;
+use Decor::Shared::Config;
 use Decor::Core::Log;
-use Decor::Core::Config;
 
 ##############################################################################
 

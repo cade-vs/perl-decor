@@ -7,7 +7,7 @@
 ##  LICENSE: GPLv2
 ##
 ##############################################################################
-package Decor::Core::Config;
+package Decor::Shared::Config;
 use strict;
 use open ':std', ':encoding(UTF-8)';
 
@@ -30,24 +30,36 @@ use Data::Tools 1.09;
 use Exception::Sink;
 
 use Decor::Shared::Utils;
-use Decor::Core::Env;
-use Decor::Core::Log;
 
 
 # FIXME catch nesting loops
 
 ##############################################################################
 
+sub de_config_load
+{
+  my $name  = lc shift; # config name (no path, just name.ext)
+  my $dirs  =    shift; # array ref. dirs for search and @include
+  my $opt   =    shift || {};
+
+  my $config = {};
+  tie %$config, 'Tie::IxHash';
+  
+  my $res = de_config_merge( $config, $name, $dirs, $opt );
+  
+  return $res ? $config : undef;
+}
+
 sub de_config_merge
 {
   my $config =    shift; # config hash ref
-  my $name   = lc shift; # file name (config name) to look for
-  my $dirs   =    shift; # array reference with dir names
-  my $opt    = shift || {};
+  my $name   = lc shift; # config name (no path, just name.ext)
+  my $dirs   =    shift; # array ref. dirs for search and @include
+  my $opt    =    shift || {};
+
+  de_check_fname( $name  ) or boom "invalid FILE NAME: [$name]";
   
-  de_check_name( $name  ) or boom "invalid NAME: [$name]";
-  
-  my @files = __de_resolve_config_files( $name, $dirs );
+  my @files = __de_resolve_config_files( $name, $dirs, $opt );
 
   return undef unless @files > 0;
   
@@ -59,24 +71,10 @@ sub de_config_merge
   return 1;
 }
 
-sub de_config_load
-{
-  my $name  = lc shift;
-  my $dirs  =    shift; # array reference
-  my $opt   = shift || {};
-
-  my $config = {};
-  tie %$config, 'Tie::IxHash';
-  
-  my $res = de_config_merge( $config, $name, $dirs, $opt );
-  
-  return $res ? $config : undef;
-}
-
 sub de_config_load_file
 {
   my $fname = shift;
-  my $dirs  = shift || []; # array reference
+  my $dirs  = shift || []; # array ref. dirs for @include
   my $opt   = shift || {};
 
   my $config = {};
@@ -88,13 +86,15 @@ sub de_config_load_file
 sub __de_resolve_config_files
 {
   my $name  = lc shift;
-  my $dirs  =    shift; # array reference
+  my $ext   = lc shift;
+  my $dirs  =    shift; # array ref. dirs for @include
+  my $opt   =    shift || {};
 
   return () unless $dirs and @$dirs > 0;
 
   my @files;
   
-  push @files, glob_tree( "$_/$name.def" ) for @$dirs;
+  push @files, glob_tree( "$_/$name" ) for @$dirs;
 
   return @files;
 }
@@ -114,7 +114,7 @@ sub de_config_merge_file
   my $inf;
   open( $inf, "<", $fname ) or boom "cannot open config file [$fname]";
 
-  de_debug( "config: open: $fname" );  
+#  de_debug( "config: open: $fname" );  
 
   my $sect_name = '@'; # self :) should be more like 0
   my $category  = '@';
@@ -137,7 +137,7 @@ sub de_config_merge_file
     $line =~ s/\s*$//;
     next unless $line =~ /\S/;
     next if $line =~ /^([#;]|\/\/)/;
-    de_debug( "        line: [$line]" );  
+#    de_debug( "        line: [$line]" );  
 
     if( $line =~ /^=(([a-zA-Z_][a-zA-Z_0-9]*):\s*)?([a-zA-Z_][a-zA-Z_0-9]*)\s*(.*?)\s*$/ )
       {
@@ -147,7 +147,7 @@ sub de_config_merge_file
 
       boom "invalid category [$category] at [$fname:$ln]" if $categories and ! exists $categories->{ $category };
 
-      de_debug( "       =sect: [$category:$sect_name]" );  
+#      de_debug( "       =sect: [$category:$sect_name]" );  
       
       $config->{ $category }{ $sect_name } ||= {};
       $config->{ $category }{ $sect_name }{ 'LABEL' } ||= $sect_name;
@@ -155,7 +155,7 @@ sub de_config_merge_file
 ###      %{ $config->{ $category }{ $sect_name } } = ( %{ dclone( $config->{ '@' }{ '@' } ) }, %{ $config->{ $category }{ $sect_name } } );
       $config->{ $category }{ $sect_name }{ '_ORDER' } = $opt->{ '_ORDER' }++;
       
-      if( de_debug() ) # FIXME: move to const var?
+      # if( de_debug() ) # FIXME: move to const var?
         {
         $config->{ $category }{ $sect_name }{ 'DEBUG::ORIGIN' } ||= [];
         push @{ $config->{ $category }{ $sect_name }{ 'DEBUG::ORIGIN' } }, $origin;
@@ -171,7 +171,7 @@ sub de_config_merge_file
   
       next unless $dirs and @$dirs > 0;
       
-      de_debug( "        isa:  [$name][$opts]" );  
+#      de_debug( "        isa:  [$name][$opts]" );  
 
       my $isa = de_config_load( $name, $dirs );
 
@@ -179,7 +179,7 @@ sub de_config_merge_file
 
       my @opts = split /[\s,]+/, uc $opts;
 
-      de_debug( "        isa:  DUMP: " . Dumper($isa) );  
+#      de_debug( "        isa:  DUMP: " . Dumper($isa) );  
       
       for my $opt ( @opts )
         {
@@ -220,7 +220,7 @@ sub de_config_merge_file
         $value = 1;
         }
 
-      de_debug( "            key:  [$sect_name]:[$key]=[$value]" );
+#      de_debug( "            key:  [$sect_name]:[$key]=[$value]" );
 
       if( $key_types->{ $key } eq '@' )
         {
@@ -234,7 +234,6 @@ sub de_config_merge_file
       
       next;
       }
-
 
     }
   close( $inf );

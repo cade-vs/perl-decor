@@ -787,7 +787,12 @@ sub sub_fetch
   my $fmeth = $SELECT_MAP{ $select_handle }{ 'FM' };
 
   my $hr = $dbio->fetch();
-                  
+  if( ! $hr )
+    {
+    $mo->{ 'EOD'  } = 'YES'; # end of data
+    $mo->{ 'XS'   } = 'OK';
+    }
+
   if( de_code_exists( 'tables', $table, 'FETCH' ) )
     {
     de_code_exec( 'tables', $table, 'FETCH', $hr );
@@ -804,16 +809,8 @@ sub sub_fetch
       }
     }
 
-  if( $hr )
-    {
-    $mo->{ 'DATA' } = $hr;
-    $mo->{ 'XS'   } = 'OK';
-    }
-  else
-    {
-    $mo->{ 'EOD'  } = 'YES'; # end of data
-    $mo->{ 'XS'   } = 'OK';
-    }
+  $mo->{ 'DATA' } = $hr;
+  $mo->{ 'XS'   } = 'OK';
 };
 
 

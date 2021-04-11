@@ -18,7 +18,7 @@
 package Web::Reactor::Decor;
 use strict;
 use Exporter;
-use Web::Reactor;
+use Web::Reactor 2.08;
 use Exception::Sink;
 use Data::Tools;
 use Data::Dumper;
@@ -26,6 +26,7 @@ use Storable;
 
 use Decor::Shared::Net::Client;
 use Decor::Shared::Utils;
+use Decor::Shared::Config;
 
 our @ISA = qw( Web::Reactor );
 
@@ -224,9 +225,9 @@ sub de_load_cfg
 
   my $app_root = $self->{ 'ENV' }{ 'APP_ROOT' };
 
-  my $fnf = "$app_root/etc/$fn.cfg";
+  my $fnf = "$app_root/web/etc/$fn.cfg";
   $self->log( "error: config file not found [$fnf]" ) unless -e $fnf;
-  my $cfg = load_hash( $fnf );
+  my $cfg = de_config_load_file( $fnf );
 
   return $cfg;
 }
@@ -249,6 +250,9 @@ sub ps_path_add
   $icon .= '.svg' unless $icon =~ /\.(png|gif|jpg|jpeg)$/i;
 
   push @ps_path, { PS_ID => $ps_id, ICON => $icon, TITLE => $title };
+  
+  $title =~ s/<[^>]*>//g; # remove HTML if any
+  $self->set_browser_window_title( $title );
 
   return @ps_path;
 }
