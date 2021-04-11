@@ -9,7 +9,12 @@
 ############################################################################*/
 
 
-/* THIS FILE IS GENERATED! PLEASE, DO NOT MODIFY! -- GENERATED AT Mon Apr 12 00:59:16 2021 */
+/* THIS FILE IS GENERATED! PLEASE, DO NOT MODIFY! -- GENERATED AT Mon Apr 12 01:39:26 2021 */
+
+
+
+
+
 
 
 
@@ -55,6 +60,63 @@ body
 .fill
         {
         width: 100%;
+        }
+
+table.main
+        {
+        width:  100%;
+        height: 100%;
+        }
+
+tr.main_body
+        {
+        width:  100%;
+        height: 100%;
+        vertical-align: top;
+        }
+
+td.main_body
+        {
+        text-align: center;
+        vertical-align: top;
+        }
+
+td.main_footer
+        {
+        color: #AAA;
+        background-color: #444;
+        border-top: solid 1px #777;
+        width:  100%;
+        height: 100%;
+        vertical-align: top;
+        padding: 4px;
+        }
+
+
+/*** for_screen/for_print ***************************************************/
+
+div#div_for_screen
+        {
+        width:  100%;
+        height: 100%;
+        }
+
+@media screen
+        {
+        div#div_for_screen { display: block; }
+        div#div_for_print  { display: none;  }
+        }
+
+@media print
+        {
+        div#div_for_screen { display: none;  }
+        div#div_for_print  { display: block; }
+        body
+              {
+              color: #000;
+              background-color: #FFF;
+              background-image: none;
+              }
         }
 
 /*** globals ****************************************************************/
@@ -235,11 +297,6 @@ div.link-empty
         margin: 2px 2px 2px 2px;
         }
 
-.input-error
-        {
-        background-color: #352525;
-        }
-
 .hi
         {
         color: #FFF;
@@ -258,61 +315,6 @@ table
         cursor: pointer;
         }
 
-/*** for_screen/for_print ***************************************************/
-
-div#div_for_screen
-        {
-        width:  100%;
-        height: 100%;
-        }
-
-table.main
-        {
-        width:  100%;
-        height: 100%;
-        }
-
-tr.main_body
-        {
-        width:  100%;
-        height: 100%;
-        vertical-align: top;
-        }
-
-td.main_body
-        {
-        text-align: center;
-        vertical-align: top;
-        }
-
-td.main_footer
-        {
-        width:  100%;
-        height: 100%;
-        vertical-align: top;
-        background-color: #444;
-        border-top: solid 1px #777;
-        padding: 4px;
-        }
-
-@media screen
-        {
-        div#div_for_screen { display: block; }
-        div#div_for_print  { display: none;  }
-        }
-
-@media print
-        {
-        div#div_for_screen { display: none;  }
-        div#div_for_print  { display: block; }
-        body
-              {
-              color: #000;
-              background-color: #FFF;
-              background-image: none;
-              }
-        }
-
 /*** logo head table ********************************************************/
 
 table.logo
@@ -320,6 +322,7 @@ table.logo
         color: #CCC;
         background-color: #446;
         border-bottom: solid 1px #66A;
+        
         vertical-align: middle;
         padding: 4px;
         }
@@ -334,23 +337,26 @@ a.logo
 
 table.main-menu
         {
-        width:  100%;
         color: #CCC;
+        border-bottom: solid 1px #66A;
+
+        width:  100%;
         }
 
 tr.main-menu
         {
         background-color: #224;
+
         vertical-align: middle;
         font-weight: bold;
         white-space: nowrap;
-        border-bottom: solid 1px #66A;
         }
 
 td.main-menu
         {
-        width:  1%;
         border-right: solid 1px #777;
+
+        width:  1%;
         }
 
 td.main-menu:hover
@@ -360,16 +366,18 @@ td.main-menu:hover
 
 td.main-menu-fill
         {
-        width:  100%;
         border-right: solid 1px #777;
+
+        width:  100%;
         padding: 0;
         text-align: right;
         }
 
 a.main-menu
         {
-        display: block;
         color: #CCC;
+
+        display: block;
         width:  100%;
         padding: 6px;
         text-decoration: none;
@@ -379,6 +387,7 @@ a.main-menu
 a.main-menu:hover
         {
         color: #FFF;
+
         text-decoration: none;
         border: none;
         }

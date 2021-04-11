@@ -14,8 +14,9 @@
 
 /*$* DECOR SYSTEM DEFAULT CSS, CONFIG SECTION *******************************/
 
-/*$           fg    bg    bg-image */
-$body-colors  #DDD  #222  main-background.png  
+/*$                 fg    bg    bg-image */
+$body-colors        #DDD  #222  main-background.png  
+$body-colors-print  #000  #FFF
 
 /*$           fg    decoration  fg-hover  decoration-hover */ 
 $link-colors  aqua  teal        aqua      aqua 
@@ -33,6 +34,21 @@ $info-box-colors    #FFF  #357  #68A   #68A         1px          3px
 /*$                   fg    bg    3d-top 3d-bottom */
 $edit-link-data-box   #CCC  #113  #000  #555
 $edit-link-empty-box  #CCC  #311  #000  #555
+
+/*$              fg    bg    border-color */
+$warning-colors  #FFF  #822  #633
+
+/*$       fg    -- this is the highlight color, usually should be body-fg but higher */
+$hi-color #FFF
+
+/*$             fg    bg    border-color  */
+$footer-colors  #AAA  #444  #777
+
+/*$             fg    bg    border-color  */
+$logo-colors    #CCC  #446  #66A
+
+/*$           fg    bg    fg-hi  bg-hi  border  border-between-menu-items  */
+$menu-colors  #CCC  #224  #FFF   #335   #66A     #777
 
 /*$* DECOR STATIC/SYSTEM SECTION, DO NOT MODIFY BELOW THIS LINE *************/
 
@@ -99,6 +115,63 @@ body
 .fill
         {
         width: 100%;
+        }
+
+table.main
+        {
+        width:  100%;
+        height: 100%;
+        }
+
+tr.main_body
+        {
+        width:  100%;
+        height: 100%;
+        vertical-align: top;
+        }
+
+td.main_body
+        {
+        text-align: center;
+        vertical-align: top;
+        }
+
+td.main_footer
+        {
+        color: $footer-colors.1;
+        background-color: $footer-colors.2;
+        border-top: solid 1px $footer-colors.3;
+        width:  100%;
+        height: 100%;
+        vertical-align: top;
+        padding: 4px;
+        }
+
+
+/*** for_screen/for_print ***************************************************/
+
+div#div_for_screen
+        {
+        width:  100%;
+        height: 100%;
+        }
+
+@media screen
+        {
+        div#div_for_screen { display: block; }
+        div#div_for_print  { display: none;  }
+        }
+
+@media print
+        {
+        div#div_for_screen { display: none;  }
+        div#div_for_print  { display: block; }
+        body
+              {
+              color: $body-colors-print.1;
+              background-color: $body-colors-print.2;
+              background-image: none;
+              }
         }
 
 /*** globals ****************************************************************/
@@ -221,21 +294,16 @@ div.link-empty
 .warning
         {
         font-weight: bold;
-        color: #FFF;
-        background-color: #822;
-        border: solid 1px #633;
+        color: $warning-colors.1;
+        background-color: $warning-colors.2;
+        border: solid 1px $warning-colors.3;
         padding: 2px;
         margin: 2px 2px 2px 2px;
         }
 
-.input-error
-        {
-        background-color: #352525;
-        }
-
 .hi
         {
-        color: #FFF;
+        color: $hi-color;
         font-weight: bold;
         }
 
@@ -251,75 +319,21 @@ table
         cursor: pointer;
         }
 
-/*** for_screen/for_print ***************************************************/
-
-div#div_for_screen
-        {
-        width:  100%;
-        height: 100%;
-        }
-
-table.main
-        {
-        width:  100%;
-        height: 100%;
-        }
-
-tr.main_body
-        {
-        width:  100%;
-        height: 100%;
-        vertical-align: top;
-        }
-
-td.main_body
-        {
-        text-align: center;
-        vertical-align: top;
-        }
-
-td.main_footer
-        {
-        width:  100%;
-        height: 100%;
-        vertical-align: top;
-        background-color: #444;
-        border-top: solid 1px #777;
-        padding: 4px;
-        }
-
-@media screen
-        {
-        div#div_for_screen { display: block; }
-        div#div_for_print  { display: none;  }
-        }
-
-@media print
-        {
-        div#div_for_screen { display: none;  }
-        div#div_for_print  { display: block; }
-        body
-              {
-              color: #000;
-              background-color: #FFF;
-              background-image: none;
-              }
-        }
-
 /*** logo head table ********************************************************/
 
 table.logo
         {
-        color: #CCC;
-        background-color: #446;
-        border-bottom: solid 1px #66A;
+        color: $logo-colors.1;
+        background-color: $logo-colors.2;
+        border-bottom: solid 1px $logo-colors.3;
+        
         vertical-align: middle;
         padding: 4px;
         }
 
 a.logo
         {
-        color: #CCC;
+        color: $logo-colors.1;
         text-decoration: none;
         }
 
@@ -327,42 +341,47 @@ a.logo
 
 table.main-menu
         {
+        color: $menu-colors.1;
+        border-bottom: solid 1px $menu-colors.5;
+
         width:  100%;
-        color: #CCC;
         }
 
 tr.main-menu
         {
-        background-color: #224;
+        background-color: $menu-colors.2;
+
         vertical-align: middle;
         font-weight: bold;
         white-space: nowrap;
-        border-bottom: solid 1px #66A;
         }
 
 td.main-menu
         {
+        border-right: solid 1px $menu-colors.6;
+
         width:  1%;
-        border-right: solid 1px #777;
         }
 
 td.main-menu:hover
         {
-        background-color: #335;
+        background-color: $menu-colors.4;
         }
 
 td.main-menu-fill
         {
+        border-right: solid 1px $menu-colors.6;
+
         width:  100%;
-        border-right: solid 1px #777;
         padding: 0;
         text-align: right;
         }
 
 a.main-menu
         {
+        color: $menu-colors.1;
+
         display: block;
-        color: #CCC;
         width:  100%;
         padding: 6px;
         text-decoration: none;
@@ -371,7 +390,8 @@ a.main-menu
 
 a.main-menu:hover
         {
-        color: #FFF;
+        color: $menu-colors.3;
+
         text-decoration: none;
         border: none;
         }
