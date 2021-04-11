@@ -9,7 +9,7 @@
 ############################################################################*/
 
 
-/* THIS FILE IS GENERATED! PLEASE, DO NOT MODIFY! -- GENERATED AT Mon Apr 12 01:39:26 2021 */
+/* THIS FILE IS GENERATED! PLEASE, DO NOT MODIFY! -- GENERATED AT Mon Apr 12 02:04:02 2021 */
 
 
 
@@ -338,18 +338,15 @@ a.logo
 table.main-menu
         {
         color: #CCC;
-        border-bottom: solid 1px #66A;
-
-        width:  100%;
-        }
-
-tr.main-menu
-        {
         background-color: #224;
+        border-bottom: solid 1px #66A;
 
         vertical-align: middle;
         font-weight: bold;
         white-space: nowrap;
+        cursor: pointer;
+
+        width:  100%;
         }
 
 td.main-menu
@@ -392,23 +389,6 @@ a.main-menu:hover
         border: none;
         }
 
-/*** page sessions path ******************************************************/
-
-tr.ps-path
-        {
-        background-color: #335;
-        color: #FA5;
-        font-weight: bold;
-        vertical-align: middle;
-        white-space: normal;
-        border-bottom: solid 1px #66A;
-        }
-
-td.ps-path
-        {
-        padding: 6px;
-        }
-
 /*** menu *******************************************************************/
 
 table.menu
@@ -416,28 +396,38 @@ table.menu
         color: #CCC;
         background-color: #224;
         border-top: solid 1px #66A;
+
         vertical-align: middle;
         font-weight: bold;
+        white-space: nowrap;
+        cursor: pointer;
+
         width: 80%;
-        text-align: left;
         }
 
 td.menu
         {
         width:  1%;
         border-bottom: solid 1px #777;
-        border-left: solid 1px #66A;
+        border-left:  solid 1px #66A;
         border-right: solid 1px #66A;
+
         padding: 4px;
         white-space: nowrap;
         padding-left: 10px;
         padding-right: 10px;
         }
 
+td.menu:hover
+        {
+        background-color: #335;
+        }
+
 a.menu
         {
-        display: block;
         color: #CCC;
+
+        display: block;
         width:  100%;
         padding: 4px;
         text-decoration: none;
@@ -447,20 +437,28 @@ a.menu
 a.menu:hover
         {
         color: #FFF;
+        background-color: #335;
+
         text-decoration: none;
         border: none;
         }
 
-td.menu:hover
+/*** page sessions path ******************************************************/
+
+tr.ps-path
         {
-        background-color: #335;
-        white-space: nowrap;
+        background-color: #224;
+        border-bottom: solid 1px #66A;
+        color: #CCC;
+        
+        font-weight: bold;
+        vertical-align: middle;
+        white-space: normal;
         }
 
-tr.menu
+td.ps-path
         {
-        cursor: pointer;
-        white-space: nowrap;
+        padding: 6px;
         }
 
 /*** view *******************************************************************/
