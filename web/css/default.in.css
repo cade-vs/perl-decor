@@ -8,7 +8,11 @@
 ##
 ############################################################################*/
 
-/*** DECOR SYSTEM DEFAULT CSS, CONFIG SECTION *******************************/
+/*$* DECOR SOURCE CSS FILE **************************************************/
+
+/* $ALTER_CSS_GEN_WARNING -- GENERATED AT $ALTER_CSS_GEN_TIME */
+
+/*$* DECOR SYSTEM DEFAULT CSS, CONFIG SECTION *******************************/
 
 /*$           fg    bg    bg-image */
 $body-colors  #DDD  #222  main-background.png  
@@ -30,7 +34,7 @@ $info-box-colors    #FFF  #357  #68A   #68A         1px          3px
 $edit-link-data-box   #CCC  #113  #000  #555
 $edit-link-empty-box  #CCC  #311  #000  #555
 
-/*** DECOR STATIC/SYSTEM SECTION, DO NOT MODIFY BELOW THIS LINE *************/
+/*$* DECOR STATIC/SYSTEM SECTION, DO NOT MODIFY BELOW THIS LINE *************/
 
 $$3d-box-normal
         color: $1;

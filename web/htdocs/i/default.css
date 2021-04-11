@@ -1,14 +1,26 @@
 /*############################################################################
 ##
 ##  Decor application machinery core
-##  2014-2017 (c) Vladi Belperchinov-Shabanski "Cade"
+##  2014-2021 (c) Vladi Belperchinov-Shabanski "Cade"
 ##  <cade@bis.bg> <cade@biscom.net> <cade@cpan.org>
 ##
 ##  LICENSE: GPLv2
 ##
 ############################################################################*/
 
-/*** DECOR SYSTEM DEFAULT CSS ***********************************************/
+
+/* THIS FILE IS GENERATED! PLEASE, DO NOT MODIFY! -- GENERATED AT Mon Apr 12 00:59:16 2021 */
+
+
+
+
+
+
+
+
+
+
+
 
 /*** main/body **************************************************************/
 
@@ -31,7 +43,7 @@ body
         font-size: 10pt;
         color: #DDD;
         background-color: #222;
-        background-image: url("main-background.png");
+        background-image: url( "main-background.png" );
         height: 100%;
         }
 
@@ -49,23 +61,18 @@ body
 
 a       {
         color: aqua;
-        text-decoration: none;
-        text-decoration-style: dotted;
-        text-decoration-color: teal;
         border-bottom: dotted 1px teal;
+
+        text-decoration: none;
         }
 a:hover {
         color: aqua;
-        text-decoration: none;
-        text-decoration-style: solid;
-        text-decoration-color: aqua;
         border-bottom: solid 1px aqua;
         }
 
 a.plain
         {
         border: none;
-        text-decoration: none;
         }
 
 img
@@ -75,28 +82,30 @@ img
 
 .icon
         {
-        cursor: pointer;
         color: #FFF;
-        height: 2.2em;
-        padding: 0.4em;
-        margin:  0.1em;
-        background-image: none;
         background-color: #448;
         border-top:    solid 1px #66A;
         border-left:   solid 1px #66A;
         border-bottom: solid 1px #226;
         border-right:  solid 1px #226;
+        background-image: none;
+
+        cursor: pointer;
+        height: 2.2em;
+        padding: 0.4em;
+        margin:  0.1em;
         text-decoration: none;
         }
-
 .icon:hover
         {
+        color: #FFF;
         background-color: #559;
         border-top:    solid 1px #226;
         border-left:   solid 1px #226;
         border-bottom: solid 1px #66A;
         border-right:  solid 1px #66A;
         }
+
 
 .act-icon
         {
@@ -107,7 +116,6 @@ img
         border-bottom: solid 1px #060;
         border-right:  solid 1px #060;
         }
-
 .act-icon:hover
         {
         color: #FFF;
@@ -127,7 +135,6 @@ img
         border-bottom: solid 1px #600;
         border-right:  solid 1px #600;
         }
-
 .mod-icon:hover
         {
         color: #FFF;
@@ -141,13 +148,14 @@ img
 .icon-disabled
         {
         color: #FFF;
+        background-color: #F84;
+        border-top:    solid 1px #226;
+        border-left:   solid 1px #226;
+        border-bottom: solid 1px #66A;
+        border-right:  solid 1px #66A;
+        
         padding: 0.3em;
         margin:  0.1em;
-        background-color: #337;
-        border-top:    solid 1px #66A;
-        border-left:   solid 1px #66A;
-        border-bottom: solid 1px #226;
-        border-right:  solid 1px #226;
         text-decoration: none;
         }
 
@@ -162,12 +170,15 @@ h1      {
         margin: 2px 2px 2px 2px; 
         }
 
+
 div.error-text
         {
-        width:  80%;
+        color: #FFF;
         background-color: #511;
         border:      solid 1px #933;
         border-left: solid 3px #933;
+
+        width:  80%;
         text-align: center;
         padding: 1em;
         margin-left: auto;
@@ -176,10 +187,12 @@ div.error-text
 
 div.info-text
         {
-        width:  80%;
+        color: #FFF;
         background-color: #357;
         border:      solid 1px #68A;
         border-left: solid 3px #68A;
+
+        width:  80%;
         text-align: center;
         padding: 1em;
         margin-left: auto;
@@ -190,22 +203,26 @@ div.link-data
         {
         color: #CCC;
         background-color: #113;
+        border-top:    solid 1px #000;
+        border-left:   solid 1px #000;
+        border-bottom: solid 1px #555;
+        border-right:  solid 1px #555;
+
         padding: 0.5em;
         margin: 0 0 0 0;
-        border:        none;
-        border-left:   solid 1px #555;
-        border-bottom: solid 1px #555;
         }
 
 div.link-empty
         {
         color: #CCC;
         background-color: #311;
+        border-top:    solid 1px #000;
+        border-left:   solid 1px #000;
+        border-bottom: solid 1px #555;
+        border-right:  solid 1px #555;
+
         padding: 0.5em;
         margin: 0 0 0 0;
-        border:        none;
-        border-left:   solid 1px #555;
-        border-bottom: solid 1px #555;
         }
 
 .warning
@@ -594,7 +611,7 @@ input,textarea
         border-bottom: solid 1px #555;
         border-left:   solid 1px #000;
         border-top:    solid 1px #000;
-        background-image: url("input-background.png");
+        background-image: url( "input-background.png" );
         }
 
 input:hover,textarea:hover
@@ -633,7 +650,7 @@ select,.grid-link-select
         border-bottom: solid 1px #555;
         border-left:   solid 1px #000;
         border-top:    solid 1px #000;
-        background-image: url("input-background.png");
+        background-image: url( "input-background.png" );
         }
 
 select:hover,.grid-link-select:hover
@@ -647,7 +664,7 @@ select:hover,.grid-link-select:hover
         border-bottom: solid 1px #777;
         border-left:   solid 1px #000;
         border-top:    solid 1px #000;
-        background-image: url("input-background.png");
+        background-image: url( "input-background.png" );
         }
 
 .grid-link-select-option

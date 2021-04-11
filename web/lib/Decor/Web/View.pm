@@ -219,7 +219,7 @@ sub de_web_format_field
     my $popup_layer_html;
     ( $data_fmt, $popup_layer_html ) = de_html_popup( $reo, $data_fmt, $combo_text );
     $data_fmt = "<div class=vframe id=$vframe_id style='width: 100%;'><div class=grid-link-select>$data_fmt</div>$popup_layer_html</div>";
-    }    
+    }
   else
     {
     $data_fmt = type_format( $field_data, $fdes->{ 'TYPE' } );
