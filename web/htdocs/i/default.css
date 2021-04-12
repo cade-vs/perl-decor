@@ -9,7 +9,7 @@
 ############################################################################*/
 
 
-/* THIS FILE IS GENERATED! PLEASE, DO NOT MODIFY! -- GENERATED AT Tue Apr 13 01:39:06 2021 */
+/* THIS FILE IS GENERATED! PLEASE, DO NOT MODIFY! -- GENERATED AT Tue Apr 13 01:41:26 2021 */
 
 
 
@@ -725,7 +725,6 @@ select,.grid-link-select
         margin: 0 0 0 0;
         background-color: #049;
         border: none;
-        border: solid 2px #f00;
         }
 
 .grid-link-select-option:hover
