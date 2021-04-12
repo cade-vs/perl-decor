@@ -42,7 +42,7 @@ grant read          to 999
 
   sql_where  .CNT > 0
 
-=FILTER: DEFAULT_SELECT
+=FILTER: DEFAULT_SELECT_DISABLED
 
   sql_where  .NAME like 'M%'
 

@@ -220,9 +220,9 @@ sub main
   my $custom_css = lc "css_$table";
   $text .= "<#$custom_css>";
   $text .= "<table class=view cellspacing=0 cellpadding=0>";
-  $text .= "<tr class=view-header>";
-  $text .= "<td class='view-header fmt-right'>[~Field]</td>";
-  $text .= "<td class='view-header fmt-left' >[~Value]</td>";
+  $text .= "<tr class=edit-header>";
+  $text .= "<td class='edit-header fmt-right'>[~Field]</td>";
+  $text .= "<td class='edit-header fmt-left' >[~Value]</td>";
   $text .= "</tr>";
 
 ###  my $row_data = $core->fetch( $select );
@@ -553,8 +553,8 @@ sub main
     my $base_field_class = lc "css_edit_class_$base_field";
     
     $text .= "<tr class=view>\n";
-    $text .= "<td class='view-field  $base_field_class'>$label$field_error</td>\n";
-    $text .= "<td class='view-value  $base_field_class' >$input_layout</td>\n";
+    $text .= "<td class='edit-field  $base_field_class'>$label$field_error</td>\n";
+    $text .= "<td class='edit-value  $base_field_class' >$input_layout</td>\n";
     $text .= "</tr>\n";
     if( $field_details )
       {

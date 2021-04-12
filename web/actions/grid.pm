@@ -263,7 +263,7 @@ sub main
     my $link_field_value = $row_data->{ $link_field_disable };
 
     my $row_class = $row_counter++ % 2 ? 'grid-1' : 'grid-2';
-    $text_grid_body .= "<tr class=$row_class>";
+    $text_grid_body .= qq( <tr class="$row_class"> );
 
     my $vec_ctrl;
 

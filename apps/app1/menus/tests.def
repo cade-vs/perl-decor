@@ -45,3 +45,9 @@
   grant access to all
   type    do    test1   standalone
   label   run standalone do
+
+=Test2
+
+  grant access to all
+  label Test2
+  type  grid  TEST2

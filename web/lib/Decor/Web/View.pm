@@ -180,6 +180,7 @@ sub de_web_format_field
     else
       {
       my @v = split /\s*;\s*/, $combo;
+      @v = ( "%s", $linked_field ) unless @v;
       $spf_fmt = shift @v;
       @spf_fld = @v;
       }
