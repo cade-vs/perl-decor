@@ -9,7 +9,7 @@
 ############################################################################*/
 
 
-/* THIS FILE IS GENERATED! PLEASE, DO NOT MODIFY! -- GENERATED AT Tue Apr 13 23:41:17 2021 */
+/* THIS FILE IS GENERATED! PLEASE, DO NOT MODIFY! -- GENERATED AT Wed Apr 14 00:05:13 2021 */
 
 
 
@@ -981,23 +981,25 @@ div.vframe
 
 /*** map locations **********************************************************/
 
-div#map
-        {
-        border:    solid 2px #F53;
-        height: 80%;
-        }
-
 table.map-layout
         {
-        border:    solid 2px #0F0;
         height: 100%;
+        width:  100%
         vertical-align: top;
         }
+
 td.map-layout
         {
         vertical-align: top;
-        border:    solid 2px #00F;
         height: 100%;
+        width:  100%
         }
+
+div#map
+        {
+        height: 100%;
+        width:  100%
+        }
+
 
 /*** DECOR EOF **************************************************************/

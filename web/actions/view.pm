@@ -31,6 +31,8 @@ sub main
   my $table  = $reo->param( 'TABLE' );
   my $id     = $reo->param( 'ID'    );
 
+  my $ps = $reo->get_page_session();
+
   my $core = $reo->de_connect();
   my $tdes = $core->describe( $table );
   my $sdes = $tdes->get_table_des(); # table "Self" description
@@ -291,8 +293,11 @@ sub main
     }
   $text .= "</table>";
 
+  my $ps_path = $ps->{ 'PS_PATH' };
+  my $back_hint = @$ps_path > 1 ? ': ' . $ps_path->[ -2 ]{ 'TITLE' } : undef;
+  
   $text .= "<br>";
-  $text .= de_html_alink_button( $reo, 'back', "&lArr; [~Back]", "[~Return to previous screen]", BTYPE => 'nav' );
+  $text .= de_html_alink_button( $reo, 'back', "&lArr; [~Back]", "[~Return to previous screen]$back_hint", BTYPE => 'nav' );
   if( $tdes->allows( 'UPDATE' ) )
     {
     my $update_cue = $sdes->get_attr( qw( WEB GRID UPDATE_CUE ) ) || "[~Edit this record]";

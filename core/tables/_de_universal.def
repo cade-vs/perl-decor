@@ -5,7 +5,7 @@
   web.insert_cue  [~Create new record]
   web.update_cue  [~Modify this record]
   web.delete_cue  [~Delete this record]
-  web.copy_cue    [~Copy this record]; [~Create new record based on this one]
+  web.copy_cue    [~Copy into a new record]; [~Create new record based on this one]
   
   web.view_link_cue      [~View linked record]
   web.view_attached_cue  [~View linked records]

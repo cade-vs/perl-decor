@@ -63,6 +63,9 @@ $grid-head-colors  #FFF  #223  #555
 /*$                      bg-odd   bg-even  bg-hi    bottom-border-hi        */
 $grid-data-row-odd-even  #353535  #303030  #454560  #555
 
+/*$            fg              bg              border */
+$hover-colors  #FFF            #550            #990
+$popup-colors  $menu-colors.1  $menu-colors.2  $menu-colors.5
 
 /*$* DECOR STATIC/SYSTEM SECTION, DO NOT MODIFY BELOW THIS LINE *************/
 
@@ -907,9 +910,9 @@ select,.grid-link-select
 
 div.hover-layer
         {
-        color: #FFF;
-        background-color: #550;
-        border:      solid 2px #990;
+        color: $hover-colors.1;
+        background-color: $hover-colors.2;
+        border:      solid 2px $hover-colors.3;
 
         white-space: nowrap;
         padding: 0.5em;
@@ -920,9 +923,9 @@ div.hover-layer
 
 div.popup-layer
         {
-        color: $menu-colors.1;
-        background-color: $menu-colors.2;
-        border:      solid 2px $menu-colors.5;
+        color: $popup-colors.1;
+        background-color: $popup-colors.2;
+        border:      solid 2px $popup-colors.3;
 
         white-space: nowrap;
         padding: 0.5em;
@@ -994,23 +997,25 @@ div.vframe
 
 /*** map locations **********************************************************/
 
-div#map
-        {
-        border:    solid 2px #F53;
-        height: 80%;
-        }
-
 table.map-layout
         {
-        border:    solid 2px #0F0;
         height: 100%;
+        width:  100%
         vertical-align: top;
         }
+
 td.map-layout
         {
         vertical-align: top;
-        border:    solid 2px #00F;
         height: 100%;
+        width:  100%
         }
+
+div#map
+        {
+        height: 100%;
+        width:  100%
+        }
+
 
 /*** DECOR EOF **************************************************************/

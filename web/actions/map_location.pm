@@ -97,7 +97,7 @@ sub main
     </td>
 </tr>
 <tr>
-    <td colspan=3 class=map-layout>
+    <td colspan=4 class=map-layout>
     <div id='map' class='map'></div>
     </td>
 </tr>
@@ -243,7 +243,7 @@ sub main
           {
           map.setCenter( result.results[0].position );
           }  
-        map.zoomTo( 14 );
+        map.zoomTo( 16 );
         }
     };
       
