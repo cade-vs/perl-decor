@@ -53,13 +53,15 @@ $menu-colors  #CCC  #224  #FFF   #335   #66A     #777
 /*$                fg    bg    border  inside-border */
 $view-data-colors  #CCC  #333  #555    #444
 $view-head-colors  #FFF  #232  #555
+
 $edit-data-colors  $view-data-colors
 $edit-head-colors  #FFF  #411  #555
+
 $grid-data-colors  #CCC  #333  #555
 $grid-head-colors  #FFF  #223  #555
 
 /*$                      bg-odd   bg-even  bg-hi    bottom-border-hi        */
-$grid-data-row-odd-even  #353535  #303030  #454545  #AAA
+$grid-data-row-odd-even  #353535  #303030  #454560  #555
 
 
 /*$* DECOR STATIC/SYSTEM SECTION, DO NOT MODIFY BELOW THIS LINE *************/
@@ -729,25 +731,26 @@ select,.grid-link-select
 
 .grid-link-select-option
         {
+        color: $menu-colors.1;
+        background-color: $menu-colors.2;
+
         cursor: pointer;
         display: block;
         width: 100%;
-        color: #CCC;
-        background-color: #333;
-        padding: 0.5em;
-        margin: 0 0 0 0;
-        background-color: #049;
+        padding: 0.3em;
         border: none;
+        border-bottom: solid 1px $menu-colors.5;
         }
 
 .grid-link-select-option:hover
         {
-        display: block;
-        color: #FFF;
-        background-color: #08A;
-        border: none;
-        }
+        color: $menu-colors.3;
+        background-color: $menu-colors.4;
 
+        padding: 0.3em;
+        border: none;
+        border-bottom: solid 1px $menu-colors.5;
+        }
 
 /*** buttons ****************************************************************/
 
@@ -904,31 +907,28 @@ select,.grid-link-select
 
 div.hover-layer
         {
-        margin: 0px;
-        display: none;
         color: #FFF;
         background-color: #550;
-        border:      solid 1px #990;
-        border-left: solid 3px #990;
+        border:      solid 2px #990;
+
+        white-space: nowrap;
         padding: 0.5em;
         opacity: 0.95;
-        white-space: nowrap;
+
+        display: none;
         }
 
 div.popup-layer
         {
-        display: none;
-        color: #000;
-        background-color: #222;
-        border: solid 1px #555;
-        border-left: solid 3px #999;
+        color: $menu-colors.1;
+        background-color: $menu-colors.2;
+        border:      solid 2px $menu-colors.5;
+
         white-space: nowrap;
         padding: 0.5em;
         opacity: 0.95;
 
-        background-color: #025;
-        border:      solid 1px #049;
-        border-left: solid 3px #049;
+        display: none;
         }
 
 /*** check boxes ************************************************************/

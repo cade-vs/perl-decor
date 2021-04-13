@@ -9,7 +9,9 @@
 ############################################################################*/
 
 
-/* THIS FILE IS GENERATED! PLEASE, DO NOT MODIFY! -- GENERATED AT Tue Apr 13 01:41:26 2021 */
+/* THIS FILE IS GENERATED! PLEASE, DO NOT MODIFY! -- GENERATED AT Tue Apr 13 23:41:17 2021 */
+
+
 
 
 
@@ -618,14 +620,14 @@ tr.grid-2
 
 tr.grid-1:hover
         {
-        border-bottom: solid 1px #AAA;
-        background-color: #454545;
+        border-bottom: solid 1px #555;
+        background-color: #454560;
         }
 
 tr.grid-2:hover
         {
-        border-bottom: solid 1px #AAA;
-        background-color: #454545;
+        border-bottom: solid 1px #555;
+        background-color: #454560;
         }
 
 td.fmt-left
@@ -716,25 +718,26 @@ select,.grid-link-select
 
 .grid-link-select-option
         {
+        color: #CCC;
+        background-color: #224;
+
         cursor: pointer;
         display: block;
         width: 100%;
-        color: #CCC;
-        background-color: #333;
-        padding: 0.5em;
-        margin: 0 0 0 0;
-        background-color: #049;
+        padding: 0.3em;
         border: none;
+        border-bottom: solid 1px #66A;
         }
 
 .grid-link-select-option:hover
         {
-        display: block;
         color: #FFF;
-        background-color: #08A;
-        border: none;
-        }
+        background-color: #335;
 
+        padding: 0.3em;
+        border: none;
+        border-bottom: solid 1px #66A;
+        }
 
 /*** buttons ****************************************************************/
 
@@ -891,31 +894,28 @@ select,.grid-link-select
 
 div.hover-layer
         {
-        margin: 0px;
-        display: none;
         color: #FFF;
         background-color: #550;
-        border:      solid 1px #990;
-        border-left: solid 3px #990;
+        border:      solid 2px #990;
+
+        white-space: nowrap;
         padding: 0.5em;
         opacity: 0.95;
-        white-space: nowrap;
+
+        display: none;
         }
 
 div.popup-layer
         {
-        display: none;
-        color: #000;
-        background-color: #222;
-        border: solid 1px #555;
-        border-left: solid 3px #999;
+        color: #CCC;
+        background-color: #224;
+        border:      solid 2px #66A;
+
         white-space: nowrap;
         padding: 0.5em;
         opacity: 0.95;
 
-        background-color: #025;
-        border:      solid 1px #049;
-        border-left: solid 3px #049;
+        display: none;
         }
 
 /*** check boxes ************************************************************/
