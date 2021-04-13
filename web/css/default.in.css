@@ -151,6 +151,8 @@ td.main_body
         {
         text-align: center;
         vertical-align: top;
+        
+        padding: 0.5em;
         }
 
 td.main_footer
@@ -584,7 +586,7 @@ td.edit-value
 
 .details-fields
         {
-        padding: 0.8em;
+        padding: 1em;
         text-align: right;
         width: 100%;
         background-color: #222;
@@ -599,7 +601,7 @@ table.grid
         border: solid 1px $grid-data-colors.3;
 
         border-collapse: collapse;
-        width:  99%;
+        width:  100%;
         }
 
 td.grid-header

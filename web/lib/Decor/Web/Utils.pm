@@ -118,7 +118,8 @@ sub de_data_grid
   my $limit  = $opt->{ 'LIMIT'  };
 
   my $select = $core->select( $table, join( ',', @fields ), { FILTER => $filter, LIMIT => $limit, ORDER_BY => '._ID' } ) if @fields;
-  my $scount = $core->count( $table,                        { FILTER => $filter,                                     } ) if $select;
+  #my $scount = $core->count( $table,                        { FILTER => $filter,                                     } ) if $select;
+  #my $acount = $core->count( $table,                        { FILTER => { '_ID' > 0 },                               } ) if $select;
   
   my $text;
 

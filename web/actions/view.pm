@@ -234,6 +234,7 @@ sub main
       my $count = $core->count( $backlinked_table, { FILTER => { $backlinked_field => $id } });
       $count = 'Unknown' if $count eq '';
       my $uncount = $core->count( $backlinked_table, { FILTER => { $backlinked_field => 0 } });
+      my $acount  = $core->count( $backlinked_table, );
 
       $data_fmt = undef;
       $data_fmt .= de_html_alink( $reo, 'new', "<b class=hi>$count</b> [~records from] <b class=hi>$linked_table_label</b>",   "[~View all backlinked records from] <b class=hi>$linked_table_label</b>",  ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_VALUE => $id, FILTER => { $backlinked_field => $id } );
@@ -251,8 +252,8 @@ sub main
           }
         else
           {  
-          $field_details .= de_html_alink_button( $reo, 'new', ' <img src=i/grid.svg> [~View attached records]',     "[~View all connected records from] <b>$linked_table_label</b>",  BTYPE => 'nav', ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => $id, FILTER => { $backlinked_field => $id } );
-          $field_details .= de_html_alink_button( $reo, 'new', ' <img src=i/attach.svg> [~View unattached records]',   "[~View all not connected records from] <b>$linked_table_label</b>",  BTYPE => 'nav', ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => 0, FILTER => { $backlinked_field => 0 } );
+          $field_details .= de_html_alink_button( $reo, 'new', ' <img src=i/grid.svg> [~View attached records]',     "[~View all connected records from] <b>$linked_table_label</b>",  BTYPE => 'nav', ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => $id, FILTER => { $backlinked_field => $id } ) unless $count == $acount;
+          $field_details .= de_html_alink_button( $reo, 'new', ' <img src=i/attach.svg> [~View unattached records]',   "[~View all not connected records from] <b>$linked_table_label</b>",  BTYPE => 'nav', ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => 0, FILTER => { $backlinked_field => 0 } ) if $uncount > 0;
           }
         
         if( $bltdes->get_table_type() eq 'FILE' )
