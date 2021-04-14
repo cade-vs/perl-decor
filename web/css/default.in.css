@@ -52,10 +52,10 @@ $menu-colors  #CCC  #224  #FFF   #335   #66A     #777
 
 /*$                fg    bg    border  inside-border */
 $view-data-colors  #CCC  #333  #555    #444
-$view-head-colors  #FFF  #232  #555
+$view-head-colors  #FFF  #232  #454
 
 $edit-data-colors  $view-data-colors
-$edit-head-colors  #FFF  #411  #555
+$edit-head-colors  #FFF  #411  #633
 
 $grid-data-colors  #CCC  #333  #555
 $grid-head-colors  #FFF  #223  #555
@@ -514,7 +514,7 @@ td.view-header
         background-color: $view-head-colors.2;
         border: solid 1px $view-head-colors.3;
 
-        border-bottom: solid 1px #66A;
+        /* border-bottom: solid 1px #66A; */
         font-weight: bold;
         padding: 0.7em;
         }
@@ -563,7 +563,7 @@ td.edit-header
         background-color: $edit-head-colors.2;
         border: solid 1px $edit-head-colors.3;
 
-        border-bottom: solid 1px #66A;
+        /* border-bottom: solid 1px #66A; */
         font-weight: bold;
         padding: 0.7em;
         }

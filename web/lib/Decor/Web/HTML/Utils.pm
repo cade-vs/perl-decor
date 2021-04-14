@@ -157,7 +157,7 @@ sub de_html_alink_icon
 
   $value = __value_image_fix( $value, CLASS => "icon $itype" );
 
-  my $opt = ref( $hint ) eq 'HASH' ? $hint : { HINT => $hint, CLASS => "plain" };
+  my $opt = ref( $hint ) eq 'HASH' ? { CLASS => "plain", %$hint } : { HINT => $hint, CLASS => "plain" };
 
   return html_alink( $reo, $type, $value, $opt, %args );
 }

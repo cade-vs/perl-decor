@@ -9,7 +9,7 @@
 ############################################################################*/
 
 
-/* THIS FILE IS GENERATED! PLEASE, DO NOT MODIFY! -- GENERATED AT Wed Apr 14 15:14:18 2021 */
+/* THIS FILE IS GENERATED! PLEASE, DO NOT MODIFY! -- GENERATED AT Thu Apr 15 00:47:24 2021 */
 
 
 
@@ -496,9 +496,9 @@ td.view-header
         {
         color: #FFF;
         background-color: #232;
-        border: solid 1px #555;
+        border: solid 1px #454;
 
-        border-bottom: solid 1px #66A;
+        /* border-bottom: solid 1px #66A; */
         font-weight: bold;
         padding: 0.7em;
         }
@@ -545,9 +545,9 @@ td.edit-header
         {
         color: #FFF;
         background-color: #411;
-        border: solid 1px #555;
+        border: solid 1px #633;
 
-        border-bottom: solid 1px #66A;
+        /* border-bottom: solid 1px #66A; */
         font-weight: bold;
         padding: 0.7em;
         }
