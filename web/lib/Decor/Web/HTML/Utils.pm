@@ -45,7 +45,7 @@ sub de_html_form_button_redirect
 
 #  my $href = $reo->args_type( $type, @args );
 
-  my $hl_handle = html_hover_layer( $reo, VALUE => $hint, DELAY => 250 ) if $hint;
+  my $hl_handle = html_hover_layer( $reo, VALUE => $hint, DELAY => 1000 ) if $hint;
 
   my $ps = $reo->get_page_session();
 
