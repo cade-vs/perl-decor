@@ -768,28 +768,64 @@ select,.grid-link-select
 
 .button
         {
-        color: #FFF;
-        background-color: #448;
-        border: solid 2px #66A;
-        border-radius: 2px;
-
         display: inline-block;
         cursor: pointer;
         font-weight: bold;
-        padding: 0.7em 1.1em 0.7em 1.1em;
-        margin:  0.3em;
+        color: #000;
+        background-color: #AAA;
+        background-image: none;
+        text-decoration:  none;
+
+        padding-top:    0.50em;
+        padding-left:   1.00em;
+        padding-bottom: 0.50em;
+        padding-right:  1.00em;
+
+        margin:         4px;
+        border-top:    solid 1px #FFF;
+        border-left:   solid 1px #FFF;
+        border-bottom: solid 1px #777;
+        border-right:  solid 1px #777;
+
+        color: #FFF;
+        background-color: #448;
+        border-top:    solid 1px #66A;
+        border-left:   solid 1px #66A;
+        border-bottom: solid 1px #226;
+        border-right:  solid 1px #226;
+        
+        border: solid 2px #66A;
+        border-radius: 2px;
         }
 
 .button:hover
         {
+        color: #000;
+        border-top:    solid 1px #777;
+        border-left:   solid 1px #777;
+        border-bottom: solid 1px #FFF;
+        border-right:  solid 1px #FFF;
+
         color: #FFF;
+        background-color: #448;
+        border-top:    solid 1px #226;
+        border-left:   solid 1px #226;
+        border-bottom: solid 1px #66A;
+        border-right:  solid 1px #66A;
+
         background-color: #66A;
         border: solid 2px #88C;
         }
 
 .button:focus
         {
-        color: #CCC;
+        color: #FFF;
+        background-color: #448;
+        border-top:    solid 1px #226;
+        border-left:   solid 1px #226;
+        border-bottom: solid 1px #66A;
+        border-right:  solid 1px #66A;
+
         background-color: #555;
         border: solid 2px #777;
         }
@@ -797,67 +833,99 @@ select,.grid-link-select
 
 .act-button
         {
-        color: #FFF;
+        color: #DDD;
         background-color: #262;
-        border: solid 2px #494;
+        border-top:    solid 1px #484;
+        border-left:   solid 1px #484;
+        border-bottom: solid 1px #060;
+        border-right:  solid 1px #060;
+
+/*        border: solid 1px #494;  */
         }
 
 .act-button:hover
         {
         color: #FFF;
-        background-color: #494;
-        border: solid 2px #6A6;
+        background-color: #272;
+        border-top:    solid 1px #060;
+        border-left:   solid 1px #060;
+        border-bottom: solid 1px #484;
+        border-right:  solid 1px #484;
+
+/*        border: solid 1px #6A6;  */
         }
 
 .nav-button
         {
         color: #FFF;
         background-color: #159;
-        border: solid 2px #37A;
+        border-top:    solid 1px #37B;
+        border-left:   solid 1px #37B;
+        border-bottom: solid 1px #037;
+        border-right:  solid 1px #037;
         }
 
 .nav-button:hover
         {
         color: #FFF;
-        background-color: #37A;
-        border: solid 2px #59C;
+        background-color: #15A;
+        border-top:    solid 1px #037;
+        border-left:   solid 1px #037;
+        border-bottom: solid 1px #37B;
+        border-right:  solid 1px #37B;
         }
 
 .mod-button
         {
         color: #FFF;
         background-color: #822;
-        border: solid 2px #B55;
+        border-top:    solid 1px #A44;
+        border-left:   solid 1px #A44;
+        border-bottom: solid 1px #600;
+        border-right:  solid 1px #600;
         }
 
 .mod-button:hover
         {
         color: #FFF;
-        background-color: #B55;
-        border: solid 2px #D77;
+        background-color: #922;
+        border-top:    solid 1px #600;
+        border-left:   solid 1px #600;
+        border-bottom: solid 1px #A44;
+        border-right:  solid 1px #A44;
         }
 
 .disabled-button
         {
-        color: #FFF;
-        background-color: #262;
-        border: solid 2px #494;
-
         text-decoration-line: line-through;
+        color: #FFF;
+        background-color: #BBB;
+        border-top:    solid 1px #FFF;
+        border-left:   solid 1px #FFF;
+        border-bottom: solid 1px #888;
+        border-right:  solid 1px #888;
         }
 
 .disabled-button:hover
         {
+        text-decoration-line: line-through;
         color: #FFF;
-        background-color: #494;
-        border: solid 2px #6A6;
+        background-color: #BBB;
+        border-top:    solid 1px #FFF;
+        border-left:   solid 1px #FFF;
+        border-bottom: solid 1px #888;
+        border-right:  solid 1px #888;
         }
 
 .disabled-button:focus
         {
+        text-decoration-line: line-through;
         color: #FFF;
-        background-color: #494;
-        border: solid 2px #6A6;
+        background-color: #BBB;
+        border-top:    solid 1px #FFF;
+        border-left:   solid 1px #FFF;
+        border-bottom: solid 1px #888;
+        border-right:  solid 1px #888;
         }
 
 /*** hover layer ************************************************************/
