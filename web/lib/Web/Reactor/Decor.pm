@@ -18,7 +18,7 @@
 package Web::Reactor::Decor;
 use strict;
 use Exporter;
-use Web::Reactor 2.08;
+use Web::Reactor 2.09;
 use Exception::Sink;
 use Data::Tools;
 use Data::Dumper;
