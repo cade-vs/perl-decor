@@ -20,8 +20,7 @@ use Decor::Web::View;
 use Web::Reactor::HTML::Utils;
 use Web::Reactor::HTML::Layout;
 
-my $clear_icon = 'i/clear.svg';
-my $clear_icon = 'x';
+my $clear_icon = 'i/input-clear.svg';
 
 sub main
 {
