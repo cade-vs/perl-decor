@@ -4,7 +4,7 @@
 #  DECOR APPLICATION MACHINERY
 ##   2014-2017 (c) Vladi Belperchinov-Shabanski "Cade"
 
-![DECOR Screenshot](docs/screenshots/localhost_2017-08-30_01-57-25.png)
+![DECOR Screenshot](docs/screenshots/decor_2021-04-16_list_my_funny_table_16_records.png)
 
 #  INTRODUCTION
 
