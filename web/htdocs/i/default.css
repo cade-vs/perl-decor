@@ -9,7 +9,7 @@
 ############################################################################*/
 
 
-/* THIS FILE IS GENERATED! PLEASE, DO NOT MODIFY! -- GENERATED AT Fri Apr 16 00:26:43 2021 */
+/* THIS FILE IS GENERATED! PLEASE, DO NOT MODIFY! -- GENERATED AT Fri Apr 16 00:58:39 2021 */
 
 
 
@@ -978,52 +978,55 @@ div.popup-layer
 
 img.check-unknown
         {
-        color: #999;
-        background-color: #772;
+        cursor: pointer;
+        height: 2em;
         padding: 0.4em;
-        border-top:    solid 1px #883;
-        border-left:   solid 1px #883;
-        border-bottom: solid 1px #661;
-        border-right:  solid 1px #661;
+        text-decoration: none;
+
+        color: #FFF;
+        background-color: #444;
+        border: solid 2px #777;
+        border-radius: 2px;
         }
 
 img.check-0
         {
-        color: #999;
-        background-color: #722;
+        cursor: pointer;
+        height: 2em;
         padding: 0.4em;
-        border-top:    solid 1px #833;
-        border-left:   solid 1px #833;
-        border-bottom: solid 1px #611;
-        border-right:  solid 1px #611;
+        text-decoration: none;
+
+        color: #FFF;
+        background-color: #822;
+        border: solid 2px #B55;
+        border-radius: 2px;
         }
 
 img.check-0:hover
         {
-        border-top:    solid 1px #611;
-        border-left:   solid 1px #611;
-        border-bottom: solid 1px #833;
-        border-right:  solid 1px #833;
+        color: #FFF;
+        background-color: #B55;
+        border: solid 2px #D77;
         }
 
 img.check-1
         {
-        color: #FFF;
-        font-weight: bold;
-        background-color: #242;
+        cursor: pointer;
+        height: 2em;
         padding: 0.4em;
-        border-top:    solid 1px #353;
-        border-left:   solid 1px #353;
-        border-bottom: solid 1px #121;
-        border-right:  solid 1px #121;
+        text-decoration: none;
+
+        color: #FFF;
+        background-color: #262;
+        border: solid 2px #494;
+        border-radius: 2px;
         }
 
 img.check-1:hover
         {
-        border-top:    solid 1px #121;
-        border-left:   solid 1px #121;
-        border-bottom: solid 1px #353;
-        border-right:  solid 1px #353;
+        color: #FFF;
+        background-color: #494;
+        border: solid 2px #6A6;
         }
 
 /*** other ******************************************************************/

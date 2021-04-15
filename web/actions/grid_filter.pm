@@ -19,8 +19,7 @@ use Decor::Web::View;
 use Web::Reactor::HTML::Utils;
 use Web::Reactor::HTML::Layout;
 
-my $clear_icon = 'i/clear.svg';
-my $clear_icon = 'x';
+my $clear_icon = 'i/input-clear.svg';
 
 sub main
 {
@@ -49,7 +48,8 @@ sub main
 
 #print STDERR Dumper( "READ fields: ", \@fields );
 
-  $reo->ps_path_add( 'filter', qq( "Filter records from "<b>$table_label</b>" ) );
+  my $browser_window_title = qq(Filter records from "<b>$table_label</b>");
+  $reo->ps_path_add( 'filter', $browser_window_title );
 
 #print STDERR Dumper( "error:", \@fields, $ps->{ 'ROW_DATA' }, 'insert', $edit_mode_insert, 'allow', $tdes->allows( 'UPDATE' ) );
 
@@ -173,10 +173,9 @@ sub main
 
   $text .= $filter_form_begin;
 
-  $text .= "<table class=view cellspacing=0 cellpadding=0>";
+  $text .= "<table class='view record' cellspacing=0 cellpadding=0>";
   $text .= "<tr class=view-header>";
-  $text .= "<td class='view-header fmt-right'>[~Field]</td>";
-  $text .= "<td class='view-header fmt-left' >[~Value]</td>";
+  $text .= "<td class='view-header fmt-center' colspan=2>$browser_window_title</td>";
   $text .= "</tr>";
 
 ###  my $row_data = $core->fetch( $select );
@@ -309,7 +308,7 @@ sub main
       }
     else
       {
-      my $field_size = 64;
+      my $field_size = 42;
       my $field_maxlen = $field_size;
       $field_input .= $filter_form->input(
                                        NAME     => "F:$field",
@@ -325,7 +324,7 @@ sub main
         {
         my ( $linked_table, $linked_field ) = $bfdes->link_details();
         my $select_cue = $bfdes->get_attr( qw( WEB EDIT SELECT_CUE ) ) || "[~Select linked record]";
-        $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $filter_form, "SELECT_LINKED_$field_id", "select-from.svg", $select_cue, ACTION => 'grid', TABLE => $linked_table, ID => -1, RETURN_DATA_FROM => $linked_field, RETURN_DATA_TO => $field, GRID_MODE => 'SELECT', SELECT_KEY_DATA => $input_data );
+        $field_input_ctrl .= "\n" . de_html_form_button_redirect( $reo, 'new', $filter_form, "SELECT_LINKED_$field_id", "select-from.svg", $select_cue, ACTION => 'grid', TABLE => $linked_table, ID => -1, RETURN_DATA_FROM => $linked_field, RETURN_DATA_TO => $field, GRID_MODE => 'SELECT', SELECT_KEY_DATA => $input_data );
         }
       }  
 
@@ -333,8 +332,8 @@ sub main
 
     my $input_layout = html_layout_2lr( $field_input, $field_input_ctrl, '<==1>' );
     $text .= "<tr class=view>\n";
-    $text .= "<td class='view-field'>$label$field_error</td>\n";
-    $text .= "<td class='view-value' >$input_layout</td>\n";
+    $text .= "<td class='view-field record-field fmt-right'>$label$field_error</td>\n";
+    $text .= "<td class='view-value record-value' >$input_layout</td>\n";
     $text .= "</tr>\n";
     }
   $text .= "</table>";
