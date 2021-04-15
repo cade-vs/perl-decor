@@ -67,10 +67,10 @@ sub main
 
   my $custom_css = lc "css_$table";
   $text .= "<#$custom_css>";
-  $text .= "<table class=view cellspacing=0 cellpadding=0>";
+  $text .= "<table class='view record' cellspacing=0 cellpadding=0>";
   $text .= "<tr class=view-header>";
-  $text .= "<td class='view-header fmt-right'>Field</td>";
-  $text .= "<td class='view-header fmt-left' >Value</td>";
+  $text .= "<td class='view-header record-field fmt-right'>Field</td>";
+  $text .= "<td class='view-header record-value fmt-left' >Value</td>";
   $text .= "</tr>";
 
   my $row_data = $core->fetch( $select );
@@ -281,8 +281,8 @@ sub main
     my $data_layout = $no_layout_ctrls ? $data_fmt : html_layout_2lr( $data_fmt, $data_ctrl, '<==1>' );
     my $base_field_class = lc "css_view_class_$base_field";
     $text .= "<tr class=view>";
-    $text .= "<td class='view-field  $base_field_class' >$label</td>";
-    $text .= "<td class='view-value  $base_field_class' >$data_layout</td>";
+    $text .= "<td class='view-field record-field $base_field_class' >$label</td>";
+    $text .= "<td class='view-value record-value $base_field_class' >$data_layout</td>";
     $text .= "</tr>\n";
     if( $field_details )
       {

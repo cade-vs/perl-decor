@@ -217,12 +217,14 @@ sub main
 
   $text .= $edit_form_begin;
 
+  my $edit_mode_class_prefix = $edit_mode_insert ? 'insert' : 'edit';
+
   my $custom_css = lc "css_$table";
   $text .= "<#$custom_css>";
-  $text .= "<table class=view cellspacing=0 cellpadding=0>";
-  $text .= "<tr class=edit-header>";
-  $text .= "<td class='edit-header fmt-right'>[~Field]</td>";
-  $text .= "<td class='edit-header fmt-left' >[~Value]</td>";
+  $text .= "<table class='$edit_mode_class_prefix record' cellspacing=0 cellpadding=0>";
+  $text .= "<tr class=$edit_mode_class_prefix-header>";
+  $text .= "<td class='$edit_mode_class_prefix-header record-field fmt-right'>[~Field]</td>";
+  $text .= "<td class='$edit_mode_class_prefix-header record-value fmt-left' >[~Value]</td>";
   $text .= "</tr>";
 
 ###  my $row_data = $core->fetch( $select );
@@ -553,8 +555,8 @@ sub main
     my $base_field_class = lc "css_edit_class_$base_field";
     
     $text .= "<tr class=view>\n";
-    $text .= "<td class='edit-field  $base_field_class'>$label$field_error</td>\n";
-    $text .= "<td class='edit-value  $base_field_class' >$input_layout</td>\n";
+    $text .= "<td class='$edit_mode_class_prefix-field record-field $base_field_class'>$label$field_error</td>\n";
+    $text .= "<td class='$edit_mode_class_prefix-value record-value $base_field_class' >$input_layout</td>\n";
     $text .= "</tr>\n";
     if( $field_details )
       {

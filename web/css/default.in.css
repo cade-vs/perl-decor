@@ -52,12 +52,15 @@ $menu-colors  #CCC  #224  #FFF   #335   #66A     #777
 
 /*$                fg    bg    border  inside-border */
 $view-data-colors  #CCC  #333  #555    #444
-$view-head-colors  #FFF  #232  #454
+$view-head-colors  #FFF  #159  #37A 
 
 $edit-data-colors  $view-data-colors
-$edit-head-colors  #FFF  #411  #633
+$edit-head-colors  #FFF  #822  #A44
 
-$grid-data-colors  #CCC  #333  #555
+$insert-data-colors  $view-data-colors
+$insert-head-colors  #FFF  #262  #484
+
+$grid-data-colors  $view-data-colors
 $grid-head-colors  #FFF  #223  #555
 
 /*$                      bg-odd   bg-even  bg-hi    bottom-border-hi        */
@@ -491,6 +494,29 @@ td.ps-path
         padding: 6px;
         }
 
+/*** record base config for view, edit, insert, preview tables **************/
+
+table.record
+        {
+        border-collapse: collapse;
+        width:  100%;
+        max-width: 1000px;
+        }
+        
+td.record-field
+        {
+        width: 30%;
+        text-align: right;
+        padding-right: 1em;
+        }
+
+td.record-value
+        {
+        width: 60%;
+        text-align: left;
+        padding-left: 1em;
+        }
+
 /*** view *******************************************************************/
 
 table.view
@@ -498,9 +524,6 @@ table.view
         color: $view-data-colors.1;
         background-color: $view-data-colors.2;
         border: solid 1px $view-data-colors.3;
-
-        border-collapse: collapse;
-        width:  80%;
         }
 
 tr.view
@@ -524,20 +547,14 @@ td.view-field
         border-bottom: solid 1px $view-data-colors.4;
         border-right:  solid 1px $view-data-colors.4;
 
-        text-align: right;
-        width: 50%;
         padding: 0.5em;
-        padding-right: 1em;
         }
 
 td.view-value
         {
         border-bottom: solid 1px $view-data-colors.4;
         
-        text-align: left;
-        width: 50%;
         padding: 0.5em;
-        padding-left: 1em;
         }
 
 /*** edit *******************************************************************/
@@ -547,9 +564,6 @@ table.edit
         color: $edit-data-colors.1;
         background-color: $edit-data-colors.2;
         border: solid 1px $edit-data-colors.3;
-
-        border-collapse: collapse;
-        width:  80%;
         }
 
 tr.edit
@@ -573,23 +587,57 @@ td.edit-field
         border-bottom: solid 1px $edit-data-colors.4;
         border-right:  solid 1px $edit-data-colors.4;
 
-        text-align: right;
-        width: 50%;
         padding: 0.5em;
-        padding-right: 1em;
         }
 
 td.edit-value
         {
         border-bottom: solid 1px $edit-data-colors.4;
         
-        text-align: left;
-        width: 50%;
         padding: 0.5em;
-        padding-left: 1em;
         }
 
-/*** view and edit details **************************************************/
+/*** insert *******************************************************************/
+
+table.insert
+        {
+        color: $insert-data-colors.1;
+        background-color: $insert-data-colors.2;
+        border: solid 1px $insert-data-colors.3;
+        }
+
+tr.insert
+        {
+        height: 3em;
+        }
+
+td.insert-header
+        {
+        color: $insert-head-colors.1;
+        background-color: $insert-head-colors.2;
+        border: solid 1px $insert-head-colors.3;
+
+        /* border-bottom: solid 1px #66A; */
+        font-weight: bold;
+        padding: 0.7em;
+        }
+
+td.insert-field
+        {
+        border-bottom: solid 1px $insert-data-colors.4;
+        border-right:  solid 1px $insert-data-colors.4;
+
+        padding: 0.5em;
+        }
+
+td.insert-value
+        {
+        border-bottom: solid 1px $edit-data-colors.4;
+        
+        padding: 0.5em;
+        }
+
+/*** view, edit, insert details **************************************************/
 
 .details-fields
         {

@@ -9,7 +9,8 @@
 ############################################################################*/
 
 
-/* THIS FILE IS GENERATED! PLEASE, DO NOT MODIFY! -- GENERATED AT Thu Apr 15 01:00:26 2021 */
+/* THIS FILE IS GENERATED! PLEASE, DO NOT MODIFY! -- GENERATED AT Thu Apr 15 14:28:59 2021 */
+
 
 
 
@@ -475,6 +476,29 @@ td.ps-path
         padding: 6px;
         }
 
+/*** record base config for view, edit, insert, preview tables **************/
+
+table.record
+        {
+        border-collapse: collapse;
+        width:  100%;
+        max-width: 1000px;
+        }
+        
+td.record-field
+        {
+        width: 30%;
+        text-align: right;
+        padding-right: 1em;
+        }
+
+td.record-value
+        {
+        width: 60%;
+        text-align: left;
+        padding-left: 1em;
+        }
+
 /*** view *******************************************************************/
 
 table.view
@@ -482,9 +506,6 @@ table.view
         color: #CCC;
         background-color: #333;
         border: solid 1px #555;
-
-        border-collapse: collapse;
-        width:  80%;
         }
 
 tr.view
@@ -495,8 +516,8 @@ tr.view
 td.view-header
         {
         color: #FFF;
-        background-color: #232;
-        border: solid 1px #454;
+        background-color: #159;
+        border: solid 1px #37A;
 
         /* border-bottom: solid 1px #66A; */
         font-weight: bold;
@@ -508,20 +529,14 @@ td.view-field
         border-bottom: solid 1px #444;
         border-right:  solid 1px #444;
 
-        text-align: right;
-        width: 50%;
         padding: 0.5em;
-        padding-right: 1em;
         }
 
 td.view-value
         {
         border-bottom: solid 1px #444;
         
-        text-align: left;
-        width: 50%;
         padding: 0.5em;
-        padding-left: 1em;
         }
 
 /*** edit *******************************************************************/
@@ -531,9 +546,6 @@ table.edit
         color: #CCC;
         background-color: #333;
         border: solid 1px #555;
-
-        border-collapse: collapse;
-        width:  80%;
         }
 
 tr.edit
@@ -544,8 +556,8 @@ tr.edit
 td.edit-header
         {
         color: #FFF;
-        background-color: #411;
-        border: solid 1px #633;
+        background-color: #822;
+        border: solid 1px #A44;
 
         /* border-bottom: solid 1px #66A; */
         font-weight: bold;
@@ -557,23 +569,57 @@ td.edit-field
         border-bottom: solid 1px #444;
         border-right:  solid 1px #444;
 
-        text-align: right;
-        width: 50%;
         padding: 0.5em;
-        padding-right: 1em;
         }
 
 td.edit-value
         {
         border-bottom: solid 1px #444;
         
-        text-align: left;
-        width: 50%;
         padding: 0.5em;
-        padding-left: 1em;
         }
 
-/*** view and edit details **************************************************/
+/*** insert *******************************************************************/
+
+table.insert
+        {
+        color: #CCC;
+        background-color: #333;
+        border: solid 1px #555;
+        }
+
+tr.insert
+        {
+        height: 3em;
+        }
+
+td.insert-header
+        {
+        color: #FFF;
+        background-color: #262;
+        border: solid 1px #484;
+
+        /* border-bottom: solid 1px #66A; */
+        font-weight: bold;
+        padding: 0.7em;
+        }
+
+td.insert-field
+        {
+        border-bottom: solid 1px #444;
+        border-right:  solid 1px #444;
+
+        padding: 0.5em;
+        }
+
+td.insert-value
+        {
+        border-bottom: solid 1px #444;
+        
+        padding: 0.5em;
+        }
+
+/*** view, edit, insert details **************************************************/
 
 .details-fields
         {

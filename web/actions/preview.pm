@@ -55,12 +55,14 @@ sub main
 
   my $text .= "<br>";
 
+  my $edit_mode_class_prefix = $edit_mode_insert ? 'insert' : 'edit';
+
   my $custom_css = lc "css_$table";
   $text .= "<#$custom_css>";
-  $text .= "<table class=view cellspacing=0 cellpadding=0>";
-  $text .= "<tr class=view-header>";
-  $text .= "<td class='view-header fmt-right'>[~Field]</td>";
-  $text .= "<td class='view-header fmt-left' >[~Value]</td>";
+  $text .= "<table class='$edit_mode_class_prefix record' cellspacing=0 cellpadding=0>";
+  $text .= "<tr class=$edit_mode_class_prefix-header>";
+  $text .= "<td class='$edit_mode_class_prefix-header record-field fmt-right'>[~Field]</td>";
+  $text .= "<td class='$edit_mode_class_prefix-header record-value fmt-left' >[~Value]</td>";
   $text .= "</tr>";
 
   my $row_data = $ps->{ 'ROW_DATA' };
@@ -146,8 +148,8 @@ sub main
 
     my $base_field_class = lc "css_preview_class_$base_field";
     $text .= "<tr class=view>";
-    $text .= "<td class='view-field  $base_field_class' >$label</td>";
-    $text .= "<td class='view-value  $base_field_class' >$data_fmt</td>";
+    $text .= "<td class='$edit_mode_class_prefix-field record-field $base_field_class' >$label</td>";
+    $text .= "<td class='$edit_mode_class_prefix-value record-value $base_field_class' >$data_fmt</td>";
     $text .= "</tr>";
     }
   $text .= "</table>";
