@@ -9,7 +9,7 @@
 ############################################################################*/
 
 
-/* THIS FILE IS GENERATED! PLEASE, DO NOT MODIFY! -- GENERATED AT Thu Apr 15 23:37:15 2021 */
+/* THIS FILE IS GENERATED! PLEASE, DO NOT MODIFY! -- GENERATED AT Thu Apr 15 23:40:44 2021 */
 
 
 
@@ -563,9 +563,8 @@ td.view-header
         border: solid 1px #37A;
 
         /* border-bottom: solid 1px #66A; */
-        font-weight: bold;
-        padding: 0.4em;
-        font: bold 1.4em oswald;
+        padding: 0.2em;
+        font: bold 1.2em oswald;
         }
 
 td.view-field
@@ -604,9 +603,8 @@ td.edit-header
         border: solid 1px #A44;
 
         /* border-bottom: solid 1px #66A; */
-        font-weight: bold;
-        padding: 0.4em;
-        font: bold 1.4em oswald;
+        padding: 0.2em;
+        font: bold 1.2em oswald;
         }
 
 td.edit-field
@@ -645,9 +643,8 @@ td.insert-header
         border: solid 1px #484;
 
         /* border-bottom: solid 1px #66A; */
-        font-weight: bold;
-        padding: 0.4em;
-        font: bold 1.4em oswald;
+        padding: 0.2em;
+        font: bold 1.2em oswald;
         }
 
 td.insert-field
