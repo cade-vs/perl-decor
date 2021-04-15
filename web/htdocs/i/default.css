@@ -9,7 +9,7 @@
 ############################################################################*/
 
 
-/* THIS FILE IS GENERATED! PLEASE, DO NOT MODIFY! -- GENERATED AT Thu Apr 15 14:28:59 2021 */
+/* THIS FILE IS GENERATED! PLEASE, DO NOT MODIFY! -- GENERATED AT Thu Apr 15 23:37:15 2021 */
 
 
 
@@ -32,6 +32,44 @@
 
 
 
+
+/*** fonts ******************************************************************/
+
+@font-face 
+        {
+        font-family: 'oswald-bold';
+        src: url('fonts/Oswald-Bold.ttf')  format('truetype');
+        }
+
+@font-face 
+        {
+        font-family: 'oswald';
+        src: url('fonts/Oswald-Regular.ttf')  format('truetype');
+        }
+
+@font-face 
+        {
+        font-family: 'mont';
+        src: url('fonts/Montserrat-Regular.ttf')  format('truetype');
+        }
+
+@font-face 
+        {
+        font-family: 'mont-bold';
+        src: url('fonts/Montserrat-SemiBold.ttf')  format('truetype');
+        }
+
+@font-face 
+        {
+        font-family: 'prime';
+        src: url('fonts/CourierPrime-Regular.ttf')  format('truetype');
+        }
+
+@font-face 
+        {
+        font-family: 'prime-bold';
+        src: url('fonts/CourierPrime-Bold.ttf')  format('truetype');
+        }
 
 /*** main/body **************************************************************/
 
@@ -48,11 +86,11 @@ html
 
 body
         {
-        font-family: sans-serif, helvetica;
+        font-family: mont, sans-serif, helvetica;
         margin: 0;
         font-style: normal;
         font-size: 10pt;
-        color: #DDD;
+        color: #EEE;
         background-color: #222;
         background-image: url( "main-background.png" );
         height: 100%;
@@ -161,9 +199,8 @@ img
         background-image: none;
 
         cursor: pointer;
-        height: 2.5em;
-        padding: 0.5em;
-        margin:  0.1em;
+        height: 2em;
+        padding: 0.4em;
         text-decoration: none;
 
         background-color: #447;
@@ -354,21 +391,23 @@ table.main-menu
         {
         color: #CCC;
         background-color: #224;
-        border-bottom: solid 1px #66A;
+        border-bottom: solid 1px #445;
 
         vertical-align: middle;
         font-weight: bold;
         white-space: nowrap;
         cursor: pointer;
 
+        font: 1.4em oswald;
         width:  100%;
         }
 
 td.main-menu
         {
-        border-right: solid 1px #777;
+        border-right: solid 1px #445;
 
         width:  1%;
+        padding: 0.2em;
         }
 
 td.main-menu:hover
@@ -378,7 +417,7 @@ td.main-menu:hover
 
 td.main-menu-fill
         {
-        border-right: solid 1px #777;
+        border-right: solid 1px #445;
 
         width:  100%;
         padding: 0;
@@ -410,7 +449,7 @@ table.menu
         {
         color: #CCC;
         background-color: #224;
-        border-top: solid 1px #66A;
+        border-top: solid 1px #445;
 
         vertical-align: middle;
         font-weight: bold;
@@ -418,19 +457,23 @@ table.menu
         cursor: pointer;
 
         width: 80%;
+        max-width: 800px;
+        font: 1.4em oswald;
         }
 
 td.menu
         {
         width:  1%;
-        border-bottom: solid 1px #777;
-        border-left:  solid 1px #66A;
-        border-right: solid 1px #66A;
+        border-bottom: solid 1px #445;
+        border-left:  solid 1px #445;
+        border-right: solid 1px #445;
 
-        padding: 4px;
+        padding: 0.4em;
         white-space: nowrap;
         padding-left: 10px;
         padding-right: 10px;
+
+        vertical-align: middle;
         }
 
 td.menu:hover
@@ -463,7 +506,7 @@ a.menu:hover
 tr.ps-path
         {
         background-color: #224;
-        border-bottom: solid 1px #66A;
+        border-bottom: solid 1px #445;
         color: #CCC;
         
         font-weight: bold;
@@ -503,7 +546,7 @@ td.record-value
 
 table.view
         {
-        color: #CCC;
+        color: #EEE;
         background-color: #333;
         border: solid 1px #555;
         }
@@ -521,7 +564,8 @@ td.view-header
 
         /* border-bottom: solid 1px #66A; */
         font-weight: bold;
-        padding: 0.7em;
+        padding: 0.4em;
+        font: bold 1.4em oswald;
         }
 
 td.view-field
@@ -543,7 +587,7 @@ td.view-value
 
 table.edit
         {
-        color: #CCC;
+        color: #EEE;
         background-color: #333;
         border: solid 1px #555;
         }
@@ -561,7 +605,8 @@ td.edit-header
 
         /* border-bottom: solid 1px #66A; */
         font-weight: bold;
-        padding: 0.7em;
+        padding: 0.4em;
+        font: bold 1.4em oswald;
         }
 
 td.edit-field
@@ -583,7 +628,7 @@ td.edit-value
 
 table.insert
         {
-        color: #CCC;
+        color: #EEE;
         background-color: #333;
         border: solid 1px #555;
         }
@@ -601,7 +646,8 @@ td.insert-header
 
         /* border-bottom: solid 1px #66A; */
         font-weight: bold;
-        padding: 0.7em;
+        padding: 0.4em;
+        font: bold 1.4em oswald;
         }
 
 td.insert-field
@@ -633,7 +679,7 @@ td.insert-value
 
 table.grid
         {
-        color:            #CCC;
+        color:            #EEE;
         background-color: #333;
         border: solid 1px #555;
 
@@ -702,7 +748,7 @@ td.fmt-center
 
 td.fmt-mono
         {
-        font-family: monospace;
+        font-family: prime, monospace;
         white-space: nowrap;
         }
 
@@ -739,6 +785,8 @@ input,textarea,select,.grid-link-select
 
         padding: 0.5em;
         margin: 0 0 0 0;
+        font-family: mont;
+        font-size: 1.1em;
         }
 
 input:hover,textarea:hover,select:hover,.grid-link-select:hover
@@ -781,7 +829,7 @@ select,.grid-link-select
         width: 100%;
         padding: 0.3em;
         border: none;
-        border-bottom: solid 1px #66A;
+        border-bottom: solid 1px #445;
         }
 
 .grid-link-select-option:hover
@@ -791,7 +839,7 @@ select,.grid-link-select
 
         padding: 0.3em;
         border: none;
-        border-bottom: solid 1px #66A;
+        border-bottom: solid 1px #445;
         }
 
 /*** buttons ****************************************************************/
@@ -805,9 +853,13 @@ select,.grid-link-select
 
         display: inline-block;
         cursor: pointer;
-        font-weight: bold;
-        padding: 0.7em 1.1em 0.7em 1.1em;
+        padding: 0.5em 1.5em 0.5em 1.5em;
         margin:  0.3em;
+
+        white-space: nowrap;
+        font-family: mont;
+        font-size: 1.0em;
+        font-weight: bold;
         }
 
 .button:hover
@@ -909,7 +961,7 @@ div.popup-layer
         {
         color: #CCC;
         background-color: #224;
-        border:      solid 1px #66A;
+        border:      solid 1px #445;
 
         white-space: nowrap;
         padding: 0.5em;

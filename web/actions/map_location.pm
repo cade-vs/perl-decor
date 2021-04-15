@@ -76,7 +76,7 @@ sub main
     </td>
     <td align=left>
       $location_form_begin
-      <button form=$location_form_id name=BUTTON:SELECT class='button act-button'><img src=i/map_location.svg> Select this location</button>
+      <button form=$location_form_id name=BUTTON:SELECT class='button act-button'><img src=i/map_location.svg> Select location</button>
       <input  form=$location_form_id id=marker_location_xyz name=marker_location_xyz>
       <input  form=$location_form_id type=submit value='Go to' class='button nav-button'>
     </td>

@@ -22,14 +22,19 @@ use Decor::Web::View;
 use Decor::Web::Grid;
 use Decor::Web::Utils;
 
-my %FMT_CLASSES = (
+my %FMT_CLASS_ALIGN = (
                   'CHAR'  => 'fmt-left',
                   'DATE'  => 'fmt-left',
                   'TIME'  => 'fmt-left',
                   'UTIME' => 'fmt-left',
 
-                  'INT'   => 'fmt-right fmt-mono',
-                  'REAL'  => 'fmt-right fmt-mono',
+                  'INT'   => 'fmt-right',
+                  'REAL'  => 'fmt-right',
+                  );
+
+my %FMT_CLASS_TYPE = (
+                  'INT'   => 'fmt-mono',
+                  'REAL'  => 'fmt-mono',
                   );
 
 sub main
@@ -214,7 +219,7 @@ sub main
     my $bfdes     = $bfdes{ $field };
     my $lfdes     = $lfdes{ $field };
     my $type_name = $lfdes->{ 'TYPE' }{ 'NAME' };
-    my $fmt_class = $FMT_CLASSES{ $type_name } || 'fmt-left';
+    my $fmt_class = $FMT_CLASS_ALIGN{ $type_name } || 'fmt-left';
 
     my $base_field = $bfdes->{ 'NAME' };
 
@@ -334,7 +339,7 @@ sub main
       my $bfdes     = $bfdes{ $field };
       my $lfdes     = $lfdes{ $field };
       my $type_name = $lfdes->{ 'TYPE' }{ 'NAME' };
-      my $fmt_class = $FMT_CLASSES{ $type_name } || 'fmt-left';
+      my $fmt_class = ( $FMT_CLASS_ALIGN{ $type_name } || 'fmt-left' ) . ' ' . $FMT_CLASS_TYPE{ $type_name };
 
       next if $bfdes->get_attr( qw( WEB GRID HIDE ) );
 

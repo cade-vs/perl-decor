@@ -69,8 +69,7 @@ sub main
   $text .= "<#$custom_css>";
   $text .= "<table class='view record' cellspacing=0 cellpadding=0>";
   $text .= "<tr class=view-header>";
-  $text .= "<td class='view-header record-field fmt-right'>Field</td>";
-  $text .= "<td class='view-header record-value fmt-left' >Value</td>";
+  $text .= "<td class='view-header record-field fmt-center' colspan=2>$browser_window_title</td>";
   $text .= "</tr>";
 
   my $row_data = $core->fetch( $select );

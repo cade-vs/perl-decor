@@ -55,7 +55,7 @@ sub sub_menu
       {
       my $submenu_name = $item->{ 'SUBMENU_NAME'  };
       my $submenu = sub_menu( $reo, $core, $submenu_name );
-      push @res, { LABEL => "<img src=i/menu-item-submenu.svg> $label", DATA => $submenu };
+      push @res, { LABEL => "&nbsp;<img src=i/menu-item-submenu.svg class=icon> $label", DATA => $submenu };
       }
     elsif( $type eq 'GRID' )
       {
@@ -71,23 +71,23 @@ sub sub_menu
                                   FILTER_METHOD => $filter_method,
                                   ORDER_BY      => $order_by,
                                 );
-      push @res, "<a class=menu href=?_=$href><img src=i/menu-item-grid.svg> $label</a>";
+      push @res, "<a class=menu href=?_=$href><img src=i/menu-item-grid.svg class=icon> $label</a>";
       }
     elsif( $type eq 'INSERT' )
       {
       my $table  = $item->{ 'TABLE'  };
-      push @res, "<a class=menu reactor_none_href=?action=edit&table=$table&id=-1><img src=i/menu-item-insert.svg> $label</a>";
+      push @res, "<a class=menu reactor_none_href=?action=edit&table=$table&id=-1><img src=i/menu-item-insert.svg class=icon> $label</a>";
       }
     elsif( $type eq 'DO' )
       {
       my $table  = $item->{ 'TABLE'  };
       my $do     = $item->{ 'DO'     };
-      push @res, "<a class=menu reactor_none_href=?action=do&table=$table&do=$do><img src=i/menu-item-do.svg> $label</a>";
+      push @res, "<a class=menu reactor_none_href=?action=do&table=$table&do=$do><img src=i/menu-item-do.svg class=icon> $label</a>";
       }
     elsif( $type eq 'URL' )
       {
       my $url  = $item->{ 'URL'  };
-      push @res, "<a class=menu target=_blank href=$url><img src=i/menu-item-url.svg> $label</a>";
+      push @res, "<a class=menu target=_blank href=$url><img src=i/menu-item-url.svg class=icon> $label</a>";
       }
     else
       {

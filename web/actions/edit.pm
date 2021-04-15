@@ -116,13 +116,16 @@ sub main
     $id    = $ps->{ 'ID'    };
     }
 
+  my $browser_window_title;
   if( $edit_mode_insert )
     {
-    $reo->ps_path_add( 'insert', qq( "Insert new record into "<b>$table_label</b>" ) );
+    $browser_window_title = qq(Insert new record into "<b>$table_label</b>");
+    $reo->ps_path_add( 'insert', $browser_window_title );
     }
   else
     {
-    $reo->ps_path_add( 'edit', qq( "Edit record data from "<b>$table_label</b>" ) );
+    $browser_window_title = qq(Edit record data from "<b>$table_label</b>");
+    $reo->ps_path_add( 'edit', $browser_window_title );
     }
 
 #print STDERR Dumper( "error:", $fields_ar, $ps->{ 'ROW_DATA' }, 'insert', $edit_mode_insert, 'allow', $tdes->allows( 'UPDATE' ) );
@@ -223,8 +226,7 @@ sub main
   $text .= "<#$custom_css>";
   $text .= "<table class='$edit_mode_class_prefix record' cellspacing=0 cellpadding=0>";
   $text .= "<tr class=$edit_mode_class_prefix-header>";
-  $text .= "<td class='$edit_mode_class_prefix-header record-field fmt-right'>[~Field]</td>";
-  $text .= "<td class='$edit_mode_class_prefix-header record-value fmt-left' >[~Value]</td>";
+  $text .= "<td class='$edit_mode_class_prefix-header record-field fmt-center' colspan=2>$browser_window_title</td>";
   $text .= "</tr>";
 
 ###  my $row_data = $core->fetch( $select );
