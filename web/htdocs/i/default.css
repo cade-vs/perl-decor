@@ -9,7 +9,7 @@
 ############################################################################*/
 
 
-/* THIS FILE IS GENERATED! PLEASE, DO NOT MODIFY! -- GENERATED AT Thu Apr 15 23:40:44 2021 */
+/* THIS FILE IS GENERATED! PLEASE, DO NOT MODIFY! -- GENERATED AT Thu Apr 15 23:45:24 2021 */
 
 
 
@@ -268,9 +268,13 @@ img
         border-bottom: solid 1px #66A;
         border-right:  solid 1px #66A;
         
-        padding: 0.3em;
-        margin:  0.1em;
+        height: 2em;
+        padding: 0.4em;
         text-decoration: none;
+
+        background-color: #444;
+        border: solid 2px #777;
+        border-radius: 2px;
         }
 
 a.icon

@@ -302,9 +302,13 @@ img
         {
         $$3d-box-normal  $icon-disabled-colors
         
-        padding: 0.3em;
-        margin:  0.1em;
+        height: 2em;
+        padding: 0.4em;
         text-decoration: none;
+
+        background-color: #444;
+        border: solid 2px #777;
+        border-radius: 2px;
         }
 
 a.icon
