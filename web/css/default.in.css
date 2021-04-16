@@ -14,20 +14,42 @@
 
 /*$* DECOR SYSTEM DEFAULT CSS, CONFIG SECTION *******************************/
 
-/*$                 fg    bg    bg-image */
-$body-colors        #EEE  #222  main-background.png  
-$body-colors-print  #000  #FFF
+/*$                     fg    bg    bg-image */
+$body-colors            #EEE  #222  main-background.png  
+$body-colors-print      #000  #FFF
 
-/*$           fg    decoration  fg-hover  decoration-hover */ 
-$link-colors  aqua  teal        aqua      aqua 
+/*$                      fg    decoration  fg-hi  decor-hi fg-focus decor-focus */ 
+$link-colors             aqua  teal        aqua   aqua     #CCC     #555
 
-/*$                    fg    bg    fg-hi bg-hi 3d-top 3d-bottom */
-$icon-colors           #FFF  #448  #FFF  #337  #66A  #226 
-$act-icon-colors       #FFF  #262  #FFF  #272  #484  #060
-$mod-icon-colors       #FFF  #822  #FFF  #922  #A44  #600
-$icon-disabled-colors  #FFF  #F84  #FFF  #F00  #226  #66A
+/*$                      fg    bg    border fg-hi bg-hi  border-hi */
+$action-item             #FFF  #448  #66A   #FFF  #66A   #88C
+$action-item-act         #FFF  #262  #494  #FFF   #494   #6A6
+$action-item-nav         #FFF  #159  #37A  #FFF   #37A   #59C
+$action-item-mod         #FFF  #822  #B55  #FFF   #B55   #D77
+$action-item-disabled    #CCC  #555  #777  #CCC   #555   #777
 
-/*$                 fg    bg    border border-left  border-width left0border-width */
+/*$                      fg    bg    border fg-hi bg-hi  border-hi */
+$icon-colors             $action-item
+$act-icon-colors         $action-item-act
+$mod-icon-colors         $action-item-mod
+$disabled-icon-colors    $action-item-disabled
+
+/*$                      fg    bg    border fg-hi bg-hi  border-hi */
+$button-colors           $action-item
+$act-button-colors       $action-item-act
+$nav-button-colors       $action-item-nav
+$mod-button-colors       $action-item-mod
+$disabled-button-colors  $action-item-disabled
+
+/*$                      fg    bg    border */
+$button-focus-colors     $action-item-disabled
+
+/*$                      fg    bg    border  fg-hi  bg-hi  border-hi */
+$check-unknown-colors    $action-item-disabled
+$check-0-colors          $action-item-mod
+$check-1-colors          $action-item-act
+
+/*$                 fg    bg    border border-left  border-width left-border-width */
 $error-box-colors   #FFF  #511  #933   #933         1px          3px
 $info-box-colors    #FFF  #357  #68A   #68A         1px          3px
 
@@ -70,6 +92,7 @@ $grid-data-row-odd-even  #353535  #303030  #343450  #555
 $hover-colors  #FFF            #550            #990
 $popup-colors  $menu-colors.1  $menu-colors.2  $menu-colors.5
 
+
 /*$* DECOR STATIC/SYSTEM SECTION, DO NOT MODIFY BELOW THIS LINE *************/
 
 $$3d-box-normal
@@ -101,6 +124,16 @@ $$div-box
         background-color: $2;
         border:      solid $5 $3;
         border-left: solid $6 $4;
+
+$$setup-act-fg-bg-border
+        color:            $1;
+        background-color: $2;
+        border: solid 2px $3;
+
+$$setup-act-fg-bg-border-hi
+        color:            $4;
+        background-color: $5;
+        border: solid 2px $6;
 
 /*** fonts ******************************************************************/
 
@@ -155,19 +188,15 @@ html
 
 body
         {
+        color:            $body-colors.1;
+        background-color: $body-colors.2;
+        background-image: url( "$body-colors.3" );
+
         font-family: mont, sans-serif, helvetica;
         margin: 0;
         font-style: normal;
         font-size: 10pt;
-        color: $body-colors.1;
-        background-color: $body-colors.2;
-        background-image: url( "$body-colors.3" );
         height: 100%;
-        }
-
-.details-text
-        {
-        color: #777;
         }
 
 .fill
@@ -198,8 +227,8 @@ td.main_body
 
 td.main_footer
         {
-        color: $footer-colors.1;
-        background-color: $footer-colors.2;
+        color:                $footer-colors.1;
+        background-color:     $footer-colors.2;
         border-top: solid 1px $footer-colors.3;
         width:  100%;
         height: 100%;
@@ -229,7 +258,7 @@ div#div_for_screen
         div#div_for_print  { display: block; }
         body
               {
-              color: $body-colors-print.1;
+              color:            $body-colors-print.1;
               background-color: $body-colors-print.2;
               background-image: none;
               }
@@ -237,15 +266,24 @@ div#div_for_screen
 
 /*** globals ****************************************************************/
 
-a       {
+a       
+        {
         color: $link-colors.1;
         border-bottom: dotted 1px $link-colors.2;
 
         text-decoration: none;
         }
-a:hover {
+
+a:hover 
+        {
         color: $link-colors.3;
         border-bottom: solid 1px $link-colors.4;
+        }
+
+a:focus
+        {
+        color: $link-colors.5;
+        border-bottom: solid 1px $link-colors.6;
         }
 
 a.plain
@@ -258,58 +296,56 @@ img
         vertical-align: middle;
         }
 
+
 .icon
         {
-        $$3d-box-normal  $icon-colors
-        background-image: none;
-
         cursor: pointer;
         height: 2.2em;
         padding: 0.4em;
         text-decoration: none;
-
-        background-color: #447;
-        border: solid 2px #66A;
+        background-image: none;
         border-radius: 2px;
+
+        $$setup-act-fg-bg-border  $icon-colors
         }
 .icon:hover
         {
-        $$3d-box-hi  $icon-colors
-
-        background-color: #66A;
-        border: solid 2px #88C;
+        $$setup-act-fg-bg-border-hi  $icon-colors
         }
 
 
 .act-icon
         {
-        $$3d-box-normal  $act-icon-colors
+        $$setup-act-fg-bg-border  $act-icon-colors
         }
+
 .act-icon:hover
         {
-        $$3d-box-hi  $act-icon-colors
+        $$setup-act-fg-bg-border-hi  $act-icon-colors
         }
 
 .mod-icon
         {
-        $$3d-box-normal  $mod-icon-colors
+        $$setup-act-fg-bg-border  $mod-icon-colors
         }
+
 .mod-icon:hover
         {
-        $$3d-box-hi  $mod-icon-colors
+        $$setup-act-fg-bg-border  $mod-icon-colors
         }
 
 .icon-disabled
         {
-        $$3d-box-normal  $icon-disabled-colors
-        
         height: 2.2em;
         padding: 0.4em;
         text-decoration: none;
 
-        background-color: #444;
-        border: solid 2px #777;
-        border-radius: 2px;
+        $$setup-act-fg-bg-border  $disabled-icon-colors
+        }
+
+.icon-disabled:hover
+        {
+        $$setup-act-fg-bg-border-hi  $disabled-icon-colors
         }
 
 a.icon
@@ -319,7 +355,8 @@ a.icon
         text-decoration: none;
         }
 
-h1      { 
+h1      
+        { 
         margin: 2px 2px 2px 2px; 
         }
 
@@ -365,7 +402,7 @@ div.link-empty
 .warning
         {
         font-weight: bold;
-        color: $warning-colors.1;
+        color:            $warning-colors.1;
         background-color: $warning-colors.2;
         border: solid 1px $warning-colors.3;
         padding: 2px;
@@ -394,8 +431,8 @@ table
 
 table.logo
         {
-        color: $logo-colors.1;
-        background-color: $logo-colors.2;
+        color:                   $logo-colors.1;
+        background-color:        $logo-colors.2;
         border-bottom: solid 1px $logo-colors.3;
         
         vertical-align: middle;
@@ -470,8 +507,8 @@ a.main-menu:hover
 
 table.menu
         {
-        color: $menu-colors.1;
-        background-color: $menu-colors.2;
+        color:                $menu-colors.1;
+        background-color:     $menu-colors.2;
         border-top: solid 1px $menu-colors.5;
 
         vertical-align: middle;
@@ -488,8 +525,8 @@ td.menu
         {
         width:  1%;
         border-bottom: solid 1px $menu-colors.5;
-        border-left:  solid 1px $menu-colors.5;
-        border-right: solid 1px $menu-colors.5;
+        border-left:   solid 1px $menu-colors.5;
+        border-right:  solid 1px $menu-colors.5;
 
         padding: 0.4em;
         white-space: nowrap;
@@ -517,7 +554,7 @@ a.menu
 
 a.menu:hover
         {
-        color: $menu-colors.3;
+        color:            $menu-colors.3;
         background-color: $menu-colors.4;
 
         text-decoration: none;
@@ -528,9 +565,9 @@ a.menu:hover
 
 tr.ps-path
         {
-        background-color: $menu-colors.2;
+        color:                   $menu-colors.1;
+        background-color:        $menu-colors.2;
         border-bottom: solid 1px $menu-colors.5;
-        color: $menu-colors.1;
         
         font-weight: bold;
         vertical-align: middle;
@@ -569,7 +606,7 @@ td.record-value
 
 table.view
         {
-        color: $view-data-colors.1;
+        color:            $view-data-colors.1;
         background-color: $view-data-colors.2;
         border: solid 1px $view-data-colors.3;
         }
@@ -581,7 +618,7 @@ tr.view
 
 td.view-header
         {
-        color: $view-head-colors.1;
+        color:            $view-head-colors.1;
         background-color: $view-head-colors.2;
         border: solid 1px $view-head-colors.3;
 
@@ -609,7 +646,7 @@ td.view-value
 
 table.edit
         {
-        color: $edit-data-colors.1;
+        color:            $edit-data-colors.1;
         background-color: $edit-data-colors.2;
         border: solid 1px $edit-data-colors.3;
         }
@@ -621,7 +658,7 @@ tr.edit
 
 td.edit-header
         {
-        color: $edit-head-colors.1;
+        color:            $edit-head-colors.1;
         background-color: $edit-head-colors.2;
         border: solid 1px $edit-head-colors.3;
 
@@ -649,7 +686,7 @@ td.edit-value
 
 table.insert
         {
-        color: $insert-data-colors.1;
+        color:            $insert-data-colors.1;
         background-color: $insert-data-colors.2;
         border: solid 1px $insert-data-colors.3;
         }
@@ -661,7 +698,7 @@ tr.insert
 
 td.insert-header
         {
-        color: $insert-head-colors.1;
+        color:            $insert-head-colors.1;
         background-color: $insert-head-colors.2;
         border: solid 1px $insert-head-colors.3;
 
@@ -713,10 +750,8 @@ td.grid-header
         background-color: $grid-head-colors.2;
         border: solid 1px $grid-head-colors.3;
 
-        border-bottom: solid 1px #66A;
         font-weight: bold;
         padding: 0.7em;
-
         white-space: normal;
         }
 
@@ -866,9 +901,6 @@ select,.grid-link-select
 
 .button
         {
-        color: #FFF;
-        background-color: #448;
-        border: solid 2px #66A;
         border-radius: 2px;
 
         display: inline-block;
@@ -880,95 +912,67 @@ select,.grid-link-select
         font-family: mont;
         font-size: 1.0em;
         font-weight: bold;
+        
+        $$setup-act-fg-bg-border     $button-colors
         }
 
 .button:hover
         {
-        color: #FFF;
-        background-color: #66A;
-        border: solid 2px #88C;
+        $$setup-act-fg-bg-border-hi  $button-colors
         }
 
 .button:focus
         {
-        color: #CCC;
-        background-color: #555;
-        border: solid 2px #777;
+        $$setup-act-fg-bg-border     $button-focus-colors
         }
-
 
 .act-button
         {
-        color: #FFF;
-        background-color: #262;
-        border: solid 2px #494;
+        $$setup-act-fg-bg-border     $act-button-colors
         }
 
 .act-button:hover
         {
-        color: #FFF;
-        background-color: #494;
-        border: solid 2px #6A6;
+        $$setup-act-fg-bg-border-hi  $act-button-colors
         }
 
 .nav-button
         {
-        color: #FFF;
-        background-color: #159;
-        border: solid 2px #37A;
+        $$setup-act-fg-bg-border     $nav-button-colors
         }
 
 .nav-button:hover
         {
-        color: #FFF;
-        background-color: #37A;
-        border: solid 2px #59C;
+        $$setup-act-fg-bg-border-hi  $nav-button-colors
         }
 
 .mod-button
         {
-        color: #FFF;
-        background-color: #822;
-        border: solid 2px #B55;
+        $$setup-act-fg-bg-border     $mod-button-colors
         }
 
 .mod-button:hover
         {
-        color: #FFF;
-        background-color: #B55;
-        border: solid 2px #D77;
+        $$setup-act-fg-bg-border-hi  $mod-button-colors
         }
 
 .disabled-button
         {
-        color: #FFF;
-        background-color: #262;
-        border: solid 2px #494;
-
-        text-decoration-line: line-through;
+        $$setup-act-fg-bg-border     $disabled-button-colors
         }
 
 .disabled-button:hover
         {
-        color: #FFF;
-        background-color: #494;
-        border: solid 2px #6A6;
-        }
-
-.disabled-button:focus
-        {
-        color: #FFF;
-        background-color: #494;
-        border: solid 2px #6A6;
+        $$setup-act-fg-bg-border-hi  $disabled-button-colors
         }
 
 /*** hover layer ************************************************************/
 
 div.hover-layer
         {
-        color: $hover-colors.1;
+        color:            $hover-colors.1;
         background-color: $hover-colors.2;
-        border:      solid 1px $hover-colors.3;
+        border: solid 1px $hover-colors.3;
 
         white-space: nowrap;
         padding: 0.5em;
@@ -979,9 +983,9 @@ div.hover-layer
 
 div.popup-layer
         {
-        color: $popup-colors.1;
+        color:            $popup-colors.1;
         background-color: $popup-colors.2;
-        border:      solid 1px $popup-colors.3;
+        border: solid 1px $popup-colors.3;
 
         white-space: nowrap;
         padding: 0.5em;
@@ -992,59 +996,43 @@ div.popup-layer
 
 /*** check boxes ************************************************************/
 
-/* TODO: fix height equal to .icon */
-
-img.check-unknown
+img.check-base
         {
         cursor: pointer;
         height: 2.2em;
         padding: 0.4em;
         text-decoration: none;
-
-        color: #FFF;
-        background-color: #444;
-        border: solid 2px #777;
         border-radius: 2px;
+        }
+
+img.check-unknown
+        {
+        $$setup-act-fg-bg-border    $check-unknown-colors
+        }
+
+img.check-unknown:hover
+        {
+        $$setup-act-fg-bg-border-hi $check-unknown-colors
         }
 
 img.check-0
         {
-        cursor: pointer;
-        height: 2.2em;
-        padding: 0.4em;
-        text-decoration: none;
-
-        color: #FFF;
-        background-color: #822;
-        border: solid 2px #B55;
-        border-radius: 2px;
+        $$setup-act-fg-bg-border    $check-0-colors
         }
 
 img.check-0:hover
         {
-        color: #FFF;
-        background-color: #B55;
-        border: solid 2px #D77;
+        $$setup-act-fg-bg-border-hi $check-0-colors
         }
 
 img.check-1
         {
-        cursor: pointer;
-        height: 2.2em;
-        padding: 0.4em;
-        text-decoration: none;
-
-        color: #FFF;
-        background-color: #262;
-        border: solid 2px #494;
-        border-radius: 2px;
+        $$setup-act-fg-bg-border    $check-1-colors
         }
 
 img.check-1:hover
         {
-        color: #FFF;
-        background-color: #494;
-        border: solid 2px #6A6;
+        $$setup-act-fg-bg-border-hi $check-1-colors
         }
 
 /*** other ******************************************************************/

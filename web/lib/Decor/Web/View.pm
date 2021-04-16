@@ -116,7 +116,7 @@ sub de_web_format_field
     $data_fmt = $field_data > 0 ? '[&radic;]' : '[&nbsp;]';
     if( $fdes->get_attr( 'WEB', $vtype, 'EDITABLE' ) )
       {
-      $data_fmt = [ "<img class=check-0 src=i/check-0.svg>", "<img class=check-1 src=i/check-1.svg>" ]->[ !! $field_data ];
+      $data_fmt = [ "<img class='check-base check-0' src=i/check-0.svg>", "<img class='check-base check-1' src=i/check-1.svg>" ]->[ !! $field_data ];
       my $new_val = !!! $field_data || 0; # cap and reverse
       # FIXME: use reactor_none_href to avoid session creation?
       $data_fmt = "<div class=vframe><a reactor_new_href=?_an=set_val&table=$table&fname=$fname&id=$id&value=$new_val&vtype=$vtype>$data_fmt</a></div>";
