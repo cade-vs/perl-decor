@@ -9,7 +9,10 @@
 ############################################################################*/
 
 
-/* THIS FILE IS GENERATED! PLEASE, DO NOT MODIFY! -- GENERATED AT Sat Apr 17 02:38:10 2021 */
+/* THIS FILE IS GENERATED! PLEASE, DO NOT MODIFY! -- GENERATED AT Sun Apr 18 01:14:39 2021 */
+
+
+
 
 
 
@@ -256,6 +259,7 @@ img
         height: 2.2em;
         padding: 0.4em;
         text-decoration: none;
+        border-radius: 2px;
 
         color:            #CCC;
         background-color: #555;
@@ -559,7 +563,6 @@ td.view-header
         background-color: #159;
         border: solid 1px #37A;
 
-        /* border-bottom: solid 1px #66A; */
         padding: 0.2em;
         font: bold 1.2em oswald;
         }
@@ -599,7 +602,6 @@ td.edit-header
         background-color: #822;
         border: solid 1px #A44;
 
-        /* border-bottom: solid 1px #66A; */
         padding: 0.2em;
         font: bold 1.2em oswald;
         }
@@ -639,7 +641,6 @@ td.insert-header
         background-color: #262;
         border: solid 1px #484;
 
-        /* border-bottom: solid 1px #66A; */
         padding: 0.2em;
         font: bold 1.2em oswald;
         }
@@ -666,6 +667,8 @@ td.insert-value
         padding: 1em;
         text-align: right;
         width: 100%;
+        
+        color:            #FFF
         background-color: #222;
         }
 
@@ -765,43 +768,33 @@ table.grid-navi td
 
 /*** form inputs ************************************************************/
 
+
 input,textarea,select,.grid-link-select
         {
-        color: #CCC;
-        background-color: #222;
-
-        border-right:  solid 1px #555;
-        border-bottom: solid 1px #555;
-        border-left:   solid 1px #000;
-        border-top:    solid 1px #000;
-
         padding: 0.5em;
         margin: 0 0 0 0;
         font-family: mont;
         font-size: 1.1em;
+        
+        color: #CCC;
+        background-color: #222;
+        border: solid 1px #555;
         }
 
 input:hover,textarea:hover,select:hover,.grid-link-select:hover
         {
+        color: #FFF;
         background-color: #023;
-        
-        border-right:  solid 1px #AAA;
-        border-bottom: solid 1px #AAA;
-        border-left:   solid 1px #000;
-        border-top:    solid 1px #000;
+        border: solid 1px #555;
         }
 
 input:focus,textarea:focus
         {
         color: #FFF;
         background-color: #023;
-        
-        border-right:  solid 1px #AAA;
-        border-bottom: solid 1px #AAA;
-        border-left:   solid 1px #000;
-        border-top:    solid 1px #000;
-        
-        outline: 0;
+        border: solid 1px #555;
+
+        outline: solid 1px #55F;
         }
 
 select,.grid-link-select

@@ -72,18 +72,27 @@ $logo-colors    #CCC  #446  #66A
 /*$           fg    bg    fg-hi  bg-hi  border */
 $menu-colors  #CCC  #224  #FFF   #335   #445
 
-/*$                fg    bg    border  inside-border */
-$view-data-colors  #EEE  #333  #555    #444
-$view-head-colors  #FFF  #159  #37A 
+/*$                  fg    bg    border  inside-border */
+$view-data-colors    #EEE  #333  #555    #444
+$view-head-colors    #FFF  #159  #37A 
 
-$edit-data-colors  $view-data-colors
-$edit-head-colors  #FFF  #822  #A44
+$edit-data-colors    $view-data-colors
+$edit-head-colors    #FFF  #822  #A44
 
 $insert-data-colors  $view-data-colors
 $insert-head-colors  #FFF  #262  #484
 
-$grid-data-colors  $view-data-colors
-$grid-head-colors  #FFF  #223  #555
+$grid-data-colors    $view-data-colors
+$grid-head-colors    #FFF  #223  #555
+
+/*$                        fg    bg    border fg-hi bg-hi border-hi    */
+$input-field-colors        #CCC  #222  #555   #FFF  #023  #555
+
+/*$                        fg    bg    border outline  */
+$input-field-focus-colors  #FFF  #023  #555   #55F
+
+/*$                     fg    bg  */
+$details-fields-colors  #FFF  #222
 
 /*$                      bg-odd   bg-even  bg-hi    bottom-border-hi        */
 $grid-data-row-odd-even  #353535  #303030  #343450  #555
@@ -339,6 +348,7 @@ img
         height: 2.2em;
         padding: 0.4em;
         text-decoration: none;
+        border-radius: 2px;
 
         $$setup-act-fg-bg-border  $disabled-icon-colors
         }
@@ -622,7 +632,6 @@ td.view-header
         background-color: $view-head-colors.2;
         border: solid 1px $view-head-colors.3;
 
-        /* border-bottom: solid 1px #66A; */
         padding: 0.2em;
         font: bold 1.2em oswald;
         }
@@ -662,7 +671,6 @@ td.edit-header
         background-color: $edit-head-colors.2;
         border: solid 1px $edit-head-colors.3;
 
-        /* border-bottom: solid 1px #66A; */
         padding: 0.2em;
         font: bold 1.2em oswald;
         }
@@ -702,7 +710,6 @@ td.insert-header
         background-color: $insert-head-colors.2;
         border: solid 1px $insert-head-colors.3;
 
-        /* border-bottom: solid 1px #66A; */
         padding: 0.2em;
         font: bold 1.2em oswald;
         }
@@ -729,7 +736,9 @@ td.insert-value
         padding: 1em;
         text-align: right;
         width: 100%;
-        background-color: #222;
+        
+        color:            $details-fields-colors.1
+        background-color: $details-fields-colors.2;
         }
 
 /*** grid *******************************************************************/
@@ -828,43 +837,33 @@ table.grid-navi td
 
 /*** form inputs ************************************************************/
 
+
 input,textarea,select,.grid-link-select
         {
-        color: #CCC;
-        background-color: #222;
-
-        border-right:  solid 1px #555;
-        border-bottom: solid 1px #555;
-        border-left:   solid 1px #000;
-        border-top:    solid 1px #000;
-
         padding: 0.5em;
         margin: 0 0 0 0;
         font-family: mont;
         font-size: 1.1em;
+        
+        color: $input-field-colors.1;
+        background-color: $input-field-colors.2;
+        border: solid 1px $input-field-colors.3;
         }
 
 input:hover,textarea:hover,select:hover,.grid-link-select:hover
         {
-        background-color: #023;
-        
-        border-right:  solid 1px #AAA;
-        border-bottom: solid 1px #AAA;
-        border-left:   solid 1px #000;
-        border-top:    solid 1px #000;
+        color: $input-field-colors.4;
+        background-color: $input-field-colors.5;
+        border: solid 1px $input-field-colors.6;
         }
 
 input:focus,textarea:focus
         {
-        color: #FFF;
-        background-color: #023;
-        
-        border-right:  solid 1px #AAA;
-        border-bottom: solid 1px #AAA;
-        border-left:   solid 1px #000;
-        border-top:    solid 1px #000;
-        
-        outline: 0;
+        color: $input-field-focus-colors.1;
+        background-color: $input-field-focus-colors.2;
+        border: solid 1px $input-field-focus-colors.3;
+
+        outline: solid 1px $input-field-focus-colors.4;
         }
 
 select,.grid-link-select
