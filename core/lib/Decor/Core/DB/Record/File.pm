@@ -30,7 +30,10 @@ sub get_file_name
   my $table  = lc $self->table();
   my $id     =    $self->id();
   my $name   = $self->read( 'NAME' );
+  my $sfname = $self->read( 'SYS_FNAME' );
   my $ext    = $1 if $name =~ s/\.([a-z_0-9]+)$//i;
+
+  return ( $sfname, $name ) if substr( $sfname, 0, 1 ) eq '/';
 
   $name =~ s/[^A-Z_\-0-9]+/_/gi;
   my $path  = "$root/var/core/$app_name/files/$table";

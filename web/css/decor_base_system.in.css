@@ -8,49 +8,47 @@
 ##
 ############################################################################*/
 
-/* THIS FILE IS GENERATED! PLEASE, DO NOT MODIFY! -- GENERATED AT Fri Apr 30 03:22:09 2021 */
+/*$* DECOR STATIC/SYSTEM SECTION, DO NOT MODIFY THIS FILE! ******************/
 
+$$3d-box-normal
+        color: $1;
+        background-color: $2;
+        border-top:    solid 1px $5;
+        border-left:   solid 1px $5;
+        border-bottom: solid 1px $6;
+        border-right:  solid 1px $6;
 
+$$3d-box-hi
+        color: $3;
+        background-color: $4;
+        border-top:    solid 1px $6;
+        border-left:   solid 1px $6;
+        border-bottom: solid 1px $5;
+        border-right:  solid 1px $5;
 
+$$3d-box-simple
+        color: $1;
+        background-color: $2;
+        border-top:    solid 1px $3;
+        border-left:   solid 1px $3;
+        border-bottom: solid 1px $4;
+        border-right:  solid 1px $4;
 
+$$div-box
+        color: $1;
+        background-color: $2;
+        border:      solid $5 $3;
+        border-left: solid $6 $4;
 
+$$setup-act-fg-bg-border
+        color:            $1;
+        background-color: $2;
+        border: solid 2px $3;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*############################################################################
-##
-##  Decor application machinery core
-##  2014-2021 (c) Vladi Belperchinov-Shabanski "Cade"
-##  <cade@bis.bg> <cade@biscom.net> <cade@cpan.org>
-##
-##  LICENSE: GPLv2
-##
-############################################################################*/
-
-
-
-
-
-
-
+$$setup-act-fg-bg-border-hi
+        color:            $4;
+        background-color: $5;
+        border: solid 2px $6;
 
 /*** fonts ******************************************************************/
 
@@ -105,9 +103,9 @@ html
 
 body
         {
-        color:            #EEE;
-        background-color: #222;
-        background-image: url( "main-background.png" );
+        color:            $body-colors.1;
+        background-color: $body-colors.2;
+        background-image: url( "$body-colors.3" );
 
         font-family: mont, sans-serif, helvetica;
         margin: 0;
@@ -144,9 +142,9 @@ td.main_body
 
 td.main_footer
         {
-        color:                #AAA;
-        background-color:     #444;
-        border-top: solid 1px #777;
+        color:                $footer-colors.1;
+        background-color:     $footer-colors.2;
+        border-top: solid 1px $footer-colors.3;
         width:  100%;
         height: 100%;
         vertical-align: top;
@@ -175,8 +173,8 @@ div#div_for_screen
         div#div_for_print  { display: block; }
         body
               {
-              color:            #000;
-              background-color: #FFF;
+              color:            $body-colors-print.1;
+              background-color: $body-colors-print.2;
               background-image: none;
               }
         }
@@ -185,22 +183,22 @@ div#div_for_screen
 
 a       
         {
-        color: aqua;
-        border-bottom: dotted 1px teal;
+        color: $link-colors.1;
+        border-bottom: dotted 1px $link-colors.2;
 
         text-decoration: none;
         }
 
 a:hover 
         {
-        color: aqua;
-        border-bottom: solid 1px aqua;
+        color: $link-colors.3;
+        border-bottom: solid 1px $link-colors.4;
         }
 
 a:focus
         {
-        color: #CCC;
-        border-bottom: solid 1px #555;
+        color: $link-colors.5;
+        border-bottom: solid 1px $link-colors.6;
         }
 
 a.plain
@@ -223,44 +221,32 @@ img
         background-image: none;
         border-radius: 2px;
 
-        color:            #FFF;
-        background-color: #448;
-        border: solid 2px #66A;
+        $$setup-act-fg-bg-border  $icon-colors
         }
 .icon:hover
         {
-        color:            #FFF;
-        background-color: #66A;
-        border: solid 2px #88C;
+        $$setup-act-fg-bg-border-hi  $icon-colors
         }
 
 
 .act-icon
         {
-        color:            #FFF;
-        background-color: #262;
-        border: solid 2px #494;
+        $$setup-act-fg-bg-border  $act-icon-colors
         }
 
 .act-icon:hover
         {
-        color:            #FFF;
-        background-color: #494;
-        border: solid 2px #6A6;
+        $$setup-act-fg-bg-border-hi  $act-icon-colors
         }
 
 .mod-icon
         {
-        color:            #FFF;
-        background-color: #822;
-        border: solid 2px #B55;
+        $$setup-act-fg-bg-border  $mod-icon-colors
         }
 
 .mod-icon:hover
         {
-        color:            #FFF;
-        background-color: #822;
-        border: solid 2px #B55;
+        $$setup-act-fg-bg-border  $mod-icon-colors
         }
 
 .icon-disabled
@@ -270,16 +256,12 @@ img
         text-decoration: none;
         border-radius: 2px;
 
-        color:            #CCC;
-        background-color: #555;
-        border: solid 2px #777;
+        $$setup-act-fg-bg-border  $disabled-icon-colors
         }
 
 .icon-disabled:hover
         {
-        color:            #CCC;
-        background-color: #555;
-        border: solid 2px #777;
+        $$setup-act-fg-bg-border-hi  $disabled-icon-colors
         }
 
 a.icon
@@ -297,10 +279,7 @@ h1
 
 div.error-text
         {
-        color: #FFF;
-        background-color: #511;
-        border:      solid 1px #933;
-        border-left: solid 3px #933;
+        $$div-box $error-box-colors
 
         width:  80%;
         text-align: center;
@@ -311,10 +290,7 @@ div.error-text
 
 div.info-text
         {
-        color: #FFF;
-        background-color: #357;
-        border:      solid 1px #68A;
-        border-left: solid 3px #68A;
+        $$div-box $info-box-colors
 
         width:  80%;
         text-align: center;
@@ -325,12 +301,7 @@ div.info-text
 
 div.link-data
         {
-        color: #CCC;
-        background-color: #113;
-        border-top:    solid 1px #000;
-        border-left:   solid 1px #000;
-        border-bottom: solid 1px #555;
-        border-right:  solid 1px #555;
+        $$3d-box-simple $edit-link-data-box
 
         padding: 0.5em;
         margin: 0 0 0 0;
@@ -338,12 +309,7 @@ div.link-data
 
 div.link-empty
         {
-        color: #CCC;
-        background-color: #311;
-        border-top:    solid 1px #000;
-        border-left:   solid 1px #000;
-        border-bottom: solid 1px #555;
-        border-right:  solid 1px #555;
+        $$3d-box-simple $edit-link-empty-box
 
         padding: 0.5em;
         margin: 0 0 0 0;
@@ -352,16 +318,16 @@ div.link-empty
 .warning
         {
         font-weight: bold;
-        color:            #FFF;
-        background-color: #822;
-        border: solid 1px #633;
+        color:            $warning-colors.1;
+        background-color: $warning-colors.2;
+        border: solid 1px $warning-colors.3;
         padding: 2px;
         margin: 2px 2px 2px 2px;
         }
 
 .hi
         {
-        color: #FFF;
+        color: $hi-color;
         font-weight: bold;
         }
 
@@ -381,9 +347,9 @@ table
 
 table.logo
         {
-        color:                   #CCC;
-        background-color:        #446;
-        border-bottom: solid 1px #66A;
+        color:                   $logo-colors.1;
+        background-color:        $logo-colors.2;
+        border-bottom: solid 1px $logo-colors.3;
         
         vertical-align: middle;
         padding: 4px;
@@ -391,7 +357,7 @@ table.logo
 
 a.logo
         {
-        color: #CCC;
+        color: $logo-colors.1;
         text-decoration: none;
         }
 
@@ -399,9 +365,9 @@ a.logo
 
 table.main-menu
         {
-        color: #CCC;
-        background-color: #224;
-        border-bottom: solid 1px #445;
+        color: $menu-colors.1;
+        background-color: $menu-colors.2;
+        border-bottom: solid 1px $menu-colors.5;
 
         vertical-align: middle;
         font-weight: bold;
@@ -414,7 +380,7 @@ table.main-menu
 
 td.main-menu
         {
-        border-right: solid 1px #445;
+        border-right: solid 1px $menu-colors.5;
 
         width:  1%;
         padding: 0.2em;
@@ -422,12 +388,12 @@ td.main-menu
 
 td.main-menu:hover
         {
-        background-color: #335;
+        background-color: $menu-colors.4;
         }
 
 td.main-menu-fill
         {
-        border-right: solid 1px #445;
+        border-right: solid 1px $menu-colors.5;
 
         width:  100%;
         padding: 0;
@@ -436,7 +402,7 @@ td.main-menu-fill
 
 a.main-menu
         {
-        color: #CCC;
+        color: $menu-colors.1;
 
         display: block;
         width:  100%;
@@ -447,7 +413,7 @@ a.main-menu
 
 a.main-menu:hover
         {
-        color: #FFF;
+        color: $menu-colors.3;
 
         text-decoration: none;
         border: none;
@@ -457,9 +423,9 @@ a.main-menu:hover
 
 table.menu
         {
-        color:                #CCC;
-        background-color:     #224;
-        border-top: solid 1px #445;
+        color:                $menu-colors.1;
+        background-color:     $menu-colors.2;
+        border-top: solid 1px $menu-colors.5;
 
         vertical-align: middle;
         font-weight: bold;
@@ -474,9 +440,9 @@ table.menu
 td.menu
         {
         width:  1%;
-        border-bottom: solid 1px #445;
-        border-left:   solid 1px #445;
-        border-right:  solid 1px #445;
+        border-bottom: solid 1px $menu-colors.5;
+        border-left:   solid 1px $menu-colors.5;
+        border-right:  solid 1px $menu-colors.5;
 
         padding: 0.4em;
         white-space: nowrap;
@@ -488,12 +454,12 @@ td.menu
 
 td.menu:hover
         {
-        background-color: #335;
+        background-color: $menu-colors.4;
         }
 
 a.menu
         {
-        color: #CCC;
+        color: $menu-colors.1;
 
         display: block;
         width:  100%;
@@ -504,8 +470,8 @@ a.menu
 
 a.menu:hover
         {
-        color:            #FFF;
-        background-color: #335;
+        color:            $menu-colors.3;
+        background-color: $menu-colors.4;
 
         text-decoration: none;
         border: none;
@@ -515,9 +481,9 @@ a.menu:hover
 
 tr.ps-path
         {
-        color:                   #CCC;
-        background-color:        #224;
-        border-bottom: solid 1px #445;
+        color:                   $menu-colors.1;
+        background-color:        $menu-colors.2;
+        border-bottom: solid 1px $menu-colors.5;
         
         font-weight: bold;
         vertical-align: middle;
@@ -556,9 +522,9 @@ td.record-value
 
 table.view
         {
-        color:            #EEE;
-        background-color: #333;
-        border: solid 1px #555;
+        color:            $view-data-colors.1;
+        background-color: $view-data-colors.2;
+        border: solid 1px $view-data-colors.3;
         }
 
 tr.view
@@ -568,9 +534,9 @@ tr.view
 
 td.view-header
         {
-        color:            #FFF;
-        background-color: #159;
-        border: solid 1px #37A;
+        color:            $view-head-colors.1;
+        background-color: $view-head-colors.2;
+        border: solid 1px $view-head-colors.3;
 
         padding: 0.2em;
         font: bold 1.2em oswald;
@@ -578,15 +544,15 @@ td.view-header
 
 td.view-field
         {
-        border-bottom: solid 1px #444;
-        border-right:  solid 1px #444;
+        border-bottom: solid 1px $view-data-colors.4;
+        border-right:  solid 1px $view-data-colors.4;
 
         padding: 0.5em;
         }
 
 td.view-value
         {
-        border-bottom: solid 1px #444;
+        border-bottom: solid 1px $view-data-colors.4;
         
         padding: 0.5em;
         }
@@ -595,9 +561,9 @@ td.view-value
 
 table.edit
         {
-        color:            #EEE;
-        background-color: #333;
-        border: solid 1px #555;
+        color:            $edit-data-colors.1;
+        background-color: $edit-data-colors.2;
+        border: solid 1px $edit-data-colors.3;
         }
 
 tr.edit
@@ -607,9 +573,9 @@ tr.edit
 
 td.edit-header
         {
-        color:            #FFF;
-        background-color: #822;
-        border: solid 1px #A44;
+        color:            $edit-head-colors.1;
+        background-color: $edit-head-colors.2;
+        border: solid 1px $edit-head-colors.3;
 
         padding: 0.2em;
         font: bold 1.2em oswald;
@@ -617,15 +583,15 @@ td.edit-header
 
 td.edit-field
         {
-        border-bottom: solid 1px #444;
-        border-right:  solid 1px #444;
+        border-bottom: solid 1px $edit-data-colors.4;
+        border-right:  solid 1px $edit-data-colors.4;
 
         padding: 0.5em;
         }
 
 td.edit-value
         {
-        border-bottom: solid 1px #444;
+        border-bottom: solid 1px $edit-data-colors.4;
         
         padding: 0.5em;
         }
@@ -634,9 +600,9 @@ td.edit-value
 
 table.insert
         {
-        color:            #EEE;
-        background-color: #333;
-        border: solid 1px #555;
+        color:            $insert-data-colors.1;
+        background-color: $insert-data-colors.2;
+        border: solid 1px $insert-data-colors.3;
         }
 
 tr.insert
@@ -646,9 +612,9 @@ tr.insert
 
 td.insert-header
         {
-        color:            #FFF;
-        background-color: #262;
-        border: solid 1px #484;
+        color:            $insert-head-colors.1;
+        background-color: $insert-head-colors.2;
+        border: solid 1px $insert-head-colors.3;
 
         padding: 0.2em;
         font: bold 1.2em oswald;
@@ -656,15 +622,15 @@ td.insert-header
 
 td.insert-field
         {
-        border-bottom: solid 1px #444;
-        border-right:  solid 1px #444;
+        border-bottom: solid 1px $insert-data-colors.4;
+        border-right:  solid 1px $insert-data-colors.4;
 
         padding: 0.5em;
         }
 
 td.insert-value
         {
-        border-bottom: solid 1px #444;
+        border-bottom: solid 1px $edit-data-colors.4;
         
         padding: 0.5em;
         }
@@ -677,17 +643,17 @@ td.insert-value
         text-align: right;
         width: 100%;
         
-        color:            #FFF
-        background-color: #222;
+        color:            $details-fields-colors.1
+        background-color: $details-fields-colors.2;
         }
 
 /*** grid *******************************************************************/
 
 table.grid
         {
-        color:            #EEE;
-        background-color: #333;
-        border: solid 1px #555;
+        color:            $grid-data-colors.1;
+        background-color: $grid-data-colors.2;
+        border: solid 1px $grid-data-colors.3;
 
         border-collapse: collapse;
         width:  100%;
@@ -695,9 +661,9 @@ table.grid
 
 td.grid-header
         {
-        color:            #FFF;
-        background-color: #223;
-        border: solid 1px #555;
+        color:            $grid-head-colors.1;
+        background-color: $grid-head-colors.2;
+        border: solid 1px $grid-head-colors.3;
 
         font-weight: bold;
         padding: 0.7em;
@@ -708,31 +674,31 @@ td.grid-data
         {
         padding: 0.5em;
         white-space: nowrap;
-        border-right: solid 1px #555;
+        border-right: solid 1px $grid-data-colors.3;
         }
 
 tr.grid-1
         {
-        background-color: #353535;
-        border-bottom: solid 1px #555;
+        background-color: $grid-data-row-odd-even.1;
+        border-bottom: solid 1px $grid-head-colors.3;
         }
 
 tr.grid-2
         {
-        background-color: #303030;
-        border-bottom: solid 1px #555;
+        background-color: $grid-data-row-odd-even.2;
+        border-bottom: solid 1px $grid-head-colors.3;
         }
 
 tr.grid-1:hover
         {
-        border-bottom: solid 1px #555;
-        background-color: #343450;
+        border-bottom: solid 1px $grid-data-row-odd-even.4;
+        background-color: $grid-data-row-odd-even.3;
         }
 
 tr.grid-2:hover
         {
-        border-bottom: solid 1px #555;
-        background-color: #343450;
+        border-bottom: solid 1px $grid-data-row-odd-even.4;
+        background-color: $grid-data-row-odd-even.3;
         }
 
 td.fmt-left
@@ -785,25 +751,25 @@ input,textarea,select,.grid-link-select
         font-family: mont;
         font-size: 1.1em;
         
-        color: #CCC;
-        background-color: #222;
-        border: solid 1px #555;
+        color: $input-field-colors.1;
+        background-color: $input-field-colors.2;
+        border: solid 1px $input-field-colors.3;
         }
 
 input:hover,textarea:hover,select:hover,.grid-link-select:hover
         {
-        color: #FFF;
-        background-color: #023;
-        border: solid 1px #555;
+        color: $input-field-colors.4;
+        background-color: $input-field-colors.5;
+        border: solid 1px $input-field-colors.6;
         }
 
 input:focus,textarea:focus,select:focus
         {
-        color: #FFF;
-        background-color: #023;
-        border: solid 1px #555;
+        color: $input-field-focus-colors.1;
+        background-color: $input-field-focus-colors.2;
+        border: solid 1px $input-field-focus-colors.3;
 
-        outline: solid 1px #55F;
+        outline: solid 1px $input-field-focus-colors.4;
         }
 
 select,.grid-link-select
@@ -815,25 +781,25 @@ select,.grid-link-select
 
 .grid-link-select-option
         {
-        color: #CCC;
-        background-color: #224;
+        color: $menu-colors.1;
+        background-color: $menu-colors.2;
 
         cursor: pointer;
         display: block;
         width: 100%;
         padding: 0.3em;
         border: none;
-        border-bottom: solid 1px #445;
+        border-bottom: solid 1px $menu-colors.5;
         }
 
 .grid-link-select-option:hover
         {
-        color: #FFF;
-        background-color: #335;
+        color: $menu-colors.3;
+        background-color: $menu-colors.4;
 
         padding: 0.3em;
         border: none;
-        border-bottom: solid 1px #445;
+        border-bottom: solid 1px $menu-colors.5;
         }
 
 /*** buttons ****************************************************************/
@@ -852,88 +818,66 @@ select,.grid-link-select
         font-size: 1.0em;
         font-weight: bold;
         
-        color:            #FFF;
-        background-color: #448;
-        border: solid 2px #66A;
+        $$setup-act-fg-bg-border     $button-colors
         }
 
 .button:hover
         {
-        color:            #FFF;
-        background-color: #66A;
-        border: solid 2px #88C;
+        $$setup-act-fg-bg-border-hi  $button-colors
         }
 
 .button:focus
         {
-        color:            #CCC;
-        background-color: #555;
-        border: solid 2px #777;
+        $$setup-act-fg-bg-border     $button-focus-colors
         }
 
 .act-button
         {
-        color:            #FFF;
-        background-color: #262;
-        border: solid 2px #494;
+        $$setup-act-fg-bg-border     $act-button-colors
         }
 
 .act-button:hover
         {
-        color:            #FFF;
-        background-color: #494;
-        border: solid 2px #6A6;
+        $$setup-act-fg-bg-border-hi  $act-button-colors
         }
 
 .nav-button
         {
-        color:            #FFF;
-        background-color: #159;
-        border: solid 2px #37A;
+        $$setup-act-fg-bg-border     $nav-button-colors
         }
 
 .nav-button:hover
         {
-        color:            #FFF;
-        background-color: #37A;
-        border: solid 2px #59C;
+        $$setup-act-fg-bg-border-hi  $nav-button-colors
         }
 
 .mod-button
         {
-        color:            #FFF;
-        background-color: #822;
-        border: solid 2px #B55;
+        $$setup-act-fg-bg-border     $mod-button-colors
         }
 
 .mod-button:hover
         {
-        color:            #FFF;
-        background-color: #B55;
-        border: solid 2px #D77;
+        $$setup-act-fg-bg-border-hi  $mod-button-colors
         }
 
 .disabled-button
         {
-        color:            #CCC;
-        background-color: #555;
-        border: solid 2px #777;
+        $$setup-act-fg-bg-border     $disabled-button-colors
         }
 
 .disabled-button:hover
         {
-        color:            #CCC;
-        background-color: #555;
-        border: solid 2px #777;
+        $$setup-act-fg-bg-border-hi  $disabled-button-colors
         }
 
 /*** hover layer ************************************************************/
 
 div.hover-layer
         {
-        color:            #FFF;
-        background-color: #550;
-        border: solid 1px #990;
+        color:            $hover-colors.1;
+        background-color: $hover-colors.2;
+        border: solid 1px $hover-colors.3;
 
         white-space: nowrap;
         padding: 0.5em;
@@ -944,9 +888,9 @@ div.hover-layer
 
 div.popup-layer
         {
-        color:            #CCC;
-        background-color: #224;
-        border: solid 1px #445;
+        color:            $popup-colors.1;
+        background-color: $popup-colors.2;
+        border: solid 1px $popup-colors.3;
 
         white-space: nowrap;
         padding: 0.5em;
@@ -968,44 +912,32 @@ img.check-base
 
 img.check-unknown
         {
-        color:            #CCC;
-        background-color: #555;
-        border: solid 2px #777;
+        $$setup-act-fg-bg-border    $check-unknown-colors
         }
 
 img.check-unknown:hover
         {
-        color:            #CCC;
-        background-color: #555;
-        border: solid 2px #777;
+        $$setup-act-fg-bg-border-hi $check-unknown-colors
         }
 
 img.check-0
         {
-        color:            #FFF;
-        background-color: #822;
-        border: solid 2px #B55;
+        $$setup-act-fg-bg-border    $check-0-colors
         }
 
 img.check-0:hover
         {
-        color:            #FFF;
-        background-color: #B55;
-        border: solid 2px #D77;
+        $$setup-act-fg-bg-border-hi $check-0-colors
         }
 
 img.check-1
         {
-        color:            #FFF;
-        background-color: #262;
-        border: solid 2px #494;
+        $$setup-act-fg-bg-border    $check-1-colors
         }
 
 img.check-1:hover
         {
-        color:            #FFF;
-        background-color: #494;
-        border: solid 2px #6A6;
+        $$setup-act-fg-bg-border-hi $check-1-colors
         }
 
 /*** other ******************************************************************/
@@ -1038,5 +970,3 @@ div#map
         }
 
 /*** DECOR STATIC/SYSTEM SECTION EOF*****************************************/
-
-/*** DECOR EOF **************************************************************/

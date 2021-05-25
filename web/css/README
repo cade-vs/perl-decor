@@ -1,0 +1,16 @@
+
+to regenerate or create new color css, you will need ALTER-CSS:
+
+  https://github.com/cade-vs/alter-css
+
+then:
+
+  alter-css.pl default.in.css  > ../htdocs/i/default.css
+
+or:
+
+  alter-css.pl dark.in.css  > ../htdocs/i/default.css
+
+etc.
+
+
