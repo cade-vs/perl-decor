@@ -249,7 +249,7 @@ sub sub_begin
     }
   else
     {
-    boom "invalid XT=BEGIN parameters";
+    boom "invalid XT=BEGIN parameters, missing USER/PASS or USER_SID";
     }
 
   my $user = subs_get_current_user();
