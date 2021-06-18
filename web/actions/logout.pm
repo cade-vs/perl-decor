@@ -8,8 +8,7 @@ sub main
   my $reo = shift;
 
   my $core = $reo->de_connect();                                                                                                
-  $core->end();
-
+  $core->logout();
   $reo->logout();
   return "<#logout_done>";
 }

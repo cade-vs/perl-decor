@@ -5,7 +5,7 @@ _ID;NAME
 900;nobody
 901;nobody
 
-909;guest
+909;anonymous
 
 961;ignore ownership globally
 966;allow read globally

@@ -143,7 +143,11 @@ sub load_object
     {
     $table = uc $object;
     @files = find_files_for_table( $object );
-    if( ! @files )
+    if( @files )
+      {
+      print "found file: $_\n" for @files;
+      }
+    else
       {
       print "notice: no files for table [$object] \t-- skipped\n";
       return;
@@ -214,7 +218,11 @@ sub find_files_for_table
   my $table = lc shift;
   my @res;
   
-  push @res, glob_tree( "$_/static/$table.def" ) for ( de_root(), de_bundles_dirs(), de_app_dir() );
+  for( de_root() . '/core', @{ de_bundles_dirs() }, de_app_dir() )
+    {
+    my $fn = "$_/static/$table.def";
+    push( @res, glob_tree( $fn ) ) ;
+    }
   return @res;
 }
 

@@ -93,7 +93,8 @@ sub set_read_only
 
   my $state = shift;
 
-  $state = 1 if $state < 1; # once set read-only, record cannot be brought back to read-write state
+  # once set read-only, record cannot be brought back to read-write state
+  $state = ( $self->{ 'READ_ONLY' } || 1 ) if $state < 1; 
 
   $self->{ 'READ_ONLY' } = $state;
 
@@ -940,6 +941,26 @@ sub select_siblings
   $srec->select( $backlinked_table, "$backlinked_field = ?", { BIND => [ $base_id ] } );
   
   return $srec;
+}
+
+sub get_link_record
+{
+  my $self  = shift;
+  my $field = shift;
+
+  my $fdes = describe_table_field( $self->table(), $field );
+  my $ftype_name = $fdes->{ 'TYPE' }{ 'NAME' };
+  
+  # TODO: support for WIDELINKs
+  boom "cannot get link record of [$field] it is not a LINK field" unless $ftype_name eq 'LINK';
+  
+  my ( $linked_table, $linked_field ) = $fdes->link_details();
+  
+  my $lrec = new Decor::Core::DB::Record;
+  
+  return undef unless $lrec->load( $linked_table, $self->read( $field ) );
+  
+  return $lrec;
 }
 
 ### METHODS ##################################################################

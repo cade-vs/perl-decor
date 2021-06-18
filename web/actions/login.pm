@@ -31,12 +31,13 @@ sub main
     $pass = $ui->{ 'PASS' };
     }
   
+  my $client = $reo->de_connect();
   my ( $client, $status ) = $reo->de_login( $user, $pass );
 
   #print STDERR Dumper( $reo );
   #return "login res: client [$client] status [$status] ";
 
-  if( $client )
+  if( $reo->de_login( $client, $user, $pass ) )
     {
     $reo->login();                                                                                                              
     $reo->forward_new( ACTION => 'home' );

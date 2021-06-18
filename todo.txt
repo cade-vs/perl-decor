@@ -1,7 +1,9 @@
 
--- record parallel update guard
+-- password change table/method (with SALT!)
 
--- static data rebuild tool
+-- PASS fields with SALT support!
+
+-- record parallel update guard
 
 -- avoid INTERNAL ERROR in web when all table fields are forbidden and is empty list
 
@@ -10,12 +12,6 @@
 -- return "<#e_something>" with arguments!
 
 -- "share" common directory
-
--- session expire time
-
--- session atime delay
-
--- table/classes types
 
 -- table/classes file def mtime to automate dev on-demand alter
 

@@ -50,10 +50,20 @@
   label Last login time
   type  utime
   
+=LAST_LOGOUT_TIME
+
+  label Last login time
+  type  utime
+  
 =LAST_LOGIN_SESSION
 
   label Last login session
   type  link DE_SESSIONS CTIME
+
+=LAST_LOGIN_SESSION_ACTIVE
+
+  label Is last login session still active?
+  type  link DE_SESSIONS ACTIVE
 
 =LOGIN_SESSIONS
 

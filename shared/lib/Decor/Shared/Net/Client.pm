@@ -255,37 +255,7 @@ sub get_return_file_body_mime
 
 #-----------------------------------------------------------------------------
 
-sub begin_user_pass
-{
-  my $self = shift;
-  
-  my $user   = shift;
-  my $pass   = shift;
-  my $remote = shift;
-
-
-  my $mop = $self->tx_msg( { 'XT' => 'P', 'USER' => $user } ) or return undef;
-
-  my $user_salt  = $mop->{ 'USER_SALT'  };
-  my $login_salt = $mop->{ 'LOGIN_SALT' };
-
-  my %mi;
-
-  $mi{ 'XT'     } = 'B';
-  $mi{ 'USER'   } = $user;
-  $mi{ 'PASS'   } = de_password_salt_hash( de_password_salt_hash( $pass, $user_salt ), $login_salt );
-  $mi{ 'REMOTE' } = $remote;
-  
-  my $mo = $self->tx_msg( \%mi ) or return undef;
-  # FIXME: TODO: if failed then disconnect?
-
-  $self->{ 'CORE_SESSION_XTIME' } = $mo->{ 'XTIME' } || time() + 10*60;
-  $self->{ 'USER_GROUPS'        } = $mo->{ 'UGS'   } || {};
-
-  return $mo->{ 'SID' };
-}
-
-sub begin_user_session
+sub begin
 {
   my $self = shift;
   
@@ -301,10 +271,58 @@ sub begin_user_session
   my $mo = $self->tx_msg( \%mi ) or return undef;
   # FIXME: TODO: if failed then disconnect?
 
+  $self->{ 'DECOR_CORE_SESSION_ID' } = $mo->{ 'SID'   };
+  $self->{ 'CORE_SESSION_XTIME'    } = $mo->{ 'XTIME' } || time() + 10*60;
+  $self->{ 'USER_GROUPS'           } = $mo->{ 'UGS'   } || {};
+
+  return $mo->{ 'SID' };
+}
+
+sub login
+{
+  my $self = shift;
+  
+  my $user   = shift;
+  my $pass   = shift;
+  my $remote = shift;
+
+
+  my $mop = $self->tx_msg( { 'XT' => 'P', 'USER' => $user } ) or return undef;
+
+  my $login_salt = $mop->{ 'LOGIN_SALT' };
+  my $user_salt  = $mop->{ 'USER_SALT'  };
+
+  my %mi;
+
+  $mi{ 'XT'     } = 'LI';
+  $mi{ 'USER'   } = $user;
+  $mi{ 'PASS'   } = de_password_salt_hash( de_password_salt_hash( $pass, $user_salt ), $login_salt );
+  $mi{ 'REMOTE' } = $remote;
+  
+  my $mo = $self->tx_msg( \%mi ) or return undef;
+  # FIXME: TODO: if failed then disconnect?
+
   $self->{ 'CORE_SESSION_XTIME' } = $mo->{ 'XTIME' } || time() + 10*60;
   $self->{ 'USER_GROUPS'        } = $mo->{ 'UGS'   } || {};
 
-  return $mo->{ 'SID' };
+  return 1;
+}
+
+sub logout
+{
+  my $self = shift;
+ 
+  my %mi;
+
+  $mi{ 'XT'    } = 'LO';
+
+  delete $self->{ 'DECOR_CORE_SESSION_ID' };
+  delete $self->{ 'CORE_SESSION_XTIME'    };
+  delete $self->{ 'USER_GROUPS'           };
+  
+  my $mo = $self->tx_msg( \%mi ) or return undef;
+
+  return 1;
 }
 
 sub end
@@ -315,6 +333,7 @@ sub end
 
   $mi{ 'XT'    } = 'E';
 
+  delete $self->{ 'DECOR_CORE_SESSION_ID' };
   delete $self->{ 'CORE_SESSION_XTIME' };
   delete $self->{ 'USER_GROUPS'        };
   

@@ -112,50 +112,17 @@ sub load_trans_file
 
 #-----------------------------------------------------------------------------
 
-sub de_login
+sub __setup_client_env
 {
-  my $self = shift;
+  my $self   = shift;
+  my $client = shift;
+  
+  my $user_shr = $self->get_user_session();
 
-  my $user = shift;
-  my $pass = shift;
-  my %opt  = @_;
-
-  my $de_core_app     = $self->{ 'ENV' }{ 'DECOR_CORE_APP'       };
-  my $de_core_host    = $self->{ 'ENV' }{ 'DECOR_CORE_HOST'      };
-  my $de_core_timeout = $self->{ 'ENV' }{ 'DECOR_CORE_TIMEOUT'   } || 64;
-  my $lang            = $self->{ 'ENV' }{ 'LANG' };
-
-  my $http_env = $self->get_http_env();
-
-  my $client = Decor::Shared::Net::Client->new( TIMEOUT => $de_core_timeout );
-
-  $self->log( "debug: about to connect and login to host [$de_core_host] application [$de_core_app]" );
-
-  if( ! $client->connect( $de_core_host, $de_core_app ) )
-    {
-    $self->log( "error: connect FAILED to host [$de_core_host] application [$de_core_app]:\n" . Dumper( $client ) );
-    return ( undef, 'E_CONNECT' );
-    }
-
-  my $remote = $http_env->{ 'REMOTE_ADDR' };
-  my $de_core_session_id = $client->begin_user_pass( $user, $pass, $remote );
-
-  if( $de_core_session_id )
-    {
-    my $user_shr = $self->get_user_session();
-    $user_shr->{ 'DECOR_CORE_SESSION_ID' } = $de_core_session_id;
-    $user_shr->{ 'USER_GROUPS'           } = $client->{ 'USER_GROUPS' } || {};
-    $self->log( "status: login OK as user [$user] remote [$remote] core session [$de_core_session_id]" );
-    return ( $client );
-    }
-  else
-    {
-    $self->log( "error: login FAILED as user [$user] remote [$remote]:\n" . Dumper( $client ) );
-    return ( undef, $client->status() );
-    }
+  $user_shr->{ 'DECOR_CORE_SESSION_ID' } = $client->{ 'DECOR_CORE_SESSION_ID' };
+  $user_shr->{ 'USER_GROUPS'           } = $client->{ 'USER_GROUPS' } || {};
+  $self->set_user_session_expire_time( $client->{ 'CORE_SESSION_XTIME' } );
 }
-
-#-----------------------------------------------------------------------------
 
 sub de_connect
 {
@@ -163,8 +130,6 @@ sub de_connect
 
   my %opt = @_;
 
-  boom "need to be logged in first" unless $self->is_logged_in();
-  
   return $self->{ 'DECOR_CLIENT_OBJECT' } if $self->{ 'DECOR_CLIENT_OBJECT' } and $self->{ 'DECOR_CLIENT_OBJECT' }->is_connected();
 
   my $de_core_app     = $self->{ 'ENV' }{ 'DECOR_CORE_APP'       };
@@ -174,42 +139,54 @@ sub de_connect
 
   my $user_shr = $self->get_user_session();
   my $http_env = $self->get_http_env();
+  my $remote   = $http_env->{ 'REMOTE_ADDR' };
 
-  my $de_core_session_id = $user_shr->{ 'DECOR_CORE_SESSION_ID'     };
-
-  boom "missing DECOR_CORE_SESSION_ID" unless $de_core_session_id;
+  my $de_core_session_id = $user_shr->{ 'DECOR_CORE_SESSION_ID' } || 'CREATE';
 
   my $client = Decor::Shared::Net::Client->new( TIMEOUT => $de_core_timeout );
 
-  $self->log( "debug: about to connect and use session to host [$de_core_host] application [$de_core_app]" );
+  $self->log( "debug: {$client} about to connect to [$de_core_host] app [$de_core_app] with core session [$de_core_session_id]" );
 
-  if( ! $client->connect( $de_core_host, $de_core_app ) )
+  if( $client->connect( $de_core_host, $de_core_app ) and my $session_id = $client->begin( $de_core_session_id, $remote ) )
+    {
+    $self->log( "status: connect OK with session [$de_core_session_id] remote [$remote]" );
+
+    $self->{ 'DECOR_CLIENT_OBJECT' } = $client;
+    return $client;
+    }
+  else  
     {
     $self->log( "error: connect FAILED to host [$de_core_host] application [$de_core_app]:\n" . Dumper( $client ) );
     $self->render( PAGE => 'error', 'main_action' => "<#e_connect>" );
     return undef;
     }
+}
 
-  my $remote = $http_env->{ 'REMOTE_ADDR' };
+#-----------------------------------------------------------------------------
 
-  my $session_ok = $client->begin_user_session( $de_core_session_id, $remote );
+sub de_login
+{
+  my $self   = shift;
+  my $client = shift;
+  my $user   = shift;
+  my $pass   = shift;
 
-  if( $session_ok )
+  my $user_shr = $self->get_user_session();
+  my $http_env = $self->get_http_env();
+  my $remote   = $http_env->{ 'REMOTE_ADDR' };
+
+  $self->log( "debug: {$client} about login as [$user] remote [$remote]" );
+
+  if( $client->login( $user, $pass, $remote ) )
     {
-    $self->log( "status: connect OK with session [$de_core_session_id] remote [$remote]" );
-    $self->set_user_session_expire_time( $client->{ 'CORE_SESSION_XTIME' } );
-
-    $self->{ 'DECOR_CLIENT_OBJECT' } = $client;
-    return $client;
+    $self->__setup_client_env();
+    my $de_core_session_id = $user_shr->{ 'DECOR_CORE_SESSION_ID' };
+    $self->log( "status: login OK as user [$user] remote [$remote] core session [$de_core_session_id]" );
+    return 1;
     }
   else
     {
-    my $status = $client->status();
-    $self->logout();
-    delete $self->{ 'DECOR_CLIENT_OBJECT' };
-    $self->log( "error: connect FAILED with session [$de_core_session_id] remote [$remote]:\n" . Dumper( $client ) );
-
-    $self->render( PAGE => 'error', 'main_action' => "<#$status>" );
+    $self->log( "error: login FAILED as user [$user] remote [$remote]:\n" . Dumper( $client ) );
     return undef;
     }
 }

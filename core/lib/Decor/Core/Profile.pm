@@ -94,6 +94,13 @@ sub get_groups
   return keys %{ $self->{ 'GROUPS' } };
 }
 
+sub get_groups_hr
+{
+  my $self = shift;
+
+  return { %{ $self->{ 'GROUPS' } } };
+}
+
 sub get_groups_string
 {
   my $self = shift;

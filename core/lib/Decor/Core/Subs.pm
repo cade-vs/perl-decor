@@ -44,13 +44,15 @@ my %DISPATCH_MAP = (
                                    'CAPS'     => \&sub_caps,
                                    'RESET'    => \&sub_reset,
                                    'END'      => \&sub_end,
-                                   'SEED'     => \&sub_seed,
                                  },
                      'MAIN'   => {
                                    'BEGIN'    => \&sub_begin,
-                                   'PREPARE'  => \&sub_begin_prepare,
                                  },
                      'USER'   => {
+                                   'LOGIN'    => \&sub_login,
+                                   'PREPARE'  => \&sub_login_prepare,
+
+                                   'SEED'     => \&sub_seed,
                                    'DESCRIBE' => \&sub_describe,
                                    'MENU'     => \&sub_menu,
                                    'SELECT'   => \&sub_select,
@@ -71,6 +73,7 @@ my %DISPATCH_MAP = (
                                    'COMMIT'   => \&sub_commit,
                                    'ROLLBACK' => \&sub_rollback,
                                  },
+                                 
                    );
 
 my %MAP_SHORTCUTS = (
@@ -85,6 +88,8 @@ my %MAP_SHORTCUTS = (
                     'H'   => 'FINISH',
                     'I'   => 'INSERT',
                     'L'   => 'RECALC',
+                    'LI'  => 'LOGIN',
+                    'LO'  => 'LOGOUT',
                     'M'   => 'MENU',
                     'N'   => 'NEXTID',
                     'O'   => 'DO',
@@ -122,6 +127,8 @@ my %SELECT_WHERE_OPERATORS = (
 my %SELECT_MAP;
 my $SELECT_MAP_COUNTER;
 my $SELECT_MAP_COUNT;
+
+my $PREPARE_LOGIN_SESSION_SALT;
 
 sub subs_set_dispatch_map
 {
@@ -178,6 +185,20 @@ sub sub_caps
   return 1;
 };
 
+sub __sub_reset_state
+{
+  subs_reset_dispatch_map();
+  subs_reset_current_all();
+  
+  %SELECT_MAP         = ();
+  $SELECT_MAP_COUNTER = 0;
+  $SELECT_MAP_COUNT   = 0;
+  
+  $PREPARE_LOGIN_SESSION_SALT = undef;
+  
+  return 1;
+}
+
 sub sub_reset
 {
   my $mi = shift;
@@ -189,16 +210,340 @@ sub sub_reset
   return 1;
 };
 
-sub __sub_reset_state
+#--- NEW BEGIN/LOGIN/LOGOUT/END-----------------------------------------------
+
+sub __session_update_times
 {
-  subs_reset_dispatch_map();
-  subs_reset_current_all();
-  %SELECT_MAP = ();
-  $SELECT_MAP_COUNTER = 0;
-  $SELECT_MAP_COUNT   = 0;
+  my $session_rec = shift;
+
+  my $atime = $session_rec->read( 'ATIME' );
+  return 0 unless time() - $atime > 60;
+  # update access & expire time but not less than a minute away
+
+  my $xtime = $session_rec->read( 'USR' ) == 909 ?
+              de_app_cfg( 'SESSION_ANON_EXPIRE_TIME', 24*60*60 ) # 24 hours for anonimous sessions
+              :
+              de_app_cfg( 'SESSION_USER_EXPIRE_TIME',    10*60 ) # 10 min for logged-in user sessions
+              ;
+              
+  $session_rec->write(
+                       'ATIME' => time(),
+                       'XTIME' => time() + $xtime,
+                     );
+  
+  return 1;
 }
 
-#--- LOGIN/LOGOUT ------------------------------------------------------------
+sub __session_check_xtime
+{
+  my $session_rec = shift;
+  
+  # TODO: use variable-length or fixed-length sessions
+print STDERR ">>>>>>>>>>>>>>>>>>> $session_rec < " . time();
+  return 1 unless $session_rec->read( 'XTIME' ) < time();
+
+  # session expired
+  $session_rec->write(
+                       'ACTIVE' => 0,
+                       'ETIME'  => time(),
+                     );
+  $session_rec->save();
+
+  # TODO: FIXME: IF: set last login session logout time in $user?
+
+  __sub_reset_state();
+    
+  die "E_SESSION_EXPIRED: user session expired";
+}
+
+sub __create_new_anon_session
+{
+  my $remote = shift;
+  
+  my $time_now = time(); # to keep the same time for all data here
+
+  my $session_rec = new Decor::Core::DB::Record;
+
+  $session_rec->create( 'DE_SESSIONS' );
+  $session_rec->write(
+                     'ACTIVE' => 1,
+                     'USR'    => 909, # ANON
+                     'CTIME'  => $time_now,
+                     'ETIME'  => 0,
+                     'ATIME'  => $time_now,
+                     'XTIME'  => $time_now,
+                     'REMOTE' => $remote,
+                     );
+
+  __session_update_times( $session_rec );
+
+  my $ss_time = time();
+  while(4)
+    {
+    my $sid = create_random_id( 137 );
+    $session_rec->write( 'SID' => $sid );
+    my $sp_name = 'BEGIN_NEW_SESSION';
+    $session_rec->savepoint( $sp_name );
+    eval
+      {
+      $session_rec->save();
+      };
+    if( $@ )
+      {
+      $session_rec->rollback_to_savepoint( $sp_name );
+      de_log_debug( "debug: error: session create hit existing session, retry [$@]" );
+      }
+    else
+      {
+      de_log( "status: new ANON session created [$sid]" );
+      last;
+      }
+    if( time() - $ss_time > 5 )
+      {
+      die "E_SESSION: cannot create ANON session due timeout";
+      }
+    }
+
+  return $session_rec;
+}
+
+sub __sub_find_session
+{
+  my $session_sid = shift;
+  my $remote      = shift;
+
+  boom "invalid session sid"   unless de_check_name( $session_sid );
+  boom "invalid remote string" unless de_check_user_login_name( $remote );
+
+  my $session_rec = new Decor::Core::DB::Record;
+
+  $session_rec->select( 'DE_SESSIONS', 'SID = ? AND REMOTE = ? AND ACTIVE = ?', { BIND => [ $session_sid, $remote, 1 ], LOCK => 1 } );
+  if( $session_rec->next() )
+    {
+    $session_rec->finish();
+    return $session_rec;
+    }
+  
+  die "E_SESSION: Session not found [$session_sid] from remote [$remote]";
+  return undef; # never reached
+};
+
+sub __setup_user_profile
+{
+  my $user_rec = shift;
+
+  my $profile = new Decor::Core::Profile;
+  
+  if( $user_rec->id() == 909 )
+    {
+    # anonymous connection
+    $profile->add_groups( 909 ); 
+    $profile->remove_groups( 999, 900, 901 ); # everyone, nobody, noone
+
+    # primary group
+    $profile->set_primary_group( 909 );
+    }
+  else
+    {
+    # reguler user (including root)
+    $profile->add_groups_from_user( $user_rec );
+
+    # common groups setup
+    $profile->add_groups( 999 ); # all/everybody
+    $profile->remove_groups( 900, 901, 909 ); # nobody, noone, anonymous
+
+    # primary group
+    $profile->set_primary_group( $user_rec->get_primary_group() );
+
+    # enable root access if user is root (id==1)
+    $profile->enable_root_access() if $user_rec->id() == 1;
+    }  
+    
+  return $profile;  
+}
+
+sub __sub_find_user
+{
+  my $user_name = shift;
+
+  die "E_LOGIN: Invalid user login name [$user_name]" unless de_check_user_login_name(  $user_name );
+
+  my $user_rec = new Decor::Core::DB::Record;
+
+  $user_rec->select( 'DE_USERS', 'NAME = ?', { BIND => [ $user_name ], LOCK => 1 } );
+  if( $user_rec->next() )
+    {
+    $user_rec->finish();
+    return $user_rec;
+    }
+  die "E_LOGIN: User not found [$user_name]";
+  return undef; # never reached
+};
+
+sub __sub_find_and_check_user_pass
+{
+  my $user = shift;
+  my $pass = shift; # expected to be whirlpool de_password_salt_hash()
+  my $salt = shift;
+
+  my $user_rec = __sub_find_user( $user );
+
+  die "E_LOGIN: User not active [$user]"         unless $user_rec->is_active();
+  die "E_LOGIN: Invalid user [$user] password"   unless de_check_user_pass_digest( $pass );
+
+  my $user_pass = $user_rec->read( 'PASS' );
+  # TODO: use configurable digests
+  my $user_pass_hex = de_password_salt_hash( $user_pass, $salt );
+  die "E_LOGIN: Wrong user [$user] password"   unless $pass eq $user_pass_hex;
+  return $user_rec;
+};
+
+sub sub_begin
+{
+  my $mi = shift;
+  my $mo = shift;
+
+  my $user_sid = $mi->{ 'USER_SID' };
+  my $remote   = $mi->{ 'REMOTE'   };
+
+  my $session_rec;
+  
+  if( $user_sid eq 'CREATE' )
+    {
+    $session_rec = __create_new_anon_session( $remote );
+    }
+  elsif( $user_sid )  
+    {
+    $session_rec = __sub_find_session( $user_sid, $remote );
+    }
+
+  # first check expire time
+  __session_check_xtime(  $session_rec );
+  # then update the new expire and access times
+  __session_update_times( $session_rec );
+
+  $session_rec->save();
+
+  my $user_rec = $session_rec->get_link_record( 'USR' );
+  boom "E_INTERNAL: cannot load USER for session [$user_sid] and remote [$remote]" unless $user_rec;
+  
+  my $profile = __setup_user_profile( $user_rec );
+
+  subs_lock_current_profile( $profile );
+  subs_lock_current_user( $user_rec );
+  subs_lock_current_session( $session_rec );
+
+  subs_set_dispatch_map( 'USER' );
+  
+  $mo->{ 'SID'   } = $session_rec->read( 'SID' );
+  $mo->{ 'UGS'   } = $profile->get_groups_hr(); # user groups (UGS)
+  $mo->{ 'XTIME' } = $session_rec->read( 'XTIME' );
+  $mo->{ 'XS'    } = 'OK';
+}
+
+sub sub_login_prepare
+{
+  my $mi = shift;
+  my $mo = shift;
+
+  my $user     = $mi->{ 'USER' };
+  my $user_rec = $user ? __sub_find_user( $user ) : undef;
+  
+  my $user_salt = $user_rec ? $user_rec->read( 'PASS_SALT' ) : undef;
+     $user_salt = create_random_id( 128 ) unless de_check_name( $user_salt );
+  
+  $PREPARE_LOGIN_SESSION_SALT = create_random_id( 128 );
+
+  $mo->{ 'LOGIN_SALT' } = $PREPARE_LOGIN_SESSION_SALT;
+  $mo->{ 'USER_SALT'  } = $user_salt;
+  $mo->{ 'XS'         } = 'OK';
+
+  return 1;
+}
+
+sub sub_login
+{
+  my $mi = shift;
+  my $mo = shift;
+
+  my $user     = $mi->{ 'USER'     };
+  my $pass     = $mi->{ 'PASS'     };
+  my $remote   = $mi->{ 'REMOTE'   };
+
+  die "E_LOGIN: ANONYMOUS login is forbidden" if $user =~ /^(ANON|ANONYMOUS)$/;
+
+  my $session_salt = $PREPARE_LOGIN_SESSION_SALT;
+  $PREPARE_LOGIN_SESSION_SALT = undef;
+
+  die "E_INTERNAL: missing session SALT, call XT=PREPARE first" unless de_check_name( $session_salt );
+  die "E_INTERNAL: invalid remote string" unless de_check_user_login_name( $remote );
+  
+  my $user_rec = __sub_find_and_check_user_pass( $user, $pass, $session_salt );
+
+  # TODO: allow/deny root login
+  die "E_LOGIN: User not active" unless $user_rec->read( 'ACTIVE' ) > 0;
+
+  my $session_rec = subs_get_current_session();
+     $session_rec->write(
+                          'USR'    => $user_rec->id(),
+                          'REMOTE' => $remote,
+                        );
+  __session_update_times( $session_rec );
+  $session_rec->save();
+
+  my $profile = __setup_user_profile( $user_rec );
+
+  subs_reset_current_all();
+  subs_lock_current_profile( $profile );
+  subs_lock_current_user( $user_rec );
+  subs_lock_current_session( $session_rec );
+
+  $mo->{ 'UGS'   } = $profile->get_groups_hr(); # user groups (UGS)
+  $mo->{ 'XTIME' } = $session_rec->read( 'XTIME' );
+  $mo->{ 'XS'    } = 'OK';
+
+  return 1;
+}
+
+sub sub_logout
+{
+  my $mi = shift;
+  my $mo = shift;
+
+  my $user_rec    = subs_get_current_user();
+  my $session_rec = subs_get_current_session();
+
+  $session_rec->write(
+                     'ACTIVE' => 0,
+                     'ETIME'  => time(),
+                     'ATIME'  => time(),
+                     );
+  $session_rec->save();
+
+  $user_rec->write(
+                    'LAST_LOGOUT_TIME'    => time(),
+                  );
+  $user_rec->save();
+
+  __sub_reset_state();
+
+  $mo->{ 'XS'    } = 'OK';
+};
+
+
+sub sub_end
+{
+  my $mi = shift;
+  my $mo = shift;
+
+  __sub_reset_state();
+
+  $mo->{ 'XS'    } = 'OK';
+}
+
+#--- ********** OLD *********** LOGIN/LOGOUT ---------------------------------
+
+=for comment old login
 
 my $BEGIN_SALT;
 
@@ -249,7 +594,21 @@ sub sub_begin
     }
   else
     {
-    boom "invalid XT=BEGIN parameters, missing USER/PASS or USER_SID";
+    boom "EACCESS: invalid XT=BEGIN parameters, missing USER/PASS or USER_SID and disabled ANON access" unless de_app_cfg( 'ALLOW_ANON', 0 );
+    # TEST: ANON connection
+    my $profile = new Decor::Core::Profile;
+    $profile->add_groups( 909 ); # anonymous
+    $profile->remove_groups( 999, 900, 901 ); # ANON is not everyone nor nobody
+    $profile->set_primary_group( 0 );
+    subs_lock_current_profile( $profile );
+    subs_set_dispatch_map( 'USER' );
+    
+    $mo->{ 'UGS'   } = { 909 => 1 }; # user groups
+    # TODO: expire time, further advise
+    $mo->{ 'XTIME' } = -1; # ANON sessions are without limit
+    $mo->{ 'XS'    } = 'OK';
+    $mo->{ 'SID'   } = 1;
+    return;
     }
 
   my $user = subs_get_current_user();
@@ -393,87 +752,7 @@ sub __sub_begin_with_session_continue
   return 1;
 };
 
-sub __sub_find_user
-{
-  my $user_name = shift;
-
-  die "E_LOGIN: Invalid user login name [$user_name]" unless de_check_user_login_name(  $user_name );
-
-  my $user_rec = new Decor::Core::DB::Record;
-
-  $user_rec->select( 'DE_USERS', 'NAME = ?', { BIND => [ $user_name ], LOCK => 1 } );
-  if( $user_rec->next() )
-    {
-    $user_rec->finish();
-    return $user_rec;
-    }
-  die "E_LOGIN: User not found [$user_name]";
-  return undef; # never reached
-};
-
-sub __sub_find_and_check_user_pass
-{
-  my $user = shift;
-  my $pass = shift; # expected to be whirlpool de_password_salt_hash()
-  my $salt = shift;
-
-  my $user_rec = __sub_find_user( $user );
-
-  die "E_LOGIN: User not active [$user]"         unless $user_rec->is_active();
-  die "E_LOGIN: Invalid user [$user] password"   unless de_check_user_pass_digest( $pass );
-
-  my $user_pass = $user_rec->read( 'PASS' );
-  # TODO: use configurable digests
-  my $user_pass_hex = de_password_salt_hash( $user_pass, $salt );
-  die "E_LOGIN: Wrong user [$user] password"   unless $pass eq $user_pass_hex;
-  return $user_rec;
-};
-
-sub __sub_find_session
-{
-  my $session_sid = shift;
-  my $remote      = shift;
-
-  boom "invalid session sid"   unless de_check_name( $session_sid );
-  boom "invalid remote string" unless de_check_user_login_name( $remote );
-
-  my $session_rec = new Decor::Core::DB::Record;
-
-  $session_rec->select( 'DE_SESSIONS', 'SID = ? AND REMOTE = ? AND ACTIVE = ?', { BIND => [ $session_sid, $remote, 1 ], LOCK => 1 } );
-  if( $session_rec->next() )
-    {
-    $session_rec->finish();
-    return $session_rec;
-    }
-  
-  die "E_SESSION: Session not found [$session_sid] from remote [$remote]";
-  return undef; # never reached
-};
-
-# i.e. logout
-sub sub_end
-{
-  my $mi = shift;
-  my $mo = shift;
-
-  #my $user_sid = $mi->{ 'USER_SID' };
-  #my $remote   = $mi->{ 'REMOTE'   };
-
-  #my $sess = __sub_find_session( $user_sid, $remote );
-
-  my $session_rec = subs_get_current_session();
-
-  $session_rec->write(
-                     'ACTIVE' => 0,
-                     'ETIME'  => time(),
-                     'ATIME'  => time(),
-                     );
-  $session_rec->save();
-
-  __sub_reset_state();
-
-  $mo->{ 'XS'    } = 'OK';
-};
+=cut
 
 #--- CHECK USER PASSWORD -----------------------------------------------------
 
@@ -485,18 +764,21 @@ sub sub_check_user_password
   my $user     = $mi->{ 'USER'     };
   my $pass     = $mi->{ 'PASS'     };
 
-  boom "login seed is empty, call XT=BEGIN_PREPARE first" unless $BEGIN_SALT;
-  my $begin_salt = $BEGIN_SALT;
-  $BEGIN_SALT = undef;
+  my $session_salt = $PREPARE_LOGIN_SESSION_SALT;
+  $PREPARE_LOGIN_SESSION_SALT = undef;
 
-
-  die "E_PASSWORD: Invalid user [$user] password"   unless de_check_user_pass_digest( $pass );
+  die "E_INTERNAL: missing session SALT, call XT=PREPARE first" unless de_check_name( $session_salt );
+  die "E_PASSWORD: Invalid user [$user] or password"            unless de_check_user_pass_digest( $pass );
 
   my $user_rec  = subs_get_current_user();
   my $user_pass = $user_rec->read( 'PASS' );
+
+  die "E_LOGIN: Invalid user [$user] password"   unless de_check_user_pass_digest( $pass );
+
+  my $user_pass = $user_rec->read( 'PASS' );
   # TODO: use configurable digests
-  #my $user_pass_hex = de_password_salt_hash( $pass, $salt );
-  #die "E_PASSWORD: Wrong user [$user] password"   unless $pass eq $user_pass_hex;
+  my $user_pass_hex = de_password_salt_hash( $user_pass, $session_salt );
+  die "E_PASSWORD: Wrong user [$user] password"   unless $pass eq $user_pass_hex;
 
   $mo->{ 'XS'    } = 'OK';
 }

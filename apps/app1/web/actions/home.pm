@@ -5,6 +5,10 @@ sub main
 {
   my $reo = shift;
 
+print STDERR "--------------------------------------PRECONNECT\n";
+
+  my $core = $reo->de_connect();
+
   my $in = $reo->is_logged_in() ? "IN" : "OUT";
 
   # new id will have non-zero value only if the forwarded insert was successful

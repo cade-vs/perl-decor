@@ -20,7 +20,7 @@ use Data::Tools 1.09;
 
 use Data::Dumper;
 use Decor::Core::Env;
-use Decor::Core::Config;
+#use Decor::Core::Config;
 use Decor::Core::Profile;
 use Decor::Core::Describe;
 use Decor::Core::Log;
