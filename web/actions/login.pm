@@ -32,10 +32,6 @@ sub main
     }
   
   my $client = $reo->de_connect();
-  my ( $client, $status ) = $reo->de_login( $user, $pass );
-
-  #print STDERR Dumper( $reo );
-  #return "login res: client [$client] status [$status] ";
 
   if( $reo->de_login( $client, $user, $pass ) )
     {
@@ -44,6 +40,7 @@ sub main
     }
   else
     {
+    my $status = $client->status();
     if( $status =~ /^E_SESSION/ )
       {
       $reo->logout();

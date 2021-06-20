@@ -147,17 +147,27 @@ sub de_connect
 
   $self->log( "debug: {$client} about to connect to [$de_core_host] app [$de_core_app] with core session [$de_core_session_id]" );
 
-  if( $client->connect( $de_core_host, $de_core_app ) and my $session_id = $client->begin( $de_core_session_id, $remote ) )
+  if( ! $client->connect( $de_core_host, $de_core_app ) )
+    {
+    $self->log( "error: connect FAILED to host [$de_core_host] application [$de_core_app]:\n" . Dumper( $client ) );
+    $self->render( PAGE => 'error', 'main_action' => "<#e_connect>" );
+    return undef;
+    }
+
+
+  if( $client->begin( $de_core_session_id, $remote ) )
     {
     $self->log( "status: connect OK with session [$de_core_session_id] remote [$remote]" );
-
+    $self->__setup_client_env( $client );
     $self->{ 'DECOR_CLIENT_OBJECT' } = $client;
     return $client;
     }
   else  
     {
     $self->log( "error: connect FAILED to host [$de_core_host] application [$de_core_app]:\n" . Dumper( $client ) );
-    $self->render( PAGE => 'error', 'main_action' => "<#e_connect>" );
+    my $status = $client->status();
+    $self->render( PAGE => 'error', 'main_action' => "<#$status>" );
+    $self->logout();
     return undef;
     }
 }
@@ -179,7 +189,7 @@ sub de_login
 
   if( $client->login( $user, $pass, $remote ) )
     {
-    $self->__setup_client_env();
+    $self->__setup_client_env( $client );
     my $de_core_session_id = $user_shr->{ 'DECOR_CORE_SESSION_ID' };
     $self->log( "status: login OK as user [$user] remote [$remote] core session [$de_core_session_id]" );
     return 1;

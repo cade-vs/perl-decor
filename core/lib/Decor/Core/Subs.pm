@@ -215,10 +215,12 @@ sub sub_reset
 sub __session_update_times
 {
   my $session_rec = shift;
+  my $force       = shift;
 
   my $atime = $session_rec->read( 'ATIME' );
-  return 0 unless time() - $atime > 60;
+  
   # update access & expire time but not less than a minute away
+  return 0 unless $force or time() - $atime > 60;
 
   my $xtime = $session_rec->read( 'USR' ) == 909 ?
               de_app_cfg( 'SESSION_ANON_EXPIRE_TIME', 24*60*60 ) # 24 hours for anonimous sessions
@@ -238,9 +240,10 @@ sub __session_check_xtime
 {
   my $session_rec = shift;
   
+  #print STDERR Dumper( '*' x 100, $session_rec, time() );
+
   # TODO: use variable-length or fixed-length sessions
-print STDERR ">>>>>>>>>>>>>>>>>>> $session_rec < " . time();
-  return 1 unless $session_rec->read( 'XTIME' ) < time();
+  return 1 if $session_rec->read( 'XTIME' ) > time();
 
   # session expired
   $session_rec->write(
@@ -275,7 +278,7 @@ sub __create_new_anon_session
                      'REMOTE' => $remote,
                      );
 
-  __session_update_times( $session_rec );
+  __session_update_times( $session_rec, 1 );
 
   my $ss_time = time();
   while(4)
@@ -388,13 +391,13 @@ sub __sub_find_and_check_user_pass
 
   my $user_rec = __sub_find_user( $user );
 
-  die "E_LOGIN: User not active [$user]"         unless $user_rec->is_active();
-  die "E_LOGIN: Invalid user [$user] password"   unless de_check_user_pass_digest( $pass );
+  die "E_LOGIN: User [$user] not active"              unless $user_rec->is_active();
+  die "E_LOGIN: Invalid password for user [$user] "   unless de_check_user_pass_digest( $pass );
 
   my $user_pass = $user_rec->read( 'PASS' );
   # TODO: use configurable digests
   my $user_pass_hex = de_password_salt_hash( $user_pass, $salt );
-  die "E_LOGIN: Wrong user [$user] password"   unless $pass eq $user_pass_hex;
+  die "E_LOGIN: Wrong password for user [$user]" unless $pass eq $user_pass_hex;
   return $user_rec;
 };
 
