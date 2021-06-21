@@ -134,14 +134,7 @@ print STDERR Dumper( $grid_export );
               }
             else
               {
-              if( $bfdes->get_attr( 'WEB', 'GRID', 'EDITABLE' ) )
-                {
-                ( $data_fmt, $fmt_class_fld ) = de_web_format_field( $linked_id, $bfdes, 'GRID', { ID => $id, REO => $reo, CORE => $core } );
-                }
-              else
-                {
-                ( $data_fmt, $fmt_class_fld ) = de_web_format_field( $data, $lfdes, 'GRID', { ID => $id, REO => $reo, CORE => $core } );
-                }  
+              ( $data_fmt, $fmt_class_fld ) = de_web_format_field( $data, $lfdes, 'GRID', { ID => $id, REO => $reo, CORE => $core } );
               }  
             
             if( $linked_id > 0 )
