@@ -228,6 +228,24 @@ img
         $$setup-act-fg-bg-border-hi  $icon-colors
         }
 
+.icon-clear
+        {
+        cursor: pointer;
+        height: 1.4em;
+        padding: 0.3em;
+        text-decoration: none;
+        background-image: none;
+        border-radius: 0.7em;
+
+        $$setup-act-fg-bg-border  $icon-clear-colors
+        border-width: 1px;
+        }
+.icon-clear:hover
+        {
+        $$setup-act-fg-bg-border-hi  $icon-clear-colors
+        border-width: 1px;
+        }
+
 
 .act-icon
         {

@@ -7,13 +7,13 @@ sub main
 
   my $text;
 
-  return undef unless $reo->is_logged_in();
-  return undef unless $reo->get_user_session_expire_time();
+  return undef unless $reo->is_debug() or $reo->is_logged_in();
+  return undef unless $reo->is_debug() or $reo->get_user_session_expire_time();
 
   my $expire_time = $reo->get_user_session_expire_time() - time();
 
   # do not report if below zero (disabled) or above 1 hour
-  return undef if $expire_time < 1 or $expire_time > 3600; 
+  return undef if ! $reo->is_debug() and ( $expire_time < 1 or $expire_time > 3600 ); 
 
   $text .= <<END;
 

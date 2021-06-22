@@ -154,7 +154,7 @@ sub subs_process_xt_message
   $xt = $MAP_SHORTCUTS{ $xt } if exists $MAP_SHORTCUTS{ $xt };
 
   my $mapc = $DISPATCH_MAP{ $DISPATCH_MAP }; # current
-  my $mapg = $DISPATCH_MAP{ 'GLOBAL' };      # global
+  my $mapg = $DISPATCH_MAP{ 'GLOBAL'      }; # global
   boom "unknown or forbidden DMAP:XTYPE [$DISPATCH_MAP:$xt] current DMAP is [$DISPATCH_MAP]" unless exists $mapc->{ $xt } or exists $mapg->{ $xt };
 
   my $handle = $mapc->{ $xt } || $mapg->{ $xt };
@@ -491,7 +491,7 @@ sub sub_login
                           'USR'    => $user_rec->id(),
                           'REMOTE' => $remote,
                         );
-  __session_update_times( $session_rec );
+  __session_update_times( $session_rec, 1 );
   $session_rec->save();
 
   my $profile = __setup_user_profile( $user_rec );
@@ -1650,7 +1650,6 @@ sub sub_rollback
 
   $mo->{ 'XS' } = 'OK';
 };
-
 
 ### EOF ######################################################################
 1;

@@ -8,7 +8,7 @@
 ##
 ############################################################################*/
 
-/* THIS FILE IS GENERATED! PLEASE, DO NOT MODIFY! -- GENERATED AT Fri Apr 30 03:22:09 2021 */
+/* THIS FILE IS GENERATED! PLEASE, DO NOT MODIFY! -- GENERATED AT Wed Jun 23 01:31:01 2021 */
 
 
 
@@ -232,6 +232,28 @@ img
         color:            #FFF;
         background-color: #66A;
         border: solid 2px #88C;
+        }
+
+.icon-clear
+        {
+        cursor: pointer;
+        height: 1.4em;
+        padding: 0.3em;
+        text-decoration: none;
+        background-image: none;
+        border-radius: 0.7em;
+
+        color:            #CCC;
+        background-color: #222;
+        border: solid 2px #999;
+        border-width: 1px;
+        }
+.icon-clear:hover
+        {
+        color:            #FFF;
+        background-color: #444;
+        border: solid 2px #DDD;
+        border-width: 1px;
         }
 
 
