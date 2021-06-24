@@ -21,3 +21,4 @@ grant access to 999
     type  action  logout
     grant access to 999
     right
+    confirm [~Are you sure you would like to logout?]

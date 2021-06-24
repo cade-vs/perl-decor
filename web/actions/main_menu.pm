@@ -86,13 +86,18 @@ sub main
       next;
       }  
 
+    my $confirm = $item->{ 'CONFIRM' };
+    my $menu_args;
+    $confirm = "[~Are you sure?]" if $confirm == 1;
+    $menu_args .= '  ' . qq( onclick="return confirm('$confirm');" ) if $confirm =~ /^([^"']+)$/;
+
     if( $item->{ 'RIGHT' } )
       {
-      unshift @right, "<td class=main-menu>$link</td>";
+      unshift @right, "<td class=main-menu $menu_args>$link</td>";
       }
     else
       {
-      push    @left,  "<td class=main-menu>$link</td>";   
+      push    @left,  "<td class=main-menu $menu_args>$link</td>";   
       }
     }
 

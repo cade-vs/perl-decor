@@ -30,29 +30,40 @@
                                                                                                                                   
     label Add new item                                                                                                            
     type  insert TEST1                                                                                                            
+    right
 
   ------------------------------------------------------------------
 
   Each menu item begins with '=' followed by menu ID. Menu ID will be
   used as a menu item label if 'label' is missing.
   
-  'label' gives the 'user friendly' menu item description.
+  'label'   gives the 'user friendly' menu item description.
   
-  'type' defines the menu item type. The following types are recognized:
+  'type'    defines the menu item type. The following types are recognized:
   
-      "grid" -- takes one argument, table name, displays grid with data
+      "grid"    -- takes one argument, table name, displays grid with data
       
-      "insert" -- takes one argument, table name, displays insert screen 
+      "insert"  -- takes one argument, table name, displays insert screen 
       
       "submenu" -- takes one argument, submenu name, forwards to new menu
+
+      "action"  -- takes one argument, action name, forwards to new action
       
   For 'grant' and 'deny' permissions, please, check the "table-definitions.txt"
   file, section "PERMISSIONS, GRANT/DENY ACCESS".    
+  
+  'right'   puts menu item on the right side of the main (top) menu, in reverse 
+            order.
+          
+  'confirm' has one optional argument (confirmation text) and will show
+            confirmation box (with the given text or 'Are you sure?') before
+            activationg menu item (see item "Logout" in core/menu/main.def).        
 
   Menus are merged with the core root menus, however thyey are not shown
   unless explicitly requested.
   
-  Main menu is named simply 'main' and is the root menu, visible by all users.
+  Main menu is named simply 'main' and is the top menu, visible by all users
+  (including anonimous if ANON access is enabled, see "anon.txt" for details).
   
   Each menu item, including submenu, can have different permissions and 
   access groups.
