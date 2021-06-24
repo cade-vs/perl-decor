@@ -1,9 +1,16 @@
 
+grant access to 999
+
 =SYSTEM
 
   type submenu  _DE_ADMIN
   deny all
   grant access to all
+
+=ANON
+
+  type  grid  TEST1
+  grant access to 909
 
 =TESTS
 

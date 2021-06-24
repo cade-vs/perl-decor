@@ -239,6 +239,7 @@ img
 
         $$setup-act-fg-bg-border  $icon-clear-colors
         border-width: 1px;
+        /* margin-left: -2.2em; */
         }
 .icon-clear:hover
         {

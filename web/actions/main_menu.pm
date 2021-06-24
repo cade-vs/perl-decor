@@ -15,16 +15,17 @@ sub main
 {
   my $reo = shift;
   
-  return "<#menu_outside>" unless $reo->is_logged_in();
+#  return "<#menu_outside>" unless $reo->is_logged_in();
 
   my $core = $reo->de_connect();
   my $menu = $core->menu( 'MAIN' );
-# print STDERR Dumper( 'ACTION: MAIN: MENU:', $menu, $core );
-
+  print STDERR Dumper( 'ACTION: MAIN: MENU:', $menu, $core );
 
   my $text;
+  
+  my @left;
+  my @right;
 
-  $text .= "<table class=main-menu cellspacing=0 cellpadding=0 width=100%><tr class=main-menu>";
   for my $key ( sort { $menu->{ $a }{ '_ORDER' } <=> $menu->{ $b }{ '_ORDER' } } keys %$menu )
     {
     next if $key eq '@';
@@ -74,16 +75,31 @@ sub main
       my $do     = $item->{ 'DO'     };
       $link = "<a class=menu reactor_none_href=?action=do&table=$table&do=$do>$label</a>";
       }
+    elsif( $type eq 'ACTION' )
+      {
+      my $action  = $item->{ 'ACTION'  };
+      $link = "<a class=menu reactor_none_href=?action=$action>$label</a>";
+      }
     else
       {
       $reo->log( "error: main-menu: invalid item [$key] type [$type]" );
       next;
       }  
 
-    $text .= "<td class=main-menu>$link</td>";
+    if( $item->{ 'RIGHT' } )
+      {
+      unshift @right, "<td class=main-menu>$link</td>";
+      }
+    else
+      {
+      push    @left,  "<td class=main-menu>$link</td>";   
+      }
     }
-  $text .= "<td class=main-menu-fill>&nbsp;</td><td class=main-menu><#main_menu_fill></td></tr></table>";
-  
+
+
+  $text .= "<table class=main-menu cellspacing=0 cellpadding=0 width=100%><tr class=main-menu>";
+  $text .= join( '', @left ) . "<td class=main-menu-fill>&nbsp;</td>" . join( '', @right );
+  $text .= "</tr></table>";
 ##  print STDERR Dumper( '+++', $menu, $text );
   return $text;
 #  return "MAIN MENU" . rand() . return "<#menu_inside_debug><xmp>" . Dumper( $menu ) . "</xmp>";

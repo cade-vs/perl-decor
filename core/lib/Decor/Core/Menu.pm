@@ -48,6 +48,7 @@ my %MENU_TYPES = (
                       'EDIT'    => 1,
                       'URL'     => 1,
                       'DO'      => 1,
+                      'ACTION'  => 1,
                  );
 
 my %MENU_KEY_TYPES  = (
@@ -84,6 +85,7 @@ my %MENU_ATTRS = (
                            FILTER_NAME   => 1,
                            FILTER_METHOD => 1,
                            ORDER_BY      => 1,
+                           RIGHT         => 1,
                          },
                 );
 
@@ -376,6 +378,11 @@ sub __postprocess_menu_hash
       {
       my $url = shift @type;
       $item_des->{ 'URL' } = $url;
+      }
+    elsif( $type =~ /^(ACTION)$/ )
+      {
+      my $action = shift @type;
+      $item_des->{ 'ACTION' } = $action;
       }
     elsif( $type =~ /^(DO)$/ )
       {
