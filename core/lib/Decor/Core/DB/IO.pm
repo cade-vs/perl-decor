@@ -174,6 +174,8 @@ sub select
   $where = $self->__resolve_clause_fields( $table, $where ) if $where ne '';
 
   my $order_by = $opts->{ 'ORDER_BY' };
+  $order_by = '._ID ASC'  if $order_by eq 'ASC';
+  $order_by = '._ID DESC' if $order_by eq 'DESC';
   $order_by = "ORDER BY\n    " . $self->__resolve_all_fields( $table, $order_by, { 'UNTAINT_FIELDS' => 1 } ) if $order_by ne '';
 
   my $group_by = $opts->{ 'GROUP_BY' };
