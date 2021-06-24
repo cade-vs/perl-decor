@@ -312,8 +312,36 @@ sub find_group
 
 sub cmd_list_users
 {
+  my @args = @_;
+  
+  my @ids   = grep { $_ =~ /^\d+$/ } @args;
+  my @names = grep { $_ =~ /\D/ } @args;
+
+  my $bind_names = join ',', @names;
+  my @where;
+  my @bind;
+  
+  if( @ids )
+    {
+    my $bind_ids   = '?,' x @ids;
+    chop( $bind_ids );
+    push @where, "_ID IN ( $bind_ids )";
+    push @bind, @ids;
+    }
+
+  if( @names )
+    {
+    my $bind_names   = '?,' x @names;
+    chop( $bind_names );
+    push @where, "NAME IN ( $bind_names )";
+    push @bind, @names
+    }
+    
+  my $where = join( ' or ', @where ) if @bind;
+  
+  
   my $user_rec = new Decor::Core::DB::Record;
-  $user_rec->select( 'DE_USERS' );
+  $user_rec->select( 'DE_USERS', $where, { BIND => \@bind, ORDER_BY => 'DESC' } );
   
 #  use Data::Dumper;
 #  print Dumper($user_rec);
