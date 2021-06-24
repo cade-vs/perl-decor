@@ -160,6 +160,13 @@ sub cmd_create_user
     return;
     }
 
+  my $grp_rec = new Decor::Core::DB::Record;
+  $grp_rec->create( 'DE_GROUPS' );
+  $grp_rec->write( 
+                    NAME      => $user, 
+                  );
+  $grp_rec->save();
+
   $user_rec->create( 'DE_USERS', $uid );
   
   my $user_salt     = create_random_id( 128 );
@@ -171,13 +178,16 @@ sub cmd_create_user
                     PASS_SALT => $user_salt,
                     ACTIVE    => 1,
                   );
+  $user_rec->write( 'PRIMARY_GROUP' => $grp_rec->id() );
+  $user_rec->write( 'PRIVATE_GROUP' => $grp_rec->id() );
   
   $user_rec->save();
   $user_rec->commit();
   
   my $usid = $user_rec->id();
+  my $grid = $grp_rec->id();
   my $name = $user_rec->read( 'NAME' );
-  print "info: new user [$name] created with id [$usid]\n";
+  print "info: new user [$name] created with id [$usid] and private+primary group [$grid]\n";
 }
 
 #-----------------------------------------------------------------------------
