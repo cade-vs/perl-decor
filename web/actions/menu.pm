@@ -51,6 +51,11 @@ sub sub_menu
     my $label = $item->{ 'LABEL' } || $key;
     my $type  = $item->{ 'TYPE'  };
 
+    my $confirm = $item->{ 'CONFIRM' };
+    my $menu_args;
+    $confirm = "[~Are you sure?]" if $confirm == 1;
+    $menu_args .= '  ' . qq( onclick="return confirm('$confirm');" ) if $confirm =~ /^([^"']+)$/;
+
     if( $type eq 'SUBMENU' )
       {
       my $submenu_name = $item->{ 'SUBMENU_NAME'  };
@@ -71,23 +76,23 @@ sub sub_menu
                                   FILTER_METHOD => $filter_method,
                                   ORDER_BY      => $order_by,
                                 );
-      push @res, "<a class=menu href=?_=$href><img src=i/menu-item-grid.svg class=icon> $label</a>";
+      push @res, "<a class=menu href=?_=$href $menu_args><img src=i/menu-item-grid.svg class=icon> $label</a>";
       }
     elsif( $type eq 'INSERT' )
       {
       my $table  = $item->{ 'TABLE'  };
-      push @res, "<a class=menu reactor_none_href=?action=edit&table=$table&id=-1><img src=i/menu-item-insert.svg class=icon> $label</a>";
+      push @res, "<a class=menu reactor_none_href=?action=edit&table=$table&id=-1 $menu_args><img src=i/menu-item-insert.svg class=icon> $label</a>";
       }
     elsif( $type eq 'DO' )
       {
       my $table  = $item->{ 'TABLE'  };
       my $do     = $item->{ 'DO'     };
-      push @res, "<a class=menu reactor_none_href=?action=do&table=$table&do=$do><img src=i/menu-item-do.svg class=icon> $label</a>";
+      push @res, "<a class=menu reactor_none_href=?action=do&table=$table&do=$do $menu_args><img src=i/menu-item-do.svg class=icon> $label</a>";
       }
     elsif( $type eq 'URL' )
       {
       my $url  = $item->{ 'URL'  };
-      push @res, "<a class=menu target=_blank href=$url><img src=i/menu-item-url.svg class=icon> $label</a>";
+      push @res, "<a class=menu target=_blank href=$url $menu_args><img src=i/menu-item-url.svg class=icon> $label</a>";
       }
     else
       {

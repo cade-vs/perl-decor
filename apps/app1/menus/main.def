@@ -49,6 +49,7 @@ grant access to 999
 =KERNEL
 
   type  url   http://kernel.org
+  confirm [~Are you sure you want to go to http://kernel.org?]
   
   
 
