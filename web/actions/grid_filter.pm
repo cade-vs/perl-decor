@@ -225,7 +225,7 @@ sub main
                                        RET      => [ '0', '1', '2' ],
                                        ARGS     => $input_tag_args,
                                        CLEAR    => $clear_icon,
-                                       LABELS   => [ "<img class='check-base check-unknown' src=i/check-unknown.svg>", "<img class='check-base check-0' src=i/check-0.svg>", "<img class='check-base check-1' src=i/check-1.svg>" ],
+                                       LABELS   => [ '<img class="check-base check-unknown" src=i/check-unknown.svg>', '<img class="check-base check-0" src=i/check-0.svg>', '<img class="check-base check-1" src=i/check-1.svg>' ],
                                        );
       }
     elsif( $bfdes->is_linked() and $combo )

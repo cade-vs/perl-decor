@@ -33,7 +33,7 @@ sub main
   
   my $client = $reo->de_connect();
 
-  if( $reo->de_login( $client, $user, $pass ) )
+  if( $reo->de_login( $user, $pass ) )
     {
     $reo->login();                                                                                                              
     $reo->forward_new( ACTION => 'home' );

@@ -51,11 +51,27 @@ grant access to 999
   type  url   http://kernel.org
   confirm [~Are you sure you want to go to http://kernel.org?]
   
-  
-
-  
 =STANDALONE
 
   grant access to all
   type    do    test1   standalone
   label   run standalone do
+
+
+
+
+=sess
+
+  grant access to all
+  type  grid  de_sessions
+  right
+
+=prefs v
+
+  grant access to all
+  type  view  PREFS
+
+=prefs e
+
+  grant access to all
+  type  edit  PREFS

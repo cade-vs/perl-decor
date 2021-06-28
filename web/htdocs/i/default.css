@@ -8,7 +8,7 @@
 ##
 ############################################################################*/
 
-/* THIS FILE IS GENERATED! PLEASE, DO NOT MODIFY! -- GENERATED AT Wed Jun 23 01:33:38 2021 */
+/* THIS FILE IS GENERATED! PLEASE, DO NOT MODIFY! -- GENERATED AT Mon Jun 28 12:49:58 2021 */
 
 
 
@@ -243,17 +243,17 @@ img
         background-image: none;
         border-radius: 0.7em;
 
-        color:            #CCC;
-        background-color: #222;
-        border: solid 2px #999;
+        color:            ;
+        background-color: ;
+        border: solid 2px ;
         border-width: 1px;
         /* margin-left: -2.2em; */
         }
 .icon-clear:hover
         {
-        color:            #FFF;
-        background-color: #444;
-        border: solid 2px #DDD;
+        color:            ;
+        background-color: ;
+        border: solid 2px ;
         border-width: 1px;
         }
 
@@ -1058,6 +1058,19 @@ div#map
         {
         height: 100%;
         width:  100%
+        }
+
+/*** effects ****************************************************************/
+
+.pulse      { animation: pulse   1s linear infinite; } 
+.pulse-slow { animation: pulse   2s linear infinite; } 
+.pulse-fast { animation: pulse 0.5s linear infinite; } 
+
+@keyframes pulse 
+        { 
+          0% { opacity: 0; }
+         50% { opacity: 1; }
+        100% { opacity: 0; }
         }
 
 /*** DECOR STATIC/SYSTEM SECTION EOF*****************************************/

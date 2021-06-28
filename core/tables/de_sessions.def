@@ -2,6 +2,8 @@
   type Session
   label User sessions
   system
+
+@isa  _DE_OWNERS  _OWNER
   
 =SID
 

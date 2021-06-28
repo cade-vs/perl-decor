@@ -988,4 +988,17 @@ div#map
         width:  100%
         }
 
+/*** effects ****************************************************************/
+
+.pulse      { animation: pulse   1s linear infinite; } 
+.pulse-slow { animation: pulse   2s linear infinite; } 
+.pulse-fast { animation: pulse 0.5s linear infinite; } 
+
+@keyframes pulse 
+        { 
+          0% { opacity: 0; }
+         50% { opacity: 1; }
+        100% { opacity: 0; }
+        }
+
 /*** DECOR STATIC/SYSTEM SECTION EOF*****************************************/

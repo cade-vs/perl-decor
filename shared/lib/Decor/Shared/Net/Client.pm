@@ -827,6 +827,32 @@ sub read_field
   return $row_data->{ $field };
 }
 
+sub select_first1
+{
+  my $self   = shift;
+  my $table  = shift;
+  my $fields = shift || '*';
+  my $opt    = shift || {};
+
+  my $select   = $self->select( $table, $fields, { %$opt, LIMIT => 1 } ) or return undef;
+  my $row_data = $self->fetch( $select ) or return undef;
+                 $self->finish( $select );
+  
+  return $row_data;
+}
+
+sub select_first1_field
+{
+  my $self  = shift;
+  my $table = shift;
+  my $field = shift;
+  my $opt   = shift || {};
+
+  my $row_data = $self->select_first1( $table, $field, $opt ) or return undef;
+  
+  return $row_data->{ $field };
+}
+
 sub count
 {
   my $self  = shift;

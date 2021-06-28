@@ -488,6 +488,7 @@ sub sub_login
 
   my $session_rec = subs_get_current_session();
      $session_rec->write(
+                          '_OWNER' => $user_rec->read( 'PRIVATE_GROUP' ),
                           'USR'    => $user_rec->id(),
                           'REMOTE' => $remote,
                         );

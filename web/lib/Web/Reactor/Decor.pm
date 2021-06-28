@@ -177,13 +177,14 @@ sub de_connect
 sub de_login
 {
   my $self   = shift;
-  my $client = shift;
   my $user   = shift;
   my $pass   = shift;
 
   my $user_shr = $self->get_user_session();
   my $http_env = $self->get_http_env();
   my $remote   = $http_env->{ 'REMOTE_ADDR' };
+
+  my $client = $self->de_connect() or boom "cannot de_login(), DECOR CLIENT OBJECT is missing";
 
   $self->log( "debug: {$client} about login as [$user] remote [$remote]" );
 
@@ -199,6 +200,21 @@ sub de_login
     $self->log( "error: login FAILED as user [$user] remote [$remote]:\n" . Dumper( $client ) );
     return undef;
     }
+}
+
+#-----------------------------------------------------------------------------
+
+sub de_logout
+{
+  my $self   = shift;
+
+  my $client = $self->de_connect() or boom "cannot de_logout(), DECOR CLIENT OBJECT is missing";
+  
+  $client->logout();
+  $self->logout();
+  
+  delete $self->{ 'DECOR_CLIENT_OBJECT' };
+  return 1;
 }
 
 #-----------------------------------------------------------------------------

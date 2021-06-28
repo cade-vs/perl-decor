@@ -45,6 +45,7 @@ my %MENU_TYPES = (
                       'GRID'    => 1,
                       'SUBMENU' => 1,
                       'INSERT'  => 1,
+                      'VIEW'    => 1,
                       'EDIT'    => 1,
                       'URL'     => 1,
                       'DO'      => 1,

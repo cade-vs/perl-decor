@@ -33,15 +33,19 @@ sub main
       {
       var m = Math.floor( page_expire_time / 60 );
       var s = Math.floor( page_expire_time % 60 );
-      el.innerHTML = '<~page expires in> ';
-      if( m >  0 ) el.innerHTML += m + '<~min>';
-      if( m <= 0 ) el.innerHTML += s + '<~sec>';
+      var str;
+      str = page_expire_time < 60 ? '<span class="warning pulse">' : '<span>';
+      str += '<~page expires in> ';
+      if( m >  0 ) str += m + '<~min>';
+      if( m <= 0 ) str += s + '<~sec>';
+      str += '</span>';
+      el.innerHTML = str;
       setTimeout( 'report_page_expire_time()', page_expire_timeout * 1000 );
       page_expire_time -= page_expire_timeout;
       }
     else
       {
-      el.innerHTML = '<span class=warning>page expired</span>'
+      el.innerHTML = '<span class="warning pulse">page expired</span>'
       }
   }
 

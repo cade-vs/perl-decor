@@ -7,9 +7,7 @@ sub main
 {
   my $reo = shift;
 
-  my $core = $reo->de_connect();                                                                                                
-  $core->logout();
-  $reo->logout();
+  $reo->de_logout();
   return "<#logout_done>";
 }
 

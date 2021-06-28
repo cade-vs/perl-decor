@@ -160,7 +160,9 @@ sub main
     }
 
   my $select = $core->select( $table, $fields, { FILTER => $filter, FILTER_NAME => $filter_name, FILTER_METHOD => $filter_method, OFFSET => $offset, LIMIT => $page_size, ORDER_BY => $order_by } ) if $fields;
+  return "<#access_denied>" unless $select;
   my $scount = $core->count( $table,           { FILTER => $filter, FILTER_NAME => $filter_name } ) if $select and ! $filter_method;
+
 
   $browser_window_title .= " | $scount [~record(s)]";
   $browser_window_title .= " , [~filtered]" if $filter;

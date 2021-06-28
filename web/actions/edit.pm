@@ -36,8 +36,6 @@ sub main
 
   my $mode_insert = 1 if $id < 0;
 
-  return "<#access_denied>" if $id == 0;
-
   my $si = $reo->get_safe_input();
   my $ui = $reo->get_user_input();
   my $ps = $reo->get_page_session();
@@ -57,6 +55,13 @@ sub main
   my $tdes = $core->describe( $table );
 
   my $table_label = $tdes->get_label();
+
+  if( $id == 0 )
+    {
+    my $id = $core->select_first1_field( $table, '_ID', { ORDER_BY => 'DESC' } );
+    
+    return "<#access_denied>" if $id == 0;
+    }
 
   my $edit_mode_insert;
   my $fields_ar;
