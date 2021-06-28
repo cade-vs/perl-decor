@@ -31,6 +31,7 @@ $icon-colors             $action-item
 $act-icon-colors         $action-item-act
 $mod-icon-colors         $action-item-mod
 $disabled-icon-colors    $action-item-disabled
+$icon-clear-colors       #CCC  #222  #999   #FFF  #444   #DDD
 
 /*$                      fg    bg    border fg-hi bg-hi  border-hi */
 $button-colors           $action-item

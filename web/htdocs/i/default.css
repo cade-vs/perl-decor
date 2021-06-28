@@ -8,7 +8,7 @@
 ##
 ############################################################################*/
 
-/* THIS FILE IS GENERATED! PLEASE, DO NOT MODIFY! -- GENERATED AT Mon Jun 28 12:49:58 2021 */
+/* THIS FILE IS GENERATED! PLEASE, DO NOT MODIFY! -- GENERATED AT Mon Jun 28 13:15:23 2021 */
 
 
 
@@ -243,17 +243,17 @@ img
         background-image: none;
         border-radius: 0.7em;
 
-        color:            ;
-        background-color: ;
-        border: solid 2px ;
+        color:            #CCC;
+        background-color: #222;
+        border: solid 2px #999;
         border-width: 1px;
         /* margin-left: -2.2em; */
         }
 .icon-clear:hover
         {
-        color:            ;
-        background-color: ;
-        border: solid 2px ;
+        color:            #FFF;
+        background-color: #444;
+        border: solid 2px #DDD;
         border-width: 1px;
         }
 
