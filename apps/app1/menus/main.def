@@ -66,12 +66,12 @@ grant access to 999
   type  grid  de_sessions
   right
 
-=prefs v
+=prefs1
 
   grant access to all
   type  view  PREFS
 
-=prefs e
+=prefs2
 
   grant access to all
   type  edit  PREFS

@@ -40,6 +40,13 @@ sub main
   my $table_label = $tdes->get_label();
   my $table_type  = $sdes->{ 'TYPE' };
 
+  if( $id == 0 )
+    {
+    $id = $core->select_first1_field( $table, '_ID', { ORDER_BY => 'DESC' } );
+
+    return "<#access_denied>" if $id == 0;
+    }
+
   my $browser_window_title = qq( [~View a record from] "<b>$table_label</b>" );
   $reo->ps_path_add( 'view', $browser_window_title );
 
@@ -73,10 +80,8 @@ sub main
   $text .= "</tr>";
 
   my $row_data = $core->fetch( $select );
-  if( ! $row_data )
-    {
-    return "<p><#no_data><p>" . de_html_alink_button( $reo, 'back', "[~Back]", "[~Return to previous screen]" );
-    }
+  return "<p><#no_data><p>" unless $row_data;
+
   my $row_id = $row_data->{ '_ID' };
 
   my $record_name     = $sdes->get_attr( qw( WEB VIEW RECORD_NAME ) );

@@ -64,6 +64,16 @@ sub main
       my $table  = $item->{ 'TABLE'  };
       $link = "<a class=menu reactor_none_href=?action=edit&table=$table&id=-1>$label</a>";
       }
+    elsif( $type eq 'EDIT' )
+      {
+      my $table  = $item->{ 'TABLE'  };
+      $link = "<a class=menu reactor_none_href=?action=edit&table=$table>$label</a>";
+      }
+    elsif( $type eq 'VIEW' )
+      {
+      my $table  = $item->{ 'TABLE'  };
+      $link = "<a class=menu reactor_none_href=?action=view&table=$table>$label</a>";
+      }
     elsif( $type eq 'URL' )
       {
       my $url  = $item->{ 'URL'  };

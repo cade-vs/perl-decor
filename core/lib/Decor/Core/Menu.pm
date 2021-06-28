@@ -364,7 +364,7 @@ sub __postprocess_menu_hash
         }
       $item_des->{ 'SUBMENU_NAME' } = $submenu;
       }
-    elsif( $type =~ /^(GRID|INSERT|EDIT)$/ )
+    elsif( $type =~ /^(GRID|INSERT|EDIT|VIEW)$/ )
       {
       my $table = shift @type;
       if( ! des_exists( $table ) )

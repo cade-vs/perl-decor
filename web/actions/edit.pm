@@ -58,8 +58,8 @@ sub main
 
   if( $id == 0 )
     {
-    my $id = $core->select_first1_field( $table, '_ID', { ORDER_BY => 'DESC' } );
-    
+    $id = $core->select_first1_field( $table, '_ID', { ORDER_BY => 'DESC' } );
+
     return "<#access_denied>" if $id == 0;
     }
 
@@ -472,7 +472,7 @@ sub main
                                        RET      => [ '0', '1' ],
                                        ARGS     => $input_tag_args,
                                        CLEAR    => $clear_icon,
-                                       LABELS   => [ "<img class='check-base check-0' src=i/check-0.svg>", "<img class='check-base check-1' src=i/check-1.svg>" ],
+                                       LABELS   => [ '<img class="check-base check-0" src=i/check-0.svg>', '<img class="check-base check-1" src=i/check-1.svg>' ],
                                        );
       }
     elsif( $type_name eq 'INT' )
