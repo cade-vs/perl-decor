@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use strict;
 use lib '[--DECOR_ROOT--]/easy/lib';
-use lib '[--DECOR_ROOT--]/web/lib', 
+use lib '[--DECOR_ROOT--]/web/lib';
 use lib '[--DECOR_ROOT--]/shared/lib';
 use Web::Reactor::Decor;
 use Data::Dumper;

@@ -4,9 +4,9 @@ use Cwd qw( abs_path getcwd );
   
 my $root = $0;
 $root =~ s/[^\/]+$//; 
-$root = '.' if $root eq '';
+$root = '/usr/local/decor' if $root eq '';
 
-$root = abs_path( "$root/../" );
+$root = abs_path( "$root/" );
 
 my $easy_dir = "$root/easy";
 my $easy_lib = "$root/easy/lib";
