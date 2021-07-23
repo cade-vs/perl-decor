@@ -2,7 +2,7 @@
 
 
   DECOR APPLICATION MACHINERY
-  2014-2020 (c) Vladi Belperchinov-Shabanski "Cade"
+  2014-2021 (c) Vladi Belperchinov-Shabanski "Cade"
 
   TABLE DEFINITION
 
@@ -174,6 +174,18 @@
   
         this field will not show actual input data and will show only "*"s
 
+  "web.details"
+  
+        this has meaning only for web interfaces and instruct the interface to 
+        provide more details about this field (if any).
+        
+        for example, UTIME,TIME,DATE types will show additional text, to make 
+        clear how much time has left or has been passed since the field value.
+        
+        web.details has numeric value, if omitted it will default to "1".
+        if given "2" or more, will variate the additional information.
+        for UTIME,TIME,DATE fields, "2" will show the additional text under 
+        the field value, "1" will show it next to it.
 
   INDEXES DEFINITIONS
   

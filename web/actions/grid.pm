@@ -524,7 +524,7 @@ sub main
 
   if( $row_counter == 0 )
     {
-    $text .= "<p>$text_grid_navi_left<p><div class=error-text>[~No data found]</div><p>";
+    $text .= "<p>$text_grid_navi_left<p><div class=info-text>[~No data found]</div><p>";
     }
   else
     {

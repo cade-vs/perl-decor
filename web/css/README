@@ -10,6 +10,7 @@ then:
 or:
 
   alter-css.pl dark.in.css  > ../htdocs/i/default.css
+  alter-css.pl palm.in.css  > ../htdocs/i/palm.css
 
 etc.
 

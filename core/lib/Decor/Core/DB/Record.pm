@@ -1031,6 +1031,7 @@ sub method_add_error
 
   $self->__check_client_io();
   push @{ $self->{ 'CLIENT:IO:METHOD:ERRORS' }{ '*' } }, @_;
+  $self->{ 'CLIENT:IO:METHOD:ERRORS' }{ '#' } += @_;
 }
 
 sub method_add_field_error
@@ -1040,6 +1041,7 @@ sub method_add_field_error
 
   $self->__check_client_io();
   push @{ $self->{ 'CLIENT:IO:METHOD:ERRORS' }{ $name } }, @_;
+  $self->{ 'CLIENT:IO:METHOD:ERRORS' }{ '#' } += @_;
 }
 
 sub get_errors_hashref

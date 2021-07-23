@@ -31,7 +31,6 @@ sub main
 #  my $table   = $reo->param( 'TABLE'   );
 #  my $id      = $reo->param( 'ID'      );
 
-
   my $core = $reo->de_connect();
 
   my $ps = $reo->get_page_session();
@@ -69,6 +68,30 @@ sub main
   return "<#no_data>" unless $row_data;
   my $row_id = $row_data->{ '_ID' };
 
+  my ( $calc_out, $calc_merrs )= $core->recalc( $table, $row_data, $row_id, $ps->{ 'EDIT_MODE_INSERT' }, { 'EDIT_SID' => $ps->{ 'EDIT_SID' } } );
+  if( $calc_out )
+    {
+    $ps->{ 'ROW_DATA'      } = $calc_out;
+    }
+  else
+    {
+    return "<#e_internal>" . de_html_alink_button( $reo, 'back', "&lArr; [~Go back]", "[~Go back to the previous screen]"   );
+    }
+
+  if( $calc_merrs->{ '#' } )
+    {
+    $text .= "<div class=error-text><#review_errors></div>";
+    if( $calc_merrs->{ '*' } )
+      {
+      $text .= "<div class=error-text>";
+      $text .= "$_<br>\n" for @{ $calc_merrs->{ '*' } };
+      $text .= "</div>";
+      $text .= "<br>";
+      }
+    }
+
+  $text .= "<br>";
+
   @fields = grep { /^_/ ? $reo->user_has_group( 1 ) ? 1 : 0 : 1 } @fields;
 
   for my $field ( @fields )
@@ -82,6 +105,9 @@ sub main
 
     my $data = $row_data->{ $field };
     my $data_fmt = de_web_format_field( $data, $fdes, 'PREVIEW' );
+    my $field_error;
+    
+    $field_error .= "$_<br>\n" for @{ $calc_merrs->{ $field } };
 
     if( $bfdes->is_linked() or $bfdes->is_widelinked() )
       {
@@ -146,9 +172,11 @@ sub main
       $data_fmt = qq( <b class=hi>$count</b> [~records from] <b class=hi>$linked_table_label</b> );
       }
 
+    $field_error = "<div class=warning align=right>$field_error</div>" if $field_error;
+
     my $base_field_class = lc "css_preview_class_$base_field";
     $text .= "<tr class=view>";
-    $text .= "<td class='$edit_mode_class_prefix-field record-field $base_field_class' >$label</td>";
+    $text .= "<td class='$edit_mode_class_prefix-field record-field $base_field_class' >$label$field_error</td>";
     $text .= "<td class='$edit_mode_class_prefix-value record-value $base_field_class' >$data_fmt</td>";
     $text .= "</tr>";
     }
@@ -159,7 +187,7 @@ sub main
   $text .= "<br>";
   $text .= de_html_alink_button( $reo, 'back', "&lArr; [~Cancel]", "[~Cancel this operation]"                                        );
   $text .= de_html_alink_button( $reo, 'here', "[~Edit] &uArr;",   "[~Back to data edit screen]", BTYPE => 'mod', ACTION => 'edit'   );
-  $text .= de_html_alink_button( $reo, 'here', "[~OK] &radic;",     { HINT => $ok_hint, DISABLE_ON_CLICK => 10, DISABLE_ON_CLICK_CLASS => 'button disabled-button' }, ACTION => 'commit' );
+  $text .= de_html_alink_button( $reo, 'here', "[~OK] &radic;",     { HINT => $ok_hint, DISABLED => $calc_merrs->{ '#' }, DISABLE_ON_CLICK => 10, DISABLE_ON_CLICK_CLASS => 'button disabled-button' }, ACTION => 'commit' );
 
   return $text;
 }

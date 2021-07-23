@@ -132,7 +132,7 @@ sub de_web_format_field
     #$fmt_class .= $field_data > 0 ? " hi" : ""; # FIXME: move to field options
     $data_fmt = type_format_human( $field_data, $fdes->{ 'TYPE' } );
     }
-  elsif( $type_name eq 'UTIME' )
+  elsif( $type_name eq 'UTIME' or $type_name eq 'TIME' )
     {
     return '&empty;' if $field_data == 0;
     $data_fmt = type_format( $field_data, $fdes->{ 'TYPE' } );

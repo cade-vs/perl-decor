@@ -88,6 +88,13 @@ $$setup-act-fg-bg-border-hi
         src: url('fonts/CourierPrime-Bold.ttf')  format('truetype');
         }
 
+@font-face 
+        {
+        font-family: 'rubik';
+        src: url('fonts/Rubik-Regular.ttf')  format('truetype');
+        }
+
+
 /*** main/body **************************************************************/
 
 html
@@ -107,7 +114,7 @@ body
         background-color: $body-colors.2;
         background-image: url( "$body-colors.3" );
 
-        font-family: mont, sans-serif, helvetica;
+        font-family: rubik, sans-serif;
         margin: 0;
         font-style: normal;
         font-size: 10pt;
@@ -220,6 +227,7 @@ img
         text-decoration: none;
         background-image: none;
         border-radius: 2px;
+        margin: 1px 1px 1px 1px;
 
         $$setup-act-fg-bg-border  $icon-colors
         }
@@ -767,7 +775,7 @@ input,textarea,select,.grid-link-select
         {
         padding: 0.5em;
         margin: 0 0 0 0;
-        font-family: mont;
+        font-family: rubik;
         font-size: 1.1em;
         
         color: $input-field-colors.1;
@@ -833,7 +841,7 @@ select,.grid-link-select
         margin:  0.3em;
 
         white-space: nowrap;
-        font-family: mont;
+        font-family: rubik, sans-serif;
         font-size: 1.0em;
         font-weight: bold;
         
@@ -883,6 +891,7 @@ select,.grid-link-select
 .disabled-button
         {
         $$setup-act-fg-bg-border     $disabled-button-colors
+        cursor: not-allowed;
         }
 
 .disabled-button:hover

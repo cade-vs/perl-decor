@@ -20,7 +20,7 @@ $body-colors-print      #000  #FFF
 $link-colors             #555  #222        #000   #000     #F00     #0F0
 
 /*$                      fg    bg    border fg-hi bg-hi  border-hi */
-$action-item             #000  #9A7  #000  #555   #AB8   #222
+$action-item             #CCC  #000  #000  #FFF   #000   #222
 $action-item-act         $action-item
 $action-item-nav         $action-item
 $action-item-mod         $action-item
@@ -49,12 +49,12 @@ $check-0-colors          $action-item-mod
 $check-1-colors          $action-item-act
 
 /*$                 fg    bg    border border-left  border-width left-border-width */
-$error-box-colors   #FFF  #511  #933   #933         1px          3px
-$info-box-colors    #FFF  #357  #68A   #68A         1px          3px
+$error-box-colors   #FFF  #611  #611   #611         1px          4px
+$info-box-colors    #FFF  #357  #68A   #68A         1px          4px
 
-/*$                   fg    bg    3d-top 3d-bottom */
-$edit-link-data-box   #CCC  #113  #000  #555
-$edit-link-empty-box  #CCC  #311  #000  #555
+/*$                   fg    bg       3d-top 3d-bottom */
+$edit-link-data-box   #CCC  #113     #444  #444
+$edit-link-empty-box  #000  #a9775b  #444  #444
 
 /*$              fg    bg    border-color */
 $warning-colors  #FFF  #822  #633
@@ -72,7 +72,7 @@ $logo-colors    #CCC  #000  #000
 $menu-colors  #444  #9A7  #000   #AB8   #445
 
 /*$                  fg    bg    border  inside-border */
-$view-data-colors    #000  #9A7  #676    #676
+$view-data-colors    #000  #9A7  #676    #785
 $view-head-colors    #000  #CD9  #9A7 
 
 $edit-data-colors    $view-data-colors
@@ -85,7 +85,7 @@ $grid-data-colors    $view-data-colors
 $grid-head-colors    $view-head-colors
 
 /*$                        fg    bg    border fg-hi bg-hi border-hi    */
-$input-field-colors        #000  #896  #EFC   #000  #CDA  #EFC
+$input-field-colors        #000  #AB8  #EFC   #000  #CDA  #EFC
 
 /*$                        fg    bg    border outline  */
 $input-field-focus-colors  #000  #CDA  #EFC   #EFC

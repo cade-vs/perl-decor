@@ -45,6 +45,11 @@ sub de_html_form_button_redirect
 
 #  my $href = $reo->args_type( $type, @args );
 
+  my $opt = ref( $hint ) eq 'HASH' ? $hint : { HINT => $hint };
+
+  my $hint     = $opt->{ 'HINT'     };
+  my $disabled = $opt->{ 'DISABLED' };
+
   my $hl_handle = html_hover_layer( $reo, VALUE => $hint, DELAY => 1000 ) if $hint;
 
   my $ps = $reo->get_page_session();
@@ -62,11 +67,11 @@ sub de_html_form_button_redirect
 
   if( $value =~ /([a-z_0-9]+\.(png|jpg|jpeg|gif|svg))/ )
     {
-    $text .= $form->image_button( NAME => "REDIRECT:$name", SRC => "i/$value", CLASS => "icon $btype", ARGS => $args );
+    $text .= $form->image_button( NAME => "REDIRECT:$name", SRC => "i/$value", CLASS => "icon $btype", DISABLED => $disabled, ARGS => $args );
     }
   else
     {
-    $text .= $form->button( NAME => "REDIRECT:$name", VALUE => $value, CLASS => "button $btype", ARGS => $args );
+    $text .= $form->button( NAME => "REDIRECT:$name", VALUE => $value, CLASS => "button $btype", DISABLED => $disabled, ARGS => $args );
     }
 
   return $text;
@@ -120,10 +125,14 @@ sub de_html_alink_button
 
   $value = __value_image_fix( $value );
 
-  my $btype = $args{ 'BTYPE' };
+  my $opt = ref( $hint ) eq 'HASH' ? { %$hint } : { HINT => $hint };
+
+  my $btype = $opt->{ 'BTYPE' } || $args{ 'BTYPE' };
   $btype = "$btype-button" if $btype;
 
-  return html_alink( $reo, $type, $value, { HINT => $hint, CLASS => "button $btype" }, %args );
+  $opt = { %$opt, CLASS => "button $btype" };
+
+  return html_alink( $reo, $type, $value, $opt, %args );
 }
 
 sub de_html_alink_button_fill
@@ -136,10 +145,14 @@ sub de_html_alink_button_fill
 
   $value = __value_image_fix( $value );
 
-  my $btype = $args{ 'BTYPE' };
+  my $opt = ref( $hint ) eq 'HASH' ? { %$hint } : { HINT => $hint };
+
+  my $btype = $opt->{ 'BTYPE' } || $args{ 'BTYPE' };
   $btype = "$btype-button" if $btype;
 
-  return html_alink( $reo, $type, $value, { HINT => $hint, CLASS => "button $btype fill" }, %args );
+  $opt = { %$opt, CLASS => "button $btype fill" };
+
+  return html_alink( $reo, $type, $value, $opt, %args );
 }
 
 sub de_html_alink_icon

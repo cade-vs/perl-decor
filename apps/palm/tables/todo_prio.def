@@ -1,5 +1,5 @@
 
-grant insert read to all
+grant read
 
 =NAME
 

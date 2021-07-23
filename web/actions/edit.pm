@@ -178,6 +178,7 @@ sub main
     return "<#e_internal>" . de_html_alink_button( $reo, 'back', "&lArr; [~Go back]", "[~Go back to the previous screen]"   );
     }
 
+  $calc_merrs ||= {};
   for my $field ( @$fields_ar )
     {
     my $raw_data = $ps->{ 'ROW_DATA' }{ $field };
@@ -188,8 +189,8 @@ sub main
     next if $type_name eq 'CHAR' and $raw_data =~ /\S/;
     next if $type_name ne 'CHAR' and $raw_data != 0;
     
-    $calc_merrs ||= {};
     push @{ $calc_merrs->{ $field } }, "[~This field is required]!";
+    $calc_merrs->{ '#' }++;
     }
 
   if( $button_id eq 'PREVIEW' or $button_id eq 'OK' )
@@ -197,10 +198,17 @@ sub main
     $us->{ 'LAST_ROW_DATA' }{ $table } = $calc_out if $edit_mode_insert;
     }
     
-  if( ! ( ( $button_id eq 'PREVIEW' or $button_id eq 'OK' ) and $calc_merrs ) )
+  if( $button_id eq 'PREVIEW' or $button_id eq 'OK' )
     {
-    # handle redirects here
-    de_web_handle_redirect_buttons( $reo );
+    if( $calc_merrs->{ '#' } )
+      {
+      $text .= "<div class=error-text><#review_errors></div>";
+      }
+    else
+      {  
+      # handle redirects here
+      de_web_handle_redirect_buttons( $reo );
+      }
     }
 
 ###  my $select = $core->select( $table, $fields, { LIMIT => 1, FILTER => { '_ID' => $id } } );
@@ -557,7 +565,7 @@ sub main
 
     $field_error = "<div class=warning align=right>$field_error</div>" if $field_error;
 
-    my $input_layout = html_layout_2lr( $field_input, $field_input_ctrl, '<==1>' );
+    my $input_layout = html_layout_2lr( $field_input, '&nbsp;&nbsp;' . $field_input_ctrl, '<==1>' );
     my $base_field_class = lc "css_edit_class_$base_field";
     
     $text .= "<tr class=view>\n";
@@ -584,11 +592,11 @@ sub main
 
   if( $tdes->{ '@' }{ 'NO_PREVIEW' } )
     {
-    $text .= de_html_form_button_redirect( $reo, 'here', $edit_form, 'OK', "[~OK] &rArr;", "[~Save data]", ACTION => 'commit' );
+    $text .= de_html_form_button_redirect( $reo, 'here', $edit_form, 'OK', "[~OK] &rArr;", { HINT => "[~Save data]" }, ACTION => 'commit' );
     }
   else  
     {
-    $text .= de_html_form_button_redirect( $reo, 'here', $edit_form, 'PREVIEW', "[~Preview] &rArr;", "[~Preview data before save]", ACTION => 'preview' );
+    $text .= de_html_form_button_redirect( $reo, 'here', $edit_form, 'PREVIEW', "[~Preview] &rArr;", { HINT => "[~Preview data before save]" }, ACTION => 'preview' );
     }
   $text .= $edit_form->end();
 

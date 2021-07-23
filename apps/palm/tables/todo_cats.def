@@ -1,3 +1,4 @@
 
 @isa    _categories     *
 
+grant read

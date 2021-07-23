@@ -1,10 +1,29 @@
 
+label ToDo Notes
+grant all
+
+web.insert_cue Create new ToDO note
+
 =TITLE 
     type    char    128
+    required
     
 =PRIORITY
     type    link    TODO_PRIO   NAME
+    web.combo
+    required
 
 =DONE
     type    bool
-    
+
+=CTIME
+      label   Create time
+      type    utime
+      read-only
+      web.details 2
+
+=MTIME
+      label   Last modify time
+      type    utime
+      read-only
+      web.details 2
