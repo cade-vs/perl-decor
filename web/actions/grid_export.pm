@@ -52,7 +52,7 @@ sub main
 
   my $grid_export = $rs->{ 'GRID_EXPORT' };
 
-print STDERR Dumper( $grid_export );
+  #print STDERR Dumper( $grid_export );
   
   return "<#e_data>" unless ref( $grid_export ) eq 'ARRAY';
 
@@ -77,7 +77,8 @@ print STDERR Dumper( $grid_export );
       {
       my $bfdes     = $bfdes{ $field };
       my $lfdes     = $lfdes{ $field };
-      my $type_name = $lfdes->{ 'TYPE' }{ 'NAME' };
+      my $type      = $lfdes->{ 'TYPE' };
+      my $type_name = $type->{ 'NAME' };
 
       next if $bfdes->get_attr( qw( WEB GRID HIDE ) );
 
@@ -88,7 +89,8 @@ print STDERR Dumper( $grid_export );
       my $data = $row_data->{ $field };
       my $data_base = $row_data->{ $basef{ $field } } if exists $basef{ $field };
 
-      my ( $data_fmt, $fmt_class_fld ) = de_web_format_field( $data, $lfdes, 'GRID', { ID => $id, REO => $reo, CORE => $core } );
+      #my ( $data_fmt, $fmt_class_fld ) = de_web_format_field( $data, $lfdes, 'GRID', { ID => $id, REO => $reo, CORE => $core } );
+      my $data_fmt = type_format( $data, $type );
 
       $data_fmt =~ s/`//g; # FIXME: REMOVE ASAP!
 
@@ -134,7 +136,8 @@ print STDERR Dumper( $grid_export );
               }
             else
               {
-              ( $data_fmt, $fmt_class_fld ) = de_web_format_field( $data, $lfdes, 'GRID', { ID => $id, REO => $reo, CORE => $core } );
+              # ( $data_fmt, $fmt_class_fld ) = de_web_format_field( $data, $lfdes, 'GRID', { ID => $id, REO => $reo, CORE => $core } );
+              $data_fmt = type_format( $data, $type );
               }  
             
             if( $linked_id > 0 )
