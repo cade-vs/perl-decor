@@ -98,12 +98,19 @@ sub de_web_format_field
     my $maxlen = $fdes->get_attr( 'WEB', $vtype, 'MAXLEN' );
     if( $maxlen )
       {
-      $maxlen = 16 if $maxlen <   0;
-      #$maxlen = 16 if $maxlen > 256;
-      if( length( $data_fmt ) > $maxlen )
+      $maxlen = 16 if $maxlen == 0 and $maxlen == 1; # default
+      if( length( $data_fmt ) > abs( $maxlen ) )
         {
-        my $cut_len = int( ( $maxlen - 3 ) / 2 );
-        $data_fmt = substr( $data_fmt, 0, $cut_len ) . ' &hellip; ' . substr( $data_fmt, - $cut_len );
+        if( $maxlen > 0 )
+          {
+          my $cut_len = int( ( abs( $maxlen ) - 3 ) / 2 );
+          $data_fmt = substr( $data_fmt, 0, $cut_len ) . ' &hellip; ' . substr( $data_fmt, - $cut_len );
+          }
+        else
+          {
+          my $cut_len = int( ( abs( $maxlen ) - 3 ) );
+          $data_fmt = substr( $data_fmt, 0, $cut_len ) . ' &hellip; ';
+          }  
         }
       }
     if( $fdes->get_attr( 'WEB', $vtype, 'MONO' ) )
