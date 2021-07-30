@@ -130,16 +130,17 @@ sub main
         }  
       else
         {
-        if( $input_data =~ /(\S*?)\s*\.\.+\s*(\S*)/ )
+        if( $input_data =~ /([\S ]*?)\s*\.\.+\s*([\S ]*)/ )
           {
           my $fr = $1;
           my $to = $2;
+
           next if $fr eq '' and $to eq '';
           ( $fr, $to ) = ( $to, $fr ) if $fr ne '' and $to ne '' and $fr > $to;
 
           $fr = type_revert( $fr, $type );
           $to = type_revert( $to, $type );
-          
+
           push @field_filter, { OP => '>=', VALUE => $fr, } if $fr ne '';
           push @field_filter, { OP => '<=', VALUE => $to, } if $to ne '';
           }
