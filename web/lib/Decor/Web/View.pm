@@ -101,13 +101,18 @@ sub de_web_format_field
       $maxlen = 16 if $maxlen == 0 and $maxlen == 1; # default
       if( length( $data_fmt ) > abs( $maxlen ) )
         {
-        if( $maxlen > 0 )
+        if( $maxlen == 1 )
+          {
+          $data_fmt = [ "<img src=i/check-0.svg>", "<img src=i/check-1.svg>" ]->[ !! ( length( $data_fmt ) > 0 ) ];
+          }
+        elsif( $maxlen > 0  )
           {
           my $cut_len = int( ( abs( $maxlen ) - 3 ) / 2 );
           $data_fmt = substr( $data_fmt, 0, $cut_len ) . ' &hellip; ' . substr( $data_fmt, - $cut_len );
           }
         else
           {
+          # i.e. negative value
           my $cut_len = int( ( abs( $maxlen ) - 3 ) );
           $data_fmt = substr( $data_fmt, 0, $cut_len ) . ' &hellip; ';
           }  
