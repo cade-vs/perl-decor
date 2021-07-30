@@ -121,6 +121,7 @@ sub de_web_format_field
     if( $fdes->get_attr( 'WEB', $vtype, 'MONO' ) )
       {
       $fmt_class .= " fmt-mono";
+      $data_fmt = "<pre>$data_fmt</pre>";
       }
     }
   elsif( $type_name eq 'INT' and $fdes->{ 'BOOL' } )
@@ -223,7 +224,6 @@ sub de_web_format_field
       $combo_text .= "<a class=grid-link-select-option reactor_new_href=?_an=set_val&table=$table&fname=$fname&id=$id&value=$key&vtype=$vtype data-vframe-target=$vframe_id>$value</a>";
       }
 
-    my $fmt_class;
     if( $fdes->get_attr( 'WEB', 'EDIT', 'MONO' ) )
       {
       $fmt_class .= " fmt-mono";
