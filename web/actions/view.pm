@@ -114,7 +114,7 @@ sub main
 
     my $data      = $row_data->{ $field };
     my $data_base = $row_data->{ $basef{ $field } } if exists $basef{ $field };
-    my $data_fmt  = de_web_format_field( $data, $lfdes, 'VIEW', { ID => $id } );
+    my ( $data_fmt, $data_fmt_class )  = de_web_format_field( $data, $lfdes, 'VIEW', { ID => $id } );
     my $data_ctrl;
     my $field_details;
     my $no_layout_ctrls = 0;
@@ -163,44 +163,45 @@ sub main
       $data_fmt =~ s/\./&#46;/g;
 
       if( $ltdes )
-      {
-      if( $ltdes->get_table_type() eq 'FILE' )
         {
-        if( $data_base > 0 )
+        if( $ltdes->get_table_type() eq 'FILE' )
           {
-          # my $cue_dn_file = de_web_get_cue( qw( ) );
-          $data_fmt   = de_html_alink( $reo, 'new', "$data_fmt",    "[~Download current file]",           ACTION => 'file_dn', ID => $data_base, TABLE => $linked_table );
-          $data_ctrl .= de_html_alink_icon( $reo, 'new', 'view.svg',     "[~View linked record]",              ACTION => 'view',    ID => $data_base, TABLE => $linked_table );
-          $data_ctrl .= de_html_alink_icon( $reo, 'new', 'file_up.svg',  "[~Upload and replace current file]", ACTION => 'file_up', ID => $data_base, TABLE => $linked_table, LINK_TO_TABLE => $table, LINK_TO_FIELD => $base_field, LINK_TO_ID => $id );
-          $data_ctrl .= de_html_alink_icon( $reo, 'new', 'file_dn.svg',  "[~Download current file]",           ACTION => 'file_dn', ID => $data_base, TABLE => $linked_table );
+          if( $data_base > 0 )
+            {
+            # my $cue_dn_file = de_web_get_cue( qw( ) );
+            $data_fmt   = de_html_alink( $reo, 'new', "$data_fmt",    "[~Download current file]",           ACTION => 'file_dn', ID => $data_base, TABLE => $linked_table );
+            $data_ctrl .= de_html_alink_icon( $reo, 'new', 'view.svg',     "[~View linked record]",              ACTION => 'view',    ID => $data_base, TABLE => $linked_table );
+            $data_ctrl .= de_html_alink_icon( $reo, 'new', 'file_up.svg',  "[~Upload and replace current file]", ACTION => 'file_up', ID => $data_base, TABLE => $linked_table, LINK_TO_TABLE => $table, LINK_TO_FIELD => $base_field, LINK_TO_ID => $id );
+            $data_ctrl .= de_html_alink_icon( $reo, 'new', 'file_dn.svg',  "[~Download current file]",           ACTION => 'file_dn', ID => $data_base, TABLE => $linked_table );
+            }
+          else
+            {
+            $data_ctrl .= de_html_alink_icon( $reo, 'new', 'file_new.svg', "[~Upload new file]",                 ACTION => 'file_up', ID => -1,         TABLE => $linked_table, LINK_TO_TABLE => $table, LINK_TO_FIELD => $base_field, LINK_TO_ID => $id );
+            }
           }
         else
           {
-          $data_ctrl .= de_html_alink_icon( $reo, 'new', 'file_new.svg', "[~Upload new file]",                 ACTION => 'file_up', ID => -1,         TABLE => $linked_table, LINK_TO_TABLE => $table, LINK_TO_FIELD => $base_field, LINK_TO_ID => $id );
-          }
-        }
-      else
-        {
-        if( $data_base > 0 )
-          {
-          $data_ctrl .= de_html_alink_icon( $reo, 'new', 'view.svg',   "[~View linked record]",                                                        ACTION => 'view', ID => $data_base, TABLE => $linked_table );
-          $data_ctrl .= de_html_alink_icon( $reo, 'new', 'grid.svg',   "[~View all records from] <b>$table_label</b>, [~linked to] <b>$data_fmt</b>",  ACTION => 'grid',                   TABLE => $table, FILTER => { $base_field => $same_data_search } );
-          $data_fmt   = de_html_alink( $reo, 'new', "$data_fmt",    "[~View linked record]",                                                        ACTION => 'view', ID => $data_base, TABLE => $linked_table );
-          }
-        else
-          {
-          $data_fmt = '&empty;';
+          my $enum = $ltdes->get_table_type() eq 'ENUM';
+          if( $data_base > 0 )
+            {
+            $data_ctrl .= de_html_alink_icon( $reo, 'new', 'view.svg',   "[~View linked record]",                                                        ACTION => 'view', ID => $data_base, TABLE => $linked_table ) unless $enum;
+            $data_ctrl .= de_html_alink_icon( $reo, 'new', 'grid.svg',   "[~View all records with the same] <b>$blabel</b>",  ACTION => 'grid',                   TABLE => $table, FILTER => { $base_field => $same_data_search } );
+            $data_fmt   = de_html_alink( $reo, 'new', "$data_fmt",    "[~View linked record]",                                                           ACTION => 'view', ID => $data_base, TABLE => $linked_table ) unless $enum;
+            }
+          else
+            {
+            $data_fmt = '&empty;';
+            }  
+          
+          if( $bfdes->is_linked() and $ltdes->allows( 'INSERT' ) and $tdes->allows( 'UPDATE' ) and $bfdes->allows( 'UPDATE' ) )
+            {
+            # FIXME: check for record access too!
+            my $insert_cue = $bfdes->get_attr( qw( WEB VIEW LINK_INSERT_CUE ) ) || "[~Insert and link a new record]";
+            $data_ctrl .= de_html_alink_icon( $reo, 'new', 'insert.svg', $insert_cue, ACTION => 'edit', ID => -1,         TABLE => $linked_table, LINK_TO_TABLE => $table, LINK_TO_FIELD => $base_field, LINK_TO_ID => $id );
+            }
           }  
-        
-        if( $bfdes->is_linked() and $ltdes->allows( 'INSERT' ) and $tdes->allows( 'UPDATE' ) and $bfdes->allows( 'UPDATE' ) )
-          {
-          # FIXME: check for record access too!
-          my $insert_cue = $bfdes->get_attr( qw( WEB VIEW LINK_INSERT_CUE ) ) || "[~Insert and link a new record]";
-          $data_ctrl .= de_html_alink_icon( $reo, 'new', 'insert.svg', $insert_cue, ACTION => 'edit', ID => -1,         TABLE => $linked_table, LINK_TO_TABLE => $table, LINK_TO_FIELD => $base_field, LINK_TO_ID => $id );
-          }
-        }  
         } # if $ltdes
-        else
+      else
         {
         $data_fmt = "[~(n/a)]";
         }
@@ -285,8 +286,8 @@ sub main
     my $data_layout = $no_layout_ctrls ? $data_fmt : html_layout_2lr( $data_fmt, $data_ctrl, '<==1>' );
     my $base_field_class = lc "css_view_class_$base_field";
     $text .= "<tr class=view>";
-    $text .= "<td class='view-field record-field $base_field_class' >$label</td>";
-    $text .= "<td class='view-value record-value $base_field_class' >$data_layout</td>";
+    $text .= "<td class='view-field record-field $base_field_class                ' >$label</td>";
+    $text .= "<td class='view-value record-value $base_field_class $data_fmt_class' >$data_layout</td>";
     $text .= "</tr>\n";
     if( $field_details )
       {
@@ -315,7 +316,7 @@ sub main
     # my $copy_cue = $sdes->get_attr( qw( WEB GRID COPY_CUE ) ) || "[~Copy this record as new]";
     my ( $copy_cue, $copy_cue_hint ) = de_web_get_cue( $sdes, qw( WEB GRID COPY_CUE ) );
     # FIXME: row access!
-    $text .= de_html_alink_button( $reo, 'new',  "$copy_cue &uArr;", $copy_cue_hint, BTYPE => 'act', ACTION => 'edit', ID =>  -1, TABLE => $table, COPY_ID => $id );
+    $text .= de_html_alink_button( $reo, 'new',  "$copy_cue (+)", $copy_cue_hint, BTYPE => 'act', ACTION => 'edit', ID =>  -1, TABLE => $table, COPY_ID => $id );
     }
 
   if( $table_type eq 'FILE' )
