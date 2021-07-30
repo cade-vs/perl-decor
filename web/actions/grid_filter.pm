@@ -201,7 +201,7 @@ sub main
       $label .= "/$llabel";
       }
 
-    my $input_data = $ui_si{ "F:$field" } || ( $rs->{ 'FILTERS' }{ 'ACTIVE' } ? $rs->{ 'FILTERS' }{ 'ACTIVE' }{ 'DATA' }{ $field } : undef );
+    my $input_data = $ui_si{ "F:$field" } || ( $rs->{ 'FILTERS' }{ 'ACTIVE' } ? $rs->{ 'FILTERS' }{ 'ACTIVE' }{ 'DATA' }{ $base_field } : undef );
 
     my $field_error;
 
@@ -252,6 +252,9 @@ sub main
       my $sel_hr     = {};
       $sel_hr->{ $input_data } = 1 if $input_data > 0;
 
+print STDERR Dumper( '*********************', $sel_hr, $input_data );
+      
+
       my @lfields = @{ $ltdes->get_fields_list_by_oper( 'READ' ) };
       unshift @lfields, $linked_field;
 
@@ -280,7 +283,7 @@ sub main
       my $combo_orderby = $bfdes->get_attr( qw( WEB COMBO ORDERBY ) ) || join( ',', @spf_fld );
       my $combo_select  = $core->select( $linked_table, $lfields, { FILTER => $combo_filter, ORDER_BY => $combo_orderby } );
       
-      push @$combo_data, { KEY => '', VALUE => '--' };
+      push @$combo_data, { KEY => '', VALUE => '&empty;' };
       
 #$text .= "my $combo_select = $core->select( $linked_table, $lfields )<br>";
       while( my $hr = $core->fetch( $combo_select ) )
