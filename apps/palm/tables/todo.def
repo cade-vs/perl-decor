@@ -8,13 +8,29 @@ web.insert_cue Create new ToDO note
     type    char    128
     required
     
+=CATEGORY
+    type    link    TODO_CATS   NAME
+    web.combo
+    required
+
 =PRIORITY
     type    link    TODO_PRIO   NAME
     web.combo
     required
 
+=DUE_DATE
+    type    date
+    web.details 1
+    web.grid.details 2
+
 =DONE
     type    bool
+
+=NOTE
+    type    char    1024
+    web.rows           5
+    web.grid.maxlen
+    web.mono
 
 =CTIME
       label   Create time

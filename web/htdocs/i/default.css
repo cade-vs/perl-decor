@@ -8,7 +8,7 @@
 ##
 ############################################################################*/
 
-/* THIS FILE IS GENERATED! PLEASE, DO NOT MODIFY! -- GENERATED AT Mon Jun 28 13:15:23 2021 */
+/* THIS FILE IS GENERATED! PLEASE, DO NOT MODIFY! -- GENERATED AT Fri Jul 30 17:11:12 2021 */
 
 
 
@@ -90,6 +90,13 @@
         src: url('fonts/CourierPrime-Bold.ttf')  format('truetype');
         }
 
+@font-face 
+        {
+        font-family: 'rubik';
+        src: url('fonts/Rubik-Regular.ttf')  format('truetype');
+        }
+
+
 /*** main/body **************************************************************/
 
 html
@@ -109,7 +116,7 @@ body
         background-color: #222;
         background-image: url( "main-background.png" );
 
-        font-family: mont, sans-serif, helvetica;
+        font-family: rubik, sans-serif;
         margin: 0;
         font-style: normal;
         font-size: 10pt;
@@ -222,6 +229,7 @@ img
         text-decoration: none;
         background-image: none;
         border-radius: 2px;
+        margin: 1px 1px 1px 1px;
 
         color:            #FFF;
         background-color: #448;
@@ -805,7 +813,7 @@ input,textarea,select,.grid-link-select
         {
         padding: 0.5em;
         margin: 0 0 0 0;
-        font-family: mont;
+        font-family: rubik;
         font-size: 1.1em;
         
         color: #CCC;
@@ -871,7 +879,7 @@ select,.grid-link-select
         margin:  0.3em;
 
         white-space: nowrap;
-        font-family: mont;
+        font-family: rubik, sans-serif;
         font-size: 1.0em;
         font-weight: bold;
         
@@ -941,6 +949,7 @@ select,.grid-link-select
         color:            #CCC;
         background-color: #555;
         border: solid 2px #777;
+        cursor: not-allowed;
         }
 
 .disabled-button:hover

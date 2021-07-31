@@ -1,4 +1,10 @@
 
 @isa    _categories     *
 
-grant read
+grant read insert
+type enum
+
+label ToDo Categories
+
+=NAME
+  grant read

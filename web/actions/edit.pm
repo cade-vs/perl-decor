@@ -198,18 +198,15 @@ sub main
     $us->{ 'LAST_ROW_DATA' }{ $table } = $calc_out if $edit_mode_insert;
     }
     
-  if( $button_id eq 'PREVIEW' or $button_id eq 'OK' )
+  if( ( $button_id eq 'PREVIEW' or $button_id eq 'OK' ) and ( $calc_merrs->{ '#' } > 0 ) )
     {
-    if( $calc_merrs->{ '#' } )
-      {
-      $text .= "<div class=error-text><#review_errors></div>";
-      }
-    else
-      {  
-      # handle redirects here
-      de_web_handle_redirect_buttons( $reo );
-      }
+    $text .= "<div class=error-text><#review_errors></div>";
     }
+  else  
+    {
+    # handle redirects here
+    de_web_handle_redirect_buttons( $reo );
+    }  
 
 ###  my $select = $core->select( $table, $fields, { LIMIT => 1, FILTER => { '_ID' => $id } } );
 
@@ -321,6 +318,7 @@ sub main
       {
       my ( $linked_table, $linked_field ) = $fdes->link_details();
       my $ltdes = $core->describe( $linked_table );
+      my $enum  = $ltdes->get_table_type() eq 'ENUM';
 
       my $select_filter_name = $fdes->get_attr( 'WEB', 'SELECT_FILTER' );
 
@@ -431,7 +429,7 @@ sub main
         {
         if( $field_data > 0 )
           {
-          $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "VIEW_LINKED_$field_id", "view.svg", "[~View linked data]", ACTION => 'view', TABLE => $linked_table, ID => $field_data ) if $ltdes->allows( 'READ'   );
+          $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "VIEW_LINKED_$field_id", "view.svg", "[~View linked data]", ACTION => 'view', TABLE => $linked_table, ID => $field_data ) if $ltdes->allows( 'READ'   ) and ! $enum;
           $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "EDIT_LINKED_$field_id", "edit.svg", "[~Edit linked data]", ACTION => 'edit', TABLE => $linked_table, ID => $field_data ) if $ltdes->allows( 'UPDATE' );
           }
         my $insert_cue = $bfdes->get_attr( qw( WEB EDIT INSERT_CUE ) ) || "[~Insert and link a new record]";

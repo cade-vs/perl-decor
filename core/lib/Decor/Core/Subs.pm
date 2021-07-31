@@ -227,7 +227,7 @@ sub __session_update_times
               :
               de_app_cfg( 'SESSION_USER_EXPIRE_TIME',    10*60 ) # 10 min for logged-in user sessions
               ;
-              
+
   $session_rec->write(
                        'ATIME' => time(),
                        'XTIME' => time() + $xtime,

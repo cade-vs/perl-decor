@@ -60,8 +60,9 @@ my $APP_NAME;
 
 my %APP_CFG;
 my %APP_CFG_KEYS = (
-                   BUNDLES             => 1,
-                   SESSION_EXPIRE_TIME => 1,
+                   USE                      => 1, # bundles
+                   SESSION_ANON_EXPIRE_TIME => 1,
+                   SESSION_USER_EXPIRE_TIME => 1,
                    );
 
 my @BUNDLES;
@@ -110,7 +111,8 @@ sub de_init
     {
     %APP_CFG = ();
     }
-  @BUNDLES = sort split /[\s\,]+/, $APP_CFG{ 'USE_BUNDLES' };
+
+  @BUNDLES = sort split /[\s\,]+/, de_app_cfg( 'USE' );
   # FIXME: should allow excluding bundles for temporary or debug with "-bundle" f.e.
 
   # FIXME: should be used explicitly with use bundles?
@@ -181,7 +183,7 @@ sub de_app_cfg
   my $def = shift; # default value
 
   # FIXME: URGENT! more flexible approach...
-  ### boom "invalid APP_CFG key [$key]" unless exists $APP_CFG_KEYS{ $key };
+  boom "invalid APP_CFG key [$key]" unless exists $APP_CFG_KEYS{ $key };
 
   my $res = ( exists $APP_CFG{ $key } and $APP_CFG{ $key } ne '' ) ? $APP_CFG{ $key } : $def;
 

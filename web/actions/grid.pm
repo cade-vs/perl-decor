@@ -392,6 +392,7 @@ sub main
           if( $linked_table )
             {
             my $ltdes = $core->describe( $linked_table );
+            my $enum  = $ltdes->get_table_type() eq 'ENUM';
             
             my $linked_table_label = $ltdes->get_label();
             if( $bfdes->is_widelinked() )
@@ -437,8 +438,11 @@ sub main
               {
               $data_fmt   = "&empty;";
               }
-            $data_ctrl .= de_html_alink_button_fill( $reo, 'new', "(o) $view_cue",   undef,                ACTION => 'view', ID => $linked_id, TABLE => $linked_table ) if $linked_id > 0;
-            $data_ctrl .= "<br>\n";
+            if( ! $enum and $linked_id > 0 )
+              {
+              $data_ctrl .= de_html_alink_button_fill( $reo, 'new', "(o) $view_cue",   undef,                ACTION => 'view', ID => $linked_id, TABLE => $linked_table );
+              $data_ctrl .= "<br>\n";
+              }
             if( $ltdes->allows( 'UPDATE' ) and $linked_id > 0 )
               {
               # FIXME: check for record access too!

@@ -118,6 +118,7 @@ my %TABLE_TYPES = (
                       'SESSION'  => 1,
                       'FILE'     => 1,
                       'MAP'      => 1,
+                      'ENUM'     => 1,
                     );
 
 # LEGEND: 1 == core attribute, must not have attribute path
@@ -280,7 +281,7 @@ sub __get_tables_dirs
   return $DES_CACHE{ 'TABLES_DIRS_AR' } if exists $DES_CACHE{ 'TABLES_DIRS_AR' };
 
   my $root         = de_root();
-  my $app_dir     = de_app_dir();
+  my $app_dir      = de_app_dir();
   my $bundles_dirs = de_bundles_dirs();
 
   my @dirs;
@@ -320,6 +321,14 @@ sub des_get_tables_list
 }
 
 #-----------------------------------------------------------------------------
+
+sub __fix_label_name
+{
+  my $name = shift;
+  $name = uc( substr( $name, 0, 1 ) ) . lc( substr( $name, 1 ) );
+  $name =~ s/_/ /;
+  return $name;
+}
 
 sub __merge_table_des_file
 {
@@ -374,7 +383,7 @@ sub __merge_table_des_file
       $des->{ $category }{ $sect_name } ||= {};
       $des->{ $category }{ $sect_name }{ 'TABLE' }   = $table;
       $des->{ $category }{ $sect_name }{ 'NAME'  }   = $sect_name;
-      $des->{ $category }{ $sect_name }{ 'LABEL' } ||= uc( substr( $sect_name, 0, 1 ) ) . lc( substr( $sect_name, 1 ) );
+      $des->{ $category }{ $sect_name }{ 'LABEL' } ||= __fix_label_name( $sect_name );
       if( exists $COPY_CATEGORY_ATTRS{ $category } )
         {
         $des->{ $category }{ $sect_name }{ $_ } = $des->{ '@' }{ '@' }{ $_ } for keys %{ $COPY_CATEGORY_ATTRS{ $category } };

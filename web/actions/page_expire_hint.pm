@@ -10,6 +10,8 @@ sub main
   return undef unless $reo->is_debug() or $reo->is_logged_in();
   return undef unless $reo->is_debug() or $reo->get_user_session_expire_time();
 
+  my $core = $reo->de_connect();
+
   my $expire_time = $reo->get_user_session_expire_time() - time();
 
   # do not report if below zero (disabled) or above 1 hour
