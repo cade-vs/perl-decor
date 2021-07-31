@@ -40,6 +40,8 @@ Further documentation can be found in the !["docs"](docs) directory.
 Screenshots of a reference web interface can be found in 
 !["docs/screenshots"](docs/screenshots) directory.
 
+DECOR Demo Applications can be found in !["apps"](apps) directory.
+
 Questions, please, send to:
 
     Vladi Belperchinov-Shabanski "Cade"
