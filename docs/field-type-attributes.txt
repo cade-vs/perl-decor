@@ -1,0 +1,109 @@
+
+
+
+  DECOR APPLICATION MACHINERY
+  2014-2021 (c) Vladi Belperchinov-Shabanski "Cade"
+
+  ============================================================================
+  ALL FIELD TYPES ATTRIBUTES
+  ============================================================================
+
+  "read-only"
+  
+      this will restrict editing of the field by any user.
+      it will be granted only READ permission. read-only field will be shown
+      on any record display views (GRID, VIEW, PREVIEW) and will be hidden on
+      INSERT or EDIT views.
+      
+      those fields are expected to be set only by methods.
+      
+
+  ============================================================================
+  FIELD TYPES CHAR ATTRIBUTES
+  ============================================================================
+
+  CHAR has the following attributes:
+
+  "web.rows  <integer>"
+  
+      number of rows of the edit or display box when showing single record.
+      it has no meaning for GRID views.
+  
+  "web.maxlen  <integer>"
+  
+      maximum text length shown on screen. if longer, ellipsis will be put in 
+      the middle.
+      
+      if value is negative, just the start of the text will be show, followed
+      by ellipsis.
+      
+      minimum web.maxlen length is "2". 
+      
+      special value of "1" will show just checkbox image if note exists
+      (useful for GRID views to save space but gives feedback if there 
+      is a note).
+      
+      web.maxlen argument is actually optional and if ommited will has default 
+      value of "1".
+      
+      can be specified separately for different views:
+      
+          web.maxlen
+          web.view.maxlen
+          web.preview.maxlen
+          web.grid.maxlen
+
+  ============================================================================
+  FIELD TYPES DATE, TIME, UTIME ATTRIBUTES
+  ============================================================================
+
+  DATE, TIME and UTIME have the following attributes:
+
+  "web.details <optional integer>"
+  
+      this shows additional details about the field data.
+      for DATE, TIME, UTIME fields this will show additional text saying
+      when the time point is relative to the current time.
+      
+      default value is "1" and can be omitted.
+      
+      value of "2" will show the details text on a separate line instead of
+      trailing the field data.
+      
+      "web.details" will be used for all views (GRID, VIEW, EDIT, etc.) but
+      it can be additionally specified for separate view(s) as well:
+      
+          web.details      1
+          web.grid.details 2
+      
+      to save horizontal space on GRID views.
+
+  ============================================================================
+  FIELD TYPE LINK ATTRIBUTES
+  ============================================================================
+
+  LINK has the following attributes:
+
+  "web.combo  <optional format text and list of fields>"
+  
+      will trigger COMBO (SELECT) control to be used when editing the field
+      instead of the default selection with GRID view on a separate page.
+
+      arguments (if specified) are:
+      
+          format, field1, field2, ...
+          
+      "format" is sprintf format
+      field1, field2, ...   is the field names to be used to pull data values.
+      
+  "web.search <optional format text and list of fields>"
+      
+      will show input line, in which user may type part of the search data and
+      matching suggestions of the linked table will show.
+      
+      this uses native HTML5 <datalist>.
+      
+      if web.combo specified, web.search will be used first for EDIT views.
+      for GRID, VIEW, PREVIEW, web.combo will still be valid.
+      
+      TODO: FIXME: cleanup formatting and combo/search toggles

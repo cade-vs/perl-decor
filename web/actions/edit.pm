@@ -322,19 +322,20 @@ sub main
 
       my $select_filter_name = $fdes->get_attr( 'WEB', 'SELECT_FILTER' );
 
-      my $combo = $fdes->get_attr( qw( WEB COMBO ) );
-      if( $combo )
+      my $search = $fdes->get_attr( qw( WEB SEARCH ) );
+      my $combo  = $fdes->get_attr( qw( WEB COMBO  ) );
+      if( $combo or $search )
         {
         my $spf_fmt;
         my @spf_fld;
-        if( $combo == 1 )
+        if( $combo == 1 or $search == 1 )
           {
           $spf_fmt = "%s";
           @spf_fld = ( $linked_field );
           }
         else
           {
-          my @v = split /\s*;\s*/, $combo;
+          my @v = split /\s*;\s*/, ( $search || $combo );
           $spf_fmt = shift @v;
           @spf_fld = @v;
           }
@@ -356,12 +357,13 @@ sub main
         de_web_expand_resolve_fields_in_place( \@lfields, $ltdes, \%bfdes, \%lfdes, \%basef );
 
       #$text .= Dumper( \%basef );
+        my $selected_search_value;
 
         my $lfields = join ',', '_ID', @lfields, values %basef;
 
         my $combo_orderby = $fdes->get_attr( qw( WEB COMBO ORDERBY ) ) || join( ',', @spf_fld );
         my $combo_select = $core->select( $linked_table, $lfields, { 'FILTER_NAME' => $select_filter_name, ORDER_BY => $combo_orderby } );
-        push @$combo_data, { KEY => 0, VALUE => '&empty;' };
+        push @$combo_data, { KEY => 0, VALUE => '&empty;' } unless $search;
 #$text .= "my $combo_select = $core->select( $linked_table, $lfields )<br>";
         while( my $hr = $core->fetch( $combo_select ) )
           {
@@ -369,6 +371,7 @@ sub main
           my $key   = $hr->{ '_ID' };
           my $value = sprintf( $spf_fmt, @value );
 
+          $selected_search_value = $value if $key eq $field_data;
 #$text .= "$key -- [$spf_fmt][@spf_fld][$value][@value]<br>";
           $value =~ s/\s/&nbsp;/g;
           push @$combo_data, { KEY => $key, VALUE => $value };
@@ -380,7 +383,25 @@ sub main
           $fmt_class .= " fmt-mono";
           }
 
-        $field_input = $edit_form->combo( NAME => "F:$field", CLASS => $fmt_class, DATA => $combo_data, SELECTED => $sel_hr );
+        if( $search )
+          {
+          my $field_size = $flen;
+          my $field_maxlen = $field_size;
+          $field_size = 42 if $field_size > 42; # TODO: fixme
+          $field_input .= $edit_form->input(
+                                               NAME     => "F:$field",
+                                               ID       => $field_id,
+                                               VALUE    => $selected_search_value,
+                                               KEY      => $field_data,
+                                               DATALIST => $combo_data,
+                                               SIZE     => $field_size,
+                                               MAXLEN   => $field_maxlen,
+                                               );
+          }
+        else
+          {  
+          $field_input = $edit_form->combo( NAME => "F:$field", CLASS => $fmt_class, DATA => $combo_data, SELECTED => $sel_hr );
+          }
         # end combo
         }
       else

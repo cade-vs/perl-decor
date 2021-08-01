@@ -1,0 +1,29 @@
+
+label  Preferences
+
+grant insert update to 999
+grant read          to 999
+
+=name
+
+  type char 256
+#  web.grid.hide
+#  web.insert.hide
+#  web.update.hide
+  
+=_OWNER
+
+  type int
+  deny all
+
+=NAME
+
+  type  char
+  
+=TEST_ENABLE
+
+  type  bool
+  
+=AMOUNT
+
+  type  real

@@ -1,0 +1,24 @@
+
+  system 0
+  grant read to all
+
+=ACTIVE
+
+  label Session active?
+  type  bool
+  
+=CTIME
+
+  grant read to all
+
+=ETIME
+
+  grant read to all
+
+=XTIME
+
+  grant read to all
+
+=REMOTE
+
+  grant read to all

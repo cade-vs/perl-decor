@@ -10,7 +10,8 @@ web.insert_cue Create new ToDO note
     
 =CATEGORY
     type    link    TODO_CATS   NAME
-    web.combo
+    #web.combo
+    web.search
     required
 
 =PRIORITY

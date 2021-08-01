@@ -45,6 +45,6 @@ DECOR Demo Applications can be found in !["apps"](apps) directory.
 Questions, please, send to:
 
     Vladi Belperchinov-Shabanski "Cade"
-    <cade@bis.bg> <cade@biscom.net> <cade@cpan.org>
+    <cade@noxrun.com> <cade@bis.bg> <cade@cpan.org>
     https://github.com/cade-vs
     github repo: git@github.com:cade-vs/perl-decor.git
