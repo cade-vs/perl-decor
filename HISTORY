@@ -2,11 +2,3910 @@
 
 
   DECOR APPLICATION MACHINERY
-  (c) Vladi Belperchinov-Shabanski "Cade"
+  2014-2021 (c) Vladi Belperchinov-Shabanski "Cade"
 
   HISTORY
 
-  2017.03.14
+commit 64b88adc00f9064e9a3b6b3258fb826fac4188b0
+Author: Vladi Belperchinov-Shabanski <cade@noxrun.com>
+Date:   Wed Aug 18 11:22:01 2021 +0300
+
+    page-error-fixed-to-avoid-connect-loops
+
+commit 2c6560ea633f72ab86c198a3b7b5edc04cbd35ef
+Author: Vladi Belperchinov-Shabanski <cade@noxrun.com>
+Date:   Sun Aug 1 15:27:44 2021 +0300
+
+    -- added incremental search for LINKs, it uses HTML5 native <datalist> tags.
+    -- added web.search LINK field attribute to enable incremental search
+    -- added Enum table types for ID+NAME only tables
+    -- updated demo apps app1 and palm
+    -- added documentation for field type attributes (web.combo, web.search, web.mono, etc.)
+
+commit c6cd4af164bd628981111f0f0ee152be97b788ef
+Author: Vladi Belperchinov-Shabanski <cade@noxrun.com>
+Date:   Sat Jul 31 18:18:10 2021 +0300
+
+    md
+
+commit b72979f393bc6af52489e9abcde4796170210010
+Author: Vladi Belperchinov-Shabanski <cade@noxrun.com>
+Date:   Sat Jul 31 18:14:15 2021 +0300
+
+    palm-md-screenshot
+
+commit eba1ddd709fb2848bb4da311816449be7a778c48
+Author: Vladi Belperchinov-Shabanski <cade@noxrun.com>
+Date:   Sat Jul 31 18:13:12 2021 +0300
+
+    fixed-palm-demo-app-and-edit-check-data-logic
+
+commit 5bb0955ea933a76a564036dfd2c4b1366bfccbeb
+Author: Vladi Belperchinov-Shabanski <cade@noxrun.com>
+Date:   Fri Jul 30 16:58:22 2021 +0300
+
+    -- web.mono will trigger monospace and formatted CHAR fields (i.e. respect newlines and whitespace)
+
+commit 2a888c7c83a8bcdcffdd6294affb279593582968
+Author: Vladi Belperchinov-Shabanski <cade@noxrun.com>
+Date:   Fri Jul 30 16:57:09 2021 +0300
+
+    -- format field function will return also format class to stylize the field value
+
+commit 749a4c014521113b97ce8fea90cbdd6304ce6771
+Author: Vladi Belperchinov-Shabanski <cade@noxrun.com>
+Date:   Fri Jul 30 16:43:42 2021 +0300
+
+    -- web.maxlen can have special value of "1" to show checkbox image if there is a note
+
+commit 9997e965fc3aaa2e831f32139e9e1976df85f2ef
+Author: Vladi Belperchinov-Shabanski <cade@noxrun.com>
+Date:   Fri Jul 30 16:26:10 2021 +0300
+
+    -- allow negative web.maxlen to put ellipsis at the end instead of the middle of the shortened text
+
+commit bf625c90aab87d06eb3740dd5755cf11ee9ba7d0
+Author: Vladi Belperchinov-Shabanski <cade@noxrun.com>
+Date:   Fri Jul 30 15:57:10 2021 +0300
+
+    -- fixed combo for links filtering (preserving last state bug)
+
+commit 98efd552c7e63c18141dd3217fa5e2d2739a013f
+Author: Vladi Belperchinov-Shabanski <cade@noxrun.com>
+Date:   Fri Jul 30 15:47:20 2021 +0300
+
+    -- fixed range filters for date+time (utime) i.e. added space to figures
+
+commit 62f1df820d66cdb1712ad006f746564d8b3e80af
+Author: Vladi Belperchinov-Shabanski <cade@noxrun.com>
+Date:   Sat Jul 24 13:20:42 2021 +0300
+
+    -- fixed output formats for export to be non-human :)
+
+commit 2361f12a6c2795e4b7c29bf0900047960b9396d3
+Author: Vladi Belperchinov-Shabanski <cade@noxrun.com>
+Date:   Sat Jul 24 00:45:01 2021 +0300
+
+    -- PALM demo app: added, create and modify times with more details on WEB interfaces
+                      also added required constrain on TITLE and PRIORITY for TODO notes.
+    
+    -- CORE: Records: added method errors count to be propagated to interfaces API
+    -- DOCS: more details about "web.details" option :)
+    -- WEB: edit/preview action now shows more information when method errors shown after recalc.
+    -- WEB: preview action will disable OK button when method errors are shown
+    -- WEB: CSS: RUBIK font support added
+    -- WEB: CSS: new "PALM" style added inspired by original Palm Pilots :)
+    -- WEB: CSS: various fixes for "palm" style and base definitions.
+    -- WEB: added support for DISABLED buttons and button links
+
+commit 46010ee2fede98588174df859475e01aa9f14b6e
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Jul 20 00:59:05 2021 +0300
+
+    palm-style-css
+
+commit a833020a93eb646407a4ec9a618d47138b750977
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Jun 28 13:31:14 2021 +0300
+
+    -- fixed js problem with labels of bool fields when editing
+    -- added menu types VIEW/EDIT to handle first matching record (used for preferences for example)
+
+commit 09976bab368c6a9255fc7564684c942abaf7508e
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Jun 28 13:16:00 2021 +0300
+
+    -- fixed icon clear css
+
+commit 32882947cc6cbdf71ad962182e7d0f63df535093
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Jun 28 13:09:12 2021 +0300
+
+    -- added sessions grid menu for test app (app1)
+    -- added ownership for DE_SESSIONS
+    -- fixed private group ownership for DE_SESSIONS upon login
+    -- added Client API for selecting first matched record
+    -- fixed problem with 3-state button fields
+    -- fixed Reactor::Decor API for login/logout
+    -- added blinking effect to page expire hint (when 60 seconds remaining and when expired)
+    -- fixed logout confirmation page
+
+commit 67027d93ccccd723bc332350eee0142ec462e190
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Jun 24 23:35:39 2021 +0300
+
+    -- create-user command now creates unique private and primary group for the new user
+
+commit 2c344c25bd678661be312b8e295e5caea2817415
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Jun 24 23:25:38 2021 +0300
+
+    -- command list-users now can take argument list with user IDs and/or NAMEs to show
+
+commit 55f7122d40241517f2378484f5c60c52b2afa052
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Jun 24 23:22:25 2021 +0300
+
+    allow order-by select clause to be simply ASC/DESC assuming "_ID" field
+
+commit 0b73dd589d8c885b6a1883445fd270ce0c146ddf
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Jun 24 14:17:26 2021 +0300
+
+    -- confirm option to all menus, see previous commit or core/docs/menu.txt
+
+commit d7dbf7525b84007d762cc928f31b4232bb4831b5
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Jun 24 14:14:23 2021 +0300
+
+    -- added "confirm" option to the menus
+
+commit ad82e76319f64485d4ff5e8c082325d8c2fdf645
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Jun 24 13:54:07 2021 +0300
+
+    -- added option 'right' to place main menu items on the right side (check core/menu/main.def)
+    -- login/logout menu items are now more artificially added but are regular main menu items
+    -- fixed menu logic for ANON users
+
+commit 9d44bc59624099dcc6c19788d5bec3ff7cc30845
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Jun 23 01:31:45 2021 +0300
+
+    maint
+
+commit 797407efa453f7d8dac5e00f482cbe64f08499d9
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Jun 21 16:02:44 2021 +0300
+
+    fixed-web-grid-csv-export
+
+commit fc53c32cbdaa0fe8c01c0f6ca092db438c499ba3
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Jun 21 02:17:00 2021 +0300
+
+    fixed-new-session-core-logic
+
+commit 4602fa150b476528ef13adf2e628b008ead9ccfa
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Jun 18 23:47:15 2021 +0300
+
+    initial-alt-connect-release-pre-debug
+
+commit 061df339504744fd9c05d3e8529068e0b7aa720c
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Jun 9 21:12:15 2021 +0300
+
+    maint
+
+commit 3dd95e2f573c006da6620dfd14bb6aa185d23c0b
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue May 25 15:22:13 2021 +0300
+
+    maint-sys-fname-and-more-css-fixes
+
+commit 12ddbfa96bba205c416d51de3ac526c58b7f80d6
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Apr 18 01:14:40 2021 +0300
+
+    first-ready-css-template
+
+commit c86c7d3f9f08d3120187261f4a32fd042fd34c06
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Apr 17 02:38:11 2021 +0300
+
+    redesign-fg-bg-border-setup-in-css-2
+
+commit 4273a51ee2a65071bdaee773661eb78cc9a5892b
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Apr 17 02:22:08 2021 +0300
+
+    redesign-fg-bg-border-setup-in-css
+
+commit f2650d46981ac33ad24521fc9c3c00053170161a
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Apr 17 00:38:30 2021 +0300
+
+    maint
+
+commit 7e0f6bd8adfb8be0d097e6f2da9252392ce91401
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Apr 16 01:01:23 2021 +0300
+
+    new-main-screenshot
+
+commit 1888cd56196a5e3a45acceab020e27073050a1ca
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Apr 16 00:58:39 2021 +0300
+
+    fixed-checkboxes-css-styles-and-grid-filter-screen
+
+commit 8cb1fbe9df8ff13221d8a427c79f97cf75d75407
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Apr 16 00:26:44 2021 +0300
+
+    bump-2021
+
+commit 9eee8b463b16a2c26bef5dbee526376e489b54ea
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Apr 16 00:25:13 2021 +0300
+
+    new-main-screenshot
+
+commit 3e6c388c48a8b3beb1fc93e319bd3fa6d2dfc35e
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Apr 16 00:15:19 2021 +0300
+
+    fixed-icons-for-detach-and-input-clear
+
+commit 4a4f42404115d771a80123722f12a43fed81d72f
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Apr 15 23:45:26 2021 +0300
+
+    fixed-disabled-icon-colors-and-size
+
+commit 49d3d447f0c61f7f6b863b185d9f01205378732d
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Apr 15 23:40:47 2021 +0300
+
+    font-sizes-fixed
+
+commit 44a4a6fc984923f86fa6e38d14102acc612de504
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Apr 15 23:37:16 2021 +0300
+
+    - added fonts and css tuning
+
+commit 2f16745d1d7297d7a2a2c3395d4fc817b3f2bbfc
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Apr 15 14:29:01 2021 +0300
+
+    visual-color-hint-headers-for-insert-edit-view
+
+commit 57aba4015a16e5eab7ebe61eb2df235d69933cc2
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Apr 15 01:00:28 2021 +0300
+
+    fixed-disable-on-click-for-preview
+
+commit 946c86f547b1458461e35acabcaf8619193eeb6c
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Apr 15 00:47:26 2021 +0300
+
+    fixed-de-html-alink-icon-in-view-and-more-css-fixes
+
+commit 6cdb25d1ce4e112af7d33f59484074f1412c1f59
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Apr 14 15:14:21 2021 +0300
+
+    requires-web-reactor-2.09
+
+commit 2df806ae3d41bb85b886aa50a20d270058f849e7
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Apr 14 15:04:14 2021 +0300
+
+    hint-delay-for-html-links-and-buttons-is-set-to-1sec
+
+commit 425e0b82154fd1ad0b2e1cdbf692019e723e446a
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Apr 14 14:59:33 2021 +0300
+
+    new-css-style-buttons-and-icons
+
+commit 8f622b05ff71be48faa12d3ad5fdbb149a4ee17c
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Apr 14 00:24:30 2021 +0300
+
+    hide-unused-details-grid-buttons
+
+commit 56856ead09d0439f0ce2388837a91cbabd26f184
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Apr 14 00:05:17 2021 +0300
+
+    added-view-back-button-hint-and-even-more-css-cleanup
+
+commit a4bf1955379e83cd17f63ab1e9d7af04fa39396c
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Apr 13 23:41:18 2021 +0300
+
+    more-css-cleanup
+
+commit 7a32eb480ce584e42aa90e288828910d283fee2c
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Apr 13 01:41:28 2021 +0300
+
+    removed-css-debug
+
+commit 4165d88e2e9b6279bdaea54ff3bb9b53e049144c
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Apr 13 01:39:06 2021 +0300
+
+    - fixed web.grid.editable for non-combo grid links
+    - cleanup of source CSS and preprocessed with ALTER-CSS (https://github.com/cade-vs/alter-css)
+    - added additional separate CSS classes to style EDIT pages
+
+commit 1544be4d9b65f20e42efe6f81a2e23d9175dd410
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Apr 12 02:04:06 2021 +0300
+
+    default-csss-alter-template-2
+
+commit d8c33069c77122fc915d503d2fbccbbdea807829
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Apr 12 01:39:27 2021 +0300
+
+    default-csss-alter-template
+
+commit 9a79948d01e67491424a015aeb029960162f68de
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Apr 12 00:59:18 2021 +0300
+
+    fixed-empty-links-hints-in-preview-and-view
+
+commit 6f67496e665516addb4ec508e65c662338fbf640
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Apr 11 23:56:45 2021 +0300
+
+    initial-css-templates
+
+commit b8c9f5608900737096aa102b3a3b017d2942d10c
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Apr 11 23:42:30 2021 +0300
+
+    multiple-fixes-incoming-new-css-prorprocessing
+
+commit 9058dea6923efa44fab5141686a9d4a5dc6bc6f5
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Mar 16 02:06:17 2021 +0200
+
+    tt config and code calls methods with or without prefix
+
+commit 6eb88e59d4981fb06c6cf417b3bc592e0745e9bc
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Mar 15 17:40:39 2021 +0200
+
+    boom message with stack trace on exec method on EMPTY record
+
+commit 81da091f44f6c9fd3cb784696333e71fc860bf93
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Mar 12 00:58:05 2021 +0200
+
+    initial implementation of location char fields using tomtom api
+
+commit 5c2f87f2ea8ef1d9c23f99d162b7c7cc4a5c5486
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Mar 6 19:16:08 2021 +0200
+
+    backlink details buttons has icons now
+
+commit 87fdcd9f2cdce825014accec44c2d01912fcb695
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Mar 6 19:09:51 2021 +0200
+
+    cleanup details fields for backlinked records on web action view
+
+commit 0701254bf3b6e6ecb1d6240782902f808e471f2c
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Mar 5 17:43:31 2021 +0200
+
+    -- web.view/hide_if_empty option added to hide field if there is no data
+
+commit 9a4501985dae98e1584db95932f63ba51cd02b04
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Mar 5 16:42:45 2021 +0200
+
+    -- default field name is taken from physical name with first upper-case letters and lower-case the rest
+
+commit 6ab10d8ddb88da6cf686787a6603af8c146fa80e
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Mar 2 12:44:50 2021 +0200
+
+    fixed rebuild tool to properly handle "not-null", but not "required"
+
+commit 2f7711898d5cb956926243c03c2423a8f2c0aba7
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Mar 2 11:34:10 2021 +0200
+
+    decor-core-tools.pl now has user enable/disable commands
+
+commit 1b8801aa9f3236d74ccdd67a041395fa20187fa4
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Mar 2 11:26:57 2021 +0200
+
+    debug-off-for-db-io
+
+commit 525d60dd2c1235a544bcc638d1e81e93b4210648
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Feb 5 14:16:38 2021 +0200
+
+    initial-export-csv-test
+
+commit 7dc89598c9aa6fced8d37c0b79b147487d12d87d
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Jan 27 22:53:41 2021 +0200
+
+    maint-pwd
+
+commit 2b931c7dc96fae1d983f19146746ccc819d4153d
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Jan 6 00:47:34 2021 +0200
+
+    added-ssl-support-for-custom-net-servers
+
+commit c6b175957cfc8ab480fd9421acb3b5da30ca44b7
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Nov 21 01:40:11 2020 +0200
+
+    initial-implementation-of-joins
+
+commit 84666b40c132e007cc3765188feae76e17fd8da3
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Nov 21 00:40:01 2020 +0200
+
+    added-reserved-words-lists
+
+commit 542d8daaada1a6df5995d564e58c316f14a0529b
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Sep 5 12:55:19 2020 +0300
+
+    more direct BIND array refs for update and delete
+
+commit e1e66258b52c7ec45c8833e37619f760b189c675
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Sep 5 12:43:07 2020 +0300
+
+    IO and Record can have array reference with BIND values instead of hashref with options, hashref still works as usual, fixed
+
+commit d7ef5bc30b51cf219c954e1b1d8276735310e6c7
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Sep 5 12:22:26 2020 +0300
+
+    IO and Record can have array reference with BIND values instead of hashref with options, hashref still works as usual
+
+commit 97d777758f265f580b29e5517d37db4004f5d120
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Sep 2 01:52:59 2020 +0300
+
+    maint
+
+commit 436ed8b4ade0fb175577873f835240b94e43726d
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Sep 2 01:50:34 2020 +0300
+
+    added-filter-default-select
+
+commit 6fb6bed905027b1c97b54ec5ed555627ce1d73f2
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Sep 1 12:49:23 2020 +0300
+
+    -- fixed password fields in preview pages
+    -- added option to directly define types without 'type' keyword for fields
+       (check docs/table-definitions.txt for details)
+
+commit 003c33dc4c7930bd081edd07da85be81e15496ff
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Aug 23 13:19:31 2020 +0300
+
+    quick return when protocols loaded on demand.
+
+commit e7a8e6b80c14456c9ebce2f4ad0a19fdcec15fac
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Aug 23 13:17:32 2020 +0300
+
+    field types 'type' keyword can be omitted, for example:
+    
+      =field1
+       type char 42
+    
+    can be:
+    
+      =field1
+       char 42
+    
+    etc:
+    
+      =field2
+       utime
+    
+      =field3
+       real 11.4
+    
+    ...
+
+commit a64052ce7bc90f586c72cfc62e76b640964ca169
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Jun 7 20:54:25 2020 +0300
+
+    maint-fixed-grid-backlink-buttons-in-web-view-action
+
+commit 8c6db11d19d51ef1d308c73387bf6300ea7c483c
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Jun 7 14:41:10 2020 +0300
+
+    added-both-buttons-in-grid-for-parent-fields-for-attached-and-unattached-records-2
+
+commit a9a57f3e68aff9a6a87ab567e4ababdcbcc3034b
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Jun 7 14:40:14 2020 +0300
+
+    added-both-buttons-in-view-for-parent-grid-modes-2
+
+commit 585097170c86dfdfb8f8e07c8185fac9f022271f
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Jun 7 14:36:28 2020 +0300
+
+    added-both-buttons-in-view-for-parent-grid-modes
+
+commit 45c9a2fd5d7a8b7c08328af351dd8e904460cb61
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Jun 7 14:25:02 2020 +0300
+
+    added-both-buttons-in-grid-for-parent-fields-for-attached-and-unattached-records
+
+commit bb4f8d4c326900487a6818d5b6a5604a5b36e8a0
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Jun 6 01:15:53 2020 +0300
+
+    backlink-grid-mode-renamed-from-not-attached-to-detached
+
+commit c5188ff9e642431e4093d13857b37a5b1d617134
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Jun 6 01:12:49 2020 +0300
+
+    fixed-non-detached-backlink-parent-grid
+
+commit 073aea79cd7a4c8f582c08856cf23e2ef95a460b
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Jun 5 19:23:24 2020 +0300
+
+    new-detach-attach-button-for-backlinked-records
+
+commit da09764ad59c6a0bf2e5f9e09fffd3c6d70d2406
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Jun 3 01:26:06 2020 +0300
+
+    added-filter-methods
+
+commit 3e8c0cf8f6d0f06621ad0bb7d40e14baa016f60a
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Apr 15 19:00:30 2020 +0300
+
+    maint
+
+commit 1d49af6363a8a1ec3513149cdaeed8351e99e354
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Apr 14 02:28:38 2020 +0300
+
+    grid-link-editable
+
+commit da590e346450698a40829249b643e22cf9248218
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Mar 8 14:39:07 2020 +0200
+
+    fixed-widelink-management-api-and-docs
+
+commit e90304bc78ac54e5aac4ab16ae8ab515ed03e6b8
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Mar 8 13:34:04 2020 +0200
+
+    widelink-docs-and-rec-api
+
+commit 2c8d39e1af773e899fb496c9508283d060ca2234
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Mar 8 02:45:31 2020 +0200
+
+    added-widelink-type-fixed-same-grid-button
+
+commit a3ce624e25581b170a20ab42625380e334f49f10
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Mar 8 02:31:41 2020 +0200
+
+    added-widelink-type
+
+commit 271338b7da6f36f7f219b013f2532be4dbf2fa34
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Feb 24 14:46:08 2020 +0200
+
+    experimental-wide-link
+
+commit eaabdf7743cba956d2528dc7f3682468849d246c
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Feb 20 14:10:47 2020 +0200
+
+    maint
+
+commit 7bf4f612c16a177676950812055da2cfecbfad47
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Feb 3 19:26:41 2020 +0200
+
+    -required-will-not-set-db-field-as-not-null-new-option-added-notnull-for-this
+
+commit e2a296f4fd086004a38002b6693528e357152f32
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Jan 27 14:15:10 2020 +0200
+
+    checked-link-field-type-on-link-path-reads
+
+commit a085db6c5de4aa959429887c8bee6077e57ee802
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Dec 8 18:16:59 2019 +0200
+
+    shorter-input-field-size-for-shorter-data-types-of-int-and-real
+
+commit 956fd07ea25d3e886c3c1c6dccbea92dcc3459ce
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Dec 8 18:03:30 2019 +0200
+
+    ignore-web.hiddent-attribute-for-root
+
+commit 8f71a2df91757b2de22fca0b2a076ed287c346e1
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Dec 8 17:58:52 2019 +0200
+
+    added-date-calc-and-CGI-to-install-cpan-modules-script
+
+commit 4aa8b5e0490c62fec56adbb1d36f506ee759809e
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Dec 8 17:58:28 2019 +0200
+
+    fixed-newer-apache-error-log-messages-fromat-filter
+
+commit afd521d1a44880790ed09e93b9c43af0d6a8a889
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Dec 7 14:33:48 2019 +0200
+
+    added-detach-buttons-to-links-in-web-interface
+
+commit 3ee9b11bd756fbc7100c46ca94faded514c3c9c2
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Dec 5 14:57:32 2019 +0200
+
+    fixed-record-next-error-message
+
+commit c48b63ad19a147649fc7585c12eb79c260813d7e
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Nov 12 13:28:50 2019 +0200
+
+    css-icon-height-fixed
+
+commit 54ea68c5759094cf860bb14baa42b160f3f961d7
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Nov 9 02:11:29 2019 +0200
+
+    fine-ps-path-web-tweaks
+
+commit 9fe895cb450a8a71bc2324d58b27dfd4d49f4938
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Nov 8 01:20:24 2019 +0200
+
+    cue-cleanup-updated-universal-and-fixed-grid
+
+commit dabec26592729026f247080a0ba75ae9cfb917fc
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Nov 5 03:22:25 2019 +0200
+
+    fixed-get-hints-logic-with-table-self-des
+
+commit 8d08e1598756c21a8dffb0c6f6b450ec25fd913e
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Nov 1 02:56:11 2019 +0200
+
+    added-easy-instructions-to-getting-started-docs
+
+commit 17f3aae91cec9c3ac6c740bcb5ccd6835e34b5d1
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Nov 1 02:49:03 2019 +0200
+
+    added-easy-cgi-setup-utility
+
+commit 27651a4dd79a2c2bc6ba2b803c179c93c4c9e7f9
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Nov 1 02:09:11 2019 +0200
+
+    updated-easy-setup
+
+commit 49cfedfe8985431f52f75bc2f27baad0adedc44b
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Nov 1 01:54:28 2019 +0200
+
+    added-decor-easy-setup-utility
+
+commit 4712a8d03f340e99eaa9a53b71746b97a5ba4553
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Nov 1 00:41:26 2019 +0200
+
+    maint-removed-datetime-note
+
+commit cef84f0f2dd269769b79a73406960460396164c1
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Nov 1 00:39:50 2019 +0200
+
+    added-new-install-setup-binaries-and-bumped-docs-versions
+
+commit f1ebdbcac84e1b1e48b2f6d31354831e9fbff9ef
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Oct 31 21:24:37 2019 +0200
+
+    fixed-view-and-page-expire-actions
+
+commit a680591133d0176a4d31b80c262952ab81480559
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Oct 28 02:44:06 2019 +0200
+
+    grid-nav-keys-help
+
+commit 7406a6ae21aaa47d88e57ccf2e2652c6b3841610
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Oct 28 02:27:07 2019 +0200
+
+    grid-js-cleanup
+
+commit 1c06b0a5788cb1767c3cba812e6f37c70e95cb0e
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Oct 27 02:49:48 2019 +0300
+
+    expired-session-error-pages-cleanup
+
+commit 059873637b88b2839f8ebd3eff38475d37240f54
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Oct 26 01:38:41 2019 +0300
+
+    -- initial CUE replacement logic
+    
+    -- grid keyboard navigation added: "{" first page, "}" last page, "[" previous page, "]" next page, "+" more per page, "-" less per page, "=" all data in one page, "*" reset page size to default
+
+commit d45e7d26e82af530ff53912b493e2832582dbce6
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Oct 19 00:54:23 2019 +0300
+
+    details-for-backlink-fields
+
+commit 129a151da46cc6264a1dc4971079a5c5071ce2a8
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Oct 18 18:46:36 2019 +0300
+
+    rebuild-sort-tables-prc
+
+commit c7609093fcae3ca0bac5dd084f58858adc3ce32c
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Oct 18 18:44:55 2019 +0300
+
+    maint
+
+commit 3b17d4cb16cef95cfc25ca143c954dee101d58bb
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Sep 17 12:45:48 2019 +0300
+
+    avoid-taint-fields-check-for-select-resolving-orderby-and-groupby-clauses
+
+commit 16f7b334eae4b5244fdd6680eb20432220491541
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Sep 15 13:50:12 2019 +0300
+
+    fixed-bundles-loading-logic
+
+commit 821ddfe5ef0c514f71e8b9a46204cd64c5d58db6
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Sep 15 10:01:48 2019 +0300
+
+    maint
+
+commit 5e7f6f699bc18a3cbb2a1fff257fcdad9abd8980
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Sep 14 22:08:10 2019 +0300
+
+    extended-server-reply-timeout-to-20-min-default
+
+commit 49d70b6cd76a478987c97111bfe1f083dd62c4aa
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Sep 10 11:32:13 2019 +0300
+
+    app1-demo-tables
+
+commit 43b2ff2ff2cfb98bfbcbaa7f1f0c78ff84f5ad00
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Sep 9 12:56:46 2019 +0300
+
+    added-web.combo.distinct-link-search-mode
+
+commit d396fe62938427e3709fce12bb25f65351417e6d
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Sep 9 12:51:57 2019 +0300
+
+    fixed select filter clause IN
+
+commit 7d7674dcd635d44a42021f23cbda397d56373c09
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Sep 9 12:19:07 2019 +0300
+
+    grid-filter-code-cleanup-typo-fix
+
+commit f43e6455f195904e067bbfe58e8d1e2c1217b605
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Sep 9 12:17:45 2019 +0300
+
+    grid-filter-code-cleanup
+
+commit 77f8d0dfe2170ad96ee770c5b11b1e1e9caf5b20
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Sep 9 11:35:31 2019 +0300
+
+    select-with-grid-linked-records-in-search-fix-layout
+
+commit e8958c92eb3d3efca80a370d7b1997a501d69117
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Sep 9 11:20:12 2019 +0300
+
+    select-with-grid-linked-records-in-search
+
+commit c5f1d40bab70f185b2ec91da896104e7243a0edd
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Sep 9 10:45:11 2019 +0300
+
+    main-menu-do-item
+
+commit b51fcdaca5c11029cdb83243bbda8cfea767bed9
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Sep 7 00:30:46 2019 +0300
+
+    added-use-last-data-on-insert-button
+
+commit c2bb1a5174253721e98fc26cc3d50f93a2ada002
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Sep 6 19:58:11 2019 +0300
+
+    fixed-revert-for-exact-date-time-filtering
+
+commit 5de66360416cd0d198bb88a898a247fbc9758bac
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Sep 6 19:54:58 2019 +0300
+
+    web-combo-order-by-will-have-a-default-if-missing
+
+commit f23d4848dfc76b71c1324b280620593ca44328f2
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Sep 6 19:21:05 2019 +0300
+
+    combo-rule-propagates-and-inside-grid-filter
+
+commit e232b06b036722875d8f87cb5a5e0745b9b0935b
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Aug 24 12:35:52 2019 +0300
+
+    disable-ok-buttons-for-10-seconds
+
+commit 9f2f8e3d65d633ddab85110e7c1e8a30e18c0a48
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Aug 20 12:42:09 2019 +0300
+
+    disable-ok-button-on-preview-for-10-seconds
+
+commit 146d42daeb584eb014679d6fdd2226aa2c355533
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Aug 20 12:09:37 2019 +0300
+
+    record-lock-for-reserved-id-on-insert-to-avoid-race-duplicates
+
+commit f5968804930f46b130ab08a334a625e63d4fdd45
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Aug 1 12:16:27 2019 +0300
+
+    added-standalone-do-in-subs-and-web-if
+
+commit 42435da0818a6a6cae2630588f1f54f93c0e17aa
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Jul 31 00:07:10 2019 +0300
+
+    fixed-for-print-css-commit-with-returned-text-file
+
+commit 3b26b8994584d54c1bc56b168a3c5cfa539b32b0
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Jun 14 13:07:43 2019 +0300
+
+    invalidate-edit-page-sessions-on-commit
+
+commit 6d6af055110fd8a215a775c774edd0214fa9cee0
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu May 23 22:59:48 2019 +0300
+
+    fixed-combo-orderby-bug
+
+commit c3f05d83ea62ea37c0c932dca7b80e501ff377c0
+Author: Vladi Belperchinov-Shabanski <cade@datamax.bg>
+Date:   Thu May 23 15:17:27 2019 +0300
+
+    combo-orderby-field-attr
+
+commit 712b69daa06053438c9f2662ef7e561a459d7a06
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Apr 6 02:52:23 2019 +0300
+
+    fixed-967
+
+commit c60937d88b3b0958a82451341d0cead39f02eb5c
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Apr 5 01:14:46 2019 +0300
+
+    app1-de-files
+
+commit 7a773082bd5f2043f76e7ad044ad9fac77fc0591
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Apr 5 01:13:09 2019 +0300
+
+    added-support-for-user-groups-961-966-967
+
+commit 36875b6f2288e69265799a77dbf6036bcf75bc9f
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Apr 5 00:37:12 2019 +0300
+
+    fixed-cache-less-update-s
+
+commit ff0c565349825e070c4053b759b5d1a2053162be
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Apr 5 00:28:39 2019 +0300
+
+    fixed-table-types-with-multiple-table-file-defs
+
+commit cfa61cdd5e0b9985922de8b8564ac3a4d7887908
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Apr 4 10:53:56 2019 +0300
+
+    max-mime-type-extended-to-256-by-rfc
+
+commit 01f1ae0baae91c834093e100b2ae565b9556545d
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Mar 27 01:33:26 2019 +0200
+
+    added-post-insert-update-dos-2
+
+commit 892041b4d9a81527a0b8dc5413dbfc592ebf3f56
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Mar 27 01:31:03 2019 +0200
+
+    added-post-insert-update-dos
+
+commit 4eafe0fb745ff6ef91813742bcf0ce92396b29c5
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Mar 26 18:51:44 2019 +0200
+
+    maint
+
+commit 4e09864b4f8ba3b444063e4c5a9ffa91fe39ff56
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Mar 26 13:17:56 2019 +0200
+
+    edit-cache-added
+
+commit c9265b75ae057ab3da7d0a1bea1bb5b889f2e953
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Mar 26 11:06:57 2019 +0200
+
+    fixed-grid-filter-link-combos-for-non-combo-specified-fields
+
+commit 4ee76c1fd5579a4063588db8fde732cc399f9f80
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Mar 23 15:10:20 2019 +0200
+
+    fixed-box-model-and-nav-labels
+
+commit 85b35ba62d6c0ab143963dfc480977bed31588aa
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Mar 23 13:22:01 2019 +0200
+
+    added-grid-combo-filtering-for-links
+
+commit fae8d1b02fedb636e9a12a8c6ba39ecfb48b096b
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Mar 23 02:48:24 2019 +0200
+
+    maint
+
+commit cd0930648d33741c012ec3b51d7b72760bfe0267
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Mar 19 14:19:13 2019 +0200
+
+    added-detach-and-confirm-option-for-detaching-backlinked-data
+
+commit 50961e52532a68aa1816753aa164b5b33ebddd85
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Mar 16 20:04:20 2019 +0200
+
+    hide-disabled-backlink-linked-fields
+
+commit 94bcd42fc05dfbc319beb42dd5a650ae75635433
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Mar 16 13:30:59 2019 +0200
+
+    fixed-backlink-grid-list-of-linked-records-for-insert
+
+commit 54d96148e2e35f7caa4cc22595f9ace948a3a21e
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Mar 14 14:05:03 2019 +0200
+
+    preview-fix
+
+commit dc0071eaf0cf9840399be57a0b22b34626831960
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Mar 12 01:01:33 2019 +0200
+
+    -- added $id in the read-only recalc records
+    -- added select_siblings() function to records Decor::Core::DB::Record
+
+commit 15d9da64cbd3bfe269683af8b0521f0bc93933e7
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Mar 12 00:31:03 2019 +0200
+
+    added-web-insert-hide-and-web-update-hide
+
+commit 76b572b7928eb19388dda543835443a5b616555c
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Mar 12 00:15:42 2019 +0200
+
+    custom-css-classes-for-preview-fields
+
+commit 0dbae7ec0f3002efce818852e45a17bac88f8e49
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Mar 8 03:15:50 2019 +0200
+
+    custom-css-for-view-grid-edit-fields
+
+commit dbb61b0f53098789845e3c72bae85dcea437b648
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Mar 3 13:13:46 2019 +0200
+
+    fixed-typo
+
+commit c449832a4557f34a0c73a9993fcd336b7651f60e
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Mar 3 02:04:12 2019 +0200
+
+    fixed-web-interface-preview-logic
+
+commit f1fc0ec69deba7b0c1fe2b560a5e768eaa7617d6
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Mar 3 02:01:17 2019 +0200
+
+    load-static-for-all-tables-on-default
+
+commit 11d74ca56127a8b426227f1ecfbac1354f1a9685
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Mar 3 01:29:16 2019 +0200
+
+    added-special-groups-96x
+
+commit 133532bb6826eff79d98f9914dd656aa40e345ac
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Feb 26 13:00:41 2019 +0200
+
+    fixed-grid-fields-list-to-add-id-and-be-uniq
+
+commit f5ce6b2fcf2416bdb9a84907e288a13d70947542
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Feb 26 12:48:52 2019 +0200
+
+    fixed-preview-insert-update-plus-read-fields
+
+commit a1f4d759aa97211fbf847208dfdd35c373656480
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Feb 26 12:04:30 2019 +0200
+
+    backfix-fields-list
+
+commit c1533dd3e88b774c35dc2569acdfb088a56d5a62
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Feb 26 00:32:29 2019 +0200
+
+    fixed-show-fields-list-for-read-grants
+
+commit d0e2b8010c63918f86dfd001b60e077812fd798b
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Feb 26 00:31:32 2019 +0200
+
+    fixed-custom-fields-list-with-id
+
+commit 59d3683b83cba6c3e2eb0003c819791444c7effb
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Feb 15 14:03:40 2019 +0200
+
+    web-edit-combo-sorted-by-id-default
+
+commit 71362aedaee28eb1f0f12c23abff10501be3cd2b
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Feb 14 01:44:40 2019 +0200
+
+    fixed-trans-update-for-menus
+
+commit 69807aea817fc67e2c22928dca758c6ab263774d
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Feb 14 01:38:29 2019 +0200
+
+    bg-trans-fix
+
+commit 9fc90dc2b4d330a7a3df30beaf7c25aede69b73e
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Feb 8 13:52:10 2019 +0200
+
+    testing-record-freezer
+
+commit 6daa694e111044dc47ab7dfba8616ef01e5ddca6
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Feb 8 02:05:07 2019 +0200
+
+    -- added menu type URL
+
+commit b6030cb7e70159c63cef2964e3a9f9ad645d1763
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Feb 8 01:52:31 2019 +0200
+
+    -- added web.grid.fields_list in table attributes to specify which fields should be shown in the grid
+       field names can be separated by one of: whitespace (tabs or spaces), comma [,], semicolon [;]
+    
+    -- added web.grid.hide field attribute to hide this field from the grid
+
+commit b31359ece8790184f13f5e219a097d5975bbbba4
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Feb 8 01:21:00 2019 +0200
+
+    maint
+
+commit e46bde68822e72a1f115122f2751f35e30171b44
+Merge: 7058448 5651533
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Feb 8 01:19:40 2019 +0200
+
+    Merge branch 'master' of ssh://ir-statistics.net/opt/gitroot/perl-decor
+
+commit 7058448a96f12ca0262be427497ce091fecfb643
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Feb 8 01:19:02 2019 +0200
+
+    return-file-with-on-insert-and-on-update-methods
+
+commit 5651533869146b7923d5b894cccc2a541909633b
+Author: Dimitar <datanasov@ir-statistics.net>
+Date:   Wed Feb 6 17:09:38 2019 +0200
+
+    maint
+
+commit af7e2e00259612606b46304a242c26426e2e0082
+Author: Dimitar <datanasov@ir-statistics.net>
+Date:   Wed Feb 6 17:07:13 2019 +0200
+
+    fixed-isa-grant-deny-logic
+
+commit 23733b930d0cc23f41be8a5e1745dde95b5af130
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Jan 23 15:51:12 2019 +0200
+
+    added-DB-Record-count-fixed
+
+commit 87950897f9bc4c2042295adaef1c2f045e28d6d0
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Jan 23 15:24:55 2019 +0200
+
+    added-DB-Record-count
+
+commit f89adabb51857ac1519f10d2c7bc0a5eeee74e45
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Jan 23 15:20:58 2019 +0200
+
+    added-DB-IO-count
+
+commit 3efaca473bb7f34f83c74f95fb6c1f9fd749c8c8
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Jan 23 14:43:51 2019 +0200
+
+    fixed-empty-data-on-static-import
+
+commit c6fcc8066ef491bc9b60caea9906310c2c737ec8
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Jan 21 22:06:10 2019 +0200
+
+    fixed-deleteion-of-static-data-below-10000
+
+commit bfcc48411c473278ba1a99636c90b58f1a489ae6
+Merge: d371e06 bb2d82c
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Jan 21 21:14:17 2019 +0200
+
+    Merge branch 'master' of ssh://ir-statistics.net/opt/gitroot/perl-decor
+
+commit d371e060b6a5dfe56a2218a2e617533ca790f9ad
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Jan 21 21:11:59 2019 +0200
+
+    fixed-protected-static-data-not-in
+
+commit cf1d6c834199acf3ebaefbeef0b33ce38ffe5da9
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Jan 17 02:09:57 2019 +0200
+
+    -- type formatting, reverting and conversion documentation is updated
+
+commit aee5fdf21a2859b1375aa8329a3f36a21e9dd97d
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Jan 17 01:13:16 2019 +0200
+
+    -- added type conversions Decor::Shared::Types::type_convert
+    
+    -- added split and merge for utime to date+time and from date+time
+                      type_utime_split
+                      type_utime_merge
+    
+    -- added helpers:
+                      type_utime2time
+                      type_utime2date
+                      type_date2utime
+
+commit 06e8c99ec8080cd511cee50a295a1a219a59487d
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Dec 17 03:30:18 2018 +0200
+
+    reorder-installation-steps-counting
+
+commit b6c08e9c80d2ace77379e286f946fb1dd9fef668
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Dec 17 03:27:32 2018 +0200
+
+    fixed-docs-for-new-js-vframe-support
+
+commit ec3e87e0d84fe0fd49e6e5007358ae1519867345
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Dec 17 03:22:41 2018 +0200
+
+    added-editable-BOOLs-in-grid-and-view
+
+commit 9ec2f63a747a94ba86c086f1d5843ac3702e04f7
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Dec 3 04:01:29 2018 +0200
+
+    web.print-option-for-DOs
+
+commit bb2d82c14ad475b9b005664b21e13dc735dae174
+Merge: 6e87715 767eeb0
+Author: Your Name <you@example.com>
+Date:   Wed Nov 14 14:33:03 2018 -0500
+
+    Merge branch 'master' of https://github.com/cade-vs/perl-decor
+
+commit 767eeb0e7be26b6e5169f40b7ee4a76efc0bd25f
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Nov 6 01:44:43 2018 +0200
+
+    fixed-print-without-decorations-and-added-print-button-for-do
+
+commit 46b865985ab0e6d118dfd96db51b348fd356860b
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Nov 6 01:32:05 2018 +0200
+
+    fixed-strange-use-open-utf8-problem
+
+commit 6e877155e9749624ee665fadba8a0ce6512b5c38
+Merge: df4bd8d 085388c
+Author: Your Name <you@example.com>
+Date:   Wed Sep 19 09:30:52 2018 -0400
+
+    fix
+
+commit df4bd8d6899a8b483c81d9e89141679380233fc0
+Author: Your Name <you@example.com>
+Date:   Tue Sep 18 18:48:47 2018 -0400
+
+    FIX
+
+commit 085388cbc8f2a42f2e35d65dfb18541703381c22
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Sep 19 00:39:45 2018 +0300
+
+    sess-create-error-reporting
+
+commit f4b3e5f69a630710efa8a8960795172d732b8bd6
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Sep 19 00:38:05 2018 +0300
+
+    fixed-roll-back-typo
+
+commit 257bd386e2c9e52516cdefca86b2b4405399803d
+Author: Your Name <you@example.com>
+Date:   Tue Sep 4 19:42:11 2018 -0400
+
+    PG
+
+commit 09955b74ea66553b81a00bc7adb9fa45c87e7837
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Aug 31 03:25:53 2018 +0300
+
+    fixed-binmode-on-client-socket
+
+commit 5cb78db478e4ae1600238dc05dfb04918cc02feb
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Aug 29 20:53:08 2018 +0300
+
+    fixed-include-remove-field-without-wildcards
+
+commit 730db3fb334a6b5479b269371b72507c597c4234
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Aug 29 03:29:08 2018 +0300
+
+    maint-log
+
+commit cc79d5c7db6968bca3723a621dd4018b62eab5ae
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Aug 29 03:18:22 2018 +0300
+
+    fixed-log-logic-and-colors-on-stderr
+
+commit a7da0ee8d225ecf0bc5b3b351c60068bcb3ef57e
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Aug 20 04:50:19 2018 +0300
+
+    -- decor-load-static-data.pl implemented fully, allowing TABLEs and FILEs
+       check "docs" directory for details about "static data" and file formats
+    
+    -- app.def's USE_BUNDLES will be followed explicitly, regardless of
+       "bundles" directory in the APP
+
+commit e825f7756d45f53e668b277b1ffb66dc202a1e81
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Aug 18 03:10:38 2018 +0300
+
+    added-setup-classes-for-each-supported-database-type
+
+commit 2ef57096c407984025e30ba538e06320d53b78e2
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Aug 17 04:18:42 2018 +0300
+
+    -- added experimental SQLite support
+    -- added initial version of load static data tool
+    -- initial support for MAP type tables
+
+commit 9ddb250238a8bb4771014bd4329717fd0ba5b2ea
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Aug 10 02:36:51 2018 +0300
+
+    enforce-utf8
+
+commit 21179b1b1619be4a9e8beff9c6f005a03c53bfce
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Aug 7 03:56:50 2018 +0300
+
+    -- added new access operator: CROSS to allow passing paths via fields forbidden for READ
+
+commit b8a3b45613dc269ed816c5350f707b69999a41db
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Aug 7 03:47:11 2018 +0300
+
+    -- added errors reporting for multiple files uploading
+    -- added 'human' format for all INT/REAL numbers in the web interface
+
+commit 3072f0d464b383949940fa8392a5e67ac8643534
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Aug 6 04:24:10 2018 +0300
+
+    backlinked-to-files-type-table-support-and-multiple-file-uploads
+
+commit 481d4b30201eab35ba4f9c02b1bf5f9f60a16f4d
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Aug 6 03:49:41 2018 +0300
+
+    multiple-file-upload-support-and-fixed-file-des
+
+commit 6a652352ee60b1eb3d716cfc92a332f5abadae86
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Aug 4 03:42:44 2018 +0300
+
+    maint
+
+commit a2998ff2717f2bf1a5a5f3da01285a3cf675153b
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Aug 4 02:45:26 2018 +0300
+
+    added-support-for-files-table-types-for-grid-and-view
+
+commit 737cdaf44b6d1691842565eded38453b9db6db9f
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Aug 4 02:13:38 2018 +0300
+
+    allow wildcard %TABLE to point to the current table for inherited tables
+    used for LINK and BACKLINK fields to point the same table.
+    
+    for example: generic description _DE_FILES for filesystem tables.
+
+commit c72d7af468d5c179c23736e7e8b5d3f9faf88657
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Aug 2 14:32:43 2018 +0300
+
+    testing-view-xhr-uploads
+
+commit d5a9c413f8fbcb099da7eb91ecd3627a23a29b26
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Jul 23 03:40:33 2018 +0300
+
+    added-hires-time-and-utime-and-fixed-virtual-tables
+
+commit c0080e6496e6cdf190f6a3618e7686df14e5f2e6
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Jul 16 02:50:32 2018 +0300
+
+      -- fixed @isa add/remove fields to allow, wildcards, see "docs" dir
+      -- added @remove statement to remove fields from current table description
+
+commit ca065947cb83f11f54839c0595efa0aae5fc4d7a
+Merge: 5060395 89eba89
+Author: Vladi Belperchinov-Shabanski <cade@noxrun.com>
+Date:   Mon Jul 16 02:21:22 2018 +0300
+
+    Merge pull request #1 from amitko/master
+    
+    wildcard include/isa
+
+commit 89eba89c8f2b3d89a2f7b75d0f22b909d75409ab
+Author: Your Name <you@example.com>
+Date:   Sun Jul 15 17:29:42 2018 -0400
+
+    wildcard-include
+
+commit 6a7cca70b6f900da648f0717cabdfffc36d6678a
+Merge: 510bebe 5060395
+Author: Your Name <you@example.com>
+Date:   Sun Jul 15 12:34:10 2018 -0400
+
+    Merge branch 'master' of https://github.com/cade-vs/perl-decor
+
+commit 510bebe913d6738b21cac10040c6386bb1850688
+Author: Your Name <you@example.com>
+Date:   Sun Jul 15 12:34:06 2018 -0400
+
+    fixes
+
+commit 506039584142c2232d1dae54226a1ff8c660b19f
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Jul 12 22:56:28 2018 +0300
+
+    zero-added-new-columns
+
+commit 6655b97f670fd4766fbe6e3a06a63dbd92c74c2b
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Jul 4 03:02:19 2018 +0300
+
+    added-menus-to-trans
+
+commit a9ccd248ddd85931df80ea3ec2fdb093bdb9a098
+Merge: df579d0 d198acc
+Author: Your Name <you@example.com>
+Date:   Sat Jun 16 02:51:08 2018 -0400
+
+    Merge branch 'master' of https://github.com/cade-vs/perl-decor
+
+commit d198acc2084fa140bfb4f547dd299f8116c349cf
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Jun 15 17:13:32 2018 +0300
+
+    temp-table-def-trans
+
+commit df579d0b433fd3932f4d748ed55967436b3437d2
+Merge: 949c098 a90b3af
+Author: Your Name <you@example.com>
+Date:   Thu Jun 14 09:07:17 2018 -0400
+
+    Merge branch 'master' of https://github.com/cade-vs/perl-decor
+
+commit 949c098cdb6e862da78087aa307cac3a9b372c5a
+Author: Your Name <you@example.com>
+Date:   Thu Jun 14 09:07:13 2018 -0400
+
+    local-
+
+commit a90b3afb2f8abc7f4b5fd2fe06a184a42635ff3d
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Jun 4 04:35:27 2018 +0300
+
+    updated-trans
+
+commit c28ee0e0e41abcc53ff84a4a4c35ddf7c8714266
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Jun 4 04:05:48 2018 +0300
+
+    fixed-encoding-utf8-typo
+
+commit 7a51503c165cd1ea546b1669e39089a626d19e5f
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Jun 4 03:59:40 2018 +0300
+
+    updated-trans-and-web-actions
+
+commit d471f25cf45867e59a05851081810e2fc001a565
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Jun 4 03:18:29 2018 +0300
+
+    trans-update
+
+commit 0a622c8f8f499f46d96eb489dc299df8e9c9c1ee
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Jun 4 03:15:49 2018 +0300
+
+    initial-web-translation-update-tool
+
+commit eeccadef4ecbf716c559bf146989a2b4b867247a
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat May 19 23:03:34 2018 +0300
+
+    added-core-app-server-load-reason-printed
+
+commit 44d4f7c520c182ae24712aa313e91d1ecf3cf053
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat May 19 23:02:02 2018 +0300
+
+    fixed-base64-utf8-encoding
+
+commit f9d5fcb76caa3205bbdef5796fd8ce2d5233aaaa
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Feb 13 02:39:03 2018 +0200
+
+    added-filename-to-file_dn.pm-action
+
+commit a2e534a3fec3d975fe0d7b459b4136b00a080b62
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Feb 6 04:18:23 2018 +0200
+
+    action-generic-icon
+
+commit 3668ec8466013aa6158be9be0eab0e308e319027
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Feb 6 04:13:01 2018 +0200
+
+    grid-action-target-buttons-in-ctrl
+
+commit 3faf3d37a52dd475b254a850d29e429d0642d94a
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Feb 6 03:25:12 2018 +0200
+
+    file-load-sub-figure-file-size-from-disk
+
+commit 25701b77f799f7bade368f152e71df248c3bb8cf
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Jan 26 03:46:35 2018 +0200
+
+    more-cues
+
+commit ab73cc96f8bac1f75b56addd97ba8399171e0192
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Jan 26 01:41:43 2018 +0200
+
+    cues-support-for-interface-button-labels-and-hints
+
+commit 682bb8875dd3cd2a5f697a0364181d256d0a2396
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Jan 18 02:10:04 2018 +0200
+
+    demo-server-module-and-web-action-for-json-requests
+
+commit 646ad096218cd01a437ddf3fe1280642018f019b
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Jan 17 00:59:17 2018 +0200
+
+    fixed-client-side-manual-transactions
+
+commit 85e37bffd7ecc0b19fd0aec7651a6f7715e82d82
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Jan 17 00:42:41 2018 +0200
+
+    added-client-side-manual-transactions
+
+commit c2fd68903ccf58c7f56224f30950668958145f7f
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Jan 17 00:16:12 2018 +0200
+
+    added-virtual-tables
+
+commit 7486fe723e48ea612ac110824d80939f2f8948f2
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Dec 27 01:21:37 2017 +0200
+
+    custom-server-modules-added-and-app1-echo-example
+
+commit be69300ba5d534d45d03b6334588e69f2afafa56
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Dec 26 22:30:07 2017 +0200
+
+    web-action-echo-app1
+
+commit fa99961f2d0d3c915e9e2e4b6890141ccdfb7682
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Dec 8 19:31:52 2017 +0200
+
+    log-printing-cleanup-and-ansi-colored-stderr-output
+
+commit 9f37b13749aa62282f4879ed41ec68032b317433
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Dec 8 17:24:32 2017 +0200
+
+    fixed-method-access-logic-for-single-record
+
+commit a5a06f051885b0493feed9b044389ed9e4593043
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Dec 8 17:20:24 2017 +0200
+
+    debug-groups-sorted0by-num-value
+
+commit f421fa0ed7e08638eeede62c7742879851f3d8df
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Dec 8 17:19:01 2017 +0200
+
+    debug-groups-added-to-user-profile-bug-log-fixed
+
+commit 46a0ca5a1d37ba33794116e6081da7664bcb3004
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Dec 8 17:17:49 2017 +0200
+
+    debug-groups-added-to-user-profile
+
+commit 394b304e0ddba841d0445752a6dc0d7367deaa8e
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Dec 6 14:57:36 2017 +0200
+
+    initial-pass-check-hooks
+
+commit d2a98962c5a664737ec8ba92e7ef1d5ff2513c16
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Dec 6 03:20:57 2017 +0200
+
+    improved-on-access-methods-and-documentation-added
+
+commit 7961043924eb1ae2a749bf780aca816d95997241
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Dec 6 02:56:59 2017 +0200
+
+    added-record-access-check-to-client-core-protocol
+
+commit cc31399464fdce74aa21ac845936690a204323ca
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Dec 5 15:53:22 2017 +0200
+
+    fixed-security-check-for-row-access
+
+commit 7981f4a75afcd1b517673b88a3cc0509581b7dd7
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Dec 5 02:53:14 2017 +0200
+
+    DB-IO-returns-undef-when-end-of-data-reached-in-fetch
+
+commit c3cbfa2b789ac901f1ac63db673d29530df35138
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Dec 2 00:50:51 2017 +0200
+
+    maint
+
+commit 93a798366092dbd9d3dfa9a16b911c76b6c7b55f
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Dec 2 00:48:29 2017 +0200
+
+    grant-deny-accumulator-bug-in-menus
+
+commit ab60f514a80daa356018d18e6cbedee5ecf238cf
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Nov 26 04:48:31 2017 +0200
+
+    describe-grant-deny-cleanup
+
+commit fb0170b6289275bde7517a162b3c6b37e4a83377
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Nov 25 04:46:07 2017 +0200
+
+    raw-dclone-copy-for-table-des
+
+commit 9fba8243906c639675b74f484c11e615a6bccd3a
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Nov 25 00:20:21 2017 +0200
+
+    maint
+
+commit 520bb22ea8d8f5b1ccd17bd04a655d8ec558be61
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Oct 25 04:41:16 2017 +0300
+
+    db-io-fetch-removed-utf-conversion-expected-by-db
+
+commit 9acd4247f0881426a4391a0644f60e1a6b91f326
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Oct 20 13:59:41 2017 +0300
+
+    rise-utf8-flag-for-db-incoming-data
+
+commit d6636ad938fac4155d49d8333e3f8b1a002b349c
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Oct 17 04:18:16 2017 +0300
+
+    dbd-is-expected-to-return-utf8-data
+
+commit 6345bc5d0303ba970169149a25a3e011e86f915c
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Oct 17 03:54:58 2017 +0300
+
+    all-file-open-default-to-utf8
+
+commit 2e511803c9d86e99ab33be0570bf97deb376896d
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Oct 16 20:10:03 2017 +0300
+
+    utf-8-loading-describe
+
+commit a553ef25a38fd4b9b4bf160de70fe2b2c23dacf2
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Oct 13 03:34:54 2017 +0300
+
+    fixed-edit-redirect-preview-default-button
+
+commit bc32719e95b928a8d3583323e448b35174acf5c6
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Oct 11 03:29:06 2017 +0300
+
+    added-on-fetch-method-for-select-data
+
+commit 0153e2420aabff2e7a8042b34db6f365f00d7a4c
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Oct 9 06:52:32 2017 +0300
+
+    fixed-utf8-data-read-from-db
+
+commit e5ad6299a4ac7042fe65ead17c050465013b423e
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Oct 9 05:34:26 2017 +0300
+
+    fixed-upload-download-file-client-api-and-web
+
+commit 7c88df39a5fbf5896b41c8de81350b00ff0899fa
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Sep 11 13:49:34 2017 +0300
+
+    table-order-by-support-and-initial-no-autocomplete
+
+commit 4bb6faf3adda3afa86d8b6c16521cd2e0c5e27e4
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Sep 11 13:35:22 2017 +0300
+
+    removed-0maxlen-max-limit
+
+commit 8e4ba3a1c20d851b87ecd4eec096d426cb006e79
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Sep 9 00:24:16 2017 +0300
+
+    app1-web-home-demo
+
+commit 42da7762bbeebee2bb7a1ed9ea17c91d29ff8f45
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Sep 9 00:16:45 2017 +0300
+
+    -return-data-from-for-id-fixed
+
+commit 07bf1be9a1e370d6ed7c24ff364f30c8bc698cf6
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Sep 9 00:05:59 2017 +0300
+
+    maint
+
+commit 6e06ea4636b9acb5b901fc6797d58e35c918da3e
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Sep 9 00:04:55 2017 +0300
+
+    removed-few-debug-lines
+
+commit 54a9af7fb3aad8a98329cff1a6c695a18c7a07b2
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Sep 7 22:03:36 2017 +0300
+
+    testing-insert-on-login
+
+commit 934c60e96155897501c60e1594dbcb527ddd57fa
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Sep 7 21:58:19 2017 +0300
+
+    fixed-core-server-return-states
+
+commit 121aea361ac0ad7cdf91a4a4a5df3ccf0eb6004b
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Aug 30 01:59:46 2017 +0300
+
+    new-main-screenshot
+
+commit 3ab671ca4ea21924096b0cbf1291281ac5c9c13a
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Aug 30 01:56:50 2017 +0300
+
+    repaced-the-symbol-for-empty
+
+commit 65bff015b480df7436e6e5e42257925880848379
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Aug 30 01:35:38 2017 +0300
+
+    main-and-input-background-images-and-link-data-and-empty-css
+
+commit 39e6cd6c3d91d478554fce1090728e932fd998b7
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Aug 29 01:48:48 2017 +0300
+
+    grid-align-by-type-and-other-css-fixes
+
+commit e74157ce8951447bea0765df9f10911cf64ef070
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Aug 26 15:35:14 2017 +0300
+
+    icon-links-css-fixed
+
+commit 871c4563b0e2d246a65c4b4e09c3824d46b420ae
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Aug 26 15:28:30 2017 +0300
+
+    button-focus-css-fixed
+
+commit 8f4c0cc418d92f42f1280f92c0dede1e2497d188
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Aug 25 19:21:21 2017 +0300
+
+    -- added second set of read() functions to Decor::Core::DB::Record
+       to allow reading original data as read from the database, regardless
+       current (modified) values.
+       the new functions are: read_db(), read_hash_db(), read_all_db() and
+       read_hash_all_db().
+
+commit 1b83f8f079c06b172125b6cf08b13ee2061c7f86
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Aug 25 03:19:21 2017 +0300
+
+    css-a-decoration-fix
+
+commit 6cc692693f6186b8b77ac1a23c42fd98bf1781cf
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Aug 25 03:05:24 2017 +0300
+
+    fixed-buttons-css-layout
+
+commit fd653741062f0b8e189868fcb72a019971ba17ef
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Aug 24 19:26:50 2017 +0300
+
+    css-buttons-colors-more
+
+commit b46d23ddfbb2ca230ab4afb683dd59f668ac6a9a
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Aug 24 15:31:52 2017 +0300
+
+    icon-credits
+
+commit 03281f02eb0245deea277002ef511ea335646b51
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Aug 24 06:15:15 2017 +0300
+
+    css-icon-margin-fix
+
+commit 590aea5b19324c430465169662bd4b0193079aa5
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Aug 24 04:18:41 2017 +0300
+
+    new-css-colors
+
+commit 74a63ec9864bf790662fc09a3931ed40110f3f57
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Aug 24 03:48:15 2017 +0300
+
+    testing-new-button-types-and-css-fixes
+
+commit ecab3f53b802afbf901e74ff4820b193edce2833
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Aug 24 03:15:59 2017 +0300
+
+    fixed-menu-attrs-with-dashes
+
+commit b6c82cd9ccdfabe2cd739f31b52898619d58a07d
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Aug 24 03:10:14 2017 +0300
+
+    -- allow dash in attribute names in MENUs, they will be auto-coverted to underscore
+       (the same way as attributes in table descriptions are converted)
+
+commit 302673ac52953a37b2bf61fbdf6d442310ec7ff0
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Aug 24 03:04:11 2017 +0300
+
+    -- ORDER_BY option in menu items of type GRID
+    -- access checks for EDIT and INSERT links to related tables or same table
+    -- initial support for typed buttons
+
+commit e461f89e9afe6b6f63202928ae7e75de6b63db84
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Aug 23 16:26:10 2017 +0300
+
+    menu-filter-name-support
+
+commit c0ebfd58c2b414c60390aa9c043551379a2df7f0
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Aug 21 03:53:58 2017 +0300
+
+    added-special-menu-de-all-tables
+
+commit 887bb652dfada75b30985b6f5307fd0651f1b457
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Aug 20 02:54:08 2017 +0300
+
+    support-hidden-fields-in-grid-fields
+
+commit 49c60aed54d53f2d765dd0149a4ba18d6864a512
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Aug 19 14:30:03 2017 +0300
+
+    default-access-to-ID-and-hidden-in-web-views
+
+commit dede11a3327a07e6e9fd9259015e7917fa78b5b2
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Aug 19 14:26:56 2017 +0300
+
+    default-access-for-admin-menu-only-to-root
+
+commit 39525c5f76544a6427869c636b9430424ef3602e
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Aug 18 03:42:17 2017 +0300
+
+    more-docs-and-field-types-documentation
+
+commit 7e0a659be3d1ea4c6d33f618a037cceb5a8d8209
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Aug 18 03:00:47 2017 +0300
+
+    buttons-hints-in-grid
+
+commit 5da7f9d3db9b695ae97a89f856bf78eabe94a4fd
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Aug 18 02:52:44 2017 +0300
+
+    required-field-flag-is-now-supported-in-the-web
+
+commit 42aac336ecd17714c95d3ebae3c784cd17a5cef4
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Aug 15 03:36:46 2017 +0300
+
+    web-grid-buttons-and-css-fixes
+
+commit fa8cc9364ff0877de1019ac448bae0c89bb22de5
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Aug 15 01:36:31 2017 +0300
+
+    -- fixed CSS for input and textarea
+    -- added GRID button on link fileds in VIEW to show the same-linked records
+    -- fixed GRID path label/hint to show filtered grids
+
+commit e24398a9956696ebe1c73ffa61c6b8e80a04b19f
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Aug 14 23:50:31 2017 +0300
+
+    allow-dash-in-options-names-in-table-and-fields-descriptions
+
+commit 8e9abaddaa204d9e1f2dc9902ae6f8fc97345395
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Aug 14 20:53:19 2017 +0300
+
+    -- NO_COPY table option, to disallow interfaces to copy previous records data
+    -- NO_PREVIEW table option, to disallow interfaces to show preview screen on insert or update
+
+commit abe8f2b7ee2040f0d5fea61280d698aa8f4696d2
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Aug 14 20:45:01 2017 +0300
+
+    -- ROWS web option for multiline char inputs
+    -- additional CSS for TEXTAREA, multiline char inputs
+    -- HIDDEN web option to hide fields from browser views
+
+commit 5912097f96541e37aa0a4de72f0508a563b31029
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Aug 14 20:08:46 2017 +0300
+
+    support-shortcuts-read-only-and-system-for-table-descriptions
+
+commit 5ce5bf70f8d92eb201ff4be772be868a5c4adf6e
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Aug 14 20:01:30 2017 +0300
+
+    fixed-password-option-for-char-field-web-interface
+
+commit e39f876c50a10c61245395393cdf631845c932a9
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Aug 14 19:56:40 2017 +0300
+
+    hide-backlink-records-count-in-grid
+
+commit d46d9f7a185c9ee137a6cf2fe877f5bb1358fd76
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Aug 13 16:31:19 2017 +0300
+
+    view-backlink-fix
+
+commit d6effc3a69887402e307693cacd4c2f38a74839f
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Aug 13 04:28:44 2017 +0300
+
+    back-button-for-empty-grids-and-backlinked-grids
+
+commit eaac0fadd11a27bc4ffbf61e4e610411e9db284b
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Aug 13 03:40:25 2017 +0300
+
+    fixed-backlink-and-link-values-to-keep-related-records-on-insert
+
+commit 9a7c210e4f44c88838c0fa4bdd6084f471fef62b
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Aug 12 04:32:33 2017 +0300
+
+    if-empty-data-link-records-should-boom
+
+commit adfcb748d3fb30e7e7fb43f43d395fc226e559cd
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Aug 12 04:20:24 2017 +0300
+
+    de-app-config-uc-key
+
+commit 21a8407a1955aac1f8883ca8937b83fdfa742a65
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Aug 12 04:18:33 2017 +0300
+
+    record-write-link-value-reserved-or-available-check
+
+commit 749682edc4a28f2f93dc905f4720e688730accfc
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Aug 11 13:55:14 2017 +0300
+
+    fixed-upload-new-from-insert-action
+
+commit 4e8f87b6fda923ff24bb41538d36fa4f59a6ed6a
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Aug 10 14:13:21 2017 +0300
+
+    temp-fix-app-cfg-read
+
+commit 5cd36aac6176c6fe3f5d76029e48894fd9d158c9
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Aug 2 23:27:34 2017 +0300
+
+    readme-fix
+
+commit 4dd5a0237c949e7a1fa078cc4beff34b8d927c32
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Jul 28 13:11:45 2017 +0300
+
+    fixed-grid-filter-hashref-missing
+
+commit e1f0685d89ad1120563f069ced2bd323709218a6
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Jul 28 13:11:09 2017 +0300
+
+    fixed-menu-items-order-and-print-menu-tool
+
+commit 1aaac2a439d4af0d813d63ab6f36920e2dde8ff2
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Jul 6 04:09:16 2017 +0300
+
+    new-screnshot-and-docs
+
+commit 88fe1b7414b61053cfdb2d27ea44d47c07b41867
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Jul 6 04:04:43 2017 +0300
+
+    new-screnshot-and-docs
+
+commit 88d550e8672a2961396e35f49dd5397daf309b96
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Jul 6 04:02:41 2017 +0300
+
+    new-screnshot-and-docs
+
+commit f9cd51e658bf94e1d63b47305cf2cebc25caa1e4
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Jul 6 03:56:29 2017 +0300
+
+    more-menus-docs
+
+commit 5db99c25e58c2c3b0084cf85932b6d1926e5200a
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Jul 6 03:42:32 2017 +0300
+
+    working grid filters were added to the web interface grids
+
+commit 7d4c7aff979812c87ddefcae1999b85073ec84f9
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Jul 5 03:07:52 2017 +0300
+
+    enhance filter rules for multiple rules for the same field
+
+commit 1fd906ff92c918b163545fcd66f1961ed2a94150
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Jul 5 03:07:24 2017 +0300
+
+    hide backlink list icon when zero records appear
+
+commit fc9199c16d6f3ae369756b942276f2e48a9e1ca1
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Jul 4 03:45:12 2017 +0300
+
+    aded-initial-grid-filter-action-still-in-dev
+
+commit 8652d42343865c38ffb16528d3c5cb3f66f08cad
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Jul 1 03:41:03 2017 +0300
+
+    error printing from main loop when exception and error references
+
+commit dd4925835c325cd266329b7a780a7d293c5d6c2c
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Jul 1 03:21:00 2017 +0300
+
+    main loop error printing with reference in log file and return message
+
+commit 7398f8124870d8655740365e04fd33c63c19105e
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Jul 1 03:18:41 2017 +0300
+
+    debug prints commented
+
+commit 6122bf212fc472106c021e4fd8433fbee2c37c7d
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Jun 24 03:57:56 2017 +0300
+
+    fixed-lib-inc-for-web
+
+commit 40205cf7c3ddce8493e75f404b527e6e1d25a1bb
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Jun 24 03:55:01 2017 +0300
+
+    maint
+
+commit f315798417e7fc81ace8a5aa0d9b3d6d0f31ef9a
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Jun 24 03:28:45 2017 +0300
+
+    fixed-web-actions-loading-for-multiple-apps-and-mod-perl
+
+commit 266f54a1187de9a4362d0eff2db962452f6aef22
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Jun 21 03:55:39 2017 +0300
+
+    files-save-fix-and-net-io-logic
+
+commit 8f4c20e1498e921c0670d48721b47421a5dc73f1
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Jun 9 03:09:56 2017 +0300
+
+    new-style-checkboxes
+
+commit 1f2d6fd5f666faa7eca06963e2500255f24aa3ee
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Jun 8 03:07:30 2017 +0300
+
+    grid-file-links-and-context-menu
+
+commit cf8b5646bde12eafc279e05241e55d234a3ebe3d
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue May 23 19:24:28 2017 +0300
+
+    fixed-file-image-names-in-grid-and-view
+
+commit 9c689bbc101dfd0c9593f3dd097c089030995740
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon May 22 03:21:48 2017 +0300
+
+    file-io-web-fix
+
+commit 9127c07e53b2beca4f4c687b88efb981e92376a7
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon May 22 03:21:24 2017 +0300
+
+    filter READ accessed fields for selecting "*"
+
+commit e16b6782de90b27caa4eee3f0847ceda816fd881
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri May 5 05:00:22 2017 +0300
+
+    de-files-has-owners
+
+commit 09b1824602a4ad6cd7697a4f840e760a94306c24
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri May 5 04:55:19 2017 +0300
+
+    file-upload-and-download-fixxed-but-needs-new-web-reactor
+
+commit c45048ca579966dfa1401cf6b6484e11890dc635
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu May 4 04:15:48 2017 +0300
+
+    fixed-file-upload-form-and-status
+
+commit 7c97175e426de85b0514cf693fb397abe629f40e
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed May 3 05:57:15 2017 +0300
+
+    web-client-upload-and-core-fixed
+
+commit c51f58aee80fa65d78129e215f98d9995fa9d566
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue May 2 01:18:36 2017 +0300
+
+    -- File IO at server side and client API fixed
+    -- moved to automatic reshaping of Records (User and Session)
+    -- added DE_FILES table, but still need to fix fields grant/deny inheritance
+
+commit c73e2c2fc7c846e4827f83514435f828144afdb0
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon May 1 15:54:52 2017 +0300
+
+    -- FILE save/load support in server side and client API (still not tested!)
+
+commit c1cb2b83776e55f5237fe1807c168856a4d1a99e
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon May 1 02:54:45 2017 +0300
+
+    -- decor-print-des.pl: gets -v (verbose) flag and terse output as default
+
+commit 9ab72c4b82bac4a3aa74a6a743ae6ddff8efd989
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon May 1 02:29:26 2017 +0300
+
+    -- TABLE type reshaping of DB::Record objects
+
+commit 806d783998697a235e7c595853353775c7cc1846
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Apr 30 16:30:09 2017 +0300
+
+    -- LINK and BACKLINK are now designated data types, not attributes
+    -- TABLEs now can have TYPE, to bind for specific functionality
+    -- added initial support for FILEs
+
+commit fe16982cffd1c912be6b6ad8a161a70543f89b91
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Apr 19 03:56:45 2017 +0300
+
+    do-multiple-ids-support-ok
+
+commit f9c4166736f5603c800243348d262d719e7e28f3
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Apr 19 03:37:54 2017 +0300
+
+    grid-checkbox-do-ok-do-action-support-for-dos-list-pending
+
+commit c80c8c60dfa068f4fdc381591db0bb42a552cb60
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Apr 19 03:06:51 2017 +0300
+
+    initial-grid-do-support
+
+commit c77f54eb7f200ca7d9c3f4bb7b436b313d12156b
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Apr 19 03:03:11 2017 +0300
+
+    fixed DOs access oper to EXECUTE
+
+commit 13c1410460ffc32edebe26007f21781455663195
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Apr 16 04:07:26 2017 +0300
+
+    common-shared-table-and-categories-class-descriptions
+
+commit ebce1628fdf22d750c4294d3efd9c0bc746e92e3
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Apr 15 03:10:59 2017 +0300
+
+    improved-form-fields
+
+commit 58be6fd906c9ed53f9fba9ac8119406eeb4d115b
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Apr 14 05:19:36 2017 +0300
+
+    forms-dev
+
+commit 074d51cea5cf26e08918f078bb26ac5a402cc710
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Apr 12 03:14:47 2017 +0300
+
+    forms-initial-and-rec-support
+
+commit d9fed084fa7cd4be275340c33df3ca06fb430851
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Apr 10 04:39:12 2017 +0300
+
+    return-file-support-for-insert-update-recalc-methods
+
+commit 53a6895fda1b271e1af4a1e94941f08d3ca2b7a5
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Apr 10 04:20:44 2017 +0300
+
+    clinet-proto-return-file-support
+
+commit 55d22d1d86ca4c233f7a9a26ea73decfbb4e4ff8
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Apr 7 04:41:09 2017 +0300
+
+    initial-do-category-support-including-web-client-etc
+
+commit c4af495a3e77d8cd26c1c0ca76a47d9899da638a
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Apr 2 00:07:33 2017 +0300
+
+    fixed-create-id-value
+
+commit 63312f43bf5b55247c1f1f31e601edc09a225f0d
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Mar 31 03:21:52 2017 +0300
+
+    tuned-grant-deny-permissions-support
+
+commit f3a81e0e1cba693b7035bf2afdfb2a583d7c29bf
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Mar 30 05:01:17 2017 +0300
+
+    initial-support-for-link-filters
+
+commit cbb2289af18faea8a4f8e7d4d54a2a035af2ffda
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Mar 30 04:15:58 2017 +0300
+
+    added-default-log-dir
+
+commit 6728d3f63ecd37ff1648e6bf1638a873f7085179
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Mar 30 03:59:45 2017 +0300
+
+    -- fixed reacord load bug
+    -- added primary group support for system fields _OWNER/UPDATE/etc.
+
+commit e07223c760514f6f19d0eda911c0f10a72939d97
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Mar 30 03:35:20 2017 +0300
+
+    added-primary-and-private-user-groups-and-user-session-records
+
+commit 14eb101a8336832c034830d6e5768503d78be456
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Mar 30 03:13:05 2017 +0300
+
+    maint
+
+commit 4beefff5a65cde7440d6b12307271fec59c92eec
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Mar 30 03:01:24 2017 +0300
+
+    hide-sys-fields-from-view-preview
+
+commit 96687346da6193df2b0557812c3297703a6222ec
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Mar 30 02:59:25 2017 +0300
+
+    export-user-list-to-client-upon-begin-hide-sys-fields-from-grid
+
+commit cb067dbdecc72122fdcc97af8028958533e2aa07
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Mar 29 23:42:34 2017 +0300
+
+    remove-wrong-modification-flags-in-record-path-resolve
+
+commit 155f2fd8c7a79b7ae0b77c7e9ea5eca71e842072
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Mar 29 03:55:02 2017 +0300
+
+    -- fill all system permission fields with user/profile active group
+    -- FIXME: TODO: get/set user/profile active group
+    -- web: edit.pm etc: shows insert/view/select/update buttons for linked fields only if allowed
+
+commit e79cb32608987cc032967944f72c22828d758e19
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Mar 29 02:59:15 2017 +0300
+
+    removed-debug
+
+commit edd6cf0f18de8db9d988e9b1dd4bdfb9d043cb51
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Mar 29 02:50:50 2017 +0300
+
+    check-for-oper-names-in-permissions-and-added-origin-locations
+
+commit 4d5ee63025f6a703b1b6354e4ae5ee68cb81f0e6
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Mar 29 02:35:22 2017 +0300
+
+    hide-grid-insert-update-icons-according-to-permissions
+
+commit a166c909092c614bc87a8929238eb7bdea67ea97
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Mar 27 03:55:59 2017 +0300
+
+    always-check-link-backlink-table-des
+
+commit 178ed952bc6d976972004908172fac45320e167c
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Mar 27 03:52:29 2017 +0300
+
+    added-insert-for-main-menu-and-grid-read-access-message
+
+commit 5bb222468b3863fe8d7cc6e93de1ec1f4a5198cb
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Mar 27 03:34:53 2017 +0300
+
+    fixed-reserved-ids-link-to-usr
+
+commit e9165bafa6ba5397d6811ba73b4132a13628d01b
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Mar 27 03:32:36 2017 +0300
+
+    -- fixed reserved ids table des, missing link field
+    -- check table des in debug mode for all link and backlink tables/fields/keys
+    -- removed raw table cache after successful preload of all tables
+
+commit 0072151b2c451982f741fa98da47004458473a5a
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Mar 26 14:59:40 2017 +0300
+
+    debug-group-message-in-profile-check
+
+commit 717c5d824d1e6030fa9605075b959b3442ed236d
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Mar 26 01:51:10 2017 +0200
+
+    docs-link-typo
+
+commit e992dd750baaee16ac131c7a0c124200939d7c26
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Mar 26 01:50:32 2017 +0200
+
+    docs-link
+
+commit 0a096d9fd7aa421e21d0f2e9b8fb3d6b96d5ae72
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Mar 26 01:44:40 2017 +0200
+
+    added-del-and-add-groups-to-core-tools
+
+commit d7e65bee6950c358cc822a692df20fd7c762a4ff
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Mar 26 01:14:25 2017 +0200
+
+    web-auto-login-option-for-anonymous-users
+
+commit 0d9785f22dec33f3495899bbff8bd6ef08a51814
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Mar 25 02:31:24 2017 +0200
+
+    delete-operation-added-to-db-io-and-record
+
+commit 23c4980c9bc5ad50f994aaeffd30314d8a73091f
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Mar 25 01:28:23 2017 +0200
+
+    menu-errors-are-not-fatal-now-and-added-colored-log-filter
+
+commit 070e0173bded307b0c43246b0ca02faca37e6197
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Mar 25 00:39:03 2017 +0200
+
+    menu-grant-deny-processing-fixed
+
+commit 8fc5322bb5a71c12570ce066c7d1a974600f2205
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Mar 24 04:13:33 2017 +0200
+
+    added-svg-icons
+
+commit b97f2825647db3d15ac2f49cfdd15cb25be15d1d
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Mar 23 14:04:08 2017 +0200
+
+    added-app-level-user-lib-include
+
+commit 9e052e5143f97a732293c71b1391a13b5eeb7cfa
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Mar 23 05:52:00 2017 +0200
+
+    using-extended-reactor-preprocessor
+
+commit 1a1feb6b0a7f9e3890b7b0c4224cbd2f91077d5f
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Mar 19 23:26:28 2017 +0200
+
+    testing-back-button-on-errors
+
+commit 83ec353701259d6430ceabe143850580f3236990
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Mar 19 23:22:08 2017 +0200
+
+    insert-new-record-link-for-empty-grids
+
+commit 7a8598769692c2de630655c520cd90d46df36317
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Mar 19 23:18:35 2017 +0200
+
+    docs-for-table-methos-added
+
+commit 0361938560ee7421295adf9b22f987f56766da2e
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Mar 19 23:04:08 2017 +0200
+
+    fixed-wrong-method-on-insert
+
+commit 3ed0f80802246f3fd8670518d389d3b42fd26d95
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Mar 19 23:00:39 2017 +0200
+
+    shared-types-default-map-and-default-values-in-record-create
+
+commit a8ccb8f8634d5ef758346e9260ea42251ef1094e
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Mar 19 22:25:30 2017 +0200
+
+    maint
+
+commit 7a7a89377e9bc9c2fde1018a9dd89729f1e9e0ea
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Mar 16 04:28:42 2017 +0200
+
+    edit-link-combo-formatting
+
+commit ac325fdcc9a595a71f8b2a09dcb5c90965c17d43
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Mar 16 04:01:58 2017 +0200
+
+    web.combo-option-and-preview-linked-fields-format
+
+commit 5817627aa324dfc3c2505163c2bbec94c59d533d
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Mar 15 06:51:45 2017 +0200
+
+    missing-test-base-bundle
+
+commit e0d6a3afc0f94454288d7a6171ee370d0c979077
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Mar 14 03:35:54 2017 +0200
+
+    md-ss
+
+commit b32d47e5913d1e77e490b5e822c2800523431cd2
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Mar 14 03:33:04 2017 +0200
 
     - initial public release
-    - previous changes descriptions are inside the git repository
+    history-file
+
+commit be929970e5cb0efb54c372580b7fd6b57aa9ffcf
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Mar 14 03:30:19 2017 +0200
+
+    md
+
+commit 6971f398b2087b9efed476a0c08d4c092eabaf80
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Mar 14 03:09:49 2017 +0200
+
+    readme.md
+
+commit b6add371e91dcf459bcb68a2c2f63c241620bc73
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Mar 14 03:04:01 2017 +0200
+
+    moved-docs
+
+commit 7f219f9b462feccc8b5476b354b8a0b460c7813c
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Mar 10 03:15:33 2017 +0200
+
+    more-docs
+
+commit fa010f569a7233acb89ca3acdb2a5b015f9e3b55
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Mar 10 01:12:47 2017 +0200
+
+    ss
+
+commit 6afb312f0c82acd1ee58205c3e46b14f6aaf3f31
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Mar 9 03:05:57 2017 +0200
+
+    screenshots
+
+commit 04aa37e2b3a5a7f33b298700a9acf13cc4ae0ca5
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Mar 9 03:03:56 2017 +0200
+
+    docs
+
+commit b8ab39a14e793d6f4afe90cd33021016b2842f47
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Mar 7 13:51:17 2017 +0200
+
+    grid-navi-table-initial-test
+
+commit 7297338a4c093a41a4c2357c406ec1bdda3c25b1
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Mar 7 13:31:33 2017 +0200
+
+    grid-mode-select-added
+
+commit e9c514f37fad815b15212f27950fd4aed17a941b
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Jan 22 05:31:28 2017 +0200
+
+    describe-grant-deny-cleanup-remove-dual-universal-load
+
+commit 8da4cf6c86343eb234b3c966c972a0bd771622af
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Jan 21 05:50:27 2017 +0200
+
+    * MANUAL type of DB::IOs to disable all AUTOMATIC features
+    * WEB edit and view modules are fixed to show error if all fields are forbidden
+    * total rewrite of the ACCESS policies support, including order, isa and universal deps
+
+commit 3f3d939bfce9ebbb29ab4823f819a703f6caf194
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Jan 18 05:30:39 2017 +0200
+
+    todo
+
+commit 54d066667d69905a100178ebfb6d59f604351d67
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Jan 18 05:28:17 2017 +0200
+
+    * fixed admin menu
+    * added backlink to login sessions in de_users
+    * fixed css for checkboxes and pointer types
+    * added more options to dropdown menu for backlinks in grids
+
+commit 4102c385bb198d03cc630e251f031a6e26612575
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Jan 18 05:27:19 2017 +0200
+
+    * added base records support (zero-id records) in all tables!
+
+commit f6b66cadb91abb60c2e9e1ed17b561ccaa6f4fec
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Jan 18 05:26:26 2017 +0200
+
+    * added user-pwd command for changing passwords of existing users
+    * added more feedback on what has been done
+
+commit 05a654052f799f71429a39e75bb42561346988ef
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Jan 17 06:09:00 2017 +0200
+
+    new-multi-stage-checkboxes-added
+
+commit 0efe3a78177af93db897824b8ad59680c5e6696a
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Jan 14 04:44:05 2017 +0200
+
+    * removed old code
+    * 'modules' are renamed to 'bundles' to avoid collisions with web modules
+
+commit 049bd2ec8d291fbad6e6252934a2aa6a604c7e80
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Jan 14 03:03:12 2017 +0200
+
+    web-grid-more-less-rows-controls
+
+commit 4a03fed31689acaae7d631fbcf708d7283096860
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Jan 13 04:46:52 2017 +0200
+
+    web grid module:
+    
+    * navigation strip, first/prev/next/last page
+    * more/less rows per page
+    * row counters / total count
+
+commit 11b80d525dd76a0fd1fcee9d573e5b7a5272c8ab
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Jan 12 04:48:26 2017 +0200
+
+    css-fixes-and-colors
+
+commit 55b42d742fac57aba185cf2c5eefb6776d5f073b
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Jan 10 03:45:12 2017 +0200
+
+    table-def-include-docs
+
+commit 416ca83b7096c76082fb58af72222fdf82385769
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Jan 10 03:35:24 2017 +0200
+
+    * improved @include (or @isa) directive in table .def files
+    * added skip field in include/isa argument list
+
+commit 0172f09884ce2e2a1a55dd349b3a7acfdcb6b819
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Jan 10 02:22:17 2017 +0200
+
+    removed-dumper-prints-in-rebuild-util
+
+commit 345d0a6135c44fce2354e2d3fe43a51efa5bce4f
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Jan 10 01:57:44 2017 +0200
+
+    * web main_menu and menu modules now sort items in proper order
+
+commit 61fd3e987e536d0d6777b925038867bc331f5997
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Jan 10 01:52:48 2017 +0200
+
+    * Decor::Shared::Types::type_set_format() returns old format
+    * decor core server returns random references on error (to pinpoint backend errors in log files)
+    * HOWTO has demo for calling type_revert() to convert from Decor to DB native type data
+
+commit 28261cbf1f0a2b95b518758908759331adc40632
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Jan 9 04:44:14 2017 +0200
+
+    maint-todo
+
+commit f5c30758cd57eeeb577029768d9438962e14746d
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Jan 9 04:39:45 2017 +0200
+
+    maint
+
+commit 5f161f44a3dcaf77f36c2d2f6b0bdfa86b42bf6a
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Jan 8 05:15:06 2017 +0200
+
+    fixed-table-isa-include-logic
+
+commit 2050405b57af06ebd3c55230b9b6925645a5d33b
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Jan 3 05:27:18 2017 +0200
+
+    happy-new-2017
+
+commit 929ae0b0d03491ba98aec2d90c6173c9938a26e5
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Jan 3 04:27:10 2017 +0200
+
+    fixed-backlinked-fields-links-for-insert-update-view-preview
+
+commit 2351e7de98259a3a7d7c1d9266b978b250af2147
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Jan 3 04:06:37 2017 +0200
+
+    core-io-and-client-api-count-support-and-backlinked-records-count
+
+commit 13f95eece6caa8b458ef6b69131c475c7b85f684
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Jan 2 04:31:13 2017 +0200
+
+    more-support-for-linked-and-backlinked-records
+
+commit fc090c811ebc18d1e638e3091714ce066dec1bc8
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Dec 31 06:00:01 2016 +0200
+
+    view-edit-linked-records-support-add-new-and-view
+
+commit e3d5bdf3baa1a7a1dd260f3a082c10f90539f77e
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Dec 30 04:43:48 2016 +0200
+
+    edit-forms-linked-fields-data-format
+
+commit 67442ac9aec8a2ed749ccacb964ee4fa81210f8c
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Dec 30 03:33:41 2016 +0200
+
+    edit-method-errors
+
+commit 8a6388e69cf2395638286b839455049788b672ec
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Dec 29 20:55:51 2016 +0200
+
+    first-working-version-of-recalc-and-code-methods
+
+commit 04df9de2ce8c5b4a97d84e1c126c8d53d0a09b4d
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Dec 29 05:42:32 2016 +0200
+
+    unstable-read-only-records-recalc-and-methods-support
+
+commit bbea07b4ec92ef3d152635680155a529f51cd238
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Dec 26 17:50:04 2016 +0200
+
+    log-level2-cleanup
+
+commit 1279b9ade4ad4ed15267a278ee73322f07d74c21
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Dec 17 04:12:51 2016 +0200
+
+    menu-layout-2lr
+
+commit 15805adf9c7cc8f64ed0f6ee6ec7639988b0aeef
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Dec 16 04:29:42 2016 +0200
+
+    fixed-button-translation-labels-and-added-hint-arrows
+
+commit 2428c15dd4a7d83b3afd8a1acc3c33dcc47c66b4
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Dec 16 04:09:04 2016 +0200
+
+    added-default-spec-for-real-types-and-set-current-date-time
+
+commit 6e6290e1ae0440b5f5569ee276a82911dafb679c
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Dec 16 03:39:17 2016 +0200
+
+    web-page-sessions-path-added
+
+commit 8f20055a70d27ee9603917860a097e67ceaa3d77
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Dec 15 04:49:42 2016 +0200
+
+    new-menus
+
+commit aa1937b9f7f05048516d032a94e3543930ad2bc8
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Dec 12 04:51:54 2016 +0200
+
+    web-grid-linked-field-menu
+
+commit ff0d5a1b4336100719d9c35e0f39d8dd5f606d69
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Dec 12 04:06:29 2016 +0200
+
+    extra-options-for-web-grid-rows
+
+commit 35d644f426281f5f76bcddf72890e36ca957f40a
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Dec 12 03:58:53 2016 +0200
+
+    extra-insert-processing-added-client-api-allows
+
+commit 165f94af38876a129497642487c5e5c16e2f3ff5
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Dec 11 04:34:31 2016 +0200
+
+    core-web-maint
+
+commit 6d4d094e0e67ef67dd6cb97166896ac8370d15a4
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Dec 11 03:18:05 2016 +0200
+
+    web-advisable-system-lazy-load
+
+commit 0e95acc9856b8897230ef766fa6ce662e42b02f6
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Dec 10 03:43:42 2016 +0200
+
+    web-maint
+
+commit 1ae19c9b4f173e6a1717a6abb2baf34505bf643a
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Dec 7 04:33:33 2016 +0200
+
+    field-link-grid-resolve
+
+commit 766e1b2f0abf7e1ccc94327c3e4efab93cbc7079
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Dec 7 04:03:18 2016 +0200
+
+    grid-expand-field-paths-and-api
+
+commit 9a93b80899f831ce96d25b12b18f66756bc9aa2d
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Dec 4 04:00:45 2016 +0200
+
+    web-edit-set-current-date-button
+
+commit 148fb29cf53d7c3629f16469071917dc1b3085ba
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Dec 4 03:46:35 2016 +0200
+
+    session-expire-time-advice-support-reactor
+
+commit f4b4ee7d3efad69db56242b6945aa8e7e447e417
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Dec 4 03:45:55 2016 +0200
+
+    session-expire-time-advice-support
+
+commit dfa167c56501ea7fef3452f5ca49f97c9a1fc3db
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Dec 4 03:45:26 2016 +0200
+
+    types-fix-for-empty-date
+
+commit df4c718de3c89b93823ef2ce59faf662d15a552f
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Dec 4 03:43:46 2016 +0200
+
+    app-config-expire-time-and-more-fields-types-test
+
+commit 13708db49433a5b644baebf8705d982247a77f87
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Dec 4 03:42:42 2016 +0200
+
+    session-expire-time-advice-on-begin
+
+commit 49f263ec9d9640bb6ac3231de873803ae7f33c55
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Dec 4 03:42:06 2016 +0200
+
+    app-config-api
+
+commit b2fb50d9064c7f99326602c2db82541761ca23bf
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Dec 3 05:31:05 2016 +0200
+
+    web-edit-int-bool-added
+
+commit 4247dc446dd131295b13bc7d8ad6776f23cd217a
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Dec 2 04:34:10 2016 +0200
+
+    fixed-multiple-subs-problems-and-added-commit
+
+commit ecf569c0e50a16decd76b51e46c785072c8bfbbe
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Dec 2 04:00:56 2016 +0200
+
+    shared-net-client-next-id
+
+commit 697dee0f4e9e20bdd1d3b70dd746592afc990ab9
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Dec 2 03:54:54 2016 +0200
+
+    web-preview-action
+
+commit aeb52cd5ff7278f1fcea1ee17ba57b8f2f0222b8
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Dec 1 04:37:46 2016 +0200
+
+    web-maint
+
+commit 538872a81b26fa6a6ee40cc400a873bcd003edc8
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Dec 1 04:05:24 2016 +0200
+
+    web-edit-first-working-version
+
+commit 1d2526ada899bb0222e1c2953feda394ebfce0de
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Dec 1 02:50:34 2016 +0200
+
+    maint
+
+commit 4e441ad07b2056982d998471e96ae81a66de65b9
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Nov 30 04:30:54 2016 +0200
+
+    utime-fields-details-text
+
+commit dbdf4d38e9188eca96fc00ae94d549c5ae5a4511
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Nov 29 04:31:16 2016 +0200
+
+    more-web-formatting-and-common-views
+
+commit 8f20b8ecce58a13e0062095eadd53ca787ba4202
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Nov 28 04:53:36 2016 +0200
+
+    web-grid-action-maint
+
+commit 3ce838048ba32669c0ad2dc7aff41f4e712c6794
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Nov 28 02:34:18 2016 +0200
+
+    added-client-table-field-description-class
+
+commit 618ae154486cd53ba8db46f1cf4d97c48c7d46fd
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Nov 28 02:22:12 2016 +0200
+
+    des-attributes-with-paths
+
+commit e467ddb9e13abceabed85eac658334d3bd7baf2d
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Nov 25 04:15:50 2016 +0200
+
+    web-edit-action-progress
+
+commit 4fb1d8046ee03050d8ef71bd5ce7c02b5a1501d3
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Nov 25 03:59:01 2016 +0200
+
+    web0edit0action-progress
+
+commit 02428ba3abee8aea831c5c631c767bf3b3483118
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Nov 18 02:52:39 2016 +0200
+
+    maint-edit-web
+
+commit 4eb7a69c19027fcefccf76339d0eabeb70ab8769
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Nov 16 14:32:05 2016 +0200
+
+    web-css-maint
+
+commit fc53be9c41caf359ce51b13bf3b7586c851a9282
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Nov 16 03:35:56 2016 +0200
+
+    web-edit-initial
+
+commit be81edee038745b6365383059cd7a363cb504128
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Nov 16 02:55:24 2016 +0200
+
+    web-action-view-and-js-css-fixes
+
+commit 98e7e03068b4e0b887edbf398bfcc526b6b88580
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Nov 15 00:53:43 2016 +0200
+
+    maint
+
+commit 26de4a905738cc76eb4e6442bb25a76a76c04b6e
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Nov 14 03:57:39 2016 +0200
+
+    core-subs-select-handle-with-simple-counter
+
+commit 80a26c4343b34cea1062c38ea76c36b6c6d12e36
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Nov 14 03:49:09 2016 +0200
+
+    io-limit-offset-client-order-and-group-by
+
+commit 5c5a8a607d0997992458c72ab5f5c27dd17367d6
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Nov 14 03:17:36 2016 +0200
+
+    fixed-des-sections-order
+
+commit 7af8a99e46912448859483a36b297985c8eb2f92
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Nov 14 01:47:33 2016 +0200
+
+    maint-web
+
+commit 4548466035d8454f7aa4c7660548938ff454062d
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Nov 10 03:17:29 2016 +0200
+
+    web-menu
+
+commit 5dec51243482ba8e83b1e427bd400e474c0fe030
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Nov 10 02:44:26 2016 +0200
+
+    html-login-session-errors
+
+commit c524adb275f79a577482bc6aa94750baf90b3ccf
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Nov 7 04:57:13 2016 +0200
+
+    web-login-logout-cycle-and-core-tools
+
+commit e06722ca90b9942f60d3ea346787dae62f5a22c4
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Nov 5 04:54:53 2016 +0200
+
+    web-improved-init
+
+commit 47f8506d909857ed069dacf06d67a7ff6542f979
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Nov 5 03:29:29 2016 +0200
+
+    init-web-setup
+
+commit 8e6a0921d3ffc2874a45a66d0b36dd178f12339e
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Oct 28 03:08:57 2016 +0300
+
+    init-web-run
+
+commit 55d03b7afcffb0afb0f4ddb1dc2ec41aeb565513
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Oct 27 02:18:30 2016 +0300
+
+    subs-net-client-timeout-added-code-and-web-init
+
+commit 93311dd041b14c463235eb2f45cae9040ad6c1fd
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Sep 7 05:58:28 2016 +0300
+
+    maint-test
+
+commit 71c4e47b95e00c9c19618962f9ba4c55e324b628
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Sep 7 05:48:41 2016 +0300
+
+    net-server-test-client-maint
+
+commit 25206885df6699e5be176f7847b8cea9c2104f87
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Sep 7 05:42:53 2016 +0300
+
+    fixed-net-client-maint
+
+commit 47025949e3e7487a338270f07f60d119c11bfa52
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Sep 7 04:42:28 2016 +0300
+
+    shared-net-client-api
+
+commit 914b4f51c4e892d8037813e2165ecef7c55bab2d
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Sep 3 04:00:20 2016 +0300
+
+    subs-check-access-todo-hints
+
+commit fc7a13d35d0655ae54ecd29695a7a5979afa28e9
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Sep 3 03:58:33 2016 +0300
+
+    subs-insert-and-update-and-filter-to-where
+
+commit 9f720bc5ed25ab9a3438c478315881f1d0b444a0
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Sep 3 03:36:18 2016 +0300
+
+    decor-core-db-record-select-first1
+
+commit bb32e2af5c673ea40a97771dce06a148d38b9d9e
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Sep 3 03:32:45 2016 +0300
+
+    subs-get-next-id
+
+commit ef5050f38fa9728161eebca7c6523ab56bf0667e
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Sep 2 05:09:00 2016 +0300
+
+    subs-select-filter-data-types-hash-inarray-simple
+
+commit 2d8f56076ff3a6c50c9d261d57f353c62f264900
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Sep 2 04:47:46 2016 +0300
+
+    subs-select-fetch-finish-and-subs-testing
+
+commit 658124754f910b6bb083cd47b4026f2a1d66e690
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Sep 1 05:12:48 2016 +0300
+
+    fixed-grant-deny-in-tables-and-menu-des-2-cleanup
+
+commit bbc7d7d129be3c0941855abb5989c772e2450be2
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Sep 1 05:12:22 2016 +0300
+
+    fixed-grant-deny-in-tables-and-menu-des
+
+commit c5838e0a09a53315925563410015ac4a6c520db8
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Sep 1 04:25:31 2016 +0300
+
+    fixed-postprocessing-menus
+
+commit abf6c9c260e1667bbea037170f721ade4f1dcdc4
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Sep 1 04:03:39 2016 +0300
+
+    implemented-menu-api-and-improved-describe
+
+commit 3332d3e1611895a1e55c0a361e9ee332a199ca7d
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Aug 31 05:29:01 2016 +0300
+
+    more-tests
+
+commit 94d8d6499c8d0a0a1bf35e9325e7cafee0eed21d
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Aug 31 05:28:49 2016 +0300
+
+    subs-describe-initial
+
+commit f11c2dceea6db385676c3448c4a7792f5dd6ca50
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Aug 30 04:55:52 2016 +0300
+
+    fixed-login-session-remote-net-protocol
+
+commit 9729fd490da908861e6dc22a76bbbcd670add98e
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Aug 29 04:58:27 2016 +0300
+
+    subs-login-sessions-xtime-check
+
+commit 6785033ed3a8a3b150386e41295042b19724f76f
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Aug 29 04:37:42 2016 +0300
+
+    subs-login-sessions-begin
+
+commit 2f9a87eef8b6175ce2023f859c56669938279075
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Aug 27 06:40:23 2016 +0300
+
+    subs-prepare-begin-test
+
+commit 95f00bdf2bfdfb3b89898d87fde2c4aa0ba6056b
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Aug 27 05:56:06 2016 +0300
+
+    subs-progress
+
+commit c32e1931c4efce53ef6f6dbf361af3b9bb0467bf
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Aug 25 04:22:16 2016 +0300
+
+    subs-begin
+
+commit 00093ad80d15643915ebe31c7aa76560761d61f4
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Aug 22 04:32:22 2016 +0300
+
+    init-subs
+
+commit e058b11956ba264ac78545be3eb40cd20b9916c4
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Aug 19 04:49:08 2016 +0300
+
+    code-loader-more-tests
+
+commit 5883f389d02e2e852b880c9c8ed3cb935c21a637
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Aug 19 04:48:19 2016 +0300
+
+    added-sereal-protocol-serialization
+
+commit f60b4afb12626970471c2ef0040d68ddb4aeff30
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Aug 16 04:37:49 2016 +0300
+
+    fixed-net-comm
+
+commit e14f94543f1d493b44513c70cace5f527ce12aa7
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Aug 16 03:46:00 2016 +0300
+
+    net-server-fix-tuning
+
+commit bc19f83b7646da5570fe0f2cd657ad702b710e8f
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Aug 16 03:31:01 2016 +0300
+
+    init-core-net-server
+
+commit acb7db84c629d4c2558b5b9119ef61a2c643c5ff
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Aug 14 06:06:13 2016 +0300
+
+    core-net-server-class-init
+
+commit 9f6f52dba1ddf779d7ac8638466a2b599b6f1b5a
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Aug 13 03:39:09 2016 +0300
+
+    implementing-net-server
+
+commit 8a0c15b7d3a8e286b876a0b50c0b08b6c1af168b
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Aug 12 05:28:39 2016 +0300
+
+    core-log-fixed
+
+commit 02fd3dbc95efea5a6dc2701f68d06333a4661391
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Aug 11 05:34:37 2016 +0300
+
+    net-protocols
+
+commit d418916b182d1b1ebd42576c8c26238eef7dcc35
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Aug 1 03:36:17 2016 +0300
+
+    maint
+
+commit 3da85d7a24cc9016a3222da8caf9b175a0b8feae
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Aug 1 03:36:02 2016 +0300
+
+    fixed-grant-deny-rule-parsing
+
+commit e0f5e8e15919af3502c6e290f2aab8902730b09d
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Aug 1 01:24:23 2016 +0300
+
+    stabilized-grant-deny-syntax
+
+commit 68f6807eb9b2dccf7790502ded39434903fa21c6
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Jul 27 02:41:47 2016 +0300
+
+    db-io-ownership-groups-and-profile-cleanup
+
+commit edf123e903e0460fb8ee2cf4c46a9c62caea4740
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Jul 24 03:21:59 2016 +0300
+
+    improved-profile-and-db-io-profile-taint-checkss-version-year-bumps
+
+commit 6ca9d28eddff190706bf4449fa6b962fbc9539a3
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Jul 23 05:07:38 2016 +0300
+
+    allow-deny-link-missing-opers-added-profile-taint-checks-to-db-io
+
+commit ff5ca694782d0ebdc249c614738bb7443c7f56ec
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Jul 12 03:23:38 2016 +0300
+
+    fixed-taint-fr-db-record-and-testing
+
+commit c3c93036c0fa3f6ac56c1ebad4a769697a3736c1
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Jul 11 03:06:01 2016 +0300
+
+    profile-and-taint-checks-implemented-for-db-record
+
+commit a82c46d9d88809d2ae090bb0b4c30006701bf878
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Jul 10 03:44:33 2016 +0300
+
+    initial-taint-and-profile-checks-in-db-io-record
+
+commit bf257c85c2d38dfbfe9fd6d3a4ea23d1e0bd4d19
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Jul 8 04:07:23 2016 +0300
+
+    copy-taint-maint
+
+commit 621f2417faf9992cf4eb8c8eb695fb4ea02823ca
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Jul 6 00:33:33 2016 +0300
+
+    db-io-orderby-and-groupby-clauses-support-for-linked-fields-fix
+
+commit 79822ffed53a00f68f29d372f428e82497b0c442
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Jul 6 00:20:29 2016 +0300
+
+    db-io-orderby-and-groupby-clauses-support-for-linked-fields
+
+commit 887ecf108cd54872291ea589cdbcc803eafc5670
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Jul 5 23:49:50 2016 +0300
+
+    check-locked-rec-table-id-fix
+
+commit ef0dd57fbf5015f7965d9a681392e5a82b5dd181
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Jul 5 20:17:50 2016 +0300
+
+    db-record-lock-to-table-or-table-and-id
+
+commit 89f62a266d36d7cebcd21586dba603bf82f09757
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Jul 4 03:46:40 2016 +0300
+
+    db-record-select-and-next
+
+commit bb3eb3e0e4de06fa82e9d6bec8a037e5608e9d33
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Jul 4 03:14:34 2016 +0300
+
+    added-where-anchor-resolve
+
+commit 7635204166041725fb53a012bb8b77096f50fc89
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Jun 30 03:49:43 2016 +0300
+
+    row-access-checks-and-more-taints-2
+
+commit fef352a558929df91a048ddb736f6959cd82d3cc
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Jun 30 03:46:13 2016 +0300
+
+    row-access-checks-and-more-taints
+
+commit e0d3bb85a277c14177da6cd5c40287e47ff2f4bf
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Jun 29 04:21:25 2016 +0300
+
+    initial-profile-and-taint-support
+
+commit 306d98639ed2ec2b25a62e4ede01a522ec3eb6c6
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Jun 27 20:49:27 2016 +0300
+
+    profile-maint
+
+commit 7fece6d45456badd92455dd7d71cfd277afb0ebe
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Jun 25 15:24:46 2016 +0300
+
+    todo-and-skipping-base-records-in-record-save
+
+commit 783cd199410fd41fe7097f8f954a62c13d47f1f0
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Jun 25 04:01:02 2016 +0300
+
+    record-save-tuning-avoid-not-needed-updates
+
+commit 2fafecb17b01d834562a5c4b451afc6e2ad5a26c
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Jun 25 03:35:19 2016 +0300
+
+    record-save-implemented
+
+commit dba233a7b00d0688a124d423c4baff5db1d7dde7
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Jun 25 03:10:01 2016 +0300
+
+    db-record-resolve-field-initial-implementation
+
+commit eeeae01ad4438bb124d919b67e1c411fe826aaca
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Jun 23 02:56:19 2016 +0300
+
+    db-io-record-maint
+
+commit 2ab811dee725919c2d15307be49a15aca2399bf5
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Jun 23 02:22:20 2016 +0300
+
+    db-io-record-maint
+
+commit 9aa8c58805d35f4d539cc44fd88d77fc12710e3a
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Jun 22 22:24:46 2016 +0300
+
+    db-io-record-maint
+
+commit 65196afbeff3cf90c3abdd310f241054ec1e7b35
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Jun 21 03:50:36 2016 +0300
+
+    maint
+
+commit 44881de23b5f4ada0dc5fbdb2e451c22e6efbdcc
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Jun 19 16:59:31 2016 +0300
+
+    record-implementation-in-progress-more
+
+commit 428bca236d77c2a27c0a605894d910922af4b3aa
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Jun 18 19:13:43 2016 +0300
+
+    record-implementation-in-progress
+
+commit ce72bbe50e91eec1c47669598fa2ffd5b7922ed5
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Jun 8 02:40:26 2016 +0300
+
+    initial-io-record-implementation-read-write
+
+commit f6deb1871206b186f0bbf2fa12191302e715bbd6
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed May 25 20:52:24 2016 +0300
+
+    types-cleanup-and-test
+
+commit b7baad9a81345111ce88cf7cce12ac734c2729f9
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Apr 6 22:32:10 2016 +0300
+
+    passed-first-io-insert-and-select-tests-oracle
+
+commit 1f4fb6e0c587c156c1a16e4f425ec9c57eb511d2
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Apr 6 22:29:21 2016 +0300
+
+    passed-first-io-insert-and-select-tests
+
+commit 1b72c5f2295b38796c6d83bbcd608e07821e8488
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Apr 5 02:55:17 2016 +0300
+
+    added-io-sequences-nextval
+
+commit 79e4ad542d99c02112278231e03af0d2d66f14ea
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Apr 4 20:33:00 2016 +0300
+
+    maint-io
+
+commit 30cac3280743bc752c452d96cb73579139a0b22e
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Apr 3 03:20:57 2016 +0300
+
+    maint-io
+
+commit 7cb09ab4d352e63faf61fc97a1e27ee22bd34601
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Apr 2 15:29:00 2016 +0300
+
+    initial-io-update-implementation
+
+commit 7572806bfb54c88bc9cb9dc9ef572879ea32b166
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Apr 2 03:59:32 2016 +0300
+
+    initial-io-select-fetch-insert-implementation
+
+commit 4f49afba497c5edcc08de22b35da14b1662f6534
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Mar 30 04:53:04 2016 +0300
+
+    high-level-types-introduction
+
+commit 1733a96e02f5dcc4f20c62a802597f2806d065c6
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Mar 28 03:54:23 2016 +0300
+
+    started-DB-IO-implementation
+
+commit a7ca2294e99be4d60a8cb960a0ac10fe52075cae
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Mar 25 03:40:13 2016 +0200
+
+    add-rebuild-database-support-for-oracle
+
+commit 19ea3720236dbf16449ac50d6bd671fcea789084
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Mar 22 04:35:22 2016 +0200
+
+    rebuil-table-tool-ready-for-deployment
+
+commit 038a82f78ed733a3e481b27f1c6c2c536d4750c5
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Mar 21 04:30:31 2016 +0200
+
+    drop-create-alter-table-done-with-columnt-type-checks
+
+commit e3705386feb1533297077616f203a853e7f5cfb8
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Mar 21 03:13:18 2016 +0200
+
+    moved-description-files-load-back-to-native-describe
+
+commit e56253c3e977134eff2a3fd3943ce5e69cd9fd41
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Mar 19 03:39:16 2016 +0200
+
+    back-to-sanity-with-types2
+
+commit e03f800b9a23dba9b089f908d431dad288ef8fa5
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Mar 19 03:37:53 2016 +0200
+
+    back-to-sanity-with-types
+
+commit adc7f28ee2e238e0baeab4546ca576cfb2df44a5
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Mar 17 06:07:48 2016 +0200
+
+    rebuild-and-types
+
+commit 7d5b2861ce217a75824ef6a7849ccec0a6b1c47f
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Mar 14 04:37:57 2016 +0200
+
+    maint
+
+commit bb64b377c0985d10c3ee7e23fa3e4debdd476167
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Mar 12 04:20:11 2016 +0200
+
+    describe-maint
+
+commit a5279f13a89c8ccd355a301a71e05a725fabfbdf
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Mar 11 02:42:45 2016 +0200
+
+    restructuring-and-cleanup
+
+commit a0d8a31697d598ee4502df074bad091971f37213
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Mar 10 03:37:21 2016 +0200
+
+    main-move-in-progress
+
+commit 88cf4cb5463bd104b6b8339b8019b0bbf454ab9c
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Mar 10 02:34:12 2016 +0200
+
+    maint
+
+commit 326b1b08caf6168d2725248211c96741e9db9f41
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Mar 6 04:46:08 2016 +0200
+
+    config fixes
+
+commit 1484391bc8d08d484a861ed7359e1aba8e260ceb
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Mar 6 03:21:15 2016 +0200
+
+    des handling package fix for new des hash layout
+
+commit 2b51176732bd088a059a84133f23059325985232
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Mar 6 03:02:10 2016 +0200
+
+    testing new description hash layout
+
+commit 04761bb5a54c897b714febe809604b7925cc85a8
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Mar 5 04:10:04 2016 +0200
+
+    maint
+
+commit 343c7e379bb94af30fb0d75b1377e1a00c5361c0
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Feb 28 03:59:44 2016 +0200
+
+    added-describe-rebuild-index-and-sequences
+
+commit 8e0a6f8c6d073510d2a75a936f8b733333fce998
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Feb 25 04:11:53 2016 +0200
+
+    rebuild-pg-class
+
+commit 0b7aac9c6eb03fbb1405b7123f37378edb3fd743
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Feb 25 03:48:34 2016 +0200
+
+    initial-rebuild
+
+commit 709a5e04bb71313fb1f9d86eca3f8b45d54c77d0
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Feb 23 03:33:44 2016 +0200
+
+    native-types-revert-maint
+
+commit 67118c7a3df4a0acec13e4c5b553689bdda05d95
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Feb 23 03:28:09 2016 +0200
+
+    native-types-revert-done
+
+commit 459ddf38385bb9b9436547a4425a235f6f6a82ea
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Feb 23 03:12:29 2016 +0200
+
+    native-types-initial-revert
+
+commit ef691f3007a3aeb842f0b3944e57ba081e999b5a
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Feb 22 02:54:59 2016 +0200
+
+    initial-fix-on-time-zones-nightmare
+
+commit 5d1cf6e48cebc541f0d4eb0ce2e95aad9a4a06d0
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Feb 21 03:21:47 2016 +0200
+
+    testing-and-fixed-native-types
+
+commit 7068f05520e19616801e9fa7ec1837cc32b6a099
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Feb 20 03:11:22 2016 +0200
+
+    initial-native-types
+
+commit 9c7c9b4ef43fa0a0aa3d0a3bb2ab24a15808dcd3
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Feb 7 04:35:15 2016 +0200
+
+    maint
+
+commit 336d249a253746ec407a56dc4633273db7bec40a
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Jan 27 04:10:53 2016 +0200
+
+    maint
+
+commit 946ffd2562e5b6fa1c18d30a081c7e7f990dfe69
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Jan 20 04:38:12 2016 +0200
+
+    maint
+
+commit 15f49112c57f67af203944bc5098a9079c7f7574
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Jan 20 03:05:34 2016 +0200
+
+    added-dsn-definition-file-and-cache-fix
+
+commit d7296e1d7178f98ffd94be2795805cd35bd5d151
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Jan 18 03:26:41 2016 +0200
+
+    access-tree-parse-and-check
+
+commit a626b3959a47d0810424dad2b92786e2a3fe8bc9
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Jan 11 04:07:15 2016 +0200
+
+    added-db-io-rec-and-profile-packages
+
+commit f8ac17dceacc8da77ca362bdad52c41aeb99bf3e
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Jan 6 05:05:31 2016 +0200
+
+    maint
+
+commit 968fe434c77ff0704112673f1c7f92952e730ca5
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Jan 6 04:54:18 2016 +0200
+
+    maint
+
+commit c8e7790d6d9fa8555d08be01adfefce22be26b3c
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Jan 6 04:43:53 2016 +0200
+
+    maint
+
+commit c1f07c72e9c86ffe330f0042366e34dad34eae66
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Jan 5 04:24:09 2016 +0200
+
+    maint
+
+commit 00b5d87f824adb6d4a05d139ddb3085f151a508b
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Jan 4 04:16:27 2016 +0200
+
+    maint
+
+commit 44d2c3454ae02fdf384f9b379557efea6c6fb63f
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Jan 4 04:06:52 2016 +0200
+
+    maint
+
+commit 992639365f52a17e49e1a9dd2a795b42b507fac9
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Jan 4 04:05:22 2016 +0200
+
+    maint
+
+commit 760fae787734e62a35625aba772aad5a39f705ba
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Jan 4 02:56:13 2016 +0200
+
+    maint
+
+commit 93dd0ad0cea141c16d157a4eaad8c2df3cc792ae
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Nov 13 03:52:41 2015 +0200
+
+    maint
+
+commit 2250ea0fd12fa2f8c30502ce205b6a04a41bf76d
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Nov 12 05:16:43 2015 +0200
+
+    table-des-obj
+
+commit ce3c5df3cebb5907352935df1a7255b9baf3e10d
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Nov 12 04:52:49 2015 +0200
+
+    table-des-obj
+
+commit 2e9540dfd3818b2156aa05c605fff57405077035
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Nov 9 02:55:37 2015 +0200
+
+    maint
+
+commit 3ec1b8115ba6cc48c4a5be9a94129c069bfa03ec
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Nov 9 01:16:37 2015 +0200
+
+    maint
+
+commit a7ede07d134a45f75b5d6cc0fdac706efdfd92b5
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sat Sep 26 04:17:16 2015 +0300
+
+    maint
+
+commit 8f6928fdf11fa420c9e1c94ee9f36e682e9b3481
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Sun Jan 25 16:43:40 2015 +0200
+
+    maint
+
+commit 5ceafe48c9de2b30b82a20d6194c6f9401106c38
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Jan 22 03:13:10 2015 +0200
+
+    proto-maint
+
+commit 0c4ba418d5299d550ab8f9c15c5d6bf64d63f53f
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Thu Jan 22 01:43:38 2015 +0200
+
+    moved-to-core-and-share
+
+commit 52ff9430b0d3aadca0d0a604e2940c6bebdb8bf7
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Wed Jan 21 02:33:45 2015 +0200
+
+    proto-fix
+
+commit aa05519527222020cd8502ee3ba42de3d518661d
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Fri Jan 16 02:28:22 2015 +0200
+
+    work-in-progress
+
+commit 45931a7509677e39d69ded454c2eec2c9acedbc9
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Jan 13 04:06:49 2015 +0200
+
+    maint
+
+commit 9188eeb8bb7ddf0bbd985afdb2701fb0feb68e8b
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Jan 13 02:39:45 2015 +0200
+
+    proto-removed-suffix
+
+commit c26ac081e0c221fff92ec1cc6d39fa1e37bcf348
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Jan 13 01:41:14 2015 +0200
+
+    config-more
+
+commit 9f653c88cb60011d9cd4aa6f21968bdbac9d16c4
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Tue Jan 13 00:54:25 2015 +0200
+
+    config
+
+commit ba98f540377335e4366eaa7a33a02355aba59012
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Jan 5 01:15:54 2015 +0200
+
+    maint
+
+commit 6d3cea8439ddf8cfc25aefb35a9a96afc5735164
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Jan 5 01:12:47 2015 +0200
+
+    maint
+
+commit a3edd2da23caaf86f9cc0b0747723875ca1a1cdf
+Author: Vladi Belperchinov-Shabanski <cade@bis.bg>
+Date:   Mon Jan 5 00:14:38 2015 +0200
+
+    init
