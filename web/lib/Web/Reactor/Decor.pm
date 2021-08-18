@@ -150,8 +150,7 @@ sub de_connect
   if( ! $client->connect( $de_core_host, $de_core_app ) )
     {
     $self->log( "error: connect FAILED to host [$de_core_host] application [$de_core_app]:\n" . Dumper( $client ) );
-    $self->render( PAGE => 'error', 'main_action' => "<#e_connect>" );
-    return undef;
+    return $self->render( PAGE => 'error', 'main_action' => "<#e_connect>" );
     }
 
 
@@ -166,9 +165,8 @@ sub de_connect
     {
     $self->log( "error: connect FAILED to host [$de_core_host] application [$de_core_app]:\n" . Dumper( $client ) );
     my $status = $client->status();
-    $self->render( PAGE => 'error', 'main_action' => "<#$status>" );
     $self->logout();
-    return undef;
+    return $self->render( PAGE => 'error', 'main_action' => "<#$status>" );
     }
 }
 
