@@ -2,9 +2,9 @@
 ##############################################################################
 ##
 ##  Decor application machinery core
-##  2014-2018 (c) Vladi Belperchinov-Shabanski "Cade"
-##                <cade@bis.bg> <cade@biscom.net> <cade@cpan.org>
-##  2014-2018 (c) Dimitar Atanasov
+##  2014-2021 (c) Vladi Belperchinov-Shabanski "Cade"
+##                <cade@noxrun.com> <cade@bis.bg> <cade@cpan.org>
+##  2014-2021 (c) Dimitar Atanasov
 ##                <datanasov@ir-statistics.net>
 ##  LICENSE: GPLv2
 ##

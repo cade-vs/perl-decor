@@ -1,4 +1,13 @@
 #!/usr/bin/perl
+##############################################################################
+##
+##  Decor application machinery
+##  2014-2021 (c) Vladi Belperchinov-Shabanski "Cade"
+##  <cade@bis.bg> <cade@biscom.net> <cade@cpan.org>
+##
+##  LICENSE: GPLv2
+##
+##############################################################################
 use strict;
 use Cwd qw( abs_path getcwd );
 use Data::Tools;

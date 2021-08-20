@@ -1,0 +1,113 @@
+
+
+
+  DECOR APPLICATION MACHINERY
+  2014-2021 (c) Vladi Belperchinov-Shabanski "Cade"
+
+
+  ============================================================================
+  INSTALL
+  ============================================================================
+
+  1. clone DECOR:
+
+      git clone https://github.com/cade-vs/perl-decor.git
+
+  2. install DEBIAN/DEVUAN dev tools (perl gcc g++ make):
+
+      su root -c ./bin/install-debian-dev-tools.sh
+
+  3. clone dependencies with the easy-setup tool:
+
+      cd perl-decor
+      ./bin/decor-easy-setup.pl  .
+
+  4. export ENV as described by decor-easy-setup.pl:
+
+      export DECOR_CORE_ROOT="/path/to/perl-decor"
+      export PERLLIB="$PERLLIB:/path/to/perl-decor/easy/lib"
+
+  5. install required perl modules from CPAN:
+
+      su root -c ./bin/install-cpan-perl-modules.sh
+
+  6.  enable APACHE either CGI or MOD_PERL support:
+
+      6.1 enable CGI:
+
+          a2dismod mpm_event mpm_worker
+          a2enmod mpm_prefork cgi
+
+          edit:
+
+          /etc/apache2/sites-available/000-default.conf
+
+          and add or modify:
+
+          <Directory /var/www/html/decor-app1/>
+             ...
+             Options +ExecCGI +FollowSymLinks
+             ...
+          </Directory>
+
+       6.2 (alternatively) enable MOD_PERL:
+
+          a2enmod perl
+
+          edit:
+
+          /etc/apache2/sites-available/000-default.conf
+
+          and add or modify:
+
+          <Files ~ "\.mpl$">
+            ...
+            SetHandler perl-script
+            PerlResponseHandler ModPerl::Registry
+            ...
+          </Files>
+
+  7. (as root or web-enabled user) create WEB directory for DECOR APP:
+
+      mkdir /var/www/html/decor-app1
+      
+  8. install CGI/MOD_PERL endpoint files into the WEB dir:
+
+      ./bin/decor-easy-cgi-install.pl  .  app1  /var/www/html/decor-app1
+
+  9. create PostgreSQL database, user and setup app initial data:
+
+      # create 'var' directory:
+      mkdir var
+      chmod 1777 var
+
+      # create PostgreSQL database and user
+      createdb       app1-db
+      createuser  -P app1-user   
+      # type passord, for example '123'
+      
+      edit:
+      
+      ./apps/app1/etc/dsn.conf
+      
+      and put this content:
+      
+      -------------------------------------------
+       =MAIN
+
+          DSN   dbi:Pg:dbname=app1-db;host=127.0.0.1
+          USER  app1-user
+          PASS  123
+      -------------------------------------------
+
+      # rebuild app1 application database:
+      ./core/bin/decor-rebuild-db.pl app1
+      
+      # load static database data
+      ./core/bin/decor-load-static-data.pl app1
+      
+      # set app's root account password
+      ./core/bin/decor-core-tools.pl app1 user-pwd root
+
+  10. point browser to the WEB visible location of /var/www/html/decor-app1
+

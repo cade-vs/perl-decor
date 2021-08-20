@@ -2,8 +2,8 @@
 ##############################################################################
 ##
 ##  Decor application machinery core
-##  2014-2017 (c) Vladi Belperchinov-Shabanski "Cade"
-##  <cade@bis.bg> <cade@biscom.net> <cade@cpan.org>
+##  2014-2021 (c) Vladi Belperchinov-Shabanski "Cade"
+##  <cade@noxrun.com> <cade@bis.bg> <cade@cpan.org>
 ##
 ##  https://github.com/cade-vs/perl-decor
 ##
