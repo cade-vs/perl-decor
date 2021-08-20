@@ -3,11 +3,13 @@ use strict;
 use Cwd qw( abs_path getcwd );
 use Data::Tools;
   
-my $root = $0;
-$root =~ s/[^\/]+$//; 
-$root = '.' if $root eq '';
+# bit nonsense but keeping it to be the same in all tools
+my $root = shift() || strip_script_name( $0 ) . "/../" || '/usr/local/decor/';
+$root = abs_path( "$root/" );
 
-$root = abs_path( "$root/../" );
+print "USING DECOR ROOT FOR SETUP: $root\n";
+
+die "ERROR: NOT A DECOR ROOT: $root\n" unless -d "$root/core" and -d "$root/shared" and -d "$root/web";
 
 my $easy_dir = "$root/easy";
 my $easy_lib = "$root/easy/lib";
@@ -17,7 +19,7 @@ my $target = shift;
 
 my $app_dir = "$root/apps/$app";
 
-my $USAGE = "usage: $0  decor-app  target-http-dir\n";
+my $USAGE = "usage: $0  decor-root  decor-app-name  target-http-dir\n";
 
 die "decor app [$app] does not exist or is not accessible at [$app_dir]\n$USAGE" unless -d $app_dir;
 die "target http dir [$target] does not exist or is not accessible\n$USAGE" unless -d $target;
@@ -33,15 +35,13 @@ chdir( $target ) or die "cannot access targer http dir [$target] $!";
 
 file_save( 'index.cgi', $easy_cgi_template ) unless -e 'index.cgi';
 
-if( ! -e 'index.pl' )
-  {
-  symlink( "index.cgi", 'index.pl' ) or die $!;
-  }
-
-if( ! -e 'login.pl' )
-  {
-  symlink( "index.cgi", 'login.pl' ) or die $!;
-  }
+for my $iff ( qw( index.pl login.pl index.mpl login.mpl ) )
+{
+  if( ! -e $iff )
+    {
+    symlink( "index.cgi", $iff ) or die $!;
+    }
+}
 
 if( ! -e 'i' )
   {
@@ -61,3 +61,10 @@ if( ! -e 'js/vframe.js' )
   }
 
 print "\nDONE.\n";
+
+sub strip_script_name
+{
+  my $s = shift;
+  $s =~ s/[^\/]+$//;
+  return $s;
+}
