@@ -2,11 +2,12 @@
 use strict;
 use Cwd qw( abs_path getcwd );
   
-my $root = $0;
-$root =~ s/[^\/]+$//; 
-$root = '/usr/local/decor' if $root eq '';
-
+my $root = shift() || strip_script_name( $0 ) . "/../" || '/usr/local/decor/';
 $root = abs_path( "$root/" );
+
+print "USING DECOR ROOT FOR SETUP: $root\n";
+
+die "ERROR: NOT A DECOR ROOT: $root\n" unless -d "$root/core" and -d "$root/shared" and -d "$root/web";
 
 my $easy_dir = "$root/easy";
 my $easy_lib = "$root/easy/lib";
@@ -73,3 +74,10 @@ to install http index.cgi use:
     $root/bin/decro-easy-cgi-install.pl  app-name  target-http-dir
 
 END
+
+sub strip_script_name
+{
+  my $s = shift;
+  $s =~ s/[^\/]+$//;
+  return $s;
+}
