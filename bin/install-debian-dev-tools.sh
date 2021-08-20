@@ -1,4 +1,4 @@
 #!/bin/bash
 
-apt install gcc g++ make
+apt install perl gcc g++ make
 
