@@ -34,6 +34,7 @@ $easy_cgi_template =~ s/\[--DECOR_APP--\]/$app/g;
 chdir( $target ) or die "cannot access targer http dir [$target] $!";
 
 file_save( 'index.cgi', $easy_cgi_template ) unless -e 'index.cgi';
+chmod( 0755, 'index.cgi' );
 
 for my $iff ( qw( index.pl login.pl index.mpl login.mpl ) )
 {
