@@ -121,6 +121,8 @@ my %SELECT_WHERE_OPERATORS = (
                     'gt'   => '>',
                     'ge'   => '>=',
                     'ne'   => '<>',
+
+                    'GREP' => 'GREP',
                     );
 
 
@@ -961,6 +963,11 @@ sub __filter_to_where
 
           push @where, ".$f IN ( $inph )";
           push @bind,  @$val;
+          }
+        elsif( $op eq 'GREP' )
+          {
+          push @where, "UPPER(.$f) LIKE UPPER(?)";
+          push @bind,  "%$val%";
           }
         else
           {

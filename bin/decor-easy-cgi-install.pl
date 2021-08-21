@@ -58,6 +58,11 @@ if( ! -e 'i' )
   symlink( "$root/web/htdocs/i", 'i' ) or die $!;
   }
 
+if( ! -e 'ii' and -e "$app_dir/web/htdocs/ii" )
+  {
+  symlink( "$app_dir/web/htdocs/ii", 'ii' ) or die $!;
+  }
+
 mkdir( 'js' ) unless -d 'js';
 
 if( ! -e 'js/reactor.js' )

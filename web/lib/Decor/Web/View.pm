@@ -52,11 +52,11 @@ sub de_web_expand_resolve_fields_in_place
       my $fdes    = $tdes->{ 'FIELD' }{ $_ };
       if( $fdes->is_linked() )
         {
-        my $xf;
-        my $ldes;
-        ( $_, $ldes ) = $fdes->expand_field_path();
-        $lfdes->{ $_ } = $ldes;
-        $basef->{ $_ } = $fdes->{ 'NAME' };
+        my ( $xf, $ldes ) = $fdes->expand_field_path();
+        $lfdes->{ $_  } = $ldes;
+        $lfdes->{ $xf } = $ldes;
+        $basef->{ $xf } = $fdes->{ 'NAME' };
+        $_ = $xf;
         }
       else
         {
@@ -74,11 +74,13 @@ sub de_web_format_field
   my $field_data =    shift;
   my $fdes       =    shift;
   my $vtype      = uc shift;
-  my $opts       =    shift;
+  my $opts       =    shift || {};
   
   my $reo  = $opts->{ 'REO'  };
   my $core = $opts->{ 'CORE' };
   my $id   = $opts->{ 'ID' };
+
+#boom "!!!!!!!!!!!!!!!!" unless $fdes;
 
   my $table = $fdes->table();
   my $fname = $fdes->name();

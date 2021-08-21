@@ -104,10 +104,9 @@ sub main
         $fdes      = $lfdes;
         $field_out = $field;
         }
-      
+
       my $type      = $fdes->{ 'TYPE'  };
       my $type_name = $fdes->{ 'TYPE'  }{ 'NAME' };
-
 
       if( $type_name eq 'INT' and $fdes->{ 'BOOL' } )
         {
@@ -119,7 +118,12 @@ sub main
         }
       elsif( $type_name eq 'CHAR' )
         {
-        if( $input_data =~ s/\*/%/g )
+        my $grep = $bfdes->get_attr( qw( WEB FILTER GREP ) );
+        if( $grep )
+          {
+          push @field_filter, { OP => 'GREP', VALUE => $input_data, };
+          }
+        elsif( $input_data =~ s/\*/%/g )
           {
           push @field_filter, { OP => 'LIKE', VALUE => $input_data, };
           }

@@ -116,10 +116,12 @@ sub main
   my %basef; # base fields map, return base field NAME by field path
 
   de_web_expand_resolve_fields_in_place( \@fields, $tdes, \%bfdes, \%lfdes, \%basef );
-
+  
   # FIXME: cleanup the following grep!
 #  my $fields = join ',', grep { $link_field_disable ? ( $_ ne $link_field_disable and $_ !~ /^$link_field_disable\./ ) : 1 } @fields, values %basef;
   my $fields = join ',', @fields, values %basef;
+
+print STDERR "=======================>>>>>>>>>>>>>>>>>>>>>>>> "  . Dumper( \@fields, \%basef, $fields );  
 
   return "<#e_access>" unless $fields;
 
@@ -438,23 +440,26 @@ sub main
               {
               $data_fmt   = "&empty;";
               }
-            if( ! $enum and $linked_id > 0 )
+            if( ! $enum )
               {
-              $data_ctrl .= de_html_alink_button_fill( $reo, 'new', "(o) $view_cue",   undef,                ACTION => 'view', ID => $linked_id, TABLE => $linked_table );
-              $data_ctrl .= "<br>\n";
-              }
-            if( $ltdes->allows( 'UPDATE' ) and $linked_id > 0 )
-              {
-              # FIXME: check for record access too!
-              $data_ctrl .= de_html_alink_button_fill( $reo, 'new', "(v) $edit_cue", undef, BTYPE => 'mod', ACTION => 'edit', ID => $linked_id, TABLE => $linked_table );
-              $data_ctrl .= "<br>\n";
-              }
-            if( $bfdes->is_linked() and $ltdes->allows( 'INSERT' ) and $tdes->allows( 'UPDATE' ) and $bfdes->allows( 'UPDATE' ) )
-              {
-              # FIXME: check for record access too!
-              $data_ctrl .= de_html_alink_button_fill( $reo, 'new', "(+) $insert_cue", undef, BTYPE => 'act', ACTION => 'edit', ID => -1,         TABLE => $linked_table, LINK_TO_TABLE => $table, LINK_TO_FIELD => $base_field, LINK_TO_ID => $id );
-              $data_ctrl .= "<br>\n";
-              }
+              if( $linked_id > 0 )
+                {
+                $data_ctrl .= de_html_alink_button_fill( $reo, 'new', "(v) $view_cue",   undef,                ACTION => 'view', ID => $linked_id, TABLE => $linked_table );
+                $data_ctrl .= "<br>\n";
+                }
+              if( $ltdes->allows( 'UPDATE' ) and $linked_id > 0 )
+                {
+                # FIXME: check for record access too!
+                $data_ctrl .= de_html_alink_button_fill( $reo, 'new', "(e) $edit_cue", undef, BTYPE => 'mod', ACTION => 'edit', ID => $linked_id, TABLE => $linked_table );
+                $data_ctrl .= "<br>\n";
+                }
+              if( $bfdes->is_linked() and $ltdes->allows( 'INSERT' ) and $tdes->allows( 'UPDATE' ) and $bfdes->allows( 'UPDATE' ) )
+                {
+                # FIXME: check for record access too!
+                $data_ctrl .= de_html_alink_button_fill( $reo, 'new', "(+) $insert_cue", undef, BTYPE => 'act', ACTION => 'edit', ID => -1,         TABLE => $linked_table, LINK_TO_TABLE => $table, LINK_TO_FIELD => $base_field, LINK_TO_ID => $id );
+                $data_ctrl .= "<br>\n";
+                }
+              } # if ! enum  
             } # if $linked_table  
           }
         }

@@ -16,7 +16,15 @@
       INSERT or EDIT views.
       
       those fields are expected to be set only by methods.
-      
+
+  "web.preview.skip"
+  
+      do not show this field on preview pages.  
+
+  "web.filter.grep" 
+  
+      forces grid filter on this field to use case-insensitive search and
+      will search for substring match (i.e. LIKE %string%)
 
   ============================================================================
   FIELD TYPES CHAR ATTRIBUTES

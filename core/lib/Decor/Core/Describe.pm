@@ -193,7 +193,9 @@ my %DES_ATTRS = (
                            ROWS        => 3, # show more rows in views
                            HIDDEN      => 3, # hide field from views
                            EDITABLE    => 3, # if this field is allowed to be editable in views
-                           
+                           SKIP        => 3, # skip field on preview/etc
+                           GREP        => 3, # filtering grids by value will be case insensitive and LIKE-like
+                          
                            HIDE_IF_EMPTY   => 3, # hide field if it is empty
                            NO_AUTOCOMPLETE => 3, # disable interface autocomplete
                            

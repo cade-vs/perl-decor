@@ -100,6 +100,8 @@ sub main
     my $bfdes     = $fdes; # keep sync code with view/grid, bfdes is begin/origin-field
     my $type_name = $fdes->{ 'TYPE'  }{ 'NAME' };
     my $label     = $fdes->get_attr( qw( WEB PREVIEW LABEL ) );
+    
+    next if $fdes->get_attr( qw( WEB PREVIEW SKIP ) );
 
     my $base_field = $field;
 
@@ -141,23 +143,11 @@ sub main
         {
         ( $linked_table, $linked_field ) = $bfdes->link_details();
         my $ldes = $core->describe( $linked_table );
-        my @lfields = @{ $ldes->get_fields_list_by_oper( 'READ' ) };
+        my ( $linked_field_x, $linked_field_x_des ) = $ldes->get_field_des( $linked_field )->expand_field_path();
 
-  ###      return "<#access_denied>" unless @fields;
+        my $linked_field_x_data = $core->read_field( $linked_table, $linked_field_x, $data );
 
-        my %bfdes; # base/begin/origin field descriptions, indexed by field path
-        my %lfdes; # linked/last       field descriptions, indexed by field path, pointing to trail field
-        my %basef; # base fields map, return base field NAME by field path
-
-        de_web_expand_resolve_fields_in_place( \@lfields, $ldes, \%bfdes, \%lfdes, \%basef );
-
-      #$text .= Dumper( \%basef );
-
-        my $lfields = join ',', @lfields, values %basef;
-
-        my $lrow_data = $core->select_first1_by_id( $linked_table, $lfields, $data );
-
-        $data_fmt = de_web_format_field( $lrow_data->{ $linked_field }, $lfdes{ $linked_field }, 'PREVIEW' );
+        $data_fmt = de_web_format_field( $linked_field_x_data, $linked_field_x_des, 'PREVIEW' );
         }  
       }
     elsif( $bfdes->is_backlinked() )
