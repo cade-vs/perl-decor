@@ -205,10 +205,9 @@ print STDERR "=======================>>>>>>>>>>>>>>>>>>>>>>>> "  . Dumper( \@fie
   $text_grid_navi_left .= de_html_alink_button( $reo, 'new', "(+) $insert_cue",      $insert_cue_hint,  BTYPE => 'act', ACTION => 'edit',        TABLE => $table, ID => -1, %insert_new_opts ) if $tdes->allows( 'INSERT' );
   $text_grid_navi_left .= de_html_alink_button( $reo, 'new', "(&uarr;) $upload_cue", $upload_cue_hint,  BTYPE => 'act', ACTION => 'file_up',     TABLE => $table, ID => -1, MULTI => 1       ) if $tdes->allows( 'INSERT' ) and $table_type eq 'FILE';
   
-  my $filter_link_label = $active_filter ? "[~Modify current filter]" : "[~Filter records]";
-  $text_grid_navi_left .= de_html_alink_button( $reo, 'new', "(&asymp;) $filter_link_label",    '[~Filter records]',          ACTION => 'grid_filter', TABLE => $table           );
+  $text_grid_navi_left .= de_html_alink_button( $reo, 'new', "(&asymp;) [~Filter records]",    '[~Filter records]',          ACTION => 'grid_filter', TABLE => $table           ) unless $active_filter;
   # $text_grid_navi_left .= de_html_alink_button( $reo, 'here', "(x) [~Remove filter]",           '[~Remove current filter]',   REMOVE_ACTIVE_FILTER => 1 ) if $active_filter;
-  $text_grid_navi_left .= de_html_alink_button( $reo, 'here', "(&lt;) [~Enable last filter]",   '[~Enable last used filter]', USE_LAST_FILTER => 1      ) if $last_filter and ! $active_filter;
+  $text_grid_navi_left .= de_html_alink_button( $reo, 'here', "(&lt;) [~Use last filter]",   '[~Enable last used filter]', USE_LAST_FILTER => 1      ) if $last_filter and ! $active_filter;
 
   my $custom_css = lc "css_$table";
   $text .= "<#$custom_css>";
@@ -233,7 +232,9 @@ print STDERR "=======================>>>>>>>>>>>>>>>>>>>>>>>> "  . Dumper( \@fie
 
     my $blabel    = $bfdes->get_attr( qw( WEB GRID LABEL ) );
     my $label     = "$blabel";
-    if( $bfdes ne $lfdes )
+    my $ltdes     = $core->describe( $lfdes->get_table_name() );
+    my $enum      = $ltdes->get_table_type() eq 'ENUM';
+    if( ! $enum and $bfdes ne $lfdes )
       {
       my $llabel     = $lfdes->get_attr( qw( WEB GRID LABEL ) );
       $label .= "<span class=details-text>/</span>$llabel";
@@ -532,20 +533,22 @@ print STDERR "=======================>>>>>>>>>>>>>>>>>>>>>>>> "  . Dumper( \@fie
   
   $text_grid_foot .= "</table>";
 
+  if( $active_filter )
+    {
+    my $filter_des = $ps->{ 'FILTERS' }{ 'ACTIVE' }{ 'DES'   };
+    my $filter_rmv;
+    $filter_rmv .= de_html_alink_button( $reo, 'new', "(&asymp;) [~Modify current filter]",    '[~Filter records]',          ACTION => 'grid_filter', TABLE => $table           ) . "<br>";
+    $filter_rmv .= de_html_alink_button( $reo, 'here', "(x) [~Remove filter]",           '[~Remove current filter]',   REMOVE_ACTIVE_FILTER => 1 ) . "<br>";
+    my $filter_dez = html_layout_2lr( $filter_des, $filter_rmv, '<==1>' );
+    $text .= "<div class=info-text>$filter_dez</div><p>";
+    }
+
   if( $row_counter == 0 )
     {
     $text .= "<p>$text_grid_navi_left<p><div class=info-text>[~No data found]</div><p>";
     }
   else
     {
-    if( $active_filter )
-      {
-      my $filter_des = $ps->{ 'FILTERS' }{ 'ACTIVE' }{ 'DES'   };
-      my $filter_rmv = de_html_alink_button( $reo, 'here', "(x) [~Remove filter]",           '[~Remove current filter]',   REMOVE_ACTIVE_FILTER => 1 );
-      my $filter_dez = html_layout_2lr( $filter_des, $filter_rmv, '<==1>' );
-      $text .= "<div class=info-text>$filter_dez</div><p>";
-      }
-
     my $offset_prev = $offset - $page_size;
     my $offset_next = $offset + $page_size;
     my $offset_last = $scount - $page_size;

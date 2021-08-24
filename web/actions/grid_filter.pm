@@ -73,6 +73,7 @@ sub main
     my $filter_rules = {};
     my $filter_data  = {};
     my $filter_des;
+    my $filter_cnt = 0;
 
 #      print STDERR "<hr><h2></h2><xmp style='text-align: left'>" . Dumper( \@fields, \%basef, \%bfdes, \%lfdes ) . "</xmp>";
 
@@ -125,8 +126,9 @@ sub main
         $ind = 1 if $input_data == 2;
         push @field_filter, { OP => '==', VALUE => $ind, };
 
-        my $bool_fmt = [ "<img class='check-base check-0' src=i/check-0.svg>", "<img class='check-base check-1' src=i/check-1.svg>" ]->[ !! $ind ];
-        $filter_des .= qq[ $label $bool_fmt<br> ];
+        my $bool_fmt = [ "<img src=i/check-0.svg>", "<img src=i/check-1.svg>" ]->[ !! $ind ];
+        $filter_des .= qq[ <li> $label [~must be] &nbsp; $bool_fmt ];
+        $filter_cnt++;
         }
       elsif( $type_name eq 'CHAR' )
         {
@@ -143,7 +145,8 @@ sub main
           {  
           push @field_filter, { OP => '==', VALUE => $input_data, };
           }
-        $filter_des .= qq[ [~Searching for] "$input_data" [~in] <b>$label</b><br> ];
+        $filter_des .= qq[ <li> [~Searching for] "$input_data" [~in] <b>$label</b> ];
+        $filter_cnt++;
         }  
       else
         {
@@ -160,13 +163,22 @@ sub main
 
           push @field_filter, { OP => '>=', VALUE => $fr, } if $fr ne '';
           push @field_filter, { OP => '<=', VALUE => $to, } if $to ne '';
-          $filter_des .= qq[ $label [~must be between] "$fr" [~and] "$to"<br> ];
+          $filter_des .= qq[ <li> $label [~must be between] "$fr" [~and] "$to" ];
+          $filter_cnt++;
           }
         else
           {  
           my $eq = type_revert( $input_data, $type );
           push @field_filter, { OP => '==', VALUE => $eq, };
-          $filter_des .= qq[ $label = "$input_data"<br> ];
+          
+          my $input_data_f = $input_data;
+          if( $bfdes->is_linked() )
+            {
+            my ( $linked_table, $linked_field ) = $bfdes->link_details();
+            $input_data_f = $core->read_field( $linked_table, $linked_field, $input_data );
+            }
+          $filter_des .= qq[ <li> $label [~must be] "$input_data_f" ];
+          $filter_cnt++;
           }
         }  
 
@@ -176,9 +188,12 @@ sub main
     
     #$text .= "<xmp style='text-align: left;'>" . Dumper( $filter_rules, $filter_data ) . "</xmp>";
     # print STDERR Dumper( $filter_rules, $filter_data );
-    $rs->{ 'FILTERS' }{ 'ACTIVE' }{ 'RULES' } = $filter_rules;
-    $rs->{ 'FILTERS' }{ 'ACTIVE' }{ 'DATA'  } = $filter_data;
-    $rs->{ 'FILTERS' }{ 'ACTIVE' }{ 'DES'   } = $filter_des;
+    if( $filter_cnt )
+      {
+      $rs->{ 'FILTERS' }{ 'ACTIVE' }{ 'RULES' } = $filter_rules;
+      $rs->{ 'FILTERS' }{ 'ACTIVE' }{ 'DATA'  } = $filter_data;
+      $rs->{ 'FILTERS' }{ 'ACTIVE' }{ 'DES'   } = "<ul>" . $filter_des . "</ul>";
+      }
     return $reo->forward_back();
     }
 
@@ -272,9 +287,6 @@ sub main
       my $combo_data = [];
       my $sel_hr     = {};
       $sel_hr->{ $input_data } = 1 if $input_data > 0;
-
-print STDERR Dumper( '*********************', $sel_hr, $input_data );
-      
 
       my @lfields = @{ $ltdes->get_fields_list_by_oper( 'READ' ) };
       unshift @lfields, $linked_field;

@@ -93,6 +93,7 @@ $input-field-focus-colors  #000  #CDA  #EFC   #EFC
 
 /*$                     fg    bg  */
 $details-fields-colors  #FFF  #222
+$details-text-colors    #555
 
 /*$                      bg-odd   bg-even  bg-hi    bottom-border-hi        */
 $grid-data-row-odd-even  #AB8     #9A7     #CDA     #EFC
