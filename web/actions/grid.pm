@@ -15,6 +15,7 @@ use Data::Dumper;
 use Data::Tools 1.21;
 
 use Web::Reactor::HTML::Utils;
+use Web::Reactor::HTML::Layout;
 
 use Decor::Shared::Types;
 use Decor::Web::HTML::Utils;
@@ -67,7 +68,7 @@ sub main
   my $table_label = $tdes->get_label();
   my $table_type  = $sdes->{ 'TYPE' };
 
-  my $browser_window_title = qq( [~List data from] "<b>$table_label</b>" );
+  my $browser_window_title = qq( "<b>$table_label</b>" [~List] );
   $reo->ps_path_add( 'grid', $browser_window_title );
 
   return "<#e_internal>" unless $tdes;
@@ -166,8 +167,8 @@ print STDERR "=======================>>>>>>>>>>>>>>>>>>>>>>>> "  . Dumper( \@fie
   my $scount = $core->count( $table,           { FILTER => $filter, FILTER_NAME => $filter_name } ) if $select and ! $filter_method;
 
 
-  $browser_window_title .= " | $scount [~record(s)]";
-  $browser_window_title .= " , [~filtered]" if $filter;
+  $browser_window_title .= " <span class=details-text>|</span> $scount [~record(s)]";
+  $browser_window_title .= " <span class=details-text>,</span> [~filtered]" if $filter;
   $reo->ps_path_add( 'grid', $browser_window_title );
 
   $ps->{ 'GRID_EXPORT' } = $fields ? [ $table, $fields, { FILTER => $filter, FILTER_NAME => $filter_name, FILTER_METHOD => $filter_method, OFFSET => 0, LIMIT => 8192, ORDER_BY => $order_by } ] : undef;
@@ -206,7 +207,7 @@ print STDERR "=======================>>>>>>>>>>>>>>>>>>>>>>>> "  . Dumper( \@fie
   
   my $filter_link_label = $active_filter ? "[~Modify current filter]" : "[~Filter records]";
   $text_grid_navi_left .= de_html_alink_button( $reo, 'new', "(&asymp;) $filter_link_label",    '[~Filter records]',          ACTION => 'grid_filter', TABLE => $table           );
-  $text_grid_navi_left .= de_html_alink_button( $reo, 'here', "(x) [~Remove filter]",           '[~Remove current filter]',   REMOVE_ACTIVE_FILTER => 1 ) if $active_filter;
+  # $text_grid_navi_left .= de_html_alink_button( $reo, 'here', "(x) [~Remove filter]",           '[~Remove current filter]',   REMOVE_ACTIVE_FILTER => 1 ) if $active_filter;
   $text_grid_navi_left .= de_html_alink_button( $reo, 'here', "(&lt;) [~Enable last filter]",   '[~Enable last used filter]', USE_LAST_FILTER => 1      ) if $last_filter and ! $active_filter;
 
   my $custom_css = lc "css_$table";
@@ -235,7 +236,7 @@ print STDERR "=======================>>>>>>>>>>>>>>>>>>>>>>>> "  . Dumper( \@fie
     if( $bfdes ne $lfdes )
       {
       my $llabel     = $lfdes->get_attr( qw( WEB GRID LABEL ) );
-      $label .= "/$llabel";
+      $label .= "<span class=details-text>/</span>$llabel";
       }
 
     $text_grid_head .= "<td class='grid-header $fmt_class'>$label</td>";
@@ -537,6 +538,14 @@ print STDERR "=======================>>>>>>>>>>>>>>>>>>>>>>>> "  . Dumper( \@fie
     }
   else
     {
+    if( $active_filter )
+      {
+      my $filter_des = $ps->{ 'FILTERS' }{ 'ACTIVE' }{ 'DES'   };
+      my $filter_rmv = de_html_alink_button( $reo, 'here', "(x) [~Remove filter]",           '[~Remove current filter]',   REMOVE_ACTIVE_FILTER => 1 );
+      my $filter_dez = html_layout_2lr( $filter_des, $filter_rmv, '<==1>' );
+      $text .= "<div class=info-text>$filter_dez</div><p>";
+      }
+
     my $offset_prev = $offset - $page_size;
     my $offset_next = $offset + $page_size;
     my $offset_last = $scount - $page_size;

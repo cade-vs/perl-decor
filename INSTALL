@@ -83,6 +83,10 @@
 
       # create PostgreSQL database and user
       createdb       app1-db
+      
+      # to ensure UTF8 encoding of the database:
+      createdb -E UTF8 -T template0 --locale=en_US.UTF8  app1-db
+      
       createuser  -P app1-user   
       # type passord, for example '123'
       

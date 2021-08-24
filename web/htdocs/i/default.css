@@ -8,8 +8,7 @@
 ##
 ############################################################################*/
 
-/* THIS FILE IS GENERATED! PLEASE, DO NOT MODIFY! -- GENERATED AT Fri Jul 30 17:11:12 2021 */
-
+/* THIS FILE IS GENERATED! PLEASE, DO NOT MODIFY! -- GENERATED AT Tue Aug 24 13:36:18 2021 */
 
 
 
@@ -114,7 +113,7 @@ body
         {
         color:            #EEE;
         background-color: #222;
-        background-image: url( "main-background.png" );
+        background-image: url( "back.jpg" );
 
         font-family: rubik, sans-serif;
         margin: 0;
@@ -439,7 +438,7 @@ table.main-menu
         white-space: nowrap;
         cursor: pointer;
 
-        font: 1.4em oswald;
+        font: 1.5em oswald;
         width:  100%;
         }
 
@@ -448,7 +447,7 @@ td.main-menu
         border-right: solid 1px #445;
 
         width:  1%;
-        padding: 0.2em;
+        padding: 0.1em;
         }
 
 td.main-menu:hover
@@ -710,6 +709,11 @@ td.insert-value
         
         color:            #FFF
         background-color: #222;
+        }
+
+.details-text
+        {
+        color:            #888
         }
 
 /*** grid *******************************************************************/

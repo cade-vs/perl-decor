@@ -72,6 +72,7 @@ sub main
     {
     my $filter_rules = {};
     my $filter_data  = {};
+    my $filter_des;
 
 #      print STDERR "<hr><h2></h2><xmp style='text-align: left'>" . Dumper( \@fields, \%basef, \%bfdes, \%lfdes ) . "</xmp>";
 
@@ -87,6 +88,14 @@ sub main
 
       my $base_field = $bfdes->{ 'NAME' };
       my $field_out  = $base_field;
+
+      my $blabel    = $bfdes->get_attr( qw( WEB GRID LABEL ) );
+      my $label     = "$blabel";
+      if( $bfdes ne $lfdes )
+        {
+        my $llabel     = $lfdes->get_attr( qw( WEB GRID LABEL ) );
+        $label .= "<span class=details-text>/</span>$llabel";
+        }
 
       next unless exists $ui_si{ "F:$field" };
       
@@ -115,6 +124,9 @@ sub main
         $ind = 0 if $input_data == 1;
         $ind = 1 if $input_data == 2;
         push @field_filter, { OP => '==', VALUE => $ind, };
+
+        my $bool_fmt = [ "<img class='check-base check-0' src=i/check-0.svg>", "<img class='check-base check-1' src=i/check-1.svg>" ]->[ !! $ind ];
+        $filter_des .= qq[ $label $bool_fmt<br> ];
         }
       elsif( $type_name eq 'CHAR' )
         {
@@ -131,6 +143,7 @@ sub main
           {  
           push @field_filter, { OP => '==', VALUE => $input_data, };
           }
+        $filter_des .= qq[ [~Searching for] "$input_data" [~in] <b>$label</b><br> ];
         }  
       else
         {
@@ -147,11 +160,13 @@ sub main
 
           push @field_filter, { OP => '>=', VALUE => $fr, } if $fr ne '';
           push @field_filter, { OP => '<=', VALUE => $to, } if $to ne '';
+          $filter_des .= qq[ $label [~must be between] "$fr" [~and] "$to"<br> ];
           }
         else
           {  
           my $eq = type_revert( $input_data, $type );
           push @field_filter, { OP => '==', VALUE => $eq, };
+          $filter_des .= qq[ $label = "$input_data"<br> ];
           }
         }  
 
@@ -159,9 +174,11 @@ sub main
       $filter_rules->{ $field_out } = \@field_filter; 
       }
     
-#    $text .= "<xmp style='text-align: left;'>" . Dumper( $filter_rules, $filter_data ) . "</xmp>";
+    #$text .= "<xmp style='text-align: left;'>" . Dumper( $filter_rules, $filter_data ) . "</xmp>";
+    # print STDERR Dumper( $filter_rules, $filter_data );
     $rs->{ 'FILTERS' }{ 'ACTIVE' }{ 'RULES' } = $filter_rules;
     $rs->{ 'FILTERS' }{ 'ACTIVE' }{ 'DATA'  } = $filter_data;
+    $rs->{ 'FILTERS' }{ 'ACTIVE' }{ 'DES'   } = $filter_des;
     return $reo->forward_back();
     }
 

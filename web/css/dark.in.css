@@ -92,6 +92,7 @@ $input-field-focus-colors  #FFF  #023  #555   #55F
 
 /*$                     fg    bg  */
 $details-fields-colors  #FFF  #222
+$details-text-colors    #888
 
 /*$                      bg-odd   bg-even  bg-hi    bottom-border-hi        */
 $grid-data-row-odd-even  #353535  #303030  #343450  #555
@@ -99,7 +100,6 @@ $grid-data-row-odd-even  #353535  #303030  #343450  #555
 /*$            fg              bg              border */
 $hover-colors  #FFF            #550            #990
 $popup-colors  $menu-colors.1  $menu-colors.2  $menu-colors.5
-
 
 $$$decor_base_system.in.css
 
