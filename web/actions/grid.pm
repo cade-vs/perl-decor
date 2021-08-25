@@ -537,7 +537,7 @@ print STDERR "=======================>>>>>>>>>>>>>>>>>>>>>>>> "  . Dumper( \@fie
     {
     my $filter_des = $ps->{ 'FILTERS' }{ 'ACTIVE' }{ 'DES'   };
     my $filter_rmv;
-    $filter_rmv .= de_html_alink_button( $reo, 'new', "(&asymp;) [~Modify current filter]",    '[~Filter records]',          ACTION => 'grid_filter', TABLE => $table           ) . "<br>";
+    $filter_rmv .= de_html_alink_button( $reo, 'new', "(&asymp;) [~Modify filter]",    '[~Filter records]',          ACTION => 'grid_filter', TABLE => $table           ) . "<br>";
     $filter_rmv .= de_html_alink_button( $reo, 'here', "(x) [~Remove filter]",           '[~Remove current filter]',   REMOVE_ACTIVE_FILTER => 1 ) . "<br>";
     my $filter_dez = html_layout_2lr( $filter_des, $filter_rmv, '<==1>' );
     $text .= "<div class=info-text>$filter_dez</div><p>";

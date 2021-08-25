@@ -106,7 +106,6 @@ sub main
       $input_data =~ s/^\s*//;
       $input_data =~ s/\s*$//;
       next if $input_data eq '';
-
       
       my $combo = $bfdes->get_attr( qw( WEB COMBO ) );
       if( $bfdes->is_linked() and ! $combo )
@@ -133,13 +132,14 @@ sub main
       elsif( $type_name eq 'CHAR' )
         {
         my $grep = $bfdes->get_attr( qw( WEB FILTER GREP ) );
+        my $input_data_w = $input_data;
         if( $grep )
           {
           push @field_filter, { OP => 'GREP', VALUE => $input_data, };
           }
-        elsif( $input_data =~ s/\*/%/g )
+        elsif( $input_data_w =~ s/\*+/%/g )
           {
-          push @field_filter, { OP => 'LIKE', VALUE => $input_data, };
+          push @field_filter, { OP => 'LIKE', VALUE => $input_data_w, };
           }
         else
           {  

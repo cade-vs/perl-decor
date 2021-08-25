@@ -385,17 +385,19 @@ sub main
 
         if( $search )
           {
-          my $field_size = $flen;
+          $field_data ||= 0;
+          my $field_size = 42;
           my $field_maxlen = $field_size;
           $field_size = 42 if $field_size > 42; # TODO: fixme
           $field_input .= $edit_form->input(
-                                               NAME     => "F:$field",
-                                               ID       => $field_id,
-                                               VALUE    => $selected_search_value,
-                                               KEY      => $field_data,
-                                               DATALIST => $combo_data,
-                                               SIZE     => $field_size,
-                                               MAXLEN   => $field_maxlen,
+                                               NAME      => "F:$field",
+                                               ID        => $field_id,
+                                               VALUE     => $selected_search_value,
+                                               KEY       => $field_data,
+                                               EMPTY_KEY => 0,
+                                               DATALIST  => $combo_data,
+                                               SIZE      => $field_size,
+                                               MAXLEN    => $field_maxlen,
                                                );
           }
         else

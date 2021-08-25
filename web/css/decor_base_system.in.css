@@ -310,7 +310,7 @@ div.error-text
 
         width:  80%;
         text-align: center;
-        padding: 1em;
+        padding: 0.5em;
         margin-left: auto;
         margin-right: auto;
         }
@@ -321,7 +321,7 @@ div.info-text
 
         width:  80%;
         text-align: center;
-        padding: 1em;
+        padding: 0.5em;
         margin-left: auto;
         margin-right: auto;
         }
