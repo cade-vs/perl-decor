@@ -241,6 +241,8 @@ sub main
 ###  my $row_data = $core->fetch( $select );
 ###  my $row_id = $row_data->{ '_ID' };
 
+  my @backlinks_text;
+
   for my $field ( @$fields_ar )
     {
     my $fdes       = $tdes->{ 'FIELD' }{ $field };
@@ -252,6 +254,14 @@ sub main
     my $flen       = $type->{ 'LEN' };
 
     next if $fdes->get_attr( 'WEB', ( $edit_mode_insert ? 'INSERT' : 'UPDATE' ), 'HIDE' );
+
+    my $divider = $fdes->get_attr( 'WEB', 'DIVIDER' );
+    if( $divider )
+      {
+      $text .= "<tr class=$edit_mode_class_prefix-header>";
+      $text .= "<td class='$edit_mode_class_prefix-header record-field fmt-center' colspan=2>$divider</td>";
+      $text .= "</tr>";
+      }
 
     my $base_field = $field;
 
@@ -475,15 +485,22 @@ sub main
       $count = 'Unknown' if $count eq '';
 
       $field_input = "<b class=hi>$count</b> records from <b class=hi>$linked_table_label</b>";
-      
+
       my $details_fields = $bfdes->get_attr( qw( WEB EDIT DETAILS_FIELDS ) );
       if( $details_fields and $count > 0 )
         {
+        my $backlink_text = "<p><h2>$linked_table_label records related to the current $table_label:</h2>";
+      
         my $details_limit = $bfdes->get_attr( qw( WEB EDIT DETAILS_LIMIT ) ) || 16;
         $field_details .= "<p>" . de_data_grid( $core, $backlinked_table, $details_fields, { FILTER => { $backlinked_field => $id }, LIMIT => $details_limit } ) ;
 
-        $field_details .= de_html_form_button_redirect( $reo, 'new', $edit_form, "GRID_BACKLINKED_$field_id",   "[~View/modify all records]",  "[~View all backlinked records from] <b>$linked_table_label</b>",  BTYPE => 'nav', ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, FILTER => { $backlinked_field => $id } ) if $bltdes->allows( 'READ' ) and $count > 0;
+        $field_details .= de_html_form_button_redirect( $reo, 'new', $edit_form, "GRID_BACKLINKED_$field_id",   "[~View all records]",  "[~View all backlinked records from] <b>$linked_table_label</b>",  BTYPE => 'nav', ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, FILTER => { $backlinked_field => $id } ) if $bltdes->allows( 'READ' ) and $count > 0;
         $field_details .= de_html_form_button_redirect( $reo, 'new', $edit_form, "INSERT_BACKLINKED_$field_id", "[~Insert new record]", "[~Insert and link a new record into] <b>$linked_table_label</b>", BTYPE => 'act', ACTION => 'edit', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, ID => -1, "F:$backlinked_field" => $id ) if $bltdes->allows( 'INSERT' );
+
+        $backlink_text .= $field_details;
+      
+        push @backlinks_text, $backlink_text;
+        next;
         }
       # EXPERIMENT: :)) $field_input .= "<p><div class=vframe><a reactor_new_href=?action=grid&table=$backlinked_table>show</a></div>";
       }
@@ -620,6 +637,8 @@ sub main
     $text .= de_html_form_button_redirect( $reo, 'here', $edit_form, 'PREVIEW', "[~Preview] &rArr;", { HINT => "[~Preview data before save]" }, ACTION => 'preview' );
     }
   $text .= $edit_form->end();
+
+  $text .= join '', @backlinks_text;
 
   return $text;
 }

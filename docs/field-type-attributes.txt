@@ -25,6 +25,11 @@
   
       forces grid filter on this field to use case-insensitive search and
       will search for substring match (i.e. LIKE %string%)
+      
+  "web.divider"
+  
+      specifies a text, which will be used as sub-title to divide fields 
+      groups.
 
   ============================================================================
   FIELD TYPES CHAR ATTRIBUTES

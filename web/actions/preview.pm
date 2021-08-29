@@ -40,7 +40,8 @@ sub main
 
   return "<#e_data>" unless $table and $id;
 
-  my $tdes = $core->describe( $table );
+  my $tdes        = $core->describe( $table );
+  my $table_label = $tdes->get_label();
 
   my @fields           = @{ $ps->{ 'FIELDS_WRITE_AR'  } };
   my $edit_mode_insert = $ps->{ 'EDIT_MODE_INSERT' };
@@ -52,6 +53,20 @@ sub main
 
   return "<#access_denied>" unless @fields;
 
+  my $edit_mode_insert = $ps->{ 'EDIT_MODE_INSERT' };
+
+  my $browser_window_title;
+  if( $edit_mode_insert )
+    {
+    $browser_window_title = qq(Preview data for the new record into "<b>$table_label</b>");
+    $reo->ps_path_add( 'insert', $browser_window_title );
+    }
+  else
+    {
+    $browser_window_title = qq(Preview modified data from "<b>$table_label</b>");
+    $reo->ps_path_add( 'edit', $browser_window_title );
+    }
+
   my $text .= "<br>";
 
   my $edit_mode_class_prefix = $edit_mode_insert ? 'insert' : 'edit';
@@ -60,8 +75,7 @@ sub main
   $text .= "<#$custom_css>";
   $text .= "<table class='$edit_mode_class_prefix record' cellspacing=0 cellpadding=0>";
   $text .= "<tr class=$edit_mode_class_prefix-header>";
-  $text .= "<td class='$edit_mode_class_prefix-header record-field fmt-right'>[~Field]</td>";
-  $text .= "<td class='$edit_mode_class_prefix-header record-value fmt-left' >[~Value]</td>";
+  $text .= "<td class='$edit_mode_class_prefix-header record-field fmt-center' colspan=2>$browser_window_title</td>";
   $text .= "</tr>";
 
   my $row_data = $ps->{ 'ROW_DATA' };
@@ -102,6 +116,14 @@ sub main
     my $label     = $fdes->get_attr( qw( WEB PREVIEW LABEL ) );
     
     next if $fdes->get_attr( qw( WEB PREVIEW SKIP ) );
+
+    my $divider = $bfdes->get_attr( 'WEB', 'DIVIDER' );
+    if( $divider )
+      {
+      $text .= "<tr class=$edit_mode_class_prefix-header>";
+      $text .= "<td class='$edit_mode_class_prefix-header record-field fmt-center' colspan=2>$divider</td>";
+      $text .= "</tr>";
+      }
 
     my $base_field = $field;
 

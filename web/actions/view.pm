@@ -91,6 +91,8 @@ sub main
 
 #print STDERR Dumper( $row_data );
 
+  my @backlinks_text;
+
   @fields = grep { /^_/ ? $reo->user_has_group( 1 ) ? 1 : 0 : 1 } @fields;
 
   for my $field ( @fields )
@@ -120,6 +122,14 @@ sub main
     my $no_layout_ctrls = 0;
 
     next if $bfdes->get_attr( qw( WEB VIEW HIDE_IF_EMPTY ) ) and $data eq ''; # TODO: FIXME: by type? eq '', == 0, etc.
+
+    my $divider = $bfdes->get_attr( 'WEB', 'DIVIDER' );
+    if( $divider )
+      {
+      $text .= "<tr class=view-header>";
+      $text .= "<td class='view-header record-field fmt-center' colspan=2>$divider</td>";
+      $text .= "</tr>";
+      }
 
     my $overflow  = $bfdes->get_attr( qw( WEB VIEW OVERFLOW ) );
     if( $overflow )
@@ -248,8 +258,10 @@ sub main
       my $details_fields = $bfdes->get_attr( qw( WEB EDIT DETAILS_FIELDS ) );
       if( $details_fields and $count > 0 )
         {
+        my $backlink_text = "<p>";
+
         my $details_limit = $bfdes->get_attr( qw( WEB EDIT DETAILS_LIMIT ) ) || 16;
-        $field_details .= de_data_grid( $core, $backlinked_table, $details_fields, { FILTER => { $backlinked_field => $id }, LIMIT => $details_limit } ) ;
+        $field_details .= de_data_grid( $core, $backlinked_table, $details_fields, { FILTER => { $backlinked_field => $id }, LIMIT => $details_limit, CLASS => 'grid view record', TITLE => "Related $linked_table_label" } ) ;
 
         if( uc( $bfdes->get_attr( 'WEB', 'GRID', 'BACKLINK_GRID_MODE' ) ) eq 'ALL' )
           {
@@ -257,8 +269,8 @@ sub main
           }
         else
           {  
-          $field_details .= de_html_alink_button( $reo, 'new', ' <img src=i/grid.svg> [~View attached records]',     "[~View all connected records from] <b>$linked_table_label</b>",  BTYPE => 'nav', ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => $id, FILTER => { $backlinked_field => $id } ) unless $count == $acount;
-          $field_details .= de_html_alink_button( $reo, 'new', ' <img src=i/attach.svg> [~View unattached records]',   "[~View all not connected records from] <b>$linked_table_label</b>",  BTYPE => 'nav', ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => 0, FILTER => { $backlinked_field => 0 } ) if $uncount > 0;
+          $field_details .= de_html_alink_button( $reo, 'new', " <img src=i/grid.svg> [~View all] <b>$linked_table_label</b>",     "[~View all connected records from] <b>$linked_table_label</b>",  BTYPE => 'nav', ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => $id, FILTER => { $backlinked_field => $id } ) unless $count == $acount;
+          $field_details .= de_html_alink_button( $reo, 'new', " <img src=i/attach.svg> [~View unattached] <b>$linked_table_label</b>",   "[~View all not connected records from] <b>$linked_table_label</b>",  BTYPE => 'nav', ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => 0, FILTER => { $backlinked_field => 0 } ) if $uncount > 0;
           }
         
         if( $bltdes->get_table_type() eq 'FILE' )
@@ -267,9 +279,14 @@ sub main
           }
         else
           {
-          $field_details .= de_html_alink_button( $reo, 'new', '  <img src=i/insert.svg> [~Create new record]', "[~Create and connect a new record into] <b>$linked_table_label</b>", BTYPE => 'act', ACTION => 'edit', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, LINK_FIELD_DISABLE => $backlinked_field );
+          $field_details .= de_html_alink_button( $reo, 'new', "  <img src=i/insert.svg> [~Add new] <b>$linked_table_label</b>", "[~Create and connect a new record into] <b>$linked_table_label</b>", BTYPE => 'act', ACTION => 'edit', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, LINK_FIELD_DISABLE => $backlinked_field );
           }
         $no_layout_ctrls = 1;
+
+        $backlink_text .= $field_details;
+        
+        push @backlinks_text, $backlink_text;
+        next;
         }
       }
 
@@ -336,6 +353,8 @@ sub main
     my $dolabel = $dodes->get_attr( qw( WEB VIEW LABEL ) );
     $text .= de_html_alink_button( $reo, 'new',  "$dolabel &sect;", "$dolabel", ACTION => 'do', DO => $do, ID => $id, TABLE => $table );
     }
+
+  $text .= join '', @backlinks_text;
 
   return $text;
 }

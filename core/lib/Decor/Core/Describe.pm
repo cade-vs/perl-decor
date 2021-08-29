@@ -213,6 +213,8 @@ my %DES_ATTRS = (
                            UPLOAD_LINK_CUE   => 3,
                            DOWNLOAD_LINK_CUE => 3,
                            
+                           DIVIDER     => 3,
+
                            SHOW        => 3,
                            HIDE        => 3,
                            

@@ -116,6 +116,8 @@ sub de_data_grid
 
   my $filter = $opt->{ 'FILTER' };
   my $limit  = $opt->{ 'LIMIT'  };
+  my $class  = $opt->{ 'CLASS'  } || 'grid';
+  my $title  = $opt->{ 'TITLE'  };
 
   my $select = $core->select( $table, join( ',', @fields ), { FILTER => $filter, LIMIT => $limit, ORDER_BY => '._ID' } ) if @fields;
   #my $scount = $core->count( $table,                        { FILTER => $filter,                                     } ) if $select;
@@ -123,7 +125,14 @@ sub de_data_grid
   
   my $text;
 
-  $text .= "<table class=grid cellspacing=0 cellpadding=0>";
+  $text .= "<table class='$class' cellspacing=0 cellpadding=0>";
+  
+  if( $title )
+    {
+    my $c = @fields;
+    $text .= "<tr class=grid-header><td class='grid-header fmt-center' colspan=$c>$title</td></tr>";
+    }
+  
   $text .= "<tr class=grid-header>";
   # $text .= "<td class='grid-header fmt-left'>Ctrl</td>";
 
