@@ -117,14 +117,6 @@ sub main
     
     next if $fdes->get_attr( qw( WEB PREVIEW SKIP ) );
 
-    my $divider = $bfdes->get_attr( 'WEB', 'DIVIDER' );
-    if( $divider )
-      {
-      $text .= "<tr class=$edit_mode_class_prefix-header>";
-      $text .= "<td class='$edit_mode_class_prefix-header record-field fmt-center' colspan=2>$divider</td>";
-      $text .= "</tr>";
-      }
-
     my $base_field = $field;
 
     my $data = $row_data->{ $field };
@@ -183,6 +175,14 @@ sub main
       $count = 'Unknown' if $count eq '';
 
       $data_fmt = qq( <b class=hi>$count</b> [~records from] <b class=hi>$linked_table_label</b> );
+      }
+
+    my $divider = $bfdes->get_attr( 'WEB', 'DIVIDER' );
+    if( $divider )
+      {
+      $text .= "<tr class=$edit_mode_class_prefix-header>";
+      $text .= "<td class='$edit_mode_class_prefix-header record-field fmt-center' colspan=2>$divider</td>";
+      $text .= "</tr>";
       }
 
     $field_error = "<div class=warning align=right>$field_error</div>" if $field_error;

@@ -123,14 +123,6 @@ sub main
 
     next if $bfdes->get_attr( qw( WEB VIEW HIDE_IF_EMPTY ) ) and $data eq ''; # TODO: FIXME: by type? eq '', == 0, etc.
 
-    my $divider = $bfdes->get_attr( 'WEB', 'DIVIDER' );
-    if( $divider )
-      {
-      $text .= "<tr class=view-header>";
-      $text .= "<td class='view-header record-field fmt-center' colspan=2>$divider</td>";
-      $text .= "</tr>";
-      }
-
     my $overflow  = $bfdes->get_attr( qw( WEB VIEW OVERFLOW ) );
     if( $overflow )
       {
@@ -298,6 +290,14 @@ sub main
     if( $type_name eq 'CHAR' and $type_lname eq 'LOCATION' )
       {
       $data_fmt = de_html_alink_button( $reo, 'new', " <img src=i/map_location.svg> $data_fmt", "[~View map location]", ACTION => 'map_location', LL => $data );
+      }
+
+    my $divider = $bfdes->get_attr( 'WEB', 'DIVIDER' );
+    if( $divider )
+      {
+      $text .= "<tr class=view-header>";
+      $text .= "<td class='view-header record-field fmt-center' colspan=2>$divider</td>";
+      $text .= "</tr>";
       }
 
     my $data_layout = $no_layout_ctrls ? $data_fmt : html_layout_2lr( $data_fmt, $data_ctrl, '<==1>' );

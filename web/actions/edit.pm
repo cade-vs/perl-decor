@@ -255,14 +255,6 @@ sub main
 
     next if $fdes->get_attr( 'WEB', ( $edit_mode_insert ? 'INSERT' : 'UPDATE' ), 'HIDE' );
 
-    my $divider = $fdes->get_attr( 'WEB', 'DIVIDER' );
-    if( $divider )
-      {
-      $text .= "<tr class=$edit_mode_class_prefix-header>";
-      $text .= "<td class='$edit_mode_class_prefix-header record-field fmt-center' colspan=2>$divider</td>";
-      $text .= "</tr>";
-      }
-
     my $base_field = $field;
 
     my $field_data = $ps->{ 'ROW_DATA' }{ $field };
@@ -599,6 +591,14 @@ sub main
     else
       {
       $field_input = "(unknown)";
+      }
+
+    my $divider = $fdes->get_attr( 'WEB', 'DIVIDER' );
+    if( $divider )
+      {
+      $text .= "<tr class=$edit_mode_class_prefix-header>";
+      $text .= "<td class='$edit_mode_class_prefix-header record-field fmt-center' colspan=2>$divider</td>";
+      $text .= "</tr>";
       }
 
     $field_error = "<div class=warning align=right>$field_error</div>" if $field_error;
