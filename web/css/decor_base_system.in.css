@@ -953,6 +953,16 @@ img.check-unknown:hover
         $$setup-act-fg-bg-border-hi $check-unknown-colors
         }
 
+img.check-gr
+        {
+        $$setup-act-fg-bg-border    $check-gr-colors
+        }
+
+img.check-gr:hover
+        {
+        $$setup-act-fg-bg-border-hi $check-gr-colors
+        }
+
 img.check-0
         {
         $$setup-act-fg-bg-border    $check-0-colors

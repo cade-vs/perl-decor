@@ -334,7 +334,7 @@ sub main
                                        ID       => "VECB:$cb_id",
                                        VALUE    => 0,
                                        RET      => [ '0', '1' ],
-                                       LABELS   => [ "<img class='check-base check-0' src=i/check-0.svg>", "<img class='check-base check-1' src=i/check-1.svg>" ],
+                                       LABELS   => [ "<img class='check-base check-gr' src=i/check-0.svg>", "<img class='check-base check-1' src=i/check-1.svg>" ],
                                        HINT     => '[~Select this record]',
                                        );
       }

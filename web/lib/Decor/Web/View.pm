@@ -134,7 +134,8 @@ sub de_web_format_field
       $data_fmt = [ "<img class='check-base check-0' src=i/check-0.svg>", "<img class='check-base check-1' src=i/check-1.svg>" ]->[ !! $field_data ];
       my $new_val = !!! $field_data || 0; # cap and reverse
       # FIXME: use reactor_none_href to avoid session creation?
-      $data_fmt = "<div class=vframe><a reactor_new_href=?_an=set_val&table=$table&fname=$fname&id=$id&value=$new_val&vtype=$vtype>$data_fmt</a></div>";
+      #$data_fmt = "<div class=vframe><a reactor_new_href=?_an=set_val&table=$table&fname=$fname&id=$id&value=$new_val&vtype=$vtype>$data_fmt</a></div>";
+      $data_fmt = "<a reactor_new_href=?_an=set_val_nf&table=$table&id=$id&fname=$fname&value=$new_val>$data_fmt</a>";
       }
     else
       {
@@ -217,13 +218,13 @@ sub de_web_format_field
     my $vframe_id = 'VFRGE_' . $reo->html_new_id();
 
     my $combo_text;
-    $combo_text .= "<a class=grid-link-select-option reactor_new_href=?_an=set_val&table=$table&fname=$fname&id=$id&value=0&vtype=$vtype data-vframe-target=$vframe_id>&empty;</a>";
+    $combo_text .= "<a class=grid-link-select-option reactor_new_href=?_an=set_val_nf&table=$table&id=$id&fname=$fname&value=0>&empty;</a>";
     while( my $hr = $core->fetch( $combo_select ) )
       {
       my @value = map { $hr->{ $_ } } @spf_fld;
       my $value = sprintf( $spf_fmt, @value );
       my $key   = $hr->{ '_ID' };
-      $combo_text .= "<a class=grid-link-select-option reactor_new_href=?_an=set_val&table=$table&fname=$fname&id=$id&value=$key&vtype=$vtype data-vframe-target=$vframe_id>$value</a>";
+      $combo_text .= "<a class=grid-link-select-option reactor_new_href=?_an=set_val_nf&table=$table&id=$id&fname=$fname&value=$key>$value</a>";
       }
 
     if( $fdes->get_attr( 'WEB', 'EDIT', 'MONO' ) )
@@ -232,8 +233,8 @@ sub de_web_format_field
       }
 
     my $popup_layer_html;
-    ( $data_fmt, $popup_layer_html ) = de_html_popup( $reo, $data_fmt, $combo_text );
-    $data_fmt = "<div class=vframe id=$vframe_id style='width: 100%;'><div class=grid-link-select>$data_fmt</div>$popup_layer_html</div>";
+    $data_fmt = de_html_popup( $reo, $data_fmt, $combo_text );
+    $data_fmt = "<div class=grid-link-select>$data_fmt</div>";
     }
   else
     {

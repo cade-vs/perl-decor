@@ -8,7 +8,8 @@
 ##
 ############################################################################*/
 
-/* THIS FILE IS GENERATED! PLEASE, DO NOT MODIFY! -- GENERATED AT Tue Aug 24 13:36:18 2021 */
+/* THIS FILE IS GENERATED! PLEASE, DO NOT MODIFY! -- GENERATED AT Mon Sep  6 23:26:48 2021 */
+
 
 
 
@@ -113,7 +114,7 @@ body
         {
         color:            #EEE;
         background-color: #222;
-        background-image: url( "back.jpg" );
+        background-image: url( "main-background.png" );
 
         font-family: rubik, sans-serif;
         margin: 0;
@@ -334,7 +335,7 @@ div.error-text
 
         width:  80%;
         text-align: center;
-        padding: 1em;
+        padding: 0.5em;
         margin-left: auto;
         margin-right: auto;
         }
@@ -348,7 +349,7 @@ div.info-text
 
         width:  80%;
         text-align: center;
-        padding: 1em;
+        padding: 0.5em;
         margin-left: auto;
         margin-right: auto;
         }
@@ -713,7 +714,7 @@ td.insert-value
 
 .details-text
         {
-        color:            #888
+        color:            
         }
 
 /*** grid *******************************************************************/
@@ -1014,6 +1015,20 @@ img.check-unknown:hover
         color:            #CCC;
         background-color: #555;
         border: solid 2px #777;
+        }
+
+img.check-gr
+        {
+        color:            #FFF;
+        background-color: #448;
+        border: solid 2px #66A;
+        }
+
+img.check-gr:hover
+        {
+        color:            #FFF;
+        background-color: #66A;
+        border: solid 2px #88C;
         }
 
 img.check-0
