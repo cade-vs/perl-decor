@@ -635,7 +635,7 @@ sub recalc
   $mi{ 'ID'     } = $id;
   $mi{ 'INSERT' } = 1 if $insert;
   
-  $mi{ 'EDIT_SID' } = $opt->{ 'EDIT_SID' } if exists $opt->{ 'EDIT_SID' };
+  $mi{ $_ } = $opt->{ $_ } for ( 'EDIT_SID', 'PASS_SALT' );
 
   my $mo = $self->tx_msg( \%mi ) or return undef;
 

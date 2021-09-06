@@ -1371,7 +1371,7 @@ sub sub_recalc
 
   $rec->inject_return_file_into_mo( $mo );
 
-  my $merrs = $rec->get_errors_hashref();
+  my $merrs = $rec->method_get_errors_hashref();
   $mo->{ 'MERRS' } = $merrs if $merrs;
   $mo->{ 'RDATA' } = $rec->read_hash_all();
   $mo->{ 'XS'    } = 'OK';

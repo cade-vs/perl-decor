@@ -122,7 +122,7 @@ sub main
 #  my $fields = join ',', grep { $link_field_disable ? ( $_ ne $link_field_disable and $_ !~ /^$link_field_disable\./ ) : 1 } @fields, values %basef;
   my $fields = join ',', @fields, values %basef;
 
-print STDERR "=======================>>>>>>>>>>>>>>>>>>>>>>>> "  . Dumper( \@fields, \%basef, $fields );  
+#print STDERR "=======================>>>>>>>>>>>>>>>>>>>>>>>> "  . Dumper( \@fields, \%basef, $fields );  
 
   return "<#e_access>" unless $fields;
 
@@ -488,8 +488,8 @@ print STDERR "=======================>>>>>>>>>>>>>>>>>>>>>>>> "  . Dumper( \@fie
         my $bcnt = 'n/a';
         if( uc( $bfdes->get_attr( 'WEB', 'GRID', 'BACKLINK_GRID_MODE' ) ) eq 'ALL' )
           {
-          my $view_attached_cue   = $bfdes->get_attr( qw( WEB GRID VIEW_ATTACHED_CUE   ) ) || "[~View attached records]";
-          $data_ctrl .= de_html_alink_button( $reo, 'new', "(*) $view_attached_cue",           undef,                 ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => $id, FILTER => { $backlinked_field => [ { OP => 'IN', VALUE => [ $id, 0 ] } ] } );
+          my $view_all_cue   = $bfdes->get_attr( qw( WEB GRID VIEW_ALL_CUE   ) ) || "[~View all records]";
+          $data_ctrl .= de_html_alink_button( $reo, 'new', "(*) $view_all_cue",           undef,                 ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => $id, FILTER => { $backlinked_field => [ { OP => 'IN', VALUE => [ $id, 0 ] } ] } );
           $data_ctrl .= "<br>\n";
           
           # TODO: option to avoid count

@@ -14,9 +14,11 @@ use Data::Tools;
 use Exception::Sink;
 
 use Decor::Shared::Types;
+use Decor::Shared::Utils;
 use Decor::Web::HTML::Utils;
 use Decor::Web::Utils;
 use Decor::Web::View;
+use Decor::Web::Grid;
 use Web::Reactor::HTML::Utils;
 use Web::Reactor::HTML::Layout;
 
@@ -152,6 +154,16 @@ sub main
     my $type       = $fdes->{ 'TYPE'  };
 
     my $raw_input_data = type_revert( $input_data, $type );
+    
+    # TODO: handle passwords
+    if( $fdes->{ 'PASSWORD' } or $field =~ /^PASSWORD/ )
+      {
+      ## $ps->{ 'PASS_SALT' } ||= create_random_id( 128 );
+      ## # TODO: check for pass strength here
+      ## $raw_input_data = de_password_salt_hash( $raw_input_data, $ps->{ 'PASS_SALT' } );
+      
+      # TODO: RSA encrypt here! decrypt in methods
+      }
 
     $ps->{ 'ROW_DATA' }{ $field } = $raw_input_data;
     
@@ -168,7 +180,7 @@ sub main
     }
 
   my $calc_in  = { map { $_ => $ps->{ 'ROW_DATA' }{ $_ } } @$fields_ar };
-  my ( $calc_out, $calc_merrs )= $core->recalc( $table, $calc_in, $id, $edit_mode_insert, { 'EDIT_SID' => $ps->{ 'EDIT_SID' } } );
+  my ( $calc_out, $calc_merrs )= $core->recalc( $table, $calc_in, $id, $edit_mode_insert, { %{ $ps }{ 'EDIT_SID', 'PASS_SALT' } } );
   if( $calc_out )
     {
     $ps->{ 'ROW_DATA'      } = $calc_out;
@@ -277,11 +289,12 @@ sub main
 
     if( $type_name eq 'CHAR' )
       {
-      my $pass_type = 1 if $fdes->{ 'PASSWORD' } or $field =~ /^PWD_/;
+      my $pass_type = 1 if $fdes->{ 'PASSWORD' } or $field =~ /^PASSWORD/;
       my $rows = $fdes->get_attr( 'WEB', 'ROWS' );
       my $field_size = $flen;
       my $field_maxlen = $field_size;
       $field_size = 42 if $field_size > 42; # TODO: fixme
+      $field_data_usr_format = undef if $pass_type;
       if( $rows > 1 )
         {
         $field_input .= $edit_form->textarea(

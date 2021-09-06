@@ -120,3 +120,16 @@
       for GRID, VIEW, PREVIEW, web.combo will still be valid.
       
       TODO: FIXME: cleanup formatting and combo/search toggles
+
+  ============================================================================
+  FIELD TYPE BACKLINK ATTRIBUTES
+  ============================================================================
+
+  BACKLINK has the following attributes:
+
+  "web.grid.backlink_grid_mode"
+  
+  if set to "ALL" GRIDs will have buttons for backlinked fields to show ALL
+  records from the backlink table.
+  
+  normal behaviour is to show ONLY ATTACHED records.

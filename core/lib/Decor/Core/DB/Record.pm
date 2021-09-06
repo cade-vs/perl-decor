@@ -1017,7 +1017,7 @@ sub __check_edit_cache_sid
 
 #-----------------------------------------------------------------------------
 
-sub reset_errors
+sub method_reset_errors
 {
   my $self = shift;
 
@@ -1044,12 +1044,20 @@ sub method_add_field_error
   $self->{ 'CLIENT:IO:METHOD:ERRORS' }{ '#' } += @_;
 }
 
-sub get_errors_hashref
+sub method_get_errors_hashref
 {
   my $self = shift;
 
   $self->__check_client_io();
   return $self->{ 'CLIENT:IO:METHOD:ERRORS' };
+}
+
+sub method_get_errors_count
+{
+  my $self = shift;
+
+  $self->__check_client_io();
+  return $self->{ 'CLIENT:IO:METHOD:ERRORS' }{ '#' };
 }
 
 #-----------------------------------------------------------------------------

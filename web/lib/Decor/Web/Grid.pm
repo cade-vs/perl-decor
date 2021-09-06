@@ -37,11 +37,11 @@ sub de_web_grid_backlink_detach_attach_icon
   my $pa_id  = shift; # parent record id
   my $value  = shift;
 
-  print STDERR "\n" x 10;
-  print STDERR "+++++++++++++++++++++++++++++++++++++++++++++++\n";
-  print STDERR "$core->update( $table, { $fname => $value }, { ID => $id } )\n";
-  print STDERR "de_web_grid_backlink_detach_attach_icon( $reo, $core, $table, $fname, RCID:$id, PARENT:$pa_id, VALUE:$value, )";
-  print STDERR "\n" x 10;
+  #print STDERR "\n" x 10;
+  #print STDERR "+++++++++++++++++++++++++++++++++++++++++++++++\n";
+  #print STDERR "$core->update( $table, { $fname => $value }, { ID => $id } )\n";
+  #print STDERR "de_web_grid_backlink_detach_attach_icon( $reo, $core, $table, $fname, RCID:$id, PARENT:$pa_id, VALUE:$value, )";
+  #print STDERR "\n" x 10;
 
   my $tdes = $core->describe( $table );
   

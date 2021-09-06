@@ -34,10 +34,10 @@ sub main
 
   my $new_value = $value > 0 ? 0 : $pa_id;
 
-  print STDERR "\n" x 10;
-  print STDERR "$core->update( $table, { $fname => $new_value }, { ID => $id } )\n";
-  print STDERR "de_web_grid_backlink_detach_attach_icon( $reo, $core, $table, $fname, $id, $pa_id, $value, )";
-  print STDERR "\n" x 10;
+  #print STDERR "\n" x 10;
+  #print STDERR "$core->update( $table, { $fname => $new_value }, { ID => $id } )\n";
+  #print STDERR "de_web_grid_backlink_detach_attach_icon( $reo, $core, $table, $fname, $id, $pa_id, $value, )";
+  #print STDERR "\n" x 10;
 
   my $res = $core->update( $table, { $fname => $new_value }, { ID => $id } );
 
