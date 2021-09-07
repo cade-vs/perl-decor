@@ -1367,6 +1367,7 @@ sub sub_recalc
   __sub_attach_edit_cache_sid_to_rec( $mi, $rec );
   $rec->__client_io_enable();
   $rec->method( 'RECALC' );
+  $rec->method( $insert ? 'RECALC_INSERT' : 'RECALC_UPDATE' );
   $rec->edit_cache_save();
 
   $rec->inject_return_file_into_mo( $mo );
