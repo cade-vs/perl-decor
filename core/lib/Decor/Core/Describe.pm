@@ -386,7 +386,6 @@ sub __merge_table_des_file
       de_log_debug2( "       =sect: [$category:$sect_name]" );
 
       $des->{ $category }{ $sect_name } ||= {};
-      $des->{ $category }{ $sect_name }{ 'TABLE' }   = $table;
       $des->{ $category }{ $sect_name }{ 'NAME'  }   = $sect_name;
       $des->{ $category }{ $sect_name }{ 'LABEL' } ||= __fix_label_name( $sect_name );
       if( exists $COPY_CATEGORY_ATTRS{ $category } )
@@ -699,6 +698,8 @@ sub __postprocess_table_des_hash
     my $type = shift @type;
 
     my @debug_origin = exists $fld_des->{ '__DEBUG_ORIGIN' } ? @{ $fld_des->{ '__DEBUG_ORIGIN' } } : ();
+    
+    $fld_des->{ 'TABLE' } = $table;
 
     # "high" level types
     if( $type eq 'LINK' )
