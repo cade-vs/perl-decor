@@ -386,9 +386,7 @@ sub describe
   $mi{ 'XT'    } = 'D';
   $mi{ 'TABLE' } = $table;
 
-print STDERR ">>>>>>----------->>>>>>>>>>>>>>>>>>> describe $table 111\n";
   my $mo = $self->tx_msg( \%mi ) or return undef; # TODO: boom "describe: cannot get description for table [$table]";
-print STDERR ">>>>>>----------->>>>>>>>>>>>>>>>>>> describe $table 222\n";
 
   $self->{ 'CACHE' }{ 'DESCRIBE' }{ $table } = $mo->{ 'DES' };
 
