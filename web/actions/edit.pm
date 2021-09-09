@@ -81,7 +81,7 @@ sub main
       return "<#e_internal>[$status_ref]" unless $id > 0;
 
       $fields_ar = $tdes->get_fields_list_by_oper( 'INSERT' );
-
+      
       if( $copy_id )
         {
         # insert with copy

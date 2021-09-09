@@ -958,7 +958,11 @@ sub get_link_record
   
   my $lrec = new Decor::Core::DB::Record;
   
-  return undef unless $lrec->load( $linked_table, $self->read( $field ) );
+  my $id = $self->read( $field );
+  
+  return undef unless $id > 0;
+  
+  return undef unless $lrec->load( $linked_table, $id );
   
   return $lrec;
 }

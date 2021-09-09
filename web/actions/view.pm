@@ -212,6 +212,7 @@ sub main
       {
       my ( $backlinked_table, $backlinked_field ) = $bfdes->backlink_details();
       my $bltdes = $core->describe( $backlinked_table );
+
       my $linked_table_label = $bltdes->get_label();
 
       my ( $backlink_insert_cue, $backlink_insert_cue_hint ) = de_web_get_cue( $bfdes, qw( WEB VIEW BACKLINK_INSERT_CUE ) );
@@ -238,48 +239,55 @@ sub main
           }
         }
 
-      my $count = $core->count( $backlinked_table, { FILTER => { $backlinked_field => $id } });
-      $count = 'Unknown' if $count eq '';
-      my $uncount = $core->count( $backlinked_table, { FILTER => { $backlinked_field => 0 } });
-      my $acount  = $core->count( $backlinked_table, );
-
-      $data_fmt = undef;
-      $data_fmt .= de_html_alink( $reo, 'new', "<b class=hi>$count</b> [~records from] <b class=hi>$linked_table_label</b>",   "[~View all backlinked records from] <b class=hi>$linked_table_label</b>",  ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_VALUE => $id, FILTER => { $backlinked_field => $id } );
-      $data_fmt .= de_html_alink( $reo, 'new', " ( + <b class=hi>$uncount</b> [~NOT connected records])",   "[~View all backlinked records from] <b class=hi>$linked_table_label</b>",  ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_VALUE => 0, FILTER => { $backlinked_field => 0 } ) if $uncount > 0;
-
-      my $details_fields = $bfdes->get_attr( qw( WEB EDIT DETAILS_FIELDS ) );
-      if( $details_fields and $count > 0 )
+      if( $bltdes->allows( 'READ' ) )
         {
-        my $backlink_text = "<p>";
+        my $count = $core->count( $backlinked_table, { FILTER => { $backlinked_field => $id } });
+        $count = 'Unknown' if $count eq '';
+        my $uncount = $core->count( $backlinked_table, { FILTER => { $backlinked_field => 0 } });
+        my $acount  = $core->count( $backlinked_table, );
 
-        my $details_limit = $bfdes->get_attr( qw( WEB EDIT DETAILS_LIMIT ) ) || 16;
-        $field_details .= de_data_grid( $core, $backlinked_table, $details_fields, { FILTER => { $backlinked_field => $id }, LIMIT => $details_limit, CLASS => 'grid view record', TITLE => "Related $linked_table_label" } ) ;
+        $data_fmt = undef;
+        $data_fmt .= de_html_alink( $reo, 'new', "<b class=hi>$count</b> [~records from] <b class=hi>$linked_table_label</b>",   "[~View all backlinked records from] <b class=hi>$linked_table_label</b>",  ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_VALUE => $id, FILTER => { $backlinked_field => $id } );
+        $data_fmt .= de_html_alink( $reo, 'new', " ( + <b class=hi>$uncount</b> [~NOT connected records])",   "[~View all backlinked records from] <b class=hi>$linked_table_label</b>",  ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_VALUE => 0, FILTER => { $backlinked_field => 0 } ) if $uncount > 0;
 
-        if( uc( $bfdes->get_attr( 'WEB', 'GRID', 'BACKLINK_GRID_MODE' ) ) eq 'ALL' )
+        my $details_fields = $bfdes->get_attr( qw( WEB EDIT DETAILS_FIELDS ) );
+        if( $details_fields and $count > 0 )
           {
-          $field_details .= de_html_alink_button( $reo, 'new', '[~View all related records]',   "[~View all related records from] <b>$linked_table_label</b>",  BTYPE => 'nav', ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => $id, FILTER => { $backlinked_field => [ { OP => 'IN', VALUE => [ $id, 0 ] } ] } );
-          }
-        else
-          {  
-          $field_details .= de_html_alink_button( $reo, 'new', " <img src=i/grid.svg> [~View all] <b>$linked_table_label</b>",     "[~View all connected records from] <b>$linked_table_label</b>",  BTYPE => 'nav', ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => $id, FILTER => { $backlinked_field => $id } ) unless $count == $acount;
-          $field_details .= de_html_alink_button( $reo, 'new', " <img src=i/attach.svg> [~View unattached] <b>$linked_table_label</b>",   "[~View all not connected records from] <b>$linked_table_label</b>",  BTYPE => 'nav', ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => 0, FILTER => { $backlinked_field => 0 } ) if $uncount > 0;
-          }
-        
-        if( $bltdes->get_table_type() eq 'FILE' )
-          {
-          $field_details .= de_html_alink_button( $reo, 'new', '  <img src=i/file_new.svg> [~Upload new file]', "[~Upload and link new files]", BTYPE => 'act', ACTION => 'file_up', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, LINK_FIELD_DISABLE => $backlinked_field, MULTI => 1 );
-          }
-        else
-          {
-          $field_details .= de_html_alink_button( $reo, 'new', "  <img src=i/insert.svg> [~Add new] <b>$linked_table_label</b>", "[~Create and connect a new record into] <b>$linked_table_label</b>", BTYPE => 'act', ACTION => 'edit', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, LINK_FIELD_DISABLE => $backlinked_field );
-          }
-        $no_layout_ctrls = 1;
+          my $backlink_text = "<p>";
 
-        $backlink_text .= $field_details;
-        
-        push @backlinks_text, $backlink_text;
-        next;
+          my $details_limit = $bfdes->get_attr( qw( WEB EDIT DETAILS_LIMIT ) ) || 16;
+          $field_details .= de_data_grid( $core, $backlinked_table, $details_fields, { FILTER => { $backlinked_field => $id }, LIMIT => $details_limit, CLASS => 'grid view record', TITLE => "Related $linked_table_label" } ) ;
+
+          if( uc( $bfdes->get_attr( 'WEB', 'GRID', 'BACKLINK_GRID_MODE' ) ) eq 'ALL' )
+            {
+            $field_details .= de_html_alink_button( $reo, 'new', '[~View all related records]',   "[~View all related records from] <b>$linked_table_label</b>",  BTYPE => 'nav', ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => $id, FILTER => { $backlinked_field => [ { OP => 'IN', VALUE => [ $id, 0 ] } ] } );
+            }
+          else
+            {  
+            $field_details .= de_html_alink_button( $reo, 'new', " <img src=i/grid.svg> [~View all] <b>$linked_table_label</b>",     "[~View all connected records from] <b>$linked_table_label</b>",  BTYPE => 'nav', ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => $id, FILTER => { $backlinked_field => $id } ) unless $count == $acount;
+            $field_details .= de_html_alink_button( $reo, 'new', " <img src=i/attach.svg> [~View unattached] <b>$linked_table_label</b>",   "[~View all not connected records from] <b>$linked_table_label</b>",  BTYPE => 'nav', ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => 0, FILTER => { $backlinked_field => 0 } ) if $uncount > 0;
+            }
+          
+          if( $bltdes->get_table_type() eq 'FILE' )
+            {
+            $field_details .= de_html_alink_button( $reo, 'new', '  <img src=i/file_new.svg> [~Upload new file]', "[~Upload and link new files]", BTYPE => 'act', ACTION => 'file_up', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, LINK_FIELD_DISABLE => $backlinked_field, MULTI => 1 );
+            }
+          else
+            {
+            $field_details .= de_html_alink_button( $reo, 'new', "  <img src=i/insert.svg> [~Add new] <b>$linked_table_label</b>", "[~Create and connect a new record into] <b>$linked_table_label</b>", BTYPE => 'act', ACTION => 'edit', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, LINK_FIELD_DISABLE => $backlinked_field );
+            }
+          $no_layout_ctrls = 1;
+
+          $backlink_text .= $field_details;
+          
+          push @backlinks_text, $backlink_text;
+          next;
+          }
         }
+      else
+        {
+        $data_fmt = "<span class=warning>[~ACCESS DENIED]</span>";
+        }  
       }
 
     if( $lpassword )

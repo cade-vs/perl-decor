@@ -600,7 +600,7 @@ sub sub_begin
     }
   else
     {
-    boom "EACCESS: invalid XT=BEGIN parameters, missing USER/PASS or USER_SID and disabled ANON access" unless de_app_cfg( 'ALLOW_ANON', 0 );
+    boom "E_ACCESS: invalid XT=BEGIN parameters, missing USER/PASS or USER_SID and disabled ANON access" unless de_app_cfg( 'ALLOW_ANON', 0 );
     # TEST: ANON connection
     my $profile = new Decor::Core::Profile;
     $profile->add_groups( 909 ); # anonymous
@@ -816,7 +816,7 @@ sub __replace_grant_deny
     for my $op ( keys %{ $hrd->{ $grant_deny } } )
       {
 #my $res = $profile->__check_access_tree( $op, $hrd->{ $grant_deny } );
-#print STDERR "=====(@_)======+++++ [$res] <- $op, $grant_deny, " . Dumper( $hrd ) if $op eq 'INSERT';
+#print STDERR "=====(@_)======+++++ [$res] <- $op, $grant_deny, " . Dumper( $hrd );
       $hrn->{ $grant_deny }{ $op } = $profile->__check_access_tree( $op, $hrd->{ $grant_deny } );
       }
     }
@@ -931,8 +931,6 @@ sub sub_menu
 sub __filter_to_where
 {
   my $filter = shift;
-
-  de_log_dumper( "__filter_to_where: ", $filter );
 
   my @where;
   my @bind;

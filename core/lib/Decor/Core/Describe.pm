@@ -1040,7 +1040,7 @@ sub describe_parse_access_line
   $line =~ s/\s*$//;
 
   boom "invalid access line [$line] expected [grant|deny <op> <op> <op> to <grp>; <grp> + <grp>; <grp> + !<grp>] at [@debug_origin]"
-        unless $line =~ /^\s*(GRANT|DENY)\s+(([A-Z_0-9]+\s*?)+?)(\s+TO\s+([A-Z0-9!+;\s]+))?\s*$/;
+        unless $line =~ /^\s*(GRANT|DENY)\s+(([A-Z_0-9]+\s*?)+?)(\s+TO\s+([A-Z0-9!+;,\s]+))?\s*$/;
 
   my $type_line   = $1;
   my $opers_line  = $2;
@@ -1053,11 +1053,11 @@ sub describe_parse_access_line
 #  $line =~ s/\s*//g;
 #print "ACCESS DEBUG LINE [$line]\n";
 
-  my @line = split /;/, $line;
+###  my @line = split /[;,]/, $line;
 
-  my $ops = shift @line;
+###  my $ops = shift @line;
   my @opers  = split /\s+/, $opers_line;
-  my @groups = split /\s*[;]\s*/, $groups_line;
+  my @groups = split /\s*[;,]\s*/, $groups_line;
 
   $_ = $GROUP_ALIASES{ $_ } || $_ for @groups;
 

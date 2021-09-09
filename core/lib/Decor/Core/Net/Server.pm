@@ -31,6 +31,14 @@ my $SERVER_IDLE_EXIT_ALARM     =  5*60; # seconds
 my $SERVER_IDLE_EXIT_ALARM_MIN =  1*60; # seconds
 my $SERVER_IDLE_EXIT_ALARM_MAX = 15*60; # seconds
 
+sub break_main_loop
+{
+  my $self = shift;
+
+  de_log_debug( "breaking main loop..." );
+  $self->SUPER::break_main_loop();
+}
+
 sub on_accept_ok
 {
   my $self = shift;
@@ -67,11 +75,23 @@ sub on_process
   my $mo = {}; # output message
   while(4)
     {
-    last if $self->{ 'BREAK_MAIN_LOOP' };
+    if( $self->{ 'BREAK_MAIN_LOOP' } )
+      {
+      de_log_debug( "exiting main loop..." );
+      last;
+      }
     server_idle_begin();
     
     my $ptype;
-    ( $mi, $ptype ) = de_net_protocol_read_message( $socket );
+    my $nerr;
+    ( $mi, $ptype, $nerr ) = de_net_protocol_read_message( $socket );
+
+    if( $nerr eq 'E_COMM' )
+      {
+      de_log( "status: end of communication channel" );
+      $self->break_main_loop();
+      next;
+      }
     
     $mo = {};
     $mc++;
@@ -107,14 +127,16 @@ sub on_process
     if( $@ )
       {
       my $ev = $@;
-      my $err_ref = create_random_id( 9, 'ABCDEFGHJKLMNPQRTVWXY0123456789' ); # print read safe
-      de_log( "error: XTYPE handler exception err_ref [$err_ref] details [$ev]\n" );
-      $mo->{ 'XS' } = $ev || "E_INTERNAL: exception err_ref [$err_ref]";
+      $ev =~ s/^BOOM: +\[\d+\] +//;
+#      my $err_ref = create_random_id( 9, 'ABCDEFGHJKLMNPQRTVWXY0123456789' ); # print read safe
+#      de_log( "error: XTYPE handler exception err_ref [$err_ref] details [$ev]\n" );
+#      $mo->{ 'XS' } = $ev || "E_INTERNAL: exception err_ref [$err_ref]";
+      $mo->{ 'XS' } = $ev || "E_INTERNAL: unexpected exception [@_]";
       subs_disable_manual_transaction();
       eval { dsn_rollback(); }; # FIXME: eval/break-main-loop
       if( $@ )
         {
-        de_log( "error: DSN ROLLBACK exception [$@] breaking main looop" );
+        de_log( "error: DSN ROLLBACK exception [$@]" );
         $self->break_main_loop();
         next;
         }
@@ -124,7 +146,7 @@ sub on_process
       eval { dsn_commit(); };
       if( $@ )
         {
-        de_log( "error: DSN COMMIT exception [$@] breaking main looop" );
+        de_log( "error: DSN COMMIT exception [$@]" );
         $self->break_main_loop();
         next;
         }
@@ -132,7 +154,7 @@ sub on_process
     
     my $xs = $mo->{ 'XS' };
     
-    if ( $xs =~ /^(OK|E_[A-Z_0-9]+)(:\s*(.*?))?$/ )
+    if ( $xs =~ /^(OK|E_[A-Z_0-9]+)(:\s*(.*?))?/ )
       {
       $mo->{ 'XS'     } = uc $1;
       # $mo->{ 'XS_MSG' } =    $3; # error details message will not be reported back to client!
@@ -169,7 +191,7 @@ sub on_process
 
     if( $mo_res == 0 )
       {
-      de_log( "error: error sending outgoing XTYPE message" );
+      de_log( "error: error sending outgoing XTYPE message, breaking main loop..." );
       $self->break_main_loop();
       next;
       }

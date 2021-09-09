@@ -58,7 +58,7 @@ sub de_net_protocol_read_message
   my $data = socket_read_message( $socket, $timeout );
   if( ! defined $data )
     {
-    return wantarray ? ( undef, undef, 'E_TIMEOUT' ) : undef;
+    return wantarray ? ( undef, undef, 'E_COMM' ) : undef;
     }
   
   my $ptype = substr( $data, 0, 1 );
