@@ -256,7 +256,8 @@ sub main
           my $backlink_text = "<p>";
 
           my $details_limit = $bfdes->get_attr( qw( WEB EDIT DETAILS_LIMIT ) ) || 16;
-          $field_details .= de_data_grid( $core, $backlinked_table, $details_fields, { FILTER => { $backlinked_field => $id }, LIMIT => $details_limit, CLASS => 'grid view record', TITLE => "Related $linked_table_label" } ) ;
+          my ( $dd_grid, $dd_count ) = de_data_grid( $core, $backlinked_table, $details_fields, { FILTER => { $backlinked_field => $id }, LIMIT => $details_limit, CLASS => 'grid view record', TITLE => "Related $linked_table_label" } ) ;
+          $field_details .= $dd_grid;
 
           if( uc( $bfdes->get_attr( 'WEB', 'GRID', 'BACKLINK_GRID_MODE' ) ) eq 'ALL' )
             {
@@ -264,18 +265,21 @@ sub main
             }
           else
             {  
-            $field_details .= de_html_alink_button( $reo, 'new', " <img src=i/grid.svg> [~View all] <b>$linked_table_label</b>",     "[~View all connected records from] <b>$linked_table_label</b>",  BTYPE => 'nav', ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => $id, FILTER => { $backlinked_field => $id } ) unless $count == $acount;
+            $field_details .= de_html_alink_button( $reo, 'new', " <img src=i/grid.svg> [~View all] <b>$linked_table_label</b>",     "[~View all connected records from] <b>$linked_table_label</b>",  BTYPE => 'nav', ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => $id, FILTER => { $backlinked_field => $id } ) unless $count == $dd_count;
             $field_details .= de_html_alink_button( $reo, 'new', " <img src=i/attach.svg> [~View unattached] <b>$linked_table_label</b>",   "[~View all not connected records from] <b>$linked_table_label</b>",  BTYPE => 'nav', ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => 0, FILTER => { $backlinked_field => 0 } ) if $uncount > 0;
             }
           
-          if( $bltdes->get_table_type() eq 'FILE' )
+          if( $bltdes->allows( 'INSERT' ) )
             {
-            $field_details .= de_html_alink_button( $reo, 'new', '  <img src=i/file_new.svg> [~Upload new file]', "[~Upload and link new files]", BTYPE => 'act', ACTION => 'file_up', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, LINK_FIELD_DISABLE => $backlinked_field, MULTI => 1 );
-            }
-          else
-            {
-            $field_details .= de_html_alink_button( $reo, 'new', "  <img src=i/insert.svg> [~Add new] <b>$linked_table_label</b>", "[~Create and connect a new record into] <b>$linked_table_label</b>", BTYPE => 'act', ACTION => 'edit', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, LINK_FIELD_DISABLE => $backlinked_field );
-            }
+            if( $bltdes->get_table_type() eq 'FILE' )
+              {
+              $field_details .= de_html_alink_button( $reo, 'new', '  <img src=i/file_new.svg> [~Upload new file]', "[~Upload and link new files]", BTYPE => 'act', ACTION => 'file_up', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, LINK_FIELD_DISABLE => $backlinked_field, MULTI => 1 );
+              }
+            else
+              {
+              $field_details .= de_html_alink_button( $reo, 'new', "  <img src=i/insert.svg> [~Add new] <b>$linked_table_label</b>", "[~Create and connect a new record into] <b>$linked_table_label</b>", BTYPE => 'act', ACTION => 'edit', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, LINK_FIELD_DISABLE => $backlinked_field );
+              }
+            }  
           $no_layout_ctrls = 1;
 
           $backlink_text .= $field_details;

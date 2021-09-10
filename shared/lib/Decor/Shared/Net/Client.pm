@@ -274,6 +274,7 @@ sub begin
   $self->{ 'DECOR_CORE_SESSION_ID' } = $mo->{ 'SID'   };
   $self->{ 'CORE_SESSION_XTIME'    } = $mo->{ 'XTIME' } || time() + 10*60;
   $self->{ 'USER_GROUPS'           } = $mo->{ 'UGS'   } || {};
+  $self->{ 'USER_NAME'             } = $mo->{ 'UN'    } || {};
 
   return $mo->{ 'SID' };
 }

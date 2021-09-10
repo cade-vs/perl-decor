@@ -198,7 +198,7 @@ sub de_data_grid
     }
   $text .= "</table>";
   
-  return $text;
+  return wantarray ? ( $text, $row_counter ) : $text;
 }
 
 ### EOF ######################################################################

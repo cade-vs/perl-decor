@@ -435,7 +435,7 @@ sub main
                 }
               else
                 {  
-                ###$data_fmt   = de_html_alink( $reo, 'new', "$data_fmt",                       $view_cue, ACTION => 'view', ID => $linked_id, TABLE => $linked_table );
+                $data_fmt   = de_html_alink( $reo, 'new', "$data_fmt",                       $view_cue, ACTION => 'view', ID => $linked_id, TABLE => $linked_table );
                 }
               }
             else
@@ -537,8 +537,8 @@ sub main
     {
     my $filter_des = $ps->{ 'FILTERS' }{ 'ACTIVE' }{ 'DES'   };
     my $filter_rmv;
-    $filter_rmv .= de_html_alink_button( $reo, 'new', "(&asymp;) [~Modify filter]",    '[~Filter records]',          ACTION => 'grid_filter', TABLE => $table           ) . "<br>";
-    $filter_rmv .= de_html_alink_button( $reo, 'here', "(x) [~Remove filter]",           '[~Remove current filter]',   REMOVE_ACTIVE_FILTER => 1 ) . "<br>";
+    $filter_rmv .= de_html_alink_button( $reo, 'new', "(&asymp;) [~Modify filter]",    '[~Filter records]',          ACTION => 'grid_filter', TABLE => $table );
+    $filter_rmv .= de_html_alink_button( $reo, 'here', "(x) [~Remove filter]",           '[~Remove current filter]',   REMOVE_ACTIVE_FILTER => 1 );
     my $filter_dez = html_layout_2lr( $filter_des, $filter_rmv, '<==1>' );
     $text .= "<div class=info-text>$filter_dez</div><p>";
     }

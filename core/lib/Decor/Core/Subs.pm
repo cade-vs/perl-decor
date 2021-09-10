@@ -442,6 +442,7 @@ sub sub_begin
   
   $mo->{ 'SID'   } = $session_rec->read( 'SID' );
   $mo->{ 'UGS'   } = $profile->get_groups_hr(); # user groups (UGS)
+  $mo->{ 'UN'    } = $user_rec->read( 'NAME' );
   $mo->{ 'XTIME' } = $session_rec->read( 'XTIME' );
   $mo->{ 'XS'    } = 'OK';
 }
@@ -505,6 +506,7 @@ sub sub_login
   subs_lock_current_session( $session_rec );
 
   $mo->{ 'UGS'   } = $profile->get_groups_hr(); # user groups (UGS)
+  $mo->{ 'UN'    } = $user_rec->read( 'NAME' );
   $mo->{ 'XTIME' } = $session_rec->read( 'XTIME' );
   $mo->{ 'XS'    } = 'OK';
 

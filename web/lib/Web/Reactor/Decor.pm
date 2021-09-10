@@ -121,6 +121,10 @@ sub __setup_client_env
 
   $user_shr->{ 'DECOR_CORE_SESSION_ID' } = $client->{ 'DECOR_CORE_SESSION_ID' };
   $user_shr->{ 'USER_GROUPS'           } = $client->{ 'USER_GROUPS' } || {};
+  $user_shr->{ 'USER_NAME'             } = $client->{ 'USER_NAME'   } || {};
+  
+  $self->html_content( 'USER_NAME' => $user_shr->{ 'USER_NAME' } );
+  
   $self->set_user_session_expire_time( $client->{ 'CORE_SESSION_XTIME' } );
 }
 
