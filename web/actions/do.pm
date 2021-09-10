@@ -86,7 +86,7 @@ $file_body = Encode::decode_utf8( $file_body );
     }  
   
   $html_file ||= "*** DONE ***"; # FIXME: must be more meaningful text :)
-  $text .= $html_file;
+  $text .= "<div class=report-text>$html_file</div>";
   $reo->html_content_set( 'for_printer' => $html_file );
 
   $text .= "<p>";

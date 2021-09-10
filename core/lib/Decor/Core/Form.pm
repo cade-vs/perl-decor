@@ -62,8 +62,9 @@ sub __form_process_item
 
   my $item_dot = 8;
   ( $item_len, $item_dot ) = ( ( $1 || $item_len ), ( $3 || $4 ) ) if $fmt =~ /(\d+)(\.(\d+))?|\.(\d+)/;
-  $item_align = $1 if $fmt =~ /([<=>])/;
+  $item_align = $1 if $fmt =~ /([<=~>])/;
   my ( $item_format, $item_format_name ) = ( 1, $2 ) if $fmt =~ /F(\(\s*([A-Z]+)\s*\))?/;
+  my $sub_form_name = uc( $1 ) if $fmt =~ /\@([a-z_]+)/i;
 
   my $value;
   if( $data and exists $data->{ $name } )  
@@ -76,7 +77,18 @@ sub __form_process_item
     my $tdes = describe_table( $rec->table() );
     my ( $bfdes, $lfdes ) = $tdes->resolve_path( $name );
 
-    if( $lfdes )
+    if( $bfdes->is_backlinked() )
+      {
+      my $brec = $rec->select_siblings( $name );
+      while( $brec->next() )
+        {
+        use Data::Dumper;
+        print Dumper( $brec );
+        $value .= de_form_gen_rec_data( $sub_form_name, $brec, $data, $opts );
+        }
+      $item_align = '~';  
+      }
+    elsif( $lfdes )
       {
       $value = $rec->read( $name );
       if( $item_format )
@@ -113,13 +125,12 @@ sub __form_process_item
     {
     $value = str_pad( $value, -$item_len );
     }
-  else
+  elsif( $item_align eq '=' )
     {
     $value = str_pad_center( $value, $item_len );
     }  
 
   return $value;  
-  
 }
 
 

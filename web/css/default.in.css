@@ -52,6 +52,7 @@ $check-1-colors          $action-item-act
 /*$                 fg    bg    border border-left  border-width left-border-width */
 $error-box-colors   #FFF  #511  #933   #933         1px          3px
 $info-box-colors    #FFF  #357  #68A   #68A         1px          3px
+$report-box-colors  #FFF  #355  #68A   #68A         1px          3px
 
 /*$                   fg    bg    3d-top 3d-bottom */
 $edit-link-data-box   #CCC  #113  #000  #555

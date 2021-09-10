@@ -8,7 +8,7 @@
 ##
 ############################################################################*/
 
-/* THIS FILE IS GENERATED! PLEASE, DO NOT MODIFY! -- GENERATED AT Mon Sep  6 23:26:48 2021 */
+/* THIS FILE IS GENERATED! PLEASE, DO NOT MODIFY! -- GENERATED AT Sat Sep 11 00:10:03 2021 */
 
 
 
@@ -349,6 +349,20 @@ div.info-text
 
         width:  80%;
         text-align: center;
+        padding: 0.5em;
+        margin-left: auto;
+        margin-right: auto;
+        }
+
+div.report-text
+        {
+        color: #FFF;
+        background-color: #357;
+        border:      solid 1px #68A;
+        border-left: solid 3px #68A;
+
+        width:  80%;
+        text-align: left;
         padding: 0.5em;
         margin-left: auto;
         margin-right: auto;

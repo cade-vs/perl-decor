@@ -326,6 +326,17 @@ div.info-text
         margin-right: auto;
         }
 
+div.report-text
+        {
+        $$div-box $report-box-colors
+
+        width:  80%;
+        text-align: left;
+        padding: 0.5em;
+        margin-left: auto;
+        margin-right: auto;
+        }
+
 div.link-data
         {
         $$3d-box-simple $edit-link-data-box
