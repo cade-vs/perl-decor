@@ -123,5 +123,20 @@ sub sort_fields_by_order
   return $self->sort_cat_by_order( 'FIELD', @_ );
 }
 
+sub get_cat_list
+{
+  my $self = shift;
+  my $cat  = shift;
+
+  return keys %{ $self->{ $cat } };
+}
+
+sub get_fields_list
+{
+  my $self = shift;
+
+  return $self->get_cat_list( 'FIELD' );
+}
+
 ### EOF ######################################################################
 1;
