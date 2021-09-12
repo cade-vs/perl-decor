@@ -128,7 +128,7 @@ sub get_cat_list
   my $self = shift;
   my $cat  = shift;
 
-  return keys %{ $self->{ $cat } };
+  return [ keys %{ $self->{ $cat } } ];
 }
 
 sub get_fields_list
