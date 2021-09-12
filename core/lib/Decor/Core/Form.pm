@@ -40,14 +40,16 @@ sub de_form_gen_rec_data
 
   my $form_text = file_load( $form_file );
   
-  $form_text =~ s/\[(.*?)\]/__form_process_item( $1, $rec, $data, $opts )/gie;
+  $form_text =~ s/\[(.*?)\]/__form_process_item( $1, 'F', $rec, $data, $opts )/gie;
+  $form_text =~ s/\{(.*?)\}/__form_process_item( $1, 'T', $rec, $data, $opts )/gie;
 
   return $form_text;
 }
 
 sub __form_process_item
 {
-  my $item = uc shift;
+  my $item = shift;
+  my $type = shift;
   my $rec  = shift;
   my $data = shift;
   my $opts = shift;
@@ -58,7 +60,11 @@ sub __form_process_item
   $item =~ s/^\s*//;
   $item =~ s/\s*$//;
   
-  my ( $name, $fmt ) = split /\s+/, $item, 2;
+#  my ( $name, $fmt ) = split $type eq 'T' ? /\s*;+\s*/ : /\s+/, $item, 2;
+
+  my ( $name, $fmt );
+  ( $name, $fmt ) = split      /\s+/, uc $item, 2 if $type eq 'F';
+  ( $name, $fmt ) = split /\s*;+\s*/,    $item, 2 if $type eq 'T';
 
   my $item_dot = 8;
   ( $item_len, $item_dot ) = ( ( $1 || $item_len ), ( $3 || $4 ) ) if $fmt =~ /(\d+)(\.(\d+))?|\.(\d+)/;
@@ -67,7 +73,11 @@ sub __form_process_item
   my $sub_form_name = uc( $1 ) if $fmt =~ /\@([a-z_]+)/i;
 
   my $value;
-  if( $data and exists $data->{ $name } )  
+  if( $type eq 'T' )
+    {
+    $value = $name;
+    }
+  elsif( $data and exists $data->{ $name } )  
     {
     $value = $data->{ $name };
     $value = type_format( $value, { NAME => $item_format_name, DOT => $item_dot } ) if $item_format;
@@ -82,28 +92,24 @@ sub __form_process_item
       my $brec = $rec->select_siblings( $name );
       while( $brec->next() )
         {
-        use Data::Dumper;
-        print Dumper( $brec );
         $value .= de_form_gen_rec_data( $sub_form_name, $brec, $data, $opts );
         }
+      chomp( $value );  
       $item_align = '~';  
       }
     elsif( $lfdes )
       {
       $value = $rec->read( $name );
-      if( $item_format )
+      my $ftype;
+      if( ! $item_format_name )
         {
-        my $ftype;
-        if( ! $item_format_name )
-          {
-          $ftype = $lfdes->{ 'TYPE' };
-          }
-        else
-          {
-          $ftype = { NAME => $item_format_name, DOT => $item_dot };
-          }  
-        $value = type_format( $value, $ftype );
+        $ftype = $lfdes->{ 'TYPE' };
         }
+      else
+        {
+        $ftype = { NAME => $item_format_name, DOT => $item_dot };
+        }  
+      $value = type_format( $value, $ftype );
       }
     else
       {

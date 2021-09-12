@@ -1,13 +1,13 @@
 
-  type Session
-  label User sessions
+  type  Session
+  label [~User sessions]
   system
 
 @isa  _DE_OWNERS  _OWNER
   
 =SID
 
-  label User session
+  label [~User session]
   type char 512
   
   web.grid.maxlen  12
@@ -17,17 +17,17 @@
 
 =ACTIVE
 
-  label Session active?
+  label [~Active session]
   type  bool
   
 =USR
 
-  label User
+  label [~User]
   type  link  DE_USERS  NAME
   
 =CTIME
 
-  label Login time
+  label [~Login time]
   type utime
   
   web.grid.details 2
@@ -35,7 +35,7 @@
 
 =ETIME
 
-  label Logout time
+  label [~Logout time]
   type utime
 
   web.grid.details 2
@@ -43,7 +43,7 @@
 
 =XTIME
 
-  label Expire time
+  label [~Expire time]
   type utime
 
   web.grid.details 2
@@ -51,7 +51,7 @@
 
 =ATIME
 
-  label Access time
+  label [~Access time]
   type utime
 
   web.grid.details 2
@@ -59,6 +59,6 @@
 
 =REMOTE
 
-  label Remote description
+  label [~Remote info]
   type  char  256
 

@@ -1,17 +1,17 @@
 
-  type User
-  label   System users
+  type    User
+  label   [~System users]
   system
 
 =NAME
 
-  label Login name
+  label [~Login name]
   type  char  128
   unique
 
 =PASS
   
-  label Password
+  label [~Password]
   type  char  256
 
   web.overflow  1
@@ -19,7 +19,7 @@
 
 =PASS_SALT
     
-  label Password seed
+  label [~Password seed]
   type  char  256
 
   web.overflow  1
@@ -27,50 +27,50 @@
 
 =PRIMARY_GROUP
 
-  label User primary group
+  label [~User primary group]
   type  link  DE_GROUPS   NAME
 
 =PRIVATE_GROUP
 
-  label User private group
+  label [~User private group]
   type  link  DE_GROUPS   NAME
 
 =GROUPS
 
-  label Attached groups
+  label [~Attached groups]
   type  backlink  DE_USER_GROUP_MAP   USR
 
 =ACTIVE
 
-  label User Active?
+  label [~Active user]
   type  bool
 
 =LAST_LOGIN_TIME
 
-  label Last login time
+  label [~Last login time]
   type  utime
   
 =LAST_LOGOUT_TIME
 
-  label Last login time
+  label [~Last login time]
   type  utime
   
 =LAST_LOGIN_SESSION
 
-  label Last login session
+  label [~Last login session]
   type  link DE_SESSIONS CTIME
 
 =LAST_LOGIN_SESSION_ACTIVE
 
-  label Is last login session still active?
+  label [~Last login active]
   type  link DE_SESSIONS ACTIVE
 
 =LOGIN_SESSIONS
 
-  label Previous login sessions
+  label [~Previous login sessions]
   type  backlink  DE_SESSIONS   USR
 
 =SESSIONLESS
 
-  label Sessionsless
+  label [~Sessionsless]
   type  bool

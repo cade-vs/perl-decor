@@ -48,7 +48,7 @@ sub main
 
 #print STDERR Dumper( "READ fields: ", \@fields );
 
-  my $browser_window_title = qq(Filter records from "<b>$table_label</b>");
+  my $browser_window_title = qq([~Filter records from] "<b>$table_label</b>");
   $reo->ps_path_add( 'filter', $browser_window_title );
 
 #print STDERR Dumper( "error:", \@fields, $ps->{ 'ROW_DATA' }, 'insert', $edit_mode_insert, 'allow', $tdes->allows( 'UPDATE' ) );

@@ -82,58 +82,80 @@ my $opt_lang     = lc shift @args;
 die $help_text unless de_check_name( $opt_app_name ) and -d "$ROOT/apps/$opt_app_name";
 die $help_text unless $opt_lang =~ /^[a-z][a-z]$/;
 
-my $TDIR = $opt_tdir || "$ROOT/apps/$opt_app_name/trans/";
+my $TDIR = $opt_tdir || "$ROOT/apps/$opt_app_name/web/trans/";
 $TDIR .= "/$opt_lang";
 
 dir_path_ensure( $TDIR ) or die "error: cannot nesure directory existence for [$TDIR]\n";
 
 
-my @dirs = ( 
-             "$ROOT/core/menus/*.def", 
-             "$ROOT/core/tables/*.def", 
-             "$ROOT/apps/$opt_app_name/menus/*.def",
-             "$ROOT/apps/$opt_app_name/tables/*.def",
+my %TRANS_DIRS = ( 
+             
+             'menu'     => [
+                           "$ROOT/core/menus/*.def", 
+                           "$ROOT/apps/$opt_app_name/menus/*.def",
+                           ],
+             'core'     => [
+                           "$ROOT/core/tables/*.def", 
+                           "$ROOT/core/tables/*.pm", 
+                           ],
+             'app'      => [
+                           "$ROOT/apps/$opt_app_name/tables/*.def",
+                           "$ROOT/apps/$opt_app_name/tables/*.pm",
+                           ],
 
-             "$ROOT/web/html/default/*.html", 
-             "$ROOT/web/actions/*.pm", 
-             "$ROOT/apps/$opt_app_name/web/html/default/*.html", 
-             "$ROOT/apps/$opt_app_name/web/actions/*.pm",
-           );
-
-my @files;
-
-push @files, glob_tree( $_ ) for @dirs;
-
-print Dumper( \@files );
+             'web_core' => [
+                           "$ROOT/web/html/default/*.html", 
+                           "$ROOT/web/actions/*.pm", 
+                           ],
+             'web_app'  => [
+                           "$ROOT/apps/$opt_app_name/web/html/default/*.html", 
+                           "$ROOT/apps/$opt_app_name/web/actions/*.pm",
+                           ],
+                );
 
 
+my %LANG_TR;
+my $SRC_TR;
 
-for my $file ( @files )
+$SRC_TR = tr_hash_load( "$TDIR/_source.tr" ) || {}; 
+
+while( my ( $type, $data ) = each %TRANS_DIRS )
   {
- # print "$file\n";
-  update_trans( $file, "web" );
+  my @files;
+  
+  push @files, glob_tree( $_ ) for @$data;
+
+  print Dumper( \@files );
+  
+  for my $file ( @files )
+    {
+    # TODO: load base trans and merge along
+    update_trans( $file, $type );
+    }
   }
+
+tr_hash_save( "$TDIR/$opt_lang.tr", \%LANG_TR );
 
 sub update_trans
 {
   my $fname = shift; # file to load
-  my $tname = shift; # trans file name to update
+  my $tname = shift; # trans type file name to update (prefix only)
 
   my $tfile = "$TDIR/$tname.tr";
   my $tr = tr_hash_load( $tfile ) || {};
 
-print "$fname=>$tfile\n";
-print Dumper( $fname, $tr );
-#  tie %$tr, 'Tie::IxHash';
+  print "$fname \t=> \t$tfile\n";
 
   my $fdata = file_load( $fname );
   for( $fdata =~ /\<~([^\<\>]*)\>/g, $fdata =~ /\[~([^\[\]]*)\]/g )
     {
     next if exists $tr->{ $_ };
-    $tr->{ $_ } = $_;
+    $tr->{ $_ } = exists $SRC_TR->{ $_ } ? $SRC_TR->{ $_ } : $_;
     }
 
   tr_hash_save( $tfile, $tr );
+  
+  %LANG_TR = ( %LANG_TR, %$tr );
 }
 
 ### EOF ######################################################################
