@@ -24,7 +24,7 @@ use Exception::Sink;
 my $opt_app_name;
 
 our $help_text = <<END;
-usage: $0 <options> application_name table record_id
+usage: $0 <options> application_name table <record_id>
 options:
     -d        -- increase DEBUG level (can be used multiple times)
     -r        -- log to STDERR
@@ -87,8 +87,22 @@ de_init( APP_NAME => $opt_app_name );
 my $table = uc shift @args;
 my $id    =    shift @args;
 
-
-check_rec( $table, $id );
+if( $id )
+  {
+  check_rec( $table, $id );
+  }
+else
+  {
+  my $io = new Decor::Core::DB::IO;
+  $io->select( $table, '_ID', '._ID > 0', { ORDER_BY => '_ID' } );
+  while( my $hr = $io->fetch() )
+    {
+    check_rec( $table, $hr->{ '_ID' } );
+    print "\n";
+    print "-" x 72;
+    print "\n";
+    }
+  }  
 
 
 sub check_rec
