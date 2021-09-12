@@ -51,6 +51,8 @@ sub new
   boom "APP_ROOT path does not exist [$APP_ROOT]" unless -d $APP_ROOT;
 
   my $lang = lc $env{ 'LANG' };
+  
+  boom "invalid LANG specified, got [$lang]" unless $lang =~ /^[a-z][a-z]$/;
 
   my %cfg = (
             'DEBUG'          => 0,
@@ -72,7 +74,8 @@ sub new
             'ACTIONS_DIRS'   => [ "$APP_ROOT/web/actions", "$ROOT/web/actions" ],
             'REO_ACTS_CLASS' => 'Web::Reactor::Actions::Decor',
             'REO_PREP_CLASS' => 'Web::Reactor::Preprocessor::Extended',
-            'TRANS_DIRS'     => [ "$ROOT/web/trans", "$APP_ROOT/web/trans" ],
+            #'TRANS_DIRS'     => [ "$ROOT/web/trans", "$APP_ROOT/web/trans" ],
+            'TRANS_FILE'     => "$APP_ROOT/web/trans/$lang/$lang.tr",
             'SESS_VAR_DIR'   => "$ROOT/var/$APP_NAME/sess/",
             %env,
             );
