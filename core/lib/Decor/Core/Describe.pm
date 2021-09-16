@@ -133,6 +133,7 @@ my %DES_ATTRS = (
                            GRANT       => 1,
                            DENY        => 1,
                            SYSTEM      => 1,
+                           READ_ONLY   => 1,
                            NO_COPY     => 1,
                            NO_PREVIEW  => 1,
 
@@ -253,6 +254,7 @@ my %DES_ATTRS = (
 
 my %COPY_CATEGORY_ATTRS = (
                           FIELD => {
+                                   # nothing for now
                                    },
                           );
 
@@ -354,7 +356,7 @@ sub __merge_table_des_file
   my $sect_name = '@'; # self :) should be more like 0
   my $category  = '@';
   $des->{ $category }{ $sect_name } ||= {};
-  push @{ $des->{ $category }{ $sect_name }{ '__DEBUG_ORIGIN' } }, $fname;
+  push @{ $des->{ $category }{ $sect_name }{ '__DEBUG_ORIGIN' } }, "$fname at 0" if de_debug();
   $des->{ $category }{ $sect_name }{ 'NAME' } = $table;
   $des->{ $category }{ $sect_name }{ 'TYPE' } ||= 'GENERIC';
   my $file_mtime = file_mtime( $fname );
@@ -373,19 +375,20 @@ sub __merge_table_des_file
     chomp( $line );
     $line =~ s/^\s*//;
     $line =~ s/\s*$//;
-    next unless $line =~ /\S/;
-    next if $line =~ /^([#;]|\/\/)/;
+    next unless $line =~ /\S/;       # skip whitespace
+    next if $line =~ /^([#;]|\/\/)/; # skip comments
     de_log_debug2( "        line: [$line]" );
 
     if( $line =~ /^\s*=+\s*(([a-zA-Z_][a-zA-Z_0-9]*):\s*)?([a-zA-Z_][a-zA-Z_0-9]*)\s*(.*?)\s*$/ )
       {
+      # new category item (section)
          $category  = uc( $2 || 'FIELD' );
          $sect_name = uc( $3 );
       my $sect_opts =     $4; # fixme: upcase/locase?
 
       boom "invalid category [$category] at [$fname at $ln]" unless exists $DES_CATEGORIES{ $category };
 
-      de_log_debug2( "       =sect: [$category:$sect_name]" );
+      de_log_debug2( "       =NEW SECTION: [$category:$sect_name]" );
 
       $des->{ $category }{ $sect_name } ||= {};
       $des->{ $category }{ $sect_name }{ 'NAME'  }   = $sect_name;
@@ -394,15 +397,11 @@ sub __merge_table_des_file
         {
         $des->{ $category }{ $sect_name }{ $_ } = $des->{ '@' }{ '@' }{ $_ } for keys %{ $COPY_CATEGORY_ATTRS{ $category } };
         }
-      $des->{ $category }{ $sect_name }{ '__GRANT_DENY_ACCUMULATOR'  } = [ @{ $des->{ '@' }{ '@' }{ '__GRANT_DENY_ACCUMULATOR'  } || [] } ];
+#!#      $des->{ $category }{ $sect_name }{ '__GRANT_DENY_ACCUMULATOR'  } = [ @{ $des->{ '@' }{ '@' }{ '__GRANT_DENY_ACCUMULATOR'  } || [] } ];
 
       $des->{ $category }{ $sect_name }{ '_ORDER' } = ++ $opt->{ '_ORDER' };
 
-      if( de_debug() )
-        {
-        $des->{ $category }{ $sect_name }{ '__DEBUG_ORIGIN' } ||= [];
-        push @{ $des->{ $category }{ $sect_name }{ '__DEBUG_ORIGIN' } }, $origin;
-        }
+      push @{ $des->{ $category }{ $sect_name }{ '__DEBUG_ORIGIN' } }, $origin if de_debug();
 
       next;
       }
@@ -412,19 +411,15 @@ sub __merge_table_des_file
       my $name = $2;
       my $args = $3; # options/arguments, FIXME: upcase/lowcase?
 
-      de_log_debug2( "        isa:  [$name][$args]" );
+      de_log_debug2( "        \@ISA:  [$name] [$args]" );
 
       my $isa = __load_table_raw_description( $name );
-
-#print STDERR Dumper( "my isa = __load_table_raw_description( $name );", $isa );
-
       boom "\@isa/\@include error: cannot load config [$name] at [$fname at $ln]" unless $isa;
 
       my @args = split /[\s,]+/, uc $args;
-
       boom "\@isa/\@include error: empty argument list at [$fname at $ln]" unless @args;
 
-      my %isa_args;
+      my  %isa_args;
       tie %isa_args, 'Tie::IxHash';
 
       for my $arg ( @args )
@@ -473,6 +468,7 @@ sub __merge_table_des_file
         my $isa_sect_name;
         if( $arg =~ /(([a-zA-Z_][a-zA-Z_0-9]*):)?([a-zA-Z_][a-zA-Z_0-9]*|\@)/ )
           {
+          # FIXME: TODO: categories are not really supported with wildcards
           #$isa_category  = uc( $2 || $opt->{ 'DEFAULT_CATEGORY' } || '*' );
           $isa_category  = uc( $2 || 'FIELD' || '*' );
           $isa_sect_name = uc( $3 );
@@ -495,8 +491,8 @@ sub __merge_table_des_file
         my %isa_def = %{ dclone( $isa->{ $isa_category }{ $isa_sect_name } ) };
  
         # TODO: preserve ISA grant/deny on request...
-        $isa_def{ '__GRANT_DENY_ACCUMULATOR' } = [ @{ $des->{ '@' }{ '@' }{ '__GRANT_DENY_ACCUMULATOR'  } || [] } ];
-        $isa_def{ '__GRANT_DENY_NEW_POLICY'  } = 1; # grant/deny new (local) policy, discard ISA one
+#!#        $isa_def{ '__GRANT_DENY_ACCUMULATOR' } = [ @{ $des->{ '@' }{ '@' }{ '__GRANT_DENY_ACCUMULATOR'  } || [] } ];
+#!#        $isa_def{ '__GRANT_DENY_NEW_POLICY'  } = 1; # grant/deny new (local) policy, discard ISA one
 
 
         %{ $des->{ $isa_category }{ $isa_sect_name } } = ( %{ $des->{ $isa_category }{ $isa_sect_name } }, %isa_def );
@@ -563,7 +559,7 @@ sub __merge_table_des_file
         }
       elsif( $attr_type >= 4 )
         {
-        boom "invalid DES_ATTR type >3, call maintainers";
+        boom "invalid DES_ATTR type >3, call maintainers :)";
         }
 
       $key = "$key_path$key"; # after checks and shortcuts bring back key full name
@@ -595,6 +591,17 @@ sub __merge_table_des_file
         next;
         }
 
+      if( $key eq 'READ_ONLY' )
+        {
+        $des->{ $category }{ $sect_name }{ '__GRANT_DENY_ACCUMULATOR' } = [ 'deny all', 'grant read' ];
+        next;
+        }
+      if( $key eq 'SYSTEM' )
+        {
+        $des->{ $category }{ $sect_name }{ '__GRANT_DENY_ACCUMULATOR' } = [ 'deny all'               ];
+        next;
+        }
+
       if( $DES_KEY_TYPES{ $key } eq '@' )
         {
         $des->{ $category }{ $sect_name }{ $key } ||= [];
@@ -613,9 +620,9 @@ sub __merge_table_des_file
   close( $inf );
 
   return 1;
-}
+} # sub __merge_table_des_file
 
-sub __merge_table_des_hash
+sub __merge_table_des_files
 {
   my $des   = shift;
   my $table = uc shift;
@@ -639,9 +646,9 @@ sub __merge_table_des_hash
     }
 
   return $c;
-}
+} # sub __merge_table_des_files
 
-sub __postprocess_table_des_hash
+sub __postprocess_table_raw_description
 {
   my $des   = shift;
   my $table = uc shift;
@@ -684,9 +691,6 @@ sub __postprocess_table_des_hash
   $des->{ '@' }{ '_DOS_LIST'     } = \@dos;
   $des->{ '@' }{ '_ACTIONS_LIST' } = \@actions;
   $des->{ '@' }{ 'DSN'           } = uc( $des->{ '@' }{ 'DSN' } ) || 'MAIN';
-
-  $des->{ '@' }{ 'GRANT' } = {} unless $des->{ '@' }{ 'GRANT' };
-  $des->{ '@' }{ 'DENY'  } = {} unless $des->{ '@' }{ 'DENY'  };
 
 ###  print STDERR "TABLE DES AFTER SELF PP [$table]:" . Dumper( $des );
   # postprocessing FIELDs ---------------------------------------------------
@@ -742,6 +746,7 @@ sub __postprocess_table_des_hash
       $type = 'LINK';
       }
 
+    # "logic" types: LOCATION, EMAIL, etc.
     if( exists $DE_LTYPE_NAMES{ $type } )
       {
       $type_des->{ 'LNAME' } = $type;
@@ -807,8 +812,21 @@ sub __postprocess_table_des_hash
 
     # convert grant/deny list to access tree
 #print STDERR "=====(GRANT DENY)==PRE+++ $table $field: " . Dumper( $des->{ 'FIELD' }{ $field } );
-    describe_preprocess_grant_deny( $des->{ 'FIELD' }{ $field } );
-#print STDERR "=====(GRANT DENY)==REZ+++ $table $field: " . Dumper( $des->{ 'FIELD' }{ $field } );
+
+    if( exists $fld_des->{ '__GRANT_DENY_ACCUMULATOR' } )
+      {
+      describe_preprocess_grant_deny( $fld_des );
+      }
+    else
+      {
+      # add option to avoid this!
+      $fld_des->{ 'GRANT' } ||= $des->{ '@' }{ 'GRANT' };
+      $fld_des->{ 'DENY'  } ||= $des->{ '@' }{ 'DENY'  };
+      }  
+
+    
+    
+#print STDERR "=====(GRANT DENY)==REZ+++ $table $field: " . Dumper( $fld_des );
 
     # FIXME: more categories INDEX: ACTION: etc.
     # inherit empty keys
@@ -871,8 +889,10 @@ sub __postprocess_table_des_hash
   dlock $des;
   #hash_lock_recursive( $des );
 
+#print STDERR "=====(FINAL) $table: " . Dumper( $des );
+
   return $des;
-}
+} # sub __postprocess_table_raw_description
 
 #-----------------------------------------------------------------------------
 
@@ -892,19 +912,18 @@ sub __load_table_raw_description
     return undef;
     }
 
-  my $des = {};
-  tie %$des, 'Tie::IxHash';
+  my  %des;
+  tie %des, 'Tie::IxHash';
 
   my $opt = {};
   my $rc;
-  $rc = __merge_table_des_hash( $des, '_DE_UNIVERSAL', $opt ) unless $table eq '_DE_UNIVERSAL';
-  # zero $rc for UNIVERSAL is ok
-  $rc = __merge_table_des_hash( $des, $table, $opt );
+  $rc = __merge_table_des_files( \%des, '_DE_UNIVERSAL', $opt ) unless $table eq '_DE_UNIVERSAL'; # zero $rc for UNIVERSAL is ok
+  $rc = __merge_table_des_files( \%des, $table,          $opt );
   return undef unless $rc > 0;
   
-  $DES_CACHE{ 'TABLE_DES_RAW' }{ $table } = $des;
+  $DES_CACHE{ 'TABLE_DES_RAW' }{ $table } = \%des;
 
-  return $des;
+  return \%des;
 }
 
 sub __check_table_des
@@ -951,7 +970,7 @@ sub describe_table
   if( $des )
     {
     $des = dclone( $des );
-    $des = __postprocess_table_des_hash( $des, $table );
+    $des = __postprocess_table_raw_description( $des, $table );
     }
   else
     {
@@ -980,7 +999,7 @@ sub preload_all_tables_descriptions
     describe_table( $table );
     };
 
-  # TODO: clear TABLE_DES_RAW cache to free memory
+  # TODO: clear TABLE_DES_RAW cache to free memory (well, not exactly)
   delete $DES_CACHE{ 'TABLE_DES_RAW' };
 
   $DES_CACHE_PRELOADED = 1;
@@ -1006,9 +1025,6 @@ sub describe_preprocess_grant_deny
 
   my %access = ( 'GRANT' => {}, 'DENY' => {} );
 
-  $hr->{ '__GRANT_DENY_ACCUMULATOR' } = [ 'deny all', 'grant read' ] if $hr->{ 'READ_ONLY' };
-  $hr->{ '__GRANT_DENY_ACCUMULATOR' } = [ 'deny all'               ] if $hr->{ 'SYSTEM'    };
-  
   if( exists $hr->{ 'TYPE' } and ref( $hr->{ 'TYPE' } ) eq 'HASH' and exists $hr->{ 'TYPE' }{ 'NAME' } and $hr->{ 'TYPE' }{ 'NAME' } eq 'WIDELINK' )
     {
     # WIDELINKs are system and are forbidden for insert and update

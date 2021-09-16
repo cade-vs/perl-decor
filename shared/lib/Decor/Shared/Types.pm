@@ -62,6 +62,7 @@ our %DE_TYPE_NAMES = (
                     );
 dlock %DE_TYPE_NAMES;
 
+# "logic" types
 our %DE_LTYPE_NAMES = (
                       'LOCATION' => [ 'CHAR', 256 ],
                       'EMAIL'    => [ 'CHAR', 256 ],
