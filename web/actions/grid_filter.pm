@@ -90,13 +90,14 @@ sub main
       my $base_field = $bfdes->{ 'NAME' };
       my $field_out  = $base_field;
 
-      my $blabel    = $bfdes->get_attr( qw( WEB GRID LABEL ) );
-      my $label     = "$blabel";
-      if( $bfdes ne $lfdes )
-        {
-        my $llabel     = $lfdes->get_attr( qw( WEB GRID LABEL ) );
-        $label .= "<span class=details-text>/</span>$llabel";
-        }
+      my $label    = $bfdes->get_attr( qw( WEB GRID LABEL ) );
+
+#      my $label     = "$blabel";
+#      if( $bfdes ne $lfdes )
+#        {
+#        my $llabel     = $lfdes->get_attr( qw( WEB GRID LABEL ) );
+#        $label .= "<span class=details-text>/</span>$llabel";
+#        }
 
       next unless exists $ui_si{ "F:$field" };
       
@@ -229,13 +230,14 @@ sub main
 
     next if $bfdes->get_attr( 'WEB', 'HIDDEN' );
 
-    my $blabel    = $bfdes->get_attr( qw( WEB GRID LABEL ) );
-    my $label     = "$blabel";
-    if( $bfdes ne $lfdes )
-      {
-      my $llabel     = $lfdes->get_attr( qw( WEB GRID LABEL ) );
-      $label .= "/$llabel";
-      }
+    my $label    = $bfdes->get_attr( qw( WEB GRID LABEL ) );
+
+#    my $label     = "$blabel";
+#    if( $bfdes ne $lfdes )
+#      {
+#      my $llabel     = $lfdes->get_attr( qw( WEB GRID LABEL ) );
+#      $label .= "/$llabel";
+#      }
 
     my $input_data = $ui_si{ "F:$field" } || ( $rs->{ 'FILTERS' }{ 'ACTIVE' } ? $rs->{ 'FILTERS' }{ 'ACTIVE' }{ 'DATA' }{ $base_field } : undef );
 

@@ -117,8 +117,8 @@ sub de_code_reset_map
 
 sub de_code_exec
 {
-  my $ctype   = shift;
-  my $name    = shift;
+  my $ctype   = uc shift;
+  my $name    = uc shift;
   my $trigger = uc shift;
   
   my $map = de_code_get_map( $ctype, $name );
@@ -129,7 +129,17 @@ sub de_code_exec
 
   $trigger = "ON_$trigger" unless $trigger =~ /^ON_/;
 
-  return $map->{ $trigger }->( @_ );
+  my $ret;
+  eval
+    {
+    $ret = $map->{ $trigger }->( @_ );
+    };
+  if( $@ )  
+    {
+    die "E_METHOD: code exception error in type $ctype, named $name in method $trigger: $@\n";
+    }
+
+  return 
 }
 
 ### EOF ######################################################################

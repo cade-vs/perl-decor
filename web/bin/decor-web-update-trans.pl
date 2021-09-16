@@ -90,27 +90,32 @@ dir_path_ensure( $TDIR ) or die "error: cannot nesure directory existence for [$
 
 my %TRANS_DIRS = ( 
              
-             'menu'     => [
-                           "$ROOT/core/menus/*.def", 
-                           "$ROOT/apps/$opt_app_name/menus/*.def",
-                           ],
-             'core'     => [
-                           "$ROOT/core/tables/*.def", 
-                           "$ROOT/core/tables/*.pm", 
-                           ],
-             'app'      => [
-                           "$ROOT/apps/$opt_app_name/tables/*.def",
-                           "$ROOT/apps/$opt_app_name/tables/*.pm",
-                           ],
-
-             'web_core' => [
-                           "$ROOT/web/html/default/*.html", 
-                           "$ROOT/web/actions/*.pm", 
-                           ],
-             'web_app'  => [
-                           "$ROOT/apps/$opt_app_name/web/html/default/*.html", 
-                           "$ROOT/apps/$opt_app_name/web/actions/*.pm",
-                           ],
+             'menu'      => [
+                            "$ROOT/core/menus/*.def", 
+                            "$ROOT/apps/$opt_app_name/menus/*.def",
+                            ],
+             'core'      => [
+                            "$ROOT/core/tables/*.def", 
+                            "$ROOT/core/tables/*.pm", 
+                            ],
+             'static'    => [
+                            "$ROOT/core/static/*.def", 
+                            ],
+             'app'       => [
+                            "$ROOT/apps/$opt_app_name/tables/*.def",
+                            "$ROOT/apps/$opt_app_name/tables/*.pm",
+                            ],
+            'app_static' => [
+                            "$ROOT/apps/$opt_app_name/static/*.def",
+                            ],
+            'core_web'   => [
+                            "$ROOT/web/html/default/*.html", 
+                            "$ROOT/web/actions/*.pm", 
+                            ],
+            'app_web'    => [
+                            "$ROOT/apps/$opt_app_name/web/html/default/*.html", 
+                            "$ROOT/apps/$opt_app_name/web/actions/*.pm",
+                            ],
                 );
 
 

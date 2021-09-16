@@ -238,7 +238,7 @@ sub check_access_boom
 {
   my $self = shift;
 
-  boom "E_ACCESS: [@_] denied" unless $self->check_access( @_ );
+  die "E_ACCESS: [@_] denied" unless $self->check_access( @_ );
 }
 
 sub check_access_table
@@ -263,7 +263,7 @@ sub check_access_table_boom
   my $table = uc $_[1];
 
   my $res = $self->check_access_table( @_ );
-  boom "E_ACCESS: [$oper] denied for table [$table] res [$res]" unless $res;
+  die "E_ACCESS: [$oper] denied for table [$table] res [$res]" unless $res;
   
   return $res;
 }
@@ -294,7 +294,7 @@ sub check_access_table_field_boom
   my $field = uc $_[2];
 
   my $res = $self->check_access_table_field( @_ );
-  boom "E_ACCESS: [$oper] denied for table [$table] field [$field] res [$res]" unless $res;
+  die "E_ACCESS: [$oper] denied for table [$table] field [$field] res [$res]" unless $res;
   
   return $res;
 }
@@ -389,7 +389,7 @@ sub check_access_row_boom
   my $dsrc  = uc $_[2]; # data source, hashref or record object
 
   my $res = $self->check_access_row( @_ );
-  boom "E_ACCESS: row access [$oper] denied for table [$table] res [$res]" unless $res;
+  die "E_ACCESS: row access [$oper] denied for table [$table] res [$res]" unless $res;
   
   return $res;
 }

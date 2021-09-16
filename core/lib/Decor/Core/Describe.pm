@@ -187,6 +187,7 @@ my %DES_ATTRS = (
                            DETAILS     => 3,
                            OVERFLOW    => 3,
                            COMBO       => 3, # requires link selection to be combo
+                           RADIO       => 3, # requires link selection to be radio
                            SEARCH      => 3, # incremental search for LINK fields
                            ORDERBY     => 3,
                            DISTINCT    => 3,
@@ -196,8 +197,9 @@ my %DES_ATTRS = (
                            SKIP        => 3, # skip field on preview/etc
                            GREP        => 3, # filtering grids by value will be case insensitive and LIKE-like
                           
-                           HIDE_IF_EMPTY   => 3, # hide field if it is empty
-                           NO_AUTOCOMPLETE => 3, # disable interface autocomplete
+                           HIDE_IF_EMPTY    => 3, # hide field if it is empty
+                           NO_AUTOCOMPLETE  => 3, # disable interface autocomplete
+                           RECALC_ON_CHANGE => 3, # recalc record form if field changes
                            
                            SELECT_FILTER   => 3,
                            
@@ -347,7 +349,7 @@ sub __merge_table_des_file
   my $inf;
   open( $inf, "<", $fname ) or boom "cannot open table description file [$fname]";
 
-  de_log_debug2( "table description open file: [$fname]" );
+  de_log_debug2( "table description for [$table] open file: [$fname]" );
 
   my $sect_name = '@'; # self :) should be more like 0
   my $category  = '@';
@@ -705,15 +707,16 @@ sub __postprocess_table_des_hash
     if( $type eq 'LINK' )
       {
       $fld_des->{ 'LINKED_TABLE' } = shift @type || boom "missing LINK TABLE in table [$table] field [$field] from [@debug_origin]";
-      $fld_des->{ 'LINKED_FIELD' } = shift @type || boom "missing LINK FIELD in table [$table] field [$field] from [@debug_origin]";;
+      $fld_des->{ 'LINKED_FIELD' } = shift @type || boom "missing LINK FIELD in table [$table] field [$field] from [@debug_origin]";
       
       $fld_des->{ 'LINKED_TABLE' } = $table if uc $fld_des->{ 'LINKED_TABLE' } eq '%TABLE'; # self-link
       }
     elsif( $type eq 'BACKLINK' or $type eq 'BACK' )
       {
       $type = 'BACKLINK';
-      $fld_des->{ 'BACKLINKED_TABLE' } = shift @type || boom "missing BACKLINK TABLE in table [$table] field [$field] from [@debug_origin]";;
-      $fld_des->{ 'BACKLINKED_KEY'   } = shift @type || boom "missing BACKLINK KEY   in table [$table] field [$field] from [@debug_origin]";;
+      $fld_des->{ 'BACKLINKED_TABLE' } = shift @type || boom "missing BACKLINK TABLE in table [$table] field [$field] from [@debug_origin]";
+      $fld_des->{ 'BACKLINKED_KEY'   } = shift @type || boom "missing BACKLINK KEY   in table [$table] field [$field] from [@debug_origin]";
+      $fld_des->{ 'BACKLINKED_SRC'   } = shift @type || '_ID';
       
       $fld_des->{ 'BACKLINKED_TABLE' } = $table if uc $fld_des->{ 'BACKLINKED_TABLE' } eq '%TABLE'; # self-backlink
       }
@@ -898,7 +901,7 @@ sub __load_table_raw_description
   # zero $rc for UNIVERSAL is ok
   $rc = __merge_table_des_hash( $des, $table, $opt );
   return undef unless $rc > 0;
-
+  
   $DES_CACHE{ 'TABLE_DES_RAW' }{ $table } = $des;
 
   return $des;
@@ -913,16 +916,17 @@ sub __check_table_des
     {
     my $fld_des = $des->{ 'FIELD' }{ $field };
     
-    my $type = $fld_des->{ 'TYPE' }{ 'NAME' };
+    my $type  = $fld_des->{ 'TYPE' }{ 'NAME' };
+    my $table = $fld_des->get_table_name();
 
     # "high" level types
     if( $type eq 'LINK' )
       {
-      des_exists_boom( $fld_des->{ 'LINKED_TABLE' }, $fld_des->{ 'LINKED_FIELD' } );
+      des_exists_boom( "in table $table field $field", $fld_des->{ 'LINKED_TABLE' }, $fld_des->{ 'LINKED_FIELD' } );
       }
     elsif( $type eq 'BACKLINK' )
       {
-      des_exists_boom( $fld_des->{ 'BACKLINKED_TABLE' }, $fld_des->{ 'BACKLINKED_KEY' } );
+      des_exists_boom( "in table $table field $field", $fld_des->{ 'BACKLINKED_TABLE' }, $fld_des->{ 'BACKLINKED_KEY' } );
       }
     }
 }
@@ -1098,7 +1102,8 @@ sub describe_parse_access_line
 
 sub des_exists_boom
 {
-  boom "unknown table|field|attribute [@_]" unless des_exists( @_ );
+  my $msg = shift;
+  boom "error: $msg: unknown TABLE:FIELD:ATTRIBUTE [@_]" unless des_exists( @_ );
 }
 
 sub des_exists

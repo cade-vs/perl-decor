@@ -68,7 +68,7 @@ sub backlink_details
 
   if( $self->is_backlinked() )  
     {
-    return ( $self->{ 'BACKLINKED_TABLE' }, $self->{ 'BACKLINKED_KEY' } );
+    return ( $self->{ 'BACKLINKED_TABLE' }, $self->{ 'BACKLINKED_KEY' }, $self->{ 'BACKLINKED_SRC' } );
     }
   else
     {

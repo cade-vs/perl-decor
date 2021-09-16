@@ -230,15 +230,17 @@ sub main
     next if $link_field_disable and $base_field eq $link_field_disable;
     next if $bfdes->get_attr( qw( WEB GRID HIDE ) );
 
-    my $blabel    = $bfdes->get_attr( qw( WEB GRID LABEL ) );
-    my $label     = "$blabel";
+    my $label    = $bfdes->get_attr( qw( WEB GRID LABEL ) );
+    
+#    my $label     = "$blabel";
+#    if( ! $enum and $bfdes ne $lfdes )
+#      {
+#      my $llabel     = $lfdes->get_attr( qw( WEB GRID LABEL ) );
+#      $label .= "<span class=details-text>/</span>$llabel";
+#      }
+
     my $ltdes     = $core->describe( $lfdes->get_table_name() );
     my $enum      = $ltdes->get_table_type() eq 'ENUM';
-    if( ! $enum and $bfdes ne $lfdes )
-      {
-      my $llabel     = $lfdes->get_attr( qw( WEB GRID LABEL ) );
-      $label .= "<span class=details-text>/</span>$llabel";
-      }
 
     $text_grid_head .= "<td class='grid-header $fmt_class'>$label</td>";
     }

@@ -339,11 +339,12 @@ sub main
 
       my $search = $fdes->get_attr( qw( WEB SEARCH ) );
       my $combo  = $fdes->get_attr( qw( WEB COMBO  ) );
-      if( $combo or $search )
+      my $radio  = $fdes->get_attr( qw( WEB RADIO  ) );
+      if( $radio or $combo or $search )
         {
         my $spf_fmt;
         my @spf_fld;
-        if( $combo == 1 or $search == 1 )
+        if( $combo == 1 or $radio == 1 or $search == 1 )
           {
           $spf_fmt = "%s";
           @spf_fld = ( $linked_field );
@@ -358,7 +359,7 @@ sub main
 
         my $combo_data = [];
         my $sel_hr     = {};
-        $sel_hr->{ $field_data } = 1 if $field_data > 0;
+        $sel_hr->{ $field_data } = 1;
 
         my @lfields = @{ $ltdes->get_fields_list_by_oper( 'READ' ) };
         unshift @lfields, $linked_field;
@@ -398,6 +399,9 @@ sub main
           $fmt_class .= " fmt-mono";
           }
 
+
+        my $recalc_on_change = $fdes->get_attr( qw( WEB RECALC_ON_CHANGE ) );
+
         if( $search )
           {
           $field_data ||= 0;
@@ -413,11 +417,18 @@ sub main
                                                DATALIST  => $combo_data,
                                                SIZE      => $field_size,
                                                MAXLEN    => $field_maxlen,
+                                               RESUBMIT_ON_CHANGE => $recalc_on_change,
                                                );
           }
         else
           {  
-          $field_input = $edit_form->combo( NAME => "F:$field", CLASS => $fmt_class, DATA => $combo_data, SELECTED => $sel_hr );
+          $field_input = $edit_form->combo(    NAME     => "F:$field", 
+                                               CLASS    => $fmt_class, 
+                                               DATA     => $combo_data, 
+                                               SELECTED => $sel_hr,
+                                               RADIO    => $radio,
+                                               RESUBMIT_ON_CHANGE => $recalc_on_change,
+                                               );
           }
         # end combo
         }
@@ -445,35 +456,38 @@ sub main
 
       next if $link_field_disable and $link_field_disable eq $field;
 
-      if( $field_data > 0 )
-        {
-        my $detach_cue = $bfdes->get_attr( qw( WEB EDIT DETACH_LINKED_CUE ) ) || "[~Detach linked record]";
-        $field_input_ctrl .= de_html_form_button_redirect( $reo, 'here', $edit_form, "DETACH_LINKED_$field_id", "detach.svg",      $detach_cue, "F:$field" => 0 );
-        }
-      
-      if( $ltdes->get_table_type() eq 'FILE' )
+      if( ! $combo and ! $radio )  
         {
         if( $field_data > 0 )
           {
-          $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "FILE_UPLOAD_REPLACE_$field_id", "file_up.svg", "[~Upload and replace current file]", ACTION => 'file_up', TABLE => $linked_table, ID => $field_data ) if $ltdes->allows( 'UPDATE' );
-          $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "FILE_DOWNLOAD_$field_id",       "file_dn.svg", "[~Download current file]",           ACTION => 'file_dn', TABLE => $linked_table, ID => $field_data ) if $ltdes->allows( 'READ' );
+          my $detach_cue = $bfdes->get_attr( qw( WEB EDIT DETACH_LINKED_CUE ) ) || "[~Detach linked record]";
+          $field_input_ctrl .= de_html_form_button_redirect( $reo, 'here', $edit_form, "DETACH_LINKED_$field_id", "detach.svg",      $detach_cue, "F:$field" => 0 );
+          }
+        
+        if( $ltdes->get_table_type() eq 'FILE' )
+          {
+          if( $field_data > 0 )
+            {
+            $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "FILE_UPLOAD_REPLACE_$field_id", "file_up.svg", "[~Upload and replace current file]", ACTION => 'file_up', TABLE => $linked_table, ID => $field_data ) if $ltdes->allows( 'UPDATE' );
+            $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "FILE_DOWNLOAD_$field_id",       "file_dn.svg", "[~Download current file]",           ACTION => 'file_dn', TABLE => $linked_table, ID => $field_data ) if $ltdes->allows( 'READ' );
+            }
+          else
+            {
+            $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "FILE_UPLOAD_NEW_$field_id", "file_new.svg", "[~Upload new file]", ACTION => 'file_up', TABLE => $linked_table, ID => -1, RETURN_DATA_TO => $field ) if $ltdes->allows( 'INSERT' );
+            }
           }
         else
           {
-          $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "FILE_UPLOAD_NEW_$field_id", "file_new.svg", "[~Upload new file]", ACTION => 'file_up', TABLE => $linked_table, ID => -1, RETURN_DATA_TO => $field ) if $ltdes->allows( 'INSERT' );
+          if( $field_data > 0 )
+            {
+            $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "VIEW_LINKED_$field_id", "view.svg", "[~View linked data]", ACTION => 'view', TABLE => $linked_table, ID => $field_data ) if $ltdes->allows( 'READ'   ) and ! $enum;
+            $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "EDIT_LINKED_$field_id", "edit.svg", "[~Edit linked data]", ACTION => 'edit', TABLE => $linked_table, ID => $field_data ) if $ltdes->allows( 'UPDATE' );
+            }
+          my $insert_cue = $bfdes->get_attr( qw( WEB EDIT INSERT_CUE ) ) || "[~Insert and link a new record]";
+          my $select_cue = $bfdes->get_attr( qw( WEB EDIT SELECT_CUE ) ) || "[~Select linked record]";
+          $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "INSERT_LINKED_$field_id", "insert.svg",      $insert_cue, ACTION => 'edit', TABLE => $linked_table, ID => -1, RETURN_DATA_FROM => '_ID', RETURN_DATA_TO => $field ) if $ltdes->allows( 'INSERT' );
+          $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "SELECT_LINKED_$field_id", "select-from.svg", $select_cue, ACTION => 'grid', TABLE => $linked_table, ID => -1, RETURN_DATA_FROM => '_ID', RETURN_DATA_TO => $field, GRID_MODE => 'SELECT', SELECT_KEY_DATA => $field_data, FILTER_NAME => $select_filter_name ) if $ltdes->allows( 'READ'   );
           }
-        }
-      else
-        {
-        if( $field_data > 0 )
-          {
-          $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "VIEW_LINKED_$field_id", "view.svg", "[~View linked data]", ACTION => 'view', TABLE => $linked_table, ID => $field_data ) if $ltdes->allows( 'READ'   ) and ! $enum;
-          $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "EDIT_LINKED_$field_id", "edit.svg", "[~Edit linked data]", ACTION => 'edit', TABLE => $linked_table, ID => $field_data ) if $ltdes->allows( 'UPDATE' );
-          }
-        my $insert_cue = $bfdes->get_attr( qw( WEB EDIT INSERT_CUE ) ) || "[~Insert and link a new record]";
-        my $select_cue = $bfdes->get_attr( qw( WEB EDIT SELECT_CUE ) ) || "[~Select linked record]";
-        $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "INSERT_LINKED_$field_id", "insert.svg",      $insert_cue, ACTION => 'edit', TABLE => $linked_table, ID => -1, RETURN_DATA_FROM => '_ID', RETURN_DATA_TO => $field ) if $ltdes->allows( 'INSERT' );
-        $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "SELECT_LINKED_$field_id", "select-from.svg", $select_cue, ACTION => 'grid', TABLE => $linked_table, ID => -1, RETURN_DATA_FROM => '_ID', RETURN_DATA_TO => $field, GRID_MODE => 'SELECT', SELECT_KEY_DATA => $field_data, FILTER_NAME => $select_filter_name ) if $ltdes->allows( 'READ'   );
         }
       }
     elsif( $type_name eq 'BACKLINK' )

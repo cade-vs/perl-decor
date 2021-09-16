@@ -101,16 +101,17 @@ sub main
     my $lfdes      = $lfdes{ $field };
     my $type_name  = $lfdes->{ 'TYPE' }{ 'NAME'  };
     my $type_lname = $lfdes->{ 'TYPE' }{ 'LNAME' };
-    my $blabel     = $bfdes->get_attr( qw( WEB VIEW LABEL ) );
 
     my $lpassword = $lfdes->get_attr( 'PASSWORD' ) ? 1 : 0;
 
-    my $label = "$blabel";
-    if( $bfdes ne $lfdes )
-      {
-      my $llabel     = $lfdes->get_attr( qw( WEB VIEW LABEL ) );
-      $label .= "/$llabel";
-      }
+    my $label     = $bfdes->get_attr( qw( WEB VIEW LABEL ) );
+
+#    my $label = "$blabel";
+#    if( $bfdes ne $lfdes )
+#      {
+#      my $llabel     = $lfdes->get_attr( qw( WEB VIEW LABEL ) );
+#      $label .= "/$llabel";
+#      }
 
     my $base_field = exists $basef{ $field } ? $basef{ $field } : $field;
 
@@ -187,7 +188,7 @@ sub main
           if( $data_base > 0 )
             {
             $data_ctrl .= de_html_alink_icon( $reo, 'new', 'view.svg',   "[~View linked record]",                                                        ACTION => 'view', ID => $data_base, TABLE => $linked_table ) unless $enum;
-            $data_ctrl .= de_html_alink_icon( $reo, 'new', 'grid.svg',   "[~View all records with the same] <b>$blabel</b>",  ACTION => 'grid',                   TABLE => $table, FILTER => { $base_field => $same_data_search } );
+            $data_ctrl .= de_html_alink_icon( $reo, 'new', 'grid.svg',   "[~View all records with the same] <b>$label</b>",  ACTION => 'grid',                   TABLE => $table, FILTER => { $base_field => $same_data_search } );
             $data_fmt   = de_html_alink( $reo, 'new', "$data_fmt",    "[~View linked record]",                                                           ACTION => 'view', ID => $data_base, TABLE => $linked_table ) unless $enum;
             }
           else
@@ -210,8 +211,10 @@ sub main
       }
     elsif( $bfdes->is_backlinked() )
       {
-      my ( $backlinked_table, $backlinked_field ) = $bfdes->backlink_details();
+      my ( $backlinked_table, $backlinked_field, $backlinked_src ) = $bfdes->backlink_details();
       my $bltdes = $core->describe( $backlinked_table );
+
+      my $backlinked_src_data = $row_data->{ $backlinked_src };
 
       my $linked_table_label = $bltdes->get_label();
 
@@ -223,8 +226,8 @@ sub main
         }
       else
         {
-        $data_ctrl .= de_html_alink_icon( $reo, 'new', 'grid.svg',   "[~View all connected records from] <b>$linked_table_label</b>",  ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => $id, FILTER => { $backlinked_field => $id } );
-        $data_ctrl .= de_html_alink_icon( $reo, 'new', 'attach.svg', "[~View NOT connected records from] <b>$linked_table_label</b>",  ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE =>   0, FILTER => { $backlinked_field =>   0 } );
+        $data_ctrl .= de_html_alink_icon( $reo, 'new', 'grid.svg',   "[~View all connected records from] <b>$linked_table_label</b>",  ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $backlinked_src_data, LINK_FIELD_VALUE => $backlinked_src_data, FILTER => { $backlinked_field => $backlinked_src_data } );
+        $data_ctrl .= de_html_alink_icon( $reo, 'new', 'attach.svg', "[~View NOT connected records from] <b>$linked_table_label</b>",  ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $backlinked_src_data, LINK_FIELD_VALUE =>                    0, FILTER => { $backlinked_field =>                    0 } );
         }  
 
       if( $bltdes->allows( 'INSERT' ) )
@@ -235,7 +238,7 @@ sub main
           }
         else
           {
-          $data_ctrl .= de_html_alink_icon( $reo, 'new', 'insert.svg', "[~Create and connect a new record into] <b>$linked_table_label</b>", ACTION => 'edit', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, LINK_FIELD_DISABLE => $backlinked_field );
+          $data_ctrl .= de_html_alink_icon( $reo, 'new', 'insert.svg', "[~Create and connect a new record into] <b>$linked_table_label</b>", ACTION => 'edit', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $backlinked_src_data, LINK_FIELD_DISABLE => $backlinked_field );
           }
         }
 
