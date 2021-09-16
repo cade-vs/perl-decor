@@ -103,10 +103,13 @@ if( ! $opt_verbose )
       {
       dunlock( $des->{ $cat }{ $entry } );
       print "des->{ $cat }{ $entry }\n";
-      for my $attr ( keys %{ $des->{ $cat }{ $entry } } )
+      if( ! de_debug() )
         {
-        delete $des->{ $cat }{ $entry }{ $attr } if ! defined $des->{ $cat }{ $entry }{ $attr } or $attr =~ /^_/;
-        }
+        for my $attr ( keys %{ $des->{ $cat }{ $entry } } )
+          {
+          delete $des->{ $cat }{ $entry }{ $attr } if ! defined $des->{ $cat }{ $entry }{ $attr } or $attr =~ /^_/;
+          }
+        }  
       }
     }
   $des->{ '@' } = $des->{ '@' }{ '@' };
