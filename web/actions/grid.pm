@@ -437,7 +437,7 @@ sub main
                 }
               else
                 {  
-                $data_fmt   = de_html_alink( $reo, 'new', "$data_fmt",                       $view_cue, ACTION => 'view', ID => $linked_id, TABLE => $linked_table );
+                $data_fmt   = de_html_alink( $reo, 'new', "$data_fmt",  $view_cue, ACTION => 'view', ID => $linked_id, TABLE => $linked_table ) unless $enum;
                 }
               }
             else

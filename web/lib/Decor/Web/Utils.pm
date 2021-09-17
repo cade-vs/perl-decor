@@ -130,7 +130,7 @@ sub de_data_grid
   if( $title )
     {
     my $c = @fields;
-    $text .= "<tr class=grid-header><td class='grid-header fmt-center' colspan=$c>$title</td></tr>";
+    $text .= "<tr class=grid-header><td class='view-header fmt-center' colspan=$c>$title</td></tr>";
     }
   
   $text .= "<tr class=grid-header>";

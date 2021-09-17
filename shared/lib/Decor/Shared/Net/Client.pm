@@ -456,10 +456,16 @@ sub select
   my $distinct = $opt->{ 'DISTINCT' };
   
   my $filter_name   = $opt->{ 'FILTER_NAME'   };
+  my $filter_bind   = $opt->{ 'FILTER_BIND'   };
   my $filter_method = $opt->{ 'FILTER_METHOD' };
 
   $fields = join( ',',      @$fields ) if ref( $fields ) eq 'ARRAY';
   $fields = join( ',', keys %$fields ) if ref( $fields ) eq 'HASH';
+
+  for( @$filter_bind )
+    {
+    s/[\n\r;]//g;
+    }
 
   my %mi;
 
@@ -475,6 +481,7 @@ sub select
   $mi{ 'DISTINCT' } = $distinct;
   
   $mi{ 'FILTER_NAME'   } = $filter_name;
+  $mi{ 'FILTER_BIND'   } = join ';', @$filter_bind;
   $mi{ 'FILTER_METHOD' } = $filter_method;
 
   my $mo = $self->tx_msg( \%mi ) or return undef;

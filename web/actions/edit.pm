@@ -181,6 +181,7 @@ sub main
 
   my $calc_in  = { map { $_ => $ps->{ 'ROW_DATA' }{ $_ } } @$fields_ar };
   my ( $calc_out, $calc_merrs )= $core->recalc( $table, $calc_in, $id, $edit_mode_insert, { %{ $ps }{ 'EDIT_SID', 'PASS_SALT' } } );
+
   if( $calc_out )
     {
     $ps->{ 'ROW_DATA'      } = $calc_out;
@@ -189,6 +190,7 @@ sub main
     {
     return "<#e_internal>" . de_html_alink_button( $reo, 'back', "&lArr; [~Go back]", "[~Go back to the previous screen]"   );
     }
+
 
   $calc_merrs ||= {};
   for my $field ( @$fields_ar )
@@ -335,7 +337,9 @@ sub main
       my $ltdes = $core->describe( $linked_table );
       my $enum  = $ltdes->get_table_type() eq 'ENUM';
 
-      my $select_filter_name = $fdes->get_attr( 'WEB', 'SELECT_FILTER' );
+      my $select_filter_name = uc $fdes->get_attr( 'WEB', 'SELECT_FILTER_NAME' );
+      my $select_filter_bind = uc $fdes->get_attr( 'WEB', 'SELECT_FILTER_BIND' );
+      my @select_filter_bind = map { $ps->{ 'ROW_DATA' }{ $_ } || 0 } split /[\s,]+/, $select_filter_bind;
 
       my $search = $fdes->get_attr( qw( WEB SEARCH ) );
       my $combo  = $fdes->get_attr( qw( WEB COMBO  ) );
@@ -344,16 +348,19 @@ sub main
         {
         my $spf_fmt;
         my @spf_fld;
+        my @ord_fld;
         if( $combo == 1 or $radio == 1 or $search == 1 )
           {
           $spf_fmt = "%s";
           @spf_fld = ( $linked_field );
+          @ord_fld = ( '_ID' );
           }
         else
           {
           my @v = split /\s*;\s*/, ( $search || $combo );
           $spf_fmt = shift @v;
           @spf_fld = @v;
+          @ord_fld = @v;
           }
 
 
@@ -377,8 +384,9 @@ sub main
 
         my $lfields = join ',', '_ID', @lfields, values %basef;
 
-        my $combo_orderby = $fdes->get_attr( qw( WEB COMBO ORDERBY ) ) || join( ',', @spf_fld );
-        my $combo_select = $core->select( $linked_table, $lfields, { 'FILTER_NAME' => $select_filter_name, ORDER_BY => $combo_orderby } );
+        my $combo_orderby = $fdes->get_attr( qw( WEB COMBO ORDERBY ) ) || join( ',', @ord_fld );
+
+        my $combo_select = $core->select( $linked_table, $lfields, { 'FILTER_NAME' => $select_filter_name, 'FILTER_BIND' => \@select_filter_bind, ORDER_BY => $combo_orderby } );
         push @$combo_data, { KEY => 0, VALUE => '&empty;' } unless $search;
 #$text .= "my $combo_select = $core->select( $linked_table, $lfields )<br>";
         while( my $hr = $core->fetch( $combo_select ) )

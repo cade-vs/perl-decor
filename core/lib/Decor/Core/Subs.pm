@@ -1006,6 +1006,7 @@ sub sub_select
   my $group_by = uc $mi->{ 'GROUP_BY' };
   my $distinct =    $mi->{ 'DISTINCT' } ? 1 : 0;
   my $filter_name   = uc $mi->{ 'FILTER_NAME' };
+  my $filter_bind   = uc $mi->{ 'FILTER_BIND' };
   my $filter_method = uc $mi->{ 'FILTER_METHOD' };
 
   # FIXME: TODO: Subs/MessageCheck TABLE ID FIELDS LIMIT OFFSET FILTER validate_hash()
@@ -1022,6 +1023,7 @@ sub sub_select
   # TODO: check TABLE READ ACCESS
 
   my @where;
+  my @bind;
   my ( $where, $bind ) = __filter_to_where( $filter );
 
   if( des_exists_category( 'FILTER', $table, 'DEFAULT_SELECT' ) )
@@ -1037,16 +1039,21 @@ sub sub_select
       {
       my $tdes = describe_table( $table );
       my $filter_name_sql = $tdes->{ 'FILTER' }{ $filter_name }{ 'SQL_WHERE' };
-      push @where, $filter_name_sql if $filter_name_sql;
+      if( $filter_name_sql )
+        {
+        push @where, $filter_name_sql;
+        push @bind,  split( /;/, $filter_bind ) if $filter_bind ne '';
+        }
       }
     else
       {
       boom "unknown FILTER_NAME name [$filter_name] for table [$table]";
       }  
     }
-  
-  my $where_clause = join ' AND ', map { "( $_ )" } ( @$where, @where );
 
+  my $where_clause = join ' AND ', map { "( $_ )" } ( @$where, @where );
+  my $where_bind   = [ @$bind, @bind ];
+  
   my $profile = subs_get_current_profile();
 
   my $select_handle;
@@ -1061,7 +1068,7 @@ sub sub_select
   $dbio->set_profile_locked( $profile );
   $dbio->taint_mode_enable_all();
 
-  my $res = $dbio->select( $table, $fields, $where_clause, { BIND => $bind, LIMIT => $limit, OFFSET => $offset, ORDER_BY => $order_by, GROUP_BY => $group_by, DISTINCT => $distinct } );
+  my $res = $dbio->select( $table, $fields, $where_clause, { BIND => $where_bind, LIMIT => $limit, OFFSET => $offset, ORDER_BY => $order_by, GROUP_BY => $group_by, DISTINCT => $distinct } );
 
   $mo->{ 'SELECT_HANDLE' } = $select_handle;
   $mo->{ 'XS'            } = 'OK';

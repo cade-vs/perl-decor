@@ -280,7 +280,8 @@ sub main
               }
             else
               {
-              $field_details .= de_html_alink_button( $reo, 'new', "  <img src=i/insert.svg> [~Add new] <b>$linked_table_label</b>", "[~Create and connect a new record into] <b>$linked_table_label</b>", BTYPE => 'act', ACTION => 'edit', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, LINK_FIELD_DISABLE => $backlinked_field );
+              my ( $insert_cue, $insert_cue_hint ) = de_web_get_cue( $bltdes->get_table_des(), qw( WEB GRID INSERT_CUE ) );
+              $field_details .= de_html_alink_button( $reo, 'new', "  <img src=i/insert.svg> $insert_cue", $insert_cue_hint, BTYPE => 'act', ACTION => 'edit', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, LINK_FIELD_DISABLE => $backlinked_field );
               }
             }  
           $no_layout_ctrls = 1;

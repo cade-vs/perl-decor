@@ -202,7 +202,8 @@ my %DES_ATTRS = (
                            NO_AUTOCOMPLETE  => 3, # disable interface autocomplete
                            RECALC_ON_CHANGE => 3, # recalc record form if field changes
                            
-                           SELECT_FILTER   => 3,
+                           SELECT_FILTER_NAME => 3, # filter to be used on LINKED table
+                           SELECT_FILTER_BIND => 3, # bind values from field in current table
                            
                            SECTION_NAME    => 3,
                            
