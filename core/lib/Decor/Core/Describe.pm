@@ -1033,10 +1033,20 @@ sub describe_preprocess_grant_deny
 
   for my $line ( @{ $hr->{ '__GRANT_DENY_ACCUMULATOR' } } )
     {
-    my ( $ty, $ac, $op )  = describe_parse_access_line( $line, $hr );
+    my ( $ty, $ta, $ac, $op )  = describe_parse_access_line( $line, $hr );
     for my $o ( @$op )
       {
-      $access{ $ty }{ $o } = $ac->{ $o };
+      if( $ta )
+        {
+        $access{ $ty }{ $o } = [] unless defined $access{ $ty }{ $o };
+        $access{ $ty }{ $o } = [ [ $access{ $ty }{ $o } ] ] unless ref( $access{ $ty }{ $o } );
+        $ac->{ $o } = [ [ $ac->{ $o } ] ] unless ref( $ac->{ $o } );
+        push @{ $access{ $ty }{ $o } }, @{ $ac->{ $o } };
+        }
+      else
+        {  
+        $access{ $ty }{ $o } = $ac->{ $o };
+        }
       my $rty = { GRANT => 'DENY', DENY => 'GRANT' }->{ $ty };
       delete $access{ $rty }{ $o };
       }
@@ -1060,11 +1070,12 @@ sub describe_parse_access_line
   $line =~ s/\s*$//;
 
   boom "invalid access line [$line] expected [grant|deny <op> <op> <op> to <grp>; <grp> + <grp>; <grp> + !<grp>] at [@debug_origin]"
-        unless $line =~ /^\s*(GRANT|DENY)\s+(([A-Z_0-9]+\s*?)+?)(\s+TO\s+([A-Z0-9!+;,\s]+))?\s*$/;
+        unless $line =~ /^\s*(GRANT|DENY)\s*((\+)?|\s)\s*(([A-Z_0-9]+\s*?)+?)(\s+TO\s+([A-Z0-9!+;,\s]+))?\s*$/;
 
   my $type_line   = $1;
-  my $opers_line  = $2;
-  my $groups_line = $4 ? $5 : 'ALL';
+  my $type_add    = $3;
+  my $opers_line  = $4;
+  my $groups_line = $6 ? $7 : 'ALL';
   $groups_line =~ s/\s*//g;
 
 #print "ACCESS DEBUG LINE [$line] OPER [$opers_line] GROUPS [$groups_line]\n";
@@ -1076,7 +1087,7 @@ sub describe_parse_access_line
 ###  my @line = split /[;,]/, $line;
 
 ###  my $ops = shift @line;
-  my @opers  = split /\s+/, $opers_line;
+  my @opers  = split /[\s;,]+/, $opers_line;
   my @groups = split /\s*[;,]\s*/, $groups_line;
 
   $_ = $GROUP_ALIASES{ $_ } || $_ for @groups;
@@ -1111,7 +1122,7 @@ sub describe_parse_access_line
 
 
 #print Dumper( $line, $opers_line, $groups_line, \%access );
-  return ( $type_line, \%access, \@opers );
+  return ( $type_line, $type_add, \%access, \@opers );
 }
 
 #-----------------------------------------------------------------------------

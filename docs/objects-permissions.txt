@@ -1,0 +1,160 @@
+
+
+
+  DECOR APPLICATION MACHINERY
+  2014-2021 (c) Vladi Belperchinov-Shabanski "Cade"
+
+  OBJECT PERMISSIONS
+
+  Objects as tables, fields, other categories like "do" operations and menus
+  can have specified permissions to allow or deny certain operations for 
+  specified users.
+  
+  The full set of available operations is:
+  
+        * READ
+        * INSERT
+        * UPDATE
+        * DELETE
+        * EXECUTE
+        * CROSS
+  
+  They have different meanings for different object classes:
+  
+  For MENUs:
+  
+        * READ -- if this menu can be read (displayed) by certain users.
+        
+        (the rest are no meaning for this object type)
+      
+  For TABLEs:
+  
+        * READ    -- table can be accessed for reading by a user
+        * INSERT  -- user can insert new record
+        * UPDATE  -- table records can be modified
+        * DELETE  -- table records can be deleted
+
+        (the rest are no meaning for this object type)
+
+        Note: Default behaviour, if no permissions are defined, is to 
+              restrict all access to this table.
+        
+  For FIELDs:
+  
+        Fields permissions differ than table's in a way that the specific
+        access to the field is allowed or restricted, regardless the rest
+        of the fields, table or the record itself. This means that certain 
+        fields may be restricted for insert for example, and still the table,
+        other fields and the record to be allowed for insert by the current 
+        user. Here are details:
+  
+        * READ    -- this field can be read
+        * INSERT  -- this field can be accessed by the user when inserting
+        * UPDATE  -- this field can be accessed by the user when updating
+
+        (the rest are no meaning for this object type)
+
+        Note: Default behaviour, if no permissions are defined, is to 
+              restrict all access to this field.
+
+        Note: DELETE has no meaning for FIELDs, it can only be specified for
+              TABLEs and RECORDs (see below).
+              
+        Note: it is perfectly valid if, for example, a FIELD is allowed for
+              UPDATE but restricted for INSERT. This means that when inserting
+              this field will be filled by a method or left blank and only
+              be allowed for UPDATE. For more details see file 
+              "usage-examples.txt".      
+
+  For MENUs:
+
+        * READ    -- this menu or menu item will be displayed to the user
+
+        (the rest are no meaning for this object type)
+        
+        Note: As oposite to the tables and fields, menus and menu items, which
+              has no defined permissions are assumed to be accessible by all
+              users by default.
+
+  For DOs:
+  
+        * EXECUTE -- this DO can be executed by the user
+
+        (the rest are no meaning for this object type)
+
+  USER GROUPS AND PERMISSIONS
+  
+  Defining access on a operation is always through groups that users are 
+  members of. For example, READ/INSERT/etc. is always granted to a group or
+  set of groups but not to users themselves. To be allowed for an operation,
+  user has to be member of the required groups.
+  
+  This scheme is far more flexible for defining permissions and at the same
+  time more rigid regarding user management (i.e. permissions are not required
+  to be modified when users are added, modified or deleted from the system).
+
+  PERMISSIONS SYNTAX
+
+  To allow or forbid user groups access to an operation, it is required that
+  GRANT/DENY permission lines to be added to the object descriptions.
+  
+  Regardless object types all GRANT/DENY lines are the same:
+  
+  GRANT oper1 oper2 oper3...  TO  group-set1, group-set2, group-set3...
+  DENY  oper1 oper2 oper3...  TO  group-set1, group-set2, group-set3...
+  
+  Operations can be separated by whitespace, comma "," or semicolon ";".
+  
+  Group ses can be separated only by comma "," or semicolon ";".
+  The reason for this is that group sets may contain multiple groups 
+  separated by plus sign "+", but also can have whitespace which is ignored.
+  
+  A group set matches current user if all specified groups have the user as
+  member. There are also negative match groups, which match only when user
+  is not a member. They are marked with "!" in front.
+  
+  Example:
+  
+      GRANT  update  TO  10 + 20 + 30, 40, 100 + !50
+      
+  Matching users are either one of:
+  
+      * member of groups 10, and 20, and 30.
+      * or member of group 40.
+      * or member of group 100, but must not be in group 50.    
+
+  The same rules apply to DENY lines.
+  
+  GRANT/DENY lines will set operations permissions and will discard previous
+  ones. Example:
+  
+      GRANT   insert update TO 22
+      GRANT   insert        TO 33
+      
+  will finally allow update to group 22 but insert will only be available 
+  to group 33 (insted of expected 22 or 33).
+  
+  If you want to add permissions to the current set, GRANT/DENY should be
+  defined with '+' sign:
+
+      GRANT   insert update TO 22
+      GRANT + insert        TO 33
+                      
+  It is ok for all GRANT/DENY lines to have '+' sign, even the first (which
+  has no previous permissions):
+
+      GRANT + insert update TO 22
+      GRANT + insert        TO 33
+
+  For DENY lines the same will apply.
+
+  USAGE NOTES FOR TABLES, FIELDS AND ISA/INCLUDES
+
+  When including, GRANT/DENY permissions work as this:
+  
+  -- if TABLE has no GRANT/DENY lines, all operations are denied to all users.
+
+  -- ...
+  
+  -- if FIELD has no GRANT/DENY lines, it will inherit the TABLE
+

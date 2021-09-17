@@ -2,7 +2,7 @@
 
 
   DECOR APPLICATION MACHINERY
-  2014-2019 (c) Vladi Belperchinov-Shabanski "Cade"
+  2014-2021 (c) Vladi Belperchinov-Shabanski "Cade"
 
   TABLE DESCRIPTION INCLUDE/ISA
 
@@ -35,7 +35,6 @@
 
   @include   SRC_TABLE   DIM*   -DIM_TIME   -*_STAMP
 
-
   After cascading @isa/@include requests, current table may end with unwanted
   fields. To remove them there is a @remove:
   
@@ -44,6 +43,7 @@
   It removes all specified fields (allowing wildcards as well). For example:
   
       @remove   CNT    OWNER*    *_STAMP
-      
+
+    
 --
 
