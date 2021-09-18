@@ -12,13 +12,15 @@ grant access to 999
   
 =login
 
-    type  action  login
-    grant access to 909
-    right
+  label [~Login]
+  type  action  login
+  grant access to 909
+  right
 
 =logout
 
-    type  action  logout
-    grant access to 999
-    right
-    confirm [~Are you sure you want to logout?]
+  label [~Logout]
+  type  action  logout
+  grant access to 999
+  right
+  confirm [~Are you sure you want to logout?]

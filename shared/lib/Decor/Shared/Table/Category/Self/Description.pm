@@ -22,5 +22,21 @@ sub is_self_category
   return 1;
 }
 
+sub get_table_name
+{
+  my $self  =    shift;
+  
+  return $self->{ 'TABLE' };
+}
+
+sub get_label
+{
+  my $self  =    shift;
+  
+  return $self->{ 'LABEL' };
+}
+
+
+
 ### EOF ######################################################################
 1;

@@ -339,7 +339,8 @@ sub main
   $text .= de_html_alink_button( $reo, 'back', "&lArr; [~Back]", "[~Return to previous screen]$back_hint", BTYPE => 'nav' );
   if( $tdes->allows( 'UPDATE' ) )
     {
-    my $update_cue = $sdes->get_attr( qw( WEB GRID UPDATE_CUE ) ) || "[~Edit this record]";
+    my $update_cue = de_web_get_cue( $sdes, qw( WEB GRID UPDATE_CUE ) );
+print STDERR ">>>>>>>>>>>>>>>>>>>>>>>>>>>>> |$update_cue|\n";
     # FIXME: row access!
     $text .= de_html_alink_button( $reo, 'new',  "$update_cue &uArr;", $update_cue, BTYPE => 'mod', ACTION => 'edit', ID => $id, TABLE => $table, LINK_FIELD_DISABLE => $link_field_disable );
     }
@@ -361,10 +362,9 @@ sub main
     $text .= de_html_alink_button( $reo, 'new', "(&uarr;) $upload_cue", '[~Replace current file content]',   BTYPE => 'act', ACTION => 'file_up',     TABLE => $table, ID => $id,                  ) if $tdes->allows( 'INSERT' ) and $table_type eq 'FILE';
     }
   
-  for my $do ( @{ $tdes->get_category_list_by_oper( 'READ', 'DO' ) }  )
+  for my $do ( @{ $tdes->get_category_list_by_oper( 'EXECUTE', 'DO' ) }  )
     {
     my $dodes   = $tdes->get_category_des( 'DO', $do );
-    next unless $dodes->allows( 'EXECUTE' );
     next if  $dodes->get_attr( qw( WEB GRID HIDE  ) );
     my $dolabel = $dodes->get_attr( qw( WEB VIEW LABEL ) );
     $text .= de_html_alink_button( $reo, 'new',  "$dolabel &sect;", "$dolabel", ACTION => 'do', DO => $do, ID => $id, TABLE => $table );

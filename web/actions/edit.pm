@@ -55,6 +55,7 @@ sub main
 
   my $core = $reo->de_connect();
   my $tdes = $core->describe( $table );
+  my $sdes = $tdes->get_table_des(); # table "Self" description
 
   my $table_label = $tdes->get_label();
 
@@ -125,12 +126,14 @@ sub main
   my $browser_window_title;
   if( $edit_mode_insert )
     {
-    $browser_window_title = qq(Insert new record into "<b>$table_label</b>");
+    my ( $insert_cue, $insert_cue_hint ) = de_web_get_cue( $sdes, qw( WEB INSERT INSERT_CUE ) );
+    $browser_window_title = $insert_cue || qq(Insert new record into "<b>$table_label</b>");
     $reo->ps_path_add( 'insert', $browser_window_title );
     }
   else
     {
-    $browser_window_title = qq(Edit record data from "<b>$table_label</b>");
+    my ( $update_cue, $update_cue_hint ) = de_web_get_cue( $sdes, qw( WEB UPDATE UPDATE_CUE ) );
+    $browser_window_title = $update_cue || qq(Edit record data from "<b>$table_label</b>");
     $reo->ps_path_add( 'edit', $browser_window_title );
     }
 

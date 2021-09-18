@@ -247,18 +247,16 @@ sub main
   $text_grid_head .= "</tr>";
 
   my @dos;
-  for my $do ( @{ $tdes->get_category_list_by_oper( 'READ', 'DO' ) }  ) # FIXME: zashto read??
+  for my $do ( @{ $tdes->get_category_list_by_oper( 'EXECUTE', 'DO' ) }  )
     {
     my $dodes   = $tdes->get_category_des( 'DO', $do );
-    next unless $dodes->allows( 'EXECUTE' );
     push @dos, $do;
     }
 
   my @actions;
-  for my $act ( @{ $tdes->get_category_list_by_oper( 'READ', 'ACTION' ) }  ) # FIXME: zashto read??
+  for my $act ( @{ $tdes->get_category_list_by_oper( 'EXECUTE', 'ACTION' ) }  )
     {
     my $actdes   = $tdes->get_category_des( 'ACTION', $act );
-    next unless $actdes->allows( 'EXECUTE' );
     push @actions, $act;
     }
 
@@ -607,7 +605,6 @@ sub main
     for my $do ( @dos )
       {
       my $dodes   = $tdes->get_category_des( 'DO', $do );
-      next unless $dodes->allows( 'EXECUTE' );
       next if  $dodes->get_attr( qw( WEB GRID HIDE  ) );
       my $dolabel = $dodes->get_attr( qw( WEB GRID LABEL ) );
       # FIXME: map DOs through $ps

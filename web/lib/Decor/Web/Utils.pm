@@ -66,6 +66,9 @@ sub de_web_get_cue
     }
   
   my @cue = split /\s*;\s*/, $cue;
+  
+  s/%t/$des_obj->get_label()/gie for @cue;
+  
   if( wantarray() )
     {
     if( @cue > 1 )
