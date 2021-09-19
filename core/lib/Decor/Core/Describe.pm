@@ -160,7 +160,8 @@ my %DES_ATTRS = (
                            DOWNLOAD_LINK_CUE => 3,
                            DOWNLOAD_FILE_CUE => 3,
 
-                           FIELDS_LIST => 3, # fields to be shown
+                           FIELDS_LIST    => 3, # fields to be shown
+                           MASTER_FIELDS  => 3, # fields for display as master record
                            
                            RECORD_NAME => 3, # interpolated list of fields, describing current record
 
@@ -223,7 +224,7 @@ my %DES_ATTRS = (
                            HIDE        => 3,
                            
                            DETAILS_FIELDS => 3,
-                           DETAILS_COUNT  => 3,
+                           DETAILS_LIMIT  => 3,
                            
                            BACKLINK_GRID_MODE => 3,
                            

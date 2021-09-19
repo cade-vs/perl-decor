@@ -52,7 +52,7 @@ sub main
 
   my $link_field_disable = $reo->param( 'LINK_FIELD_DISABLE' );
 
-  my @fields = grep { $link_field_disable ne $_ } @{ $tdes->get_fields_list_by_oper( 'READ' ) };
+  my @fields = @{ $tdes->get_fields_list_by_oper( 'READ' ) };
 
   return "<#access_denied>" unless @fields;
 
@@ -66,11 +66,31 @@ sub main
 
 #$text .= Dumper( \%basef );
 
+  @fields = grep { $link_field_disable ne $_ } @fields;
+
   my $fields = join ',', @fields, values %basef;
 
   my $select = $core->select( $table, $fields, { LIMIT => 1, FILTER => { '_ID' => $id } } );
 
-  my $text .= "<br>";
+  $text .= "<br>";
+
+  my $row_data = $core->fetch( $select );
+  return "<p><#no_data><p>" unless $row_data;
+
+  if( $link_field_disable )
+    {
+    # this should be really master record, not just disabled
+    my %revbasef = reverse %basef;
+    my $bfdes = $bfdes{ $revbasef{ $link_field_disable } };
+    my ( $linked_table, $linked_field ) = $bfdes->link_details();
+    my $link_id = $row_data->{ $link_field_disable };
+    my $ltdes = $core->describe( $linked_table );
+    my $lsdes = $ltdes->get_table_des(); # table "Self" description
+    my $linked_table_label = $ltdes->get_label();
+    my $master_fields = uc $lsdes->get_attr( qw( WEB MASTER_FIELDS ) );
+    $text .= de_data_grid( $core, $linked_table, $master_fields, { FILTER => { '_ID' => $link_id }, LIMIT => 1, CLASS => 'grid view record', TITLE => "[~Master record from] $linked_table_label" } ) ;
+    $text .= "<p>";
+    }
 
   my $custom_css = lc "css_$table";
   $text .= "<#$custom_css>";
@@ -78,9 +98,6 @@ sub main
   $text .= "<tr class=view-header>";
   $text .= "<td class='view-header record-field fmt-center' colspan=2>$browser_window_title</td>";
   $text .= "</tr>";
-
-  my $row_data = $core->fetch( $select );
-  return "<p><#no_data><p>" unless $row_data;
 
   my $row_id = $row_data->{ '_ID' };
 
@@ -258,8 +275,27 @@ sub main
           {
           my $backlink_text = "<p>";
 
-          my $details_limit = $bfdes->get_attr( qw( WEB EDIT DETAILS_LIMIT ) ) || 16;
-          my ( $dd_grid, $dd_count ) = de_data_grid( $core, $backlinked_table, $details_fields, { FILTER => { $backlinked_field => $id }, LIMIT => $details_limit, CLASS => 'grid view record', TITLE => "[~Related] $linked_table_label" } ) ;
+          my $bltsdes = $bltdes->get_table_des();
+          my $bltable_type = $bltsdes->{ 'TYPE' };
+          my ( $view_cue,   $view_cue_hint   ) = de_web_get_cue( $bltsdes, qw( WEB GRID VIEW_CUE   ) );
+          my ( $update_cue, $update_cue_hint ) = de_web_get_cue( $bltsdes, qw( WEB GRID UPDATE_CUE ) );
+          my ( $copy_cue,   $copy_cue_hint   ) = de_web_get_cue( $bltsdes, qw( WEB GRID COPY_CUE   ) );
+          my ( $download_file_cue, $download_file_cue_hint ) = de_web_get_cue( $bltsdes, qw( WEB GRID DOWNLOAD_FILE_CUE ) );
+
+          my $sub_de_data_grid_cb = sub
+            {
+            my $cbid = shift;
+            my $ccid = $reo->html_new_id();
+            my $vec_ctrl;
+            $vec_ctrl .= de_html_alink_icon( $reo, 'new', "view.svg",    $view_cue_hint,          ACTION => 'view',    ID => $cbid, TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field  );
+            $vec_ctrl .= de_html_alink_icon( $reo, 'new', "edit.svg",    $update_cue_hint,        ACTION => 'edit',    ID => $cbid, TABLE => $backlinked_table                                                          ) if $bltdes->allows( 'UPDATE' );
+            $vec_ctrl .= de_html_alink_icon( $reo, 'new', "copy.svg",    $copy_cue_hint,          ACTION => 'edit',    ID =>  -1,   TABLE => $backlinked_table, COPY_ID => $cbid, LINK_FIELD_DISABLE => $backlinked_field, "F:$backlinked_field" => $id ) if $bltdes->allows( 'INSERT' ) and ! $bltdes->{ '@' }{ 'NO_COPY' };
+            $vec_ctrl .= de_html_alink_icon( $reo, 'new', 'file_dn.svg', $download_file_cue_hint, ACTION => 'file_dn', ID => $cbid, TABLE => $backlinked_table                                                          ) if $bltable_type eq 'FILE';
+            return $vec_ctrl;
+            };
+
+          my $details_limit = $bfdes->get_attr( qw( WEB VIEW DETAILS_LIMIT ) ) || 16;
+          my ( $dd_grid, $dd_count ) = de_data_grid( $core, $backlinked_table, $details_fields, { FILTER => { $backlinked_field => $id }, LIMIT => $details_limit, CLASS => 'grid view record', TITLE => "[~Related] $linked_table_label", CTRL_CB => $sub_de_data_grid_cb } ) ;
           $field_details .= $dd_grid;
 
           if( uc( $bfdes->get_attr( 'WEB', 'GRID', 'BACKLINK_GRID_MODE' ) ) eq 'ALL' )
@@ -281,7 +317,7 @@ sub main
             else
               {
               my ( $insert_cue, $insert_cue_hint ) = de_web_get_cue( $bltdes->get_table_des(), qw( WEB GRID INSERT_CUE ) );
-              $field_details .= de_html_alink_button( $reo, 'new', "  <img src=i/insert.svg> $insert_cue", $insert_cue_hint, BTYPE => 'act', ACTION => 'edit', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, LINK_FIELD_DISABLE => $backlinked_field );
+              $field_details .= de_html_alink_button( $reo, 'new', "(+) $insert_cue", $insert_cue_hint, BTYPE => 'act', ACTION => 'edit', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, LINK_FIELD_DISABLE => $backlinked_field );
               }
             }  
           $no_layout_ctrls = 1;

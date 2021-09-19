@@ -610,7 +610,7 @@ sub main
       # FIXME: map DOs through $ps
       my $do_id = ++ $ps->{ ':DO_NAME_MAP' }{ '*' };
       $ps->{ ':DO_NAME_MAP' }{ $do_id } = $do;
-      $text .= $grid_form->button( NAME => "DO:$do_id", VALUE => $dolabel );
+      $text .= $grid_form->button( NAME => "DO:$do_id", VALUE => "$dolabel &sect;" );
       }
     
     $text .= $grid_form->end();

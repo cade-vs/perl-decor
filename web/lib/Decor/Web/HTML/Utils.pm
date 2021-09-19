@@ -42,7 +42,7 @@ sub de_html_form_button_redirect
   my $hint  = shift; # button hover hint
   my %args  = @_;    # redirect data
 
-  my $button_id = uc ( $args{ 'BUTTON_ID' } || $reo->html_new_id() ); # button name, random, unique
+  my $button_id = uc( $args{ 'BUTTON_ID' } || $reo->html_new_id() ); # button name, random, unique
 #  my $href = $reo->args_type( $type, @args );
 
   my $opt = ref( $hint ) eq 'HASH' ? $hint : { HINT => $hint };

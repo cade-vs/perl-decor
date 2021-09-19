@@ -229,6 +229,20 @@ sub main
 
   $text .= "<br>";
 
+  if( $link_field_disable )
+    {
+    # this should be really master record, not just disabled
+    my $bfdes = $tdes->get_field_des( $link_field_disable );
+    my ( $linked_table, $linked_field ) = $bfdes->link_details();
+    my $link_id = $ps->{ 'ROW_DATA' }{ $link_field_disable };
+    my $ltdes = $core->describe( $linked_table );
+    my $lsdes = $ltdes->get_table_des(); # table "Self" description
+    my $linked_table_label = $ltdes->get_label();
+    my $master_fields = uc $lsdes->get_attr( qw( WEB MASTER_FIELDS ) );
+    $text .= de_data_grid( $core, $linked_table, $master_fields, { FILTER => { '_ID' => $link_id }, LIMIT => 1, CLASS => 'grid view record', TITLE => "[~Master record from] $linked_table_label" } ) ;
+    $text .= "<p>";
+    }
+
   if( $button and $calc_merrs->{ '*' } )
     {
     $text .= "<div class=error-text>";

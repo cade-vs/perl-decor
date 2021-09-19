@@ -107,11 +107,14 @@ sub de_data_grid
   my $fields = shift;
   my $opt    = shift || {};
 
-  my $ctrl_cb = $opt->{ 'CTRL_CB' };
+  my $ctrl_cb  = $opt->{ 'CTRL_CB'  };
+  my $order_by = $opt->{ 'ORDER_BY' } || '._ID';
 
   my $tdes = $core->describe( $table );
   
   my @fields = ref( $fields ) eq 'ARRAY' ? @$fields : split /\s*,\s*/, $fields;
+  
+  unshift @fields, '_ID';
   
   my %bfdes; # base/begin/origin field descriptions, indexed by field path
   my %lfdes; # linked/last       field descriptions, indexed by field path, pointing to trail field
@@ -124,9 +127,9 @@ sub de_data_grid
   my $class  = $opt->{ 'CLASS'  } || 'grid';
   my $title  = $opt->{ 'TITLE'  };
 
-  my $select = $core->select( $table, join( ',', @fields ), { FILTER => $filter, LIMIT => $limit, ORDER_BY => '._ID' } ) if @fields;
-  #my $scount = $core->count( $table,                        { FILTER => $filter,                                     } ) if $select;
-  #my $acount = $core->count( $table,                        { FILTER => { '_ID' > 0 },                               } ) if $select;
+  my $select = $core->select( $table, join( ',', @fields ), { FILTER => $filter, LIMIT => $limit, ORDER_BY => $order_by } ) if @fields;
+  #my $scount = $core->count( $table,                        { FILTER => $filter,                                       } ) if $select;
+  #my $acount = $core->count( $table,                        { FILTER => { '_ID' > 0 },                                 } ) if $select;
   
   my $text;
 
@@ -145,6 +148,8 @@ sub de_data_grid
 
   for my $field ( @fields )
     {
+    next if $field eq '_ID';
+    
     my $bfdes     = $bfdes{ $field };
     my $lfdes     = $lfdes{ $field };
     my $type_name = $lfdes->{ 'TYPE' }{ 'NAME' };
@@ -180,6 +185,8 @@ sub de_data_grid
 
     for my $field ( @fields )
       {
+      next if $field eq '_ID';
+
       my $bfdes     = $bfdes{ $field };
       my $lfdes     = $lfdes{ $field };
       my $type_name = $lfdes->{ 'TYPE' }{ 'NAME' };
