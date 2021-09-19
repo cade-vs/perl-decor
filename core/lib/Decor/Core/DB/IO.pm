@@ -213,6 +213,7 @@ sub select
   my $sql_stmt = "SELECT\n    $distinct_clause$select_fields\nFROM\n    $select_tables\n$select_where\n$group_by\n$order_by\n$limit_clause$offset_clause$locking_clause\n";
 
   de_log_debug( "sql: ".__PACKAGE__."::select:\n---BEGIN SQL---\n$sql_stmt\n---SQL BIND ARGS---\n@bind\n---END SQL---" );
+  de_log_debug_stack2();
 
   my $dbh = $self->{ 'SELECT' }{ 'DBH' } = dsn_get_dbh_by_table( $table );
   my $sth = $self->{ 'SELECT' }{ 'STH' } = $dbh->prepare( $sql_stmt );
@@ -553,6 +554,7 @@ sub insert
   my $sql_stmt = "INSERT INTO\n    $db_table\n    ( $columns )\nVALUES\n    ( $values )";
 
   de_log_debug( "sql: ".__PACKAGE__."::insert:\n---BEGIN SQL---\n$sql_stmt\n---SQL BIND ARGS---\n@values\n---SQL BIND HASH---\n".Dumper( $data )."\n---END SQL---" );
+  de_log_debug_stack2();
 
 #print STDERR Dumper( '-' x 72, __PACKAGE__ . "::INSERT: table [$table] data/sql/values", $data, $sql_stmt, \@values );
 
@@ -653,6 +655,7 @@ sub update
   my $sql_stmt = "UPDATE\n    $db_table\nSET\n    $columns\nWHERE\n    $where_clause";
 
   de_log_debug( "sql: ".__PACKAGE__."::update:\n---BEGIN SQL---\n$sql_stmt\n---SQL BIND VALUES---\n@values\n---SQL BIND ARGS---\n@bind\n---SQL BIND HASH---\n".Dumper( $data )."\n---END SQL---" );
+  de_log_debug_stack2();
 
 #print STDERR Dumper( '-' x 72, __PACKAGE__ . "::UPDATE: table [$table] data/sql/values/where/bind", $data, $sql_stmt, \@values, $where_clause, \@bind, $self );
 

@@ -519,13 +519,14 @@ sub main
       my $details_fields = $bfdes->get_attr( qw( WEB EDIT DETAILS_FIELDS ) );
       if( $details_fields and $count > 0 )
         {
-        my $backlink_text = "<p><h2>$linked_table_label records related to the current $table_label:</h2>";
+        my $backlink_text;
       
         my $details_limit = $bfdes->get_attr( qw( WEB EDIT DETAILS_LIMIT ) ) || 16;
-        $field_details .= "<p>" . de_data_grid( $core, $backlinked_table, $details_fields, { FILTER => { $backlinked_field => $id }, LIMIT => $details_limit } ) ;
+        $field_details .= "<p>" . de_data_grid( $core, $backlinked_table, $details_fields, { FILTER => { $backlinked_field => $id }, LIMIT => $details_limit, CLASS => 'grid view record', TITLE => "[~Related] $linked_table_label" } ) ;
 
+        my ( $insert_cue, $insert_cue_hint ) = de_web_get_cue( $bltdes->get_table_des(), qw( WEB GRID INSERT_CUE ) );
         $field_details .= de_html_form_button_redirect( $reo, 'new', $edit_form, "GRID_BACKLINKED_$field_id",   "[~View all records]",  "[~View all backlinked records from] <b>$linked_table_label</b>",  BTYPE => 'nav', ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, FILTER => { $backlinked_field => $id } ) if $bltdes->allows( 'READ' ) and $count > 0;
-        $field_details .= de_html_form_button_redirect( $reo, 'new', $edit_form, "INSERT_BACKLINKED_$field_id", "[~Insert new record]", "[~Insert and link a new record into] <b>$linked_table_label</b>", BTYPE => 'act', ACTION => 'edit', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, ID => -1, "F:$backlinked_field" => $id ) if $bltdes->allows( 'INSERT' );
+        $field_details .= de_html_form_button_redirect( $reo, 'new', $edit_form, "INSERT_BACKLINKED_$field_id", $insert_cue, $insert_cue_hint, BTYPE => 'act', ACTION => 'edit', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, ID => -1, "F:$backlinked_field" => $id ) if $bltdes->allows( 'INSERT' );
 
         $backlink_text .= $field_details;
       

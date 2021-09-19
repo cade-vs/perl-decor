@@ -102,7 +102,7 @@ sub set_user_pass
   my $user = shift;
   my $pass = shift;
   
-  my $user_rec = ref( $user ) eq 'Decor::Core::DB::Record' ? $user : find_user_by_name( $user );
+  my $user_rec = ref( $user ) eq 'Decor::Core::DB::Record::User' ? $user : find_user_by_name( $user );
   
   return undef unless $user_rec;
   return undef unless $pass ne '';

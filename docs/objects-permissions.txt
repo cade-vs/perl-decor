@@ -17,6 +17,7 @@
         * UPDATE
         * DELETE
         * EXECUTE
+        * ACCESS
         * CROSS
   
   They have different meanings for different object classes:
@@ -68,13 +69,12 @@
 
   For MENUs:
 
-        * READ    -- this menu or menu item will be displayed to the user
+        * ACCESS  -- this menu or menu item will be displayed to the user
 
         (the rest are no meaning for this object type)
         
-        Note: As oposite to the tables and fields, menus and menu items, which
-              has no defined permissions are assumed to be accessible by all
-              users by default.
+        Note: As tables and fields, menus and menu items, which
+              has no defined permissions are restricted.
 
   For DOs:
   

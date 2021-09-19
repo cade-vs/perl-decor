@@ -259,7 +259,7 @@ sub main
           my $backlink_text = "<p>";
 
           my $details_limit = $bfdes->get_attr( qw( WEB EDIT DETAILS_LIMIT ) ) || 16;
-          my ( $dd_grid, $dd_count ) = de_data_grid( $core, $backlinked_table, $details_fields, { FILTER => { $backlinked_field => $id }, LIMIT => $details_limit, CLASS => 'grid view record', TITLE => "Related $linked_table_label" } ) ;
+          my ( $dd_grid, $dd_count ) = de_data_grid( $core, $backlinked_table, $details_fields, { FILTER => { $backlinked_field => $id }, LIMIT => $details_limit, CLASS => 'grid view record', TITLE => "[~Related] $linked_table_label" } ) ;
           $field_details .= $dd_grid;
 
           if( uc( $bfdes->get_attr( 'WEB', 'GRID', 'BACKLINK_GRID_MODE' ) ) eq 'ALL' )
@@ -340,7 +340,6 @@ sub main
   if( $tdes->allows( 'UPDATE' ) )
     {
     my $update_cue = de_web_get_cue( $sdes, qw( WEB GRID UPDATE_CUE ) );
-print STDERR ">>>>>>>>>>>>>>>>>>>>>>>>>>>>> |$update_cue|\n";
     # FIXME: row access!
     $text .= de_html_alink_button( $reo, 'new',  "$update_cue &uArr;", $update_cue, BTYPE => 'mod', ACTION => 'edit', ID => $id, TABLE => $table, LINK_FIELD_DISABLE => $link_field_disable );
     }
@@ -370,7 +369,7 @@ print STDERR ">>>>>>>>>>>>>>>>>>>>>>>>>>>>> |$update_cue|\n";
     $text .= de_html_alink_button( $reo, 'new',  "$dolabel &sect;", "$dolabel", ACTION => 'do', DO => $do, ID => $id, TABLE => $table );
     }
 
-  $text .= join '', @backlinks_text;
+  $text .= '<br><br><br>' . join '<br><br><br>', @backlinks_text;
 
   return $text;
 }

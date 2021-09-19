@@ -32,7 +32,7 @@ our @EXPORT = qw(
                 de_log_debug
                 de_log_debug2
                 de_log_debug_stack
-                de_log_stack
+                de_log_debug_stack2
                 
                 de_log_dumper
                 de_log_dumper2
@@ -171,14 +171,14 @@ sub de_log_debug2
   de_log_debug( @_ );
 }
 
-sub de_log_stack
+sub de_log_debug_stack
 {
   de_log_debug( @_, "\n", Exception::Sink::get_stack_trace() );
 }
 
-sub de_log_debug_stack
+sub de_log_debug_stack2
 {
-  de_log_stack( @_ );
+  de_log_debug2( @_, "\n", Exception::Sink::get_stack_trace() );
 }
 
 sub de_log_dumper
