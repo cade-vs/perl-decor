@@ -363,7 +363,7 @@ sub main
         {
         my ( $linked_table, $linked_field ) = $bfdes->link_details();
         my $select_cue = $bfdes->get_attr( qw( WEB EDIT SELECT_CUE ) ) || "[~Select linked record]";
-        $field_input_ctrl .= "\n" . de_html_form_button_redirect( $reo, 'new', $filter_form, "SELECT_LINKED_$field_id", "select-from.svg", $select_cue, ACTION => 'grid', TABLE => $linked_table, ID => -1, RETURN_DATA_FROM => $linked_field, RETURN_DATA_TO => $field, GRID_MODE => 'SELECT', SELECT_KEY_DATA => $input_data );
+        $field_input_ctrl .= "\n" . de_html_form_button_redirect( $reo, 'new', $filter_form, "select-from.svg", $select_cue, ACTION => 'grid', TABLE => $linked_table, ID => -1, RETURN_DATA_FROM => $linked_field, RETURN_DATA_TO => $field, GRID_MODE => 'SELECT', SELECT_KEY_DATA => $input_data );
         }
       }  
 

@@ -331,7 +331,7 @@ sub main
       
       if( $type_lname eq 'LOCATION' )
         {
-        $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "SELECT_MAP_LOCATION_$field_id", "map_location.svg", "[~Select map location]", ACTION => 'map_location', RETURN_DATA_TO => $field, LL => $field_data );
+        $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "map_location.svg", "[~Select map location]", ACTION => 'map_location', RETURN_DATA_TO => $field, LL => $field_data );
         }
       }
     elsif( $type_name eq 'LINK' )
@@ -472,32 +472,32 @@ sub main
         if( $field_data > 0 )
           {
           my $detach_cue = $bfdes->get_attr( qw( WEB EDIT DETACH_LINKED_CUE ) ) || "[~Detach linked record]";
-          $field_input_ctrl .= de_html_form_button_redirect( $reo, 'here', $edit_form, "DETACH_LINKED_$field_id", "detach.svg",      $detach_cue, "F:$field" => 0 );
+          $field_input_ctrl .= de_html_form_button_redirect( $reo, 'here', $edit_form, "detach.svg",      $detach_cue, "F:$field" => 0 );
           }
         
         if( $ltdes->get_table_type() eq 'FILE' )
           {
           if( $field_data > 0 )
             {
-            $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "FILE_UPLOAD_REPLACE_$field_id", "file_up.svg", "[~Upload and replace current file]", ACTION => 'file_up', TABLE => $linked_table, ID => $field_data ) if $ltdes->allows( 'UPDATE' );
-            $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "FILE_DOWNLOAD_$field_id",       "file_dn.svg", "[~Download current file]",           ACTION => 'file_dn', TABLE => $linked_table, ID => $field_data ) if $ltdes->allows( 'READ' );
+            $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "file_up.svg", "[~Upload and replace current file]", ACTION => 'file_up', TABLE => $linked_table, ID => $field_data ) if $ltdes->allows( 'UPDATE' );
+            $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "file_dn.svg", "[~Download current file]",           ACTION => 'file_dn', TABLE => $linked_table, ID => $field_data ) if $ltdes->allows( 'READ' );
             }
           else
             {
-            $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "FILE_UPLOAD_NEW_$field_id", "file_new.svg", "[~Upload new file]", ACTION => 'file_up', TABLE => $linked_table, ID => -1, RETURN_DATA_TO => $field ) if $ltdes->allows( 'INSERT' );
+            $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "file_new.svg", "[~Upload new file]", ACTION => 'file_up', TABLE => $linked_table, ID => -1, RETURN_DATA_TO => $field ) if $ltdes->allows( 'INSERT' );
             }
           }
         else
           {
           if( $field_data > 0 )
             {
-            $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "VIEW_LINKED_$field_id", "view.svg", "[~View linked data]", ACTION => 'view', TABLE => $linked_table, ID => $field_data ) if $ltdes->allows( 'READ'   ) and ! $enum;
-            $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "EDIT_LINKED_$field_id", "edit.svg", "[~Edit linked data]", ACTION => 'edit', TABLE => $linked_table, ID => $field_data ) if $ltdes->allows( 'UPDATE' );
+            $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "view.svg", "[~View linked data]", ACTION => 'view', TABLE => $linked_table, ID => $field_data ) if $ltdes->allows( 'READ'   ) and ! $enum;
+            $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "edit.svg", "[~Edit linked data]", ACTION => 'edit', TABLE => $linked_table, ID => $field_data ) if $ltdes->allows( 'UPDATE' );
             }
           my $insert_cue = $bfdes->get_attr( qw( WEB EDIT INSERT_CUE ) ) || "[~Insert and link a new record]";
           my $select_cue = $bfdes->get_attr( qw( WEB EDIT SELECT_CUE ) ) || "[~Select linked record]";
-          $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "INSERT_LINKED_$field_id", "insert.svg",      $insert_cue, ACTION => 'edit', TABLE => $linked_table, ID => -1, RETURN_DATA_FROM => '_ID', RETURN_DATA_TO => $field ) if $ltdes->allows( 'INSERT' );
-          $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "SELECT_LINKED_$field_id", "select-from.svg", $select_cue, ACTION => 'grid', TABLE => $linked_table, ID => -1, RETURN_DATA_FROM => '_ID', RETURN_DATA_TO => $field, GRID_MODE => 'SELECT', SELECT_KEY_DATA => $field_data, FILTER_NAME => $select_filter_name ) if $ltdes->allows( 'READ'   );
+          $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "insert.svg",      $insert_cue, ACTION => 'edit', TABLE => $linked_table, ID => -1, RETURN_DATA_FROM => '_ID', RETURN_DATA_TO => $field ) if $ltdes->allows( 'INSERT' );
+          $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "select-from.svg", $select_cue, ACTION => 'grid', TABLE => $linked_table, ID => -1, RETURN_DATA_FROM => '_ID', RETURN_DATA_TO => $field, GRID_MODE => 'SELECT', SELECT_KEY_DATA => $field_data, FILTER_NAME => $select_filter_name ) if $ltdes->allows( 'READ'   );
           }
         }
       }
@@ -509,8 +509,8 @@ sub main
 
       my $count = $core->count( $backlinked_table, { FILTER => { $backlinked_field => $id } });
 
-      $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "GRID_BACKLINKED_$field_id",   "grid.svg",   "[~View all backlinked records from] <b>$linked_table_label</b>",  ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, FILTER => { $backlinked_field => $id } ) if $bltdes->allows( 'READ' ) and $count > 0;
-      $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "INSERT_BACKLINKED_$field_id", "insert.svg", "[~Insert and link a new record into] <b>$linked_table_label</b>", ACTION => 'edit', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, LINK_FIELD_DISABLE => $backlinked_field ) if $bltdes->allows( 'INSERT' );
+      $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "grid.svg",   "[~View all backlinked records from] <b>$linked_table_label</b>",  ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, FILTER => { $backlinked_field => $id } ) if $bltdes->allows( 'READ' ) and $count > 0;
+      $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "insert.svg", "[~Insert and link a new record into] <b>$linked_table_label</b>", ACTION => 'edit', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, LINK_FIELD_DISABLE => $backlinked_field ) if $bltdes->allows( 'INSERT' );
 
       $count = 'Unknown' if $count eq '';
 
@@ -526,8 +526,8 @@ sub main
           my $id = shift;
           my $ccid = $reo->html_new_id();
           my $text;
-          $text .= de_html_form_button_redirect( $reo, 'new', $edit_form, "VIEW_BACKLINKED_DATAGRID_$field_id\_$ccid", "view.svg", "[~View linked data]", ACTION => 'view', TABLE => $backlinked_table, ID => $id, );
-          $text .= de_html_form_button_redirect( $reo, 'new', $edit_form, "EDIT_BACKLINKED_DATAGRID_$field_id\_$ccid", "edit.svg", "[~Edit linked data]", ACTION => 'edit', TABLE => $backlinked_table, ID => $id ) if $bltdes->allows( 'UPDATE' );
+          $text .= de_html_form_button_redirect( $reo, 'new', $edit_form, "view.svg", "[~View linked data]", ACTION => 'view', TABLE => $backlinked_table, ID => $id, );
+          $text .= de_html_form_button_redirect( $reo, 'new', $edit_form, "edit.svg", "[~Edit linked data]", ACTION => 'edit', TABLE => $backlinked_table, ID => $id ) if $bltdes->allows( 'UPDATE' );
           return $text;
           };
       
@@ -535,8 +535,8 @@ sub main
         $field_details .= "<p>" . de_data_grid( $core, $backlinked_table, $details_fields, { FILTER => { $backlinked_field => $id }, LIMIT => $details_limit, CLASS => 'grid view record', TITLE => "[~Related] $linked_table_label", CTRL_CB => $sub_de_data_grid_cb } ) ;
 
         my ( $insert_cue, $insert_cue_hint ) = de_web_get_cue( $bltdes->get_table_des(), qw( WEB GRID INSERT_CUE ) );
-        $field_details .= de_html_form_button_redirect( $reo, 'new', $edit_form, "GRID_BACKLINKED_$field_id",   "[~View all records]",  "[~View all backlinked records from] <b>$linked_table_label</b>",  BTYPE => 'nav', ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, FILTER => { $backlinked_field => $id } ) if $bltdes->allows( 'READ' ) and $count > 0;
-        $field_details .= de_html_form_button_redirect( $reo, 'new', $edit_form, "INSERT_BACKLINKED_$field_id", $insert_cue, $insert_cue_hint, BTYPE => 'act', ACTION => 'edit', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, ID => -1, "F:$backlinked_field" => $id ) if $bltdes->allows( 'INSERT' );
+        $field_details .= de_html_form_button_redirect( $reo, 'new', $edit_form, "[~View all records]",  "[~View all backlinked records from] <b>$linked_table_label</b>",  BTYPE => 'nav', ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, FILTER => { $backlinked_field => $id } ) if $bltdes->allows( 'READ' ) and $count > 0;
+        $field_details .= de_html_form_button_redirect( $reo, 'new', $edit_form, $insert_cue, $insert_cue_hint, BTYPE => 'act', ACTION => 'edit', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, ID => -1, "F:$backlinked_field" => $id ) if $bltdes->allows( 'INSERT' );
 
         $backlink_text .= $field_details;
       
@@ -679,11 +679,11 @@ sub main
 
   if( $tdes->{ '@' }{ 'NO_PREVIEW' } )
     {
-    $text .= de_html_form_button_redirect( $reo, 'here', $edit_form, 'OK', "[~OK] &rArr;", { HINT => "[~Save data]" }, ACTION => 'commit' );
+    $text .= de_html_form_button_redirect( $reo, 'here', $edit_form, "[~OK] &rArr;", { HINT => "[~Save data]" }, BUTTON_ID => 'OK', ACTION => 'commit' );
     }
   else  
     {
-    $text .= de_html_form_button_redirect( $reo, 'here', $edit_form, 'PREVIEW', "[~Preview] &rArr;", { HINT => "[~Preview data before save]" }, ACTION => 'preview' );
+    $text .= de_html_form_button_redirect( $reo, 'here', $edit_form, "[~Preview] &rArr;", { HINT => "[~Preview data before save]" }, BUTTON_ID => 'PREVIEW', ACTION => 'preview' );
     }
   $text .= $edit_form->end();
 

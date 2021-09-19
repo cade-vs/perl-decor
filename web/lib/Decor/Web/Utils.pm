@@ -134,7 +134,7 @@ sub de_data_grid
   
   if( $title )
     {
-    my $c = @fields;
+    my $c = @fields + 1 * ( defined $ctrl_cb );
     $text .= "<tr class=grid-header><td class='view-header fmt-center' colspan=$c>$title</td></tr>";
     }
 

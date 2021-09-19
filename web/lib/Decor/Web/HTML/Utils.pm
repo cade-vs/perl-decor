@@ -38,11 +38,11 @@ sub de_html_form_button_redirect
   my $reo   = shift; # web::reactor object
   my $type  = shift; # redirect type: new, back, here, none
   my $form  = shift; # web::reactor::html::form object
-  my $name  = uc shift; # button name
   my $value = shift; # button text
   my $hint  = shift; # button hover hint
   my %args  = @_;    # redirect data
 
+  my $button_id = uc ( $args{ 'BUTTON_ID' } || $reo->html_new_id() ); # button name, random, unique
 #  my $href = $reo->args_type( $type, @args );
 
   my $opt = ref( $hint ) eq 'HASH' ? $hint : { HINT => $hint };
@@ -54,7 +54,7 @@ sub de_html_form_button_redirect
 
   my $ps = $reo->get_page_session();
 
-  $ps->{ 'BUTTON_REDIRECT' }{ $name } = [ $type, %args ];
+  $ps->{ 'BUTTON_REDIRECT' }{ $button_id } = [ $type, %args ];
 
   my $args;
 
@@ -67,11 +67,11 @@ sub de_html_form_button_redirect
 
   if( $value =~ /([a-z_0-9]+\.(png|jpg|jpeg|gif|svg))/ )
     {
-    $text .= $form->image_button( NAME => "REDIRECT:$name", SRC => "i/$value", CLASS => "icon $btype", DISABLED => $disabled, ARGS => $args );
+    $text .= $form->image_button( NAME => "REDIRECT:$button_id", SRC => "i/$value", CLASS => "icon $btype", DISABLED => $disabled, ARGS => $args );
     }
   else
     {
-    $text .= $form->button( NAME => "REDIRECT:$name", VALUE => $value, CLASS => "button $btype", DISABLED => $disabled, ARGS => $args );
+    $text .= $form->button( NAME => "REDIRECT:$button_id", VALUE => $value, CLASS => "button $btype", DISABLED => $disabled, ARGS => $args );
     }
 
   return $text;
