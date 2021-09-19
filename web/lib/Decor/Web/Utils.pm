@@ -107,6 +107,8 @@ sub de_data_grid
   my $fields = shift;
   my $opt    = shift || {};
 
+  my $ctrl_cb = $opt->{ 'CTRL_CB' };
+
   my $tdes = $core->describe( $table );
   
   my @fields = ref( $fields ) eq 'ARRAY' ? @$fields : split /\s*,\s*/, $fields;
@@ -135,9 +137,11 @@ sub de_data_grid
     my $c = @fields;
     $text .= "<tr class=grid-header><td class='view-header fmt-center' colspan=$c>$title</td></tr>";
     }
+
   
   $text .= "<tr class=grid-header>";
-  # $text .= "<td class='grid-header fmt-left'>Ctrl</td>";
+  
+  $text .= "<td class='grid-header fmt-left'>Ctrl</td>" if $ctrl_cb;
 
   for my $field ( @fields )
     {
@@ -168,8 +172,11 @@ sub de_data_grid
     my $row_class = $row_counter++ % 2 ? 'grid-1' : 'grid-2';
     $text .= "<tr class=$row_class>";
 
-    # my $vec_ctrl; # FIXME: TODO: callback
-    # $text .= "<td class='grid-data fmt-ctrl fmt-mono'>$vec_ctrl</td>";
+    if( $ctrl_cb )
+      {
+      my $vec_ctrl = $ctrl_cb->( $id, $row_data );
+      $text .= "<td class='grid-data fmt-ctrl fmt-mono'>$vec_ctrl</td>";
+      }
 
     for my $field ( @fields )
       {
