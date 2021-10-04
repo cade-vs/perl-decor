@@ -86,8 +86,10 @@ my $FMT_DATE_DMY = '%d.%m.%Y';
 my $FMT_DATE_MDY = '%m.%d.%Y';
 my $FMT_DATE_YMD = '%Y.%m.%d';
 
-my $FMT_TIME_24  = '%H:%M:%S';
-my $FMT_TIME_12  = '%I:%M:%S %p';
+my $FMT_TIME_24   = '%H:%M:%S';
+my $FMT_TIME_12   = '%I:%M:%S %p';
+my $FMT_TIME_24S  = '%H:%M';
+my $FMT_TIME_12S  = '%I:%M %p';
 
 my $FMT_TZ       = '%z %Z';
 
@@ -109,6 +111,12 @@ my %FORMAT_SPECS = (
                                         },
                               '12H'  => {
                                         FMT => $FMT_TIME_12,
+                                        },
+                              '24HS' => {
+                                        FMT => $FMT_TIME_24S,
+                                        },
+                              '12HS' => {
+                                        FMT => $FMT_TIME_12S,
                                         },
                               },
                    'UTIME' => {
@@ -147,6 +155,44 @@ my %FORMAT_SPECS = (
                                         },
                               'YMD12Z' => {
                                         FMT => "$FMT_DATE_YMD $FMT_TIME_12 $FMT_TZ",
+                                        },
+
+
+                              'DMY24S' => {
+                                        FMT => "$FMT_DATE_DMY $FMT_TIME_24S",
+                                        },
+                              'MDY24S' => {
+                                        FMT => "$FMT_DATE_MDY $FMT_TIME_24S",
+                                        },
+                              'YMD24S' => {
+                                        FMT => "$FMT_DATE_YMD $FMT_TIME_24S",
+                                        },
+                              'DMY12S' => {
+                                        FMT => "$FMT_DATE_DMY $FMT_TIME_12S",
+                                        },
+                              'MDY12S' => {
+                                        FMT => "$FMT_DATE_MDY $FMT_TIME_12S",
+                                        },
+                              'YMD12S' => {
+                                        FMT => "$FMT_DATE_YMD $FMT_TIME_12S",
+                                        },
+                              'DMY24SZ'=> {
+                                        FMT => "$FMT_DATE_DMY $FMT_TIME_24S $FMT_TZ",
+                                        },
+                              'MDY24SZ'=> {
+                                        FMT => "$FMT_DATE_MDY $FMT_TIME_24S $FMT_TZ",
+                                        },
+                              'YMD24SZ'=> {
+                                        FMT => "$FMT_DATE_YMD $FMT_TIME_24S $FMT_TZ",
+                                        },
+                              'DMY12SZ'=> {
+                                        FMT => "$FMT_DATE_DMY $FMT_TIME_12S $FMT_TZ",
+                                        },
+                              'MDY12SZ'=> {
+                                        FMT => "$FMT_DATE_MDY $FMT_TIME_12S $FMT_TZ",
+                                        },
+                              'YMD12SZ'=> {
+                                        FMT => "$FMT_DATE_YMD $FMT_TIME_12S $FMT_TZ",
                                         },
                               },
                     );
