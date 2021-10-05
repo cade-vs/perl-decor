@@ -27,6 +27,7 @@ use Storable;
 use Decor::Shared::Net::Client;
 use Decor::Shared::Utils;
 use Decor::Shared::Config;
+use Decor::Shared::Types;
 
 our @ISA = qw( Web::Reactor );
 
@@ -79,6 +80,8 @@ sub new
             'SESS_VAR_DIR'   => "$ROOT/var/$APP_NAME/sess/",
             %env,
             );
+
+  type_set_format( $_, $env->{ "FMT_$_" } ) for qw( DATE TIME UTIME );
 
   my $self = $class->Web::Reactor::new( %cfg );
 

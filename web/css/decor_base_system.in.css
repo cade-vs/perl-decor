@@ -114,10 +114,8 @@ body
         background-color: $body-colors.2;
         background-image: url( "$body-colors.3" );
 
-        font-family: rubik, sans-serif;
+        font: $body-font;
         margin: 0;
-        font-style: normal;
-        font-size: 10pt;
         height: 100%;
         }
 
@@ -156,7 +154,7 @@ td.main_footer
         height: 100%;
         vertical-align: top;
         padding: 4px;
-        font-family: prime;
+        font: $footer-font;
         }
 
 
@@ -408,11 +406,10 @@ table.main-menu
         border-bottom: solid 1px $menu-colors.5;
 
         vertical-align: middle;
-        font-weight: bold;
         white-space: nowrap;
         cursor: pointer;
 
-        font: 1.5em oswald;
+        font: $main-menu-font;
         width:  100%;
         }
 
@@ -466,13 +463,12 @@ table.menu
         border-top: solid 1px $menu-colors.5;
 
         vertical-align: middle;
-        font-weight: bold;
         white-space: nowrap;
         cursor: pointer;
 
         width: 80%;
         max-width: 800px;
-        font: 1.2em oswald;
+        font: $main-menu-font;
         }
 
 td.menu
@@ -577,7 +573,7 @@ td.view-header
         border: solid 1px $view-head-colors.3;
 
         padding: 0.2em;
-        font: bold 1.2em oswald;
+        font: $view-edit-headers-font;
         }
 
 td.view-field
@@ -616,7 +612,7 @@ td.edit-header
         border: solid 1px $edit-head-colors.3;
 
         padding: 0.2em;
-        font: bold 1.2em oswald;
+        font: $view-edit-headers-font;
         }
 
 td.edit-field
@@ -655,7 +651,7 @@ td.insert-header
         border: solid 1px $insert-head-colors.3;
 
         padding: 0.2em;
-        font: bold 1.2em oswald;
+        font: $view-edit-headers-font;
         }
 
 td.insert-field
@@ -791,8 +787,7 @@ input,textarea,select,.grid-link-select
         {
         padding: 0.5em;
         margin: 0 0 0 0;
-        font-family: rubik;
-        font-size: 1.1em;
+        font: $input-controls-font;
         
         color: $input-field-colors.1;
         background-color: $input-field-colors.2;
@@ -857,9 +852,7 @@ select,.grid-link-select
         margin:  0.3em;
 
         white-space: nowrap;
-        font-family: rubik, sans-serif;
-        font-size: 1.0em;
-        font-weight: bold;
+        font: $buttons-font;
         
         $$setup-act-fg-bg-border     $button-colors
         }

@@ -80,7 +80,7 @@ you should export:
 
 to install http index.cgi use:
 
-    $root/bin/decro-easy-cgi-install.pl  app-name  target-http-dir
+    $root/bin/decor-easy-cgi-install.pl  $root  app-name  target-http-dir
 
 END
 

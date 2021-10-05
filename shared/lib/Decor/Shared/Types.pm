@@ -222,6 +222,9 @@ sub type_set_format
 {
   my $type = shift; # hashref with type args
   my $fmt  = shift; # format string
+  
+  return undef unless $type;
+  return undef unless $fmt;
 
   my $type_name = $type->{ 'NAME' };
 

@@ -12,6 +12,13 @@
 
 /*$* DECOR SYSTEM DEFAULT CSS, CONFIG SECTION, DO NOT MODIFY STRUCTURE! *****/
 
+$body-font                    normal 11pt rubik, sans-serif
+$footer-font                  prime
+$main-menu-font               bold 1.5em oswald
+$view-edit-headers-font       bold 1.2em oswald
+$input-controls-font          1.1em rubik 
+$buttons-font                 bold 1.0em rubik, sans-serif
+
 /*$                     fg    bg    bg-image */
 $body-colors            #EEE  #222  back.jpg
 $body-colors-print      #000  #FFF

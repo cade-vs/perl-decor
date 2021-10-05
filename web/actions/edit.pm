@@ -157,7 +157,7 @@ sub main
     my $type       = $fdes->{ 'TYPE'  };
 
     my $raw_input_data = type_revert( $input_data, $type );
-    
+
     # TODO: handle passwords
     if( $fdes->{ 'PASSWORD' } or $field =~ /^PASSWORD/ )
       {
@@ -169,7 +169,6 @@ sub main
       }
 
     $ps->{ 'ROW_DATA' }{ $field } = $raw_input_data;
-    
     }
 
   # recalc data

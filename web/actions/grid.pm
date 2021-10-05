@@ -515,7 +515,7 @@ sub main
 
       if( $lpassword )
         {
-        $data_fmt = "(*****)";
+        $data_fmt = $data_fmt ? "(*****)" : "([~empty])";
         }
 
       if( $data_ctrl )

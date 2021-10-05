@@ -128,7 +128,7 @@ sub de_data_grid
   my $title  = $opt->{ 'TITLE'  };
 
   my $select = $core->select( $table, join( ',', @fields ), { FILTER => $filter, LIMIT => $limit, ORDER_BY => $order_by } ) if @fields;
-  #my $scount = $core->count( $table,                        { FILTER => $filter,                                       } ) if $select;
+  #my $scount = $core->count( $table,                        { FILTER => $filter,                                        } ) if $select;
   #my $acount = $core->count( $table,                        { FILTER => { '_ID' > 0 },                                 } ) if $select;
   
   my $text;
@@ -215,6 +215,7 @@ sub de_data_grid
     }
   $text .= "</table>";
   
+#  return wantarray ? ( $text, $row_counter, $scount ) : $text;
   return wantarray ? ( $text, $row_counter ) : $text;
 }
 

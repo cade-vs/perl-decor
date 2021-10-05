@@ -295,16 +295,16 @@ sub main
             };
 
           my $details_limit = $bfdes->get_attr( qw( WEB VIEW DETAILS_LIMIT ) ) || 16;
-          my ( $dd_grid, $dd_count ) = de_data_grid( $core, $backlinked_table, $details_fields, { FILTER => { $backlinked_field => $id }, LIMIT => $details_limit, CLASS => 'grid view record', TITLE => "[~Related] $linked_table_label", CTRL_CB => $sub_de_data_grid_cb } ) ;
+          my ( $dd_grid, $dd_count ) = de_data_grid( $core, $backlinked_table, $details_fields, { FILTER => { $backlinked_field => $id }, ORDER_BY => '._ID DESC', LIMIT => $details_limit, CLASS => 'grid view record', TITLE => "[~Related] $linked_table_label", CTRL_CB => $sub_de_data_grid_cb } ) ;
           $field_details .= $dd_grid;
 
           if( uc( $bfdes->get_attr( 'WEB', 'GRID', 'BACKLINK_GRID_MODE' ) ) eq 'ALL' )
             {
-            $field_details .= de_html_alink_button( $reo, 'new', '[~View all related records]',   "[~View all related records from] <b>$linked_table_label</b>",  BTYPE => 'nav', ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => $id, FILTER => { $backlinked_field => [ { OP => 'IN', VALUE => [ $id, 0 ] } ] } );
+            $field_details .= de_html_alink_button( $reo, 'new', "[~View all related records] ($count)",   "[~View all related records from] <b>$linked_table_label</b>",  BTYPE => 'nav', ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => $id, FILTER => { $backlinked_field => [ { OP => 'IN', VALUE => [ $id, 0 ] } ] } ) unless $count <= $dd_count;
             }
           else
             {  
-            $field_details .= de_html_alink_button( $reo, 'new', " <img src=i/grid.svg> [~View all] <b>$linked_table_label</b>",     "[~View all connected records from] <b>$linked_table_label</b>",  BTYPE => 'nav', ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => $id, FILTER => { $backlinked_field => $id } ) unless $count == $dd_count;
+            $field_details .= de_html_alink_button( $reo, 'new', " <img src=i/grid.svg> [~View all] <b>$linked_table_label</b>  ($count)",     "[~View all connected records from] <b>$linked_table_label</b>",  BTYPE => 'nav', ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => $id, FILTER => { $backlinked_field => $id } ) unless $count <= $dd_count;
             $field_details .= de_html_alink_button( $reo, 'new', " <img src=i/attach.svg> [~View unattached] <b>$linked_table_label</b>",   "[~View all not connected records from] <b>$linked_table_label</b>",  BTYPE => 'nav', ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => 0, FILTER => { $backlinked_field => 0 } ) if $uncount > 0;
             }
           

@@ -24,6 +24,8 @@ our @EXPORT = qw(
                 find_user_by_name
                 create_user
                 set_user_pass
+                
+                update_backlink_count
 
                 );
 
@@ -118,6 +120,32 @@ sub set_user_pass
   return 1;                
 }
 
+# usage: backlink table, backlink field --> table/rec, field, <id>
+sub update_backlink_count
+{
+  my $backlink_table = shift;
+  my $backlink_field = shift;
+  my $table_rec      = shift;
+  my $field          = shift;
+  my $id             = shift;
+  my $tune_count     = shift || 0;
+
+  $id = $table_rec->id() if ref( $table_rec );
+  boom "missing 5th arg [ID]" unless $id > 0;
+  
+  my $io = new Decor::Core::DB::IO;
+  my $count = $io->count( $backlink_table, "$backlink_field = ?", { BIND => [ $id ] } );
+  $count += $tune_count;
+  
+  if( ref( $table_rec ) )
+    {
+    $table_rec->write( $field => $count );
+    }
+  else
+    {
+    $io->update_id( $table_rec, { $field => $count }, $id );
+    }  
+}
 
 ### EOF ######################################################################
 1;
