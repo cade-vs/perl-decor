@@ -158,6 +158,7 @@ sub de_web_format_field
       {
       my $sep  = $details > 1 ? '<br>' : ' &nbsp; &Delta;';
       my $diff = unix_time_diff_in_words_relative( time() - $field_data );
+      $diff =~ s/([a-z]{2,})/\[~$1\]/gi;
       $data_fmt .= " <span class=details-text>$sep $diff</span>";
       }
     }
@@ -171,6 +172,7 @@ sub de_web_format_field
       {
       my $sep  = $details > 1 ? '<br>' : ' &nbsp; &Delta;';
       my $diff = julian_date_diff_in_words_relative( gm_julian_day(time()) - $field_data );
+      $diff =~ s/([a-z]{2,})/\[~$1\]/gi;
       $data_fmt .= " <span class=details-text>$sep $diff</span>";
       }
     }

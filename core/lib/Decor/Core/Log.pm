@@ -143,7 +143,7 @@ sub de_log
     # msg
     }
 
-  1;  
+  return undef;
 }
 
 sub __log_to_file

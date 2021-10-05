@@ -279,7 +279,7 @@ sub __merge_menu_hash
   my $menu      = shift;
   my $menu_name = uc shift;
 
-  boom "invalid MENU name [$menu_name]" unless de_check_name( $menu_name );
+  return de_log( "error: invalid MENU name [$menu_name]" ) unless de_check_name( $menu_name );
 
   my $menus_dirs = __get_menus_dirs();
 
@@ -306,7 +306,7 @@ sub __postprocess_menu_hash
   my $menu_name = uc shift;
 ###  print STDERR "TABLE DES RAW [$table]:" . Dumper( $des );
 
-  boom "missing MENU (load error) for menu name [$menu_name]" unless $menu;
+  return de_log( "error: missing MENU (load error) for menu name [$menu_name]" ) unless $menu;
 
   # postprocessing TABLE (self) ---------------------------------------------
   my @items  = sort { $menu->{ $a }{ '_ORDER' } <=> $menu->{ $b }{ '_ORDER' } } keys %{ $menu };
@@ -474,7 +474,7 @@ sub de_menu_get
   if( ! $menu )
     {
     my $menus_dirs = __get_menus_dirs();
-    boom "cannot find/load MENU for menu name [$menu_name] dirs [@$menus_dirs]";
+    return de_log( "error: cannot find/load MENU for menu name [$menu_name] dirs [@$menus_dirs]" );
     }
 
   return $menu;
