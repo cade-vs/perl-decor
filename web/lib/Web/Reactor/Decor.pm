@@ -81,7 +81,7 @@ sub new
             %env,
             );
 
-  type_set_format( $_, $env->{ "FMT_$_" } ) for qw( DATE TIME UTIME );
+  type_set_format( $_, $env{ "FMT_$_" } ) for qw( DATE TIME UTIME );
 
   my $self = $class->Web::Reactor::new( %cfg );
 

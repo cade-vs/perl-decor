@@ -226,7 +226,7 @@ sub type_set_format
   return undef unless $type;
   return undef unless $fmt;
 
-  my $type_name = $type->{ 'NAME' };
+  my $type_name = ref( $type ) ? $type->{ 'NAME' } : $type;
 
   __check_format( $type_name, $fmt );
 
