@@ -91,7 +91,7 @@ web.grid.fields_list  name  ctime   grp  suma  BOOL_TEST ref test_wlink
   web.combo            %30s is %-15s; NAME; CNT
   web.combo.orderby    CNT, NAME DESC
 #  web.edit.mono
-  web.select_filter   MORE_CNT
+  web.select_filter_name   MORE_CNT
   web.grid.editable
 
 

@@ -51,7 +51,7 @@ sub new
 
   boom "APP_ROOT path does not exist [$APP_ROOT]" unless -d $APP_ROOT;
 
-  my $lang = lc $env{ 'LANG' };
+  my $lang = lc $env{ 'LANG' } || 'en';
   
   boom "invalid LANG specified, got [$lang]" unless $lang =~ /^[a-z][a-z]$/;
 

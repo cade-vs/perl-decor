@@ -61,10 +61,9 @@ sub main
       my $upload_fh = $ui->{ "FILE_UPLOAD:FH:$fc" };
       my $upload_fn = $ui->{ "FILE_UPLOAD:FN:$fc" };
       my $upload_fi = $ui->{ "FILE_UPLOAD:FI:$fc" };
-
       
       $upload_fn =~ s/^.*?\/([^\/]+)$/$1/;
-      my $mime = $upload_fi->{ 'Content-Type' };
+      my $mime   = $upload_fi->{ 'Content-Type' };
       my $new_id = $core->file_save_fh( $upload_fh, $table, $upload_fn, $id, { DES => $file_des, MIME => $mime } );
       
       my @fields = grep s/^F://, keys %$si;

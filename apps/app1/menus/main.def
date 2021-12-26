@@ -57,8 +57,9 @@ grant access to 999
   type    do    test1   standalone
   label   run standalone do
 
+=VM_CONTROL
 
-
+  type  grid  VM_CONTROL
 
 =sess
 
