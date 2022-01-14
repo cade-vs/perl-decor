@@ -289,7 +289,7 @@ sub main
             my $vec_ctrl;
             $vec_ctrl .= de_html_alink_icon( $reo, 'new', "view.svg",    $view_cue_hint,          ACTION => 'view',    ID => $cbid, TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field  );
             $vec_ctrl .= de_html_alink_icon( $reo, 'new', "edit.svg",    $update_cue_hint,        ACTION => 'edit',    ID => $cbid, TABLE => $backlinked_table                                                          ) if $bltdes->allows( 'UPDATE' );
-            $vec_ctrl .= de_html_alink_icon( $reo, 'new', "copy.svg",    $copy_cue_hint,          ACTION => 'edit',    ID =>  -1,   TABLE => $backlinked_table, COPY_ID => $cbid, LINK_FIELD_DISABLE => $backlinked_field, "F:$backlinked_field" => $id ) if $bltdes->allows( 'INSERT' ) and ! $bltdes->{ '@' }{ 'NO_COPY' };
+            $vec_ctrl .= de_html_alink_icon( $reo, 'new', "copy.svg",    $copy_cue_hint,          ACTION => 'edit',    ID =>    -1, TABLE => $backlinked_table, COPY_ID => $cbid, LINK_FIELD_DISABLE => $backlinked_field, "F:$backlinked_field" => $id ) if $bltdes->allows( 'INSERT' ) and ! $bltdes->{ '@' }{ 'NO_COPY' };
             $vec_ctrl .= de_html_alink_icon( $reo, 'new', 'file_dn.svg', $download_file_cue_hint, ACTION => 'file_dn', ID => $cbid, TABLE => $backlinked_table                                                          ) if $bltable_type eq 'FILE';
             return $vec_ctrl;
             };
