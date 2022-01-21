@@ -10,7 +10,7 @@ web.insert_cue Create new ToDO note
     
 =CATEGORY
     type    link    TODO_CATS   NAME
-    #web.combo
+    web.combo
     web.search
     required
 
@@ -26,21 +26,24 @@ web.insert_cue Create new ToDO note
 
 =DONE
     type    bool
+    web.grid.editable
+    web.view.editable
 
 =NOTE
-    type    char    1024
+    type    char    4000
     web.rows           5
     web.grid.maxlen
     web.mono
 
 =CTIME
-      label   Create time
-      type    utime
-      read-only
-      web.details 2
+    label   Create time
+    type    utime
+    read-only
+    web.details 2
+    web.grid.hide
 
 =MTIME
-      label   Last modify time
-      type    utime
-      read-only
-      web.details 2
+    label   Last modify time
+    type    utime
+    read-only
+    web.details 2

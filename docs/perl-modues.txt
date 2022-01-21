@@ -1,1 +1,1 @@
-cpan DBI DBD::Pg Digest::SHA1 Data::Lock Exception::Sink Data::Tools Tie::IxHash Time::JulianDay Sys::SigAction Clone Net::Waiter Time::HR
+cpan DBI DBD::Pg Digest::SHA1 Data::Lock Exception::Sink Data::Tools Tie::IxHash Time::JulianDay Sys::SigAction Clone Net::Waiter Time::HR Data::Structure::Util

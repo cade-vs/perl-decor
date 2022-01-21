@@ -1,10 +1,30 @@
 
+label Notes
+
+grant all
+
+web.insert_cue Create new Note
+
+
 =TITLE
     type    char    128
     required
     
 =BODY
     type    char    4000
+    web.rows 10
+    web.maxlen -64
+    web.mono
     
 =CTIME
+    label   Create time
     type    utime
+    read-only
+    web.details 2
+    web.grid.hide
+
+=MTIME
+    label   Last modify time
+    type    utime
+    read-only
+    web.details 2

@@ -9,12 +9,12 @@
 ##############################################################################
 package Decor::Core::Subs;
 use strict;
-use open ':std', ':encoding(UTF-8)';
 
 use Data::Dumper;
 use Exception::Sink;
 use Data::Tools;
 use Data::Tools::Socket;
+use Data::Structure::Util qw( unbless );
 
 use Decor::Shared::Utils;
 use Decor::Core::Env;
@@ -864,7 +864,8 @@ sub sub_describe
 
   my $new = clone( { %$des } );
 
-#print STDERR Dumper( '-'x100, $des );
+# print STDERR Dumper( '-'x100, $des, $new, ref($new) );
+
   __replace_grant_deny( $profile, $new->{ '@' }, $des->{ '@' } );
   delete $new->{ 'INDEX'  };
   delete $new->{ 'FILTER' };
@@ -875,6 +876,7 @@ sub sub_describe
       {
       my $hrd = $des->{ $cat }{ $field };
       my $hrn = $new->{ $cat }{ $field };
+      unbless $hrn;
       #dunlock $hr;
       #dunlock $hr->{ 'DENY'  };
       __replace_grant_deny( $profile, $hrn, $hrd, $table, $field );

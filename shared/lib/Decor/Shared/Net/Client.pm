@@ -181,6 +181,7 @@ sub tx_msg
   delete $mi->{ '___RECV_FILE_HAND' };
   
   my $ptype = 'p'; # FIXME: config?
+#  my $ptype = 's'; # FIXME: config?
 
   my $mi_res = de_net_protocol_write_message( $socket, $ptype, $mi, $timeout );
   if( $mi_res == 0 )

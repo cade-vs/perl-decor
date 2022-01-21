@@ -14,7 +14,7 @@ use parent 'Decor::Core::DB';
 use Exception::Sink;
 use Data::Lock qw( dlock );
 use Data::Dumper;
-use Encode;    
+use Encode qw( is_utf8 encode decode );    
 
 use Decor::Shared::Utils;
 use Decor::Core::Env;

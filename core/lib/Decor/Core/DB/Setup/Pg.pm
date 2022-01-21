@@ -13,7 +13,13 @@ use strict;
 use parent 'Decor::Core::Base';
 use Exception::Sink;
 
-sub setup_dbh {}
+sub setup_dbh 
+{
+  my $self = shift;
+  my $dbh  = shift;
+  
+  # $dbh->{ 'pq_enable_utf8' } = 1;
+}  
 
 ### EOF ######################################################################
 1;

@@ -1,7 +1,7 @@
 
 @include  _DE_OWNERS  _OWNER
 
-grant read to 999
+grant read
 
 =NAME
   type  char  256

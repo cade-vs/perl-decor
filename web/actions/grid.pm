@@ -360,7 +360,6 @@ sub main
       my $data_ctrl;
       $fmt_class .= $fmt_class_fld;
 
-
       if( $bfdes->is_linked() or $bfdes->is_widelinked() )
         {
         if( $link_field_disable and $base_field eq $link_field_disable )
@@ -525,10 +524,13 @@ sub main
         }
 
       my $base_field_class = lc "css_grid_class_$base_field";
-      $text_grid_body .= "<td class='grid-data $fmt_class  $base_field_class'>$data_fmt</td>";
+      $text_grid_body .= "<td class='grid-data $fmt_class  $base_field_class'>$data_fmt</td>\n";
+      
+      # end of fields loop
       }
-    $text_grid_body .= "</tr>";
+    $text_grid_body .= "</tr>\n\n\n";
 
+    # end of record row loop
     }
   
   $text_grid_foot .= "</table>";

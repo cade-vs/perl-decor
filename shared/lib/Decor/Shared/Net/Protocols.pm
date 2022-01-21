@@ -14,6 +14,7 @@ use Exception::Sink;
 use Data::Tools;
 use Data::Tools::Socket;
 use Data::Lock qw( dlock dunlock );
+use Encode;
 
 our @ISA    = qw( Exporter );
 our @EXPORT = qw(
@@ -50,6 +51,63 @@ dlock \%PROTOCOL_TYPES;
 
 my %PROTOCOL_ALLOW = map { $_ => 1 } keys %PROTOCOL_TYPES;
 
+sub hr_traverse_vals
+{
+  my $hr  = shift;
+  my $sub = shift;
+  dunlock( $hr );
+  
+  for( keys %$hr )
+    {
+    my $v = $hr->{ $_ };
+    my $r = ref( $v );
+    if( $r eq 'HASH' )
+      {
+      hr_traverse_vals( $v, $sub );
+      }
+    elsif( $r eq 'ARRAY' )
+      {
+      ar_traverse_vals( $v, $sub );
+      }
+    elsif( $r eq '' )
+      {
+      $hr->{ $_ } = $sub->( $v );
+      }
+    else
+      {
+      boom "unsupported VALUE TYPE";
+      }  
+    }
+}
+
+sub ar_traverse_vals
+{
+  my $ar = shift;
+  my $sub = shift;
+  dunlock( $ar );
+  
+  for( @$ar )
+    {
+    my $r = ref( $_ );
+    if( $r eq 'HASH' )
+      {
+      hr_traverse_vals( $_, $sub );
+      }
+    elsif( $r eq 'ARRAY' )
+      {
+      ar_traverse_vals( $_, $sub );
+      }
+    elsif( $r eq '' )
+      {
+      $_ = $sub->( $_ );
+      }
+    else
+      {
+      boom "unsupported VALUE TYPE";
+      }  
+    }
+}
+
 sub de_net_protocol_read_message
 {
   my $socket  = shift;
@@ -60,7 +118,7 @@ sub de_net_protocol_read_message
     {
     return wantarray ? ( undef, undef, 'E_COMM' ) : undef;
     }
-  
+
   my $ptype = substr( $data, 0, 1 );
   boom "unknown or forbidden PROTOCOL_TYPE requested [$ptype] expected one of [" . join( ',', keys %PROTOCOL_ALLOW ) . "]" unless exists $PROTOCOL_ALLOW{ $ptype };
   my $proto = $PROTOCOL_TYPES{ $ptype };
@@ -82,8 +140,10 @@ sub de_net_protocol_write_message
   my $proto = $PROTOCOL_TYPES{ $ptype };
   
   boom "expected HASH reference at arg #3" unless ref( $hr ) eq 'HASH';
+
+  my $data = $ptype . $proto->{ 'pack' }->( $hr );
   
-  return socket_write_message( $socket, $ptype . $proto->{ 'pack' }->( $hr ), $timeout );
+  return socket_write_message( $socket, $data, $timeout );
 }
 
 #-----------------------------------------------------------------------------
