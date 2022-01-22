@@ -139,7 +139,7 @@ sub de_code_exec
     die "E_METHOD: code exception error in type $ctype, named $name in method $trigger: $@\n";
     }
 
-  return 
+  return $ret;
 }
 
 ### EOF ######################################################################
