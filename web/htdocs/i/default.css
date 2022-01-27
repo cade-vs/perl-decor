@@ -8,7 +8,7 @@
 ##
 ############################################################################*/
 
-/* THIS FILE IS GENERATED! PLEASE, DO NOT MODIFY! -- GENERATED AT Sat Sep 11 00:10:03 2021 */
+/* THIS FILE IS GENERATED! PLEASE, DO NOT MODIFY! -- GENERATED AT Thu Jan 27 23:16:31 2022 */
 
 
 
@@ -112,15 +112,14 @@ html
 
 body
         {
+        margin: 0;
+        height: 100%;
+
         color:            #EEE;
         background-color: #222;
         background-image: url( "main-background.png" );
 
-        font-family: rubik, sans-serif;
-        margin: 0;
-        font-style: normal;
-        font-size: 10pt;
-        height: 100%;
+        font: ;
         }
 
 .fill
@@ -158,7 +157,7 @@ td.main_footer
         height: 100%;
         vertical-align: top;
         padding: 4px;
-        font-family: prime;
+        font: ;
         }
 
 
@@ -357,11 +356,11 @@ div.info-text
 div.report-text
         {
         color: #FFF;
-        background-color: #357;
+        background-color: #355;
         border:      solid 1px #68A;
         border-left: solid 3px #68A;
 
-        width:  80%;
+        width: min-content;
         text-align: left;
         padding: 0.5em;
         margin-left: auto;
@@ -449,11 +448,10 @@ table.main-menu
         border-bottom: solid 1px #445;
 
         vertical-align: middle;
-        font-weight: bold;
         white-space: nowrap;
         cursor: pointer;
 
-        font: 1.5em oswald;
+        font: ;
         width:  100%;
         }
 
@@ -507,13 +505,12 @@ table.menu
         border-top: solid 1px #445;
 
         vertical-align: middle;
-        font-weight: bold;
         white-space: nowrap;
         cursor: pointer;
 
         width: 80%;
         max-width: 800px;
-        font: 1.2em oswald;
+        font: ;
         }
 
 td.menu
@@ -618,7 +615,7 @@ td.view-header
         border: solid 1px #37A;
 
         padding: 0.2em;
-        font: bold 1.2em oswald;
+        font: ;
         }
 
 td.view-field
@@ -657,7 +654,7 @@ td.edit-header
         border: solid 1px #A44;
 
         padding: 0.2em;
-        font: bold 1.2em oswald;
+        font: ;
         }
 
 td.edit-field
@@ -696,7 +693,7 @@ td.insert-header
         border: solid 1px #484;
 
         padding: 0.2em;
-        font: bold 1.2em oswald;
+        font: ;
         }
 
 td.insert-field
@@ -832,8 +829,7 @@ input,textarea,select,.grid-link-select
         {
         padding: 0.5em;
         margin: 0 0 0 0;
-        font-family: rubik;
-        font-size: 1.1em;
+        font: ;
         
         color: #CCC;
         background-color: #222;
@@ -898,9 +894,7 @@ select,.grid-link-select
         margin:  0.3em;
 
         white-space: nowrap;
-        font-family: rubik, sans-serif;
-        font-size: 1.0em;
-        font-weight: bold;
+        font: ;
         
         color:            #FFF;
         background-color: #448;
@@ -1085,7 +1079,7 @@ div.vframe
 table.map-layout
         {
         height: 100%;
-        width:  100%
+        width:  100%;
         vertical-align: top;
         }
 
@@ -1099,7 +1093,16 @@ td.map-layout
 div#map
         {
         height: 100%;
-        width:  100%
+        width:  100%;
+        padding: 0;
+        margin:  0;
+        border: none;
+        overflow: hidden;
+        }
+
+div.map
+        {
+        position: relative;
         }
 
 /*** effects ****************************************************************/

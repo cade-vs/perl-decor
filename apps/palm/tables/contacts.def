@@ -1,7 +1,9 @@
 
 grant all to 999
 
-@include  _DE_OWNERS  _OWNER                                                                                                    
+@include  _DE_OWNERS  _OWNER
+
+web.insert_cue Add new contact
 
 =NAME
     type  char  128

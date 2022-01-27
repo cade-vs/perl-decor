@@ -1,10 +1,10 @@
 
-  deny all
-
 =_OWNER
 
   type  link  de_groups   name
+  deny all
 
 =_OWNER2
 
   type  link  de_groups   name
+  deny all

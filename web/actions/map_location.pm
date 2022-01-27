@@ -61,8 +61,12 @@ sub main
   my ( $lla, $llo, $llz );
   if( $ll =~ /([-+]?\d+(\.\d*)?)\s*,\s*([-+]?\d+(\.\d*)?)\s*(\@(\d+(\.\d*)?))?/ )
     {
-    ( $lla, $llo, $llz ) = ( $1, $3, ( $6 || 8 ) );
+    ( $lla, $llo, $llz ) = ( $1, $3, ( $6 || 17 ) );
     }
+  else
+    {
+    ( $lla, $llo, $llz ) = ( 42.69774, 23.3218, 11 );
+    }  
 
 
   my $back_button = de_html_alink_button( $reo, 'back', "&lArr; [~Back]", "[~Return to previous screen]", BTYPE => 'nav' );;
@@ -140,7 +144,14 @@ sub main
         dragPan: ! isMobileOrTablet()
     });
 
-   map.addControl( new tt.GeolocateControl( 
+    var scale = new tt.ScaleControl( {
+                                      maxWidth: 512,
+                                      unit: 'imperial'
+                                      } );
+    map.addControl( scale );
+    scale.setUnit('metric');
+
+    map.addControl( new tt.GeolocateControl( 
                        {
                           positionOptions: 
                              {
@@ -200,6 +211,8 @@ sub main
     map.on( 'zoomend', function (ev) { on_zoomend( ev ) } );
     marker.on( 'dragend', function ( ev ) { on_marker_dropped( ev ) } );
     set_marker_to_lnglat( map.getCenter(), 1 );
+    if( ! $allow_map_select )
+      marker.setDraggable( false );
     show_hide_pois();
 
     function zoom_to_country_level()

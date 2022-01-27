@@ -342,10 +342,11 @@ sub main
     $text_grid_body .= "<td class='grid-data fmt-ctrl fmt-mono'>$vec_ctrl</td>";
     for my $field ( @fields )
       {
-      my $bfdes     = $bfdes{ $field };
-      my $lfdes     = $lfdes{ $field };
-      my $type_name = $lfdes->{ 'TYPE' }{ 'NAME' };
-      my $fmt_class = ( $FMT_CLASS_ALIGN{ $type_name } || 'fmt-left' ) . ' ' . $FMT_CLASS_TYPE{ $type_name };
+      my $bfdes      = $bfdes{ $field };
+      my $lfdes      = $lfdes{ $field };
+      my $type_name  = $lfdes->{ 'TYPE' }{ 'NAME' };
+      my $type_lname = $lfdes->{ 'TYPE' }{ 'LNAME' };
+      my $fmt_class  = ( $FMT_CLASS_ALIGN{ $type_name } || 'fmt-left' ) . ' ' . $FMT_CLASS_TYPE{ $type_name };
 
       next if $bfdes->get_attr( qw( WEB GRID HIDE ) );
 
@@ -515,6 +516,11 @@ sub main
       if( $lpassword )
         {
         $data_fmt = $data_fmt ? "(*****)" : "([~empty])";
+        }
+
+      if( $type_name eq 'CHAR' and $type_lname eq 'LOCATION' )
+        {
+        $data_fmt = de_html_alink_button( $reo, 'new', " <img src=i/map_location.svg> $data_fmt", "[~View map location]", ACTION => 'map_location', LL => $data );
         }
 
       if( $data_ctrl )

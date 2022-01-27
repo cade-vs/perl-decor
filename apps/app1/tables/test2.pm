@@ -14,7 +14,7 @@ sub on_recalc
 
   my $name = $rec->read( 'NAME' );
 #  $rec->write( 'NAME', $name . '|ю');
-  
+
   de_log( "info: \n\n\n\n\n\n\n****************************** $name\n\n\n\n\n\n\n\n\n\n" );
 }
 
