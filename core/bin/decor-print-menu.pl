@@ -20,10 +20,10 @@ use Data::Tools 1.09;
 
 use Data::Dumper;
 use Decor::Core::Env;
-use Decor::Core::Config;
 use Decor::Core::Profile;
 use Decor::Core::Menu;
 use Decor::Core::Log;
+use Decor::Shared::Config;
 
 $Data::Dumper::Sortkeys = 1;
 $Data::Dumper::Indent   = 3;

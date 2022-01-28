@@ -401,7 +401,7 @@ sub __check_access_tree
   my $oper = shift;
   my $tree = shift;
 
-#print "profile access exists check: [$oper]\n" . Dumper( $tree );  
+# print STDERR "profile access exists check: [$oper]\n" . Dumper( $tree );  
 
   return 0 unless exists $tree->{ $oper };
 
@@ -420,15 +420,16 @@ sub __check_access_tree
       {
       if( $group =~ /^!\s*([0-9]+)$/ )
         {
+        next if exists $self->{ 'GROUPS' }{ 909 };
         my $grp = int( $1 );
-#print "profile access ! check: [$grp]\n";  
+# print STDERR "profile access ! check: [$grp]\n";  
         boom "group [$group] in grant|deny policy set for operation [$oper] is equal to zero [$grp] all groups must not be zero" if $grp == 0;
         $c++ if ! exists $groups->{ $grp } or ! ( $groups->{ $grp } > 0 );
         }
       else
         {
         my $grp = int( $group );
-#print "profile access   check: [$grp]\n";  
+# print STDERR "profile access   check: [$grp]\n";  
         boom "group [$group] in grant|deny policy set for operation [$oper] is equal to zero [$grp] all groups must not be zero" if $grp == 0;
         $c++ if   exists $groups->{ $grp } and  ( $groups->{ $grp } > 0 );
         }  

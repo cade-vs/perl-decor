@@ -817,8 +817,8 @@ sub __replace_grant_deny
 #    while( my ( $k, $v ) = each %{ $hrd->{ $grant_deny } } )
     for my $op ( keys %{ $hrd->{ $grant_deny } } )
       {
-#my $res = $profile->__check_access_tree( $op, $hrd->{ $grant_deny } );
-#print STDERR "=====(@_)======+++++ [$res] <- $op, $grant_deny, " . Dumper( $hrd );
+# my $res = $profile->__check_access_tree( $op, $hrd->{ $grant_deny } );
+# print STDERR "=====(@_)======+++++ [$res] <- $op, $grant_deny, " . Dumper( $hrd );
       $hrn->{ $grant_deny }{ $op } = $profile->__check_access_tree( $op, $hrd->{ $grant_deny } );
       }
     }
@@ -923,6 +923,9 @@ sub sub_menu
     my $hrm = $menu->{ $item };
     my $hrn =  $new->{ $item };
     __replace_grant_deny( $profile, $hrn, $hrm );
+
+print STDERR Dumper( 'MENU DEBUG ---' x 16, $hrm, $hrn );
+
     delete $hrn->{ 'DEBUG::ORIGIN' };
     }
 

@@ -24,8 +24,6 @@ sub main
 
   my $menu_ar = sub_menu( $reo, $core, $name );
 
-  print STDERR Dumper( 'MENU 'x11, $menu_ar );
-
   my $text = html_ftree( $menu_ar, 'ARGS' => 'class=menu cellpadding=10 width=100% border=0', 'ARGS_TR' => 'class=menu', 'ARGS_TD' => 'class=menu' );
 
   return "<p>" . $text;

@@ -344,7 +344,8 @@ sub main
       
       if( $type_lname eq 'LOCATION' )
         {
-        $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "map_location.svg", "[~Select map location]", ACTION => 'map_location', RETURN_DATA_TO => $field, LL => $field_data );
+        # $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "map_location.svg", "[~Select map location]", ACTION => 'map_location', RETURN_DATA_TO => $field, LL => $field_data );
+        $field_input_ctrl .= de_html_alink_button( $reo, 'here', "<img src=i/map_location.svg> [~Select map location]", undef, ACTION => 'map_location', RETURN_DATA_TO => $field, LL => $field_data );
         }
       }
     elsif( $type_name eq 'LINK' )

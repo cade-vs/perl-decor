@@ -12,9 +12,10 @@ grant access to 999
   type  grid  TEST1
   grant access to 909
 
-=TESTS
+=TESTS!
 
   type  submenu TESTS
+  grant access to 909
 
 =ITEMS
 
