@@ -21,7 +21,7 @@ sub main
 {
   my $reo = shift;
 
-  return unless $reo->is_logged_in();
+###  return unless $reo->is_logged_in();
   
   my $text;
 
@@ -144,6 +144,8 @@ sub main
         dragPan: ! isMobileOrTablet()
     });
 
+    map.dragRotate.disable();
+    
     var scale = new tt.ScaleControl( {
                                       maxWidth: 512,
                                       unit: 'imperial'

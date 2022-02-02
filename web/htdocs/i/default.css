@@ -8,7 +8,7 @@
 ##
 ############################################################################*/
 
-/* THIS FILE IS GENERATED! PLEASE, DO NOT MODIFY! -- GENERATED AT Thu Jan 27 23:16:31 2022 */
+/* THIS FILE IS GENERATED! PLEASE, DO NOT MODIFY! -- GENERATED AT Sat Jan 29 10:34:47 2022 */
 
 
 
@@ -593,6 +593,22 @@ td.record-value
         text-align: left;
         padding-left: 1em;
         }
+
+/*** login ******************************************************************/
+
+table.login
+        {
+        width: 42em;
+        }
+
+
+@media (max-width: 800px) 
+{
+table.login
+        {
+        width: 97%;
+        }
+}
 
 /*** view *******************************************************************/
 

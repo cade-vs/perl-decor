@@ -1,7 +1,7 @@
 
 label My funny table  1
 
-grant read insert to 999
+grant read insert to 999, 909
 grant insert update to 1;10
 
 #no-copy

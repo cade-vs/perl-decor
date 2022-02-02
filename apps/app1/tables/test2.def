@@ -15,7 +15,7 @@ grant read          to 999
 
   type int
 
-  grant insert update to 10; 222; 900; 33 + ! 44
+  grant insert update read to 10; 222; 999; 33 + ! 44
   grant update
   
 =_OWNER

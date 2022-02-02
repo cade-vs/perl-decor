@@ -14,7 +14,7 @@ sub main
 {
   my $reo = shift;
 
-  return unless $reo->is_logged_in(); # FIXME: always?
+###  return unless $reo->is_logged_in(); # FIXME: always?
 
   my $table  = $reo->param( 'TABLE' );
   my $fname  = $reo->param( 'FNAME' );

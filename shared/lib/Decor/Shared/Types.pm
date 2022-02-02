@@ -64,8 +64,9 @@ dlock %DE_TYPE_NAMES;
 
 # "logic" types
 our %DE_LTYPE_NAMES = (
-                      'LOCATION' => [ 'CHAR', 256 ],
-                      'EMAIL'    => [ 'CHAR', 256 ],
+                      'LOCATION' => [ 'CHAR', 128 ],
+                      'EMAIL'    => [ 'CHAR', 128 ],
+                      'PHONE'    => [ 'CHAR',  64 ],
                     );
 dlock %DE_TYPE_NAMES;
 

@@ -553,6 +553,22 @@ td.record-value
         padding-left: 1em;
         }
 
+/*** login ******************************************************************/
+
+table.login
+        {
+        width: 42em;
+        }
+
+
+@media (max-width: 800px) 
+{
+table.login
+        {
+        width: 97%;
+        }
+}
+
 /*** view *******************************************************************/
 
 table.view

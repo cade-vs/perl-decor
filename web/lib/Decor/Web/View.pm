@@ -84,7 +84,8 @@ sub de_web_format_field
 
   my $table = $fdes->table();
   my $fname = $fdes->name();
-  my $type_name = $fdes->{ 'TYPE' }{ 'NAME' };
+  my $type_name  = $fdes->{ 'TYPE' }{ 'NAME'  };
+  my $type_lname = $fdes->{ 'TYPE' }{ 'LNAME' };
 
   my $data_fmt;
   my $fmt_class;
@@ -120,6 +121,19 @@ sub de_web_format_field
           }  
         }
       }
+    
+    # logical types
+    if( $type_lname eq 'EMAIL' )  
+      {
+      $data_fmt = "<a href='mailto:$field_data'>$data_fmt</a>";
+      }
+    elsif( $type_lname eq 'PHONE' )  
+      {
+      $field_data =~ s/^00/\+/;
+      $data_fmt   =~ s/^00/\+/;
+      $data_fmt = "<a href='tel:$field_data'>$data_fmt</a>";
+      }
+      
     if( $fdes->get_attr( 'WEB', $vtype, 'MONO' ) )
       {
       $fmt_class .= " fmt-mono";

@@ -28,7 +28,7 @@ sub main
 {
   my $reo = shift;
 
-  return unless $reo->is_logged_in();
+###  return unless $reo->is_logged_in();
 
   my $text;
 

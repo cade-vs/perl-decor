@@ -9,7 +9,7 @@ sub main
 {
   my $reo = shift;
 
-  return unless $reo->is_logged_in();
+###  return unless $reo->is_logged_in();
 
   my $ps    = $reo->get_page_session();                                                                                            
   my $ps_id = $reo->get_page_session_id();
