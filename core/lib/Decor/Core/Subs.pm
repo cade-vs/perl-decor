@@ -924,8 +924,6 @@ sub sub_menu
     my $hrn =  $new->{ $item };
     __replace_grant_deny( $profile, $hrn, $hrm );
 
-print STDERR Dumper( 'MENU DEBUG ---' x 16, $hrm, $hrn );
-
     delete $hrn->{ 'DEBUG::ORIGIN' };
     }
 

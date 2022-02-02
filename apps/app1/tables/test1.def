@@ -1,8 +1,9 @@
 
 label My funny table  1
 
-grant read insert to 999, 909
-grant insert update to 1;10
+grant read to 999, 909
+grant insert to 999, 909
+grant update to 1, 10
 
 #no-copy
 #no-preview
