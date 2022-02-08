@@ -82,7 +82,7 @@ sub main
       return "<#e_internal>[$status_ref]" unless $id > 0;
 
       $fields_ar = $tdes->get_fields_list_by_oper( 'INSERT' );
-      
+
       if( $copy_id )
         {
         # insert with copy
@@ -136,8 +136,6 @@ sub main
     $browser_window_title = $update_cue || qq(Edit record data from "<b>$table_label</b>");
     $reo->ps_path_add( 'edit', $browser_window_title );
     }
-
-#print STDERR Dumper( "error:", $fields_ar, $ps->{ 'ROW_DATA' }, 'insert', $edit_mode_insert, 'allow', $tdes->allows( 'UPDATE' ) );
 
   return "<#access_denied>" unless @$fields_ar;
   return "<#access_denied>" if   $edit_mode_insert and ! $tdes->allows( 'INSERT' );
@@ -345,7 +343,7 @@ sub main
       if( $type_lname eq 'LOCATION' )
         {
         # $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "map_location.svg", "[~Select map location]", ACTION => 'map_location', RETURN_DATA_TO => $field, LL => $field_data );
-        $field_input_ctrl .= de_html_alink_button( $reo, 'here', "<img src=i/map_location.svg> [~Select map location]", undef, ACTION => 'map_location', RETURN_DATA_TO => $field, LL => $field_data );
+        $field_input_ctrl .= de_html_alink_button( $reo, 'new', "<img src=i/map_location.svg> [~Select map location]", undef, ACTION => 'map_location', RETURN_DATA_TO => $field, LL => $field_data );
         }
       }
     elsif( $type_name eq 'LINK' )

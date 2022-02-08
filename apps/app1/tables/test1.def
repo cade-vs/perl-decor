@@ -76,7 +76,7 @@ web.grid.fields_list  name  ctime   grp  suma  BOOL_TEST ref test_wlink
   
 =GRP
   type link DE_GROUPS NAME
-  deny all to all
+  deny all
   grant all to 1
   label [~Group]
 

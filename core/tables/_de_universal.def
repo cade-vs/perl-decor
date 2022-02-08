@@ -23,6 +23,7 @@
   type INT 32
   primary_key
   
-  read_only
+  deny all
+  grant read to 999, 909
   web.hidden
 

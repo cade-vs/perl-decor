@@ -864,7 +864,7 @@ sub sub_describe
 
   my $new = clone( { %$des } );
 
-# print STDERR Dumper( '-'x100, $des, $new, ref($new) );
+print STDERR Dumper( '-'x100, $des, $new, ref($new) );
 
   __replace_grant_deny( $profile, $new->{ '@' }, $des->{ '@' } );
   delete $new->{ 'INDEX'  };
@@ -883,7 +883,7 @@ sub sub_describe
       delete $hrn->{ 'DEBUG::ORIGIN' };
       }
     }  
-#print STDERR Dumper( '='x100, $new );
+print STDERR Dumper( '='x100, $new );
 
   $mo->{ 'DES'   } = $new;
   $mo->{ 'XS'    } = 'OK';

@@ -58,7 +58,7 @@ sub sub_menu
       {
       my $submenu_name = $item->{ 'SUBMENU_NAME'  };
       my $submenu = sub_menu( $reo, $core, $submenu_name );
-      push @res, { LABEL => "&nbsp;<img src=i/menu-item-submenu.svg class=icon> $label", DATA => $submenu };
+      push @res, { LABEL => "<img src=i/menu-item-submenu.svg class=icon> $label", DATA => $submenu };
       }
     elsif( $type eq 'GRID' )
       {

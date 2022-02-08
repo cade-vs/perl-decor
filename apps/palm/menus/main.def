@@ -21,3 +21,10 @@
   label ToDo
   type  grid  TODO
   
+=NEW_USERS
+
+  label Register as new user
+  type  insert  NEW_USERS
+  grant access to 909
+  right
+
