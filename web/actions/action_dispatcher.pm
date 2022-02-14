@@ -11,7 +11,7 @@ sub main
 
   my $action = lc( $si->{ 'ACTION' } ) || lc( $ui->{ 'ACTION' } ) || $ps->{ 'ACTION' } || 'home';
 
-  # print STDERR "ACTION_DISPATCHER: selected action is [$action]\n";
+  $reo->log_debug( "*** ACTION_DISPATCHER: selected action is [$action]" );
 
   my $text;
 

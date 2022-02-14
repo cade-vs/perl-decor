@@ -88,7 +88,7 @@ sub main
       {
       my $action  = $item->{ 'ACTION'  };
       next if $reo->is_logged_in() and uc $action =~ /(\[~)?LOGIN(\])?/; # root hack
-      $link = "<a class=menu reactor_none_href=?action=$action>$label</a>";
+      $link = "<a class=menu reactor_new_href=?action=$action>$label</a>";
       }
     else
       {
