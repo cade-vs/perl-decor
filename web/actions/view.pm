@@ -144,7 +144,7 @@ sub main
     my $overflow  = $bfdes->get_attr( qw( WEB VIEW OVERFLOW ) );
     if( $overflow )
       {
-      $data_fmt = html_escape( $data_fmt );
+      $data_fmt = str_html_escape( $data_fmt );
       $data_fmt = "<form><input value='$data_fmt' style='width: 96%' readonly></form>";
       }
 
@@ -341,6 +341,7 @@ sub main
 
     if( $type_name eq 'CHAR' and $type_lname eq 'LOCATION' )
       {
+      $data_fmt = str_html_escape( $data_fmt );
       $data_fmt = de_html_alink_button( $reo, 'new', " <img src=i/map_location.svg> $data_fmt", "[~View map location]", ACTION => 'map_location', LL => $data );
       }
 

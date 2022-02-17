@@ -257,6 +257,7 @@ sub de_web_format_field
     $data_fmt = type_format( $field_data, $fdes->{ 'TYPE' } );
     }
 
+  $data_fmt = str_html_escape( $data_fmt );
   return wantarray ? ( $data_fmt, ' ' . $fmt_class ) : $data_fmt;
 }
 
