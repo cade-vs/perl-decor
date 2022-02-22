@@ -11,6 +11,7 @@ package decor::actions::view;
 use strict;
 
 use Data::Dumper;
+use Data::Tools;
 use Web::Reactor::HTML::Utils;
 use Web::Reactor::HTML::Layout;
 

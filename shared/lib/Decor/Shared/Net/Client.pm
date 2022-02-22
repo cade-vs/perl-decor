@@ -516,11 +516,12 @@ sub fetch
     last;
     }
 
-use Data::Dumper;
-use Exception::Sink;
+#use Data::Dumper;
+#use Exception::Sink;
 #print STDERR Dumper( '++++++++++++++++---------------->>>>>>>>>>>>>>>>>', $select_handle, $mo, Exception::Sink::get_stack_trace() );
 #print STDERR Dumper( "++++++++++++++++----FETCH--FETCH--FETCH------------>>>>>>  $select_handle  >>>>>>>>>>>", $select_handle, $mo );
 
+  return undef if $mo->{ 'EOD' };
   return $mo->{ 'DATA' };
 }
 

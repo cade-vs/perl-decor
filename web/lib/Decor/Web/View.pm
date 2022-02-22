@@ -12,6 +12,7 @@ use strict;
 use Data::Dumper;
 use Exception::Sink;
 use Time::JulianDay;
+use Data::Tools;
 use Data::Tools::Time;
 
 use Decor::Shared::Types;
@@ -95,6 +96,7 @@ sub de_web_format_field
   if( $type_name eq 'CHAR' )
     {
     $data_fmt = type_format( $field_data, $fdes->{ 'TYPE' } );
+    $data_fmt = str_html_escape( $data_fmt );
 
     $data_fmt = "[~(hidden)]" if $password and $data_fmt ne '';
     
@@ -257,7 +259,6 @@ sub de_web_format_field
     $data_fmt = type_format( $field_data, $fdes->{ 'TYPE' } );
     }
 
-  $data_fmt = str_html_escape( $data_fmt );
   return wantarray ? ( $data_fmt, ' ' . $fmt_class ) : $data_fmt;
 }
 
