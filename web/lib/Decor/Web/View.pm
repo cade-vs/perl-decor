@@ -18,12 +18,20 @@ use Data::Tools::Time;
 use Decor::Shared::Types;
 use Decor::Web::HTML::Utils;
 
+use Web::Reactor::HTML::Layout;
+
 use Exporter;
 our @ISA    = qw( Exporter );
 our @EXPORT = qw(
 
                 de_web_expand_resolve_fields_in_place
+
+                de_web_format_phones
                 de_web_format_field
+                
+
+                de_data_grid
+                de_data_view
 
                 );
 
@@ -69,6 +77,24 @@ sub de_web_expand_resolve_fields_in_place
 
   return undef;
 }
+
+sub de_web_format_phones
+{
+  my $phones = shift;
+  my $wide   = shift;
+  
+  my @phones = split /\s*[,;]+\s*/, $phones;
+  
+  return undef unless @phones;
+  
+  s/^\s*// for @phones;
+  s/\s*$// for @phones;
+
+  s{((\+|\*|00)?[\s\d]+)}{<a href='tel:$1'>$1</a>} for @phones;
+
+  return join $wide ? ', ' : "<br><br>\n", @phones;
+}
+
 
 sub de_web_format_field
 {
@@ -131,8 +157,7 @@ sub de_web_format_field
       }
     elsif( $type_lname eq 'PHONE' )  
       {
-      $field_data =~ s/^00/\+/;
-      $data_fmt   =~ s/^00/\+/;
+      $data_fmt = de_web_format_phones( $field_data, 1 );
       $data_fmt = "<a href='tel:$field_data'>$data_fmt</a>";
       }
       
@@ -260,6 +285,245 @@ sub de_web_format_field
     }
 
   return wantarray ? ( $data_fmt, ' ' . $fmt_class ) : $data_fmt;
+}
+
+### DATA VIEWS ###############################################################
+
+my %FMT_CLASSES = (
+                  'CHAR'  => 'fmt-left',
+                  'DATE'  => 'fmt-left',
+                  'TIME'  => 'fmt-left',
+                  'UTIME' => 'fmt-left',
+
+                  'INT'   => 'fmt-right fmt-mono',
+                  'REAL'  => 'fmt-right fmt-mono',
+                  );
+
+sub de_data_grid
+{
+  my $core   = shift;
+  
+  my $table  = shift;
+  my $fields = shift;
+  my $opt    = shift || {};
+
+  my $ctrl_cb  = $opt->{ 'CTRL_CB'  };
+  my $order_by = $opt->{ 'ORDER_BY' } || '._ID';
+
+  my $tdes = $core->describe( $table );
+  
+  my @fields = ref( $fields ) eq 'ARRAY' ? @$fields : split /\s*,\s*/, $fields;
+  
+  unshift @fields, '_ID';
+  
+  my %bfdes; # base/begin/origin field descriptions, indexed by field path
+  my %lfdes; # linked/last       field descriptions, indexed by field path, pointing to trail field
+  my %basef; # base fields map, return base field NAME by field path
+
+  de_web_expand_resolve_fields_in_place( \@fields, $tdes, \%bfdes, \%lfdes, \%basef );
+
+  my $filter = $opt->{ 'FILTER' };
+  my $limit  = $opt->{ 'LIMIT'  };
+  my $class  = $opt->{ 'CLASS'  } || 'grid';
+  my $title  = $opt->{ 'TITLE'  };
+
+  my $select = $core->select( $table, join( ',', @fields ), { FILTER => $filter, LIMIT => $limit, ORDER_BY => $order_by } ) if @fields;
+  #my $scount = $core->count( $table,                        { FILTER => $filter,                                        } ) if $select;
+  #my $acount = $core->count( $table,                        { FILTER => { '_ID' > 0 },                                 } ) if $select;
+  
+  my $text;
+
+  $text .= "<table class='$class' cellspacing=0 cellpadding=0>";
+  
+  if( $title )
+    {
+    my $c = @fields + 1 * ( defined $ctrl_cb );
+    $text .= "<tr class=grid-header><td class='view-header fmt-center' colspan=$c>$title</td></tr>";
+    }
+
+  
+  $text .= "<tr class=grid-header>";
+  
+  $text .= "<td class='grid-header fmt-left'>Ctrl</td>" if $ctrl_cb;
+
+  for my $field ( @fields )
+    {
+    next if $field eq '_ID';
+    
+    my $bfdes     = $bfdes{ $field };
+    my $lfdes     = $lfdes{ $field };
+    my $type_name = $lfdes->{ 'TYPE' }{ 'NAME' };
+    my $fmt_class = $FMT_CLASSES{ $type_name } || 'fmt-left';
+
+    my $base_field = $bfdes->{ 'NAME' };
+
+    my $blabel    = $bfdes->get_attr( qw( WEB GRID LABEL ) );
+    my $label     = "$blabel";
+    if( $bfdes ne $lfdes )
+      {
+      my $llabel     = $lfdes->get_attr( qw( WEB GRID LABEL ) );
+      $label .= "/$llabel";
+      }
+
+    $text .= "<td class='grid-header $fmt_class'>$label</td>";
+    }
+  $text .= "</tr>";
+
+  my $row_counter;
+  while( my $row_data = $core->fetch( $select ) )
+    {
+    my $id = $row_data->{ '_ID' };
+
+    my $row_class = $row_counter++ % 2 ? 'grid-1' : 'grid-2';
+    $text .= "<tr class=$row_class>";
+
+    if( $ctrl_cb )
+      {
+      my $vec_ctrl = $ctrl_cb->( $id, $row_data );
+      $text .= "<td class='grid-data fmt-ctrl fmt-mono'>$vec_ctrl</td>";
+      }
+
+    for my $field ( @fields )
+      {
+      next if $field eq '_ID';
+
+      my $bfdes     = $bfdes{ $field };
+      my $lfdes     = $lfdes{ $field };
+      my $type_name = $lfdes->{ 'TYPE' }{ 'NAME' };
+      my $fmt_class = $FMT_CLASSES{ $type_name } || 'fmt-left';
+
+      my $lpassword = $lfdes->get_attr( 'PASSWORD' ) ? 1 : 0;
+
+      my $base_field = exists $basef{ $field } ? $basef{ $field } : $field;
+
+      my $data = $row_data->{ $field };
+      my $data_base = $row_data->{ $basef{ $field } } if exists $basef{ $field };
+
+      my ( $data_fmt, $fmt_class_fld ) = de_web_format_field( $data, $lfdes, 'GRID', { ID => $id } );
+      my $data_ctrl;
+      $fmt_class .= $fmt_class_fld;
+
+      if( $lpassword )
+        {
+        $data_fmt = "(*****)";
+        }
+
+      my $base_field_class = lc "css_grid_class_$base_field";
+      $text .= "<td class='grid-data $fmt_class  $base_field_class'>$data_fmt</td>";
+      }
+    $text .= "</tr>";
+    }
+  $text .= "</table>";
+  
+#  return wantarray ? ( $text, $row_counter, $scount ) : $text;
+  return wantarray ? ( $text, $row_counter ) : $text;
+}
+
+#-----------------------------------------------------------------------------
+
+sub de_data_view
+{
+  my $core   = shift;
+  
+  my $table  = shift;
+  my $fields = shift;
+  my $id     = shift;
+  my $opt    = shift || {};
+
+  my $ctrl_cb  = $opt->{ 'CTRL_CB'  };
+  my $order_by = $opt->{ 'ORDER_BY' } || '._ID';
+
+  my $tdes = $core->describe( $table );
+  
+  my @fields = ref( $fields ) eq 'ARRAY' ? @$fields : split /\s*,\s*/, $fields;
+  
+  unshift @fields, '_ID';
+  
+  my %bfdes; # base/begin/origin field descriptions, indexed by field path
+  my %lfdes; # linked/last       field descriptions, indexed by field path, pointing to trail field
+  my %basef; # base fields map, return base field NAME by field path
+
+  de_web_expand_resolve_fields_in_place( \@fields, $tdes, \%bfdes, \%lfdes, \%basef );
+
+  my $class  = $opt->{ 'CLASS'  } || 'view';
+  my $title  = $opt->{ 'TITLE'  };
+
+  my $select = $core->select( $table, join( ',', @fields ), { FILTER => { '_ID' => $id } } ) if @fields;
+  
+  my $row_data = $core->fetch( $select );
+  return "<p><#no_data><p>" unless $row_data;
+
+  my $text;
+
+  $text .= "<table class='$class record' cellspacing=0 cellpadding=0>";
+  $text .= "<tr class=view-header>";
+  $text .= "<td class='view-header record-field fmt-center' colspan=2>$title</td>";
+  $text .= "</tr>";
+
+  for my $field ( @fields )
+    {
+    next if $field eq '_ID';
+
+    my $bfdes      = $bfdes{ $field };
+    my $lfdes      = $lfdes{ $field };
+    my $type_name  = $lfdes->{ 'TYPE' }{ 'NAME'  };
+    my $type_lname = $lfdes->{ 'TYPE' }{ 'LNAME' };
+
+    my $lpassword = $lfdes->get_attr( 'PASSWORD' ) ? 1 : 0;
+
+    my $label     = $bfdes->get_attr( qw( WEB VIEW LABEL ) );
+
+    my $base_field = exists $basef{ $field } ? $basef{ $field } : $field;
+
+    my $data      = $row_data->{ $field };
+    my $data_base = $row_data->{ $basef{ $field } } if exists $basef{ $field };
+    my ( $data_fmt, $data_fmt_class )  = de_web_format_field( $data, $lfdes, 'VIEW', { ID => $id } );
+    my $data_ctrl;
+    my $field_details;
+    my $no_layout_ctrls = 0;
+
+    my $overflow  = $bfdes->get_attr( qw( WEB VIEW OVERFLOW ) );
+    if( $overflow )
+      {
+      $data_fmt = str_html_escape( $data_fmt );
+      $data_fmt = "<form><input value='$data_fmt' style='width: 96%' readonly></form>";
+      }
+
+    if( $lpassword )
+      {
+      $data_fmt = "[~(hidden)]";
+      }
+
+    if( $type_name eq 'CHAR' and $type_lname eq 'LOCATION' )
+      {
+      $data_fmt = str_html_escape( $data_fmt );
+      # $data_fmt = de_html_alink_button( $reo, 'new', " <img src=i/map_location.svg> $data_fmt", "[~View map location]", ACTION => 'map_location', LL => $data );
+      }
+
+    my $divider = $bfdes->get_attr( 'WEB', 'DIVIDER' );
+    if( $divider )
+      {
+      $text .= "<tr class=view-header>";
+      $text .= "<td class='view-header record-field fmt-center' colspan=2>$divider</td>";
+      $text .= "</tr>";
+      }
+
+    my $data_layout = $no_layout_ctrls ? $data_fmt : html_layout_2lr( $data_fmt, $data_ctrl, '<==1>' );
+    my $base_field_class = lc "css_view_class_$base_field";
+    $text .= "<tr class=view>";
+    $text .= "<td class='view-field record-field $base_field_class                ' >$label</td>";
+    $text .= "<td class='view-value record-value $base_field_class $data_fmt_class' >$data_layout</td>";
+    $text .= "</tr>\n";
+    if( $field_details )
+      {
+      $text .= "<tr class=view>";
+      $text .= "<td colspan=2 class='details-fields' >$field_details</td>";
+      $text .= "</tr>\n";
+      #$data_layout .= $field_details;
+      }
+    }
+  $text .= "</table>";
+
 }
 
 1;

@@ -236,7 +236,8 @@ sub main
     my $lsdes = $ltdes->get_table_des(); # table "Self" description
     my $linked_table_label = $ltdes->get_label();
     my $master_fields = uc $lsdes->get_attr( qw( WEB MASTER_FIELDS ) );
-    $text .= de_data_grid( $core, $linked_table, $master_fields, { FILTER => { '_ID' => $link_id }, LIMIT => 1, CLASS => 'grid view record', TITLE => "[~Master record from] $linked_table_label" } ) if $master_fields;
+    #$text .= de_data_grid( $core, $linked_table, $master_fields, { FILTER => { '_ID' => $link_id }, LIMIT => 1, CLASS => 'grid view record', TITLE => "[~Master record from] $linked_table_label" } ) if $master_fields;
+    $text .= de_data_view( $core, $linked_table, $master_fields, $link_id, { CLASS => 'grid view record', TITLE => "[~Master record from] $linked_table_label" } ) if $master_fields;
     $text .= "<p>";
     }
 
