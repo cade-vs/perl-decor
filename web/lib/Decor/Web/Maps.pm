@@ -18,9 +18,16 @@ our @ISA    = qw( Exporter );
 our @EXPORT = qw(
 
                 map_tomtom
+                map_parse_xyz
 
                 );
 
+sub map_parse_xyz
+{
+  my $ll = shift;
+  return () unless $ll =~ /([-+]?\d+(\.\d*)?)\s*,\s*([-+]?\d+(\.\d*)?)\s*(\@(\d+(\.\d*)?))?/;
+  return ( $1, $3, ( $6 || 17 ) );
+}
 
 sub map_tomtom
 {
@@ -47,15 +54,8 @@ sub map_tomtom
     $location_form_id     = $location_form->get_id();
     }
 
-  my ( $lla, $llo, $llz );
-  if( $ll =~ /([-+]?\d+(\.\d*)?)\s*,\s*([-+]?\d+(\.\d*)?)\s*(\@(\d+(\.\d*)?))?/ )
-    {
-    ( $lla, $llo, $llz ) = ( $1, $3, ( $6 || 17 ) );
-    }
-  else
-    {
-    ( $lla, $llo, $llz ) = ( 42.69774, 23.3218, 11 ); # TODO: FIXME: args ops
-    }  
+  my ( $lla, $llo, $llz ) = map_parse_xyz( $ll );
+  ( $lla, $llo, $llz ) = ( 42.69774, 23.3218, 11 ) unless $lla; # TODO: FIXME: args ops
 
   my $back_button = de_html_alink_button( $reo, 'back', "&lArr; [~Back]", "[~Return to previous screen]", BTYPE => 'nav' );;
 
@@ -212,7 +212,9 @@ $text .= <<END_OF_HTML;
                  ));
     /* map.hidePOI(); */
                  
-    var marker = new tt.Marker( { color: '#ff0000', draggable: true } );
+    var marker_element = document.createElement( 'div' );
+    marker_element.className = 'map_marker';    
+    var marker = new tt.Marker( { element: marker_element, offset: [ 0, 6 ], color: '#ff0000', draggable: true } );
     var pois_visible = 0;
 
     map.addControl( new tt.FullscreenControl() );
@@ -247,7 +249,6 @@ $text .= <<END_OF_HTML;
     {
       var xyz = document.getElementById( 'marker_location_xyz' );
       if( ! xyz ) return;
-    alert( ll.lat );
       xyz.value = coord_reduce( ll.lat ) + "," + coord_reduce( ll.lng ) + '  \@' + num_dot_reduce( map.getZoom(), 10 );
     }
 

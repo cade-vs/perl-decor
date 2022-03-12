@@ -196,8 +196,8 @@ sub main
   for my $field ( @$fields_ar )
     {
     my $raw_data = $ps->{ 'ROW_DATA' }{ $field };
-    my $fdes       = $tdes->{ 'FIELD' }{ $field };
-    my $type       = $fdes->{ 'TYPE'  };
+    my $fdes     = $tdes->{ 'FIELD' }{ $field };
+    my $type     = $fdes->{ 'TYPE'  };
     next unless $fdes->{ 'REQUIRED' };
     my $type_name = $type->{ 'NAME' };
     next if $type_name eq 'CHAR' and $raw_data =~ /\S/;
@@ -262,10 +262,13 @@ sub main
 
   my $custom_css = lc "css_$table";
   $text .= "<#$custom_css>";
-  $text .= "<table class='$edit_mode_class_prefix record' cellspacing=0 cellpadding=0>";
-  $text .= "<tr class=$edit_mode_class_prefix-header>";
-  $text .= "<td class='$edit_mode_class_prefix-header record-field fmt-center' colspan=2>$browser_window_title</td>";
-  $text .= "</tr>";
+#  $text .= "<table class='$edit_mode_class_prefix record' cellspacing=0 cellpadding=0>";
+#  $text .= "<tr class=$edit_mode_class_prefix-header>";
+#  $text .= "<td class='$edit_mode_class_prefix-header record-field fmt-center' colspan=2>$browser_window_title</td>";
+#  $text .= "</tr>";
+
+  $text .= "<div class='record-table'>";
+  $text .= "<div class='edit-header view-sep record-sep fmt-center'>$browser_window_title</div>";
 
 ###  my $row_data = $core->fetch( $select );
 ###  my $row_id = $row_data->{ '_ID' };
@@ -310,7 +313,7 @@ sub main
       my $rows = $fdes->get_attr( 'WEB', 'ROWS' );
       my $field_size = $flen;
       my $field_maxlen = $field_size;
-      $field_size = 42 if $field_size > 42; # TODO: fixme
+      $field_size = 40 if $field_size > 40; # TODO: fixme
       $field_data_usr_format = undef if $pass_type;
       if( $rows > 1 )
         {
@@ -657,9 +660,7 @@ sub main
     my $divider = $fdes->get_attr( 'WEB', 'DIVIDER' );
     if( $divider )
       {
-      $text .= "<tr class=$edit_mode_class_prefix-header>";
-      $text .= "<td class='$edit_mode_class_prefix-header record-field fmt-center' colspan=2>$divider</td>";
-      $text .= "</tr>";
+      $text .= "<div class='$edit_mode_class_prefix-divider $edit_mode_class_prefix-sep record-sep fmt-center'>$divider</div>";
       }
 
     $field_error = "<div class=warning align=right>$field_error</div>" if $field_error;
@@ -667,19 +668,29 @@ sub main
     my $input_layout = html_layout_2lr( $field_input, '&nbsp;&nbsp;' . $field_input_ctrl, '<==1>' );
     my $base_field_class = lc "css_edit_class_$base_field";
     
-    $text .= "<tr class=view>\n";
-    $text .= "<td class='$edit_mode_class_prefix-field record-field $base_field_class'>$label$field_error</td>\n";
-    $text .= "<td class='$edit_mode_class_prefix-value record-value $base_field_class' >$input_layout</td>\n";
-    $text .= "</tr>\n";
+#    $text .= "<tr class=view>\n";
+#    $text .= "<td class='$edit_mode_class_prefix-field record-field $base_field_class'>$label$field_error</td>\n";
+#    $text .= "<td class='$edit_mode_class_prefix-value record-value $base_field_class' >$input_layout</td>\n";
+#    $text .= "</tr>\n";
+    
+    $text .= "<div class='record-field-value'>
+                <div class='$edit_mode_class_prefix-field record-field $base_field_class' >$label$field_error</div>
+                <div class='$edit_mode_class_prefix-value record-value $base_field_class' >$input_layout</div>
+              </div>";
+
+
     if( $field_details )
       {
-      $text .= "<tr class=view>";
-      $text .= "<td colspan=2 class='details-fields' >$field_details</td>";
-      $text .= "</tr>\n";
+      $text .= "<div class='$edit_mode_class_prefix-details record-details'>$field_details</div>";
+
+#      $text .= "<tr class=view>";
+#      $text .= "<td colspan=2 class='details-fields' >$field_details</td>";
+#      $text .= "</tr>\n";
       #$data_layout .= $field_details;
       }
     }
-  $text .= "</table>";
+#  $text .= "</table>";
+  $text .= "</div>";
 
   $text .= "<br>";
   $text .= de_html_alink_button( $reo, 'back', "&lArr; [~Cancel]", "[~Cancel this operation]", BTYPE => 'nav'   );

@@ -8,7 +8,7 @@
 ##
 ############################################################################*/
 
-/* THIS FILE IS GENERATED! PLEASE, DO NOT MODIFY! -- GENERATED AT Sat Jan 29 10:34:47 2022 */
+/* THIS FILE IS GENERATED! PLEASE, DO NOT MODIFY! -- GENERATED AT Sun Mar 13 01:13:55 2022 */
 
 
 
@@ -96,6 +96,11 @@
         src: url('fonts/Rubik-Regular.ttf')  format('truetype');
         }
 
+@font-face 
+        {
+        font-family: 'comforter';
+        src: url('fonts/Comforter-Regular.ttf')  format('truetype');
+        }
 
 /*** main/body **************************************************************/
 
@@ -430,7 +435,7 @@ table.logo
         border-bottom: solid 1px #66A;
         
         vertical-align: middle;
-        padding: 4px;
+        padding: 0.1em;
         }
 
 a.logo
@@ -520,10 +525,12 @@ td.menu
         border-left:   solid 1px #445;
         border-right:  solid 1px #445;
 
-        padding: 0.4em;
+        padding: 0.3em;
         white-space: nowrap;
-        padding-left: 10px;
-        padding-right: 10px;
+        /*
+        padding-left: 1em;
+        padding-right: 1em;
+        */
 
         vertical-align: middle;
         }
@@ -573,26 +580,84 @@ td.ps-path
 
 /*** record base config for view, edit, insert, preview tables **************/
 
-table.record
+div.record-table
         {
-        border-collapse: collapse;
         width:  100%;
         max-width: 1000px;
+
+        color:            #EEE;
+        background-color: #333;
+        border: solid 1px #555;
+        margin: auto;
         }
         
-td.record-field
+div.record-field-value
         {
-        width: 30%;
-        text-align: right;
-        padding-right: 1em;
+        display: flex;
+        flex-flow: row;
+        width: 100%;
+        
+        padding: 0.2em;
         }
 
-td.record-value
+div.record-sep
         {
-        width: 60%;
-        text-align: left;
-        padding-left: 1em;
+        flex: auto;
+        text-align: center;
         }
+
+div.record-field
+        {
+        flex: 1;
+        text-align: right;
+        
+        font-weight: bold;
+
+        border-bottom: solid 1px #444;
+        border-right:  solid 1px #444;
+        padding: 0.5em;
+        }
+
+div.record-value
+        {
+        flex: 2;
+        text-align: left;
+
+        border-bottom: solid 1px #444;
+        
+        padding: 0.5em;
+        }
+
+@media (max-width: 665px) 
+{
+div.record-field-value
+        {
+        flex-flow: column;
+        }
+
+div.record-sep
+        {
+        flex: auto;
+        text-align: right;
+        padding-right: 2em;
+        }
+
+div.record-field
+        {
+        flex: 1;
+        text-align: left;
+
+        border: none;
+        }
+
+div.record-value
+        {
+        flex: 1;
+        
+        border: none;
+        border-bottom: solid 1px #444;
+        }
+}
 
 /*** login ******************************************************************/
 
@@ -612,19 +677,7 @@ table.login
 
 /*** view *******************************************************************/
 
-table.view
-        {
-        color:            #EEE;
-        background-color: #333;
-        border: solid 1px #555;
-        }
-
-tr.view
-        {
-        height: 3em;
-        }
-
-td.view-header
+div.view-sep
         {
         color:            #FFF;
         background-color: #159;
@@ -634,20 +687,108 @@ td.view-header
         font: ;
         }
 
-td.view-field
+/* flex */
+/* moved to record-* above
+div.view-flow
         {
+        display: flex;
+        flex-flow: column;
+
+        color:            #EEE;
+        background-color: #333;
+        border: solid 1px #555;
+
+
+        padding: 1em;
+        border: solid 1px red;
+        }
+
+div.view-field-value
+        {
+        display: flex;
+        flex-flow: row;
+        width: 100%;
+        
+        padding: 1em;
+        border: solid 1px green;
+        }
+
+div.view-header
+        {
+        color:            #FFF;
+        background-color: #159;
+        border: solid 1px #37A;
+        width: 100%;
+
+        padding: 0.2em;
+        font: ;
+        }
+
+div.view-field
+        {
+        flex: 1;
+
         border-bottom: solid 1px #444;
         border-right:  solid 1px #444;
 
         padding: 0.5em;
+        vertical-align: middle;
+
+        padding: 1em;
+        border: solid 1px blue;
         }
 
-td.view-value
+div.view-value
+        {
+        flex: 2;
+
+        border-bottom: solid 1px #444;
+        
+        padding: 0.5em;
+        vertical-align: middle;
+
+        padding: 1em;
+        border: solid 1px blue;
+        }
+
+div.view-details
         {
         border-bottom: solid 1px #444;
         
         padding: 0.5em;
         }
+
+@media (max-width: 665px) 
+{
+div.view-field-value
+        {
+        flex-flow: column;
+        }
+
+div.view-field
+        {
+        flex: 1;
+        width: -100%;
+
+        border: none;
+
+        text-align: left;
+        
+        padding: 0.5em;
+        }
+
+div.view-value
+        {
+        flex: 1;
+        width: -100%;
+
+        border-bottom: solid 1px #444;
+        
+        padding: 0.5em;
+        padding-left: 4em;
+        }
+}
+*/
 
 /*** edit *******************************************************************/
 
@@ -798,28 +939,30 @@ tr.grid-2:hover
         background-color: #343450;
         }
 
-td.fmt-left
+/*** formats ****************************************************************/
+
+.fmt-left
         {
         text-align: left;
         }
 
-td.fmt-right
+.fmt-right
         {
         text-align: right;
         }
 
-td.fmt-center
+.fmt-center
         {
         text-align: center;
         }
 
-td.fmt-mono
+.fmt-mono
         {
         font-family: prime, monospace;
         white-space: nowrap;
         }
 
-td.fmt-ctrl
+.fmt-ctrl
         {
         text-align: left;
         width: 1%;
@@ -1016,6 +1159,18 @@ div.popup-layer
         display: none;
         }
 
+div.popup-menu-buttons
+        {
+        display: flex;
+        flex-flow: row;
+        }
+
+div.popup-menu-buttons > a
+        {
+        width: auto;
+        flex: auto;
+        }
+
 /*** check boxes ************************************************************/
 
 img.check-base
@@ -1097,19 +1252,21 @@ table.map-layout
         height: 100%;
         width:  100%;
         vertical-align: top;
+        white-space: nowrap;
         }
 
 td.map-layout
         {
         vertical-align: top;
         height: 100%;
-        width:  100%
+        width:  100%;
         }
 
 div#map
         {
-        height: 100%;
         width:  100%;
+        height: 100%;
+        min-height: 400px;
         padding: 0;
         margin:  0;
         border: none;

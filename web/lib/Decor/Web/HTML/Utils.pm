@@ -180,16 +180,16 @@ sub de_html_popup
   my $reo   = shift; # web::reactor object
   my $value = shift; # link text
   my $popup = shift; # popup text
-
+  my $opt   = shift || {};
 
   if( wantarray )
     {
-    my ( $handle, $popup_html ) = html_popup_layer( $reo, VALUE => $popup, TYPE => 'CLICK' );
+    my ( $handle, $popup_html ) = html_popup_layer( $reo, VALUE => $popup, TYPE => 'CLICK', %$opt );
     return ( "<div $handle>$value</div>", $popup_html );
     }
   else
     {
-    my $handle = html_popup_layer( $reo, VALUE => $popup, TYPE => 'CLICK' );
+    my $handle = html_popup_layer( $reo, VALUE => $popup, TYPE => 'CLICK', %$opt );
     return "<div $handle>$value</div>";
     }  
 }
@@ -199,16 +199,16 @@ sub de_html_popup_icon
   my $reo   = shift; # web::reactor object
   my $value = shift; # link text
   my $popup = shift; # popup text
-
+  my $opt   = shift || {};
 
   if( wantarray )
     {
-    my ( $handle, $popup_html ) = html_popup_layer( $reo, VALUE => $popup, TYPE => 'CLICK' );
+    my ( $handle, $popup_html ) = html_popup_layer( $reo, VALUE => $popup, TYPE => 'CLICK', %$opt );
     return ( "<img class='icon' src='i/$value' $handle>", $popup_html );
     }
   else
     {
-    my $handle = html_popup_layer( $reo, VALUE => $popup, TYPE => 'CLICK' );
+    my $handle = html_popup_layer( $reo, VALUE => $popup, TYPE => 'CLICK', %$opt );
     return "<img class='icon' src='i/$value' $handle>";
     }  
 }

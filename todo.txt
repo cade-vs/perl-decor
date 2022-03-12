@@ -44,3 +44,5 @@
 
 
 -- index.cgi da moje da setva stype, css, vmesto da e nujno da se kopira header_css.html
+
+-- check Net::Client.pm call options kyes!

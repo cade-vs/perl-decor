@@ -325,6 +325,8 @@ sub main
     $vec_ctrl .= de_html_alink_icon( $reo, 'new', "copy.svg",    $copy_cue_hint,          ACTION => 'edit',    ID =>  -1, TABLE => $table, COPY_ID => $id ) if $tdes->allows( 'INSERT' ) and ! $tdes->{ '@' }{ 'NO_COPY' };
     $vec_ctrl .= de_html_alink_icon( $reo, 'new', 'file_dn.svg', $download_file_cue_hint, ACTION => 'file_dn', ID => $id, TABLE => $table                 ) if $table_type eq 'FILE';
     
+    my $vec_ctrl_popup = "<div class=popup-menu-buttons>$vec_ctrl</div>";
+
     if( @dos )
       {
       my $cb_id = ++ $ps->{ ':VECB_NAME_MAP' }{ '*' };
@@ -338,6 +340,8 @@ sub main
                                        HINT     => '[~Select this record]',
                                        );
       }
+
+    my $row_vec_handle = html_popup_layer( $reo, VALUE => $vec_ctrl_popup, CLASS => 'popup-layer', TYPE => 'CONTEXT' );
 
     $text_grid_body .= "<td class='grid-data fmt-ctrl fmt-mono'>$vec_ctrl</td>";
     for my $field ( @fields )
@@ -474,13 +478,13 @@ sub main
           {
           my ( $insert_link_cue, $insert_link_cue_hint ) = de_web_get_cue( $bfdes, qw( WEB GRID INSERT_LINK_CUE ) );
           $data_ctrl .= de_html_alink_button_fill( $reo, 'new', "(+) $insert_link_cue", $insert_link_cue_hint, BTYPE => 'act', ACTION => 'edit', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, LINK_FIELD_DISABLE => $backlinked_field );
-          $data_ctrl .= "<br>\n";
+#          $data_ctrl .= "<br>\n";
 
           if( $bltdes->get_table_type() eq 'FILE' )
             {
             my ( $upload_link_cue, $upload_link_cue_hint ) = de_web_get_cue( $bfdes, qw( WEB GRID UPLOAD_LINK_CUE ) );
             $data_ctrl .= de_html_alink_button( $reo, 'new', "(&uarr;) $upload_link_cue", $upload_link_cue_hint, BTYPE => 'act', ACTION => 'file_up', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, LINK_FIELD_DISABLE => $backlinked_field, MULTI => 1 );
-            $data_ctrl .= "<br>\n";
+#            $data_ctrl .= "<br>\n";
             }
           }  
 
@@ -490,7 +494,7 @@ sub main
           {
           my $view_all_cue   = $bfdes->get_attr( qw( WEB GRID VIEW_ALL_CUE   ) ) || "[~View all records]";
           $data_ctrl .= de_html_alink_button( $reo, 'new', "(*) $view_all_cue",           undef,                 ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => $id, FILTER => { $backlinked_field => [ { OP => 'IN', VALUE => [ $id, 0 ] } ] } );
-          $data_ctrl .= "<br>\n";
+#          $data_ctrl .= "<br>\n";
           
           # TODO: option to avoid count
           $bcnt = $core->count( $backlinked_table, { FILTER => { $backlinked_field => [ { OP => 'IN', VALUE => [ $id, 0 ] } ] } } );
@@ -499,11 +503,11 @@ sub main
           {  
           my $view_attached_cue   = $bfdes->get_attr( qw( WEB GRID VIEW_ATTACHED_CUE   ) ) || "[~View attached records]";
           $data_ctrl .= de_html_alink_button( $reo, 'new', "(=) $view_attached_cue",           undef,                 ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => $id, FILTER => { $backlinked_field => $id } );
-          $data_ctrl .= "<br>\n";
+#         $data_ctrl .= "<br>\n";
 
           my $view_unattached_cue   = $bfdes->get_attr( qw( WEB GRID VIEW_UNATTACHED_CUE   ) ) || "[~View unattached records]";
           $data_ctrl .= de_html_alink_button( $reo, 'new', "(+) $view_unattached_cue",          undef,                 ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => 0, FILTER => { $backlinked_field => 0 } );
-          $data_ctrl .= "<br>\n";
+#          $data_ctrl .= "<br>\n";
           
           # TODO: option to avoid count
           $bcnt = $core->count( $backlinked_table, { FILTER => { $backlinked_field => $id } } );
@@ -520,17 +524,17 @@ sub main
 
       if( $type_name eq 'CHAR' and $type_lname eq 'LOCATION' )
         {
-        $data_fmt = de_html_alink_button( $reo, 'new', " <img src=i/map_location.svg> $data_fmt", "[~View map location]", ACTION => 'map_location', LL => $data );
+        $data_fmt = de_html_alink( $reo, 'new', " <img class=icon src=i/map_location.svg> $data_fmt", "[~View map location]", ACTION => 'map_location', LL => $data );
         }
 
       if( $data_ctrl )
         {
-        $data_ctrl = de_html_popup_icon( $reo, 'more.svg', $data_ctrl );
+        $data_ctrl = de_html_popup_icon( $reo, 'more.svg', "<div class=popup-menu-buttons>$data_ctrl</div>", { CLASS => 'popup-layer' } );
         $data_fmt = "<table cellspacing=0 cellpadding=0 width=100%><tr><td align=left width=100%>$data_fmt</td><td align=right>&nbsp;$data_ctrl</td></tr></table>";
         }
 
       my $base_field_class = lc "css_grid_class_$base_field";
-      $text_grid_body .= "<td class='grid-data $fmt_class  $base_field_class'>$data_fmt</td>\n";
+      $text_grid_body .= "<td class='grid-data $fmt_class  $base_field_class' $row_vec_handle >$data_fmt</td>\n";
       
       # end of fields loop
       }

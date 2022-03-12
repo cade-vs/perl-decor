@@ -95,10 +95,14 @@ sub main
 
   my $custom_css = lc "css_$table";
   $text .= "<#$custom_css>";
-  $text .= "<table class='view record' cellspacing=0 cellpadding=0>";
-  $text .= "<tr class=view-header>";
-  $text .= "<td class='view-header record-field fmt-center' colspan=2>$browser_window_title</td>";
-  $text .= "</tr>";
+#  $text .= "<table class='view record' cellspacing=0 cellpadding=0>";
+#  $text .= "<tr class=view-header>";
+#  $text .= "<td class='view-header record-field fmt-center' colspan=2>$browser_window_title</td>";
+#  $text .= "</tr>";
+
+  
+  $text .= "<div class='record-table'>";
+  $text .= "<div class='view-header view-sep record-sep fmt-center'>$browser_window_title</div>";
 
   my $row_id = $row_data->{ '_ID' };
 
@@ -349,26 +353,32 @@ sub main
     my $divider = $bfdes->get_attr( 'WEB', 'DIVIDER' );
     if( $divider )
       {
-      $text .= "<tr class=view-header>";
-      $text .= "<td class='view-header record-field fmt-center' colspan=2>$divider</td>";
-      $text .= "</tr>";
+      $text .= "<div class='view-divider view-sep record-sep fmt-center'>$divider</div>";
       }
 
-    my $data_layout = $no_layout_ctrls ? $data_fmt : html_layout_2lr( $data_fmt, $data_ctrl, '<==1>' );
+    my $data_layout = $no_layout_ctrls ? $data_fmt : html_layout_2lr_flex( $data_fmt, $data_ctrl, '<==1>' );
     my $base_field_class = lc "css_view_class_$base_field";
-    $text .= "<tr class=view>";
-    $text .= "<td class='view-field record-field $base_field_class                ' >$label</td>";
-    $text .= "<td class='view-value record-value $base_field_class $data_fmt_class' >$data_layout</td>";
-    $text .= "</tr>\n";
+#    $text .= "<tr class=view>";
+#    $text .= "<td class='view-field record-field $base_field_class                ' >$label</td>";
+#    $text .= "<td class='view-value record-value $base_field_class $data_fmt_class' >$data_layout</td>";
+#    $text .= "</tr>\n";
+
+
+    $text .= "<div class='record-field-value'>
+                <div class='view-field record-field $base_field_class                ' >$label</div>
+                <div class='view-value record-value $base_field_class $data_fmt_class' >$data_layout</div>
+              </div>";
+
     if( $field_details )
       {
-      $text .= "<tr class=view>";
-      $text .= "<td colspan=2 class='details-fields' >$field_details</td>";
-      $text .= "</tr>\n";
+      $text .= "<div class='view-details record-details'>$field_details</div>";
+#      $text .= "<tr class=view>";
+#      $text .= "<td colspan=2 class='details-fields' >$field_details</td>";
+#      $text .= "</tr>\n";
       #$data_layout .= $field_details;
       }
     }
-  $text .= "</table>";
+  $text .= "</div>";
 
   my $ps_path = $ps->{ 'PS_PATH' };
   my $back_hint = @$ps_path > 1 ? ': ' . $ps_path->[ -2 ]{ 'TITLE' } : undef;

@@ -35,11 +35,12 @@ sub main
   my $button    = $reo->get_input_button();
   my $button_id = $reo->get_input_button_id();
 
-  my $return_data_to = $reo->param( 'RETURN_DATA_TO'   );
+  my $return_data_to  = $reo->param( 'RETURN_DATA_TO'   );
+  my $marker_location = $ui->{ 'MARKER_LOCATION_XYZ' };
+  my $ll              = $reo->param( 'LL' );
 
   if( $button eq 'SELECT' )
     {
-    my $marker_location = $ui->{ 'MARKER_LOCATION_XYZ' };
     return $reo->forward_back( "F:$return_data_to" => $marker_location );
 #    if( $marker_location =~ /([-+]?\d+(\.\d*)?\s*,\s*[-+]?\d+(\.\d*)?)/ )
 #      {
@@ -48,7 +49,7 @@ sub main
 #      }
     }
 
-  $text .= map_tomtom( $reo, LL => $reo->param( 'LL' ), ALLOW_SELECT => ( $return_data_to ? 1 : 0 ), ALLOW_NAV => 1 );
+  $text .= map_tomtom( $reo, LL => $ll, ALLOW_SELECT => ( $return_data_to ? 1 : 0 ), ALLOW_NAV => 1 );
 
   return $text;
 }

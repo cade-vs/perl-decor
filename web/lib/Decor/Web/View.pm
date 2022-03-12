@@ -333,14 +333,13 @@ sub de_data_grid
   
   my $text;
 
-  $text .= "<table class='$class' cellspacing=0 cellpadding=0>";
-  
   if( $title )
     {
     my $c = @fields + 1 * ( defined $ctrl_cb );
-    $text .= "<tr class=grid-header><td class='view-header fmt-center' colspan=$c>$title</td></tr>";
+    $text .= "<div class='view-sep fmt-center' colspan=$c>$title</div>";
     }
 
+  $text .= "<table class='$class' cellspacing=0 cellpadding=0>";
   
   $text .= "<tr class=grid-header>";
   
