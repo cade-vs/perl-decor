@@ -8,7 +8,7 @@
 ##
 ############################################################################*/
 
-/* THIS FILE IS GENERATED! PLEASE, DO NOT MODIFY! -- GENERATED AT Wed Mar 16 00:25:30 2022 */
+/* THIS FILE IS GENERATED! PLEASE, DO NOT MODIFY! -- GENERATED AT Wed Mar 16 00:46:17 2022 */
 
 
 
@@ -606,7 +606,7 @@ div.record-field-value
         flex-flow: row;
         width: 100%;
         
-        padding: 0.2em;
+        padding: 0.3em;
         }
 
 div.record-sep
@@ -622,7 +622,7 @@ div.record-field
         
         font-weight: bold;
 
-        border-bottom: solid 1px #444;
+        border-top: solid 1px #444;
         border-right:  solid 1px #444;
         padding: 0.5em;
         }
@@ -632,9 +632,14 @@ div.record-value
         flex: 2;
         text-align: left;
 
-        border-bottom: solid 1px #444;
+        border-top: solid 1px #444;
         
         padding: 0.5em;
+        }
+
+div.record-first
+        {
+        border-top: none;
         }
 
 @media (max-width: 665px) 

@@ -211,10 +211,8 @@ sub main
 
   $text .= $filter_form_begin;
 
-  $text .= "<table class='view record' cellspacing=0 cellpadding=0>";
-  $text .= "<tr class=view-header>";
-  $text .= "<td class='view-header fmt-center' colspan=2>$browser_window_title</td>";
-  $text .= "</tr>";
+  $text .= "<div class='record-table'>";
+  $text .= "<div class='view-header view-sep record-sep fmt-center'>$browser_window_title</div>";
 
 ###  my $row_data = $core->fetch( $select );
 ###  my $row_id = $row_data->{ '_ID' };
@@ -243,7 +241,7 @@ sub main
 
     my $field_error;
 
-    my $field_id = "F:$table:$field:" . $reo->html_new_id();
+    my $field_id = "F:$table:$field:" . $reo->create_uniq_id();
 
     my $field_input;
     my $field_input_ctrl;
@@ -367,15 +365,22 @@ sub main
         }
       }  
 
+    my $divider = $bfdes->get_attr( 'WEB', 'DIVIDER' );
+    if( $divider )
+      {
+      $text .= "<div class='view-divider view-sep record-sep fmt-center'>$divider</div>";
+      }
+
     $field_error = "<div class=warning align=right>$field_error</div>" if $field_error;
 
     my $input_layout = html_layout_2lr( $field_input, $field_input_ctrl, '<==1>' );
-    $text .= "<tr class=view>\n";
-    $text .= "<td class='view-field record-field fmt-right'>$label$field_error</td>\n";
-    $text .= "<td class='view-value record-value' >$input_layout</td>\n";
-    $text .= "</tr>\n";
+
+    $text .= "<div class='record-field-value'>
+                <div class='view-field record-field fmt-right'>$label$field_error</div>
+                <div class='view-value record-value fmt-left' >$input_layout</div>
+              </div>";
     }
-  $text .= "</table>";
+  $text .= "</div>";
 
   $text .= "<br>";
   $text .= de_html_alink_button( $reo, 'back', "&lArr; [~Cancel]", "[~Cancel this operation]"   );

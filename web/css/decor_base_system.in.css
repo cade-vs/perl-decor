@@ -565,7 +565,7 @@ div.record-field-value
         flex-flow: row;
         width: 100%;
         
-        padding: 0.2em;
+        padding: 0.3em;
         }
 
 div.record-sep
@@ -581,7 +581,7 @@ div.record-field
         
         font-weight: bold;
 
-        border-bottom: solid 1px $view-data-colors.4;
+        border-top: solid 1px $view-data-colors.4;
         border-right:  solid 1px $view-data-colors.4;
         padding: 0.5em;
         }
@@ -591,9 +591,14 @@ div.record-value
         flex: 2;
         text-align: left;
 
-        border-bottom: solid 1px $view-data-colors.4;
+        border-top: solid 1px $view-data-colors.4;
         
         padding: 0.5em;
+        }
+
+div.record-first
+        {
+        border-top: none;
         }
 
 @media (max-width: 665px) 

@@ -117,6 +117,7 @@ sub main
 
   @fields = grep { /^_/ ? $reo->user_has_group( 1 ) ? 1 : 0 : 1 } @fields;
 
+  my $record_first = 1;
   for my $field ( @fields )
     {
     my $bfdes      = $bfdes{ $field };
@@ -354,6 +355,7 @@ sub main
     if( $divider )
       {
       $text .= "<div class='view-divider view-sep record-sep fmt-center'>$divider</div>";
+      $record_first = 1;
       }
 
     my $data_layout = $no_layout_ctrls ? $data_fmt : html_layout_2lr_flex( $data_fmt, $data_ctrl, '<==1>' );
@@ -363,10 +365,11 @@ sub main
 #    $text .= "<td class='view-value record-value $base_field_class $data_fmt_class' >$data_layout</td>";
 #    $text .= "</tr>\n";
 
-
+    my $record_first_class = 'record-first' if $record_first;
+    $record_first = 0;
     $text .= "<div class='record-field-value'>
-                <div class='view-field record-field $base_field_class                ' >$label</div>
-                <div class='view-value record-value $base_field_class $data_fmt_class' >$data_layout</div>
+                <div class='view-field record-field $record_first_class $base_field_class                ' >$label</div>
+                <div class='view-value record-value $record_first_class $base_field_class $data_fmt_class' >$data_layout</div>
               </div>";
 
     if( $field_details )

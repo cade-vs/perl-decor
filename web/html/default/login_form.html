@@ -4,22 +4,23 @@
 
     <p><$login-error><p>
     
-    <table class="view login" cellspacing=1 cellpadding=4>
-      <tr>
-          <td colspan=2 align=center class=view-header><~Enter your username and password></td>
-      </tr>
-      <tr>
-        <td class=view-field><~Username></td>
-        <td class=view-value><input TYPE=text     NAME=user style='width: 100%' AUTOCOMPLETE='off'></td>
-      </tr>
-      <tr>
-        <td class=view-field><~Password></td>
-        <td class=view-value><input TYPE=password NAME=pass style='width: 100%' AUTOCOMPLETE='off'></td>
-      </tr>
-      <tr>
-        <td class=view-field>&nbsp;</td>
-        <td class=view-value><input TYPE=submit class=button name=button:login Value='   [~Login]   '></td>
-      </tr>
-    </table>
-      
+
+  <div class='record-table'>
+
+  <div class='view-divider view-sep record-sep fmt-center'><~Login with your username and password></div>
+
+  <div class='record-field-value'>
+    <div class='view-field record-field' ><~Username></div>
+    <div class='view-value record-value' ><input TYPE=text     NAME=user style='width: 100%' AUTOCOMPLETE='off'></div>
+  </div>
+
+  <div class='record-field-value'>
+    <div class='view-field record-field record-last' ><~Password></div>
+    <div class='view-value record-value record-last' ><input TYPE=password NAME=pass style='width: 100%' AUTOCOMPLETE='off'></div>
+  </div>
+
+  </div>
+
+  <input TYPE=submit class=button name=button:login Value='   [~Login]   '>
+
 </form>

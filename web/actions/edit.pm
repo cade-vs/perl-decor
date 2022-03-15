@@ -275,6 +275,7 @@ sub main
 
   my @backlinks_text;
 
+  my $record_first = 1;
   for my $field ( @$fields_ar )
     {
     my $fdes       = $tdes->{ 'FIELD' }{ $field };
@@ -661,6 +662,7 @@ sub main
     if( $divider )
       {
       $text .= "<div class='$edit_mode_class_prefix-divider $edit_mode_class_prefix-sep record-sep fmt-center'>$divider</div>";
+      $record_first = 1;
       }
 
     $field_error = "<div class=warning align=right>$field_error</div>" if $field_error;
@@ -673,9 +675,11 @@ sub main
 #    $text .= "<td class='$edit_mode_class_prefix-value record-value $base_field_class' >$input_layout</td>\n";
 #    $text .= "</tr>\n";
     
+    my $record_first_class = 'record-first' if $record_first;
+    $record_first = 0;
     $text .= "<div class='record-field-value'>
-                <div class='$edit_mode_class_prefix-field record-field $base_field_class' >$label$field_error</div>
-                <div class='$edit_mode_class_prefix-value record-value $base_field_class' >$input_layout</div>
+                <div class='$edit_mode_class_prefix-field record-field $record_first_class $base_field_class' >$label$field_error</div>
+                <div class='$edit_mode_class_prefix-value record-value $record_first_class $base_field_class' >$input_layout</div>
               </div>";
 
 
