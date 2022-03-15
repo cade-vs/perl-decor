@@ -332,7 +332,12 @@ sub main
     $vec_ctrl .= de_html_alink_icon( $reo, 'new', "copy.svg",    $copy_cue_hint,          ACTION => 'edit',    ID =>  -1, TABLE => $table, COPY_ID => $id ) if $tdes->allows( 'INSERT' ) and ! $tdes->{ '@' }{ 'NO_COPY' };
     $vec_ctrl .= de_html_alink_icon( $reo, 'new', 'file_dn.svg', $download_file_cue_hint, ACTION => 'file_dn', ID => $id, TABLE => $table                 ) if $table_type eq 'FILE';
     
-    my $vec_ctrl_popup = "<div class=popup-menu-buttons>$vec_ctrl</div>";
+    my $vec_ctrl_popup;
+    $vec_ctrl_popup .= de_html_alink_button( $reo, 'new', "(v) View record",        undef, BTYPE => 'act', ACTION => 'view',    ID => $id, TABLE => $table, LINK_FIELD_DISABLE => $link_field_disable  );
+    $vec_ctrl_popup .= de_html_alink_button( $reo, 'new', "(e) Edit record",        undef, BTYPE => 'mod', ACTION => 'edit',    ID => $id, TABLE => $table                 ) if $tdes->allows( 'UPDATE' );
+    $vec_ctrl_popup .= de_html_alink_button( $reo, 'new', "(+) Copy record as new", undef, BTYPE => 'nav', ACTION => 'edit',    ID =>  -1, TABLE => $table, COPY_ID => $id ) if $tdes->allows( 'INSERT' ) and ! $tdes->{ '@' }{ 'NO_COPY' };
+    $vec_ctrl_popup .= de_html_alink_button( $reo, 'new', '(v) Download file',      undef, BTYPE => 'act', ACTION => 'file_dn', ID => $id, TABLE => $table                 ) if $table_type eq 'FILE';
+    $vec_ctrl_popup = "<div class='popup-menu-buttons'>$vec_ctrl_popup</div>";
 
     if( @dos )
       {

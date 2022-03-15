@@ -94,6 +94,7 @@ web.grid.fields_list  name  ctime   grp  suma  BOOL_TEST ref test_wlink
 #  web.edit.mono
   web.select_filter_name   MORE_CNT
   web.grid.editable
+  web.view.editable
 
 
 #deny all

@@ -19,29 +19,8 @@ grant access to 999
 
 =ITEMS
 
-  label List items
-  type  grid  TEST1
-  grant access to all
-
-=NEW_ITEM
-
-  label Add new item
-  type  insert TEST1
-
-=TEST2
-
-  label [~List items]
-  type  grid  TEST2
-  filter-name MORE_CNT
-  order-by    CNT DESC
-
-=ITEMS_FM
-
-  label List items (Filter method)
-  type  grid  TEST2
-  grant access to all
-  filter-method   filter1
-
+  type  submenu ITEMS
+  grant access to 909, 999
 
 =MOTEN
 

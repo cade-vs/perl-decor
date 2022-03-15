@@ -73,13 +73,13 @@ sub main
 
   my $custom_css = lc "css_$table";
   $text .= "<#$custom_css>";
-  $text .= "<table class='$edit_mode_class_prefix record' cellspacing=0 cellpadding=0>";
-  $text .= "<tr class=$edit_mode_class_prefix-header>";
-  $text .= "<td class='$edit_mode_class_prefix-header record-field fmt-center' colspan=2>$browser_window_title</td>";
-  $text .= "</tr>";
 
   my $row_data = $ps->{ 'ROW_DATA' };
   return "<#no_data>" unless $row_data;
+
+  $text .= "<div class='record-table'>";
+  $text .= "<div class='edit-header view-sep record-sep fmt-center'>$browser_window_title</div>";
+
   my $row_id = $row_data->{ '_ID' };
 
   my ( $calc_out, $calc_merrs )= $core->recalc( $table, $row_data, $row_id, $ps->{ 'EDIT_MODE_INSERT' }, { 'EDIT_SID' => $ps->{ 'EDIT_SID' } } );
@@ -180,20 +180,20 @@ sub main
     my $divider = $bfdes->get_attr( 'WEB', 'DIVIDER' );
     if( $divider )
       {
-      $text .= "<tr class=$edit_mode_class_prefix-header>";
-      $text .= "<td class='$edit_mode_class_prefix-header record-field fmt-center' colspan=2>$divider</td>";
-      $text .= "</tr>";
+      $text .= "<div class='$edit_mode_class_prefix-divider $edit_mode_class_prefix-sep record-sep fmt-center'>$divider</div>";
       }
 
     $field_error = "<div class=warning align=right>$field_error</div>" if $field_error;
 
     my $base_field_class = lc "css_preview_class_$base_field";
-    $text .= "<tr class=view>";
-    $text .= "<td class='$edit_mode_class_prefix-field record-field $base_field_class' >$label$field_error</td>";
-    $text .= "<td class='$edit_mode_class_prefix-value record-value $base_field_class' >$data_fmt</td>";
-    $text .= "</tr>";
+
+    $text .= "<div class='record-field-value'>
+                <div class='$edit_mode_class_prefix-field record-field $base_field_class' >$label$field_error</div>
+                <div class='$edit_mode_class_prefix-value record-value $base_field_class' >$data_fmt</div>
+              </div>";
+
     }
-  $text .= "</table>";
+  $text .= "</div>";
 
   my $ok_hint = $edit_mode_insert ? "[~Confirm new record insert]" : "[~Confirm record update]";
 

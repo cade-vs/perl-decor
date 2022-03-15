@@ -473,7 +473,7 @@ table.menu
         cursor: pointer;
 
         width: 80%;
-        max-width: 800px;
+        max-width: 700px;
         font: $main-menu-font;
         }
 
@@ -518,6 +518,15 @@ a.menu:hover
         text-decoration: none;
         border: none;
         }
+
+@media (max-width: 665px) 
+{
+table.menu
+        {
+        width:  98vw;
+        margin: 0;
+        }
+}        
 
 /*** page sessions path ******************************************************/
 
@@ -589,6 +598,12 @@ div.record-value
 
 @media (max-width: 665px) 
 {
+div.record-table
+        {
+        width:  98vw;
+        margin: 0;
+        }
+
 div.record-field-value
         {
         flex-flow: column;
@@ -1081,6 +1096,7 @@ div.hover-layer
         opacity: 0.95;
 
         display: none;
+        z-index: 99;
         }
 
 div.popup-layer
@@ -1099,7 +1115,7 @@ div.popup-layer
 div.popup-menu-buttons
         {
         display: flex;
-        flex-flow: row;
+        flex-flow: column;
         }
 
 div.popup-menu-buttons > a

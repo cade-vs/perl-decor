@@ -194,7 +194,7 @@ sub main
           if( $data_base > 0 )
             {
             # my $cue_dn_file = de_web_get_cue( qw( ) );
-            $data_fmt   = de_html_alink( $reo, 'new', "$data_fmt",    "[~Download current file]",           ACTION => 'file_dn', ID => $data_base, TABLE => $linked_table );
+            $data_fmt   = de_html_alink(      $reo, 'new', "$data_fmt",    "[~Download current file]",           ACTION => 'file_dn', ID => $data_base, TABLE => $linked_table );
             $data_ctrl .= de_html_alink_icon( $reo, 'new', 'view.svg',     "[~View linked record]",              ACTION => 'view',    ID => $data_base, TABLE => $linked_table );
             $data_ctrl .= de_html_alink_icon( $reo, 'new', 'file_up.svg',  "[~Upload and replace current file]", ACTION => 'file_up', ID => $data_base, TABLE => $linked_table, LINK_TO_TABLE => $table, LINK_TO_FIELD => $base_field, LINK_TO_ID => $id );
             $data_ctrl .= de_html_alink_icon( $reo, 'new', 'file_dn.svg',  "[~Download current file]",           ACTION => 'file_dn', ID => $data_base, TABLE => $linked_table );
@@ -209,9 +209,9 @@ sub main
           my $enum = $ltdes->get_table_type() eq 'ENUM';
           if( $data_base > 0 )
             {
-            $data_ctrl .= de_html_alink_icon( $reo, 'new', 'view.svg',   "[~View linked record]",                                                        ACTION => 'view', ID => $data_base, TABLE => $linked_table ) unless $enum;
-            $data_ctrl .= de_html_alink_icon( $reo, 'new', 'grid.svg',   "[~View all records with the same] <b>$label</b>",  ACTION => 'grid',                   TABLE => $table, FILTER => { $base_field => $same_data_search } );
-            $data_fmt   = de_html_alink( $reo, 'new', "$data_fmt",    "[~View linked record]",                                                           ACTION => 'view', ID => $data_base, TABLE => $linked_table ) unless $enum;
+            $data_ctrl .= de_html_alink_icon( $reo, 'new', 'view.svg',      "[~View linked record]",                            ACTION => 'view', ID => $data_base, TABLE => $linked_table ) unless $enum;
+            $data_ctrl .= de_html_alink_icon( $reo, 'new', 'list-same.svg', "[~View all records with the same] <b>$label</b>",  ACTION => 'grid',                   TABLE => $table, FILTER => { $base_field => $same_data_search } );
+            $data_fmt   = de_html_alink( $reo, 'new', "$data_fmt",          "[~View linked record]",                            ACTION => 'view', ID => $data_base, TABLE => $linked_table ) unless $enum;
             }
           else
             {
@@ -290,7 +290,7 @@ sub main
           my $sub_de_data_grid_cb = sub
             {
             my $cbid = shift;
-            my $ccid = $reo->html_new_id();
+            my $ccid = $reo->create_uniq_id();
             my $vec_ctrl;
             $vec_ctrl .= de_html_alink_icon( $reo, 'new', "view.svg",    $view_cue_hint,          ACTION => 'view',    ID => $cbid, TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field  );
             $vec_ctrl .= de_html_alink_icon( $reo, 'new', "edit.svg",    $update_cue_hint,        ACTION => 'edit',    ID => $cbid, TABLE => $backlinked_table                                                          ) if $bltdes->allows( 'UPDATE' );
