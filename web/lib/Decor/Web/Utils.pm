@@ -23,6 +23,8 @@ our @EXPORT = qw(
                 
                 de_web_get_cue
                 
+                de_web_update_record_with_id
+                
                 );
 
 ##############################################################################
@@ -83,6 +85,28 @@ sub de_web_get_cue
     {
     return $cue[ 0 ];
     }  
+}
+
+##############################################################################
+
+sub de_web_update_record_with_id
+{
+  my $core  = shift;
+  my $table = shift;
+  my $id    = shift;
+  my $si    = shift;
+  
+  my %data;
+
+  while( my ( $k, $v ) = each %$si )
+    {
+    next unless $k =~ /^F:([A-Z_0-9]+)$/;
+    $data{ $1 } = $v;
+    }
+
+  my $res = $core->update( $table, \%data, { ID => $id } );
+  
+  return $res;
 }
 
 ### EOF ######################################################################

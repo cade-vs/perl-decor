@@ -176,7 +176,7 @@ sub de_web_format_field
       my $new_val = !!! $field_data || 0; # cap and reverse
       # FIXME: use reactor_none_href to avoid session creation?
       #$data_fmt = "<div class=vframe><a reactor_new_href=?_an=set_val&table=$table&fname=$fname&id=$id&value=$new_val&vtype=$vtype>$data_fmt</a></div>";
-      $data_fmt = "<a reactor_new_href=?_an=set_val_nf&table=$table&id=$id&fname=$fname&value=$new_val>$data_fmt</a>";
+      $data_fmt = "<a reactor_here_href=?update_record_with_id=$id&F:$fname=$new_val>$data_fmt</a>";
       }
     else
       {
@@ -229,6 +229,8 @@ sub de_web_format_field
     my $select_filter_name = $fdes->get_attr( 'WEB', 'SELECT_FILTER' );
 
     my $combo = $fdes->get_attr( qw( WEB COMBO ) );
+    my $radio = $fdes->get_attr( qw( WEB RADIO ) );
+
     my $spf_fmt;
     my @spf_fld;
     if( $combo == 1 )
@@ -258,26 +260,45 @@ sub de_web_format_field
     my $combo_orderby = $fdes->get_attr( qw( WEB COMBO ORDERBY ) ) || join( ',', @spf_fld );
     my $combo_select = $core->select( $linked_table, $lfields, { 'FILTER_NAME' => $select_filter_name, ORDER_BY => $combo_orderby } );
 
-    my $vframe_id = 'VFRGE_' . $reo->html_new_id();
 
-    my $combo_text;
-    $combo_text .= "<a class=grid-link-select-option reactor_new_href=?_an=set_val_nf&table=$table&id=$id&fname=$fname&value=0>&empty;</a>";
+    my $combo_form_text;
+    my $combo_form = new Web::Reactor::HTML::Form( REO_REACTOR => $reo );
+    
+    $combo_form_text .= $combo_form->begin( NAME => $reo->create_uniq_id(), );
+    $combo_form->state( 'UPDATE_RECORD_WITH_ID' => $id );
+
+    my @combo_data;
+    push @combo_data, { KEY => 0, VALUE => '&empty;' };
     while( my $hr = $core->fetch( $combo_select ) )
       {
       my @value = map { $hr->{ $_ } } @spf_fld;
       my $value = sprintf( $spf_fmt, @value );
       my $key   = $hr->{ '_ID' };
-      $combo_text .= "<a class=grid-link-select-option reactor_new_href=?_an=set_val_nf&table=$table&id=$id&fname=$fname&value=$key>$value</a>";
+      push @combo_data, { KEY => $key, VALUE => $value };
       }
+
+
+#print STDERR "**************************************************************: " . Dumper( \@combo_data );
+
 
     if( $fdes->get_attr( 'WEB', 'EDIT', 'MONO' ) )
       {
       $fmt_class .= " fmt-mono";
       }
 
-    my $popup_layer_html;
-    $data_fmt = de_html_popup( $reo, $data_fmt, $combo_text );
-    $data_fmt = "<div class=grid-link-select>$data_fmt</div>";
+    #$combo_form_text .= $combo_form->state(  NAME => '', VALUE => '' );
+    $combo_form_text .= $combo_form->combo(  NAME     => "F:$fname", 
+                                             CLASS    => $fmt_class, 
+                                             DATA     => \@combo_data, 
+                                             SELECTED => $field_data,
+                                             RADIO    => $radio,
+                                             
+                                             EXTRA    => 'onchange="this.form.submit()"',
+                                             );
+
+    $combo_form_text .= $combo_form->end();
+
+    $data_fmt = $combo_form_text;
     }
   else
     {

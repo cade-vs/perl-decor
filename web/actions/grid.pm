@@ -126,6 +126,13 @@ sub main
 
   return "<#e_access>" unless $fields;
 
+  # update record in-place with incoming data
+  my $update_record_with_id = $reo->param( 'UPDATE_RECORD_WITH_ID' );
+  if( $update_record_with_id )
+    {
+    de_web_update_record_with_id( $core, $table, $update_record_with_id, $si );
+    }
+
   my $detach_field = $reo->param( 'DETACH_FIELD' );
   my $detach_id    = $reo->param( 'DETACH_ID'    );
   if( $detach_field and $detach_id > 0 )
@@ -427,25 +434,19 @@ sub main
                 ( $data_fmt, $fmt_class_fld ) = de_web_format_field( $data, $lfdes, 'GRID', { ID => $id, REO => $reo, CORE => $core } );
                 }  
               }  
-            
-            if( $linked_id > 0 )
+
+            $data_fmt =~ s/\./&#46;/g;
+            if( $ltdes->get_table_type() eq 'FILE' )
               {
-              $data_fmt =~ s/\./&#46;/g;
-              if( $ltdes->get_table_type() eq 'FILE' )
-                {
-                $data_fmt   = de_html_alink( $reo, 'new', "$data_fmt",                          $view_cue, ACTION => 'file_dn', ID => $linked_id, TABLE => $linked_table );
-                $data_ctrl .= de_html_alink( $reo, 'new', 'file_dn.svg [~Download file]',       undef,     ACTION => 'file_dn', ID => $linked_id, TABLE => $linked_table );
-                $data_ctrl .= "<br>\n";
-                }
-              else
-                {  
-                $data_fmt   = de_html_alink( $reo, 'new', "$data_fmt",  $view_cue, ACTION => 'view', ID => $linked_id, TABLE => $linked_table ) unless $enum;
-                }
+              $data_fmt   = de_html_alink( $reo, 'new', "$data_fmt",                          $view_cue, ACTION => 'file_dn', ID => $linked_id, TABLE => $linked_table );
+              $data_ctrl .= de_html_alink( $reo, 'new', 'file_dn.svg [~Download file]',       undef,     ACTION => 'file_dn', ID => $linked_id, TABLE => $linked_table );
+              $data_ctrl .= "<br>\n";
               }
             else
-              {
-              $data_fmt   = "&empty;";
+              {  
+#########                $data_fmt   = de_html_alink( $reo, 'new', "$data_fmt",  $view_cue, ACTION => 'view', ID => $linked_id, TABLE => $linked_table ) unless $enum;
               }
+
             if( ! $enum )
               {
               if( $linked_id > 0 )

@@ -299,7 +299,7 @@ sub main
       $field_error .= "$_<br>\n" for @{ $calc_merrs->{ $field } };
       }
 
-    my $field_id = "F:$table:$field:" . $reo->html_new_id();
+    my $field_id = "F:$table:$field:" . $reo->create_uniq_id();
 
     my $field_input;
     my $field_input_ctrl;
@@ -539,7 +539,7 @@ sub main
         my $sub_de_data_grid_cb = sub
           {
           my $id = shift;
-          my $ccid = $reo->html_new_id();
+          my $ccid = $reo->create_uniq_id();
           my $text;
           $text .= de_html_form_button_redirect( $reo, 'new', $edit_form, "view.svg", "[~View linked data]", ACTION => 'view', TABLE => $backlinked_table, ID => $id, );
           $text .= de_html_form_button_redirect( $reo, 'new', $edit_form, "edit.svg", "[~Edit linked data]", ACTION => 'edit', TABLE => $backlinked_table, ID => $id ) if $bltdes->allows( 'UPDATE' );
