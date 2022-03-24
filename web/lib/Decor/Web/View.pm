@@ -153,12 +153,15 @@ sub de_web_format_field
     # logical types
     if( $type_lname eq 'EMAIL' )  
       {
-      $data_fmt = "<a href='mailto:$field_data'>$data_fmt</a>";
+      my @data_fmt = split /\s*[,;]\s*/, $data_fmt;
+      $data_fmt = undef;
+      $data_fmt .= join '; ', map { "<a href='mailto:$_'>$_</a>" } @data_fmt;
       }
     elsif( $type_lname eq 'PHONE' )  
       {
-      $data_fmt = de_web_format_phones( $field_data, 1 );
-      $data_fmt = "<a href='tel:$field_data'>$data_fmt</a>";
+      my @field_data = split /\s*[,;]\s*/, $field_data;
+      $data_fmt = undef;
+      $data_fmt .= join '; ', map { "<a href='tel:$_'>" . de_web_format_phones( $_, 1 ) . "</a>" } @field_data;
       }
       
     if( $fdes->get_attr( 'WEB', $vtype, 'MONO' ) )

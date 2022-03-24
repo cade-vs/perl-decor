@@ -9,16 +9,26 @@ web.insert_cue Add new contact
     type  char  128
     
 =EMAIL
-    type  char  128
+    type  email
 
 =ADDRESS
     type  char  64
 
 =PHONE_MOBILE
-    type  char  64
+    type  phone
 
 =PHONE_LANDLINE
-    type  char  64
+    type  phone
 
 =CTIME
+    label   Create time
     type    utime
+    read-only
+    web.details 2
+    web.grid.hide
+
+=MTIME
+    label   Last modify time
+    type    utime
+    read-only
+    web.details 2
