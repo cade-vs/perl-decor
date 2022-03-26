@@ -34,16 +34,16 @@ our @ISA = qw( Web::Reactor );
 sub new
 {
   my $class = shift;
-  my %env = @_;
+  my $env   = shift;
+  my $cfg   = shift;
+
   $class = ref( $class ) || $class;
 
-  data_tools_set_file_io_encoding( 'UTF-8' );
-
-  my $ROOT     = $env{ 'DECOR_CORE_ROOT' } || '/usr/local/decor/';
+  my $ROOT     = $cfg->{ 'DECOR_CORE_ROOT' } || '/usr/local/decor/';
 
   boom "ROOT path does not exist [$ROOT]" unless -d $ROOT;
 
-  my $APP_NAME = lc $env{ 'APP_NAME' };
+  my $APP_NAME = lc $cfg->{ 'APP_NAME' };
 
   boom "missing APP_NAME" unless $APP_NAME =~ /^[a-z_0-9]+$/;
 
@@ -51,7 +51,7 @@ sub new
 
   boom "APP_ROOT path does not exist [$APP_ROOT]" unless -d $APP_ROOT;
 
-  my $lang = lc $env{ 'LANG' } || 'en';
+  my $lang = lc $cfg->{ 'LANG' } || 'en';
   
   boom "invalid LANG specified, got [$lang]" unless $lang =~ /^[a-z][a-z]$/;
 
@@ -73,39 +73,18 @@ sub new
                                       "$ROOT/web/html/default/"
                                     ],
             'ACTIONS_DIRS'   => [ "$APP_ROOT/web/actions", "$ROOT/web/actions" ],
-            'REO_ACTS_CLASS' => 'Web::Reactor::Actions::Decor',
-            'REO_PREP_CLASS' => 'Web::Reactor::Preprocessor::Extended',
+            'REO_ACT_CLASS' => 'Web::Reactor::Actions::Decor',
+            'REO_PRE_CLASS' => 'Web::Reactor::Preprocessor::Extended',
             #'TRANS_DIRS'     => [ "$ROOT/web/trans", "$APP_ROOT/web/trans" ],
             'TRANS_FILE'     => "$APP_ROOT/web/trans/$lang/$lang.tr",
             'SESS_VAR_DIR'   => "$ROOT/var/$APP_NAME/sess/",
-            %env,
+            %$cfg,
             );
 
-  type_set_format( $_, $env{ "FMT_$_" } ) for qw( DATE TIME UTIME );
+  type_set_format( $_, $cfg->{ "FMT_$_" } ) for qw( DATE TIME UTIME );
 
-  my $self = $class->Web::Reactor::new( %cfg );
-
-  return $self;
-
-#  eval { $reo->run(); };
-#  if( $@ )
-#    {
-#    print STDERR "REACTOR CGI EXCEPTION: $@";
-#    print "content-type: text/html\n\nsystem is temporary unavailable";
-#    }
+  return $class->Web::Reactor::new( $env, \%cfg );
 }
-
-#-----------------------------------------------------------------------------
-
-sub prep_process
-{
-  my $self = shift;
-  my $text = $self->{ 'REO_PREP' }->process(   @_ ) ;
-
-#print STDERR $text, Dumper( $ex ), $text;
-
-  return $text;
-};
 
 #-----------------------------------------------------------------------------
 
@@ -142,10 +121,12 @@ sub de_connect
 
   return $self->{ 'DECOR_CLIENT_OBJECT' } if $self->{ 'DECOR_CLIENT_OBJECT' } and $self->{ 'DECOR_CLIENT_OBJECT' }->is_connected();
 
-  my $de_core_app     = $self->{ 'ENV' }{ 'DECOR_CORE_APP'       };
-  my $de_core_host    = $self->{ 'ENV' }{ 'DECOR_CORE_HOST'      };
-  my $de_core_timeout = $self->{ 'ENV' }{ 'DECOR_CORE_TIMEOUT'   } || 64;
-  my $lang            = $self->{ 'ENV' }{ 'LANG' };
+  my $cfg = $self->get_cfg();
+
+  my $de_core_app     = $cfg->{ 'DECOR_CORE_APP'       };
+  my $de_core_host    = $cfg->{ 'DECOR_CORE_HOST'      };
+  my $de_core_timeout = $cfg->{ 'DECOR_CORE_TIMEOUT'   } || 64;
+  my $lang            = $cfg->{ 'LANG' };
 
   my $user_shr = $self->get_user_session();
   my $http_env = $self->get_http_env();
@@ -234,7 +215,7 @@ sub de_load_cfg
   my $fn = shift;
   boom "invalid config file name" unless $fn =~ /^[a-zA-Z0-9_]+$/;
 
-  my $app_root = $self->{ 'ENV' }{ 'APP_ROOT' };
+  my $app_root = $self->get_app_root();
 
   my $fnf = "$app_root/web/etc/$fn.cfg";
   $self->log( "error: config file not found [$fnf]" ) unless -e $fnf;

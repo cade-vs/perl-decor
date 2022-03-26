@@ -36,8 +36,9 @@ sub main
   my $mime     = $file->{ 'MIME' } || 'application/octet-stream';
   my $fname    = $file->{ 'NAME' } || 'n.a.or.unknown.data';
 
+  # FIXME: config alternative var directory
+
   my $fh = tempfile( DIR => '/tmp/', SUFFIX => '.tmp', UNLINK => 1 );
-####  open( $fh, '>', '/tmp/asdasdasdasdasdasd' );
 
   $core->file_load( $fh, $table, $id );
   seek( $fh, 0, 0 );

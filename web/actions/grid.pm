@@ -602,7 +602,7 @@ sub main
       }
 
 
-    my $nav_keys_help = $reo->prep_load_file( undef, 'grid_nav_keys_help' );
+    my $nav_keys_help = $reo->pre->load_file( undef, 'grid_nav_keys_help' );
     my $hl_nav_handle = html_hover_layer( $reo, VALUE => $nav_keys_help, DELAY => 300 );
     $text_grid_navi_mid .= " <span $hl_nav_handle>(?)</span>";
     

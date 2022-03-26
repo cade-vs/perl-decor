@@ -13,6 +13,7 @@ use Web::Reactor::HTML::Utils;
 use Web::Reactor::HTML::Layout;
 use Decor::Web::HTML::Utils;
 use Decor::Web::View;
+use Data::Tools;
 use Data::Dumper;
 
 sub main
@@ -41,30 +42,26 @@ sub main
   my $core = $reo->de_connect();
   my $tdes = $core->describe( $table );
 
+  # FIXME: check implementation and enable multiple file uploads
 
   $multi = undef if $id > 0;
   $reo->html_content( 'multiple' => 'multiple' ) if $multi;
 
   my $text;
 
-  my $file_upload_count = $ui->{ 'FILE_UPLOAD:FC' };
+  my $file_uploads = $ui->{ 'FILE_UPLOAD:UPLOADS' };
 
-
-  if( $file_upload_count > 0 )
+  if( @$file_uploads > 0 )
     {
     my $errors;
     
     my %ret_opt;
 
-    for my $fc ( 0 .. $file_upload_count - 1 )
+    for my $upload ( @$file_uploads )
       {
-      my $upload_fh = $ui->{ "FILE_UPLOAD:FH:$fc" };
-      my $upload_fn = $ui->{ "FILE_UPLOAD:FN:$fc" };
-      my $upload_fi = $ui->{ "FILE_UPLOAD:FI:$fc" };
-      
-      $upload_fn =~ s/^.*?\/([^\/]+)$/$1/;
-      my $mime   = $upload_fi->{ 'Content-Type' };
-      my $new_id = $core->file_save_fh( $upload_fh, $table, $upload_fn, $id, { DES => $file_des, MIME => $mime } );
+      my $upload_fn = file_name_ext( $upload->{ 'filename' } );
+      my $mime   = $upload->{ 'headers' }{ 'content-type' };
+      my $new_id = $core->file_save( $upload->{ 'tempname' }, $table, $upload_fn, $id, { DES => $file_des, MIME => $mime } );
       
       my @fields = grep s/^F://, keys %$si;
       if( @fields > 0 )

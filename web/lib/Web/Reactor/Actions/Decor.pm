@@ -66,12 +66,13 @@ sub __load_action_file
   my $name = shift;
 
   my $reo = $self->get_reo();
+  my $cfg = $self->get_cfg();
   
   my $cr = $self->{ 'ACT_CODE_CACHE' }{ $name };
   
   return $cr if $cr;
   
-  my $dirs = $self->{ 'ENV' }{ 'ACTIONS_DIRS' } || [];
+  my $dirs = $cfg->{ 'ACTIONS_DIRS' } || [];
   
   my $found;
   for my $dir ( @$dirs )
