@@ -1,18 +1,24 @@
 <p>
-<form method=POST name=file_upload_form ENCTYPE="multipart/form-data" action=?>
-  <$FORM_INPUT_SESSION_KEEPER>
-  <table class=view cellspacing=0 width=50% cellpadding=5>
-  <tr>
-    <td class=view-field><img class=icon src=i/file_up.svg border=0 title='<~Upload file>'> <~File>:</td>
-    <td class=view-value><input class=inp id=inp type=file name=FILE_UPLOAD <$multiple>></td>
-  </tr>
-  <tr>
-    <td class=view-field><~Description>: </td>
-    <td class=view-value><input type=text name=FILE_DES size=32 maxlen=120></td>
-  </tr>
-  </table>
+<form method=POST name=file_upload_form id=file_upload_form ENCTYPE="multipart/form-data" action=?><$FORM_INPUT_SESSION_KEEPER></form>
+
+  <div class='record-table'>
+
+  <div class='view-divider view-sep record-sep fmt-center'><~Upload file></div>
+
+  <div class='record-field-value'>
+    <div class='view-field record-field' ><~Choose file(s) to upload:></div>
+    <div class='view-value record-value' ><input form=file_upload_form class=inp id=inp type=file name=FILE_UPLOAD <$multiple>></div>
+  </div>
+
+  <div class='record-field-value'>
+    <div class='view-field record-field record-last' ><~Description>:</div>
+    <div class='view-value record-value record-last' ><input form=file_upload_form type=text name=FILE_DES size=32 maxlen=120></div>
+  </div>
+
+  </div>
+
   <p>
-  <a class=button reactor_back_href=?>&lArr; [~Cancel]</a> <input class=button type=submit value="[~Upload file]">
-</form>
+  <a class=button reactor_back_href=?>&lArr; [~Cancel]</a> <input form=file_upload_form class=button type=submit value="[~Upload file]">
+
 <br>
 

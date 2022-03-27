@@ -51,7 +51,7 @@ sub main
 
   my $file_uploads = $ui->{ 'FILE_UPLOAD:UPLOADS' };
 
-  if( @$file_uploads > 0 )
+  if( $file_uploads and @$file_uploads > 0 )
     {
     my $errors;
     
