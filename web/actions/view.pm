@@ -395,7 +395,7 @@ sub main
     $text .= de_html_alink_button( $reo, 'new',  "$update_cue &uArr;", $update_cue, BTYPE => 'mod', ACTION => 'edit', ID => $id, TABLE => $table, LINK_FIELD_DISABLE => $link_field_disable );
     }
 
-  if( $tdes->allows( 'INSERT' ) )
+  if( $table_type ne 'FILE' and $tdes->allows( 'INSERT' ) )
     {
     # my $copy_cue = $sdes->get_attr( qw( WEB GRID COPY_CUE ) ) || "[~Copy this record as new]";
     my ( $copy_cue, $copy_cue_hint ) = de_web_get_cue( $sdes, qw( WEB GRID COPY_CUE ) );
@@ -405,11 +405,11 @@ sub main
 
   if( $table_type eq 'FILE' )
     {
-    my $download_cue = $sdes->get_attr( qw( WEB GRID DOWNLOAD_CUE ) ) || "[~Download this file]";
-    $text .= de_html_alink_button( $reo, 'new', "(&darr;) $download_cue", '[~Download this file]',   BTYPE => 'act', ACTION => 'file_dn',     TABLE => $table, ID => $id,                  );
+    my $download_cue = $sdes->get_attr( qw( WEB GRID DOWNLOAD_CUE ) ) || '[~Download file]';
+    $text .= de_html_alink_button( $reo, 'new', "(&darr;) $download_cue", undef,   BTYPE => 'act', ACTION => 'file_dn',     TABLE => $table, ID => $id,                  );
   
-    my $upload_cue = $sdes->get_attr( qw( WEB GRID UPLOAD_CUE ) ) || "[~Replace current file content]";
-    $text .= de_html_alink_button( $reo, 'new', "(&uarr;) $upload_cue", '[~Replace current file content]',   BTYPE => 'act', ACTION => 'file_up',     TABLE => $table, ID => $id,                  ) if $tdes->allows( 'INSERT' ) and $table_type eq 'FILE';
+    my $upload_cue = $sdes->get_attr( qw( WEB GRID UPLOAD_CUE ) ) || "[~Re-Upload file]";
+    $text .= de_html_alink_button( $reo, 'new', "(&uarr;) $upload_cue", '[~Replace current file with new one]',   BTYPE => 'act', ACTION => 'file_up',     TABLE => $table, ID => $id,                  ) if $tdes->allows( 'INSERT' ) and $table_type eq 'FILE';
     }
   
   for my $do ( @{ $tdes->get_category_list_by_oper( 'EXECUTE', 'DO' ) }  )
