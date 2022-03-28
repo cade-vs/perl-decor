@@ -215,6 +215,7 @@ a:focus
 a.plain
         {
         border: none;
+        text-decoration: none;
         }
 
 img
@@ -565,7 +566,6 @@ div.record-field-value
         flex-flow: row;
         width: 100%;
         
-        padding: 0.3em;
         }
 
 div.record-sep
@@ -584,6 +584,7 @@ div.record-field
         border-top: solid 1px $view-data-colors.4;
         border-right:  solid 1px $view-data-colors.4;
         padding: 0.5em;
+        padding-right: 1em;
         }
 
 div.record-value
@@ -593,7 +594,8 @@ div.record-value
 
         border-top: solid 1px $view-data-colors.4;
         
-        padding: 0.5em;
+        padding: 0.3em;
+        padding-left: 1em;
         }
 
 div.record-first
@@ -767,9 +769,12 @@ div.view-value
         padding-left: 4em;
         }
 }
+
 */
 
 /*** edit *******************************************************************/
+
+/*
 
 table.edit
         {
@@ -801,14 +806,11 @@ td.edit-field
         padding: 0.5em;
         }
 
-td.edit-value
-        {
-        border-bottom: solid 1px $edit-data-colors.4;
-        
-        padding: 0.5em;
-        }
+*/
 
 /*** insert *******************************************************************/
+
+/*
 
 table.insert
         {
@@ -846,6 +848,8 @@ td.insert-value
         
         padding: 0.5em;
         }
+
+*/
 
 /*** view, edit, insert details **************************************************/
 
@@ -966,7 +970,7 @@ table.grid-navi td
 input,textarea,select,.grid-link-select
         {
         padding: 0.5em;
-        margin: 0 0 0 0;
+        margin:  0;
         font: $input-controls-font;
         
         color: $input-field-colors.1;

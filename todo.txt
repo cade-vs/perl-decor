@@ -1,13 +1,9 @@
 
--- password change table/method (with SALT!)
-
--- PASS fields with SALT support!
+-- password encryption between web and core
 
 -- record parallel update guard
 
 -- avoid INTERNAL ERROR in web when all table fields are forbidden and is empty list
-
--- return uniq references for core app server errors
 
 -- return "<#e_something>" with arguments!
 
@@ -39,10 +35,11 @@
 
 -- select which columns to be displayed on filter
 
--- export grid as comma separated data
-
-
+-- auto-hide, non-important grid columns on small devices
 
 -- index.cgi da moje da setva stype, css, vmesto da e nujno da se kopira header_css.html
 
--- check Net::Client.pm call options kyes!
+-- check Net::Client.pm call options keys!
+
+
+-- file_dn.pm web action to have CFG option for /tmp/ dir

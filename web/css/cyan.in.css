@@ -12,19 +12,26 @@
 
 /*$* DECOR SYSTEM DEFAULT CSS, CONFIG SECTION, DO NOT MODIFY STRUCTURE! *****/
 
+$body-font                    normal 11pt rubik, sans-serif
+$footer-font                  prime
+$main-menu-font               bold 1.5em oswald
+$view-edit-headers-font       bold 1.2em oswald
+$input-controls-font          1.1em rubik 
+$buttons-font                 bold 1.0em rubik, sans-serif
+
 /*$                     fg    bg    bg-image */
-$body-colors            #EEE  #222  main-background.png  
+$body-colors            #EEE  #001D25  cyan-background.png  
 $body-colors-print      #000  #FFF
 
 /*$                      fg    decoration  fg-hi  decor-hi fg-focus decor-focus */ 
 $link-colors             aqua  teal        aqua   aqua     #CCC     #555
 
-/*$                      fg    bg    border fg-hi bg-hi  border-hi */
-$action-item             #FFF  #448  #66A   #FFF  #66A   #88C
-$action-item-act         #FFF  #262  #494  #FFF   #494   #6A6
-$action-item-nav         #FFF  #159  #37A  #FFF   #37A   #59C
-$action-item-mod         #FFF  #822  #B55  #FFF   #B55   #D77
-$action-item-disabled    #CCC  #555  #777  #CCC   #555   #777
+/*$                      fg    bg       border     fg-hi bg-hi      border-hi */
+$action-item             #FFF  #004464  #004464+2  #FFF  #004464+1  #004464+4
+$action-item-act         #FFF  #F8572A  #F8572A+2  #FFF  #F8572A+1  #F8572A+4
+$action-item-nav         $action-item
+$action-item-mod         #FFF  #880B00  #880B00+2  #FFF  #880B00+1  #880B00+4
+$action-item-disabled    #CCC  #555     #777       #CCC  #555       #777
 
 /*$                      fg    bg    border fg-hi bg-hi  border-hi */
 $icon-colors             $action-item
@@ -65,13 +72,13 @@ $warning-colors  #FFF  #822  #633
 $hi-color #FFF
 
 /*$             fg    bg    border-color  */
-$footer-colors  #AAA  #444  #777
+$logo-colors    #CCC  #002B3A  #007886
 
 /*$             fg    bg    border-color  */
-$logo-colors    #CCC  #446  #66A
+$footer-colors  $logo-colors
 
 /*$           fg    bg    fg-hi  bg-hi  border */
-$menu-colors  #CCC  #224  #FFF   #335   #445
+$menu-colors  #CCC  #002B3A  #FFF   #224D5C   #007886
 
 /*$                  fg    bg    border  inside-border */
 $view-data-colors    #EEE  #333  #555    #444

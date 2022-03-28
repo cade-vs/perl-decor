@@ -8,7 +8,7 @@
 ##
 ############################################################################*/
 
-/* THIS FILE IS GENERATED! PLEASE, DO NOT MODIFY! -- GENERATED AT Wed Mar 16 00:46:17 2022 */
+/* THIS FILE IS GENERATED! PLEASE, DO NOT MODIFY! -- GENERATED AT Tue Mar 29 02:56:32 2022 */
 
 
 
@@ -121,10 +121,10 @@ body
         height: 100%;
 
         color:            #EEE;
-        background-color: #222;
-        background-image: url( "main-background.png" );
+        background-color: #001D25;
+        background-image: url( "cyan-background.png" );
 
-        font: ;
+        font: normal 11pt rubik, sans-serif;
         }
 
 .fill
@@ -155,14 +155,14 @@ td.main_body
 
 td.main_footer
         {
-        color:                #AAA;
-        background-color:     #444;
-        border-top: solid 1px #777;
+        color:                #CCC;
+        background-color:     #002B3A;
+        border-top: solid 1px #007886;
         width:  100%;
         height: 100%;
         vertical-align: top;
         padding: 4px;
-        font: ;
+        font: prime;
         }
 
 
@@ -217,6 +217,7 @@ a:focus
 a.plain
         {
         border: none;
+        text-decoration: none;
         }
 
 img
@@ -236,14 +237,14 @@ img
         margin: 1px 1px 1px 1px;
 
         color:            #FFF;
-        background-color: #448;
-        border: solid 2px #66A;
+        background-color: #004464;
+        border: solid 2px #226686;
         }
 .icon:hover
         {
         color:            #FFF;
-        background-color: #66A;
-        border: solid 2px #88C;
+        background-color: #115575;
+        border: solid 2px #4488A8;
         }
 
 .icon-clear
@@ -273,29 +274,29 @@ img
 .act-icon
         {
         color:            #FFF;
-        background-color: #262;
-        border: solid 2px #494;
+        background-color: #F8572A;
+        border: solid 2px #FA794C;
         }
 
 .act-icon:hover
         {
         color:            #FFF;
-        background-color: #494;
-        border: solid 2px #6A6;
+        background-color: #F9683B;
+        border: solid 2px #FC9B6E;
         }
 
 .mod-icon
         {
         color:            #FFF;
-        background-color: #822;
-        border: solid 2px #B55;
+        background-color: #880B00;
+        border: solid 2px #AA2D22;
         }
 
 .mod-icon:hover
         {
         color:            #FFF;
-        background-color: #822;
-        border: solid 2px #B55;
+        background-color: #880B00;
+        border: solid 2px #AA2D22;
         }
 
 .icon-disabled
@@ -431,8 +432,8 @@ table
 table.logo
         {
         color:                   #CCC;
-        background-color:        #446;
-        border-bottom: solid 1px #66A;
+        background-color:        #002B3A;
+        border-bottom: solid 1px #007886;
         
         vertical-align: middle;
         padding: 0.1em;
@@ -449,20 +450,20 @@ a.logo
 table.main-menu
         {
         color: #CCC;
-        background-color: #224;
-        border-bottom: solid 1px #445;
+        background-color: #002B3A;
+        border-bottom: solid 1px #007886;
 
         vertical-align: middle;
         white-space: nowrap;
         cursor: pointer;
 
-        font: ;
+        font: bold 1.5em oswald;
         width:  100%;
         }
 
 td.main-menu
         {
-        border-right: solid 1px #445;
+        border-right: solid 1px #007886;
 
         width:  1%;
         padding: 0.1em;
@@ -470,12 +471,12 @@ td.main-menu
 
 td.main-menu:hover
         {
-        background-color: #335;
+        background-color: #224D5C;
         }
 
 td.main-menu-fill
         {
-        border-right: solid 1px #445;
+        border-right: solid 1px #007886;
 
         width:  100%;
         padding: 0;
@@ -506,8 +507,8 @@ a.main-menu:hover
 table.menu
         {
         color:                #CCC;
-        background-color:     #224;
-        border-top: solid 1px #445;
+        background-color:     #002B3A;
+        border-top: solid 1px #007886;
 
         vertical-align: middle;
         white-space: nowrap;
@@ -515,15 +516,15 @@ table.menu
 
         width: 80%;
         max-width: 700px;
-        font: ;
+        font: bold 1.5em oswald;
         }
 
 td.menu
         {
         width:  1%;
-        border-bottom: solid 1px #445;
-        border-left:   solid 1px #445;
-        border-right:  solid 1px #445;
+        border-bottom: solid 1px #007886;
+        border-left:   solid 1px #007886;
+        border-right:  solid 1px #007886;
 
         padding: 0.3em;
         white-space: nowrap;
@@ -537,7 +538,7 @@ td.menu
 
 td.menu:hover
         {
-        background-color: #335;
+        background-color: #224D5C;
         }
 
 a.menu
@@ -554,7 +555,7 @@ a.menu
 a.menu:hover
         {
         color:            #FFF;
-        background-color: #335;
+        background-color: #224D5C;
 
         text-decoration: none;
         border: none;
@@ -574,8 +575,8 @@ table.menu
 tr.ps-path
         {
         color:                   #CCC;
-        background-color:        #224;
-        border-bottom: solid 1px #445;
+        background-color:        #002B3A;
+        border-bottom: solid 1px #007886;
         
         font-weight: bold;
         vertical-align: middle;
@@ -606,7 +607,6 @@ div.record-field-value
         flex-flow: row;
         width: 100%;
         
-        padding: 0.3em;
         }
 
 div.record-sep
@@ -625,6 +625,7 @@ div.record-field
         border-top: solid 1px #444;
         border-right:  solid 1px #444;
         padding: 0.5em;
+        padding-right: 1em;
         }
 
 div.record-value
@@ -634,7 +635,8 @@ div.record-value
 
         border-top: solid 1px #444;
         
-        padding: 0.5em;
+        padding: 0.3em;
+        padding-left: 1em;
         }
 
 div.record-first
@@ -704,7 +706,7 @@ div.view-sep
         border: solid 1px #37A;
 
         padding: 0.2em;
-        font: ;
+        font: bold 1.2em oswald;
         }
 
 /* flex */
@@ -741,7 +743,7 @@ div.view-header
         width: 100%;
 
         padding: 0.2em;
-        font: ;
+        font: bold 1.2em oswald;
         }
 
 div.view-field
@@ -808,9 +810,12 @@ div.view-value
         padding-left: 4em;
         }
 }
+
 */
 
 /*** edit *******************************************************************/
+
+/*
 
 table.edit
         {
@@ -831,7 +836,7 @@ td.edit-header
         border: solid 1px #A44;
 
         padding: 0.2em;
-        font: ;
+        font: bold 1.2em oswald;
         }
 
 td.edit-field
@@ -842,14 +847,11 @@ td.edit-field
         padding: 0.5em;
         }
 
-td.edit-value
-        {
-        border-bottom: solid 1px #444;
-        
-        padding: 0.5em;
-        }
+*/
 
 /*** insert *******************************************************************/
+
+/*
 
 table.insert
         {
@@ -870,7 +872,7 @@ td.insert-header
         border: solid 1px #484;
 
         padding: 0.2em;
-        font: ;
+        font: bold 1.2em oswald;
         }
 
 td.insert-field
@@ -887,6 +889,8 @@ td.insert-value
         
         padding: 0.5em;
         }
+
+*/
 
 /*** view, edit, insert details **************************************************/
 
@@ -1007,8 +1011,8 @@ table.grid-navi td
 input,textarea,select,.grid-link-select
         {
         padding: 0.5em;
-        margin: 0 0 0 0;
-        font: ;
+        margin:  0;
+        font: 1.1em rubik;
         
         color: #CCC;
         background-color: #222;
@@ -1041,24 +1045,24 @@ select,.grid-link-select
 .grid-link-select-option
         {
         color: #CCC;
-        background-color: #224;
+        background-color: #002B3A;
 
         cursor: pointer;
         display: block;
         width: 100%;
         padding: 0.3em;
         border: none;
-        border-bottom: solid 1px #445;
+        border-bottom: solid 1px #007886;
         }
 
 .grid-link-select-option:hover
         {
         color: #FFF;
-        background-color: #335;
+        background-color: #224D5C;
 
         padding: 0.3em;
         border: none;
-        border-bottom: solid 1px #445;
+        border-bottom: solid 1px #007886;
         }
 
 /*** buttons ****************************************************************/
@@ -1073,18 +1077,18 @@ select,.grid-link-select
         margin:  0.3em;
 
         white-space: nowrap;
-        font: ;
+        font: bold 1.0em rubik, sans-serif;
         
         color:            #FFF;
-        background-color: #448;
-        border: solid 2px #66A;
+        background-color: #004464;
+        border: solid 2px #226686;
         }
 
 .button:hover
         {
         color:            #FFF;
-        background-color: #66A;
-        border: solid 2px #88C;
+        background-color: #115575;
+        border: solid 2px #4488A8;
         }
 
 .button:focus
@@ -1097,43 +1101,43 @@ select,.grid-link-select
 .act-button
         {
         color:            #FFF;
-        background-color: #262;
-        border: solid 2px #494;
+        background-color: #F8572A;
+        border: solid 2px #FA794C;
         }
 
 .act-button:hover
         {
         color:            #FFF;
-        background-color: #494;
-        border: solid 2px #6A6;
+        background-color: #F9683B;
+        border: solid 2px #FC9B6E;
         }
 
 .nav-button
         {
         color:            #FFF;
-        background-color: #159;
-        border: solid 2px #37A;
+        background-color: #004464;
+        border: solid 2px #226686;
         }
 
 .nav-button:hover
         {
         color:            #FFF;
-        background-color: #37A;
-        border: solid 2px #59C;
+        background-color: #115575;
+        border: solid 2px #4488A8;
         }
 
 .mod-button
         {
         color:            #FFF;
-        background-color: #822;
-        border: solid 2px #B55;
+        background-color: #880B00;
+        border: solid 2px #AA2D22;
         }
 
 .mod-button:hover
         {
         color:            #FFF;
-        background-color: #B55;
-        border: solid 2px #D77;
+        background-color: #991C11;
+        border: solid 2px #CC4F44;
         }
 
 .disabled-button
@@ -1170,8 +1174,8 @@ div.hover-layer
 div.popup-layer
         {
         color:            #CCC;
-        background-color: #224;
-        border: solid 1px #445;
+        background-color: #002B3A;
+        border: solid 1px #007886;
 
         white-space: nowrap;
         padding: 0.5em;
@@ -1220,43 +1224,43 @@ img.check-unknown:hover
 img.check-gr
         {
         color:            #FFF;
-        background-color: #448;
-        border: solid 2px #66A;
+        background-color: #004464;
+        border: solid 2px #226686;
         }
 
 img.check-gr:hover
         {
         color:            #FFF;
-        background-color: #66A;
-        border: solid 2px #88C;
+        background-color: #115575;
+        border: solid 2px #4488A8;
         }
 
 img.check-0
         {
         color:            #FFF;
-        background-color: #822;
-        border: solid 2px #B55;
+        background-color: #880B00;
+        border: solid 2px #AA2D22;
         }
 
 img.check-0:hover
         {
         color:            #FFF;
-        background-color: #B55;
-        border: solid 2px #D77;
+        background-color: #991C11;
+        border: solid 2px #CC4F44;
         }
 
 img.check-1
         {
         color:            #FFF;
-        background-color: #262;
-        border: solid 2px #494;
+        background-color: #F8572A;
+        border: solid 2px #FA794C;
         }
 
 img.check-1:hover
         {
         color:            #FFF;
-        background-color: #494;
-        border: solid 2px #6A6;
+        background-color: #F9683B;
+        border: solid 2px #FC9B6E;
         }
 
 /*** other ******************************************************************/
@@ -1313,5 +1317,16 @@ div.map
         }
 
 /*** DECOR STATIC/SYSTEM SECTION EOF*****************************************/
+
+input, textarea, select, div.link_data
+  {
+  font-size: 1.1em;
+  }
+
+p.vert
+  {
+  height: 100%;
+  vertical-align: middle;
+  }
 
 /*** DECOR EOF **************************************************************/
