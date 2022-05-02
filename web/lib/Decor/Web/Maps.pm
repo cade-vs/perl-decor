@@ -148,6 +148,8 @@ $text .= <<END_OF_HTML;
    </td>
 </tr>
 END_OF_HTML
+
+$text .= $location_form->end();
 }
 
 my $map_td_colspan = $allow_nav ? 4 : 1;

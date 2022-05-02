@@ -8,8 +8,7 @@
 ##
 ############################################################################*/
 
-/* THIS FILE IS GENERATED! PLEASE, DO NOT MODIFY! -- GENERATED AT Tue Mar 29 02:56:32 2022 */
-
+/* THIS FILE IS GENERATED! PLEASE, DO NOT MODIFY! -- GENERATED AT Sat Apr  9 12:34:30 2022 */
 
 
 
@@ -121,10 +120,10 @@ body
         height: 100%;
 
         color:            #EEE;
-        background-color: #001D25;
-        background-image: url( "cyan-background.png" );
+        background-color: #222;
+        background-image: url( "main-background.png" );
 
-        font: normal 11pt rubik, sans-serif;
+        font: ;
         }
 
 .fill
@@ -155,14 +154,14 @@ td.main_body
 
 td.main_footer
         {
-        color:                #CCC;
-        background-color:     #002B3A;
-        border-top: solid 1px #007886;
+        color:                #AAA;
+        background-color:     #444;
+        border-top: solid 1px #777;
         width:  100%;
         height: 100%;
         vertical-align: top;
         padding: 4px;
-        font: prime;
+        font: ;
         }
 
 
@@ -237,14 +236,14 @@ img
         margin: 1px 1px 1px 1px;
 
         color:            #FFF;
-        background-color: #004464;
-        border: solid 2px #226686;
+        background-color: #448;
+        border: solid 2px #66A;
         }
 .icon:hover
         {
         color:            #FFF;
-        background-color: #115575;
-        border: solid 2px #4488A8;
+        background-color: #66A;
+        border: solid 2px #88C;
         }
 
 .icon-clear
@@ -274,29 +273,29 @@ img
 .act-icon
         {
         color:            #FFF;
-        background-color: #F8572A;
-        border: solid 2px #FA794C;
+        background-color: #262;
+        border: solid 2px #494;
         }
 
 .act-icon:hover
         {
         color:            #FFF;
-        background-color: #F9683B;
-        border: solid 2px #FC9B6E;
+        background-color: #494;
+        border: solid 2px #6A6;
         }
 
 .mod-icon
         {
         color:            #FFF;
-        background-color: #880B00;
-        border: solid 2px #AA2D22;
+        background-color: #822;
+        border: solid 2px #B55;
         }
 
 .mod-icon:hover
         {
         color:            #FFF;
-        background-color: #880B00;
-        border: solid 2px #AA2D22;
+        background-color: #822;
+        border: solid 2px #B55;
         }
 
 .icon-disabled
@@ -432,8 +431,8 @@ table
 table.logo
         {
         color:                   #CCC;
-        background-color:        #002B3A;
-        border-bottom: solid 1px #007886;
+        background-color:        #446;
+        border-bottom: solid 1px #66A;
         
         vertical-align: middle;
         padding: 0.1em;
@@ -450,20 +449,20 @@ a.logo
 table.main-menu
         {
         color: #CCC;
-        background-color: #002B3A;
-        border-bottom: solid 1px #007886;
+        background-color: #224;
+        border-bottom: solid 1px #445;
 
         vertical-align: middle;
         white-space: nowrap;
         cursor: pointer;
 
-        font: bold 1.5em oswald;
+        font: ;
         width:  100%;
         }
 
 td.main-menu
         {
-        border-right: solid 1px #007886;
+        border-right: solid 1px #445;
 
         width:  1%;
         padding: 0.1em;
@@ -471,12 +470,12 @@ td.main-menu
 
 td.main-menu:hover
         {
-        background-color: #224D5C;
+        background-color: #335;
         }
 
 td.main-menu-fill
         {
-        border-right: solid 1px #007886;
+        border-right: solid 1px #445;
 
         width:  100%;
         padding: 0;
@@ -507,8 +506,8 @@ a.main-menu:hover
 table.menu
         {
         color:                #CCC;
-        background-color:     #002B3A;
-        border-top: solid 1px #007886;
+        background-color:     #224;
+        border-top: solid 1px #445;
 
         vertical-align: middle;
         white-space: nowrap;
@@ -516,15 +515,15 @@ table.menu
 
         width: 80%;
         max-width: 700px;
-        font: bold 1.5em oswald;
+        font: ;
         }
 
 td.menu
         {
         width:  1%;
-        border-bottom: solid 1px #007886;
-        border-left:   solid 1px #007886;
-        border-right:  solid 1px #007886;
+        border-bottom: solid 1px #445;
+        border-left:   solid 1px #445;
+        border-right:  solid 1px #445;
 
         padding: 0.3em;
         white-space: nowrap;
@@ -538,7 +537,7 @@ td.menu
 
 td.menu:hover
         {
-        background-color: #224D5C;
+        background-color: #335;
         }
 
 a.menu
@@ -555,7 +554,7 @@ a.menu
 a.menu:hover
         {
         color:            #FFF;
-        background-color: #224D5C;
+        background-color: #335;
 
         text-decoration: none;
         border: none;
@@ -575,8 +574,8 @@ table.menu
 tr.ps-path
         {
         color:                   #CCC;
-        background-color:        #002B3A;
-        border-bottom: solid 1px #007886;
+        background-color:        #224;
+        border-bottom: solid 1px #445;
         
         font-weight: bold;
         vertical-align: middle;
@@ -706,7 +705,7 @@ div.view-sep
         border: solid 1px #37A;
 
         padding: 0.2em;
-        font: bold 1.2em oswald;
+        font: ;
         }
 
 /* flex */
@@ -743,7 +742,7 @@ div.view-header
         width: 100%;
 
         padding: 0.2em;
-        font: bold 1.2em oswald;
+        font: ;
         }
 
 div.view-field
@@ -836,7 +835,7 @@ td.edit-header
         border: solid 1px #A44;
 
         padding: 0.2em;
-        font: bold 1.2em oswald;
+        font: ;
         }
 
 td.edit-field
@@ -872,7 +871,7 @@ td.insert-header
         border: solid 1px #484;
 
         padding: 0.2em;
-        font: bold 1.2em oswald;
+        font: ;
         }
 
 td.insert-field
@@ -1012,7 +1011,7 @@ input,textarea,select,.grid-link-select
         {
         padding: 0.5em;
         margin:  0;
-        font: 1.1em rubik;
+        font: ;
         
         color: #CCC;
         background-color: #222;
@@ -1045,24 +1044,24 @@ select,.grid-link-select
 .grid-link-select-option
         {
         color: #CCC;
-        background-color: #002B3A;
+        background-color: #224;
 
         cursor: pointer;
         display: block;
         width: 100%;
         padding: 0.3em;
         border: none;
-        border-bottom: solid 1px #007886;
+        border-bottom: solid 1px #445;
         }
 
 .grid-link-select-option:hover
         {
         color: #FFF;
-        background-color: #224D5C;
+        background-color: #335;
 
         padding: 0.3em;
         border: none;
-        border-bottom: solid 1px #007886;
+        border-bottom: solid 1px #445;
         }
 
 /*** buttons ****************************************************************/
@@ -1077,18 +1076,18 @@ select,.grid-link-select
         margin:  0.3em;
 
         white-space: nowrap;
-        font: bold 1.0em rubik, sans-serif;
+        font: ;
         
         color:            #FFF;
-        background-color: #004464;
-        border: solid 2px #226686;
+        background-color: #448;
+        border: solid 2px #66A;
         }
 
 .button:hover
         {
         color:            #FFF;
-        background-color: #115575;
-        border: solid 2px #4488A8;
+        background-color: #66A;
+        border: solid 2px #88C;
         }
 
 .button:focus
@@ -1101,43 +1100,43 @@ select,.grid-link-select
 .act-button
         {
         color:            #FFF;
-        background-color: #F8572A;
-        border: solid 2px #FA794C;
+        background-color: #262;
+        border: solid 2px #494;
         }
 
 .act-button:hover
         {
         color:            #FFF;
-        background-color: #F9683B;
-        border: solid 2px #FC9B6E;
+        background-color: #494;
+        border: solid 2px #6A6;
         }
 
 .nav-button
         {
         color:            #FFF;
-        background-color: #004464;
-        border: solid 2px #226686;
+        background-color: #159;
+        border: solid 2px #37A;
         }
 
 .nav-button:hover
         {
         color:            #FFF;
-        background-color: #115575;
-        border: solid 2px #4488A8;
+        background-color: #37A;
+        border: solid 2px #59C;
         }
 
 .mod-button
         {
         color:            #FFF;
-        background-color: #880B00;
-        border: solid 2px #AA2D22;
+        background-color: #822;
+        border: solid 2px #B55;
         }
 
 .mod-button:hover
         {
         color:            #FFF;
-        background-color: #991C11;
-        border: solid 2px #CC4F44;
+        background-color: #B55;
+        border: solid 2px #D77;
         }
 
 .disabled-button
@@ -1174,8 +1173,8 @@ div.hover-layer
 div.popup-layer
         {
         color:            #CCC;
-        background-color: #002B3A;
-        border: solid 1px #007886;
+        background-color: #224;
+        border: solid 1px #445;
 
         white-space: nowrap;
         padding: 0.5em;
@@ -1224,43 +1223,43 @@ img.check-unknown:hover
 img.check-gr
         {
         color:            #FFF;
-        background-color: #004464;
-        border: solid 2px #226686;
+        background-color: #448;
+        border: solid 2px #66A;
         }
 
 img.check-gr:hover
         {
         color:            #FFF;
-        background-color: #115575;
-        border: solid 2px #4488A8;
+        background-color: #66A;
+        border: solid 2px #88C;
         }
 
 img.check-0
         {
         color:            #FFF;
-        background-color: #880B00;
-        border: solid 2px #AA2D22;
+        background-color: #822;
+        border: solid 2px #B55;
         }
 
 img.check-0:hover
         {
         color:            #FFF;
-        background-color: #991C11;
-        border: solid 2px #CC4F44;
+        background-color: #B55;
+        border: solid 2px #D77;
         }
 
 img.check-1
         {
         color:            #FFF;
-        background-color: #F8572A;
-        border: solid 2px #FA794C;
+        background-color: #262;
+        border: solid 2px #494;
         }
 
 img.check-1:hover
         {
         color:            #FFF;
-        background-color: #F9683B;
-        border: solid 2px #FC9B6E;
+        background-color: #494;
+        border: solid 2px #6A6;
         }
 
 /*** other ******************************************************************/
