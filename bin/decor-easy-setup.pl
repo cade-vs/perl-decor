@@ -38,7 +38,7 @@ for my $pmod ( qw( perl-web-reactor perl-data-tools perl-exception-sink js-vfram
   {
   print "\n\nUPDATING GIT REPO: $pmod...\n\n";
   
-  system( "git clone git://github.com/cade-vs/$pmod.git"    ) unless -d $pmod;
+  system( "git clone https://github.com/cade-vs/$pmod.git"    ) unless -d $pmod;
   chdir( $pmod );
   system( "git checkout master" );
   system( "git pull origin master" );

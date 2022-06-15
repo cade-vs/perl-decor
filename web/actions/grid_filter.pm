@@ -330,12 +330,15 @@ sub main
         }
 
       my $fmt_class;
-      if( $bfdes->get_attr( 'WEB', 'EDIT', 'MONO' ) )
+      if( $bfdes->get_attr( qw( WEB EDIT MONO ) ) )
         {
         $fmt_class .= " fmt-mono";
         }
 
-      $field_input = $filter_form->combo( NAME => "F:$field", CLASS => $fmt_class, DATA => $combo_data, SELECTED => $sel_hr );
+      my $multi = 1 || $bfdes->get_attr( qw( WEB FILTER MULTI ) );
+      my $rows = $multi ? 5 : 1;
+
+      $field_input = $multi . $filter_form->combo( NAME => "F:$field", CLASS => $fmt_class, DATA => $combo_data, ROWS => $rows, SELECTED => $sel_hr, MULTIPLE => $multi );
       }
     elsif( $bfdes->is_backlinked() )
       {

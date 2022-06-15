@@ -26,6 +26,7 @@ grant all
   label Тип обучение
   type  link  test2 name
   web.grid.editable
+  web.filter.multi
 
 =DIS
 
