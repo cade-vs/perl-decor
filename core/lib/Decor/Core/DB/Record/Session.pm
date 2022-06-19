@@ -1,8 +1,8 @@
 ##############################################################################
 ##
 ##  Decor application machinery core
-##  2014-2017 (c) Vladi Belperchinov-Shabanski "Cade"
-##  <cade@bis.bg> <cade@biscom.net> <cade@cpan.org>
+##  2014-2021 (c) Vladi Belperchinov-Shabanski "Cade"
+##  <cade@noxrun.com> <cade@bis.bg> <cade@cpan.org>
 ##
 ##  LICENSE: GPLv2
 ##
@@ -15,7 +15,7 @@ use Exception::Sink;
 
 use parent 'Decor::Core::DB::Record';
 
-### DE_USERS api interface ###################################################
+### DE_SESSION api interface #################################################
 
 sub is_active
 {

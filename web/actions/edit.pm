@@ -145,6 +145,7 @@ sub main
   my $fields = join ',', @$fields_ar;
 
   my %ui_si = ( %$ui, %$si ); # merge inputs, SAFE_INPUT has priority
+
   # input data
   for my $field ( @$fields_ar )
     {
@@ -153,6 +154,25 @@ sub main
 
     my $fdes       = $tdes->{ 'FIELD' }{ $field };
     my $type       = $fdes->{ 'TYPE'  };
+    my $type_name  = $fdes->{ 'TYPE'  }{  'NAME' };
+    my $type_lname = $fdes->{ 'TYPE'  }{ 'LNAME' };
+
+    if( $type_name eq 'LINK' and $type_lname eq 'FILE' )
+      {
+      my $upload = $ui_si{ "F:$field:UPLOADS" } || [];
+      next unless @$upload;
+      $upload = shift @$upload;
+
+      my ( $linked_table, $linked_field ) = $fdes->link_details();
+
+      my $upload_fn = file_name_ext( $upload->{ 'filename' } );
+      my $mime      = $upload->{ 'headers' }{ 'content-type' };
+  
+      my $new_id    = $core->file_save( $upload->{ 'tempname' }, $linked_table, $upload_fn, undef, { MIME => $mime } );
+
+      $ps->{ 'ROW_DATA' }{ $field } = $new_id;
+      next;
+      }
 
     my $raw_input_data = type_revert( $input_data, $type );
 
@@ -281,8 +301,8 @@ sub main
     my $fdes       = $tdes->{ 'FIELD' }{ $field };
     my $bfdes      = $fdes; # keep sync code with view/preview/grid, bfdes is begin/origin-field
     my $type       = $fdes->{ 'TYPE'  };
-    my $type_name  = $fdes->{ 'TYPE'  }{ 'NAME' };
-    my $type_lname = $fdes->{ 'TYPE' }{ 'LNAME' };
+    my $type_name  = $fdes->{ 'TYPE'  }{  'NAME' };
+    my $type_lname = $fdes->{ 'TYPE'  }{ 'LNAME' };
     my $label      = $fdes->{ 'LABEL' } || $field;
     my $flen       = $type->{ 'LEN' };
 
@@ -349,6 +369,26 @@ sub main
         {
         $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "map_location.svg", "[~Select map location]", ACTION => 'map_location', RETURN_DATA_TO => $field, LL => $field_data );
         }
+      }
+    elsif( $type_name eq 'LINK' and $type_lname eq 'FILE' )
+      {
+      $field_input = undef;
+
+      if( $field_data > 0 )
+        {
+        my ( $linked_table, $linked_field ) = $fdes->link_details();
+        my $ltdes = $core->describe( $linked_table );
+        my $file_name = $core->read_field( $linked_table, 'NAME', $field_data );
+        $field_input .= $file_name;
+        $field_input .= "<br><br>";
+
+        $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "file_dn.svg", "[~Download current file]",           ACTION => 'file_dn', TABLE => $linked_table, ID => $field_data ) if $ltdes->allows( 'READ' );
+        }
+
+      $field_input .= "[~Upload new file:] " . $edit_form->file_upload(
+                                         NAME     => "F:$field",
+                                         ID       => $field_id,
+                                         );
       }
     elsif( $type_name eq 'LINK' )
       {

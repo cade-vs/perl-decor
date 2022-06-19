@@ -67,6 +67,7 @@ our %DE_LTYPE_NAMES = (
                       'LOCATION' => [ 'CHAR', 128 ],
                       'EMAIL'    => [ 'CHAR', 128 ],
                       'PHONE'    => [ 'CHAR',  64 ],
+                      'FILE'     => [ 'LINK', 'DE_FILES', 'NAME' ],
                     );
 dlock %DE_TYPE_NAMES;
 

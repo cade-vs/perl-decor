@@ -146,6 +146,7 @@ my %DES_ATTRS = (
                            VIEW_CUE    => 3,
                            INSERT_CUE  => 3, # related "INSERT NEW" button label
                            UPDATE_CUE  => 3, # related "UPDATE" button label
+                           UPLOAD_CUE  => 3, # related "UPLOAD" button label
                            DELETE_CUE  => 3, # related "DELETE" button label
                            COPY_CUE    => 3, # related "DELETE" button label
                            
@@ -710,6 +711,14 @@ sub __postprocess_table_raw_description
     
     $fld_des->{ 'TABLE' } = $table;
 
+    # "logic" types: LOCATION, EMAIL, etc.
+    if( exists $DE_LTYPE_NAMES{ $type } )
+      {
+      $type_des->{ 'LNAME' } = $type;
+      @type = ( @{ $DE_LTYPE_NAMES{ $type } } );
+      $type = shift @type;
+      }
+
     # "high" level types
     if( $type eq 'LINK' )
       {
@@ -741,6 +750,7 @@ sub __postprocess_table_raw_description
       $type = 'INT';
       @type = qw( 1 ); # length
       }
+=pod
     elsif( $type eq 'FILE' )
       {
       $fld_des->{ 'LINKED_TABLE' } = 'DE_FILES';
@@ -748,15 +758,8 @@ sub __postprocess_table_raw_description
 
       $type = 'LINK';
       }
+=cut
 
-    # "logic" types: LOCATION, EMAIL, etc.
-    if( exists $DE_LTYPE_NAMES{ $type } )
-      {
-      $type_des->{ 'LNAME' } = $type;
-      @type = ( @{ $DE_LTYPE_NAMES{ $type } } );
-      $type = shift @type;
-      }
-      
     boom "invalid FIELD TYPE [$type] in table [$table] field [$field] from [@debug_origin]" unless exists $DE_TYPE_NAMES{ $type };
 
     $type_des->{ 'NAME' } = $type;

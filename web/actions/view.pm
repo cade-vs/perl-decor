@@ -32,6 +32,8 @@ sub main
   my $table  = $reo->param( 'TABLE' );
   my $id     = $reo->param( 'ID'    );
 
+  my $ui = $reo->get_user_input();
+
   my $ps = $reo->get_page_session();
 
   my $core = $reo->de_connect();
@@ -56,6 +58,16 @@ sub main
   my @fields = @{ $tdes->get_fields_list_by_oper( 'READ' ) };
 
   return "<#access_denied>" unless @fields;
+
+  if( $ui->{ "UPLOAD_FILE" } )
+    {
+    my $upload = $ui->{ "UPLOAD_FILE:UPLOAD" };
+
+    my $upload_fn = file_name_ext( $upload->{ 'filename' } );
+    my $mime      = $upload->{ 'headers' }{ 'content-type' };
+
+    my $new_id    = $core->file_save( $upload->{ 'tempname' }, $table, $upload_fn, $id, { MIME => $mime } );
+    }
 
 #  push @fields, 'USR.ACTIVE';
 
@@ -408,8 +420,17 @@ sub main
     my $download_cue = $sdes->get_attr( qw( WEB GRID DOWNLOAD_CUE ) ) || '[~Download file]';
     $text .= de_html_alink_button( $reo, 'new', "(&darr;) $download_cue", undef,   BTYPE => 'act', ACTION => 'file_dn',     TABLE => $table, ID => $id,                  );
   
-    my $upload_cue = $sdes->get_attr( qw( WEB GRID UPLOAD_CUE ) ) || "[~Re-Upload file]";
-    $text .= de_html_alink_button( $reo, 'new', "(&uarr;) $upload_cue", '[~Replace current file with new one]',   BTYPE => 'act', ACTION => 'file_up',     TABLE => $table, ID => $id,                  ) if $tdes->allows( 'INSERT' ) and $table_type eq 'FILE';
+    if( $tdes->allows( 'UPDATE' ) )
+      {
+      my $upload_cue = $sdes->get_attr( qw( WEB GRID UPLOAD_CUE ) ) || "[~Re-Upload file]";
+      #$text .= de_html_alink_button( $reo, 'new', "(&uarr;) $upload_cue", '[~Replace current file with new one]',   BTYPE => 'act', ACTION => 'file_up', TABLE => $table, ID => $id, );
+
+      my $up_form = new Web::Reactor::HTML::Form( REO_REACTOR => $reo );
+      $text .= $up_form->begin( NAME => "form_up_$table" );
+      $text .= $up_form->file_upload( NAME     => "UPLOAD_FILE", ID => "upload_file_input", ARGS => qq{ onChange="this.form.submit();" style="display: none" } );
+      $text .= $up_form->button( NAME => "UPLOAD_FILE_OK", VALUE => $upload_cue, CLASS => "button mod-button", ARGS => qq{ onClick='document.getElementById("upload_file_input").click();return false;'} );
+      $text .= $up_form->end();
+      }
     }
   
   for my $do ( @{ $tdes->get_category_list_by_oper( 'EXECUTE', 'DO' ) }  )

@@ -1,4 +1,6 @@
 
+    label Files
+
     type file
 
     @isa _DE_FILES *

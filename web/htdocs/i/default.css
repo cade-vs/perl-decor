@@ -8,7 +8,7 @@
 ##
 ############################################################################*/
 
-/* THIS FILE IS GENERATED! PLEASE, DO NOT MODIFY! -- GENERATED AT Tue Jun  7 17:25:47 2022 */
+/* THIS FILE IS GENERATED! PLEASE, DO NOT MODIFY! -- GENERATED AT Sun Jun 19 19:18:04 2022 */
 
 
 
@@ -29,9 +29,6 @@
 
 
 
-
-
-                           
 
 
 
@@ -122,9 +119,9 @@ body
         margin: 0;
         height: 100%;
 
-        color:            #000;
-        background-color: #EEE;
-        background-image: url( "" );
+        color:            #EEE;
+        background-color: #222;
+        background-image: url( "main-background.png" );
 
         font: ;
         }
@@ -157,8 +154,8 @@ td.main_body
 
 td.main_footer
         {
-        color:                #000;
-        background-color:     #FFF;
+        color:                #AAA;
+        background-color:     #444;
         border-top: solid 1px #777;
         width:  100%;
         height: 100%;
@@ -198,22 +195,22 @@ div#div_for_screen
 
 a       
         {
-        color: #555;
-        border-bottom: dotted 1px #222;
+        color: aqua;
+        border-bottom: dotted 1px teal;
 
         text-decoration: none;
         }
 
 a:hover 
         {
-        color: #000;
-        border-bottom: solid 1px #000;
+        color: aqua;
+        border-bottom: solid 1px aqua;
         }
 
 a:focus
         {
-        color: #F00;
-        border-bottom: solid 1px #0F0;
+        color: #CCC;
+        border-bottom: solid 1px #555;
         }
 
 a.plain
@@ -238,15 +235,15 @@ img
         border-radius: 2px;
         margin: 1px 1px 1px 1px;
 
-        color:            #CC6;
-        background-color: #000;
-        border: solid 2px #000;
+        color:            #FFF;
+        background-color: #448;
+        border: solid 2px #66A;
         }
 .icon:hover
         {
         color:            #FFF;
-        background-color: #000;
-        border: solid 2px #222;
+        background-color: #66A;
+        border: solid 2px #88C;
         }
 
 .icon-clear
@@ -259,7 +256,7 @@ img
         border-radius: 0.7em;
 
         color:            #CCC;
-        background-color: #676;
+        background-color: #222;
         border: solid 2px #999;
         border-width: 1px;
         /* margin-left: -2.2em; */
@@ -275,30 +272,30 @@ img
 
 .act-icon
         {
-        color:            #CC6;
-        background-color: #000;
-        border: solid 2px #000;
+        color:            #FFF;
+        background-color: #262;
+        border: solid 2px #494;
         }
 
 .act-icon:hover
         {
         color:            #FFF;
-        background-color: #000;
-        border: solid 2px #222;
+        background-color: #494;
+        border: solid 2px #6A6;
         }
 
 .mod-icon
         {
-        color:            #CC6;
-        background-color: #000;
-        border: solid 2px #000;
+        color:            #FFF;
+        background-color: #822;
+        border: solid 2px #B55;
         }
 
 .mod-icon:hover
         {
-        color:            #CC6;
-        background-color: #000;
-        border: solid 2px #000;
+        color:            #FFF;
+        background-color: #822;
+        border: solid 2px #B55;
         }
 
 .icon-disabled
@@ -308,16 +305,16 @@ img
         text-decoration: none;
         border-radius: 2px;
 
-        color:            #555;
-        background-color: #9A7;
-        border: solid 2px #555;
+        color:            #CCC;
+        background-color: #555;
+        border: solid 2px #777;
         }
 
 .icon-disabled:hover
         {
-        color:            #555;
-        background-color: #9A7;
-        border: solid 2px #555;
+        color:            #CCC;
+        background-color: #555;
+        border: solid 2px #777;
         }
 
 a.icon
@@ -336,9 +333,9 @@ h1
 div.error-text
         {
         color: #FFF;
-        background-color: #611;
-        border:      solid 1px #611;
-        border-left: solid 4px #611;
+        background-color: #511;
+        border:      solid 1px #933;
+        border-left: solid 3px #933;
 
         width:  80%;
         text-align: center;
@@ -352,7 +349,7 @@ div.info-text
         color: #FFF;
         background-color: #357;
         border:      solid 1px #68A;
-        border-left: solid 4px #68A;
+        border-left: solid 3px #68A;
 
         width:  80%;
         text-align: center;
@@ -363,10 +360,10 @@ div.info-text
 
 div.report-text
         {
-        color: ;
-        background-color: ;
-        border:      solid  ;
-        border-left: solid  ;
+        color: #FFF;
+        background-color: #355;
+        border:      solid 1px #68A;
+        border-left: solid 3px #68A;
 
         width: min-content;
         text-align: left;
@@ -379,10 +376,10 @@ div.link-data
         {
         color: #CCC;
         background-color: #113;
-        border-top:    solid 1px #444;
-        border-left:   solid 1px #444;
-        border-bottom: solid 1px #444;
-        border-right:  solid 1px #444;
+        border-top:    solid 1px #000;
+        border-left:   solid 1px #000;
+        border-bottom: solid 1px #555;
+        border-right:  solid 1px #555;
 
         padding: 0.5em;
         margin: 0 0 0 0;
@@ -390,12 +387,12 @@ div.link-data
 
 div.link-empty
         {
-        color: #000;
-        background-color: #a9775b;
-        border-top:    solid 1px #444;
-        border-left:   solid 1px #444;
-        border-bottom: solid 1px #444;
-        border-right:  solid 1px #444;
+        color: #CCC;
+        background-color: #311;
+        border-top:    solid 1px #000;
+        border-left:   solid 1px #000;
+        border-bottom: solid 1px #555;
+        border-right:  solid 1px #555;
 
         padding: 0.5em;
         margin: 0 0 0 0;
@@ -433,9 +430,9 @@ table
 
 table.logo
         {
-        color:                   #000;
-        background-color:        #FFF;
-        border-bottom: solid 1px #777;
+        color:                   #CCC;
+        background-color:        #446;
+        border-bottom: solid 1px #66A;
         
         vertical-align: middle;
         padding: 0.1em;
@@ -443,7 +440,7 @@ table.logo
 
 a.logo
         {
-        color: #000;
+        color: #CCC;
         text-decoration: none;
         }
 
@@ -451,8 +448,8 @@ a.logo
 
 table.main-menu
         {
-        color: #444;
-        background-color: #DDD;
+        color: #CCC;
+        background-color: #224;
         border-bottom: solid 1px #445;
 
         vertical-align: middle;
@@ -473,7 +470,7 @@ td.main-menu
 
 td.main-menu:hover
         {
-        background-color: #AB8;
+        background-color: #335;
         }
 
 td.main-menu-fill
@@ -487,7 +484,7 @@ td.main-menu-fill
 
 a.main-menu
         {
-        color: #444;
+        color: #CCC;
 
         display: block;
         width:  100%;
@@ -498,7 +495,7 @@ a.main-menu
 
 a.main-menu:hover
         {
-        color: #000;
+        color: #FFF;
 
         text-decoration: none;
         border: none;
@@ -508,8 +505,8 @@ a.main-menu:hover
 
 table.menu
         {
-        color:                #444;
-        background-color:     #DDD;
+        color:                #CCC;
+        background-color:     #224;
         border-top: solid 1px #445;
 
         vertical-align: middle;
@@ -540,12 +537,12 @@ td.menu
 
 td.menu:hover
         {
-        background-color: #AB8;
+        background-color: #335;
         }
 
 a.menu
         {
-        color: #444;
+        color: #CCC;
 
         display: block;
         width:  100%;
@@ -556,8 +553,8 @@ a.menu
 
 a.menu:hover
         {
-        color:            #000;
-        background-color: #AB8;
+        color:            #FFF;
+        background-color: #335;
 
         text-decoration: none;
         border: none;
@@ -576,8 +573,8 @@ table.menu
 
 tr.ps-path
         {
-        color:                   #444;
-        background-color:        #DDD;
+        color:                   #CCC;
+        background-color:        #224;
         border-bottom: solid 1px #445;
         
         font-weight: bold;
@@ -597,9 +594,9 @@ div.record-table
         width:  100%;
         max-width: 1000px;
 
-        color:            #000;
-        background-color: #CB7;
-        border: solid 1px #676;
+        color:            #EEE;
+        background-color: #333;
+        border: solid 1px #555;
         margin: auto;
         }
         
@@ -624,8 +621,8 @@ div.record-field
         
         font-weight: bold;
 
-        border-top: solid 1px #785;
-        border-right:  solid 1px #785;
+        border-top: solid 1px #444;
+        border-right:  solid 1px #444;
         padding: 0.5em;
         padding-right: 1em;
         }
@@ -635,7 +632,7 @@ div.record-value
         flex: 2;
         text-align: left;
 
-        border-top: solid 1px #785;
+        border-top: solid 1px #444;
         
         padding: 0.3em;
         padding-left: 1em;
@@ -679,7 +676,7 @@ div.record-value
         flex: 1;
         
         border: none;
-        border-bottom: solid 1px #785;
+        border-bottom: solid 1px #444;
         }
 }
 
@@ -703,9 +700,9 @@ table.login
 
 div.view-sep
         {
-        color:            #000;
-        background-color: #EC9;
-        border: solid 1px #9A7;
+        color:            #FFF;
+        background-color: #159;
+        border: solid 1px #37A;
 
         padding: 0.2em;
         font: ;
@@ -718,9 +715,9 @@ div.view-flow
         display: flex;
         flex-flow: column;
 
-        color:            #000;
-        background-color: #CB7;
-        border: solid 1px #676;
+        color:            #EEE;
+        background-color: #333;
+        border: solid 1px #555;
 
 
         padding: 1em;
@@ -739,9 +736,9 @@ div.view-field-value
 
 div.view-header
         {
-        color:            #000;
-        background-color: #EC9;
-        border: solid 1px #9A7;
+        color:            #FFF;
+        background-color: #159;
+        border: solid 1px #37A;
         width: 100%;
 
         padding: 0.2em;
@@ -752,8 +749,8 @@ div.view-field
         {
         flex: 1;
 
-        border-bottom: solid 1px #785;
-        border-right:  solid 1px #785;
+        border-bottom: solid 1px #444;
+        border-right:  solid 1px #444;
 
         padding: 0.5em;
         vertical-align: middle;
@@ -766,7 +763,7 @@ div.view-value
         {
         flex: 2;
 
-        border-bottom: solid 1px #785;
+        border-bottom: solid 1px #444;
         
         padding: 0.5em;
         vertical-align: middle;
@@ -777,7 +774,7 @@ div.view-value
 
 div.view-details
         {
-        border-bottom: solid 1px #785;
+        border-bottom: solid 1px #444;
         
         padding: 0.5em;
         }
@@ -806,7 +803,7 @@ div.view-value
         flex: 1;
         width: -100%;
 
-        border-bottom: solid 1px #785;
+        border-bottom: solid 1px #444;
         
         padding: 0.5em;
         padding-left: 4em;
@@ -821,9 +818,9 @@ div.view-value
 
 table.edit
         {
-        color:            #000;
-        background-color: #CB7;
-        border: solid 1px #676;
+        color:            #EEE;
+        background-color: #333;
+        border: solid 1px #555;
         }
 
 tr.edit
@@ -833,9 +830,9 @@ tr.edit
 
 td.edit-header
         {
-        color:            #000;
-        background-color: #EC9;
-        border: solid 1px #9A7;
+        color:            #FFF;
+        background-color: #822;
+        border: solid 1px #A44;
 
         padding: 0.2em;
         font: ;
@@ -843,8 +840,8 @@ td.edit-header
 
 td.edit-field
         {
-        border-bottom: solid 1px #785;
-        border-right:  solid 1px #785;
+        border-bottom: solid 1px #444;
+        border-right:  solid 1px #444;
 
         padding: 0.5em;
         }
@@ -857,9 +854,9 @@ td.edit-field
 
 table.insert
         {
-        color:            #000;
-        background-color: #CB7;
-        border: solid 1px #676;
+        color:            #EEE;
+        background-color: #333;
+        border: solid 1px #555;
         }
 
 tr.insert
@@ -869,9 +866,9 @@ tr.insert
 
 td.insert-header
         {
-        color:            #000;
-        background-color: #EC9;
-        border: solid 1px #9A7;
+        color:            #FFF;
+        background-color: #262;
+        border: solid 1px #484;
 
         padding: 0.2em;
         font: ;
@@ -879,15 +876,15 @@ td.insert-header
 
 td.insert-field
         {
-        border-bottom: solid 1px #785;
-        border-right:  solid 1px #785;
+        border-bottom: solid 1px #444;
+        border-right:  solid 1px #444;
 
         padding: 0.5em;
         }
 
 td.insert-value
         {
-        border-bottom: solid 1px #785;
+        border-bottom: solid 1px #444;
         
         padding: 0.5em;
         }
@@ -908,16 +905,16 @@ td.insert-value
 
 .details-text
         {
-        color:            #555
+        color:            
         }
 
 /*** grid *******************************************************************/
 
 table.grid
         {
-        color:            #000;
-        background-color: #CB7;
-        border: solid 1px #676;
+        color:            #EEE;
+        background-color: #333;
+        border: solid 1px #555;
 
         border-collapse: collapse;
         width:  100%;
@@ -925,9 +922,9 @@ table.grid
 
 td.grid-header
         {
-        color:            #000;
-        background-color: #EC9;
-        border: solid 1px #9A7;
+        color:            #FFF;
+        background-color: #223;
+        border: solid 1px #555;
 
         font-weight: bold;
         padding: 0.7em;
@@ -938,31 +935,31 @@ td.grid-data
         {
         padding: 0.5em;
         white-space: nowrap;
-        border-right: solid 1px #676;
+        border-right: solid 1px #555;
         }
 
 tr.grid-1
         {
-        background-color: #BA8;
-        border-bottom: solid 1px #9A7;
+        background-color: #353535;
+        border-bottom: solid 1px #555;
         }
 
 tr.grid-2
         {
-        background-color: #A97;
-        border-bottom: solid 1px #9A7;
+        background-color: #303030;
+        border-bottom: solid 1px #555;
         }
 
 tr.grid-1:hover
         {
-        border-bottom: solid 1px #EFC;
-        background-color: #CDA;
+        border-bottom: solid 1px #555;
+        background-color: #343450;
         }
 
 tr.grid-2:hover
         {
-        border-bottom: solid 1px #EFC;
-        background-color: #CDA;
+        border-bottom: solid 1px #555;
+        background-color: #343450;
         }
 
 /*** formats ****************************************************************/
@@ -1016,25 +1013,25 @@ input,textarea,select,.grid-link-select
         margin:  0;
         font: ;
         
-        color: #000;
-        background-color: #AB8;
-        border: solid 1px #EFC;
+        color: #CCC;
+        background-color: #222;
+        border: solid 1px #555;
         }
 
 input:hover,textarea:hover,select:hover,.grid-link-select:hover
         {
-        color: #000;
-        background-color: #CDA;
-        border: solid 1px #EFC;
+        color: #FFF;
+        background-color: #023;
+        border: solid 1px #555;
         }
 
 input:focus,textarea:focus,select:focus
         {
-        color: #000;
-        background-color: #CDA;
-        border: solid 1px #EFC;
+        color: #FFF;
+        background-color: #023;
+        border: solid 1px #555;
 
-        outline: solid 1px #EFC;
+        outline: solid 1px #55F;
         }
 
 select,.grid-link-select
@@ -1046,8 +1043,8 @@ select,.grid-link-select
 
 .grid-link-select-option
         {
-        color: #444;
-        background-color: #DDD;
+        color: #CCC;
+        background-color: #224;
 
         cursor: pointer;
         display: block;
@@ -1059,8 +1056,8 @@ select,.grid-link-select
 
 .grid-link-select-option:hover
         {
-        color: #000;
-        background-color: #AB8;
+        color: #FFF;
+        background-color: #335;
 
         padding: 0.3em;
         border: none;
@@ -1081,80 +1078,80 @@ select,.grid-link-select
         white-space: nowrap;
         font: ;
         
-        color:            #CC6;
-        background-color: #000;
-        border: solid 2px #000;
+        color:            #FFF;
+        background-color: #448;
+        border: solid 2px #66A;
         }
 
 .button:hover
         {
         color:            #FFF;
-        background-color: #000;
-        border: solid 2px #222;
+        background-color: #66A;
+        border: solid 2px #88C;
         }
 
 .button:focus
         {
-        color:            #555;
-        background-color: #9A7;
-        border: solid 2px #555;
+        color:            #CCC;
+        background-color: #555;
+        border: solid 2px #777;
         }
 
 .act-button
         {
-        color:            #CC6;
-        background-color: #000;
-        border: solid 2px #000;
+        color:            #FFF;
+        background-color: #262;
+        border: solid 2px #494;
         }
 
 .act-button:hover
         {
         color:            #FFF;
-        background-color: #000;
-        border: solid 2px #222;
+        background-color: #494;
+        border: solid 2px #6A6;
         }
 
 .nav-button
         {
-        color:            #CC6;
-        background-color: #000;
-        border: solid 2px #000;
+        color:            #FFF;
+        background-color: #159;
+        border: solid 2px #37A;
         }
 
 .nav-button:hover
         {
         color:            #FFF;
-        background-color: #000;
-        border: solid 2px #222;
+        background-color: #37A;
+        border: solid 2px #59C;
         }
 
 .mod-button
         {
-        color:            #CC6;
-        background-color: #000;
-        border: solid 2px #000;
+        color:            #FFF;
+        background-color: #822;
+        border: solid 2px #B55;
         }
 
 .mod-button:hover
         {
         color:            #FFF;
-        background-color: #000;
-        border: solid 2px #222;
+        background-color: #B55;
+        border: solid 2px #D77;
         }
 
 .disabled-button
         {
-        color:            #555;
-        background-color: #9A7;
-        border: solid 2px #555;
+        color:            #CCC;
+        background-color: #555;
+        border: solid 2px #777;
         cursor: not-allowed;
         }
 
 .disabled-button:hover
         {
-        color:            #555;
-        background-color: #9A7;
-        border: solid 2px #555;
+        color:            #CCC;
+        background-color: #555;
+        border: solid 2px #777;
         }
 
 /*** hover layer ************************************************************/
@@ -1175,8 +1172,8 @@ div.hover-layer
 
 div.popup-layer
         {
-        color:            #444;
-        background-color: #DDD;
+        color:            #CCC;
+        background-color: #224;
         border: solid 1px #445;
 
         white-space: nowrap;
@@ -1211,58 +1208,58 @@ img.check-base
 
 img.check-unknown
         {
-        color:            #555;
-        background-color: #9A7;
-        border: solid 2px #555;
+        color:            #CCC;
+        background-color: #555;
+        border: solid 2px #777;
         }
 
 img.check-unknown:hover
         {
-        color:            #555;
-        background-color: #9A7;
-        border: solid 2px #555;
+        color:            #CCC;
+        background-color: #555;
+        border: solid 2px #777;
         }
 
 img.check-gr
         {
-        color:            ;
-        background-color: ;
-        border: solid 2px ;
+        color:            #FFF;
+        background-color: #448;
+        border: solid 2px #66A;
         }
 
 img.check-gr:hover
         {
-        color:            ;
-        background-color: ;
-        border: solid 2px ;
+        color:            #FFF;
+        background-color: #66A;
+        border: solid 2px #88C;
         }
 
 img.check-0
         {
-        color:            #CC6;
-        background-color: #000;
-        border: solid 2px #000;
+        color:            #FFF;
+        background-color: #822;
+        border: solid 2px #B55;
         }
 
 img.check-0:hover
         {
         color:            #FFF;
-        background-color: #000;
-        border: solid 2px #222;
+        background-color: #B55;
+        border: solid 2px #D77;
         }
 
 img.check-1
         {
-        color:            #CC6;
-        background-color: #000;
-        border: solid 2px #000;
+        color:            #FFF;
+        background-color: #262;
+        border: solid 2px #494;
         }
 
 img.check-1:hover
         {
         color:            #FFF;
-        background-color: #000;
-        border: solid 2px #222;
+        background-color: #494;
+        border: solid 2px #6A6;
         }
 
 /*** other ******************************************************************/
@@ -1319,5 +1316,16 @@ div.map
         }
 
 /*** DECOR STATIC/SYSTEM SECTION EOF*****************************************/
+
+input, textarea, select, div.link_data
+  {
+  font-size: 1.1em;
+  }
+
+p.vert
+  {
+  height: 100%;
+  vertical-align: middle;
+  }
 
 /*** DECOR EOF **************************************************************/

@@ -1,7 +1,7 @@
 ##############################################################################
 ##
 ##  Decor application machinery core
-##  2014-2017 (c) Vladi Belperchinov-Shabanski "Cade"
+##  2014-2021 (c) Vladi Belperchinov-Shabanski "Cade"
 ##  <cade@bis.bg> <cade@biscom.net> <cade@cpan.org>
 ##
 ##  LICENSE: GPLv2
@@ -18,7 +18,7 @@ use Decor::Core::DB::Record;
 
 use parent 'Decor::Core::DB::Record';
 
-### DE_USERS api interface ###################################################
+### DE_FILE api interface ####################################################
 
 sub get_file_name
 {
@@ -43,7 +43,6 @@ sub get_file_name
 
   return wantarray ? ( $fname, $short ) : $fname;
 }
-
 
 
 ### EOF ######################################################################

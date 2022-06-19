@@ -443,8 +443,8 @@ sub main
             $data_fmt =~ s/\./&#46;/g;
             if( $ltdes->get_table_type() eq 'FILE' )
               {
-              $data_fmt   = de_html_alink( $reo, 'new', "$data_fmt",                          $view_cue, ACTION => 'file_dn', ID => $linked_id, TABLE => $linked_table );
-              $data_ctrl .= de_html_alink( $reo, 'new', 'file_dn.svg [~Download file]',       undef,     ACTION => 'file_dn', ID => $linked_id, TABLE => $linked_table );
+              $data_fmt   = de_html_alink( $reo, 'new', "$data_fmt",                      $view_cue, ACTION => 'file_dn', ID => $linked_id, TABLE => $linked_table );
+              $data_ctrl .= de_html_alink_button_fill( $reo, 'new', '(&darr;) [~Download file]',       undef,     ACTION => 'file_dn', ID => $linked_id, TABLE => $linked_table );
               $data_ctrl .= "<br>\n";
               }
             else
