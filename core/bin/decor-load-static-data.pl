@@ -25,7 +25,7 @@ use Data::Tools;
 use Data::Dumper;
 use Exception::Sink;
 
-data_tools_set_file_io_utf8();
+data_tools_set_text_io_utf8();
 
 #print Dumper( [ parse_scsv_line( qq[; '  123'  ;testing   ;this\\;is it; "asd";qwe] ) ] );
 #die;
