@@ -18,6 +18,9 @@ print "USING DECOR ROOT FOR SETUP: $root\n";
 
 die "ERROR: NOT A DECOR ROOT: $root\n" unless -d "$root/core" and -d "$root/shared" and -d "$root/web";
 
+chdir( $root ) or die "cannot chdir to decor root [$root] $!\n";
+system( "git pull origin master" );
+
 my $easy_dir = "$root/easy";
 my $easy_lib = "$root/easy/lib";
 my $easy_var = "$root/easy/var";
