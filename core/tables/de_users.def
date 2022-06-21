@@ -25,6 +25,11 @@
   web.overflow  1
   password
 
+=PASS_XTIME
+
+  label [~Password expire time]
+  type  utime
+
 =PRIMARY_GROUP
 
   label [~User primary group]

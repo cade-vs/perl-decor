@@ -500,6 +500,13 @@ sub sub_login
 
   my $profile = __setup_user_profile( $user_rec );
 
+  my $pass_xtime = $user_rec->read( 'PASS_XTIME' );
+  if( $pass_xtime > 0 and $pass_xtime < time() )
+    {
+    # password expired
+    $profile->set_groups( 908 );
+    }
+
   subs_reset_current_all();
   subs_lock_current_profile( $profile );
   subs_lock_current_user( $user_rec );
