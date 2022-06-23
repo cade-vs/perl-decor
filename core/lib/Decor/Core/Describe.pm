@@ -447,14 +447,15 @@ sub __merge_table_des_file
           }
         elsif( $arg =~ s/\*/\.*?/g )
           {
-          $isa_args{ $_ } = 1 for sort { $isa->{ 'FIELD' }{ $a }{ '_ORDER' } <=> $isa->{ 'FIELD' }{ $b }{ '_ORDER' } } grep { /^$arg$/ } keys %{ $isa->{ 'FIELD' } };
+          $isa_args{ $_ } = 1 for grep { /^$arg$/ } keys %{ $isa->{ 'FIELD' } };
           }
         else
           {
           $isa_args{ $arg } = 1;
           }
         }
-      @args = keys %isa_args;
+      delete $isa_args{ '_ID' };
+      @args = sort { $isa->{ 'FIELD' }{ $a }{ '_ORDER' } <=> $isa->{ 'FIELD' }{ $b }{ '_ORDER' } } keys %isa_args;
 
 #      if( $args[0] eq '*' )
 #        {
@@ -500,7 +501,7 @@ sub __merge_table_des_file
 
 
         %{ $des->{ $isa_category }{ $isa_sect_name } } = ( %{ $des->{ $isa_category }{ $isa_sect_name } }, %isa_def );
-        $des->{ $category }{ $sect_name }{ '_ORDER' } = ++ $opt->{ '_ORDER' };
+        $des->{ $category }{ $isa_sect_name }{ '_ORDER' } = ++ $opt->{ '_ORDER' };
         $des->{ $isa_category }{ $isa_sect_name }{ '__ISA'  } = 1;
         }
 
@@ -618,7 +619,6 @@ sub __merge_table_des_file
 
       next;
       }
-
 
     }
   close( $inf );

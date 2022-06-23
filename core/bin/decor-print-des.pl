@@ -107,7 +107,7 @@ if( ! $opt_verbose )
         {
         for my $attr ( keys %{ $des->{ $cat }{ $entry } } )
           {
-          delete $des->{ $cat }{ $entry }{ $attr } if ! defined $des->{ $cat }{ $entry }{ $attr } or $attr =~ /^_/;
+          delete $des->{ $cat }{ $entry }{ $attr } if ! defined $des->{ $cat }{ $entry }{ $attr }; # or $attr =~ /^_/;
           }
         }  
       }
@@ -134,5 +134,16 @@ if( @args )
 else
   {
   print Dumper( $des );
+
+  print "-" x 79 . "\n";
+  
+  my $c;
+  for my $field ( sort { $des->{ 'FIELD' }{ $a }{ '_ORDER' } <=> $des->{ 'FIELD' }{ $b }{ '_ORDER' } } keys %{ $des->{ 'FIELD' } } )
+    {
+    my $order = $des->{ 'FIELD' }{ $field }{ '_ORDER' };
+    $c++;
+    print "#$c\t$field\tord: $order\n";
+    }
+  
   print "-" x 79 . "\n";
   }
