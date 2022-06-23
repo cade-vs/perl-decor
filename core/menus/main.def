@@ -1,14 +1,10 @@
 
-grant access to 999
-
-
+grant access to 999; 908
 
 =admin
 
   type submenu _de_admin
-
   grant access to 1
-  
   
 =login
 
@@ -21,6 +17,6 @@ grant access to 999
 
   label [~Logout]
   type  action  logout
-  grant access to 999
+  grant access to 999; 908
   right
   confirm [~Are you sure you want to logout?]

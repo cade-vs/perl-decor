@@ -19,7 +19,7 @@ print "USING DECOR ROOT FOR SETUP: $root\n";
 die "ERROR: NOT A DECOR ROOT: $root\n" unless -d "$root/core" and -d "$root/shared" and -d "$root/web";
 
 chdir( $root ) or die "cannot chdir to decor root [$root] $!\n";
-system( "git pull origin master" );
+system( "git pull https://github.com/cade-vs/perl-decor.git master" );
 
 my $easy_dir = "$root/easy";
 my $easy_lib = "$root/easy/lib";

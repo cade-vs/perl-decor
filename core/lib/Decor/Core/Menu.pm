@@ -283,7 +283,7 @@ sub __merge_menu_hash
 
   my $menus_dirs = __get_menus_dirs();
 
-  #print STDERR 'MENUS DIRS:' . Dumper( $tables_dirs );
+  #print STDERR 'MENUS DIRS:' . Dumper( $menus_dirs );
 
   my $menu_fname = lc $menu_name;
   my @menus_files;

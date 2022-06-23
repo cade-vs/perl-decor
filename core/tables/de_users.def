@@ -29,6 +29,7 @@
 
   label [~Password expire time]
   type  utime
+  web.details 2
 
 =PRIMARY_GROUP
 
@@ -54,11 +55,13 @@
 
   label [~Last login time]
   type  utime
+  web.details 2
   
 =LAST_LOGOUT_TIME
 
   label [~Last login time]
   type  utime
+  web.details 2
   
 =LAST_LOGIN_SESSION
 

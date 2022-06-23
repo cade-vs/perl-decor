@@ -99,7 +99,7 @@ if( ! $opt_verbose )
   $des->{ '@' }{ '@' } = $self;
   for my $cat ( keys %$des )
     {
-    for my $entry ( keys %{ $des->{ $cat } } )
+    for my $entry ( sort { $des->{ $cat }{ $a }{ '_ORDER' } <=> $des->{ $cat }{ $b }{ '_ORDER' } } keys %{ $des->{ $cat } } )
       {
       dunlock( $des->{ $cat }{ $entry } );
       print "des->{ $cat }{ $entry }\n";
