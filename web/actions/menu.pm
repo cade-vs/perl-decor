@@ -39,12 +39,16 @@ sub sub_menu
 
   my @res;
 
+print STDERR Dumper( $menu );
+
   for my $key ( sort { $menu->{ $a }{ '_ORDER' } <=> $menu->{ $b }{ '_ORDER' } } keys %$menu )
     {
     next if $key eq '@';
     my $item = $menu->{ $key };
     next unless $item->{ 'GRANT' }{ 'ACCESS' } or $item->{ 'GRANT' }{ 'ALL' };
     next if     $item->{ 'DENY'  }{ 'ACCESS' } or $item->{ 'DENY'  }{ 'ALL' };
+
+print STDERR Dumper( $item );
 
     my $label = $item->{ 'LABEL' } || $key;
     my $type  = $item->{ 'TYPE'  };

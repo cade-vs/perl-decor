@@ -41,6 +41,11 @@ our @EXPORT = qw(
 
 ### TABLE DESCRIPTIONS #######################################################
 
+my %MENU_TYPE_ALIASES = (
+                        'SUB'     => 'SUBMENU',
+                        'MENU'    => 'SUBMENU',
+                        );
+
 my %MENU_TYPES = (
                       'GRID'    => 1,
                       'SUBMENU' => 1,
@@ -209,7 +214,7 @@ sub __merge_menu_file
       de_log_debug2( "       =item: [$item_name]" );
 
       $menu->{ $item_name } ||= {};
-      $menu->{ $item_name }{ 'LABEL' } ||= $item_name;
+      #$menu->{ $item_name }{ 'LABEL' } ||= $item_name;
       $menu->{ $item_name }{ '_ORDER' } = ++ $opt->{ '_ORDER' };
 
       if( de_debug() )
@@ -345,7 +350,10 @@ sub __postprocess_menu_hash
 
     # --- type ---------------------------------------------
     my @type = split /[,\s]+/, uc $item_des->{ 'TYPE' };
+    @type = ( 'GRID', $item ) unless @type;
     my $type = shift @type;
+    
+    $type = $MENU_TYPE_ALIASES{ $type } || $type;
 
     my @debug_origin = exists $item_des->{ 'DEBUG::ORIGIN' } ? @{ $item_des->{ 'DEBUG::ORIGIN' } } : ();
 
@@ -359,22 +367,26 @@ sub __postprocess_menu_hash
         {
         de_log( "error: menu: unknown SUBMENU [$submenu] in menu [$menu_name] item [$item] from [@debug_origin]" );
         # remove submenu item pointing to unknown menu
-        delete $menu->{ $item };
-        next;
+        #delete $menu->{ $item };
+        #next;
+        # FIXME: add hint that this menu has problems
         }
       $item_des->{ 'SUBMENU_NAME' } = $submenu;
       }
     elsif( $type =~ /^(GRID|INSERT|EDIT|VIEW)$/ )
       {
       my $table = shift @type;
-      if( ! des_exists( $table ) )
+      my $des = describe_table( $table );
+      if( ! $des )
         {
         de_log( "error: menu: unknown table [$table] in menu [$menu_name] item [$item] from [@debug_origin]" );
         # remove item pointing to unknown table
-        delete $menu->{ $item };
-        next;
+        #delete $menu->{ $item };
+        #next;
+        # FIXME: add hint that this menu has problems
         }
-      $item_des->{ 'TABLE' } = $table;
+      $item_des->{ 'TABLE' }   = $table;
+      $item_des->{ 'LABEL' } ||= $des->{ '@' }{ 'LABEL' };
       }
     elsif( $type =~ /^(URL)$/ )
       {
@@ -423,6 +435,7 @@ sub __postprocess_menu_hash
       $item_des->{ $attr } = undef;
       }
 
+    $item_des->{ 'LABEL' } ||= $item;
     }
 
   #print STDERR "MENU DES POST PROCESSSED [$menu_name]:" . Dumper( $menu );
