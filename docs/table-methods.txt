@@ -66,11 +66,32 @@
 
   Decor system methods are:
 
-      RECALC   -- called on each page refresh on any INSERT or UPDATE screen
-      INSERT   -- called before new record insert
-      UPDATE   -- called before existing method update
-      ACCESS   -- called whenever operation needs to be checked if is allowed 
-                  on existing record
+      RECALC    -- called on each page refresh on any INSERT or UPDATE screen
+      INSERT    -- called before new record insert
+      UPDATE    -- called before existing method update
+      ACCESS    -- called whenever operation needs to be checked if is allowed 
+                   on existing record
+      DO_XXX    -- called on each "DO" processing ("XXX" is the specific DO name)
+      FILE_SAVE -- called before saving file/file info to the database
+
+  There are separate RECALC methods which are used separately for insert and
+  update and are called right after RECALC:
+  
+      RECALC_INSERT  -- called right after RECALC on inserting records
+      RECALC_UPDATE  -- called right after RECALC on updating  records
+      
+  Also there are post-saving methods for all methods which save data to the
+  database. Those are:
+  
+      POST_INSERT    -- called right after saving new record to the database
+      POST_UPDATE    -- called right after updating record data in the database
+      POST_DO_XXX    -- called right after executing DO named "XXX" and possibly
+                        saving current record data.
+      POST_FILE_SAVE -- called right after saving file and file info to the
+                        database
+                        
+  All POST_* methods are intended to update other records related somehow to 
+  the currently saved record.
 
   Note that RECALC method is used only for user feedback! No data calculated
   by the RECALC will be passed back to INSERT or UPDATE methods. If INSERT

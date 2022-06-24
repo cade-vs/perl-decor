@@ -1258,6 +1258,7 @@ sub sub_insert
   $rec->method( 'INSERT' );
   $rec->edit_cache_save();
 
+
   $rec->save();
 
   # extra processing, attach, etc.
@@ -1401,7 +1402,7 @@ sub sub_do
   my $mo = shift;
 
   my $table  = uc $mi->{ 'TABLE'  };
-  my $do     =    $mi->{ 'DO'     };
+  my $do     = uc $mi->{ 'DO'     };
   my $data   =    $mi->{ 'DATA'   };
   my $id     =    $mi->{ 'ID'     };
 
@@ -1435,8 +1436,9 @@ sub sub_do
 
   # TODO: recalc for insert/update
   $rec->__client_io_enable();
-  $rec->method( uc "DO_$do" );
+  $rec->method( "DO_$do" );
   $rec->save();
+  $rec->method( "POST_DO_$do" );
 
   $rec->inject_return_file_into_mo( $mo );
 
@@ -1569,6 +1571,9 @@ sub sub_file_save
   $rec->method( 'FILE_SAVE' );
 
   $rec->save();
+
+  $rec->method( 'POST_FILE_SAVE' );
+
   rename( $fname_part, $fname );
 
   $mo->{ 'ID'   } = $rec->id();
