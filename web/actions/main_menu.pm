@@ -20,6 +20,8 @@ sub main
   my $core = $reo->de_connect();
   my $menu = $core->menu( 'MAIN' );
 
+print STDERR Dumper( 'MAIN MENU 'x10, $menu );
+
   my $text;
   
   my @left;

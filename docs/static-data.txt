@@ -1,0 +1,31 @@
+
+
+
+  DECOR APPLICATION MACHINERY
+  2014-2021 (c) Vladi Belperchinov-Shabanski "Cade"
+
+  TABLE STATIC DATA
+
+  Static data is the table data required for intial setup of the application's
+  database. Static data is stored and read from files with the name of the table
+  and specific data type extension in directory named 'static'.
+  For example:
+  
+  $DECOR_ROOT/app/test_app1/static/cities.csv
+  
+  Currently only semicolon-delimited CSVs are recognised.
+  
+  TODO: handle comma-separated CSVs and more formats (XML,JSON,etc.)
+  
+  Table definition files, table/*.def files, can hold also static data at 
+  their end, after line marked with:
+  
+      __STATIC__
+      
+  All lines after this line are considered static data until the end of file 
+  or until line marked with:
+  
+      __END__
+      
+      
+

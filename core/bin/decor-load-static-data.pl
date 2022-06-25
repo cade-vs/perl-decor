@@ -22,6 +22,7 @@ use Decor::Core::DB::Record;
 use Decor::Core::DB::IO;
 use Decor::Shared::Utils;
 use Data::Tools;
+use Data::Tools::CSV;
 use Data::Dumper;
 use Exception::Sink;
 
@@ -220,8 +221,10 @@ sub find_files_for_table
   
   for( de_root() . '/core', @{ de_bundles_dirs() }, de_app_dir() )
     {
-    my $fn = "$_/static/$table.def";
-    push( @res, glob_tree( $fn ) ) ;
+    my $fn1 = "$_/static/$table.csv";
+    my $fn2 = "$_/tables/$table.def";
+    # FIXME: TODO: handle xml, json, etc. formats
+    push( @res, glob_tree( $fn1 ), glob_tree( $fn2 ) ) ;
     }
   return @res;
 }
@@ -236,7 +239,11 @@ sub load_data_file
 
   my $dbio = new Decor::Core::DB::IO;                                                                                           
 
+  # FIXME: TODO: handle xml, json, etc. formats
+
   open( my $if, '<', $fname ) or die "cannot open static data file [$fname]\n";
+
+  my $data = $fname =~ /\.def$/ ? 0 : 1;
   
   my $c;
   my @fields;
@@ -246,12 +253,17 @@ sub load_data_file
     s/^\s*//;
     s/\s*$//;
     next unless /\S/;
+    
+    $data = 1, next if ! $data and /__STATIC__/; # FIXME: TODO: handle xml, json, etc. formats
+    $data = 0, next if   $data and /__END__/;
+    
+    next unless $data;
 
-    my @line = parse_scsv_line( $_ );
+    my $line_data = parse_csv_line( $_, ';' ); # FIXME: TODO: allow different delimiter
 
     if( ! @fields )
       {
-      @fields = @line;
+      @fields = @$line_data;
       next;
       }  
 
@@ -261,7 +273,7 @@ sub load_data_file
     my %data;
     for my $field ( @fields )
       {
-      $data{ 'DATA' }{ uc $field } = shift @line;
+      $data{ 'DATA' }{ uc $field } = shift @$line_data;
       }
 
     if( $data{ 'DATA' }{ '_ID' } =~ s/^!// )
@@ -297,7 +309,6 @@ sub parse_scsv_line
 ##############################################################################
 
 =pod
-
 
 
 FIELD,FIELD,FIELD

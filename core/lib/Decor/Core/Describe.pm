@@ -379,6 +379,7 @@ sub __merge_table_des_file
     chomp( $line );
     $line =~ s/^\s*//;
     $line =~ s/\s*$//;
+    last if $line =~ /^__(STATIC|END)__/;
     next unless $line =~ /\S/;       # skip whitespace
     next if $line =~ /^([#;]|\/\/)/; # skip comments
     de_log_debug2( "        line: [$line]" );
@@ -410,7 +411,13 @@ sub __merge_table_des_file
       next;
       }
 
-    if( $line =~ /^\s*@(isa|include)\s*([a-zA-Z_0-9]+)\s*(.*?)\s*$/i )
+    if( $line =~ /^\s*@(is)\s+([a-zA-Z_0-9]+)/i )
+      {
+      my $name = uc $2;
+      $line = "\@isa _DE_$2 **";
+      }
+
+    if( $line =~ /^\s*@(isa|include)\s+([a-zA-Z_0-9]+)\s*(.*?)\s*$/i )
       {
       my $name = $2;
       my $args = $3; # options/arguments, FIXME: upcase/lowcase?
@@ -981,7 +988,8 @@ sub describe_table
   else
     {
     my $tables_dirs = __get_tables_dirs();
-    boom "cannot find/load description for table [$table] dirs [@$tables_dirs]";
+    de_log( "error: cannot find/load description for table [$table] dirs [@$tables_dirs]" );
+    return undef;
     }
 
   $DES_CACHE{ 'TABLE_DES' }{ $table } = $des;
@@ -1149,6 +1157,8 @@ sub des_exists_category
   my $category = uc shift;
   boom "invalid category [$category]" unless exists $DES_CATEGORIES{ $category };
   boom "invalid number of arguments, expected (table,field,attr)" unless @_ > 0 and @_ < 4;
+
+  # FIXME: TODO: check logic?
 
   my $table = $_[0];
 

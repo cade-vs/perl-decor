@@ -44,6 +44,18 @@
   
       @remove   CNT    OWNER*    *_STAMP
 
+  @isa is an alias for @include
+  
+  There is special form of @isa:
+  
+      @is NAME
+  
+  which is replaced with:
+  
+      @isa   _DE_NAME   **
+  
+  i.e. it will be replaced with decor core template for a table and will
+  inherit all the table attributes, including permissions, and fields.
     
 --
 

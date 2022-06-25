@@ -137,12 +137,16 @@ else
 
   print "-" x 79 . "\n";
   
+  print "#\tORDER\tFIELD\t\tTYPE\tLEN\n";
   my $c;
   for my $field ( sort { $des->{ 'FIELD' }{ $a }{ '_ORDER' } <=> $des->{ 'FIELD' }{ $b }{ '_ORDER' } } keys %{ $des->{ 'FIELD' } } )
     {
     my $order = $des->{ 'FIELD' }{ $field }{ '_ORDER' };
+    my $type  = $des->{ 'FIELD' }{ $field }{ 'TYPE' }{ 'NAME' };
+    my $dot   = $des->{ 'FIELD' }{ $field }{ 'TYPE' }{ 'DOT'  };
+    my $len   = $des->{ 'FIELD' }{ $field }{ 'TYPE' }{ 'LEN'  };
     $c++;
-    print "#$c\t$field\tord: $order\n";
+    print "$c\t$order\t$field\t\t$type\t$len\n";
     }
   
   print "-" x 79 . "\n";
