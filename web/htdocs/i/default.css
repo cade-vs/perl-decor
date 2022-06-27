@@ -8,7 +8,7 @@
 ##
 ############################################################################*/
 
-/* THIS FILE IS GENERATED! PLEASE, DO NOT MODIFY! -- GENERATED AT Mon Jun 20 01:19:05 2022 */
+/* THIS FILE IS GENERATED! PLEASE, DO NOT MODIFY! -- GENERATED AT Mon Jun 27 23:51:03 2022 */
 
 
 
@@ -700,6 +700,16 @@ table.login
 /*** view *******************************************************************/
 
 div.view-sep
+        {
+        color:            #FFF;
+        background-color: #159;
+        border: solid 1px #37A;
+
+        padding: 0.2em;
+        font: bold 1.2em oswald;
+        }
+
+div.insert-divider
         {
         color:            #FFF;
         background-color: #159;

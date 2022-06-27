@@ -54,7 +54,7 @@ sub __form_process_item
   my $data = shift;
   my $opts = shift;
 
-  my $item_len = length $item;
+  my $item_len = 0;
   my $item_align = '<';
   
   $item =~ s/^\s*//;
@@ -63,8 +63,8 @@ sub __form_process_item
 #  my ( $name, $fmt ) = split $type eq 'T' ? /\s*;+\s*/ : /\s+/, $item, 2;
 
   my ( $name, $fmt );
-  ( $name, $fmt ) = split      /\s+/, uc $item, 2 if $type eq 'F';
-  ( $name, $fmt ) = split /\s*;+\s*/,    $item, 2 if $type eq 'T';
+  ( $name, $fmt ) = split      /\s+/, uc $item, 2 if $type eq 'F'; # fields
+  ( $name, $fmt ) = split /\s*;+\s*/,    $item, 2 if $type eq 'T'; # text, plain text
 
   my $item_dot = 8;
   ( $item_len, $item_dot ) = ( ( $1 || $item_len ), ( $3 || $4 ) ) if $fmt =~ /(\d+)(\.(\d+))?|\.(\d+)/;
@@ -75,6 +75,7 @@ sub __form_process_item
   my $value;
   if( $type eq 'T' )
     {
+    # text
     $value = $name;
     }
   elsif( $data and exists $data->{ $name } )  
@@ -122,6 +123,8 @@ sub __form_process_item
     # TODO: warning: no such record field or data
     $value = '*??*';
     }
+
+  return $value unless $item_len > 0;
 
   if( $item_align eq '<' )
     {

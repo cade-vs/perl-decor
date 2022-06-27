@@ -668,6 +668,16 @@ div.view-sep
         font: $view-edit-headers-font;
         }
 
+div.insert-divider
+        {
+        color:            $view-head-colors.1;
+        background-color: $view-head-colors.2;
+        border: solid 1px $view-head-colors.3;
+
+        padding: 0.2em;
+        font: $view-edit-headers-font;
+        }
+
 /* flex */
 /* moved to record-* above
 div.view-flow

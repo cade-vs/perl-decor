@@ -206,7 +206,7 @@ sub __merge_menu_file
     de_log_debug2( "        line: [$line]" );
 
 #    if( $line =~ /^=+\s*([a-zA-Z_][a-zA-Z_0-9]*)\s*(.*?)\s*$/ )
-    if( $line =~ /^=+\s*(.*?)\s*$/ )
+    if( $line =~ /^=+\s*([a-z_0-9]+?)\s*$/i )
       {
          $item_name = uc( $1 );
       my $item_opts =     $2; # fixme: upcase/locase?
