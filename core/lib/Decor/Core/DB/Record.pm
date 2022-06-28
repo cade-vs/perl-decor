@@ -923,7 +923,7 @@ sub rollback_to_savepoint
 
 ### HELPERS ##################################################################
 
-sub select_siblings
+sub select_backlinked_records
 {
   my $self  = shift;
   my $field = shift;
@@ -931,7 +931,7 @@ sub select_siblings
   my $fdes = describe_table_field( $self->table(), $field );
   my $ftype_name = $fdes->{ 'TYPE' }{ 'NAME' };
   
-  boom "cannot select siblings of [$field] it is not a BACKLINK field" unless $ftype_name eq 'BACKLINK';
+  boom "cannot select backlinked records of [$field] it is not a BACKLINK field" unless $ftype_name eq 'BACKLINK';
   
   my ( $backlinked_table, $backlinked_field ) = $fdes->backlink_details();
   my $base_id = $self->id();
@@ -943,7 +943,7 @@ sub select_siblings
   return $srec;
 }
 
-sub get_link_record
+sub get_linked_record
 {
   my $self  = shift;
   my $field = shift;
@@ -952,7 +952,7 @@ sub get_link_record
   my $ftype_name = $fdes->{ 'TYPE' }{ 'NAME' };
   
   # TODO: support for WIDELINKs
-  boom "cannot get link record of [$field] it is not a LINK field" unless $ftype_name eq 'LINK';
+  boom "cannot get linked record of [$field] it is not a LINK field" unless $ftype_name eq 'LINK';
   
   my ( $linked_table, $linked_field ) = $fdes->link_details();
   

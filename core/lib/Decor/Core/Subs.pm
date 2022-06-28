@@ -435,7 +435,7 @@ sub sub_begin
 
   $session_rec->save();
 
-  my $user_rec = $session_rec->get_link_record( 'USR' );
+  my $user_rec = $session_rec->get_linked_record( 'USR' );
   boom "E_INTERNAL: cannot load USER for session [$user_sid] and remote [$remote]" unless $user_rec;
   
   my $profile = __setup_user_profile( $user_rec );

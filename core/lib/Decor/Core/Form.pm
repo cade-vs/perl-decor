@@ -90,7 +90,7 @@ sub __form_process_item
 
     if( $bfdes->is_backlinked() )
       {
-      my $brec = $rec->select_siblings( $name );
+      my $brec = $rec->select_backlinked_records( $name );
       while( $brec->next() )
         {
         $value .= de_form_gen_rec_data( $sub_form_name, $brec, $data, $opts );

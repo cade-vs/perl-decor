@@ -379,7 +379,7 @@ sub cmd_list_users
       if( $field eq 'GROUPS' )
         {
         print "\t\t";
-        my $gg = $user_rec->select_siblings( 'GROUPS' );
+        my $gg = $user_rec->select_backlinked_records( 'GROUPS' );
         while( $gg->next() )
           {
           print $gg->read( 'GRP' ) . ",";
