@@ -94,8 +94,8 @@ sub main
         {
         # regular insert
 
-        # exec default method
-        $ps->{ 'ROW_DATA' } = {};
+        # exec init method
+        $ps->{ 'ROW_DATA' } = $core->init( $table, $id );
         $ps->{ 'ROW_DATA' }{ '_ID' } = $id;
         }
       }

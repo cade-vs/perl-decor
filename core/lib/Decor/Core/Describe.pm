@@ -184,6 +184,8 @@ my %DES_ATTRS = (
                            INDEX        => 1,
                            BOOL         => 1,
                            PASSWORD     => 1,
+                           FT           => 1, # filter, field transform, value modifier stack
+                           INIT         => 1, # field initialization, initial value when insert
 
                            MAXLEN       => 3, # max remote viewer field length
                            MONO         => 3, # remote viewer should use monospaced font

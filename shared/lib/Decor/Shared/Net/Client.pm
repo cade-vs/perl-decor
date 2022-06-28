@@ -627,6 +627,27 @@ sub delete
 
 #-----------------------------------------------------------------------------
 
+sub init
+{
+  my $self = shift;
+
+  my $table  = uc shift;
+  my $id     = shift;
+  my $opt    = shift || {};
+  
+  my %mi;
+
+  $mi{ 'XT'     } = '1';
+  $mi{ 'TABLE'  } = $table;
+  $mi{ 'ID'     } = $id;
+  
+  my $mo = $self->tx_msg( \%mi ) or return undef;
+
+  return $mo->{ 'RDATA' };
+}
+
+#-----------------------------------------------------------------------------
+
 sub recalc
 {
   my $self = shift;

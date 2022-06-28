@@ -62,6 +62,7 @@ my %DISPATCH_MAP = (
                                    'INSERT'   => \&sub_insert,
                                    'UPDATE'   => \&sub_update,
                                    'DELETE'   => \&sub_delete,
+                                   'INIT'     => \&sub_init,
                                    'RECALC'   => \&sub_recalc,
                                    'LOGOUT'   => \&sub_logout,
                                    'DO'       => \&sub_do,
@@ -77,6 +78,7 @@ my %DISPATCH_MAP = (
                    );
 
 my %MAP_SHORTCUTS = (
+                    '1'   => 'INIT',
                     'A'   => 'CAPS',
                     'B'   => 'BEGIN',
                     'C'   => 'COMMIT',
@@ -1346,6 +1348,31 @@ sub sub_delete
   boom "E_ACCESS: user group 967 has global write restriction" if ! $profile->has_root_access() and $profile->check_access( 967 ); # FIXME: move to common
   boom "sub_delete is not yet implemented";
 };
+
+sub sub_init
+{
+  my $mi = shift;
+  my $mo = shift;
+
+  my $table  = uc   $mi->{ 'TABLE'  };
+  my $id     =      $mi->{ 'ID'     };
+
+  boom "invalid TABLE name [$table]"    unless de_check_name( $table ) or ! des_exists( $table );
+  boom "invalid ID [$id]"               if $id ne '' and ! de_check_id( $id );
+
+  my $rec = new Decor::Core::DB::Record;
+
+  my $profile = subs_get_current_profile();
+  $rec->set_profile_locked( $profile );
+
+  $rec->create_read_only( $table, $id );
+
+  $rec->taint_mode_disable_all();
+
+  $rec->method( 'INIT' );
+  $mo->{ 'RDATA' } = $rec->read_hash_all();
+  $mo->{ 'XS'    } = 'OK';
+}
 
 sub sub_recalc
 {
