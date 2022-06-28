@@ -2,6 +2,8 @@
   type  Session
   label [~User sessions]
   system
+  
+  web.grid.page_size 1024
 
 @isa  _DE_OWNERS  _OWNER
   

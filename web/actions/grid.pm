@@ -103,6 +103,8 @@ sub main
   $page_size = 300 if $page_size >  300;
   $offset    =   0 if $offset    <    0;
 
+  $page_size             = $sdes->get_attr( qw( WEB GRID PAGE_SIZE ) ) || $page_size;
+
   my @fields;
   my $fields_list = uc $sdes->get_attr( qw( WEB GRID FIELDS_LIST ) );
   @fields = list_uniq( '_ID', split( /[\s\,\;]+/, $fields_list ) ) if $fields_list;

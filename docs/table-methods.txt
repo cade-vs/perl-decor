@@ -66,6 +66,7 @@
 
   Decor system methods are:
 
+      INIT      -- called only once, first of all, when INSERT new data
       RECALC    -- called on each page refresh on any INSERT or UPDATE screen
       INSERT    -- called before new record insert
       UPDATE    -- called before existing method update

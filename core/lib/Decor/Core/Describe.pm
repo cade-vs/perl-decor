@@ -161,6 +161,7 @@ my %DES_ATTRS = (
                            DOWNLOAD_LINK_CUE => 3,
                            DOWNLOAD_FILE_CUE => 3,
 
+                           PAGE_SIZE      => 3, # default page size for grid lists, if big enough, there will be no pagination
                            FIELDS_LIST    => 3, # fields to be shown
                            MASTER_FIELDS  => 3, # fields for display as master record
                            
