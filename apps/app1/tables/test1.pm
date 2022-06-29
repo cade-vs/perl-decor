@@ -31,7 +31,7 @@ sub on_recalc
 
   $r->write( DES => $ccr );
   
-  my $sr = $r->select_siblings( 'BACKREF' );
+  my $sr = $r->select_backlinked_records( 'BACKREF' );
   while( $sr->next() )
     {
     print Dumper( 'SIBLING-'x10, $sr );

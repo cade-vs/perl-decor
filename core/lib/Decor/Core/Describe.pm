@@ -433,14 +433,20 @@ sub __merge_table_des_file
       my @args = split /[\s,]+/, uc $args;
       boom "\@isa/\@include error: empty argument list at [$fname at $ln]" unless @args;
 
-      my  %isa_args;
-      tie %isa_args, 'Tie::IxHash';
+      my $isa_copy_table_des = 0;
+      my %isa_fields;
 
       for my $arg ( @args )
         {
+        if( $arg eq '@' )
+          {
+          $isa_copy_table_des = 1;
+          next;
+          }
+        
         if( $arg eq '**' )
           {
-          $isa_args{ '@' } = 1;
+          $isa_copy_table_des = 1;
           $arg = '*';
           }
 
@@ -448,71 +454,37 @@ sub __merge_table_des_file
           {
           if( $arg =~ s/\*/\.*?/g )
             {
-            delete $isa_args{ $_ } for grep { $_ ne '_ID' } grep { /^$arg$/ } keys %{ $isa->{ 'FIELD' } };
+            delete $isa_fields{ $_ } for grep { $_ ne '_ID' } grep { /^$arg$/ } keys %{ $isa->{ 'FIELD' } };
             }
           else
             {
-            delete $isa_args{ $arg };
+            delete $isa_fields{ $arg };
             }  
           }
         elsif( $arg =~ s/\*/\.*?/g )
           {
-          $isa_args{ $_ } = 1 for grep { /^$arg$/ } keys %{ $isa->{ 'FIELD' } };
+          $isa_fields{ $_ } = 1 for grep { /^$arg$/ } keys %{ $isa->{ 'FIELD' } };
           }
         else
           {
-          $isa_args{ $arg } = 1;
+          $isa_fields{ $arg } = 1;
           }
         }
-      delete $isa_args{ '_ID' };
-      @args = sort { $isa->{ 'FIELD' }{ $a }{ '_ORDER' } <=> $isa->{ 'FIELD' }{ $b }{ '_ORDER' } } keys %isa_args;
+      delete $isa_fields{ '_ID' };
+      my @isa_fields = sort { $isa->{ 'FIELD' }{ $a }{ '_ORDER' } <=> $isa->{ 'FIELD' }{ $b }{ '_ORDER' } } keys %isa_fields;
 
-#      if( $args[0] eq '*' )
-#        {
-#        shift @args;
-#        unshift @args, sort { $isa->{ 'FIELD' }{ $a }{ '_ORDER' } <=> $isa->{ 'FIELD' }{ $b }{ '_ORDER' } } keys %{ $isa->{ 'FIELD' } };
-#        }
-
-#      de_log_debug( "        isa:  DUMP: " . Dumper($isa,\@args) );
-#print Dumper( 'isa - ' x 10, $isa,\@args);
-
-      for my $arg ( @args ) # FIXME: covers arg $opt
+      if( $isa_copy_table_des )
         {
-###        boom "isa/include error: key [*] can appear only at first position inside arguments list in [$name] at [$fname at $ln]" if $arg eq '*';
-        my $isa_category;
-        my $isa_sect_name;
-        if( $arg =~ /(([a-zA-Z_][a-zA-Z_0-9]*):)?([a-zA-Z_][a-zA-Z_0-9]*|\@)/ )
-          {
-          # FIXME: TODO: categories are not really supported with wildcards
-          #$isa_category  = uc( $2 || $opt->{ 'DEFAULT_CATEGORY' } || '*' );
-          $isa_category  = uc( $2 || 'FIELD' || '*' );
-          $isa_sect_name = uc( $3 );
-          }
-        else
-          {
-          boom "\@isa/\@include error: invalid key [$arg] in [$name] at [$fname at $ln]";
-          }
+        $des->{ '@' }{ '@' } = { %{ $des->{ '@' }{ '@' } }, %{ $isa->{ '@' } } };
+        }
 
-        $isa_category = '@' if $isa_sect_name eq '@';
-#        if( $category ne $isa_category )
-#          {
-#          boom "isa/include error: cannot inherit kyes from different categories, got [$isa_category] expected [$category] key [$arg] in [$name] at [$fname at $ln]";
-#          }
-        boom "\@isa/\@include error: cannot include unknown key [$arg] from [$name] at [$fname at $ln]" if ! exists $isa->{ $isa_category } or ! exists $isa->{ $isa_category }{ $isa_sect_name };
-        $des->{ $isa_category }{ $isa_sect_name } ||= {};
+      for my $isa_field ( @isa_fields ) # FIXME: covers arg $opt
+        {
+        boom "\@isa/\@include error: cannot include unknown field [$isa_field] from [$name] at [$fname at $ln]" unless exists $isa->{ 'FIELD' }{ $isa_field };
 
-#print STDERR Dumper( 'isa - ' x 10, $isa_category, $isa_sect_name, $isa->{ $isa_category }{ $isa_sect_name });
-
-        my %isa_def = %{ dclone( $isa->{ $isa_category }{ $isa_sect_name } ) };
- 
-        # TODO: preserve ISA grant/deny on request...
-#!#        $isa_def{ '__GRANT_DENY_ACCUMULATOR' } = [ @{ $des->{ '@' }{ '@' }{ '__GRANT_DENY_ACCUMULATOR'  } || [] } ];
-#!#        $isa_def{ '__GRANT_DENY_NEW_POLICY'  } = 1; # grant/deny new (local) policy, discard ISA one
-
-
-        %{ $des->{ $isa_category }{ $isa_sect_name } } = ( %{ $des->{ $isa_category }{ $isa_sect_name } }, %isa_def );
-        $des->{ $category }{ $isa_sect_name }{ '_ORDER' } = ++ $opt->{ '_ORDER' };
-        $des->{ $isa_category }{ $isa_sect_name }{ '__ISA'  } = 1;
+        $des->{ 'FIELD' }{ $isa_field } = { %{ $des->{ 'FIELD' }{ $isa_field } || {} }, %{ dclone( $isa->{ 'FIELD' }{ $isa_field } ) } };
+        $des->{ 'FIELD' }{ $isa_field }{ '_ORDER' } = ++ $opt->{ '_ORDER' };
+        $des->{ 'FIELD' }{ $isa_field }{ '__ISA'  } = 1;
         }
 
       next;
@@ -666,7 +638,7 @@ sub __postprocess_table_raw_description
 {
   my $des   = shift;
   my $table = uc shift;
-  # print STDERR "TABLE DES RAW [$table]($des):" . Dumper( $des );
+  #print STDERR "TABLE DES RAW [$table]($des):" . Dumper( $des );
 
   boom "missing description (load error) for table [$table]" unless $des;
 
@@ -706,7 +678,7 @@ sub __postprocess_table_raw_description
   $des->{ '@' }{ '_ACTIONS_LIST' } = \@actions;
   $des->{ '@' }{ 'DSN'           } = uc( $des->{ '@' }{ 'DSN' } ) || 'MAIN';
 
-###  print STDERR "TABLE DES AFTER SELF PP [$table]:" . Dumper( $des );
+#print STDERR "TABLE DES AFTER SELF PP [$table]:" . Dumper( $des, \@fields );
   # postprocessing FIELDs ---------------------------------------------------
 
   for my $field ( @fields )
@@ -717,7 +689,7 @@ sub __postprocess_table_raw_description
     my @type = split /[,\s]+/, uc $fld_des->{ 'TYPE' };
     my $type = shift @type;
 
-    my @debug_origin = exists $fld_des->{ '__DEBUG_ORIGIN' } ? @{ $fld_des->{ '__DEBUG_ORIGIN' } } : ();
+    my @debug_origin = exists $fld_des->{ '__ORIGIN' } ? @{ $fld_des->{ '__ORIGIN' } } : ();
     
     $fld_des->{ 'TABLE' } = $table;
 
@@ -1081,7 +1053,7 @@ sub describe_parse_access_line
   my $line = uc shift;
   my $hr   = shift; # currently preprocessed field description, used for debug origin
 
-  my @debug_origin = exists $hr->{ '__DEBUG_ORIGIN' } ? @{ $hr->{ '__DEBUG_ORIGIN' } } : ();
+  my @debug_origin = exists $hr->{ '__ORIGIN' } ? @{ $hr->{ '__ORIGIN' } } : ();
 
   $line =~ s/^\s*//;
   $line =~ s/\s*$//;

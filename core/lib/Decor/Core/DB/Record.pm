@@ -781,6 +781,15 @@ sub save
   return 1;
 }
 
+sub copy_from
+{
+  my $self    = shift;
+  
+  my $src_rec = shift;
+  
+  $self->write( $src_rec->read_hash( @_ ) );
+}
+
 #-----------------------------------------------------------------------------
 
 sub select
@@ -927,6 +936,7 @@ sub select_backlinked_records
 {
   my $self  = shift;
   my $field = shift;
+  my $opts  = shift || {};
   
   my $fdes = describe_table_field( $self->table(), $field );
   my $ftype_name = $fdes->{ 'TYPE' }{ 'NAME' };
@@ -938,7 +948,7 @@ sub select_backlinked_records
   
   my $srec = new Decor::Core::DB::Record;
   
-  $srec->select( $backlinked_table, "$backlinked_field = ?", { BIND => [ $base_id ] } );
+  $srec->select( $backlinked_table, "$backlinked_field = ?", { BIND => [ $base_id ], %$opts } );
   
   return $srec;
 }

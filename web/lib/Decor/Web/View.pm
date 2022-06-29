@@ -327,9 +327,9 @@ sub de_data_grid
 {
   my $core   = shift;
   
-  my $table  = shift;
-  my $fields = shift;
-  my $opt    = shift || {};
+  my $table  =    shift;
+  my $fields = uc shift;
+  my $opt    =    shift || {};
 
   my $ctrl_cb  = $opt->{ 'CTRL_CB'  };
   my $order_by = $opt->{ 'ORDER_BY' } || '._ID';
@@ -448,10 +448,10 @@ sub de_data_view
 {
   my $core   = shift;
   
-  my $table  = shift;
-  my $fields = shift;
-  my $id     = shift;
-  my $opt    = shift || {};
+  my $table  =    shift;
+  my $fields = uc shift;
+  my $id     =    shift;
+  my $opt    =    shift || {};
 
   my $ctrl_cb  = $opt->{ 'CTRL_CB'  };
   my $order_by = $opt->{ 'ORDER_BY' } || '._ID';
@@ -478,11 +478,10 @@ sub de_data_view
 
   my $text;
 
-  $text .= "<table class='$class record' cellspacing=0 cellpadding=0>";
-  $text .= "<tr class=view-header>";
-  $text .= "<td class='view-header record-field fmt-center' colspan=2>$title</td>";
-  $text .= "</tr>";
+  $text .= "<div class='record-table'>";
+  $text .= "<div class='view-header view-sep record-sep fmt-center'>$title</div>";
 
+  my $record_first = 1;
   for my $field ( @fields )
     {
     next if $field eq '_ID';
@@ -526,26 +525,25 @@ sub de_data_view
     my $divider = $bfdes->get_attr( 'WEB', 'DIVIDER' );
     if( $divider )
       {
-      $text .= "<tr class=view-header>";
-      $text .= "<td class='view-header record-field fmt-center' colspan=2>$divider</td>";
-      $text .= "</tr>";
+      $text .= "<div class='view-divider view-sep record-sep fmt-center'>$divider</div>";
+      $record_first = 1;
       }
 
     my $data_layout = $no_layout_ctrls ? $data_fmt : html_layout_2lr( $data_fmt, $data_ctrl, '<==1>' );
     my $base_field_class = lc "css_view_class_$base_field";
-    $text .= "<tr class=view>";
-    $text .= "<td class='view-field record-field $base_field_class                ' >$label</td>";
-    $text .= "<td class='view-value record-value $base_field_class $data_fmt_class' >$data_layout</td>";
-    $text .= "</tr>\n";
+
+    my $record_first_class = 'record-first' if $record_first;
+    $record_first = 0;
+    $text .= "<div class='record-field-value'>
+                <div class='view-field record-field $record_first_class $base_field_class                ' >$label</div>
+                <div class='view-value record-value $record_first_class $base_field_class $data_fmt_class' >$data_layout</div>
+              </div>";
     if( $field_details )
       {
-      $text .= "<tr class=view>";
-      $text .= "<td colspan=2 class='details-fields' >$field_details</td>";
-      $text .= "</tr>\n";
-      #$data_layout .= $field_details;
+      $text .= "<div class='view-details record-details'>$field_details</div>";
       }
     }
-  $text .= "</table>";
+  $text .= "</div>";
 
 }
 

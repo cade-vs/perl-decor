@@ -897,5 +897,27 @@ sub count
   return $row_data->{ 'COUNT(*)' };
 }
 
+sub load_record
+{
+  my $self  = shift;
+  my $table = shift;
+  my $id    = shift;
+
+  return $self->select_first1( $table, '*', { LIMIT => 1, FILTER => { '_ID' => $id } } );
+}
+
+sub select_backlinked_records
+{
+  my $self  = shift;
+  my $table = shift;
+  my $field = shift;
+  my $id    = shift;
+  my $opt    = shift;
+  
+  my ( $backlink_table, $backlink_field ) = $self->describe( $table )->get_field_des( $field )->backlink_details();
+  
+  return $self->select( $backlink_table, '*', { FILTER => { $backlink_field => $id }, %$opt } );
+}
+
 ##############################################################################
 1;

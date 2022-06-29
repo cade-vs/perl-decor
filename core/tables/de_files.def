@@ -1,9 +1,9 @@
 
-    label Files
+@is FILES
 
-    type file
+label Files
 
-    @isa _DE_FILES *
+type file
 
-    grant read insert update
+grant read insert update
 

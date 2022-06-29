@@ -1262,6 +1262,7 @@ sub sub_insert
 
 
   $rec->save();
+  $rec->method( 'POST_INSERT' );
 
   # extra processing, attach, etc.
   my $lt_table  = uc $mi->{ 'LINK_TO_TABLE'  };
@@ -1332,6 +1333,7 @@ sub sub_update
   $rec->edit_cache_save();
 
   $rec->save();
+  $rec->method( 'POST_UPDATE' );
 
   $rec->inject_return_file_into_mo( $mo );
 
