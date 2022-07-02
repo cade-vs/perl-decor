@@ -187,20 +187,34 @@ sub main
 
 #    $text .= "<xmp style='text-align: left;'>" . Dumper( $ps->{ 'FILTERS' } ) . "</xmp>";
 
+  if( $link_field_disable )
+    {
+    # this should be really master record, not just disabled
+    my $bfdes = $tdes->get_field_des( $link_field_disable );
+    my ( $linked_table, $linked_field ) = $bfdes->link_details();
+    my $ltdes = $core->describe( $linked_table );
+    my $lsdes = $ltdes->get_table_des(); # table "Self" description
+    my $linked_table_label = $ltdes->get_label();
+    my $master_fields = uc $lsdes->get_attr( qw( WEB MASTER_FIELDS ) );
+    #$text .= de_data_grid( $core, $linked_table, $master_fields, { FILTER => { '_ID' => $link_id }, LIMIT => 1, CLASS => 'grid view record', TITLE => "[~Master record from] $linked_table_label" } ) if $master_fields;
+    $text .= de_data_view( $core, $linked_table, $master_fields, $link_field_id, { CLASS => 'grid view record', TITLE => "[~Master record from] $linked_table_label" } ) if $master_fields;
+    $text .= "<p>";
+    }
+
   my $text_grid_head;
   my $text_grid_body;
   my $text_grid_foot;
   my $text_grid_navi_left;
   my $text_grid_navi_right;
   my $text_grid_navi_mid;
-
   
   my %insert_new_opts;
   
   if( $link_field_disable )
     {
-    $insert_new_opts{ "F:$link_field_disable" } = $link_field_id;
     $insert_new_opts{ 'LINK_FIELD_DISABLE'    } = $link_field_disable;
+    $insert_new_opts{ "LINK_FIELD_ID"         } = $link_field_id;
+    $insert_new_opts{ "F:$link_field_disable" } = $link_field_id;
     }
 
   my ( $view_cue,   $view_cue_hint   ) = de_web_get_cue( $sdes, qw( WEB GRID VIEW_CUE   ) );
@@ -239,7 +253,10 @@ sub main
     next if $link_field_disable and $base_field eq $link_field_disable;
     next if $bfdes->get_attr( qw( WEB GRID HIDE ) );
 
-    my $label    = $bfdes->get_attr( qw( WEB GRID LABEL ) );
+    my $label1    = $bfdes->get_attr( qw( WEB GRID LABEL ) );
+    my $label2    = $lfdes->get_attr( qw( WEB GRID LABEL ) );
+    
+    my $label  = $bfdes eq $lfdes ? $label1 : $label1 . " / " . $label2;
     
 #    my $label     = "$blabel";
 #    if( ! $enum and $bfdes ne $lfdes )

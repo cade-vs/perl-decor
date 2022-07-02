@@ -1,6 +1,7 @@
+added include path [/usr/local/decor/web/css] 
 /*############################################################################
 ##
-##  Decor application machinery core
+##  Decor application machinery core -- RDX Style
 ##  2014-2021 (c) Vladi Belperchinov-Shabanski "Cade"
 ##  <cade@bis.bg> <cade@biscom.net> <cade@cpan.org>
 ##
@@ -8,7 +9,8 @@
 ##
 ############################################################################*/
 
-/* THIS FILE IS GENERATED! PLEASE, DO NOT MODIFY! -- GENERATED AT Mon Jun 27 23:51:03 2022 */
+/* THIS FILE IS GENERATED! PLEASE, DO NOT MODIFY! -- GENERATED AT Sun Jul  3 01:41:28 2022 */
+
 
 
 
@@ -120,11 +122,11 @@ body
         margin: 0;
         height: 100%;
 
-        color:            #EEE;
-        background-color: #001D25;
-        background-image: url( "cyan-background.png" );
+        color:            #455061;
+        background-color: #EBEBEB;
+        background-image: url( "" );
 
-        font: normal 11pt rubik, sans-serif;
+        font: normal 10pt rubik, sans-serif;
         }
 
 .fill
@@ -155,8 +157,8 @@ td.main_body
 
 td.main_footer
         {
-        color:                #CCC;
-        background-color:     #002B3A;
+        color:                #455061;
+        background-color:     #A5DEF8;
         border-top: solid 1px #007886;
         width:  100%;
         height: 100%;
@@ -196,22 +198,22 @@ div#div_for_screen
 
 a       
         {
-        color: aqua;
-        border-bottom: dotted 1px teal;
+        color: #F8572A;
+        border-bottom: dotted 1px #F8572A;
 
         text-decoration: none;
         }
 
 a:hover 
         {
-        color: aqua;
-        border-bottom: solid 1px aqua;
+        color: #FA794C;
+        border-bottom: solid 1px #FA794C;
         }
 
 a:focus
         {
-        color: #CCC;
-        border-bottom: solid 1px #555;
+        color: #FA794C;
+        border-bottom: solid 1px #FA794C;
         }
 
 a.plain
@@ -229,8 +231,8 @@ img
 .icon
         {
         cursor: pointer;
-        height: 2.2em;
-        padding: 0.4em;
+        height: 2em;
+        padding: 0.3em;
         text-decoration: none;
         background-image: none;
         border-radius: 2px;
@@ -375,12 +377,12 @@ div.report-text
 
 div.link-data
         {
-        color: #CCC;
-        background-color: #113;
-        border-top:    solid 1px #000;
-        border-left:   solid 1px #000;
-        border-bottom: solid 1px #555;
-        border-right:  solid 1px #555;
+        color: #455061;
+        background-color: #CCEECC;
+        border-top:    solid 1px #AACCAA;
+        border-left:   solid 1px #AACCAA;
+        border-bottom: solid 1px #AACCAA;
+        border-right:  solid 1px #AACCAA;
 
         padding: 0.5em;
         margin: 0 0 0 0;
@@ -388,12 +390,12 @@ div.link-data
 
 div.link-empty
         {
-        color: #CCC;
-        background-color: #311;
-        border-top:    solid 1px #000;
-        border-left:   solid 1px #000;
-        border-bottom: solid 1px #555;
-        border-right:  solid 1px #555;
+        color: #455061;
+        background-color: #EECCCC;
+        border-top:    solid 1px #CCAAAA;
+        border-left:   solid 1px #CCAAAA;
+        border-bottom: solid 1px #CCAAAA;
+        border-right:  solid 1px #CCAAAA;
 
         padding: 0.5em;
         margin: 0 0 0 0;
@@ -403,15 +405,15 @@ div.link-empty
         {
         font-weight: bold;
         color:            #FFF;
-        background-color: #822;
-        border: solid 1px #633;
+        background-color: #F00;
+        border: solid 1px #A00;
         padding: 2px;
         margin: 2px 2px 2px 2px;
         }
 
 .hi
         {
-        color: #FFF;
+        color: #F0F;
         font-weight: bold;
         }
 
@@ -431,8 +433,8 @@ table
 
 table.logo
         {
-        color:                   #CCC;
-        background-color:        #002B3A;
+        color:                   #455061;
+        background-color:        #A5DEF8;
         border-bottom: solid 1px #007886;
         
         vertical-align: middle;
@@ -441,7 +443,7 @@ table.logo
 
 a.logo
         {
-        color: #CCC;
+        color: #455061;
         text-decoration: none;
         }
 
@@ -449,21 +451,21 @@ a.logo
 
 table.main-menu
         {
-        color: #CCC;
-        background-color: #002B3A;
-        border-bottom: solid 1px #007886;
+        color: #FFF;
+        background-color: #455061;
+        border-bottom: solid 1px #677283;
 
         vertical-align: middle;
         white-space: nowrap;
         cursor: pointer;
 
-        font: bold 1.5em oswald;
+        font: bold 12pt oswald;
         width:  100%;
         }
 
 td.main-menu
         {
-        border-right: solid 1px #007886;
+        border-right: solid 1px #677283;
 
         width:  1%;
         padding: 0.1em;
@@ -471,12 +473,12 @@ td.main-menu
 
 td.main-menu:hover
         {
-        background-color: #224D5C;
+        background-color: #566172;
         }
 
 td.main-menu-fill
         {
-        border-right: solid 1px #007886;
+        border-right: solid 1px #677283;
 
         width:  100%;
         padding: 0;
@@ -485,7 +487,7 @@ td.main-menu-fill
 
 a.main-menu
         {
-        color: #CCC;
+        color: #FFF;
 
         display: block;
         width:  100%;
@@ -506,9 +508,9 @@ a.main-menu:hover
 
 table.menu
         {
-        color:                #CCC;
-        background-color:     #002B3A;
-        border-top: solid 1px #007886;
+        color:                #FFF;
+        background-color:     #455061;
+        border-top: solid 1px #677283;
 
         vertical-align: middle;
         white-space: nowrap;
@@ -516,17 +518,17 @@ table.menu
 
         width: 80%;
         max-width: 700px;
-        font: bold 1.5em oswald;
+        font: bold 12pt oswald;
         }
 
 td.menu
         {
         width:  1%;
-        border-bottom: solid 1px #007886;
-        border-left:   solid 1px #007886;
-        border-right:  solid 1px #007886;
+        border-bottom: solid 1px #677283;
+        border-left:   solid 1px #677283;
+        border-right:  solid 1px #677283;
 
-        padding: 0.3em;
+        padding: 0.1em;
         white-space: nowrap;
         /*
         padding-left: 1em;
@@ -538,12 +540,12 @@ td.menu
 
 td.menu:hover
         {
-        background-color: #224D5C;
+        background-color: #566172;
         }
 
 a.menu
         {
-        color: #CCC;
+        color: #FFF;
 
         display: block;
         width:  100%;
@@ -555,7 +557,7 @@ a.menu
 a.menu:hover
         {
         color:            #FFF;
-        background-color: #224D5C;
+        background-color: #566172;
 
         text-decoration: none;
         border: none;
@@ -574,9 +576,9 @@ table.menu
 
 tr.ps-path
         {
-        color:                   #CCC;
-        background-color:        #002B3A;
-        border-bottom: solid 1px #007886;
+        color:                   #FFF;
+        background-color:        #455061;
+        border-bottom: solid 1px #677283;
         
         font-weight: bold;
         vertical-align: middle;
@@ -595,9 +597,9 @@ div.record-table
         width:  100%;
         max-width: 1000px;
 
-        color:            #EEE;
-        background-color: #333;
-        border: solid 1px #555;
+        color:            #455061;
+        background-color: #FFF;
+        border: solid 1px #CDD8E9;
         margin: auto;
         }
         
@@ -622,10 +624,11 @@ div.record-field
         
         font-weight: bold;
 
-        border-top: solid 1px #444;
-        border-right:  solid 1px #444;
+        border-top: solid 1px #CDD8E9;
+        border-right:  solid 1px #CDD8E9;
+
+        padding: 0.5em 0 0 1em;
         padding: 0.5em;
-        padding-right: 1em;
         }
 
 div.record-value
@@ -633,10 +636,10 @@ div.record-value
         flex: 2;
         text-align: left;
 
-        border-top: solid 1px #444;
+        border-top: solid 1px #CDD8E9;
         
-        padding: 0.3em;
-        padding-left: 1em;
+        padding: 0.5em 0 1em 0;
+        padding: 0.5em;
         }
 
 div.record-first
@@ -677,7 +680,7 @@ div.record-value
         flex: 1;
         
         border: none;
-        border-bottom: solid 1px #444;
+        border-bottom: solid 1px #CDD8E9;
         }
 }
 
@@ -702,21 +705,21 @@ table.login
 div.view-sep
         {
         color:            #FFF;
-        background-color: #159;
-        border: solid 1px #37A;
+        background-color: #444F60;
+        border: solid 1px #677283;
 
         padding: 0.2em;
-        font: bold 1.2em oswald;
+        font: bold 12pt oswald;
         }
 
 div.insert-divider
         {
         color:            #FFF;
-        background-color: #159;
-        border: solid 1px #37A;
+        background-color: #444F60;
+        border: solid 1px #677283;
 
         padding: 0.2em;
-        font: bold 1.2em oswald;
+        font: bold 12pt oswald;
         }
 
 /* flex */
@@ -726,9 +729,9 @@ div.view-flow
         display: flex;
         flex-flow: column;
 
-        color:            #EEE;
-        background-color: #333;
-        border: solid 1px #555;
+        color:            #455061;
+        background-color: #FFF;
+        border: solid 1px #CDD8E9;
 
 
         padding: 1em;
@@ -748,20 +751,20 @@ div.view-field-value
 div.view-header
         {
         color:            #FFF;
-        background-color: #159;
-        border: solid 1px #37A;
+        background-color: #444F60;
+        border: solid 1px #677283;
         width: 100%;
 
         padding: 0.2em;
-        font: bold 1.2em oswald;
+        font: bold 12pt oswald;
         }
 
 div.view-field
         {
         flex: 1;
 
-        border-bottom: solid 1px #444;
-        border-right:  solid 1px #444;
+        border-bottom: solid 1px #CDD8E9;
+        border-right:  solid 1px #CDD8E9;
 
         padding: 0.5em;
         vertical-align: middle;
@@ -774,7 +777,7 @@ div.view-value
         {
         flex: 2;
 
-        border-bottom: solid 1px #444;
+        border-bottom: solid 1px #CDD8E9;
         
         padding: 0.5em;
         vertical-align: middle;
@@ -785,7 +788,7 @@ div.view-value
 
 div.view-details
         {
-        border-bottom: solid 1px #444;
+        border-bottom: solid 1px #CDD8E9;
         
         padding: 0.5em;
         }
@@ -814,7 +817,7 @@ div.view-value
         flex: 1;
         width: -100%;
 
-        border-bottom: solid 1px #444;
+        border-bottom: solid 1px #CDD8E9;
         
         padding: 0.5em;
         padding-left: 4em;
@@ -829,9 +832,9 @@ div.view-value
 
 table.edit
         {
-        color:            #EEE;
-        background-color: #333;
-        border: solid 1px #555;
+        color:            #455061;
+        background-color: #FFF;
+        border: solid 1px #CDD8E9;
         }
 
 tr.edit
@@ -846,13 +849,13 @@ td.edit-header
         border: solid 1px #A44;
 
         padding: 0.2em;
-        font: bold 1.2em oswald;
+        font: bold 12pt oswald;
         }
 
 td.edit-field
         {
-        border-bottom: solid 1px #444;
-        border-right:  solid 1px #444;
+        border-bottom: solid 1px #CDD8E9;
+        border-right:  solid 1px #CDD8E9;
 
         padding: 0.5em;
         }
@@ -865,9 +868,9 @@ td.edit-field
 
 table.insert
         {
-        color:            #EEE;
-        background-color: #333;
-        border: solid 1px #555;
+        color:            #455061;
+        background-color: #FFF;
+        border: solid 1px #CDD8E9;
         }
 
 tr.insert
@@ -882,20 +885,20 @@ td.insert-header
         border: solid 1px #484;
 
         padding: 0.2em;
-        font: bold 1.2em oswald;
+        font: bold 12pt oswald;
         }
 
 td.insert-field
         {
-        border-bottom: solid 1px #444;
-        border-right:  solid 1px #444;
+        border-bottom: solid 1px #CDD8E9;
+        border-right:  solid 1px #CDD8E9;
 
         padding: 0.5em;
         }
 
 td.insert-value
         {
-        border-bottom: solid 1px #444;
+        border-bottom: solid 1px #CDD8E9;
         
         padding: 0.5em;
         }
@@ -923,9 +926,9 @@ td.insert-value
 
 table.grid
         {
-        color:            #EEE;
-        background-color: #333;
-        border: solid 1px #555;
+        color:            #455061;
+        background-color: #FFF;
+        border: solid 1px #9AA5B6;
 
         border-collapse: collapse;
         width:  100%;
@@ -934,8 +937,8 @@ table.grid
 td.grid-header
         {
         color:            #FFF;
-        background-color: #223;
-        border: solid 1px #555;
+        background-color: #444F60;
+        border: solid 1px #677283;
 
         font-weight: bold;
         padding: 0.7em;
@@ -946,31 +949,31 @@ td.grid-data
         {
         padding: 0.5em;
         white-space: nowrap;
-        border-right: solid 1px #555;
+        border-right: solid 1px #9AA5B6;
         }
 
 tr.grid-1
         {
-        background-color: #353535;
-        border-bottom: solid 1px #555;
+        background-color: #DDD;
+        border-bottom: solid 1px #9AA5B6;
         }
 
 tr.grid-2
         {
-        background-color: #303030;
-        border-bottom: solid 1px #555;
+        background-color: #CCC;
+        border-bottom: solid 1px #9AA5B6;
         }
 
 tr.grid-1:hover
         {
-        border-bottom: solid 1px #555;
-        background-color: #343450;
+        border-bottom: solid 1px #8994A5;
+        background-color: #FFF;
         }
 
 tr.grid-2:hover
         {
-        border-bottom: solid 1px #555;
-        background-color: #343450;
+        border-bottom: solid 1px #8994A5;
+        background-color: #FFF;
         }
 
 /*** formats ****************************************************************/
@@ -1022,11 +1025,11 @@ input,textarea,select,.grid-link-select
         {
         padding: 0.5em;
         margin:  0;
-        font: 1.1em rubik;
+        font: 12pt rubik;
         
-        color: #CCC;
-        background-color: #222;
-        border: solid 1px #555;
+        color: #455061;
+        background-color: #CFDAE7;
+        border: solid 1px #AFB8C5;
         }
 
 input:hover,textarea:hover,select:hover,.grid-link-select:hover
@@ -1054,25 +1057,25 @@ select,.grid-link-select
 
 .grid-link-select-option
         {
-        color: #CCC;
-        background-color: #002B3A;
+        color: #FFF;
+        background-color: #455061;
 
         cursor: pointer;
         display: block;
         width: 100%;
         padding: 0.3em;
         border: none;
-        border-bottom: solid 1px #007886;
+        border-bottom: solid 1px #677283;
         }
 
 .grid-link-select-option:hover
         {
         color: #FFF;
-        background-color: #224D5C;
+        background-color: #566172;
 
         padding: 0.3em;
         border: none;
-        border-bottom: solid 1px #007886;
+        border-bottom: solid 1px #677283;
         }
 
 /*** buttons ****************************************************************/
@@ -1083,11 +1086,11 @@ select,.grid-link-select
 
         display: inline-block;
         cursor: pointer;
-        padding: 0.5em 1.5em 0.5em 1.5em;
+        padding: 0.4em 1.2em 0.4em 1.2em;
         margin:  0.3em;
 
         white-space: nowrap;
-        font: bold 1.0em rubik, sans-serif;
+        font: bold 10pt rubik, sans-serif;
         
         color:            #FFF;
         background-color: #004464;
@@ -1183,9 +1186,9 @@ div.hover-layer
 
 div.popup-layer
         {
-        color:            #CCC;
-        background-color: #002B3A;
-        border: solid 1px #007886;
+        color:            #FFF;
+        background-color: #455061;
+        border: solid 1px #677283;
 
         white-space: nowrap;
         padding: 0.5em;
@@ -1337,6 +1340,11 @@ p.vert
   {
   height: 100%;
   vertical-align: middle;
+  }
+
+a
+  {
+  font-weight: bold;
   }
 
 /*** DECOR EOF **************************************************************/

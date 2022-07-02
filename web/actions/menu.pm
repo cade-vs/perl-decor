@@ -45,6 +45,7 @@ sub sub_menu
     {
     next if $key eq '@';
     my $item = $menu->{ $key };
+
     next unless $item->{ 'GRANT' }{ 'ACCESS' } or $item->{ 'GRANT' }{ 'ALL' };
     next if     $item->{ 'DENY'  }{ 'ACCESS' } or $item->{ 'DENY'  }{ 'ALL' };
 

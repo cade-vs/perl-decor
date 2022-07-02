@@ -222,7 +222,6 @@ sub __merge_menu_file
         $menu->{ $item_name }{ 'DEBUG::ORIGIN' } ||= [];
         push @{ $menu->{ $item_name }{ 'DEBUG::ORIGIN' } }, $origin;
         }
-
       next;
       }
 

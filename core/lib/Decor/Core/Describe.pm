@@ -1023,10 +1023,12 @@ sub describe_preprocess_grant_deny
   for my $line ( @{ $hr->{ '__GRANT_DENY_ACCUMULATOR' } } )
     {
     my ( $ty, $ta, $ac, $op )  = describe_parse_access_line( $line, $hr );
+
     for my $o ( @$op )
       {
       if( $ta )
         {
+        # add mode, do not remove previous permissions
         $access{ $ty }{ $o } = [] unless defined $access{ $ty }{ $o };
         $access{ $ty }{ $o } = [ [ $access{ $ty }{ $o } ] ] unless ref( $access{ $ty }{ $o } );
         $ac->{ $o } = [ [ $ac->{ $o } ] ] unless ref( $ac->{ $o } );
@@ -1034,6 +1036,7 @@ sub describe_preprocess_grant_deny
         }
       else
         {  
+        # set mode, remove previous permissions
         $access{ $ty }{ $o } = $ac->{ $o };
         }
       my $rty = { GRANT => 'DENY', DENY => 'GRANT' }->{ $ty };
@@ -1043,7 +1046,7 @@ sub describe_preprocess_grant_deny
   $hr->{ 'GRANT' } = $access{ 'GRANT' };
   $hr->{ 'DENY'  } = $access{ 'DENY'  };
 
-  #print Dumper( "describe_preprocess_grant_deny DEBUG:", $hr->{ 'NAME' }, $hr->{ '__GRANT_DENY_ACCUMULATOR' }, $hr->{ 'GRANT' }, $hr->{ 'DENY' } );
+#  print Dumper( "describe_preprocess_grant_deny DEBUG:", $hr->{ 'NAME' }, $hr->{ '__GRANT_DENY_ACCUMULATOR' }, $hr->{ 'GRANT' }, $hr->{ 'DENY' } );
 }
 
 #-----------------------------------------------------------------------------

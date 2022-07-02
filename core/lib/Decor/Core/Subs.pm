@@ -909,7 +909,7 @@ sub sub_menu
   my $profile = subs_get_current_profile();
 
   my $menu = de_menu_get( $menu_name );
-  
+
   if( ( $profile->has_root_access() or $profile->check_access( 966 ) ) and $menu_name eq '_DE_ALL_TABLES' )
     {
     my $tables = des_get_tables_list();

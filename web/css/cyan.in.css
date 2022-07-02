@@ -12,12 +12,12 @@
 
 /*$* DECOR SYSTEM DEFAULT CSS, CONFIG SECTION, DO NOT MODIFY STRUCTURE! *****/
 
-$body-font                    normal 11pt rubik, sans-serif
+$body-font                    normal 10pt rubik, sans-serif
 $footer-font                  prime
-$main-menu-font               bold 1.5em oswald
-$view-edit-headers-font       bold 1.2em oswald
-$input-controls-font          1.1em rubik 
-$buttons-font                 bold 1.0em rubik, sans-serif
+$main-menu-font               bold 12pt oswald
+$view-edit-headers-font       bold 12pt oswald
+$input-controls-font               12pt rubik 
+$buttons-font                 bold 10pt rubik, sans-serif
 
 /*$                     fg    bg    bg-image */
 $body-colors            #EEE  #001D25  cyan-background.png  
@@ -78,7 +78,7 @@ $logo-colors    #CCC  #002B3A  #007886
 $footer-colors  $logo-colors
 
 /*$           fg    bg    fg-hi  bg-hi  border */
-$menu-colors  #CCC  #002B3A  #FFF   #224D5C   #007886
+$menu-colors  #CCC  #002B3A  #FFF   #224D5C   #005866
 
 /*$                  fg    bg    border  inside-border */
 $view-data-colors    #EEE  #333  #555    #444
@@ -91,7 +91,7 @@ $insert-data-colors  $view-data-colors
 $insert-head-colors  #FFF  #262  #484
 
 $grid-data-colors    $view-data-colors
-$grid-head-colors    #FFF  #223  #555
+$grid-head-colors    #FFF  #034  #056
 
 /*$                        fg    bg    border fg-hi bg-hi border-hi    */
 $input-field-colors        #CCC  #222  #555   #FFF  #023  #555

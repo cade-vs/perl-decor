@@ -3,6 +3,8 @@
   label   [~System users]
   system
 
+  web.grid.fields_list  NAME,ACTIVE,PRIMARY_GROUP,PRIVATE_GROUP,GROUPS,LAST_LOGIN_TIME,LOGIN_SESSIONS
+
 =NAME
 
   label [~Login name]
