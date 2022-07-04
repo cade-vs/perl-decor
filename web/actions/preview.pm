@@ -67,7 +67,11 @@ sub main
     $reo->ps_path_add( 'edit', $browser_window_title );
     }
 
-  my $text .= "<br>";
+  my $text;
+
+  $text .= "<p>";
+  $text .= de_master_record_view( $reo );
+  $text .= "<p>";
 
   my $edit_mode_class_prefix = $edit_mode_insert ? 'insert' : 'edit';
 
@@ -121,14 +125,15 @@ sub main
     my $base_field = $field;
 
     my $data = $row_data->{ $field };
-    my $data_fmt = de_web_format_field( $data, $fdes, 'PREVIEW' );
+    my $data_fmt = de_web_format_field( $data, $fdes, 'PREVIEW', { CORE => $core, NO_EDIT => 1 } );
     my $field_error;
     
     $field_error .= "$_<br>\n" for @{ $calc_merrs->{ $field } };
 
+=pod
+    # FIXME: remove this and replace with plain de_web_format_field
     if( $bfdes->is_linked() or $bfdes->is_widelinked() )
       {
-      
       my ( $linked_table, $linked_id, $linked_field );
       if( $bfdes->is_widelinked() ) 
         {
@@ -177,6 +182,7 @@ sub main
 
       $data_fmt = qq( <b class=hi>$count</b> [~records from] <b class=hi>$linked_table_label</b> );
       }
+=cut
 
     my $divider = $bfdes->get_attr( 'WEB', 'DIVIDER' );
     if( $divider )

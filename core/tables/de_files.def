@@ -3,7 +3,5 @@
 
 label Files
 
-type file
-
 grant read insert update
 

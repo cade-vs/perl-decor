@@ -187,19 +187,8 @@ sub main
 
 #    $text .= "<xmp style='text-align: left;'>" . Dumper( $ps->{ 'FILTERS' } ) . "</xmp>";
 
-  if( $link_field_disable )
-    {
-    # this should be really master record, not just disabled
-    my $bfdes = $tdes->get_field_des( $link_field_disable );
-    my ( $linked_table, $linked_field ) = $bfdes->link_details();
-    my $ltdes = $core->describe( $linked_table );
-    my $lsdes = $ltdes->get_table_des(); # table "Self" description
-    my $linked_table_label = $ltdes->get_label();
-    my $master_fields = uc $lsdes->get_attr( qw( WEB MASTER_FIELDS ) );
-    #$text .= de_data_grid( $core, $linked_table, $master_fields, { FILTER => { '_ID' => $link_id }, LIMIT => 1, CLASS => 'grid view record', TITLE => "[~Master record from] $linked_table_label" } ) if $master_fields;
-    $text .= de_data_view( $core, $linked_table, $master_fields, $link_field_id, { CLASS => 'grid view record', TITLE => "[~Master record from] $linked_table_label" } ) if $master_fields;
-    $text .= "<p>";
-    }
+  $text .= de_master_record_view( $reo );
+  $text .= "<p>";
 
   my $text_grid_head;
   my $text_grid_body;
@@ -253,10 +242,7 @@ sub main
     next if $link_field_disable and $base_field eq $link_field_disable;
     next if $bfdes->get_attr( qw( WEB GRID HIDE ) );
 
-    my $label1    = $bfdes->get_attr( qw( WEB GRID LABEL ) );
-    my $label2    = $lfdes->get_attr( qw( WEB GRID LABEL ) );
-    
-    my $label  = $bfdes eq $lfdes ? $label1 : $label1 . " / " . $label2;
+    my $label     = $bfdes->get_attr( qw( WEB GRID LABEL ) );
     
 #    my $label     = "$blabel";
 #    if( ! $enum and $bfdes ne $lfdes )
@@ -273,14 +259,14 @@ sub main
   $text_grid_head .= "</tr>";
 
   my @dos;
-  for my $do ( @{ $tdes->get_category_list_by_oper( 'EXECUTE', 'DO' ) }  )
+  for my $do ( @{ $tdes->get_category_list_by_oper( 'DO', 'EXECUTE' ) }  )
     {
     my $dodes   = $tdes->get_category_des( 'DO', $do );
     push @dos, $do;
     }
 
   my @actions;
-  for my $act ( @{ $tdes->get_category_list_by_oper( 'EXECUTE', 'ACTION' ) }  )
+  for my $act ( @{ $tdes->get_category_list_by_oper( 'ACTION', 'EXECUTE' ) }  )
     {
     my $actdes   = $tdes->get_category_des( 'ACTION', $act );
     push @actions, $act;
@@ -449,7 +435,7 @@ sub main
               }
             else
               {
-              if( $bfdes->get_attr( 'WEB', 'GRID', 'EDITABLE' ) )
+              if( $bfdes->get_attr( 'WEB', 'GRID', 'EDITABLE' ) and $bfdes->allows( 'UPDATE' ) )
                 {
                 ( $data_fmt, $fmt_class_fld ) = de_web_format_field( $linked_id, $bfdes, 'GRID', { ID => $id, REO => $reo, CORE => $core } );
                 }

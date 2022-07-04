@@ -33,6 +33,8 @@ our @EXPORT = qw(
                 de_data_grid
                 de_data_view
 
+                de_master_record_view
+
                 );
 
 sub de_web_expand_resolve_fields_in_place
@@ -100,7 +102,7 @@ sub de_web_format_field
 {
   my $field_data =    shift;
   my $fdes       =    shift;
-  my $vtype      = uc shift;
+  my $vtype      = uc shift; # view type, e.g. VIEW, EDIT...
   my $opts       =    shift || {};
   
   my $reo  = $opts->{ 'REO'  };
@@ -114,6 +116,8 @@ sub de_web_format_field
   my $type_name  = $fdes->{ 'TYPE' }{ 'NAME'  };
   my $type_lname = $fdes->{ 'TYPE' }{ 'LNAME' };
 
+  my $editable = $opts->{ 'NO_EDIT' } ? undef : $fdes->get_attr( 'WEB', $vtype, 'EDITABLE' );
+
   my $data_fmt;
   my $fmt_class;
 
@@ -125,6 +129,7 @@ sub de_web_format_field
     $data_fmt = str_html_escape( $data_fmt );
 
     $data_fmt = "[~(hidden)]" if $password and $data_fmt ne '';
+    $data_fmt = "&empty;" if $data_fmt eq '';
     
     my $maxlen = $fdes->get_attr( 'WEB', $vtype, 'MAXLEN' );
     if( $maxlen )
@@ -173,7 +178,7 @@ sub de_web_format_field
   elsif( $type_name eq 'INT' and $fdes->{ 'BOOL' } )
     {
     $data_fmt = $field_data > 0 ? '[&radic;]' : '[&nbsp;]';
-    if( $fdes->get_attr( 'WEB', $vtype, 'EDITABLE' ) )
+    if( $editable )
       {
       $data_fmt = [ "<img class='check-base check-0' src=i/check-0.svg>", "<img class='check-base check-1' src=i/check-1.svg>" ]->[ !! $field_data ];
       my $new_val = !!! $field_data || 0; # cap and reverse
@@ -200,6 +205,7 @@ sub de_web_format_field
 
     if( $details )
       {
+      $details = 2 if uc $details eq 'AUTO' and $vtype eq 'GRID';
       my $sep  = $details > 1 ? '<br>' : ' &nbsp; &Delta;';
       my $diff = unix_time_diff_in_words_relative( time() - $field_data );
       $diff =~ s/([a-z]{2,})/\[~$1\]/gi;
@@ -214,13 +220,14 @@ sub de_web_format_field
 
     if( $details )
       {
+      $details = 2 if uc $details eq 'AUTO' and $vtype eq 'GRID';
       my $sep  = $details > 1 ? '<br>' : ' &nbsp; &Delta;';
       my $diff = julian_date_diff_in_words_relative( gm_julian_day(time()) - $field_data );
       $diff =~ s/([a-z]{2,})/\[~$1\]/gi;
       $data_fmt .= " <span class=details-text>$sep $diff</span>";
       }
     }
-  elsif( $type_name eq 'LINK' and $fdes->get_attr( 'WEB', $vtype, 'EDITABLE' ) )
+  elsif( $type_name eq 'LINK' and $editable and $fdes->allows( 'UPDATE' ) )
     {
     my ( $linked_table, $linked_field ) = $fdes->link_details();
     my $ltdes = $core->describe( $linked_table );
@@ -280,9 +287,7 @@ sub de_web_format_field
       push @combo_data, { KEY => $key, VALUE => $value };
       }
 
-
 #print STDERR "**************************************************************: " . Dumper( \@combo_data );
-
 
     if( $fdes->get_attr( 'WEB', 'EDIT', 'MONO' ) )
       {
@@ -302,6 +307,62 @@ sub de_web_format_field
     $combo_form_text .= $combo_form->end();
 
     $data_fmt = $combo_form_text;
+    }
+  elsif( $fdes->is_linked() or $fdes->is_widelinked() )
+    {
+    my ( $linked_table, $linked_id, $linked_field );
+    if( $fdes->is_widelinked() ) 
+      {
+      ( $linked_table, $linked_id, $linked_field ) = type_widelink_parse2( $field_data );
+
+      my $ltdes = $core->describe( $linked_table );
+      if( $ltdes )
+        {
+        my $linked_table_label = $ltdes->get_label();
+        if( $linked_field )
+          {
+          $data_fmt = $core->read_field( $linked_table, $linked_field, $linked_id );
+          my $lfdes = $ltdes->get_field_des( $linked_field );
+          $data_fmt  = de_web_format_field( $data_fmt, $lfdes, 'VIEW', { ID => $linked_id } );
+          }
+        else
+          {
+          $data_fmt = "[~Linked to a record from:] $linked_table_label";
+          }  
+        } # ltdes  
+      else
+        {
+        $data_fmt = "&empty;";
+        }  
+      }
+    else
+      {
+      ( $linked_table, $linked_field ) = $fdes->link_details();
+      my $ldes = $core->describe( $linked_table );
+      my ( $linked_field_x, $linked_field_x_des ) = $ldes->get_field_des( $linked_field )->expand_field_path();
+
+      if( $field_data > 0 )
+        {
+        my $linked_field_x_data = $core->read_field( $linked_table, $linked_field_x, $field_data );
+        $data_fmt = de_web_format_field( $linked_field_x_data, $linked_field_x_des, $vtype );
+        }
+      else
+        {
+        $data_fmt = "&empty;";
+        }  
+      }  
+    }
+  elsif( $fdes->is_backlinked() )
+    {
+    my ( $backlinked_table, $backlinked_field ) = $fdes->backlink_details();
+    
+    my $bltdes = $core->describe( $backlinked_table );
+    my $linked_table_label = $bltdes->get_label();
+
+    my $count = $core->count( $backlinked_table, { FILTER => { $backlinked_field => $id } });
+    $count = 'Unknown' if $count eq '';
+
+    $data_fmt = qq( <b class=hi>$count</b> [~records from] <b class=hi>$linked_table_label</b> );
     }
   else
     {
@@ -331,10 +392,10 @@ sub de_data_grid
   my $fields = uc shift;
   my $opt    =    shift || {};
 
-  my $ctrl_cb  = $opt->{ 'CTRL_CB'  };
-  my $order_by = $opt->{ 'ORDER_BY' } || '._ID';
-
   my $tdes = $core->describe( $table );
+
+  my $ctrl_cb  = $opt->{ 'CTRL_CB'  };
+  my $order_by = $opt->{ 'ORDER_BY' } || $tdes->{ '@' }{ 'ORDER_BY' } || '._ID DESC';
   
   my @fields = ref( $fields ) eq 'ARRAY' ? @$fields : split /\s*,\s*/, $fields;
   
@@ -458,7 +519,16 @@ sub de_data_view
 
   my $tdes = $core->describe( $table );
   
-  my @fields = ref( $fields ) eq 'ARRAY' ? @$fields : split /\s*,\s*/, $fields;
+  my @fields;
+  if( $fields eq '*' )
+    {
+    @fields = @{ $tdes->get_fields_list_by_oper( 'READ' ) };
+    }
+  else
+    {
+    @fields = ref( $fields ) eq 'ARRAY' ? @$fields : split /\s*,\s*/, $fields;
+    }  
+  
   
   unshift @fields, '_ID';
   
@@ -545,6 +615,25 @@ sub de_data_view
     }
   $text .= "</div>";
 
+}
+
+# possible alternatives to 'master': 'leadeing'
+sub de_master_record_view
+{
+  my $reo  = shift;
+
+  my $core = $reo->de_connect();
+
+  my $master_record_table = $reo->param( 'MASTER_RECORD_TABLE' ) or return undef;
+  my $master_record_id    = $reo->param( 'MASTER_RECORD_ID' ) or return undef;
+
+  my $tdes = $core->describe( $master_record_table );
+  my $sdes = $tdes->get_table_des(); # table "Self" description
+  my $table_label = $tdes->get_label();
+  my $master_fields = uc $sdes->get_attr( qw( WEB MASTER_FIELDS ) ) or return undef;
+
+  #return de_data_grid( $core, $linked_table, $master_fields, { FILTER => { '_ID' => $link_id }, LIMIT => 1, CLASS => 'grid view record', TITLE => "[~Master record from] $linked_table_label" } ) if $master_fields;
+  return de_data_view( $core, $master_record_table, $master_fields, $master_record_id, { CLASS => 'view record', TITLE => "[~Master record from] $table_label" } );
 }
 
 1;

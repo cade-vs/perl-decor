@@ -51,6 +51,7 @@ $disabled-button-colors  $action-item-disabled
 $button-focus-colors     $action-item-disabled
 
 /*$                      fg    bg    border  fg-hi  bg-hi  border-hi */
+$check-base-colors       #fff #f00 #00f
 $check-unknown-colors    $action-item-disabled
 $check-gr-colors         $action-item
 $check-0-colors          $action-item-mod

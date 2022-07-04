@@ -565,7 +565,6 @@ div.record-field-value
         display: flex;
         flex-flow: row;
         width: 100%;
-        
         }
 
 div.record-sep
@@ -586,6 +585,9 @@ div.record-field
 
         padding: 0.5em 0 0 1em;
         padding: 0.5em;
+
+        display: table-cell;
+        vertical-align: baseline;
         }
 
 div.record-value
@@ -597,6 +599,9 @@ div.record-value
         
         padding: 0.5em 0 1em 0;
         padding: 0.5em;
+
+        display: table-cell;
+        vertical-align: baseline;
         }
 
 div.record-first
@@ -1005,6 +1010,15 @@ input:focus,textarea:focus,select:focus
         outline: solid 1px $input-field-focus-colors.4;
         }
 
+input:disabled,textarea:disabled,select:disabled,.grid-link-select
+        {
+        color:            $input-field-disabled.1;
+        background-color: $input-field-disabled.2;
+        border: solid 1px $input-field-disabled.3;
+        }
+
+$disabled-button-colors
+
 select,.grid-link-select
         {
         cursor: pointer;
@@ -1153,6 +1167,10 @@ img.check-base
         padding: 0.4em;
         text-decoration: none;
         border-radius: 2px;
+
+        color:            $check-base-colors.1;
+        background-color: $check-base-colors.2;
+        border: solid 1px $check-base-colors.3;
         }
 
 img.check-unknown

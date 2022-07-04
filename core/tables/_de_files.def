@@ -1,6 +1,8 @@
 
 @isa _DE_OWNERS _OWNER
 
+type file
+
 deny all
 grant read to all
 

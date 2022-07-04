@@ -1263,6 +1263,7 @@ sub sub_insert
 
   $rec->save();
   $rec->method( 'POST_INSERT' );
+  $rec->save();
 
   # extra processing, attach, etc.
   my $lt_table  = uc $mi->{ 'LINK_TO_TABLE'  };
@@ -1334,6 +1335,7 @@ sub sub_update
 
   $rec->save();
   $rec->method( 'POST_UPDATE' );
+  $rec->save();
 
   $rec->inject_return_file_into_mo( $mo );
 
@@ -1468,6 +1470,7 @@ sub sub_do
   $rec->method( "DO_$do" );
   $rec->save();
   $rec->method( "POST_DO_$do" );
+  $rec->save();
 
   $rec->inject_return_file_into_mo( $mo );
 
@@ -1598,10 +1601,9 @@ sub sub_file_save
   close( $fo );
 
   $rec->method( 'FILE_SAVE' );
-
   $rec->save();
-
   $rec->method( 'POST_FILE_SAVE' );
+  $rec->save();
 
   rename( $fname_part, $fname );
 

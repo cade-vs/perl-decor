@@ -57,17 +57,16 @@ sub allows
 sub get_fields_list_by_oper
 {
   my $self     = shift;
-  my $oper     = uc shift;
 
-  return $self->get_category_list_by_oper( $oper, 'FIELD' );
+  return $self->get_category_list_by_oper( 'FIELD', @_ );
 }
 
 sub get_category_list_by_oper
 {
   my $self = shift;
   
-  my $oper     = uc shift;
   my $category = uc shift;
+  my $oper     = uc shift;
   
   return $self->{ 'CACHE' }{ 'LIST_BY_OPER' }{ $category }{ $oper } if exists $self->{ 'CACHE' }{ 'LIST_BY_OPER' }{ $category }{ $oper };
   
@@ -84,6 +83,22 @@ sub get_category_list_by_oper
   $self->{ 'CACHE' }{ 'LIST_BY_OPER' }{ $category }{ $oper } = \@items;
   
   return \@items;
+}
+
+sub sort_category_list_by_order
+{
+  my $self = shift;
+  
+  my $category = uc shift;
+
+  return sort { $self->{ $category }{ $a }{ '_ORDER' } <=> $self->{ $category }{ $b }{ '_ORDER' } } @_;
+}
+
+sub sort_fields_list_by_order
+{
+  my $self = shift;
+  
+  return $self->sort_category_list_by_order( 'FIELD', @_ );
 }
 
 ### EOF ######################################################################

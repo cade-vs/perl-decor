@@ -455,7 +455,7 @@ sub del_groups
     my $rc = $dio->delete( 'DE_USER_GROUP_MAP', 'USR = ?', { BIND => [ $user_id ] } );
     print "user [$user] id [$user_id] removed all groups: $rc\n";
     }
-  elsif( @_ > 1 )  
+  elsif( @_ > 0 )  
     {
     for my $group ( @_ )
       {

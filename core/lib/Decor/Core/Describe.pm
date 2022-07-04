@@ -89,6 +89,15 @@ my %DES_KEY_SHORTCUTS = (
                         'SYS'  => 'SYSTEM',
                         );
 
+my %DES_KEY_VALUE_SHORTCUTS = (
+                        'ADVISE' => {
+                                    'UP'   => 'UPDATE',
+                                    'INS'  => 'INSERT',
+                                    'ED'   => 'ALL',
+                                    'EDIT' => 'ALL',
+                                    },
+                        );
+
 my %DES_CATEGORIES = (
                        '@'      => 1,
                        'FIELD'  => 1,
@@ -203,6 +212,8 @@ my %DES_ATTRS = (
                            SKIP         => 3, # skip field on preview/etc
                            GREP         => 3, # filtering grids by value will be case insensitive and LIKE-like
                            MULTI        => 3, # allow multiple select when filtering
+
+                           ADVISE      => 1, # takes arguments, INSERT,UPDATE,EDIT to be shown even if read-only on those screens
                           
                            HIDE_IF_EMPTY    => 3, # hide field if it is empty
                            NO_AUTOCOMPLETE  => 3, # disable interface autocomplete
@@ -475,7 +486,8 @@ sub __merge_table_des_file
 
       if( $isa_copy_table_des )
         {
-        $des->{ '@' }{ '@' } = { %{ $des->{ '@' }{ '@' } }, %{ $isa->{ '@' } } };
+        $des->{ '@' }{ '@' } = { %{ $des->{ '@' }{ '@' } }, %{ $isa->{ '@' }{ '@' } } };
+        $des->{ '@' }{ '@' }{ 'NAME' } = $table; # keep current name
         }
 
       for my $isa_field ( @isa_fields ) # FIXME: covers arg $opt
@@ -533,7 +545,7 @@ sub __merge_table_des_file
 
       $key = $DES_KEY_SHORTCUTS{ $key } if exists $DES_KEY_SHORTCUTS{ $key };
       boom "unknown attribute key $error_location" unless exists $DES_ATTRS{ $category }{ $key };
-
+      
       my $attr_type = $DES_ATTRS{ $category }{ $key };
 
       if( $attr_type == 1 and $key_path ne '' )
@@ -560,6 +572,11 @@ sub __merge_table_des_file
         $value = 1;
         }
 
+      if( exists $DES_KEY_VALUE_SHORTCUTS{ $key } )
+        {
+        $value = exists $DES_KEY_VALUE_SHORTCUTS{ $key }{ uc $value } ? $DES_KEY_VALUE_SHORTCUTS{ $key }{ uc $value } : $value;
+        }
+
       de_log_debug2( "            key:  [$sect_name]:[$key]=[$value]" );
 
       if( $key eq 'GRANT' or $key eq 'DENY' )
@@ -581,12 +598,11 @@ sub __merge_table_des_file
       if( $key eq 'READ_ONLY' )
         {
         $des->{ $category }{ $sect_name }{ '__GRANT_DENY_ACCUMULATOR' } = [ 'deny all', 'grant read' ];
-        next;
+        # leave it for further advise to viewers
         }
       if( $key eq 'SYSTEM' )
         {
         $des->{ $category }{ $sect_name }{ '__GRANT_DENY_ACCUMULATOR' } = [ 'deny all'               ];
-        next;
         }
 
       if( $DES_KEY_TYPES{ $key } eq '@' )
@@ -697,8 +713,16 @@ sub __postprocess_table_raw_description
     if( exists $DE_LTYPE_NAMES{ $type } )
       {
       $type_des->{ 'LNAME' } = $type;
-      @type = ( @{ $DE_LTYPE_NAMES{ $type } } );
-      $type = shift @type;
+      
+      if( @type > 0 )
+        {
+        $type = $DE_LTYPE_NAMES{ $type }[0];
+        }
+      else  
+        {
+        @type = ( @{ $DE_LTYPE_NAMES{ $type } } );
+        $type = shift @type;
+        }
       }
 
     # "high" level types
@@ -811,8 +835,6 @@ sub __postprocess_table_raw_description
       $fld_des->{ 'GRANT' } ||= $des->{ '@' }{ 'GRANT' };
       $fld_des->{ 'DENY'  } ||= $des->{ '@' }{ 'DENY'  };
       }  
-
-    
     
 #print STDERR "=====(GRANT DENY)==REZ+++ $table $field: " . Dumper( $fld_des );
 

@@ -9,7 +9,7 @@ added include path [/usr/local/decor/web/css]
 ##
 ############################################################################*/
 
-/* THIS FILE IS GENERATED! PLEASE, DO NOT MODIFY! -- GENERATED AT Sun Jul  3 01:41:28 2022 */
+/* THIS FILE IS GENERATED! PLEASE, DO NOT MODIFY! -- GENERATED AT Tue Jul  5 01:20:52 2022 */
 
 
 
@@ -308,16 +308,16 @@ img
         text-decoration: none;
         border-radius: 2px;
 
-        color:            #CCC;
-        background-color: #555;
-        border: solid 2px #777;
+        color:            #888;
+        background-color: #DDD;
+        border: solid 2px #BBB;
         }
 
 .icon-disabled:hover
         {
-        color:            #CCC;
-        background-color: #555;
-        border: solid 2px #777;
+        color:            #888;
+        background-color: #DDD;
+        border: solid 2px #BBB;
         }
 
 a.icon
@@ -608,7 +608,6 @@ div.record-field-value
         display: flex;
         flex-flow: row;
         width: 100%;
-        
         }
 
 div.record-sep
@@ -629,6 +628,9 @@ div.record-field
 
         padding: 0.5em 0 0 1em;
         padding: 0.5em;
+
+        display: table-cell;
+        vertical-align: baseline;
         }
 
 div.record-value
@@ -640,6 +642,9 @@ div.record-value
         
         padding: 0.5em 0 1em 0;
         padding: 0.5em;
+
+        display: table-cell;
+        vertical-align: baseline;
         }
 
 div.record-first
@@ -1048,6 +1053,15 @@ input:focus,textarea:focus,select:focus
         outline: solid 1px #55F;
         }
 
+input:disabled,textarea:disabled,select:disabled,.grid-link-select
+        {
+        color:            #455061;
+        background-color: #FFF;
+        border: solid 1px #EEE;
+        }
+
+#888  #DDD     #BBB       #888  #DDD     #BBB
+
 select,.grid-link-select
         {
         cursor: pointer;
@@ -1106,9 +1120,9 @@ select,.grid-link-select
 
 .button:focus
         {
-        color:            #CCC;
-        background-color: #555;
-        border: solid 2px #777;
+        color:            #888;
+        background-color: #DDD;
+        border: solid 2px #BBB;
         }
 
 .act-button
@@ -1155,17 +1169,17 @@ select,.grid-link-select
 
 .disabled-button
         {
-        color:            #CCC;
-        background-color: #555;
-        border: solid 2px #777;
+        color:            #888;
+        background-color: #DDD;
+        border: solid 2px #BBB;
         cursor: not-allowed;
         }
 
 .disabled-button:hover
         {
-        color:            #CCC;
-        background-color: #555;
-        border: solid 2px #777;
+        color:            #888;
+        background-color: #DDD;
+        border: solid 2px #BBB;
         }
 
 /*** hover layer ************************************************************/
@@ -1218,20 +1232,26 @@ img.check-base
         padding: 0.4em;
         text-decoration: none;
         border-radius: 2px;
+
+        color:            ;
+        background-color: ;
+        border: solid 1px ;
+        
+        background-color: #f00;
         }
 
 img.check-unknown
         {
-        color:            #CCC;
-        background-color: #555;
-        border: solid 2px #777;
+        color:            #888;
+        background-color: #DDD;
+        border: solid 2px #BBB;
         }
 
 img.check-unknown:hover
         {
-        color:            #CCC;
-        background-color: #555;
-        border: solid 2px #777;
+        color:            #888;
+        background-color: #DDD;
+        border: solid 2px #BBB;
         }
 
 img.check-gr
