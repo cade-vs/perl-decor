@@ -480,9 +480,12 @@ sub edit_get_field_control_info
         my $ltdes = $core->describe( $linked_table );
         my $file_name = $core->read_field( $linked_table, 'NAME', $field_data );
         $field_input .= $file_name;
-        $field_input .= "<br><br>";
+        $field_input .= "<p>";
 
         $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "file_dn.svg", "[~Download current file]",           ACTION => 'file_dn', TABLE => $linked_table, ID => $field_data ) if $ltdes->allows( 'READ' );
+
+        # FIXME: TODO: set option
+        $field_input .= qq( <iframe reactor_src="?action=file_dn&table=$linked_table&id=$field_data" width="100%" height="700px"></iframe><p> );
         }
 
       $field_input .= "[~Upload new file:] " . $edit_form->file_upload( NAME     => "F:$field", ID => $field_id, );

@@ -32,6 +32,9 @@ sub main
   my $table  = $reo->param( 'TABLE' );
   my $id     = $reo->param( 'ID'    );
 
+  my $master_record_table = $reo->param( 'MASTER_RECORD_TABLE' );
+  my $master_record_id    = $reo->param( 'MASTER_RECORD_ID'    );
+
   my $ui = $reo->get_user_input();
 
   my $ps = $reo->get_page_session();
@@ -90,7 +93,9 @@ sub main
   my $row_data = $core->fetch( $select );
   return "<p><#no_data><p>" unless $row_data;
 
+  $text .= "<p>";
   $text .= de_master_record_view( $reo );
+  $text .= "<p>";
 
   my $custom_css = lc "css_$table";
   $text .= "<#$custom_css>";
@@ -200,6 +205,9 @@ sub main
             $data_ctrl .= de_html_alink_icon( $reo, 'new', 'view.svg',     "[~View linked record]",              ACTION => 'view',    ID => $data_base, TABLE => $linked_table );
             $data_ctrl .= de_html_alink_icon( $reo, 'new', 'file_up.svg',  "[~Upload and replace current file]", ACTION => 'file_up', ID => $data_base, TABLE => $linked_table, LINK_TO_TABLE => $table, LINK_TO_FIELD => $base_field, LINK_TO_ID => $id );
             $data_ctrl .= de_html_alink_icon( $reo, 'new', 'file_dn.svg',  "[~Download current file]",           ACTION => 'file_dn', ID => $data_base, TABLE => $linked_table );
+
+            # FIXME: TODO: set option
+            $field_details .= qq( <iframe reactor_src="?action=file_dn&table=$linked_table&id=$data_base" width="100%" height="700px"></iframe> );
             }
           else
             {
@@ -397,7 +405,7 @@ sub main
     {
     my $update_cue = de_web_get_cue( $sdes, qw( WEB GRID UPDATE_CUE ) );
     # FIXME: row access!
-    $text .= de_html_alink_button( $reo, 'new',  "$update_cue &uArr;", $update_cue, BTYPE => 'mod', ACTION => 'edit', ID => $id, TABLE => $table, LINK_FIELD_DISABLE => $link_field_disable );
+    $text .= de_html_alink_button( $reo, 'new',  "$update_cue &uArr;", $update_cue, BTYPE => 'mod', ACTION => 'edit', ID => $id, TABLE => $table, LINK_FIELD_DISABLE => $link_field_disable, MASTER_RECORD_TABLE => $master_record_table, MASTER_RECORD_ID => $master_record_id );
     }
 
   if( $table_type ne 'FILE' and $tdes->allows( 'INSERT' ) )

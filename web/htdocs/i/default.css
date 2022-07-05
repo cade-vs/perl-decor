@@ -9,7 +9,7 @@ added include path [/usr/local/decor/web/css]
 ##
 ############################################################################*/
 
-/* THIS FILE IS GENERATED! PLEASE, DO NOT MODIFY! -- GENERATED AT Tue Jul  5 01:20:52 2022 */
+/* THIS FILE IS GENERATED! PLEASE, DO NOT MODIFY! -- GENERATED AT Tue Jul  5 02:06:42 2022 */
 
 
 
@@ -123,7 +123,7 @@ body
         height: 100%;
 
         color:            #455061;
-        background-color: #EBEBEB;
+        background-color: #BBB;
         background-image: url( "" );
 
         font: normal 10pt rubik, sans-serif;
@@ -1236,8 +1236,6 @@ img.check-base
         color:            ;
         background-color: ;
         border: solid 1px ;
-        
-        background-color: #f00;
         }
 
 img.check-unknown
