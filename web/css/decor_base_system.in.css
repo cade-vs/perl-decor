@@ -402,6 +402,7 @@ a.logo
         {
         color: $logo-colors.1;
         text-decoration: none;
+        border-bottom: none;
         }
 
 /*** main menu **************************************************************/
@@ -1264,6 +1265,40 @@ div.map
           0% { opacity: 0; }
          50% { opacity: 1; }
         100% { opacity: 0; }
+        }
+
+/*** progress ***************************************************************/
+
+div.progress-div
+        {
+        display: flex;
+        text-align: left;
+        width: 100%;
+        padding: 0.3em;
+        border: solid 1px $progress-colors.2;
+        
+        color:            $progress-colors.2;
+        background-color: $progress-colors.1;
+        }
+
+div.progress-bar
+        {
+        text-align: right;
+        width: 100%;
+        padding: 0.3em;
+
+        color:            $progress-colors.1;
+        background-color: $progress-colors.2;
+        }
+
+div.progress-empty
+        {
+        text-align: left;
+        width: 100%;
+        padding: 0.3em;
+
+        color:            $progress-colors.2;
+        background-color: $progress-colors.1;
         }
 
 /*** DECOR STATIC/SYSTEM SECTION EOF*****************************************/

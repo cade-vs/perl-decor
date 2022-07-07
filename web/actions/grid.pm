@@ -94,6 +94,7 @@ sub main
   my $link_field_id      = $reo->param( 'LINK_FIELD_ID'      );
 #  my $link_field_value   = $reo->param( 'LINK_FIELD_VALUE'   );
   my $filter_name        = $reo->param( 'FILTER_NAME' );
+  my $filter_bind        = $reo->param( 'FILTER_BIND' );
   my $filter_method      = $reo->param( 'FILTER_METHOD' );
   my $order_by           = $reo->param( 'ORDER_BY' ) || $tdes->{ '@' }{ 'ORDER_BY' } || '._ID DESC';
   
@@ -171,16 +172,16 @@ sub main
     $page_size  = 1_000_000;
     }
 
-  my $select = $core->select( $table, $fields, { FILTER => $filter, FILTER_NAME => $filter_name, FILTER_METHOD => $filter_method, OFFSET => $offset, LIMIT => $page_size, ORDER_BY => $order_by } ) if $fields;
+  my $select = $core->select( $table, $fields, { FILTER => $filter, FILTER_NAME => $filter_name, FILTER_BIND => $filter_bind, FILTER_METHOD => $filter_method, OFFSET => $offset, LIMIT => $page_size, ORDER_BY => $order_by } ) if $fields;
   return "<#access_denied>" unless $select;
-  my $scount = $core->count( $table,           { FILTER => $filter, FILTER_NAME => $filter_name } ) if $select and ! $filter_method;
+  my $scount = $core->count( $table,           { FILTER => $filter, FILTER_NAME => $filter_name, FILTER_BIND => $filter_bind } ) if $select and ! $filter_method;
 
 
   $browser_window_title .= " <span class=details-text>|</span> $scount [~record(s)]";
   $browser_window_title .= " <span class=details-text>,</span> [~filtered]" if $filter;
   $reo->ps_path_add( 'grid', $browser_window_title );
 
-  $ps->{ 'GRID_EXPORT' } = $fields ? [ $table, $fields, { FILTER => $filter, FILTER_NAME => $filter_name, FILTER_METHOD => $filter_method, OFFSET => 0, LIMIT => 8192, ORDER_BY => $order_by } ] : undef;
+  $ps->{ 'GRID_EXPORT' } = $fields ? [ $table, $fields, { FILTER => $filter, FILTER_NAME => $filter_name, FILTER_BIND => $filter_bind, FILTER_METHOD => $filter_method, OFFSET => 0, LIMIT => 8192, ORDER_BY => $order_by } ] : undef;
 
 #  $text .= "<br>";
 #  $text .= "<p>";
@@ -484,10 +485,12 @@ sub main
         {
         my ( $backlinked_table, $backlinked_field ) = $bfdes->backlink_details();
         my $bltdes = $core->describe( $backlinked_table );
+        my $blsdes = $bltdes->get_table_des(); # backlinked table "Self" description
     
         if( $bltdes->allows( 'INSERT' ) )
           {
-          my ( $insert_link_cue, $insert_link_cue_hint ) = de_web_get_cue( $bfdes, qw( WEB GRID INSERT_LINK_CUE ) );
+          ### my ( $insert_link_cue, $insert_link_cue_hint ) = de_web_get_cue( $bfdes, qw( WEB GRID INSERT_LINK_CUE ) );
+          my ( $insert_link_cue, $insert_link_cue_hint ) = de_web_get_cue( $blsdes, qw( WEB GRID INSERT_CUE ) );
           $data_ctrl .= de_html_alink_button_fill( $reo, 'new', "(+) $insert_link_cue", $insert_link_cue_hint, BTYPE => 'act', ACTION => 'edit', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, LINK_FIELD_DISABLE => $backlinked_field );
 #          $data_ctrl .= "<br>\n";
 
@@ -513,7 +516,7 @@ sub main
         else
           {  
           my $view_attached_cue   = $bfdes->get_attr( qw( WEB GRID VIEW_ATTACHED_CUE   ) ) || "[~View attached records]";
-          $data_ctrl .= de_html_alink_button( $reo, 'new', "(=) $view_attached_cue",           undef,                 ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => $id, FILTER => { $backlinked_field => $id } );
+          $data_ctrl .= de_html_alink_button( $reo, 'new', "(=) $view_attached_cue",           undef,                 ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => $id, FILTER => { $backlinked_field => $id }, MASTER_RECORD => "$table:$id" );
 #         $data_ctrl .= "<br>\n";
 
           my $view_unattached_cue   = $bfdes->get_attr( qw( WEB GRID VIEW_UNATTACHED_CUE   ) ) || "[~View unattached records]";
@@ -528,7 +531,7 @@ sub main
         if( $bcnt > 0 )
           {
           my $view_attached_cue   = $bfdes->get_attr( qw( WEB GRID VIEW_ATTACHED_CUE   ) ) || "[~View attached records]";
-          $bcnt = de_html_alink( $reo, 'new', "$bcnt rec(s)", "(=) $view_attached_cue", ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => $id, FILTER => { $backlinked_field => $id } );
+          $bcnt = de_html_alink( $reo, 'new', "$bcnt rec(s)", "(=) $view_attached_cue", ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => $id, FILTER => { $backlinked_field => $id }, MASTER_RECORD => "$table:$id" );
           }
 
         $data_fmt = $bcnt || '';

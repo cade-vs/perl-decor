@@ -212,6 +212,7 @@ my %DES_ATTRS = (
                            SKIP         => 3, # skip field on preview/etc
                            GREP         => 3, # filtering grids by value will be case insensitive and LIKE-like
                            MULTI        => 3, # allow multiple select when filtering
+                           DISPLAY      => 3, # advise display view, for example: web.display progress-bar
 
                            ADVISE      => 1, # takes arguments, INSERT,UPDATE,EDIT to be shown even if read-only on those screens
                           
@@ -535,7 +536,7 @@ sub __merge_table_des_file
         }
 
 
-      if( $key_path eq '' and exists $DE_TYPE_NAMES{ $key } )
+      if( $key_path eq '' and ( exists $DE_TYPE_NAMES{ $key } or exists $DE_LTYPE_NAMES{ $key } ) )
         {
         $value = "$key $value";
         $key   = 'TYPE';
@@ -729,7 +730,8 @@ sub __postprocess_table_raw_description
     if( $type eq 'LINK' )
       {
       $fld_des->{ 'LINKED_TABLE' } = shift @type || boom "missing LINK TABLE in table [$table] field [$field] from [@debug_origin]";
-      $fld_des->{ 'LINKED_FIELD' } = shift @type || boom "missing LINK FIELD in table [$table] field [$field] from [@debug_origin]";
+      $fld_des->{ 'LINKED_FIELD' } = shift @type || 'NAME';
+      #$fld_des->{ 'LINKED_FIELD' } = shift @type || boom "missing LINK FIELD in table [$table] field [$field] from [@debug_origin]";
       
       $fld_des->{ 'LINKED_TABLE' } = $table if uc $fld_des->{ 'LINKED_TABLE' } eq '%TABLE'; # self-link
       }

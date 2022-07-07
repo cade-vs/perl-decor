@@ -371,6 +371,7 @@ sub __postprocess_menu_hash
         # FIXME: add hint that this menu has problems
         }
       $item_des->{ 'SUBMENU_NAME' } = $submenu;
+      $item_des->{ 'LABEL' } ||= uc( substr( $item, 0, 1 ) ) . lc( substr( $item, 1 ) );
       }
     elsif( $type =~ /^(GRID|INSERT|EDIT|VIEW)$/ )
       {

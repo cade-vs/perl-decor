@@ -311,17 +311,18 @@ sub main
       }
 
     my ( $field_input, $field_input_ctrl, $field_details, $backlinks_text );
-    if( ! $fdes->allows( $edit_mode ) )
+    if( ! $fdes->allows( $edit_mode ) or $link_field_disable eq $field )
       {
       my $advise = $fdes->{ 'ADVISE' };
       next unless $advise eq $edit_mode or $advise eq 'ALL';
       
       my $field_data_usr_format = de_web_format_field( $field_data, $fdes, 'VIEW', { CORE => $core } );
-      $field_input = $edit_form->input(
-                                         NAME     => "F:$field:DISABLED",
-                                         VALUE    => $field_data_usr_format,
-                                         DISABLED => 1,
-                                       );  
+      #$field_input = $edit_form->input(
+      #                                   NAME     => "F:$field:DISABLED",
+      #                                   VALUE    => $field_data_usr_format,
+      #                                   DISABLED => 1,
+      #                                 );  
+      $field_input = $field_data_usr_format;
       }
     else
       {
@@ -653,7 +654,7 @@ sub edit_get_field_control_info
             $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "edit.svg", "[~Edit linked data]", ACTION => 'edit', TABLE => $linked_table, ID => $field_data ) if $ltdes->allows( 'UPDATE' );
             }
           my $select_cue = $bfdes->get_attr( qw( WEB EDIT SELECT_CUE ) ) || "[~Select linked record]";
-          $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "select-from.svg", $select_cue, ACTION => 'grid', TABLE => $linked_table, ID => -1, RETURN_DATA_FROM => '_ID', RETURN_DATA_TO => $field, GRID_MODE => 'SELECT', SELECT_KEY_DATA => $field_data, FILTER_NAME => $select_filter_name ) if $ltdes->allows( 'READ'   );
+          $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "select-from.svg", $select_cue, ACTION => 'grid', TABLE => $linked_table, ID => -1, RETURN_DATA_FROM => '_ID', RETURN_DATA_TO => $field, GRID_MODE => 'SELECT', SELECT_KEY_DATA => $field_data, FILTER_NAME => $select_filter_name, FILTER_BIND => \@select_filter_bind ) if $ltdes->allows( 'READ'   );
           }
         }
         my $insert_cue = $bfdes->get_attr( qw( WEB EDIT INSERT_CUE ) ) || "[~Insert and link a new record]";

@@ -46,7 +46,7 @@ sub main
   my @fields           = @{ $ps->{ 'FIELDS_WRITE_AR'  } };
   my $edit_mode_insert = $ps->{ 'EDIT_MODE_INSERT' };
 
-  push @fields, @{ $tdes->get_fields_list_by_oper( 'READ' ) };
+  #push @fields, @{ $tdes->get_fields_list_by_oper( 'READ' ) };
   @fields = $tdes->sort_fields_by_order( list_uniq( @fields ) );
   
   #print STDERR Dumper( '*'x200, \@fields, $tdes );

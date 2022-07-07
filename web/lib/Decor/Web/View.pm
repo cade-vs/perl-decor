@@ -123,13 +123,19 @@ sub de_web_format_field
 
   my $password = ( $fdes->get_attr( 'PASSWORD' ) or $fname =~ /^PWD_/ ) ? 1 : 0;
 
-  if( $type_name eq 'CHAR' )
+  my $web_display = $fdes->get_attr( 'WEB', $vtype, 'DISPLAY' );
+
+  if( $type_name =~ /^(CHAR|INT|REAL)$/ and $web_display =~ /^progress(-bar)?/i )
+    {
+    my $maxlen = $fdes->get_attr( 'WEB', $vtype, 'MAXLEN' );
+    $data_fmt = de_progress_bar( $field_data, $maxlen );
+    }
+  elsif( $type_name eq 'CHAR' )
     {
     $data_fmt = type_format( $field_data, $fdes->{ 'TYPE' } );
     $data_fmt = str_html_escape( $data_fmt );
 
     $data_fmt = "[~(hidden)]" if $password and $data_fmt ne '';
-    $data_fmt = "&empty;" if $data_fmt eq '';
     
     my $maxlen = $fdes->get_attr( 'WEB', $vtype, 'MAXLEN' );
     if( $maxlen )
@@ -168,6 +174,8 @@ sub de_web_format_field
       $data_fmt = undef;
       $data_fmt .= join '; ', map { "<a href='tel:$_'>" . de_web_format_phones( $_, 1 ) . "</a>" } @field_data;
       }
+
+    $data_fmt = "&empty;" if $data_fmt eq '';
       
     if( $fdes->get_attr( 'WEB', $vtype, 'MONO' ) )
       {
@@ -624,8 +632,15 @@ sub de_master_record_view
 
   my $core = $reo->de_connect();
 
-  my $master_record_table = $reo->param( 'MASTER_RECORD_TABLE' ) or return undef;
-  my $master_record_id    = $reo->param( 'MASTER_RECORD_ID' ) or return undef;
+  my $master_record_table = $reo->param( 'MASTER_RECORD_TABLE' );
+  my $master_record_id    = $reo->param( 'MASTER_RECORD_ID'    );
+
+  if( ! $master_record_table or $master_record_id )
+    {
+    ( $master_record_table, $master_record_id ) = split /:/, $reo->param( 'MASTER_RECORD' );
+    }
+
+  return undef unless $master_record_table and $master_record_id;
 
   my $tdes = $core->describe( $master_record_table );
   my $sdes = $tdes->get_table_des(); # table "Self" description
@@ -634,6 +649,35 @@ sub de_master_record_view
 
   #return de_data_grid( $core, $linked_table, $master_fields, { FILTER => { '_ID' => $link_id }, LIMIT => 1, CLASS => 'grid view record', TITLE => "[~Master record from] $linked_table_label" } ) if $master_fields;
   return de_data_view( $core, $master_record_table, $master_fields, $master_record_id, { CLASS => 'view record', TITLE => "[~Master record from] $table_label" } );
+}
+
+sub de_progress_bar
+{
+  my $value = shift;
+  my $width = shift; # screen width in em (letters)
+
+  my $prc;
+  my $val;
+  ( $prc, $val ) = ( 100*$1/$2, " ($value)" ) if ! $prc and $value =~ /(\d)\/(\d)/ and $1 < $2 and $2 > 0; # allow string with xx/nn
+  $prc = $1        if ! $prc and $value =~ /(\d+(\.\d+)?)%?/; # or string with xx.nn%
+  $prc = $value    if ! $prc; # assumed a number
+  
+  $prc =   0 if $prc <   0 or ! $prc;
+  $prc = 100 if $prc > 100;
+  
+  my $p1  = sprintf( "%.1d%%", $prc ) . $val if $prc < 50;
+  my $p2  = sprintf( "%.1d%%", $prc ) . $val if $prc > 50;
+  
+  my $pn  = 100 - $prc;
+
+  my $d1 = " ;display: none; " if $prc ==   0;
+  my $d2 = " ;display: none; " if $prc == 100;
+
+  $p2 = "Complete" if $prc == 100;
+  
+  my $wd = " ;width: ${width}em; " if $width =~ /^\d+$/ and $width > 0;
+  
+  return "<div class=progress-div style='$wd'><div class=progress-bar style='width: $prc%; $d1'>$p2</div><div class=progress-empty style='width: $pn%; $d2'>$p1</div></div>";
 }
 
 1;
