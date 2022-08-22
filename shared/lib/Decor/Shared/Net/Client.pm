@@ -696,6 +696,9 @@ sub do
   my $mo = $self->tx_msg( \%mi ) or return undef;
 
   #return wantarray ? ( $mo->{ 'RDATA' }, $mo->{ 'MERRS' } ) : $mo->{ 'RDATA' };
+  #my ( $file_body, $file_mime ) = $core->get_return_file_body_mime();
+  # FIXME: return here?
+  
   return 1;
 }
 

@@ -444,6 +444,9 @@ sub main
 
   $text .= '<br><br><br>' . join '<br><br><br>', @backlinks_text;
 
+
+  $text .= "<#view_bottom_$table>";
+
   return $text;
 }
 

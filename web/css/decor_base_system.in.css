@@ -482,6 +482,7 @@ table.menu
 td.menu
         {
         width:  1%;
+        min-width: 20em;
         border-bottom: solid 1px $menu-colors.5;
         border-left:   solid 1px $menu-colors.5;
         border-right:  solid 1px $menu-colors.5;
@@ -1145,6 +1146,11 @@ div.popup-layer
         opacity: 0.95;
 
         display: none;
+        }
+
+div.popup-layer-inline
+        {
+        padding: 0;
         }
 
 div.popup-menu-buttons
