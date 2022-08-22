@@ -287,7 +287,7 @@ sub __create_new_anon_session
   my $ss_time = time();
   while(4)
     {
-    my $sid = create_random_id( 137 );
+    my $sid = create_random_id( 61 );
     $session_rec->write( 'SID' => $sid );
     my $sp_name = 'BEGIN_NEW_SESSION';
     $session_rec->savepoint( $sp_name );
