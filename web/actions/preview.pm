@@ -45,6 +45,8 @@ sub main
 
   my @fields           = @{ $ps->{ 'FIELDS_WRITE_AR'  } };
   my $edit_mode_insert = $ps->{ 'EDIT_MODE_INSERT' };
+  
+  my $edit_mode        = $edit_mode_insert ? 'INSERT' : 'UPDATE';
 
   #push @fields, @{ $tdes->get_fields_list_by_oper( 'READ' ) };
   @fields = $tdes->sort_fields_by_order( list_uniq( @fields ) );
@@ -112,8 +114,10 @@ sub main
 
   @fields = grep { /^_/ ? $reo->user_has_group( 1 ) ? 1 : 0 : 1 } @fields;
 
+  my %advise = map { $_ => 1 } @{ $tdes->get_fields_list_by_oper( 'READ' ) };
+
   my $record_first = 1;
-  for my $field ( @fields )
+  for my $field ( $tdes->sort_fields_list_by_order( list_uniq( @fields, keys %advise ) ) )
     {
     my $fdes      = $tdes->{ 'FIELD' }{ $field };
     my $bfdes     = $fdes; # keep sync code with view/grid, bfdes is begin/origin-field
@@ -121,6 +125,9 @@ sub main
     my $label     = $fdes->get_attr( qw( WEB PREVIEW LABEL ) );
     
     next if $fdes->get_attr( qw( WEB PREVIEW SKIP ) );
+
+    #my $advise = $fdes->{ 'ADVISE' };
+    #next unless $advise eq $edit_mode or $advise eq 'ALL';
 
     my $base_field = $field;
 

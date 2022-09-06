@@ -145,7 +145,7 @@ sub de_web_format_field
         {
         if( $maxlen == 1 )
           {
-          $data_fmt = [ "<img src=i/check-0.svg>", "<img src=i/check-1.svg>" ]->[ !! ( length( $data_fmt ) > 0 ) ];
+          $data_fmt = [ "<img class=check-gr src=i/check-0.svg>", "<img class=check-gr src=i/check-1.svg>" ]->[ !! ( length( $data_fmt ) > 0 ) ];
           }
         elsif( $maxlen > 0  )
           {
@@ -196,7 +196,7 @@ sub de_web_format_field
       }
     else
       {
-      $data_fmt = [ "<img src=i/check-0.svg>", "<img src=i/check-1.svg>" ]->[ !! $field_data ];
+      $data_fmt = [ "<img class=check-gr src=i/check-0.svg>", "<img class=check-gr src=i/check-1.svg>" ]->[ !! $field_data ];
       }  
     $fmt_class .= " fmt-center";
     }

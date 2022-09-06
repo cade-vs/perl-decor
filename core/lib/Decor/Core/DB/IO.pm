@@ -158,16 +158,27 @@ sub select
   my @select_fields;
   for my $field ( @fields )
     {
-    # TODO: handle AGGREGATE functions, with checking allowed funcs
+    my $af; # aggregate function
+    my $ff;
     if( $field eq 'COUNT(*)' )
       {
       # special case COUNT(*)
-      push @select_fields, 'COUNT(*)';
+      push @select_fields, $field;
       next;
-      };
+      }
+    elsif( $field =~ /^(SUM)\(([A-Z_0-9]+)\)$/ )
+      {
+      # special case AF(FIELD)
+      $af = $1;
+      $ff = $2;
+      }
+    else
+      {
+      $ff = $field;
+      }  
     
-    my ( $resolved_alias, $resolved_table, $resolved_field ) = $self->__select_resolve_field( $table, $field );
-    push @select_fields, "$resolved_alias.$resolved_field";
+    my ( $resolved_alias, $resolved_table, $resolved_field ) = $self->__select_resolve_field( $table, $ff );
+    push @select_fields, $af ? "$af($resolved_alias.$resolved_field)" : "$resolved_alias.$resolved_field";
     }
 
   # resolve fields in where clause
@@ -835,6 +846,21 @@ sub count
   $self->finish();
   
   return $data->{ 'COUNT(*)' };
+}
+
+sub sum
+{
+  my $self  = shift;
+  my $table = shift;
+  my $field = uc shift;
+  my $where = shift;
+  my $opts  = shift; 
+
+  $self->select( $table, "SUM($field)", $where, $opts );
+  my $data = $self->fetch();
+  $self->finish();
+  
+  return $data->{ "SUM($field)" };
 }
 
 

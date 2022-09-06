@@ -26,6 +26,7 @@ our @EXPORT = qw(
                 set_user_pass
                 
                 update_backlink_count
+                update_backlink_sum
 
                 );
 
@@ -144,6 +145,34 @@ sub update_backlink_count
   else
     {
     $io->update_id( $table_rec, { $field => $count }, $id );
+    }  
+}
+
+# usage: backlink table, backlink field --> table/rec, field, <id>
+sub update_backlink_sum
+{
+  my $backlink_table = shift;
+  my $backlink_field = shift;
+  my $backlink_sum   = uc shift;
+  my $table_rec      = shift;
+  my $field          = shift;
+  my $id             = shift;
+  my $tune_sum       = shift || 0;
+
+  $id = $table_rec->id() if ref( $table_rec );
+  boom "missing 5th arg [ID]" unless $id > 0;
+  
+  my $io = new Decor::Core::DB::IO;
+  my $sum = $io->sum( $backlink_table, $backlink_sum, "$backlink_field = ?", { BIND => [ $id ] } );
+  $sum += $tune_sum;
+  
+  if( ref( $table_rec ) )
+    {
+    $table_rec->write( $field => $sum );
+    }
+  else
+    {
+    $io->update_id( $table_rec, { $field => $sum }, $id );
     }  
 }
 
