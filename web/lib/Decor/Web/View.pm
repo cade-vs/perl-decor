@@ -635,7 +635,7 @@ sub de_master_record_view
   my $master_record_table = $reo->param( 'MASTER_RECORD_TABLE' );
   my $master_record_id    = $reo->param( 'MASTER_RECORD_ID'    );
 
-  if( ! $master_record_table or $master_record_id )
+  if( ! $master_record_table or ! $master_record_id )
     {
     ( $master_record_table, $master_record_id ) = split /:/, $reo->param( 'MASTER_RECORD' );
     }

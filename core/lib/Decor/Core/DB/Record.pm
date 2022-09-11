@@ -781,7 +781,21 @@ sub save
   return 1;
 }
 
-sub copy_from
+sub copy
+{
+  my $self = shift;
+
+  boom "cannot copy fields with odd number of arguments" if @_ % 2;
+
+  my %map  = @_;
+  
+  while( my ( $k, $v ) = each %map )
+    {
+    $self->write( $k, $self->read( $v ) );
+    }
+}
+
+sub copy_from_rec
 {
   my $self    = shift;
   

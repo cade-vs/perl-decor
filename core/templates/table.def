@@ -1,0 +1,14 @@
+
+# label [~Contracts]
+# grant all to 10
+
+#=CLIENT
+#
+#    link  CLIENTS  NAME
+#    label [~Client]
+    
+#=CTIME
+#
+#    utime
+#    label [~Create time]
+  

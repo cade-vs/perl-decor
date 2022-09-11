@@ -124,7 +124,8 @@ sub main
     my $type_name = $fdes->{ 'TYPE'  }{ 'NAME' };
     my $label     = $fdes->get_attr( qw( WEB PREVIEW LABEL ) );
     
-    next if $fdes->get_attr( qw( WEB PREVIEW SKIP ) );
+    next if $fdes->get_attr( qw( WEB HIDDEN       ) );
+    next if $fdes->get_attr( qw( WEB PREVIEW HIDE ) );
 
     #my $advise = $fdes->{ 'ADVISE' };
     #next unless $advise eq $edit_mode or $advise eq 'ALL';
@@ -132,7 +133,7 @@ sub main
     my $base_field = $field;
 
     my $data = $row_data->{ $field };
-    my $data_fmt = de_web_format_field( $data, $fdes, 'PREVIEW', { CORE => $core, NO_EDIT => 1 } );
+    my $data_fmt = de_web_format_field( $data, $fdes, 'PREVIEW', { CORE => $core, NO_EDIT => 1, ID => $id } );
     my $field_error;
     
     $field_error .= "$_<br>\n" for @{ $calc_merrs->{ $field } };

@@ -1,7 +1,6 @@
-added include path [/usr/local/decor/web/css] 
 /*############################################################################
 ##
-##  Decor application machinery core -- RDX Style
+##  Decor application machinery core
 ##  2014-2021 (c) Vladi Belperchinov-Shabanski "Cade"
 ##  <cade@bis.bg> <cade@biscom.net> <cade@cpan.org>
 ##
@@ -9,8 +8,7 @@ added include path [/usr/local/decor/web/css]
 ##
 ############################################################################*/
 
-/* THIS FILE IS GENERATED! PLEASE, DO NOT MODIFY! -- GENERATED AT Tue Jul  5 02:06:42 2022 */
-
+/* THIS FILE IS GENERATED! PLEASE, DO NOT MODIFY! -- GENERATED AT Fri Feb 11 01:08:43 2022 */
 
 
 
@@ -122,11 +120,11 @@ body
         margin: 0;
         height: 100%;
 
-        color:            #455061;
-        background-color: #BBB;
-        background-image: url( "" );
+        color:            #000;
+        background-color: #fff;
+        background-image: url( "back.jpg" );
 
-        font: normal 10pt rubik, sans-serif;
+        font: normal 11pt rubik, sans-serif;
         }
 
 .fill
@@ -157,9 +155,9 @@ td.main_body
 
 td.main_footer
         {
-        color:                #455061;
-        background-color:     #A5DEF8;
-        border-top: solid 1px #007886;
+        color:                #EEE;
+        background-color:     #2A363B;
+        border-top: solid 1px #3A464B;
         width:  100%;
         height: 100%;
         vertical-align: top;
@@ -198,28 +196,27 @@ div#div_for_screen
 
 a       
         {
-        color: #F8572A;
-        border-bottom: dotted 1px #F8572A;
+        color: #07a;
+        border-bottom: dotted 1px #07a;
 
         text-decoration: none;
         }
 
 a:hover 
         {
-        color: #FA794C;
-        border-bottom: solid 1px #FA794C;
+        color: #d63;
+        border-bottom: solid 1px #d63;
         }
 
 a:focus
         {
-        color: #FA794C;
-        border-bottom: solid 1px #FA794C;
+        color: #CCC;
+        border-bottom: solid 1px #555;
         }
 
 a.plain
         {
         border: none;
-        text-decoration: none;
         }
 
 img
@@ -231,22 +228,22 @@ img
 .icon
         {
         cursor: pointer;
-        height: 2em;
-        padding: 0.3em;
+        height: 2.2em;
+        padding: 0.4em;
         text-decoration: none;
         background-image: none;
         border-radius: 2px;
         margin: 1px 1px 1px 1px;
 
         color:            #FFF;
-        background-color: #004464;
-        border: solid 2px #226686;
+        background-color: #448;
+        border: solid 2px #66A;
         }
 .icon:hover
         {
         color:            #FFF;
-        background-color: #115575;
-        border: solid 2px #4488A8;
+        background-color: #66A;
+        border: solid 2px #88C;
         }
 
 .icon-clear
@@ -276,29 +273,29 @@ img
 .act-icon
         {
         color:            #FFF;
-        background-color: #F8572A;
-        border: solid 2px #FA794C;
+        background-color: #262;
+        border: solid 2px #494;
         }
 
 .act-icon:hover
         {
         color:            #FFF;
-        background-color: #F9683B;
-        border: solid 2px #FC9B6E;
+        background-color: #494;
+        border: solid 2px #6A6;
         }
 
 .mod-icon
         {
         color:            #FFF;
-        background-color: #880B00;
-        border: solid 2px #AA2D22;
+        background-color: #822;
+        border: solid 2px #B55;
         }
 
 .mod-icon:hover
         {
         color:            #FFF;
-        background-color: #880B00;
-        border: solid 2px #AA2D22;
+        background-color: #822;
+        border: solid 2px #B55;
         }
 
 .icon-disabled
@@ -308,16 +305,16 @@ img
         text-decoration: none;
         border-radius: 2px;
 
-        color:            #888;
-        background-color: #DDD;
-        border: solid 2px #BBB;
+        color:            #CCC;
+        background-color: #555;
+        border: solid 2px #777;
         }
 
 .icon-disabled:hover
         {
-        color:            #888;
-        background-color: #DDD;
-        border: solid 2px #BBB;
+        color:            #CCC;
+        background-color: #555;
+        border: solid 2px #777;
         }
 
 a.icon
@@ -364,9 +361,9 @@ div.info-text
 div.report-text
         {
         color: #FFF;
-        background-color: #355;
-        border:      solid 1px #68A;
-        border-left: solid 3px #68A;
+        background-color: #457;
+        border:      solid 1px #568;
+        border-left: solid 3px #568;
 
         width: min-content;
         text-align: left;
@@ -377,12 +374,12 @@ div.report-text
 
 div.link-data
         {
-        color: #455061;
-        background-color: #CCEECC;
-        border-top:    solid 1px #AACCAA;
-        border-left:   solid 1px #AACCAA;
-        border-bottom: solid 1px #AACCAA;
-        border-right:  solid 1px #AACCAA;
+        color: #CCC;
+        background-color: #113;
+        border-top:    solid 1px #000;
+        border-left:   solid 1px #000;
+        border-bottom: solid 1px #555;
+        border-right:  solid 1px #555;
 
         padding: 0.5em;
         margin: 0 0 0 0;
@@ -390,12 +387,12 @@ div.link-data
 
 div.link-empty
         {
-        color: #455061;
-        background-color: #EECCCC;
-        border-top:    solid 1px #CCAAAA;
-        border-left:   solid 1px #CCAAAA;
-        border-bottom: solid 1px #CCAAAA;
-        border-right:  solid 1px #CCAAAA;
+        color: #CCC;
+        background-color: #311;
+        border-top:    solid 1px #000;
+        border-left:   solid 1px #000;
+        border-bottom: solid 1px #555;
+        border-right:  solid 1px #555;
 
         padding: 0.5em;
         margin: 0 0 0 0;
@@ -405,15 +402,15 @@ div.link-empty
         {
         font-weight: bold;
         color:            #FFF;
-        background-color: #F00;
-        border: solid 1px #A00;
+        background-color: #822;
+        border: solid 1px #633;
         padding: 2px;
         margin: 2px 2px 2px 2px;
         }
 
 .hi
         {
-        color: #F0F;
+        color: #FFF;
         font-weight: bold;
         }
 
@@ -433,17 +430,17 @@ table
 
 table.logo
         {
-        color:                   #455061;
-        background-color:        #A5DEF8;
-        border-bottom: solid 1px #007886;
+        color:                   #EEE;
+        background-color:        #2A363B;
+        border-bottom: solid 1px #3A464B;
         
         vertical-align: middle;
-        padding: 0.1em;
+        padding: 4px;
         }
 
 a.logo
         {
-        color: #455061;
+        color: #EEE;
         text-decoration: none;
         }
 
@@ -452,20 +449,20 @@ a.logo
 table.main-menu
         {
         color: #FFF;
-        background-color: #455061;
-        border-bottom: solid 1px #677283;
+        background-color: #822;
+        border-bottom: solid 1px #FF847C;
 
         vertical-align: middle;
         white-space: nowrap;
         cursor: pointer;
 
-        font: bold 12pt oswald;
+        font: bold 1.1em oswald;
         width:  100%;
         }
 
 td.main-menu
         {
-        border-right: solid 1px #677283;
+        border-right: solid 1px #FF847C;
 
         width:  1%;
         padding: 0.1em;
@@ -473,12 +470,12 @@ td.main-menu
 
 td.main-menu:hover
         {
-        background-color: #566172;
+        background-color: #FF847C;
         }
 
 td.main-menu-fill
         {
-        border-right: solid 1px #677283;
+        border-right: solid 1px #FF847C;
 
         width:  100%;
         padding: 0;
@@ -509,26 +506,26 @@ a.main-menu:hover
 table.menu
         {
         color:                #FFF;
-        background-color:     #455061;
-        border-top: solid 1px #677283;
+        background-color:     #822;
+        border-top: solid 1px #FF847C;
 
         vertical-align: middle;
         white-space: nowrap;
         cursor: pointer;
 
         width: 80%;
-        max-width: 700px;
-        font: bold 12pt oswald;
+        max-width: 800px;
+        font: bold 1.1em oswald;
         }
 
 td.menu
         {
         width:  1%;
-        border-bottom: solid 1px #677283;
-        border-left:   solid 1px #677283;
-        border-right:  solid 1px #677283;
+        border-bottom: solid 1px #FF847C;
+        border-left:   solid 1px #FF847C;
+        border-right:  solid 1px #FF847C;
 
-        padding: 0.1em;
+        padding: 10.3em;
         white-space: nowrap;
         /*
         padding-left: 1em;
@@ -540,7 +537,7 @@ td.menu
 
 td.menu:hover
         {
-        background-color: #566172;
+        background-color: #FF847C;
         }
 
 a.menu
@@ -549,7 +546,6 @@ a.menu
 
         display: block;
         width:  100%;
-        padding: 4px;
         text-decoration: none;
         border: none;
         }
@@ -557,28 +553,19 @@ a.menu
 a.menu:hover
         {
         color:            #FFF;
-        background-color: #566172;
+        background-color: #FF847C;
 
         text-decoration: none;
         border: none;
         }
-
-@media (max-width: 665px) 
-{
-table.menu
-        {
-        width:  98vw;
-        margin: 0;
-        }
-}        
 
 /*** page sessions path ******************************************************/
 
 tr.ps-path
         {
         color:                   #FFF;
-        background-color:        #455061;
-        border-bottom: solid 1px #677283;
+        background-color:        #822;
+        border-bottom: solid 1px #FF847C;
         
         font-weight: bold;
         vertical-align: middle;
@@ -592,102 +579,26 @@ td.ps-path
 
 /*** record base config for view, edit, insert, preview tables **************/
 
-div.record-table
+table.record
         {
+        border-collapse: collapse;
         width:  100%;
         max-width: 1000px;
-
-        color:            #455061;
-        background-color: #FFF;
-        border: solid 1px #CDD8E9;
-        margin: auto;
         }
         
-div.record-field-value
+td.record-field
         {
-        display: flex;
-        flex-flow: row;
-        width: 100%;
-        }
-
-div.record-sep
-        {
-        flex: auto;
-        text-align: center;
-        }
-
-div.record-field
-        {
-        flex: 1;
+        width: 30%;
         text-align: right;
-        
-        font-weight: bold;
-
-        border-top: solid 1px #CDD8E9;
-        border-right:  solid 1px #CDD8E9;
-
-        padding: 0.5em 0 0 1em;
-        padding: 0.5em;
-
-        display: table-cell;
-        vertical-align: baseline;
+        padding-right: 1em;
         }
 
-div.record-value
+td.record-value
         {
-        flex: 2;
+        width: 60%;
         text-align: left;
-
-        border-top: solid 1px #CDD8E9;
-        
-        padding: 0.5em 0 1em 0;
-        padding: 0.5em;
-
-        display: table-cell;
-        vertical-align: baseline;
+        padding-left: 1em;
         }
-
-div.record-first
-        {
-        border-top: none;
-        }
-
-@media (max-width: 665px) 
-{
-div.record-table
-        {
-        width:  98vw;
-        margin: 0;
-        }
-
-div.record-field-value
-        {
-        flex-flow: column;
-        }
-
-div.record-sep
-        {
-        flex: auto;
-        text-align: right;
-        padding-right: 2em;
-        }
-
-div.record-field
-        {
-        flex: 1;
-        text-align: left;
-
-        border: none;
-        }
-
-div.record-value
-        {
-        flex: 1;
-        
-        border: none;
-        border-bottom: solid 1px #CDD8E9;
-        }
-}
 
 /*** login ******************************************************************/
 
@@ -707,139 +618,50 @@ table.login
 
 /*** view *******************************************************************/
 
-div.view-sep
+table.view
+        {
+        color:            #EEE;
+        background-color: #333;
+        border: solid 1px #555;
+        }
+
+tr.view
+        {
+        height: 3em;
+        }
+
+td.view-header
         {
         color:            #FFF;
-        background-color: #444F60;
-        border: solid 1px #677283;
+        background-color: #159;
+        border: solid 1px #37A;
 
         padding: 0.2em;
-        font: bold 12pt oswald;
+        font: bold 1.2em oswald;
         }
 
-div.insert-divider
+td.view-field
         {
-        color:            #FFF;
-        background-color: #444F60;
-        border: solid 1px #677283;
+        border-bottom: solid 1px #444;
+        border-right:  solid 1px #444;
 
-        padding: 0.2em;
-        font: bold 12pt oswald;
-        }
-
-/* flex */
-/* moved to record-* above
-div.view-flow
-        {
-        display: flex;
-        flex-flow: column;
-
-        color:            #455061;
-        background-color: #FFF;
-        border: solid 1px #CDD8E9;
-
-
-        padding: 1em;
-        border: solid 1px red;
-        }
-
-div.view-field-value
-        {
-        display: flex;
-        flex-flow: row;
-        width: 100%;
-        
-        padding: 1em;
-        border: solid 1px green;
-        }
-
-div.view-header
-        {
-        color:            #FFF;
-        background-color: #444F60;
-        border: solid 1px #677283;
-        width: 100%;
-
-        padding: 0.2em;
-        font: bold 12pt oswald;
-        }
-
-div.view-field
-        {
-        flex: 1;
-
-        border-bottom: solid 1px #CDD8E9;
-        border-right:  solid 1px #CDD8E9;
-
-        padding: 0.5em;
-        vertical-align: middle;
-
-        padding: 1em;
-        border: solid 1px blue;
-        }
-
-div.view-value
-        {
-        flex: 2;
-
-        border-bottom: solid 1px #CDD8E9;
-        
-        padding: 0.5em;
-        vertical-align: middle;
-
-        padding: 1em;
-        border: solid 1px blue;
-        }
-
-div.view-details
-        {
-        border-bottom: solid 1px #CDD8E9;
-        
         padding: 0.5em;
         }
 
-@media (max-width: 665px) 
-{
-div.view-field-value
+td.view-value
         {
-        flex-flow: column;
-        }
-
-div.view-field
-        {
-        flex: 1;
-        width: -100%;
-
-        border: none;
-
-        text-align: left;
+        border-bottom: solid 1px #444;
         
         padding: 0.5em;
         }
-
-div.view-value
-        {
-        flex: 1;
-        width: -100%;
-
-        border-bottom: solid 1px #CDD8E9;
-        
-        padding: 0.5em;
-        padding-left: 4em;
-        }
-}
-
-*/
 
 /*** edit *******************************************************************/
 
-/*
-
 table.edit
         {
-        color:            #455061;
-        background-color: #FFF;
-        border: solid 1px #CDD8E9;
+        color:            #EEE;
+        background-color: #333;
+        border: solid 1px #555;
         }
 
 tr.edit
@@ -854,28 +676,31 @@ td.edit-header
         border: solid 1px #A44;
 
         padding: 0.2em;
-        font: bold 12pt oswald;
+        font: bold 1.2em oswald;
         }
 
 td.edit-field
         {
-        border-bottom: solid 1px #CDD8E9;
-        border-right:  solid 1px #CDD8E9;
+        border-bottom: solid 1px #444;
+        border-right:  solid 1px #444;
 
         padding: 0.5em;
         }
 
-*/
+td.edit-value
+        {
+        border-bottom: solid 1px #444;
+        
+        padding: 0.5em;
+        }
 
 /*** insert *******************************************************************/
 
-/*
-
 table.insert
         {
-        color:            #455061;
-        background-color: #FFF;
-        border: solid 1px #CDD8E9;
+        color:            #EEE;
+        background-color: #333;
+        border: solid 1px #555;
         }
 
 tr.insert
@@ -890,25 +715,23 @@ td.insert-header
         border: solid 1px #484;
 
         padding: 0.2em;
-        font: bold 12pt oswald;
+        font: bold 1.2em oswald;
         }
 
 td.insert-field
         {
-        border-bottom: solid 1px #CDD8E9;
-        border-right:  solid 1px #CDD8E9;
+        border-bottom: solid 1px #444;
+        border-right:  solid 1px #444;
 
         padding: 0.5em;
         }
 
 td.insert-value
         {
-        border-bottom: solid 1px #CDD8E9;
+        border-bottom: solid 1px #444;
         
         padding: 0.5em;
         }
-
-*/
 
 /*** view, edit, insert details **************************************************/
 
@@ -924,16 +747,16 @@ td.insert-value
 
 .details-text
         {
-        color:            
+        color:            #888
         }
 
 /*** grid *******************************************************************/
 
 table.grid
         {
-        color:            #455061;
-        background-color: #FFF;
-        border: solid 1px #9AA5B6;
+        color:            #EEE;
+        background-color: #333;
+        border: solid 1px #555;
 
         border-collapse: collapse;
         width:  100%;
@@ -942,8 +765,8 @@ table.grid
 td.grid-header
         {
         color:            #FFF;
-        background-color: #444F60;
-        border: solid 1px #677283;
+        background-color: #223;
+        border: solid 1px #555;
 
         font-weight: bold;
         padding: 0.7em;
@@ -954,57 +777,55 @@ td.grid-data
         {
         padding: 0.5em;
         white-space: nowrap;
-        border-right: solid 1px #9AA5B6;
+        border-right: solid 1px #555;
         }
 
 tr.grid-1
         {
-        background-color: #DDD;
-        border-bottom: solid 1px #9AA5B6;
+        background-color: #353535;
+        border-bottom: solid 1px #555;
         }
 
 tr.grid-2
         {
-        background-color: #CCC;
-        border-bottom: solid 1px #9AA5B6;
+        background-color: #303030;
+        border-bottom: solid 1px #555;
         }
 
 tr.grid-1:hover
         {
-        border-bottom: solid 1px #8994A5;
-        background-color: #FFF;
+        border-bottom: solid 1px #555;
+        background-color: #343450;
         }
 
 tr.grid-2:hover
         {
-        border-bottom: solid 1px #8994A5;
-        background-color: #FFF;
+        border-bottom: solid 1px #555;
+        background-color: #343450;
         }
 
-/*** formats ****************************************************************/
-
-.fmt-left
+td.fmt-left
         {
         text-align: left;
         }
 
-.fmt-right
+td.fmt-right
         {
         text-align: right;
         }
 
-.fmt-center
+td.fmt-center
         {
         text-align: center;
         }
 
-.fmt-mono
+td.fmt-mono
         {
         font-family: prime, monospace;
         white-space: nowrap;
         }
 
-.fmt-ctrl
+td.fmt-ctrl
         {
         text-align: left;
         width: 1%;
@@ -1029,12 +850,12 @@ table.grid-navi td
 input,textarea,select,.grid-link-select
         {
         padding: 0.5em;
-        margin:  0;
-        font: 12pt rubik;
+        margin: 0 0 0 0;
+        font: 1.1em rubik;
         
-        color: #455061;
-        background-color: #CFDAE7;
-        border: solid 1px #AFB8C5;
+        color: #CCC;
+        background-color: #222;
+        border: solid 1px #555;
         }
 
 input:hover,textarea:hover,select:hover,.grid-link-select:hover
@@ -1053,15 +874,6 @@ input:focus,textarea:focus,select:focus
         outline: solid 1px #55F;
         }
 
-input:disabled,textarea:disabled,select:disabled,.grid-link-select
-        {
-        color:            #455061;
-        background-color: #FFF;
-        border: solid 1px #EEE;
-        }
-
-#888  #DDD     #BBB       #888  #DDD     #BBB
-
 select,.grid-link-select
         {
         cursor: pointer;
@@ -1072,24 +884,24 @@ select,.grid-link-select
 .grid-link-select-option
         {
         color: #FFF;
-        background-color: #455061;
+        background-color: #822;
 
         cursor: pointer;
         display: block;
         width: 100%;
         padding: 0.3em;
         border: none;
-        border-bottom: solid 1px #677283;
+        border-bottom: solid 1px #FF847C;
         }
 
 .grid-link-select-option:hover
         {
         color: #FFF;
-        background-color: #566172;
+        background-color: #FF847C;
 
         padding: 0.3em;
         border: none;
-        border-bottom: solid 1px #677283;
+        border-bottom: solid 1px #FF847C;
         }
 
 /*** buttons ****************************************************************/
@@ -1100,86 +912,86 @@ select,.grid-link-select
 
         display: inline-block;
         cursor: pointer;
-        padding: 0.4em 1.2em 0.4em 1.2em;
+        padding: 0.5em 1.5em 0.5em 1.5em;
         margin:  0.3em;
 
         white-space: nowrap;
-        font: bold 10pt rubik, sans-serif;
+        font: bold 1.0em rubik, sans-serif;
         
         color:            #FFF;
-        background-color: #004464;
-        border: solid 2px #226686;
+        background-color: #448;
+        border: solid 2px #66A;
         }
 
 .button:hover
         {
         color:            #FFF;
-        background-color: #115575;
-        border: solid 2px #4488A8;
+        background-color: #66A;
+        border: solid 2px #88C;
         }
 
 .button:focus
         {
-        color:            #888;
-        background-color: #DDD;
-        border: solid 2px #BBB;
+        color:            #CCC;
+        background-color: #555;
+        border: solid 2px #777;
         }
 
 .act-button
         {
         color:            #FFF;
-        background-color: #F8572A;
-        border: solid 2px #FA794C;
+        background-color: #262;
+        border: solid 2px #494;
         }
 
 .act-button:hover
         {
         color:            #FFF;
-        background-color: #F9683B;
-        border: solid 2px #FC9B6E;
+        background-color: #494;
+        border: solid 2px #6A6;
         }
 
 .nav-button
         {
         color:            #FFF;
-        background-color: #004464;
-        border: solid 2px #226686;
+        background-color: #159;
+        border: solid 2px #37A;
         }
 
 .nav-button:hover
         {
         color:            #FFF;
-        background-color: #115575;
-        border: solid 2px #4488A8;
+        background-color: #37A;
+        border: solid 2px #59C;
         }
 
 .mod-button
         {
         color:            #FFF;
-        background-color: #880B00;
-        border: solid 2px #AA2D22;
+        background-color: #822;
+        border: solid 2px #B55;
         }
 
 .mod-button:hover
         {
         color:            #FFF;
-        background-color: #991C11;
-        border: solid 2px #CC4F44;
+        background-color: #B55;
+        border: solid 2px #D77;
         }
 
 .disabled-button
         {
-        color:            #888;
-        background-color: #DDD;
-        border: solid 2px #BBB;
+        color:            #CCC;
+        background-color: #555;
+        border: solid 2px #777;
         cursor: not-allowed;
         }
 
 .disabled-button:hover
         {
-        color:            #888;
-        background-color: #DDD;
-        border: solid 2px #BBB;
+        color:            #CCC;
+        background-color: #555;
+        border: solid 2px #777;
         }
 
 /*** hover layer ************************************************************/
@@ -1195,32 +1007,19 @@ div.hover-layer
         opacity: 0.95;
 
         display: none;
-        z-index: 99;
         }
 
 div.popup-layer
         {
         color:            #FFF;
-        background-color: #455061;
-        border: solid 1px #677283;
+        background-color: #822;
+        border: solid 1px #FF847C;
 
         white-space: nowrap;
         padding: 0.5em;
         opacity: 0.95;
 
         display: none;
-        }
-
-div.popup-menu-buttons
-        {
-        display: flex;
-        flex-flow: column;
-        }
-
-div.popup-menu-buttons > a
-        {
-        width: auto;
-        flex: auto;
         }
 
 /*** check boxes ************************************************************/
@@ -1232,66 +1031,62 @@ img.check-base
         padding: 0.4em;
         text-decoration: none;
         border-radius: 2px;
-
-        color:            ;
-        background-color: ;
-        border: solid 1px ;
         }
 
 img.check-unknown
         {
-        color:            #888;
-        background-color: #DDD;
-        border: solid 2px #BBB;
+        color:            #CCC;
+        background-color: #555;
+        border: solid 2px #777;
         }
 
 img.check-unknown:hover
         {
-        color:            #888;
-        background-color: #DDD;
-        border: solid 2px #BBB;
+        color:            #CCC;
+        background-color: #555;
+        border: solid 2px #777;
         }
 
 img.check-gr
         {
-        color:            #FFF;
-        background-color: #004464;
-        border: solid 2px #226686;
+        color:            ;
+        background-color: ;
+        border: solid 2px ;
         }
 
 img.check-gr:hover
         {
-        color:            #FFF;
-        background-color: #115575;
-        border: solid 2px #4488A8;
+        color:            ;
+        background-color: ;
+        border: solid 2px ;
         }
 
 img.check-0
         {
         color:            #FFF;
-        background-color: #880B00;
-        border: solid 2px #AA2D22;
+        background-color: #822;
+        border: solid 2px #B55;
         }
 
 img.check-0:hover
         {
         color:            #FFF;
-        background-color: #991C11;
-        border: solid 2px #CC4F44;
+        background-color: #B55;
+        border: solid 2px #D77;
         }
 
 img.check-1
         {
         color:            #FFF;
-        background-color: #F8572A;
-        border: solid 2px #FA794C;
+        background-color: #262;
+        border: solid 2px #494;
         }
 
 img.check-1:hover
         {
         color:            #FFF;
-        background-color: #F9683B;
-        border: solid 2px #FC9B6E;
+        background-color: #494;
+        border: solid 2px #6A6;
         }
 
 /*** other ******************************************************************/
@@ -1308,30 +1103,25 @@ table.map-layout
         height: 100%;
         width:  100%;
         vertical-align: top;
-        white-space: nowrap;
         }
 
 td.map-layout
         {
         vertical-align: top;
         height: 100%;
-        width:  100%;
+        width:  100%
         }
 
 div#map
         {
-        width:  100%;
         height: 100%;
-        min-height: 400px;
+        width:  100%;
         padding: 0;
         margin:  0;
         border: none;
         overflow: hidden;
-        }
-
-div.map
-        {
         position: relative;
+        height: 90vh;
         }
 
 /*** effects ****************************************************************/
@@ -1349,20 +1139,62 @@ div.map
 
 /*** DECOR STATIC/SYSTEM SECTION EOF*****************************************/
 
-input, textarea, select, div.link_data
-  {
-  font-size: 1.1em;
-  }
+h1
+        {
+        padding: 0.2em;
+        font: bold 3em oswald;
+        }
 
-p.vert
-  {
-  height: 100%;
-  vertical-align: middle;
-  }
+table.main-width
+        {
+        width:     900px;
+        max-width: 900px;
+        }
+@media (max-width: 900px) 
+{
+table.main-width
+        {
+        width: 100%;
+        }
+}
 
-a
-  {
-  font-weight: bold;
-  }
+table.main
+        {
+        width: 100%;
+        background-color: #DEE;
+        color: #355C7D;
+        }
+
+p.list_title
+        {
+        font: bold 2em oswald;
+        }
+
+p.list_motto
+        {
+        font: normal 1.5em comforter;
+        }
+
+p.contact
+        {
+        font: prime, monospace;
+        }
+        
+hr        
+        {
+        border: solid 1px #023;
+        }
+
+/* view venue */
+
+p.title
+        {
+        font: bold 3em oswald;
+        }
+
+p.motto
+        {
+        font: normal 2em comforter;
+        }
 
 /*** DECOR EOF **************************************************************/

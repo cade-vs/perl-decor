@@ -27,6 +27,9 @@ our @EXPORT = qw(
                 
                 update_backlink_count
                 update_backlink_sum
+                
+                rec_sort_fields_n
+                reorder_date_time
 
                 );
 
@@ -175,6 +178,22 @@ sub update_backlink_sum
     $io->update_id( $table_rec, { $field => $sum }, $id );
     }  
 }
+
+sub rec_sort_fields_n
+{
+  my $rec = shift;
+
+  my @values;
+  push( @values, $rec->read( $_ ) ) for @_;
+
+  @values = sort { $a <=> $b } @values;
+
+  $rec->write( $_ => shift( @values ) ) for @_;
+
+  return 1;
+}
+
+*reorder_date_time = *rec_sort_fields_n;
 
 ### EOF ######################################################################
 1;

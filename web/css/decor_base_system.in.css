@@ -1260,6 +1260,14 @@ div.map
         position: relative;
         }
 
+div.map_marker
+        {
+        background-image: url('marker-red.svg');
+        background-size: cover;
+        width: 48px;
+        height: 48px;
+        }
+
 /*** effects ****************************************************************/
 
 .pulse      { animation: pulse   1s linear infinite; } 

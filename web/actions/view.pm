@@ -129,6 +129,9 @@ sub main
     my $type_name  = $lfdes->{ 'TYPE' }{ 'NAME'  };
     my $type_lname = $lfdes->{ 'TYPE' }{ 'LNAME' };
 
+
+    next if $bfdes->get_attr( qw( WEB VIEW HIDE ) );
+
     my $lpassword = $lfdes->get_attr( 'PASSWORD' ) ? 1 : 0;
 
     my $label     = $bfdes->get_attr( qw( WEB VIEW LABEL ) );
@@ -270,7 +273,7 @@ sub main
           }
         else
           {
-          $data_ctrl .= de_html_alink_icon( $reo, 'new', 'insert.svg', "[~Create and connect a new record into] <b>$linked_table_label</b>", ACTION => 'edit', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $backlinked_src_data, LINK_FIELD_DISABLE => $backlinked_field );
+          $data_ctrl .= de_html_alink_icon( $reo, 'new', 'insert.svg', "[~Create and connect a new record into] <b>$linked_table_label</b>", ACTION => 'edit', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $backlinked_src_data, LINK_FIELD_DISABLE => $backlinked_field, MASTER_RECORD_TABLE => $table, MASTER_RECORD_ID => $id );
           }
         }
 
@@ -289,6 +292,8 @@ sub main
         if( $details_fields and $count > 0 )
           {
           my $backlink_text = "<p>";
+
+          $details_fields = join ',', @{ $bltdes->get_fields_list() } if $details_fields eq '*';
 
           my $bltsdes = $bltdes->get_table_des();
           my $bltable_type = $bltsdes->{ 'TYPE' };
@@ -332,7 +337,7 @@ sub main
             else
               {
               my ( $insert_cue, $insert_cue_hint ) = de_web_get_cue( $bltdes->get_table_des(), qw( WEB GRID INSERT_CUE ) );
-              $field_details .= de_html_alink_button( $reo, 'new', "(+) $insert_cue", $insert_cue_hint, BTYPE => 'act', ACTION => 'edit', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id );
+              $field_details .= de_html_alink_button( $reo, 'new', "(+) $insert_cue", $insert_cue_hint, BTYPE => 'act', ACTION => 'edit', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, MASTER_RECORD_TABLE => $table, MASTER_RECORD_ID => $id );
               }
             }  
           $no_layout_ctrls = 1;
@@ -408,7 +413,7 @@ sub main
     $text .= de_html_alink_button( $reo, 'new',  "$update_cue &uArr;", $update_cue, BTYPE => 'mod', ACTION => 'edit', ID => $id, TABLE => $table, LINK_FIELD_DISABLE => $link_field_disable, MASTER_RECORD_TABLE => $master_record_table, MASTER_RECORD_ID => $master_record_id );
     }
 
-  if( $table_type ne 'FILE' and $tdes->allows( 'INSERT' ) )
+  if( $table_type ne 'FILE' and $tdes->allows( 'INSERT' ) and ! $tdes->{ '@' }{ 'NO_COPY' } )
     {
     # my $copy_cue = $sdes->get_attr( qw( WEB GRID COPY_CUE ) ) || "[~Copy this record as new]";
     my ( $copy_cue, $copy_cue_hint ) = de_web_get_cue( $sdes, qw( WEB GRID COPY_CUE ) );

@@ -330,6 +330,7 @@ sub main
       }  
 
     push @backlinks_text, @$backlinks_text if $backlinks_text;
+    next unless defined $field_input;
 
     my $divider = $fdes->get_attr( 'WEB', 'DIVIDER' );
     if( $divider )
@@ -559,7 +560,7 @@ sub edit_get_field_control_info
 
           $selected_search_value = $value if $key eq $field_data;
 #$text .= "$key -- [$spf_fmt][@spf_fld][$value][@value]<br>";
-          $value =~ s/\s/&nbsp;/g;
+#          $value =~ s/\s/&nbsp;/g;
           push @$combo_data, { KEY => $key, VALUE => $value };
           }
 
@@ -668,17 +669,12 @@ sub edit_get_field_control_info
 
       my $count = $core->count( $backlinked_table, { FILTER => { $backlinked_field => $id } });
 
-      $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "grid.svg",   "[~View all backlinked records from] <b>$linked_table_label</b>",  ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, FILTER => { $backlinked_field => $id } ) if $bltdes->allows( 'READ' ) and $count > 0;
-      $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "insert.svg", "[~Insert and link a new record into] <b>$linked_table_label</b>", ACTION => 'edit', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, LINK_FIELD_DISABLE => $backlinked_field ) if $bltdes->allows( 'INSERT' );
-
-      $count = 'Unknown' if $count eq '';
-
-      $field_input = "<b class=hi>$count</b> records from <b class=hi>$linked_table_label</b>";
-
       my $details_fields = $bfdes->get_attr( qw( WEB EDIT DETAILS_FIELDS ) );
-      if( $details_fields and $count > 0 )
+      if( $details_fields and $count > 0)
         {
         my $backlink_text;
+
+        $details_fields = join ',', @{ $bltdes->get_fields_list() } if $details_fields eq '*';
 
         my $sub_de_data_grid_cb = sub
           {
@@ -694,14 +690,24 @@ sub edit_get_field_control_info
         $field_details .= "<p>" . de_data_grid( $core, $backlinked_table, $details_fields, { FILTER => { $backlinked_field => $id }, LIMIT => $details_limit, CLASS => 'grid view record', TITLE => "[~Related] $linked_table_label", CTRL_CB => $sub_de_data_grid_cb } ) ;
 
         my ( $insert_cue, $insert_cue_hint ) = de_web_get_cue( $bltdes->get_table_des(), qw( WEB GRID INSERT_CUE ) );
-        $field_details .= de_html_form_button_redirect( $reo, 'new', $edit_form, "[~View all records]",  "[~View all backlinked records from] <b>$linked_table_label</b>",  BTYPE => 'nav', ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, FILTER => { $backlinked_field => $id } ) if $bltdes->allows( 'READ' ) and $count > 0;
+        $field_details .= de_html_form_button_redirect( $reo, 'new', $edit_form, "[~View all records]",  "[~View all backlinked records from] <b>$linked_table_label</b>",  BTYPE => 'nav', ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, FILTER => { $backlinked_field => $id } ) if $bltdes->allows( 'READ' ) and $count > 0 and $count > $details_limit;
         $field_details .= de_html_form_button_redirect( $reo, 'new', $edit_form, $insert_cue, $insert_cue_hint, BTYPE => 'act', ACTION => 'edit', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, ID => -1, "F:$backlinked_field" => $id ) if $bltdes->allows( 'INSERT' );
 
         $backlink_text .= $field_details;
       
         push @backlinks_text, $backlink_text;
-        next;
+        $field_details = undef;
+        $field_input   = undef; # skip from edit screen
         }
+      else
+        {
+        $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "grid.svg",   "[~View all backlinked records from] <b>$linked_table_label</b>",  ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, FILTER => { $backlinked_field => $id } ) if $bltdes->allows( 'READ' ) and $count > 0;
+        $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "insert.svg", "[~Insert and link a new record into] <b>$linked_table_label</b>", ACTION => 'edit', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, LINK_FIELD_DISABLE => $backlinked_field ) if $bltdes->allows( 'INSERT' );
+
+        $count = 'Unknown' if $count eq '';
+
+        $field_input = "<b class=hi>$count</b> records from <b class=hi>$linked_table_label</b>";
+        }  
       # EXPERIMENT: :)) $field_input .= "<p><div class=vframe><a reactor_new_href=?action=grid&table=$backlinked_table>show</a></div>";
       }
     elsif( $type_name eq 'WIDELINK' )
@@ -800,7 +806,7 @@ sub edit_get_field_control_info
       {
       $field_input = "(unknown)";
       }
-      
+
   return ( $field_input, $field_input_ctrl, $field_details, \@backlinks_text );
 }
 

@@ -26,5 +26,5 @@
   
   deny all
   grant read to 999, 909
-  web.hidden
+  web.hide
 
