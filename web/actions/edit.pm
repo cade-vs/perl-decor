@@ -769,7 +769,7 @@ sub edit_get_field_control_info
                                        );
       my $hl_handle = html_hover_layer( $reo, VALUE => "[~Set current date]", DELAY => 250 );
       my $date_format = type_get_format( $type );
-      $field_input .= qq(<a class=plain href='#' onClick='set_value( "$field_id", current_date( "$date_format" ) ); return false;' ><img class=icon src=i/set-time.svg $hl_handle></a>);
+      $field_input_ctrl .= qq( <input type=image class=icon src=i/set-time.svg $hl_handle  onClick='set_value( "$field_id", current_date( "$date_format" ) ); return false;'> );
       }
     elsif( $type_name eq 'TIME' )
       {
@@ -784,7 +784,7 @@ sub edit_get_field_control_info
                                        CLEAR    => $clear_icon,
                                        );
       my $hl_handle = html_hover_layer( $reo, VALUE => "[~Set current time]", DELAY => 250 );
-      $field_input .= qq(<a class=plain href='#' onClick='set_value( "$field_id", current_time() ); return false;' ><img class=icon src=i/set-time.svg $hl_handle></a>);
+      $field_input_ctrl .= qq( <input type=image class=icon src=i/set-time.svg $hl_handle onClick='set_value( "$field_id", current_time() ); return false;'>);
       }
     elsif( $type_name eq 'UTIME' )
       {
@@ -800,7 +800,7 @@ sub edit_get_field_control_info
                                        );
       my $hl_handle = html_hover_layer( $reo, VALUE => "[~Set current date+time]", DELAY => 250 );
       my $date_format = type_get_format( $type );
-      $field_input .= qq(<a class=plain href='#' onClick='set_value( "$field_id", current_utime( "$date_format" ) ); return false;' ><img class=icon src=i/set-time.svg $hl_handle></a>);
+      $field_input_ctrl .= qq(<input type=image class=icon src=i/set-time.svg $hl_handle onClick='set_value( "$field_id", current_utime( "$date_format" ) ); return false;'>);
       }
     else
       {
