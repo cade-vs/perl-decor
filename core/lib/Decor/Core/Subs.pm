@@ -411,6 +411,34 @@ sub __sub_find_and_check_user_pass
   return $user_rec;
 };
 
+sub __setup_user_inside
+{
+  my $user_rec    = shift;
+  my $session_rec = shift;
+  my $mo          = shift;
+  
+  my $profile = __setup_user_profile( $user_rec );
+
+  subs_reset_current_all();
+  subs_lock_current_profile( $profile );
+  subs_lock_current_user( $user_rec );
+  subs_lock_current_session( $session_rec );
+
+  subs_set_dispatch_map( 'USER' );
+
+  my $un  = $user_rec->read( 'NAME' );
+  my $ugs = $profile->get_groups_hr();
+  
+  $mo->{ 'SID'   } = $session_rec->read( 'SID' );
+  $mo->{ 'UGS'   } = $ugs; # user groups (UGS)
+  $mo->{ 'UN'    } = $un;
+  $mo->{ 'XTIME' } = $session_rec->read( 'XTIME' );
+
+  de_log_debug( "debug: user [$un] connected with groups: " . Dumper( $ugs ) );
+  
+  return 1;
+}
+
 sub sub_begin
 {
   my $mi = shift;
@@ -440,18 +468,8 @@ sub sub_begin
   my $user_rec = $session_rec->get_linked_record( 'USR' );
   boom "E_INTERNAL: cannot load USER for session [$user_sid] and remote [$remote]" unless $user_rec;
   
-  my $profile = __setup_user_profile( $user_rec );
+  __setup_user_inside( $user_rec, $session_rec, $mo );
 
-  subs_lock_current_profile( $profile );
-  subs_lock_current_user( $user_rec );
-  subs_lock_current_session( $session_rec );
-
-  subs_set_dispatch_map( 'USER' );
-  
-  $mo->{ 'SID'   } = $session_rec->read( 'SID' );
-  $mo->{ 'UGS'   } = $profile->get_groups_hr(); # user groups (UGS)
-  $mo->{ 'UN'    } = $user_rec->read( 'NAME' );
-  $mo->{ 'XTIME' } = $session_rec->read( 'XTIME' );
   $mo->{ 'XS'    } = 'OK';
 }
 
@@ -506,16 +524,8 @@ sub sub_login
   __session_update_times( $session_rec, 1 );
   $session_rec->save();
 
-  my $profile = __setup_user_profile( $user_rec );
+  __setup_user_inside( $user_rec, $session_rec, $mo );
 
-  subs_reset_current_all();
-  subs_lock_current_profile( $profile );
-  subs_lock_current_user( $user_rec );
-  subs_lock_current_session( $session_rec );
-
-  $mo->{ 'UGS'   } = $profile->get_groups_hr(); # user groups (UGS)
-  $mo->{ 'UN'    } = $user_rec->read( 'NAME' );
-  $mo->{ 'XTIME' } = $session_rec->read( 'XTIME' );
   $mo->{ 'XS'    } = 'OK';
 
   return 1;

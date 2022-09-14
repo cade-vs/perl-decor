@@ -109,7 +109,7 @@ sub de_web_format_field
   my $core = $opts->{ 'CORE' };
   my $id   = $opts->{ 'ID' };
 
-#boom "!!!!!!!!!!!!!!!!" unless $fdes;
+#boom "!!!!!!!!!!!!!!!!" unless $core;
 
   my $table = $fdes->table();
   my $fname = $fdes->name();
@@ -491,7 +491,7 @@ sub de_data_grid
       my $data = $row_data->{ $field };
       my $data_base = $row_data->{ $basef{ $field } } if exists $basef{ $field };
 
-      my ( $data_fmt, $fmt_class_fld ) = de_web_format_field( $data, $lfdes, 'GRID', { ID => $id } );
+      my ( $data_fmt, $fmt_class_fld ) = de_web_format_field( $data, $lfdes, 'GRID', { ID => $id, CORE => $core } );
       my $data_ctrl;
       $fmt_class .= $fmt_class_fld;
 

@@ -393,7 +393,6 @@ sub __read
   for my $field ( @_ )
     {
     my ( $dst_table, $dst_field, $dst_id ) = $self->__resolve_field( $field );
-
     push @res, $dst_table ? $self->{ $data_key }{ $dst_table }{ $dst_id }{ $dst_field } : undef;
     }
 
@@ -635,6 +634,7 @@ sub __resolve_field
 #print "debug: record resolve table [$current_table] field [$current_field] id [$current_id] fields [@fields]\n";
     if( @fields == 0 )
       {
+      boom "cannot resolve table/field [$current_table/$current_field]" unless des_exists( $current_table, $current_field );
       return ( $current_table, $current_field, $current_id );
       }
     my $field_des = describe_table_field( $current_table, $current_field );

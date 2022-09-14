@@ -244,6 +244,10 @@ my %DES_ATTRS = (
                            BACKLINK_GRID_MODE => 3,
                            
                            WLINK        => 1,
+                           
+                           ON_RECALC    => 1,
+                           ON_INSERT    => 1,
+                           ON_UPDATE    => 1,
                          },
                   'INDEX' => {
                            FIELDS      => 1,
@@ -281,6 +285,12 @@ my %COPY_CATEGORY_ATTRS = (
 #                           DENY   => 1,
 #                         },
 #                );
+
+my %INLINE_METHODS = (
+                     ON_RECALC => 1,
+                     ON_INSERT => 1,
+                     ON_UPDATE => 1,
+                     );
 
 #my %TABLE_ATTRS = map { $_ => 1 } @TABLE_ATTRS;
 #hash_lock_recursive( \%TABLE_ATTRS );
@@ -383,6 +393,8 @@ sub __merge_table_des_file
     $des->{ $category }{ $sect_name }{ '_MTIME' } = $file_mtime;
     }
 
+  my $field_templates = __load_table_raw_description( '_DE_TEMPLATES' ) unless $table eq '_DE_UNIVERSAL' or $table eq '_DE_TEMPLATES';
+
   my $ln; # line number
   while( my $line = <$inf> )
     {
@@ -407,6 +419,12 @@ sub __merge_table_des_file
       boom "invalid category [$category] at [$fname at $ln]" unless exists $DES_CATEGORIES{ $category };
 
       de_log_debug2( "       =NEW SECTION: [$category:$sect_name]" );
+
+      if( $table ne '_DE_UNIVERSAL' and $table ne '_DE_TEMPLATES' and exists $field_templates->{ $category }{ $sect_name } )
+        {
+        # copy template definition if name matches
+        $des->{ $category }{ $sect_name } = { %{ $field_templates->{ $category }{ $sect_name } } };
+        }
 
       $des->{ $category }{ $sect_name } ||= {};
       $des->{ $category }{ $sect_name }{ 'NAME'  }   = $sect_name;
@@ -603,7 +621,7 @@ sub __merge_table_des_file
         {
         $des->{ $category }{ $sect_name }{ '__GRANT_DENY_ACCUMULATOR' } = [ 'deny all'               ];
         }
-
+      
       if( $DES_KEY_TYPES{ $key } eq '@' )
         {
         $des->{ $category }{ $sect_name }{ $key } ||= [];
@@ -835,6 +853,13 @@ sub __postprocess_table_raw_description
       $fld_des->{ 'GRANT' } ||= $des->{ '@' }{ 'GRANT' };
       $fld_des->{ 'DENY'  } ||= $des->{ '@' }{ 'DENY'  };
       }  
+
+    # mark self inline methods list
+    for my $im ( keys %INLINE_METHODS )
+      {
+      next unless exists $fld_des->{ $im };
+      $des->{ '@' }{ $im }{ $field } = 1;
+      }
     
 #print STDERR "=====(GRANT DENY)==REZ+++ $table $field: " . Dumper( $fld_des );
 
@@ -893,6 +918,13 @@ sub __postprocess_table_raw_description
       }
     }
 
+  # mark self inline methods list
+  for my $im ( keys %INLINE_METHODS )
+    {
+    next unless exists $des->{ '@' }{ $im };
+    $des->{ '@' }{ $im } = [ keys %{ $des->{ '@' }{ $im } } ];
+    }
+
   # print STDERR "TABLE DES POST PROCESSSED [$table]($des):" . Dumper( $des );
 
   bless $des, 'Decor::Core::Table::Description';
@@ -927,7 +959,7 @@ sub __load_table_raw_description
 
   my $opt = {};
   my $rc;
-  $rc = __merge_table_des_files( \%des, '_DE_UNIVERSAL', $opt ) unless $table eq '_DE_UNIVERSAL'; # zero $rc for UNIVERSAL is ok
+  $rc = __merge_table_des_files( \%des, '_DE_UNIVERSAL', $opt ) unless $table eq '_DE_UNIVERSAL' or $table eq '_DE_TEMPLATE'; # zero $rc for UNIVERSAL is ok
   $rc = __merge_table_des_files( \%des, $table,          $opt );
   return undef unless $rc > 0;
   
