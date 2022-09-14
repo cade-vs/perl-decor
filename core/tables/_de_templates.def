@@ -1,0 +1,29 @@
+
+
+=CTIME
+
+  utime
+  label [~Create time]
+  web.details 2
+  read-only
+  on_insert now
+
+=MTIME
+
+  utime
+  label [~Modify time]
+  web.details 2
+  read-only
+  on_update now
+
+=CBY
+
+  link  DE_USERS   NAME
+  label [~Created by]
+  read-only
+
+=MBY
+
+  link  DE_USERS   NAME
+  label [~Modified by]
+  read-only
