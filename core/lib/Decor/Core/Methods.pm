@@ -16,6 +16,7 @@ use Exception::Sink;
 use Decor::Shared::Utils;
 use Decor::Core::Env;
 use Decor::Core::DB::Record;
+use Decor::Core::Shop;
 
 use Exporter;
 our @ISA    = qw( Exporter );
@@ -31,6 +32,7 @@ our @EXPORT = qw(
                 rec_sort_fields_n
                 reorder_date_time
 
+                record_exists_by_fields
                 );
 
 sub find_user_by_name
@@ -194,6 +196,26 @@ sub rec_sort_fields_n
 }
 
 *reorder_date_time = *rec_sort_fields_n;
+
+
+sub record_exists_by_fields
+{
+  my $rec = shift;
+  
+  my @where;
+  my @bind;
+
+  for my $f ( @_ )
+    {
+    push @where, "$f = ?";
+    push @bind,  $rec->read( $f );
+    }
+  my $where = join ' AND ', @where;
+
+  my $db = io_new();
+  
+  return $db->read_first1_hashref( $rec->table(), $where, { BIND => \@bind } );
+}
 
 ### EOF ######################################################################
 1;

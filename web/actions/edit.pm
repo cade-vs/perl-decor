@@ -241,7 +241,7 @@ sub main
     
   if( ( $button_id eq 'PREVIEW' or $button_id eq 'OK' ) and ( $calc_merrs->{ '#' } > 0 ) )
     {
-    $text .= "<div class=error-text><#review_errors></div>";
+    $text .= "<p><div class=error-text><#review_errors></div>";
     }
   else  
     {

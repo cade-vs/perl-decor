@@ -289,7 +289,7 @@ sub main
         $data_fmt .= de_html_alink( $reo, 'new', " ( + <b class=hi>$uncount</b> [~NOT connected records])",   "[~View all backlinked records from] <b class=hi>$linked_table_label</b>",  ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_VALUE => 0, FILTER => { $backlinked_field => 0 } ) if $uncount > 0;
 
         my $details_fields = $bfdes->get_attr( qw( WEB EDIT DETAILS_FIELDS ) );
-        if( $details_fields and $count > 0 )
+        if( $details_fields )
           {
           my $backlink_text = "<p>";
 
