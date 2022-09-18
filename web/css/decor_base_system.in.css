@@ -223,86 +223,6 @@ img
         vertical-align: middle;
         }
 
-
-.icon
-        {
-        cursor: pointer;
-        height: 2em;
-        padding: 0.3em;
-        text-decoration: none;
-        background-image: none;
-        border-radius: 2px;
-        margin: 1px 1px 1px 1px;
-
-        $$setup-act-fg-bg-border  $icon-colors
-        }
-.icon:hover
-        {
-        $$setup-act-fg-bg-border-hi  $icon-colors
-        }
-
-.icon-clear
-        {
-        cursor: pointer;
-        height: 1.4em;
-        padding: 0.3em;
-        text-decoration: none;
-        background-image: none;
-        border-radius: 0.7em;
-
-        $$setup-act-fg-bg-border  $icon-clear-colors
-        border-width: 1px;
-        /* margin-left: -2.2em; */
-        }
-.icon-clear:hover
-        {
-        $$setup-act-fg-bg-border-hi  $icon-clear-colors
-        border-width: 1px;
-        }
-
-
-.act-icon
-        {
-        $$setup-act-fg-bg-border  $act-icon-colors
-        }
-
-.act-icon:hover
-        {
-        $$setup-act-fg-bg-border-hi  $act-icon-colors
-        }
-
-.mod-icon
-        {
-        $$setup-act-fg-bg-border  $mod-icon-colors
-        }
-
-.mod-icon:hover
-        {
-        $$setup-act-fg-bg-border  $mod-icon-colors
-        }
-
-.icon-disabled
-        {
-        height: 2.2em;
-        padding: 0.4em;
-        text-decoration: none;
-        border-radius: 2px;
-
-        $$setup-act-fg-bg-border  $disabled-icon-colors
-        }
-
-.icon-disabled:hover
-        {
-        $$setup-act-fg-bg-border-hi  $disabled-icon-colors
-        }
-
-a.icon
-        {
-        margin: 1px 1px 1px 1px;
-        padding: 0;
-        text-decoration: none;
-        }
-
 h1      
         { 
         margin: 2px 2px 2px 2px; 
@@ -988,6 +908,7 @@ table.grid-navi td
 input,textarea,select,.grid-link-select
         {
         padding: 0.5em;
+        padding-right: 2.2em;
         margin:  0;
         font: $input-controls-font;
         
@@ -1003,13 +924,13 @@ input:hover,textarea:hover,select:hover,.grid-link-select:hover
         border: solid 1px $input-field-colors.6;
         }
 
-input:focus,textarea:focus,select:focus
+input:focus,textarea:focus,select:focus,button:focus
         {
         color: $input-field-focus-colors.1;
         background-color: $input-field-focus-colors.2;
         border: solid 1px $input-field-focus-colors.3;
 
-        outline: solid 1px $input-field-focus-colors.4;
+        outline: solid 2px $input-field-focus-colors.4;
         }
 
 input:disabled,textarea:disabled,select:disabled,.grid-link-select
@@ -1051,9 +972,9 @@ select,.grid-link-select
         border-bottom: solid 1px $menu-colors.5;
         }
 
-/*** buttons ****************************************************************/
+/*** buttons & icons ********************************************************/
 
-.button
+.button,button
         {
         border-radius: 2px;
 
@@ -1068,12 +989,12 @@ select,.grid-link-select
         $$setup-act-fg-bg-border     $button-colors
         }
 
-.button:hover
+.button:hover,button:hover
         {
         $$setup-act-fg-bg-border-hi  $button-colors
         }
 
-.button:focus
+.button:focus,button:focus
         {
         $$setup-act-fg-bg-border     $button-focus-colors
         }
@@ -1117,6 +1038,74 @@ select,.grid-link-select
 .disabled-button:hover
         {
         $$setup-act-fg-bg-border-hi  $disabled-button-colors
+        }
+
+.icon
+        {
+        cursor: pointer;
+        height: 2em;
+        padding: 0.3em;
+        text-decoration: none;
+        background-image: none;
+        border-radius: 2px;
+        margin: 1px 1px 1px 1px;
+
+        font: $buttons-font;
+
+        $$setup-act-fg-bg-border  $icon-colors
+        }
+.icon:hover
+        {
+        $$setup-act-fg-bg-border-hi  $icon-colors
+        }
+
+.icon-clear
+        {
+        cursor: pointer;
+        height: 1.4em;
+        margin-left: -2.2em;
+        }
+
+.act-icon
+        {
+        $$setup-act-fg-bg-border  $act-icon-colors
+        }
+
+.act-icon:hover
+        {
+        $$setup-act-fg-bg-border-hi  $act-icon-colors
+        }
+
+.mod-icon
+        {
+        $$setup-act-fg-bg-border  $mod-icon-colors
+        }
+
+.mod-icon:hover
+        {
+        $$setup-act-fg-bg-border  $mod-icon-colors
+        }
+
+.icon-disabled
+        {
+        height: 2.2em;
+        padding: 0.4em;
+        text-decoration: none;
+        border-radius: 2px;
+
+        $$setup-act-fg-bg-border  $disabled-icon-colors
+        }
+
+.icon-disabled:hover
+        {
+        $$setup-act-fg-bg-border-hi  $disabled-icon-colors
+        }
+
+a.icon
+        {
+        margin: 1px 1px 1px 1px;
+        padding: 0;
+        text-decoration: none;
         }
 
 /*** hover layer ************************************************************/
@@ -1163,61 +1152,6 @@ div.popup-menu-buttons > a
         {
         width: auto;
         flex: auto;
-        }
-
-/*** check boxes ************************************************************/
-
-img.check-base
-        {
-        cursor: pointer;
-        height: 2.2em;
-        padding: 0.4em;
-        text-decoration: none;
-        border-radius: 2px;
-
-        color:            $check-base-colors.1;
-        background-color: $check-base-colors.2;
-        border: solid 1px $check-base-colors.3;
-        }
-
-img.check-unknown
-        {
-        $$setup-act-fg-bg-border    $check-unknown-colors
-        }
-
-img.check-unknown:hover
-        {
-        $$setup-act-fg-bg-border-hi $check-unknown-colors
-        }
-
-img.check-gr
-        {
-        $$setup-act-fg-bg-border    $check-gr-colors
-        }
-
-img.check-gr:hover
-        {
-        $$setup-act-fg-bg-border-hi $check-gr-colors
-        }
-
-img.check-0
-        {
-        $$setup-act-fg-bg-border    $check-0-colors
-        }
-
-img.check-0:hover
-        {
-        $$setup-act-fg-bg-border-hi $check-0-colors
-        }
-
-img.check-1
-        {
-        $$setup-act-fg-bg-border    $check-1-colors
-        }
-
-img.check-1:hover
-        {
-        $$setup-act-fg-bg-border-hi $check-1-colors
         }
 
 /*** other ******************************************************************/

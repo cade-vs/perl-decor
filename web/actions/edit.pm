@@ -724,7 +724,7 @@ sub edit_get_field_control_info
                                        RET      => [ '0', '1' ],
                                        ARGS     => $input_tag_args,
                                        CLEAR    => $clear_icon,
-                                       LABELS   => [ qq( <img class="check-base check-0" src=i/check-0.svg> ), qq( <img class="check-base check-1" src=i/check-1.svg> ) ],
+                                       LABELS   => [ qq( <img class="icon" src=i/check-edit-0.svg> ), qq( <img class="icon" src=i/check-edit-1.svg> ) ],
                                        );
       }
     elsif( $type_name eq 'INT' )

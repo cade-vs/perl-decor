@@ -122,11 +122,11 @@ sub main
         {
         next if $input_data == 0;
         my $ind;
-        $ind = 0 if $input_data == 1;
-        $ind = 1 if $input_data == 2;
+        $ind = 0 if $input_data == 2;
+        $ind = 1 if $input_data == 1;
         push @field_filter, { OP => '==', VALUE => $ind, };
 
-        my $bool_fmt = [ "<img src=i/check-0.svg>", "<img src=i/check-1.svg>" ]->[ !! $ind ];
+        my $bool_fmt = [ "<img src=i/check-view-0.svg>", "<img src=i/check-view-1.svg>" ]->[ !! $ind ];
         $filter_des .= qq[ <li> $label [~must be] &nbsp; $bool_fmt ];
         $filter_cnt++;
         }
@@ -262,7 +262,7 @@ sub main
                                        RET      => [ '0', '1', '2' ],
                                        ARGS     => $input_tag_args,
                                        CLEAR    => $clear_icon,
-                                       LABELS   => [ '<img class="check-base check-unknown" src=i/check-unknown.svg>', '<img class="check-base check-0" src=i/check-0.svg>', '<img class="check-base check-1" src=i/check-1.svg>' ],
+                                       LABELS   => [ '<img class="icon" src=i/check-edit-na.svg>', '<img class="icon" src=i/check-edit-1.svg>', '<img class="icon" src=i/check-edit-0.svg>' ],
                                        );
       }
     elsif( $bfdes->is_linked() and $combo )
