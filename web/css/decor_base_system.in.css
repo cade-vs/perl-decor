@@ -930,7 +930,7 @@ input:focus,textarea:focus,select:focus,button:focus
         background-color: $input-field-focus-colors.2;
         border: solid 1px $input-field-focus-colors.3;
 
-        outline: solid 2px $input-field-focus-colors.4;
+        outline: solid 3px $input-field-focus-colors.4;
         }
 
 input:disabled,textarea:disabled,select:disabled,.grid-link-select
