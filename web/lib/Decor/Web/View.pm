@@ -205,7 +205,7 @@ sub de_web_format_field
     #$fmt_class .= $field_data > 0 ? " hi" : ""; # FIXME: move to field options
     $data_fmt = type_format_human( $field_data, $fdes->{ 'TYPE' } );
     }
-  elsif( $type_name eq 'UTIME' or $type_name eq 'TIME' )
+  elsif( $type_name eq 'UTIME' or $type_name eq 'DATE' )
     {
     return '&empty;' if $field_data == 0;
     $data_fmt = type_format( $field_data, $fdes->{ 'TYPE' } );
@@ -213,25 +213,28 @@ sub de_web_format_field
 
     if( $details )
       {
-      $details = 2 if uc $details eq 'AUTO' and $vtype eq 'GRID';
-      my $sep  = $details > 1 ? '<br>' : ' &nbsp; &Delta;';
-      my $diff = unix_time_diff_in_words_relative( time() - $field_data );
-      $diff =~ s/([a-z]{2,})/\[~$1\]/gi;
-      $data_fmt .= " <span class=details-text>$sep $diff</span>";
-      }
-    }
-  elsif( $type_name eq 'DATE' )
-    {
-    return '&empty;' if $field_data == 0; # -x-
-    $data_fmt = type_format( $field_data, $fdes->{ 'TYPE' } );
-    my $details = $fdes->get_attr( 'WEB', $vtype, 'DETAILS' );
+      my $ud = $type_name eq 'UTIME' ? time() - $field_data : gm_julian_day(time()) - $field_data; # time delta
+      #$details = 2 if uc $details eq 'AUTO' and $vtype eq 'GRID';
+      my $sep;
+      $sep = '<br>' unless $details % 2;
 
-    if( $details )
-      {
-      $details = 2 if uc $details eq 'AUTO' and $vtype eq 'GRID';
-      my $sep  = $details > 1 ? '<br>' : ' &nbsp; &Delta;';
-      my $diff = julian_date_diff_in_words_relative( gm_julian_day(time()) - $field_data );
-      $diff =~ s/([a-z]{2,})/\[~$1\]/gi;
+      $sep .= ' &nbsp; &Delta;' if $details == 1;
+      $sep .= ' &nbsp; &lArr;'  if $details >= 3 and $ud  > 0;
+      $sep .= ' &nbsp; &rArr;'  if $details >= 3 and $ud  < 0;
+      $sep .= ' &nbsp; ='       if $details >= 3 and $ud == 0;
+       
+      my $diff;
+      if( $type_name eq 'UTIME' )
+        {
+        $diff = unix_time_diff_in_words_relative( $ud ) if $details <= 2;
+        $diff = unix_time_diff_in_words_short( $ud )    if $details >= 3;
+        }
+      else
+        {
+        $diff = julian_date_diff_in_words_relative( $ud );
+        }  
+      
+      $diff =~ s/([a-z]{2,})/\[~$1\]/gi; # translate
       $data_fmt .= " <span class=details-text>$sep $diff</span>";
       }
     }

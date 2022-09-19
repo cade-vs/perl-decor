@@ -100,6 +100,7 @@ my %DES_KEY_VALUE_SHORTCUTS = (
 
 my %DES_CATEGORIES = (
                        '@'      => 1,
+                       'TYPE'   => 1,
                        'FIELD'  => 1,
                        'INDEX'  => 1,
                        'FILTER' => 1,
@@ -176,6 +177,9 @@ my %DES_ATTRS = (
                            
                            RECORD_NAME => 3, # interpolated list of fields, describing current record
 
+                         },
+                  'TYPE' => {
+                           DETAILS      => 3,
                          },
                   'FIELD' => {
                            TABLE        => 1,
@@ -422,20 +426,25 @@ sub __merge_table_des_file
 
       if( $table ne '_DE_UNIVERSAL' and $table ne '_DE_TEMPLATES' and exists $field_templates->{ $category }{ $sect_name } )
         {
-        # copy template definition if name matches
+        # copy template definition if field name matches
         $des->{ $category }{ $sect_name } = { %{ $field_templates->{ $category }{ $sect_name } } };
         }
 
       $des->{ $category }{ $sect_name } ||= {};
-      $des->{ $category }{ $sect_name }{ 'NAME'  }   = $sect_name;
-      $des->{ $category }{ $sect_name }{ 'LABEL' } ||= __fix_label_name( $sect_name );
+      if( $category eq 'FIELD' )
+        {
+        # automatic names and labels are for FIELDS only
+        $des->{ $category }{ $sect_name }{ 'NAME'   }   = $sect_name;
+        $des->{ $category }{ $sect_name }{ 'LABEL'  } ||= __fix_label_name( $sect_name );
+        $des->{ $category }{ $sect_name }{ '_ORDER' } = ++ $opt->{ '_ORDER' };
+        }
+
       if( exists $COPY_CATEGORY_ATTRS{ $category } )
         {
         $des->{ $category }{ $sect_name }{ $_ } = $des->{ '@' }{ '@' }{ $_ } for keys %{ $COPY_CATEGORY_ATTRS{ $category } };
         }
 #!#      $des->{ $category }{ $sect_name }{ '__GRANT_DENY_ACCUMULATOR'  } = [ @{ $des->{ '@' }{ '@' }{ '__GRANT_DENY_ACCUMULATOR'  } || [] } ];
 
-      $des->{ $category }{ $sect_name }{ '_ORDER' } = ++ $opt->{ '_ORDER' };
 
       push @{ $des->{ $category }{ $sect_name }{ '__DEBUG_ORIGIN' } }, $origin if de_debug();
 
@@ -630,6 +639,16 @@ sub __merge_table_des_file
       else
         {
         $des->{ $category }{ $sect_name }{ $key } = $value;
+        }
+
+      if( $key eq 'TYPE' and $table ne '_DE_UNIVERSAL' and $table ne '_DE_TEMPLATES' )
+        {
+        my $type = ( split /[,\s]+/, uc $value )[0];
+        # copy template definition if field type matches
+        my @attrs;
+        push @attrs, %{ $field_templates->{ 'TYPE' }{ $type } } if exists $field_templates->{ 'TYPE' }{ $type };
+        push @attrs, %{ $des->{ 'TYPE' }{ $type } }             if exists $des->{ 'TYPE' }{ $type };
+        $des->{ $category }{ $sect_name } = { @attrs, %{ $des->{ $category }{ $sect_name } } } if @attrs;
         }
 
       next;

@@ -1,10 +1,17 @@
 
+=TYPE:DATE
+
+  web.details 3
+  web.grid.details 4
+
+
 
 =CTIME
 
   utime
   label [~Create time]
-  web.details 2
+  web.details 3
+  web.grid.details 4
   read-only
   on_insert now
 
@@ -12,7 +19,8 @@
 
   utime
   label [~Modify time]
-  web.details 2
+  web.details 3
+  web.grid.details 4
   read-only
   on_update now
 

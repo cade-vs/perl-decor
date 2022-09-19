@@ -917,6 +917,11 @@ input,textarea,select,.grid-link-select
         border: solid 1px $input-field-colors.3;
         }
 
+input.search_list,textarea
+        {
+        padding: 0.5em;
+        }
+
 input:hover,textarea:hover,select:hover,.grid-link-select:hover
         {
         color: $input-field-colors.4;

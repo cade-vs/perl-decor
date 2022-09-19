@@ -214,7 +214,7 @@ sub record_exists_by_fields
 
   my $db = io_new();
   
-  return $db->read_first1_hashref( $rec->table(), $where, { BIND => \@bind } );
+  return $db->read_field( $rec->table(), '_ID', $where, { BIND => \@bind } );
 }
 
 ### EOF ######################################################################
