@@ -211,9 +211,9 @@ sub de_web_format_field
     $data_fmt = type_format( $field_data, $fdes->{ 'TYPE' } );
     my $details = $fdes->get_attr( 'WEB', $vtype, 'DETAILS' );
 
+    my $ud = $type_name eq 'UTIME' ? time() - $field_data : gm_julian_day(time()) - $field_data; # time delta
     if( $details )
       {
-      my $ud = $type_name eq 'UTIME' ? time() - $field_data : gm_julian_day(time()) - $field_data; # time delta
       #$details = 2 if uc $details eq 'AUTO' and $vtype eq 'GRID';
       my $sep;
       $sep = '<br>' unless $details % 2;
@@ -237,6 +237,12 @@ sub de_web_format_field
       $diff =~ s/([a-z]{2,})/\[~$1\]/gi; # translate
       $data_fmt .= " <span class=details-text>$sep $diff</span>";
       }
+    
+    if( $ud > 0 and $fdes->get_attr( 'WEB', $vtype, 'OVERDUE' ) )
+      {
+      $data_fmt .= " <span class=warning>[~OVERDUE]</span>";
+      }
+    
     }
   elsif( $type_name eq 'LINK' and $editable and $fdes->allows( 'UPDATE' ) )
     {
