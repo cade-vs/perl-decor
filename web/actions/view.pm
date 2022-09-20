@@ -105,10 +105,10 @@ sub main
 #  $text .= "</tr>";
 
   
+  my $row_id = $row_data->{ '_ID' };
+
   $text .= "<div class='record-table'>";
   $text .= "<div class='view-header view-sep record-sep fmt-center'>$browser_window_title</div>";
-
-  my $row_id = $row_data->{ '_ID' };
 
   my $record_name     = $sdes->get_attr( qw( WEB VIEW RECORD_NAME ) );
   $record_name =~ s/\$([A-Z_0-9]+)/exists $row_data->{ $1 } ? $row_data->{ $1 } : undef/gie;
@@ -117,9 +117,11 @@ sub main
 
 #print STDERR Dumper( $row_data );
 
+  my $user_is_root = $reo->user_has_group( 1 );
+
   my @backlinks_text;
 
-  @fields = grep { /^_/ ? $reo->user_has_group( 1 ) ? 1 : 0 : 1 } @fields;
+  @fields = grep { /^_/ ? $user_is_root ? 1 : 0 : 1 } @fields;
 
   my $record_first = 1;
   for my $field ( @fields )
@@ -130,7 +132,7 @@ sub main
     my $type_lname = $lfdes->{ 'TYPE' }{ 'LNAME' };
 
 
-    next if $bfdes->get_attr( qw( WEB VIEW HIDE ) );
+    next if ! $user_is_root and $bfdes->get_attr( qw( WEB VIEW HIDE ) );
 
     my $lpassword = $lfdes->get_attr( 'PASSWORD' ) ? 1 : 0;
 
@@ -315,7 +317,7 @@ sub main
             };
 
           my $details_limit = $bfdes->get_attr( qw( WEB VIEW DETAILS_LIMIT ) ) || 16;
-print STDERR qq|my ( dd_grid, dd_count ) = de_data_grid( $core, $backlinked_table, $details_fields, { FILTER => { $backlinked_field => $id }, LIMIT => $details_limit, CLASS => 'grid view record', TITLE => "[~Related] $linked_table_label", CTRL_CB => $sub_de_data_grid_cb } ) ;\n|;
+
           my ( $dd_grid, $dd_count ) = de_data_grid( $core, $backlinked_table, $details_fields, { FILTER => { $backlinked_field => $id }, LIMIT => $details_limit, CLASS => 'grid view record', TITLE => "[~Related] $linked_table_label", CTRL_CB => $sub_de_data_grid_cb } ) ;
           $field_details .= $dd_grid;
 
