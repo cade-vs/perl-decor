@@ -1157,7 +1157,49 @@ sub sub_finish
   $mo->{ 'XS' } = 'OK';
 };
 
-#--- INSERT/UPDATE/DELETE ----------------------------------------------------
+#--- RECALC/INSERT/UPDATE/DELETE ----------------------------------------------------
+
+sub __inline_method_value
+{
+  my $ftype =    shift;
+  my $value = uc shift;
+  my $rec   =    shift;
+  
+  my @value = split /\s+/, $value;
+
+  my $cmd = shift @value;
+  
+  return shift @value               if $cmd eq 'SET';
+  return gm_julian_day(time())      if $cmd eq 'NOW' and $ftype eq 'DATE';
+  return time()                     if $cmd eq 'NOW' and $ftype eq 'UTIME';
+  return $rec->read( shift @value ) if $cmd eq 'SELF';
+  return subs_get_current_user()->read( shift @value ) if $cmd eq 'USER';
+  return subs_get_current_session()->read( shift @value ) if $cmd eq 'SESS' or $cmd eq 'SESSION';
+  
+  return undef;
+}
+
+sub __exec_inline_method
+{
+  my $rec    =    shift;
+  my $method = uc shift;
+
+  my $table = $rec->table();
+  my $des   = describe_table( $table );
+  my $sdes  = $des->get_table_des();
+  
+  my $fields = $sdes->{ "ON_$method" };
+  return unless @$fields;
+  
+  for my $field ( @$fields )
+    {
+    my $fdes  = $des->get_field_des( $field );
+    my $ftype = $fdes->{ 'TYPE' }{ 'NAME' };
+    my $value = __inline_method_value( $ftype, $fdes->{ "ON_$method" }, $rec );
+    boom "invalid inline method for table [$table] field [$field] method [ON_$method]" unless defined $value;
+    $rec->write( $field => $value );
+    }
+}
 
 sub __sub_attach_edit_cache_sid_to_rec
 {
@@ -1267,6 +1309,7 @@ sub sub_insert
   $rec->taint_mode_disable_all();
   __sub_attach_edit_cache_sid_to_rec( $mi, $rec );
   $rec->__client_io_enable();
+  __exec_inline_method( $rec, 'INSERT' );
   $rec->method( 'INSERT' );
   $rec->edit_cache_save();
 
@@ -1340,6 +1383,7 @@ sub sub_update
   $rec->taint_mode_disable_all();
   __sub_attach_edit_cache_sid_to_rec( $mi, $rec );
   $rec->__client_io_enable();
+  __exec_inline_method( $rec, 'UPDATE' );
   $rec->method( 'UPDATE' );
   $rec->edit_cache_save();
 
@@ -1383,6 +1427,7 @@ sub sub_init
 
   $rec->taint_mode_disable_all();
 
+  __exec_inline_method( $rec, 'INIT' );
   $rec->method( 'INIT' );
   $mo->{ 'RDATA' } = $rec->read_hash_all();
   $mo->{ 'XS'    } = 'OK';
@@ -1424,8 +1469,11 @@ sub sub_recalc
   # TODO: recalc for insert/update
   __sub_attach_edit_cache_sid_to_rec( $mi, $rec );
   $rec->__client_io_enable();
+  my $recalc_method = $insert ? 'RECALC_INSERT' : 'RECALC_UPDATE';
+  __exec_inline_method( $rec, 'RECALC' );
+  __exec_inline_method( $rec, $recalc_method );
   $rec->method( 'RECALC' );
-  $rec->method( $insert ? 'RECALC_INSERT' : 'RECALC_UPDATE' );
+  $rec->method( $recalc_method );
   $rec->edit_cache_save();
 
   $rec->inject_return_file_into_mo( $mo );

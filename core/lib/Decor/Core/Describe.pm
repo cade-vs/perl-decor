@@ -150,6 +150,13 @@ my %DES_ATTRS = (
                            ORDER_BY    => 1,
                            
                            VIRTUAL     => 1,
+
+                           ON_INIT          => 1,
+                           ON_RECALC        => 1,
+                           ON_RECALC_INSERT => 1,
+                           ON_RECALC_UPDATE => 1,
+                           ON_INSERT        => 1,
+                           ON_UPDATE        => 1,
                            
                            NO_AUTOCOMPLETE => 3, # disable interface autocomplete
 
@@ -200,6 +207,13 @@ my %DES_ATTRS = (
                            PASSWORD     => 1,
                            FT           => 1, # filter, field transform, value modifier stack
                            INIT         => 1, # field initialization, initial value when insert
+
+                           ON_INIT          => 1,
+                           ON_RECALC        => 1,
+                           ON_RECALC_INSERT => 1,
+                           ON_RECALC_UPDATE => 1,
+                           ON_INSERT        => 1,
+                           ON_UPDATE        => 1,
 
                            MAXLEN       => 3, # max remote viewer field length
                            MONO         => 3, # remote viewer should use monospaced font
@@ -293,9 +307,12 @@ my %COPY_CATEGORY_ATTRS = (
 #                );
 
 my %INLINE_METHODS = (
-                     ON_RECALC => 1,
-                     ON_INSERT => 1,
-                     ON_UPDATE => 1,
+                     ON_INIT          => 1,
+                     ON_RECALC        => 1,
+                     ON_RECALC_INSERT => 1,
+                     ON_RECALC_UPDATE => 1,
+                     ON_INSERT        => 1,
+                     ON_UPDATE        => 1,
                      );
 
 #my %TABLE_ATTRS = map { $_ => 1 } @TABLE_ATTRS;
@@ -731,6 +748,11 @@ sub __postprocess_table_raw_description
   $des->{ '@' }{ '_DOS_LIST'     } = \@dos;
   $des->{ '@' }{ '_ACTIONS_LIST' } = \@actions;
   $des->{ '@' }{ 'DSN'           } = uc( $des->{ '@' }{ 'DSN' } ) || 'MAIN';
+
+  for my $method ( keys %INLINE_METHODS )
+    {
+    $des->{ '@' }{ "ON_$method"  } = [ grep { exists $des->{ 'FIELD' }{ $_ }{ "ON_$method" } } keys %{ $des->{ 'FIELD' } } ];
+    }
 
 #print STDERR "TABLE DES AFTER SELF PP [$table]:" . Dumper( $des, \@fields );
   # postprocessing FIELDs ---------------------------------------------------
