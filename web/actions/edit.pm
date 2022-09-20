@@ -159,6 +159,9 @@ sub main
     next unless exists $ui_si{ "F:$field" };
     my $input_data = $ui_si{ "F:$field" };
 
+    $input_data =~ s/^\s*//;
+    $input_data =~ s/\s*$//;
+
     my $fdes       = $tdes->{ 'FIELD' }{ $field };
     my $type       = $fdes->{ 'TYPE'  };
     my $type_name  = $fdes->{ 'TYPE'  }{  'NAME' };
