@@ -33,6 +33,7 @@ our @EXPORT = qw(
                 reorder_date_time
 
                 record_exists_by_fields
+                check_unique_field_set
                 );
 
 sub find_user_by_name
@@ -201,6 +202,8 @@ sub rec_sort_fields_n
 sub record_exists_by_fields
 {
   my $rec = shift;
+
+  boom "error: method: check_unique_field_set(): arg 0 must be a record object" unless ref $rec;
   
   my @where;
   my @bind;
@@ -215,6 +218,21 @@ sub record_exists_by_fields
   my $db = io_new();
   
   return $db->read_field( $rec->table(), '_ID', $where, { BIND => \@bind } );
+}
+
+sub check_unique_field_set
+{
+  my $rec = shift;
+
+  boom "error: method: check_unique_field_set(): arg 0 must be a record object" unless ref $rec;
+
+  my $id = record_exists_by_fields( $rec, @_ );
+  return 0 if $id < 1 or $id == $rec->id();
+
+  my $err = "Same data record already exists!";
+  $rec->method_add_field_error( $_, $err ) for @_;
+  
+  $rec->method_add_error( $err )
 }
 
 ### EOF ######################################################################
