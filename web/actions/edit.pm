@@ -298,7 +298,7 @@ sub main
   for my $field ( $tdes->sort_fields_list_by_order( list_uniq( @$fields_ar, keys %advise ) ) )
     {
     my $fdes       = $tdes->{ 'FIELD'  }{ $field };
-    my $label      = $fdes->{ 'LABEL'  } || $field;
+    my $label      = $fdes->get_attr( 'WEB', $edit_mode, 'LABEL' ) || $field;
 
     next if $fdes->get_attr( 'WEB', $edit_mode, 'HIDE' );
 
@@ -529,13 +529,18 @@ sub edit_get_field_control_info
           @ord_fld = @v;
           }
 
+        for( @spf_fld )
+          {
+          $_ = $ltdes->expand_field_path( $_ );
+          }
 
         my $combo_data = [];
         my $sel_hr     = {};
         $sel_hr->{ $field_data } = 1;
 
-        my @lfields = @{ $ltdes->get_fields_list_by_oper( 'READ' ) };
-        unshift @lfields, $linked_field;
+#        my @lfields = @{ $ltdes->get_fields_list_by_oper( 'READ' ) };
+        my @lfields = @spf_fld;
+        unshift @lfields, '_ID', $linked_field;
 
 ##        return "<#access_denied>" unless @fields;
 

@@ -108,6 +108,25 @@ sub resolve_path
   return wantarray ? ( $bfdes, $cfdes ) : $cfdes;
 }
 
+sub expand_field_path
+{
+  my $self = shift;
+  my $path = shift;
+
+  my @path = split /\./, $path;
+  
+  my $cfdes = $self->resolve_path( $path );
+  while(4)
+    {
+    last unless $cfdes->is_linked();
+    $cfdes = $cfdes->describe_linked_field();
+    push @path, $cfdes->{ 'NAME' };
+    }
+
+  my $res = join '.', @path;
+  return wantarray() ? ( $res, $cfdes ) : $res;  
+}
+
 sub sort_cat_by_order
 {
   my $self = shift;
