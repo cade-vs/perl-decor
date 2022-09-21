@@ -1,4 +1,13 @@
 
+-- tables single/plural record item names
+
+-- inline methods, special values, i.e.:
+          CTIME on_init +5days
+
+-- GRID sorting
+
+-- GRID tools menu: sorting, download CSV, etc.
+
 -- password encryption between web and core
 
 -- record parallel update guard
@@ -40,6 +49,5 @@
 -- index.cgi da moje da setva stype, css, vmesto da e nujno da se kopira header_css.html
 
 -- check Net::Client.pm call options keys!
-
 
 -- file_dn.pm web action to have CFG option for /tmp/ dir
