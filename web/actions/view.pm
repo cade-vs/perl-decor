@@ -148,13 +148,14 @@ sub main
     my $base_field = exists $basef{ $field } ? $basef{ $field } : $field;
 
     my $data      = $row_data->{ $field };
+    next if $bfdes->get_attr( qw( WEB VIEW HIDE_IF_EMPTY ) ) and ( ( $type_name eq 'CHAR' and $data eq '' ) or ( $type_name ne 'CHAR' and $data == 0 ) ); # FIXME: move to func
+
     my $data_base = $row_data->{ $basef{ $field } } if exists $basef{ $field };
     my ( $data_fmt, $data_fmt_class );
     my $data_ctrl;
     my $field_details;
     my $no_layout_ctrls = 0;
 
-    next if $bfdes->get_attr( qw( WEB VIEW HIDE_IF_EMPTY ) ) and $data eq ''; # TODO: FIXME: by type? eq '', == 0, etc.
 
     my $overflow  = $bfdes->get_attr( qw( WEB VIEW OVERFLOW ) );
     if( $overflow )

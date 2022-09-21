@@ -133,6 +133,8 @@ sub main
     my $base_field = $field;
 
     my $data = $row_data->{ $field };
+    next if $fdes->get_attr( qw( WEB VIEW HIDE_IF_EMPTY ) ) and ( ( $type_name eq 'CHAR' and $data eq '' ) or ( $type_name ne 'CHAR' and $data == 0 ) ); # FIXME: move to func
+
     my $data_fmt = de_web_format_field( $data, $fdes, 'PREVIEW', { CORE => $core, NO_EDIT => 1, ID => $id } );
     my $field_error;
     
