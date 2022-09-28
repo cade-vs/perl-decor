@@ -96,7 +96,7 @@ sub main
   my $filter_name        = $reo->param( 'FILTER_NAME' );
   my $filter_bind        = $reo->param( 'FILTER_BIND' );
   my $filter_method      = $reo->param( 'FILTER_METHOD' );
-  my $order_by           = $reo->param( 'ORDER_BY' ) || $tdes->{ '@' }{ 'ORDER_BY' } || '._ID DESC';
+  my $order_by           = $reo->param( 'ORDER_BY' ) || $tdes->{ '@' }{ 'ORDER_BY' };
   
 #  print STDERR Dumper( $tdes );
 
@@ -172,16 +172,28 @@ sub main
     $page_size  = 1_000_000;
     }
 
-  my $select = $core->select( $table, $fields, { FILTER => $filter, FILTER_NAME => $filter_name, FILTER_BIND => $filter_bind, FILTER_METHOD => $filter_method, OFFSET => $offset, LIMIT => $page_size, ORDER_BY => $order_by } ) if $fields;
+  my $active_sort = $ps->{ 'SORTS' }{ 'ACTIVE' };
+  if( $active_sort )
+    {
+    $order_by = $active_sort->{ 'SQL' };
+    }
+  if( $active_sort and $reo->param_peek( 'REMOVE_ACTIVE_SORT' ) )
+    {
+    $ps->{ 'SORTS' }{ 'LAST' } = $ps->{ 'SORTS' }{ 'ACTIVE' };
+    delete $ps->{ 'SORTS' }{ 'ACTIVE' };
+    $active_sort = undef;
+    }
+
+  my $select = $core->select( $table, $fields, { FILTER => $filter, FILTER_NAME => $filter_name, FILTER_BIND => $filter_bind, FILTER_METHOD => $filter_method, OFFSET => $offset, LIMIT => $page_size, ORDER_BY => ( $order_by || '._ID DESC' ) } ) if $fields;
   return "<#access_denied>" unless $select;
   my $scount = $core->count( $table,           { FILTER => $filter, FILTER_NAME => $filter_name, FILTER_BIND => $filter_bind } ) if $select and ! $filter_method;
 
-
   $browser_window_title .= " <span class=details-text>|</span> $scount [~record(s)]";
   $browser_window_title .= " <span class=details-text>,</span> [~filtered]" if $filter;
+  $browser_window_title .= " <span class=details-text>,</span> [~sorted]"   if $order_by;
   $reo->ps_path_add( 'grid', $browser_window_title );
 
-  $ps->{ 'GRID_EXPORT' } = $fields ? [ $table, $fields, { FILTER => $filter, FILTER_NAME => $filter_name, FILTER_BIND => $filter_bind, FILTER_METHOD => $filter_method, OFFSET => 0, LIMIT => 8192, ORDER_BY => $order_by } ] : undef;
+  $ps->{ 'GRID_EXPORT' } = $fields ? [ $table, $fields, { FILTER => $filter, FILTER_NAME => $filter_name, FILTER_BIND => $filter_bind, FILTER_METHOD => $filter_method, OFFSET => 0, LIMIT => 8192, ORDER_BY => ( $order_by || '._ID DESC' ) } ] : undef;
 
 #  $text .= "<br>";
 #  $text .= "<p>";
@@ -218,9 +230,10 @@ sub main
   $text_grid_navi_left .= de_html_alink_button( $reo, 'new', "(+) $insert_cue",      $insert_cue_hint,  BTYPE => 'act', ACTION => 'edit',        TABLE => $table, ID => -1, %insert_new_opts ) if $tdes->allows( 'INSERT' );
   $text_grid_navi_left .= de_html_alink_button( $reo, 'new', "(&uarr;) $upload_cue", $upload_cue_hint,  BTYPE => 'act', ACTION => 'file_up',     TABLE => $table, ID => -1, MULTI => 1       ) if $tdes->allows( 'INSERT' ) and $table_type eq 'FILE';
   
-  $text_grid_navi_left .= de_html_alink_button( $reo, 'new', "(&asymp;) [~Filter records]",    '[~Filter records]',          ACTION => 'grid_filter', TABLE => $table           ) unless $active_filter;
+  $text_grid_navi_left .= de_html_alink_button( $reo, 'new', "(&asymp;) [~Filter records]",    '[~Filter records]',        ACTION => 'grid_filter', TABLE => $table           ) unless $active_filter;
   # $text_grid_navi_left .= de_html_alink_button( $reo, 'here', "(x) [~Remove filter]",           '[~Remove current filter]',   REMOVE_ACTIVE_FILTER => 1 ) if $active_filter;
   $text_grid_navi_left .= de_html_alink_button( $reo, 'here', "(&lt;) [~Use last filter]",   '[~Enable last used filter]', USE_LAST_FILTER => 1      ) if $last_filter and ! $active_filter;
+  $text_grid_navi_left .= de_html_alink_button( $reo, 'new', "(||) [~Sort records]",      '[~Sort records]',          ACTION => 'grid_sort',   TABLE => $table           ) unless $active_sort;
 
   my $custom_css = lc "css_$table";
   $text .= "<#$custom_css>";
@@ -455,7 +468,7 @@ sub main
               }
             else
               {  
-#########                $data_fmt   = de_html_alink( $reo, 'new', "$data_fmt",  $view_cue, ACTION => 'view', ID => $linked_id, TABLE => $linked_table ) unless $enum;
+              $data_fmt   = de_html_alink( $reo, 'new', "$data_fmt",  $view_cue, ACTION => 'view', ID => $linked_id, TABLE => $linked_table ) unless $enum or $linked_id < 1;
               }
 
             if( ! $enum )
@@ -575,6 +588,16 @@ sub main
     $text .= "<div class=info-text>$filter_dez</div><p>";
     }
 
+  if( $active_sort )
+    {
+    my $sort_des = $ps->{ 'SORTS' }{ 'ACTIVE' }{ 'DES'   };
+    my $sort_rmv;
+    $sort_rmv .= de_html_alink_button( $reo, 'new', "(&asymp;) [~Modify sorting]",   '[~Sort records]',          ACTION => 'grid_sort', TABLE => $table );
+    $sort_rmv .= de_html_alink_button( $reo, 'here', "(x) [~Remove sorting]",           '[~Remove sort order]',   REMOVE_ACTIVE_SORT => 1 );
+    my $sort_dez = html_layout_2lr( $sort_des, $sort_rmv, '<==1>' );
+    $text .= "<div class=info-text>$sort_dez</div><p>";
+    }
+
   if( $row_counter == 0 )
     {
     $text .= "<p>$text_grid_navi_left<p><div class=info-text>[~No data found]</div><p>";
@@ -620,7 +643,7 @@ sub main
     my $hl_nav_handle = html_hover_layer( $reo, VALUE => $nav_keys_help, DELAY => 300 );
     $text_grid_navi_mid .= " <span $hl_nav_handle>(?)</span>";
     
-    $text_grid_navi_right .= de_html_alink( $reo, 'new', "(&darr;)",       { HINT => '[~Download data as CSV]' }, ACTION => 'grid_export', TABLE => $table );
+    $text_grid_navi_right .= de_html_alink( $reo, 'new', "(&darr;)",     { HINT => '[~Download data as CSV]' }, ACTION => 'grid_export', TABLE => $table );
 
     # FIXME: use function!
     my $text_grid_navi = "<table width=100% class=grid-navi><tr><td align=left width=1%>$text_grid_navi_left</td><td align=center>$text_grid_navi_mid</td><td align=right width=1%>$text_grid_navi_right</td></tr></table>";
