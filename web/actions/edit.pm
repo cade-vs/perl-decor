@@ -108,9 +108,12 @@ sub main
       $edit_mode_insert = 0;
       $edit_mode        = 'UPDATE';
 
+      my $fields_rd;
       $fields_ar = $tdes->get_fields_list_by_oper( 'UPDATE' );
-      my $row_data = $core->select_first1_by_id( $table, $fields_ar, $id );
-      $ps->{ 'ROW_DATA' } = $row_data;
+      $fields_rd = $tdes->get_fields_list_by_oper( 'READ'   );
+
+      my $row_data = $core->select_first1_by_id( $table, $fields_rd, $id );
+      $ps->{ 'ROW_DATA' } = { map { $_ => $row_data->{ $_ } } @$fields_ar };
       }
 
     $ps->{ 'FIELDS_WRITE_AR'  } = $fields_ar;
