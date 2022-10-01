@@ -231,7 +231,8 @@ sub de_web_format_field
         }
       else
         {
-        $diff = julian_date_diff_in_words_relative( $ud );
+        $diff = julian_date_diff_in_words_relative( $ud ) if $details <= 2;
+        $diff = julian_date_diff_in_words( $ud )          if $details >= 3;
         }  
       
       $diff =~ s/([a-z]{2,})/\[~$1\]/gi; # translate
@@ -240,7 +241,7 @@ sub de_web_format_field
     
     if( $ud > 0 and $fdes->get_attr( 'WEB', $vtype, 'OVERDUE' ) )
       {
-      $data_fmt .= " <span class=warning>[~OVERDUE]</span>";
+      $data_fmt .= " <span class=warning>[~DUE]</span>";
       }
     
     }
