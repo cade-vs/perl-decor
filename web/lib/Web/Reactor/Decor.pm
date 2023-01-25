@@ -171,7 +171,7 @@ sub de_login
 
   my $user_shr = $self->get_user_session();
   my $http_env = $self->get_http_env();
-  my $remote   = $http_env->{ 'REMOTE_ADDR' };
+  my $remote   = $self->get_client_ip();
 
   my $client = $self->de_connect() or boom "cannot de_login(), DECOR CLIENT OBJECT is missing";
 
