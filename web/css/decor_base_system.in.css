@@ -945,8 +945,26 @@ input:disabled,textarea:disabled,select:disabled,.grid-link-select
         border: solid 1px $input-field-disabled.3;
         }
 
-$disabled-button-colors
-
+/* stupid stupid firefox and other browsers crap! */
+input:autofill,textarea:autofill,select:autofill,.grid-link-select:autofill
+        {
+        color: $input-field-colors.1;
+        background-color: $input-field-colors.2;
+        border: solid 1px $input-field-colors.3;
+        }
+:-moz-autofill,:autofill,:-moz-autofill-preview 
+        {
+        color: $input-field-colors.1;
+        background-color: $input-field-colors.2;
+        border: solid 1px $input-field-colors.3;
+        }
+input:-webkit-autofill 
+        {
+        color: $input-field-colors.1;
+        background-color: $input-field-colors.2;
+        border: solid 1px $input-field-colors.3;
+        }        
+        
 select,.grid-link-select
         {
         cursor: pointer;

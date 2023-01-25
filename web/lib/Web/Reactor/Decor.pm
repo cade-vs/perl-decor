@@ -130,7 +130,7 @@ sub de_connect
 
   my $user_shr = $self->get_user_session();
   my $http_env = $self->get_http_env();
-  my $remote   = $http_env->{ 'REMOTE_ADDR' };
+  my $remote   = $self->get_client_ip();
 
   my $de_core_session_id = $user_shr->{ 'DECOR_CORE_SESSION_ID' } || 'CREATE';
 

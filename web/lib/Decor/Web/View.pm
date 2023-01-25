@@ -241,7 +241,7 @@ sub de_web_format_field
     
     if( $ud > 0 and $fdes->get_attr( 'WEB', $vtype, 'OVERDUE' ) )
       {
-      $data_fmt .= " <span class=warning>[~DUE]</span>";
+      $data_fmt = "<span class=warning>[~DUE]</span> " . $data_fmt;
       }
     
     }

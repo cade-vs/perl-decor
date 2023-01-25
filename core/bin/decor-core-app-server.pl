@@ -15,6 +15,7 @@ use open ':std', ':encoding(UTF-8)';
 use Data::Tools;
 use Decor::Core::Env;
 use Decor::Core::Log;
+use Decor::Core::DSN;
 use Decor::Core::Describe;
 use Decor::Core::Net::Server::App;
 use Decor::Shared::Net::Protocols;
@@ -27,6 +28,7 @@ my $DEFAULT_SERVER_MODULE        = "App";
 
 my $opt_app_name;
 my $opt_no_fork = 0;
+my $opt_prefork = 0;
 my $opt_preload = 0;
 my $opt_listen_port = 42000;
 my $opt_net_protocols = '*';
@@ -42,6 +44,7 @@ usage: $0 <options>
 options:
     -p port    -- port number for incoming connections (default $opt_listen_port)
     -f         -- run in foreground (no fork) mode
+    -k cnt     -- run in prefork mode, start initial 'cnt' processes.
     -e app     -- preload application (will serve only single app)
     -t psj     -- allow network protocol formats (p=storable,s=stacker,j=json)
     -d         -- increase DEBUG level (can be used multiple times)
@@ -78,6 +81,12 @@ while( @ARGV )
     {
     $opt_no_fork = 1;
     print "status: option: run in foreground (no fork) mode\n";
+    next;
+    }
+  if( /-k/ )
+    {
+    $opt_prefork = shift;
+    print "status: option: run in prefork mode, spawning initial $opt_prefork processes\n";
     next;
     }
   if( /-p/ )
@@ -177,6 +186,7 @@ if( $opt_preload )
 my %srv_opt = (
               PORT    => $opt_listen_port,
               NO_FORK => $opt_no_fork,
+              PREFORK => $opt_prefork,
               SSL     => $opt_ssl,
               
               %opt_ssl

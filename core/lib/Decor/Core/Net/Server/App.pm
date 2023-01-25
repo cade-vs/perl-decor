@@ -29,6 +29,15 @@ sub on_process_xt_message
   return 1;
 }
 
+sub on_process_begin_reset
+{
+  my $self = shift;
+  my $socket = shift;
+
+  Decor::Core::Subs::__sub_reset_state();
+  return 1;
+}
+
 #-----------------------------------------------------------------------------
 
 ### EOF ######################################################################

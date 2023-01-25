@@ -62,13 +62,23 @@ sub on_process_xt_message
   return undef;
 }
 
+sub on_process_begin_reset
+{
+  my $self = shift;
+  my $socket = shift;
+
+  # usually nothing...
+  return 1;
+}
+
 sub on_process
 {
   my $self   = shift;
   my $socket = shift;
 
   # TODO: re/init app name and root
-  de_log_debug( "client connected, starting main loop..." );
+  de_log_debug( "client connected, begin reset & starting main loop..." );
+  $self->on_process_begin_reset( $socket );
 
   my $mc =  0; # message counter
   my $mi = {}; # input message
@@ -89,8 +99,9 @@ sub on_process
     if( $nerr eq 'E_COMM' )
       {
       de_log( "status: end of communication channel" );
-      $self->break_main_loop();
-      next;
+      return;
+      #$self->break_main_loop();
+      #next;
       }
     
     $mo = {};
@@ -102,8 +113,9 @@ sub on_process
     if( ! $mi or ref( $mi ) ne 'HASH' )
       {
       de_log( "error: invalid or empty XTYPE incoming message received" );
-      $self->break_main_loop();
-      next;
+      return;
+      #$self->break_main_loop();
+      #next;
       }
 
     my $xt = uc $mi->{ 'XT' };
@@ -137,8 +149,9 @@ sub on_process
       if( $@ )
         {
         de_log( "error: DSN ROLLBACK exception [$@]" );
-        $self->break_main_loop();
-        next;
+        return;
+        #$self->break_main_loop();
+        #next;
         }
       }
     elsif( ! subs_in_manual_transaction() )
@@ -147,8 +160,9 @@ sub on_process
       if( $@ )
         {
         de_log( "error: DSN COMMIT exception [$@]" );
-        $self->break_main_loop();
-        next;
+        return;
+        #$self->break_main_loop();
+        #next;
         }
       }  
     
@@ -165,8 +179,9 @@ sub on_process
       # TODO: rollback?
       $mo = {};
       $mo->{ 'XS' } = "E_STATUS";
-      $self->break_main_loop();
-      next;
+      return;
+      #$self->break_main_loop();
+      #next;
       }
 
     if( $xs ne 'OK' )
@@ -192,8 +207,9 @@ sub on_process
     if( $mo_res == 0 )
       {
       de_log( "error: error sending outgoing XTYPE message, breaking main loop..." );
-      $self->break_main_loop();
-      next;
+      return;
+      #$self->break_main_loop();
+      #next;
       }
 
     if( $send_file_name and $send_file_size > 0 )

@@ -1,9 +1,10 @@
 #!/usr/bin/perl
 ##############################################################################
 ##
-##  Decor application machinery core
-##  2014-2021 (c) Vladi Belperchinov-Shabanski "Cade"
-##  <cade@noxrun.com> <cade@bis.bg> <cade@cpan.org>
+##  small log colorizer
+##  2021-2022 (c) Vladi Belperchinov-Shabanski "Cade"
+##                http://cade.noxrun.com
+##                      <cade@noxrun.com> <cade@bis.bg> <cade@cpan.org>
 ##
 ##  LICENSE: GPLv2
 ##
