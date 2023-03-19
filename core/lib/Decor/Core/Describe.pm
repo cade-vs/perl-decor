@@ -137,6 +137,8 @@ my %TABLE_TYPES = (
 # LEGEND: 3 == remote/path attribute, it must have attribute path
 my %DES_ATTRS = (
                   '@' => {
+                           REM         => 1, # remark, comment
+                           
                            TYPE        => 1,
                            SCHEMA      => 1,
                            LABEL       => 1,
@@ -189,6 +191,8 @@ my %DES_ATTRS = (
                            DETAILS      => 3,
                          },
                   'FIELD' => {
+                           REM         => 1, # remark, comment
+                           
                            TABLE        => 1,
                            NAME         => 1,
 
@@ -270,14 +274,20 @@ my %DES_ATTRS = (
                            ON_UPDATE    => 1,
                          },
                   'INDEX' => {
+                           REM         => 1, # remark, comment
+                           
                            FIELDS      => 1,
                            UNIQUE      => 1,
                            FIELDS      => 1,
                          },
                   'FILTER' => {
+                           REM         => 1, # remark, comment
+                           
                            SQL_WHERE   => 1,
                          },
                   'DO' => {
+                           REM         => 1, # remark, comment
+                           
                            LABEL       => 2,
                            GRANT       => 1,
                            DENY        => 1,
@@ -285,6 +295,8 @@ my %DES_ATTRS = (
                            HIDE        => 3,
                          },
                   'ACTION' => {
+                           REM         => 1, # remark, comment
+                           
                            LABEL       => 1,
                            TARGET      => 1,
                            ICON        => 1,
@@ -668,6 +680,13 @@ sub __merge_table_des_file
         push @attrs, %{ $field_templates->{ 'TYPE' }{ $type } } if exists $field_templates->{ 'TYPE' }{ $type };
         push @attrs, %{ $des->{ 'TYPE' }{ $type } }             if exists $des->{ 'TYPE' }{ $type };
         $des->{ $category }{ $sect_name } = { @attrs, %{ $des->{ $category }{ $sect_name } } } if @attrs;
+        }
+
+      if( $key eq 'REM' )
+        {
+        # remark, comment, holds array of all found REMs' values
+        $des->{ $category }{ $sect_name }{ 'REM' } ||= [];
+        push @{ $des->{ $category }{ $sect_name }{ 'REM' } }, $value;
         }
 
       next;
