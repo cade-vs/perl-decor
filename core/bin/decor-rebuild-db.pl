@@ -35,11 +35,13 @@ $Data::Dumper::Indent   = 3;
 my $opt_app_name;
 my $opt_recreate = 0;
 my $opt_confirm_first = 0;
+my $opt_inc_decor_tables = 0;
 
 our $help_text = <<END;
 usage: $0 <options> application_name tables
 options:
     -f        -- drop and recreate database objects (tables/indexes/sequences)
+    -fs       -- as -f but includes DECOR system tables
     -d        -- debug mode, can be used multiple times to rise debug level
     -o        -- ask for confirmation before executing tasks
     -r        -- log to STDERR
@@ -59,11 +61,14 @@ while( @ARGV )
     push @args, @ARGV;
     last;
     }
-  if( /-f/ )
+  if( /-f(s)?/ )
     {
     $opt_recreate = 1;
     $opt_confirm_first = 1;
     print "option: recreate database objects\n";
+    next unless $1;
+    $opt_inc_decor_tables = 1;
+    print "option: will consider and DECOR system tables\n";
     next;
     }
   if( /-o/ )
@@ -99,13 +104,6 @@ print "option: database objects to handle: @args\n" if @args;
 print "info: ALL database objects will be handled\n" unless @args;
 print "info: application name in use [$opt_app_name]\n" if $opt_app_name;
 
-if( $opt_confirm_first )
-  {
-  print "type 'yes' to continue\n";
-  $_ = <STDIN>;
-  exit unless /yes/i;
-  }
-
 #-----------------------------------------------------------------------------
 
 de_init( APP_NAME => $opt_app_name );
@@ -117,9 +115,19 @@ my $root = de_root();
 my @tables = @args;
 @tables = @{ des_get_tables_list() } unless @tables > 0;
 
+@tables = grep { ! /^DE_/i } @tables if ! $opt_inc_decor_tables;
+
 $_ = uc $_ for @tables;
 
-print "rebuilding tables: @tables\n";
+print "rebuilding tables: \n";
+print "                   $_\n" for sort @tables;
+
+if( $opt_confirm_first )
+  {
+  print "type 'yes' to continue\n";
+  $_ = <STDIN>;
+  exit unless /yes/i;
+  }
 
 my $cc;
 my $ac = @tables;

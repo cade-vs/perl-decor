@@ -73,6 +73,38 @@ sub __reshape
 
 ##############################################################################
 
+sub commit
+{
+  my $self = shift;
+
+  dsn_commit();
+}
+
+sub savepoint
+{
+  my $self    = shift;
+  my $sp_name = shift;
+
+  dsn_savepoint( $sp_name );
+}
+
+sub rollback
+{
+  my $self = shift;
+
+  dsn_rollback();
+}
+
+sub rollback_to_savepoint
+{
+  my $self    = shift;
+  my $sp_name = shift;
+
+  dsn_rollback_to_savepoint( $sp_name );
+}
+
+##############################################################################
+
 sub select
 {
   my $self   = shift;
@@ -773,7 +805,6 @@ sub delete_id
   my $opts  = shift;
 
   return $self->delete( $table, '_ID = ?', { BIND => [ $id ] } );
-  # FIXME: must be resolved ID, i.e. ^ID
 }
 
 #-----------------------------------------------------------------------------

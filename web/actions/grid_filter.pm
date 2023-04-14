@@ -195,7 +195,7 @@ sub main
       $rs->{ 'FILTERS' }{ 'ACTIVE' }{ 'DATA'  } = $filter_data;
       $rs->{ 'FILTERS' }{ 'ACTIVE' }{ 'DES'   } = "<ul>" . $filter_des . "</ul>";
       }
-    return $reo->forward_back();
+    return $reo->forward_back( OFFSET => 0 );
     }
 
 

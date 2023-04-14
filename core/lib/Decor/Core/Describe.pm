@@ -419,7 +419,7 @@ sub __merge_table_des_file
   my $category  = '@';
   $des->{ $category }{ $sect_name } ||= {};
   push @{ $des->{ $category }{ $sect_name }{ '__DEBUG_ORIGIN' } }, "$fname at 0" if de_debug();
-  $des->{ $category }{ $sect_name }{ 'NAME' } = $table;
+  $des->{ $category }{ $sect_name }{ 'NAME'  } = $table;
   $des->{ $category }{ $sect_name }{ 'TYPE' } ||= 'GENERIC';
   my $file_mtime = file_mtime( $fname );
   if( $des->{ $category }{ $sect_name }{ '_MTIME' } < $file_mtime )
@@ -661,6 +661,13 @@ sub __merge_table_des_file
         {
         $des->{ $category }{ $sect_name }{ '__GRANT_DENY_ACCUMULATOR' } = [ 'deny all'               ];
         }
+      if( $key eq 'REM' )
+        {
+        # remark, comment, holds array of all found REMs' values
+        $des->{ $category }{ $sect_name }{ 'REM' } ||= [];
+        push @{ $des->{ $category }{ $sect_name }{ 'REM' } }, $value;
+        next;
+        }
       
       if( $DES_KEY_TYPES{ $key } eq '@' )
         {
@@ -680,13 +687,6 @@ sub __merge_table_des_file
         push @attrs, %{ $field_templates->{ 'TYPE' }{ $type } } if exists $field_templates->{ 'TYPE' }{ $type };
         push @attrs, %{ $des->{ 'TYPE' }{ $type } }             if exists $des->{ 'TYPE' }{ $type };
         $des->{ $category }{ $sect_name } = { @attrs, %{ $des->{ $category }{ $sect_name } } } if @attrs;
-        }
-
-      if( $key eq 'REM' )
-        {
-        # remark, comment, holds array of all found REMs' values
-        $des->{ $category }{ $sect_name }{ 'REM' } ||= [];
-        push @{ $des->{ $category }{ $sect_name }{ 'REM' } }, $value;
         }
 
       next;

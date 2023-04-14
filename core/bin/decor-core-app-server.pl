@@ -29,6 +29,7 @@ my $DEFAULT_SERVER_MODULE        = "App";
 my $opt_app_name;
 my $opt_no_fork = 0;
 my $opt_prefork = 0;
+my $opt_maxfork = 0;
 my $opt_preload = 0;
 my $opt_listen_port = 42000;
 my $opt_net_protocols = '*';
@@ -45,6 +46,7 @@ options:
     -p port    -- port number for incoming connections (default $opt_listen_port)
     -f         -- run in foreground (no fork) mode
     -k cnt     -- run in prefork mode, start initial 'cnt' processes.
+    -x cnt     -- fork maximum 'cnt' processes (also for prefork mode)
     -e app     -- preload application (will serve only single app)
     -t psj     -- allow network protocol formats (p=storable,s=stacker,j=json)
     -d         -- increase DEBUG level (can be used multiple times)
@@ -87,6 +89,12 @@ while( @ARGV )
     {
     $opt_prefork = shift;
     print "status: option: run in prefork mode, spawning initial $opt_prefork processes\n";
+    next;
+    }
+  if( /-x/ )
+    {
+    $opt_maxfork = shift;
+    print "status: option: max fork $opt_prefork processes\n";
     next;
     }
   if( /-p/ )
@@ -187,6 +195,7 @@ my %srv_opt = (
               PORT    => $opt_listen_port,
               NO_FORK => $opt_no_fork,
               PREFORK => $opt_prefork,
+              MAXFORK => $opt_maxfork,
               SSL     => $opt_ssl,
               
               %opt_ssl

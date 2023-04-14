@@ -166,11 +166,11 @@ sub main
     }
   $filter = { %{ $filter || {} }, %$filter_param } if $filter_param;
 
-  if( $filter_method )
-    {
-    $offset     = 0;
-    $page_size  = 1_000_000;
-    }
+#  if( $filter_method or $filter )
+#    {
+#    $offset     = 0;
+#    $page_size  = 1_000_000;
+#    }
 
   my $active_sort = $ps->{ 'SORTS' }{ 'ACTIVE' };
   if( $active_sort )
@@ -187,8 +187,9 @@ sub main
   my $select = $core->select( $table, $fields, { FILTER => $filter, FILTER_NAME => $filter_name, FILTER_BIND => $filter_bind, FILTER_METHOD => $filter_method, OFFSET => $offset, LIMIT => $page_size, ORDER_BY => ( $order_by || '._ID DESC' ) } ) if $fields;
   return "<#access_denied>" unless $select;
   my $scount = $core->count( $table,           { FILTER => $filter, FILTER_NAME => $filter_name, FILTER_BIND => $filter_bind } ) if $select and ! $filter_method;
+  my $scount_s = str_num_comma( $scount );
 
-  $browser_window_title .= " <span class=details-text>|</span> $scount [~record(s)]";
+  $browser_window_title .= " <span class=details-text>|</span> $scount_s [~record(s)]";
   $browser_window_title .= " <span class=details-text>,</span> [~filtered]" if $filter;
   $browser_window_title .= " <span class=details-text>,</span> [~sorted]"   if $order_by;
   $reo->ps_path_add( 'grid', $browser_window_title );
@@ -544,6 +545,7 @@ sub main
         if( $bcnt > 0 )
           {
           my $view_attached_cue   = $bfdes->get_attr( qw( WEB GRID VIEW_ATTACHED_CUE   ) ) || "[~View attached records]";
+          $bcnt = str_num_comma( $bcnt );
           $bcnt = de_html_alink( $reo, 'new', "$bcnt rec(s)", "(=) $view_attached_cue", ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => $id, FILTER => { $backlinked_field => $id }, MASTER_RECORD => "$table:$id" );
           }
 
@@ -621,7 +623,7 @@ sub main
     my $page_less = int( $page_size / 2 );
     my $link_page_more = de_html_alink( $reo, 'here', "+",       { HINT => '[~Show more rows per page]', ID => 'a-nav-page-more' },   PAGE_SIZE => $page_more );
     my $link_page_less = de_html_alink( $reo, 'here', "&mdash;", { HINT => '[~Show less rows per page]', ID => 'a-nav-page-less' },   PAGE_SIZE => $page_less );
-    my $link_page_all  = $scount <= 300 ? de_html_alink( $reo, 'here', "=", { HINT => '[~Show all rows in one page]', ID => 'a-nav-page-all' }, PAGE_SIZE => $scount, OFFSET => 0 ) : '';
+    my $link_page_all  = $scount <= 1021 ? de_html_alink( $reo, 'here', "=", { HINT => '[~Show all rows in one page]', ID => 'a-nav-page-all' }, PAGE_SIZE => $scount, OFFSET => 0 ) : '';
     $link_page_all = "/$link_page_all" if $link_page_all;
 
     my $link_page_reset = de_html_alink( $reo, 'here', "*",       { HINT => '[~Reset default page size]', ID => 'a-nav-page-reset' },   PAGE_SIZE => 0 ) if $page_size > 15;
@@ -635,7 +637,10 @@ sub main
       }
     else  
       {
-      $text_grid_navi_mid .= "[~rows]: $offset_from .. $offset_to ($page_size/$link_page_more/$link_page_less$link_page_all$link_page_reset) of $scount";
+      my $scount_s      = str_num_comma( $scount );
+      my $offset_from_s = str_num_comma( $offset_from );
+      my $offset_to_s   = str_num_comma( $offset_to );
+      $text_grid_navi_mid .= "[~rows]: $offset_from_s .. $offset_to_s ($page_size/$link_page_more/$link_page_less$link_page_all$link_page_reset) of $scount_s";
       }
 
 
