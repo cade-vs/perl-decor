@@ -100,6 +100,19 @@ $$setup-act-fg-bg-border-hi
         src: url('fonts/Comforter-Regular.ttf')  format('truetype');
         }
 
+@font-face 
+        {
+        font-family: 'roboto-bold';
+        src: url('fonts/Roboto-Bold.ttf')  format('truetype');
+        }
+
+@font-face 
+        {
+        font-family: 'roboto';
+        src: url('fonts/Roboto-Regular.ttf')  format('truetype');
+        }
+
+
 /*** main/body **************************************************************/
 
 html

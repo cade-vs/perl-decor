@@ -250,6 +250,15 @@ sub select
   #print STDERR Dumper( '+--'x77, $self->{ 'SELECT' }, '+--'x77,);
 
   my $select_tables = $db_table . "\n" . __explain_join_tree( $self->{ 'SELECT' }{ 'JOIN_TREE' }{ 'NEXT' } );
+
+  my $joins  = $opts->{ 'JOINS'  };
+  if( $joins and @$joins > 0 )
+    {
+    $select_tables .= "\n";
+    $select_tables .= join "\n", @$joins;
+    $select_tables .= "\n";
+    }
+  
   my $select_fields = join ",\n    ", @select_fields;
   my $select_where  = "WHERE\n    " . join( "\n    AND ", @where );
   

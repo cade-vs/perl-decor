@@ -8,7 +8,7 @@
 ##
 ############################################################################*/
 
-/* THIS FILE IS GENERATED! PLEASE, DO NOT MODIFY! -- GENERATED AT Tue Apr 11 01:57:44 2023 */
+/* THIS FILE IS GENERATED! PLEASE, DO NOT MODIFY! -- GENERATED AT Fri Apr 14 17:41:45 2023 */
 
 
 
@@ -100,6 +100,19 @@
         font-family: 'comforter';
         src: url('fonts/Comforter-Regular.ttf')  format('truetype');
         }
+
+@font-face 
+        {
+        font-family: 'roboto-bold';
+        src: url('fonts/Roboto-Bold.ttf')  format('truetype');
+        }
+
+@font-face 
+        {
+        font-family: 'roboto';
+        src: url('fonts/Roboto-Regular.ttf')  format('truetype');
+        }
+
 
 /*** main/body **************************************************************/
 
@@ -1331,6 +1344,17 @@ div.progress-empty
         }
 
 /*** DECOR STATIC/SYSTEM SECTION EOF*****************************************/
+
+body
+  {
+  font-family: roboto, helvetica, sans;
+  font-size: 11pt;
+  }
+
+a
+  {
+  font-weight: bold;
+  }
 
 input, textarea, select, div.link_data
   {

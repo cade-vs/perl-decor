@@ -104,6 +104,17 @@ $popup-colors  $menu-colors.1  $menu-colors.2  $menu-colors.5
 
 $$$decor_base_system.in.css
 
+body
+  {
+  font-family: roboto, helvetica, sans;
+  font-size: 11pt;
+  }
+
+a
+  {
+  font-weight: bold;
+  }
+
 input, textarea, select, div.link_data
   {
   font-size: 1.1em;

@@ -12,15 +12,20 @@ use strict;
 use lib ( map { die "invalid DECOR_CORE_ROOT dir [$_]\n" unless -d; ( "$_/core/lib", "$_/shared/lib" ) } ( $ENV{ 'DECOR_CORE_ROOT' } || '/usr/local/decor' ) );
 use Term::ReadKey;
 use Decor::Core::Env;
+use Decor::Core::DSN;
 use Decor::Core::Log;
 use Decor::Core::Describe;
 use Decor::Core::DB::Record;
 use Decor::Core::DB::IO;
+use Decor::Core::Shop;
 use Decor::Shared::Utils;
 use Data::Tools;
+use Data::Dumper;
 
+$|++;
 
 my $opt_app_name;
+my $opt_all_yes;
 
 our $help_text = <<END;
 usage: $0 <options> application_name command args
@@ -28,6 +33,7 @@ options:
     -d        -- increase DEBUG level (can be used multiple times)
     -r        -- log to STDERR
     -rr       -- log to both files and STDERR
+    -y        -- assume "yes" answer to all questions :)
     --        -- end of options
 commands:    
   list-users
@@ -39,11 +45,15 @@ commands:
   del-groups    user_name_or_id  all
   user-enable   user_name_or_id
   user-disable  user_name_or_id
+  ubc           table table table...
+  wal-on        set table WAL/LOGGING on
+  wal-off       set table WAL/LOGGING off
 
   user-set-active-groups  user_name_or_id  primary_group_name_or_id private_group_name_or_id
 notes:
   * first argument is application name and it is mandatory!
   * options cannot be grouped: -fd is invalid, correct is: -f -d
+  * "ubc" updates backlink counters in the listed table or in all if left empty
 END
 
 if( @ARGV == 0 )
@@ -72,6 +82,12 @@ while( @ARGV )
     {
     my $level = de_debug_inc();
     print "option: debug level raised, now is [$level] \n";
+    next;
+    }
+  if( /^-y/ )
+    {
+    $opt_all_yes = 1;
+    print "option: assuming 'yes' to all questions \n";
     next;
     }
   if( /^(--?h(elp)?|help)$/io )
@@ -135,6 +151,18 @@ elsif( $cmd eq 'del-groups' )
 elsif( $cmd eq 'user-set-active-groups' )  
   {
   user_set_active_groups( @args );
+  }
+elsif( $cmd eq 'ubc' )  
+  {
+  ubc( @args );
+  }
+elsif( $cmd eq 'wal-on' )  
+  {
+  set_wal( 1, @args );
+  }
+elsif( $cmd eq 'wal-off' )  
+  {
+  set_wal( 0, @args );
   }
 else
   {
@@ -491,6 +519,58 @@ sub user_set_active_groups
 
   print "ok\n";
   
+}
+
+#-----------------------------------------------------------------------------
+
+sub ubc
+{
+  my @tables = @_;
+  @tables = @{ des_get_tables_list() } unless @tables > 0;
+
+  for my $t ( @tables )
+    {
+    my $des = describe_table( $t );
+    my $fields = $des->get_fields_list();
+    for my $f ( @$fields )
+      {
+      my $fld_des = $des->get_field_des( $f );
+      next unless $fld_des->{ 'TYPE' }{ 'NAME' } eq 'BACKLINK';
+      my $bt = $fld_des->{ 'BACKLINKED_TABLE' };
+      my $bk = $fld_des->{ 'BACKLINKED_KEY'   };
+      my $stmt = "update $t set $f = ( select count(*) from $bt where $bt.$bk = $t._id ) where $t._id > 0";
+
+      print "$stmt\n";
+      print "$t:$f ===> ";
+      my $rc = io_exec_by_table( $t, $stmt ); 
+      print "$rc row(s)\n";
+      dsn_commit();
+      }
+    }
+
+  print "done.\n";
+}
+
+#-----------------------------------------------------------------------------
+
+sub set_wal
+{
+  my $log = shift() ? 'LOGGED' : 'UNLOGGED';
+  my @tables = @_;
+  @tables = @{ des_get_tables_list() } unless @tables > 0;
+
+  for my $t ( @tables )
+    {
+    my $stmt = "alter table $t set $log";
+
+    print "$stmt\n";
+    print "$t ===> $log ===> ";
+    my $rc = io_exec_by_table( $t, $stmt ); 
+    print "$rc\n";
+    dsn_commit();
+    }
+
+  print "done.\n";
 }
 
 #-----------------------------------------------------------------------------

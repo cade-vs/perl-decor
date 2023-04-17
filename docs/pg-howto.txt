@@ -1,0 +1,23 @@
+
+# set write-ahead-logging
+
+  ALTER TABLE <table> SET UNLOGGED
+  ALTER TABLE <table> SET   LOGGED
+
+# list running queries/processes
+
+  SELECT * FROM pg_stat_activity WHERE state = 'active';
+
+# stop process/pid
+
+  SELECT pg_cancel_backend(<pid of the process>)
+
+# force process/pid stop
+
+  SELECT pg_terminate_backend(<pid of the process>)
+
+# cancel all requesets except self
+
+  SELECT pg_cancel_backend(pid) 
+    FROM pg_stat_activity 
+    WHERE state = 'active' and pid != pg_backend_pid(); 

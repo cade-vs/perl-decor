@@ -125,6 +125,7 @@ my %SELECT_WHERE_OPERATORS = (
                     'ne'   => '<>',
 
                     'GREP' => 'GREP',
+                    'FTS'  => 'FTS', 
                     );
 
 
@@ -953,10 +954,12 @@ sub sub_menu
 
 sub __filter_to_where
 {
-  my $filter = shift;
+  my $filter =    shift;
+  my $table  = uc shift;
 
   my @where;
   my @bind;
+  my @fts_joins;
   while( my ( $f, $v ) = each %$filter )
     {
     $f = uc $f;
@@ -990,6 +993,20 @@ sub __filter_to_where
           push @where, "UPPER(.$f) LIKE UPPER(?)";
           push @bind,  "%$val%";
           }
+        elsif( $op eq 'FTS' )
+          {
+          my @val = lc( $val ) =~ /\w{2,}/g;
+          
+          my $ftsj;
+          for my $v ( @val )
+            {
+            $ftsj++;
+            push @fts_joins, "INNER JOIN ${table}_FTM FTS_M_$ftsj ON    ${table}._ID = FTS_M_$ftsj.RL";
+            push @fts_joins, "INNER JOIN ${table}_FTW FTS_W_$ftsj ON FTS_W_$ftsj._ID = FTS_M_$ftsj.WL";
+            push @where, "FTS_W_$ftsj.W = ?";
+            push @bind, $v;
+            }
+          }
         else
           {
           push @where, ".$f $op ?";
@@ -1010,7 +1027,7 @@ sub __filter_to_where
     # TODO: more complex filter rules
     }
 
-  return ( \@where, \@bind );
+  return ( \@where, \@bind, \@fts_joins );
 }
 
 sub sub_select
@@ -1045,7 +1062,7 @@ sub sub_select
 
   my @where;
   my @bind;
-  my ( $where, $bind ) = __filter_to_where( $filter );
+  my ( $where, $bind, $fts_joins ) = __filter_to_where( $filter, $table );
 
   if( des_exists_category( 'FILTER', $table, 'DEFAULT_SELECT' ) )
     {
@@ -1089,7 +1106,7 @@ sub sub_select
   $dbio->set_profile_locked( $profile );
   $dbio->taint_mode_enable_all();
 
-  my $res = $dbio->select( $table, $fields, $where_clause, { BIND => $where_bind, LIMIT => $limit, OFFSET => $offset, ORDER_BY => $order_by, GROUP_BY => $group_by, DISTINCT => $distinct } );
+  my $res = $dbio->select( $table, $fields, $where_clause, { JOINS => $fts_joins, BIND => $where_bind, LIMIT => $limit, OFFSET => $offset, ORDER_BY => $order_by, GROUP_BY => $group_by, DISTINCT => $distinct } );
 
   $mo->{ 'SELECT_HANDLE' } = $select_handle;
   $mo->{ 'XS'            } = 'OK';
@@ -1368,11 +1385,11 @@ sub sub_update
 
   $rec->taint_mode_enable_all();
 
-  my ( $where, $bind ) = __filter_to_where( $id > 0 ? { '_ID' => $id } : $filter );
+  my ( $where, $bind, $fts_joins ) = __filter_to_where( $id > 0 ? { '_ID' => $id } : $filter, $table );
   my $where_clause = join ' AND ', @$where;
 
   boom "E_ACCESS: unable to load requested record TABLE [$table] ID [$id]"
-      unless $rec->select_first1( $table, $where_clause, { BIND => $bind, LOCK => $lock } );
+      unless $rec->select_first1( $table, $where_clause, { JOINS => $fts_joins, BIND => $bind, LOCK => $lock } );
 
   # TODO: check RECORD UPDATE ACCESS
   boom "E_ACCESS: UPDATE is not allowed for requested record TABLE [$table] ID [$id]"

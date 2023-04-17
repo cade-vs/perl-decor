@@ -253,7 +253,7 @@ sub rebuild_table
     next unless $index;  # no index required
     next if     $unique; # unique index required, but it is already created in table definition
     
-    my $dx_name = "DE_FX_$field";
+    my $dx_name = "DX_${db_table}_${field}";
     
     if( ! exists $index_db_des->{ $dx_name } )
       {
@@ -276,7 +276,7 @@ sub rebuild_table
     # FIXME: check if $fields are already known in this table
     $fields = join ',', @fields;
 
-    my $dx_name = "DE_IX_$index";
+    my $dx_name = "DX_$index";
     
     if( ! exists $index_db_des->{ $dx_name } )
       {

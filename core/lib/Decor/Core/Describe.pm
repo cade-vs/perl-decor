@@ -185,7 +185,6 @@ my %DES_ATTRS = (
                            MASTER_FIELDS  => 3, # fields for display as master record
                            
                            RECORD_NAME => 3, # interpolated list of fields, describing current record
-
                          },
                   'TYPE' => {
                            DETAILS      => 3,
@@ -272,6 +271,8 @@ my %DES_ATTRS = (
                            ON_RECALC    => 1,
                            ON_INSERT    => 1,
                            ON_UPDATE    => 1,
+
+                           FTS          => 1, # mark field for full text search indexing
                          },
                   'INDEX' => {
                            REM         => 1, # remark, comment
@@ -420,7 +421,8 @@ sub __merge_table_des_file
   $des->{ $category }{ $sect_name } ||= {};
   push @{ $des->{ $category }{ $sect_name }{ '__DEBUG_ORIGIN' } }, "$fname at 0" if de_debug();
   $des->{ $category }{ $sect_name }{ 'NAME'  } = $table;
-  $des->{ $category }{ $sect_name }{ 'TYPE' } ||= 'GENERIC';
+  $des->{ $category }{ $sect_name }{ 'LABEL' } = $table;
+  $des->{ $category }{ $sect_name }{ 'TYPE'  } ||= 'GENERIC';
   my $file_mtime = file_mtime( $fname );
   if( $des->{ $category }{ $sect_name }{ '_MTIME' } < $file_mtime )
     {
@@ -457,7 +459,7 @@ sub __merge_table_des_file
 
       if( $table ne '_DE_UNIVERSAL' and $table ne '_DE_TEMPLATES' and exists $field_templates->{ $category }{ $sect_name } )
         {
-        # copy template definition if field name matches
+        # copy template field definition if field name matches
         $des->{ $category }{ $sect_name } = { %{ $field_templates->{ $category }{ $sect_name } } };
         }
 
@@ -470,12 +472,11 @@ sub __merge_table_des_file
         $des->{ $category }{ $sect_name }{ '_ORDER' } = ++ $opt->{ '_ORDER' };
         }
 
-      if( exists $COPY_CATEGORY_ATTRS{ $category } )
-        {
-        $des->{ $category }{ $sect_name }{ $_ } = $des->{ '@' }{ '@' }{ $_ } for keys %{ $COPY_CATEGORY_ATTRS{ $category } };
-        }
-#!#      $des->{ $category }{ $sect_name }{ '__GRANT_DENY_ACCUMULATOR'  } = [ @{ $des->{ '@' }{ '@' }{ '__GRANT_DENY_ACCUMULATOR'  } || [] } ];
-
+# FIXME: 
+#      if( exists $COPY_CATEGORY_ATTRS{ $category } )
+#        {
+#        $des->{ $category }{ $sect_name }{ $_ } = $des->{ '@' }{ '@' }{ $_ } for keys %{ $COPY_CATEGORY_ATTRS{ $category } };
+#        }
 
       push @{ $des->{ $category }{ $sect_name }{ '__DEBUG_ORIGIN' } }, $origin if de_debug();
 
@@ -543,15 +544,22 @@ sub __merge_table_des_file
 
       if( $isa_copy_table_des )
         {
-        $des->{ '@' }{ '@' } = { %{ $des->{ '@' }{ '@' } }, %{ $isa->{ '@' }{ '@' } } };
-        $des->{ '@' }{ '@' }{ 'NAME' } = $table; # keep current name
+        while( my ( $k, $v ) = each %{ $isa->{ '@' }{ '@' } } )
+          {
+          next if $k =~ /^(NAME|LABEL)$/;
+          $des->{ '@' }{ '@' }{ $k } = $v;
+          }
         }
 
       for my $isa_field ( @isa_fields ) # FIXME: covers arg $opt
         {
         boom "\@isa/\@include error: cannot include unknown field [$isa_field] from [$name] at [$fname at $ln]" unless exists $isa->{ 'FIELD' }{ $isa_field };
 
-        $des->{ 'FIELD' }{ $isa_field } = { %{ $des->{ 'FIELD' }{ $isa_field } || {} }, %{ dclone( $isa->{ 'FIELD' }{ $isa_field } ) } };
+        while( my ( $k, $v ) = each %{ $isa->{ 'FIELD' }{ $isa_field } } )
+          {
+          $des->{ 'FIELD' }{ $isa_field }{ $k } = $v;
+          }
+        
         $des->{ 'FIELD' }{ $isa_field }{ '_ORDER' } = ++ $opt->{ '_ORDER' };
         $des->{ 'FIELD' }{ $isa_field }{ '__ISA'  } = 1;
         }

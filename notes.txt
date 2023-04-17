@@ -1,2 +1,23 @@
 
 -- description api should have safe (error return) and boom parts
+
+-- FTS select:
+
+
+SELECT
+    P.*
+FROM
+    PERSONS P
+    INNER JOIN PERSONS_FTM M1
+    ON P._ID = M1.RL
+        INNER JOIN PERSONS_FTW W1
+        ON W1._ID = M1.WL
+    INNER JOIN PERSONS_FTM M2
+    ON P._ID = M2.RL
+        INNER JOIN PERSONS_FTW W2
+        ON W2._ID = M2.WL
+WHERE
+        W1.W = 'james'
+    AND W2.W = 'max'
+;
+

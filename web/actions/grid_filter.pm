@@ -132,9 +132,14 @@ sub main
         }
       elsif( $type_name eq 'CHAR' )
         {
+        my $fts  = $bfdes->get_attr( qw( FTS ) );
         my $grep = $bfdes->get_attr( qw( WEB FILTER GREP ) );
         my $input_data_w = $input_data;
-        if( $grep )
+        if( $fts )
+          {
+          push @field_filter, { OP => 'FTS', VALUE => $input_data, };
+          }
+        elsif( $grep )
           {
           push @field_filter, { OP => 'GREP', VALUE => $input_data, };
           }

@@ -887,6 +887,42 @@ sub select_first1_field
   return $row_data->{ $field };
 }
 
+# select and return all data into arrayref of hashrefs
+sub select_arhr
+{
+  my $self   = shift;
+
+  my @res;
+  my $sth = $self->select( @_ );
+  while( my $hr = $self->fetch( $sth ) )
+    {
+    push @res, $hr;
+    }
+
+  return \@res;
+}
+
+# select and return all found records' field into arrayref
+sub select_field_ar
+{
+  my $self   = shift;
+
+  my @res;
+  my $sth = $self->select( @_ );
+  my $f = $_[ 1 ];
+  $f =~ s/^\.//;
+  while( my $hr = $self->fetch( $sth ) )
+    {
+print STDERR Dumper( $hr );
+    push @res, $hr->{ $f };
+    }
+
+use Data::Dumper;
+print STDERR Dumper( \@_, \@res );
+
+  return \@res;
+}
+
 sub count
 {
   my $self  = shift;

@@ -24,13 +24,14 @@ use Decor::Web::Grid;
 use Decor::Web::Utils;
 
 my %FMT_CLASS_ALIGN = (
-                  'CHAR'  => 'fmt-left',
-                  'DATE'  => 'fmt-left',
-                  'TIME'  => 'fmt-left',
-                  'UTIME' => 'fmt-left',
+                  'CHAR'     => 'fmt-left',
+                  'DATE'     => 'fmt-left',
+                  'TIME'     => 'fmt-left',
+                  'UTIME'    => 'fmt-left',
 
-                  'INT'   => 'fmt-right',
-                  'REAL'  => 'fmt-right',
+                  'INT'      => 'fmt-right',
+                  'REAL'     => 'fmt-right',
+                  'BACKLINK' => 'fmt-right',
                   );
 
 my %FMT_CLASS_TYPE = (
@@ -247,10 +248,11 @@ sub main
 
   for my $field ( @fields )
     {
-    my $bfdes     = $bfdes{ $field };
-    my $lfdes     = $lfdes{ $field };
-    my $type_name = $lfdes->{ 'TYPE' }{ 'NAME' };
-    my $fmt_class = $FMT_CLASS_ALIGN{ $type_name } || 'fmt-left';
+    my $bfdes      = $bfdes{ $field };
+    my $lfdes      = $lfdes{ $field };
+    my $type_name  = $lfdes->{ 'TYPE' }{ 'NAME' };
+    my $type_lname = $lfdes->{ 'TYPE' }{ 'NAME' };
+    my $fmt_class  = $FMT_CLASS_ALIGN{ $type_lname } || $FMT_CLASS_ALIGN{ $type_name } || 'fmt-left';
 
     my $base_field = $bfdes->{ 'NAME' };
 
@@ -258,7 +260,7 @@ sub main
     next if $bfdes->get_attr( qw( WEB GRID HIDE ) );
 
     my $label     = $bfdes->get_attr( qw( WEB GRID LABEL ) );
-    
+
 #    my $label     = "$blabel";
 #    if( ! $enum and $bfdes ne $lfdes )
 #      {
@@ -517,7 +519,7 @@ sub main
           }  
 
         $data_fmt = ""; # TODO: hide count, which is currently unsupported
-        my $bcnt = 'n/a';
+        my $bcnt = $data || 'n/a';
         if( uc( $bfdes->get_attr( 'WEB', 'GRID', 'BACKLINK_GRID_MODE' ) ) eq 'ALL' )
           {
           my $view_all_cue   = $bfdes->get_attr( qw( WEB GRID VIEW_ALL_CUE   ) ) || "[~View all records]";
@@ -538,7 +540,8 @@ sub main
 #          $data_ctrl .= "<br>\n";
           
           # TODO: option to avoid count
-          $bcnt = $core->count( $backlinked_table, { FILTER => { $backlinked_field => $id } } );
+
+#          $bcnt = $core->count( $backlinked_table, { FILTER => { $backlinked_field => $id } } ) unless $bcnt > 0;
           # TODO: option to allow unattached count
           # my $ucnt = $core->count( $backlinked_table, { FILTER => { $backlinked_field =>   0 } } );
           }
@@ -565,7 +568,7 @@ sub main
       if( $data_ctrl )
         {
         $data_ctrl = de_html_popup_icon( $reo, 'more.svg', "<div class=popup-menu-buttons>$data_ctrl</div>", { CLASS => 'popup-layer' } );
-        $data_fmt = "<table cellspacing=0 cellpadding=0 width=100%><tr><td align=left width=100%>$data_fmt</td><td align=right>&nbsp;$data_ctrl</td></tr></table>";
+        $data_fmt = "<table cellspacing=0 cellpadding=0 width=100%><tr><td class='$fmt_class' width=100%>$data_fmt</td><td align=right>&nbsp;$data_ctrl</td></tr></table>";
         }
 
       my $base_field_class = lc "css_grid_class_$base_field";

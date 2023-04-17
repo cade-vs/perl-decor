@@ -377,7 +377,7 @@ sub de_web_format_field
     my $bltdes = $core->describe( $backlinked_table );
     my $linked_table_label = $bltdes->get_label();
 
-    my $count = $core->count( $backlinked_table, { FILTER => { $backlinked_field => $id } });
+    my $count = $field_data || $core->count( $backlinked_table, { FILTER => { $backlinked_field => $id } });
     $count = 'Unknown' if $count eq '';
 
     $data_fmt = qq( <b class=hi>$count</b> [~records from] <b class=hi>$linked_table_label</b> );
