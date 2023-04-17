@@ -1,0 +1,45 @@
+
+
+
+  DECOR APPLICATION MACHINERY
+  2014-2023 (c) Vladi Belperchinov-Shabanski "Cade"
+
+  FULL TEXT SEARCHING
+  
+  FTS allows interfaces (including WEB) to to find records matching set of
+  words, found inside multiple fields in a record.
+  
+  All fields, which should be included in FTS on this table must be marked
+  with 'FTS':
+  
+  
+      # table is named PERSONS (persons.def file)
+      
+      =NAME
+          type CHAR   64
+          label Personal name
+          fts
+          
+      =ADDR    
+          type CHAR   128
+          label Personal address
+          fts
+          
+  After marking required fields with 'FTS', supporting tables and the actual
+  FTS index must be rebuilt:
+  
+  cd decor/core/bin
+  ./decor-update-fts.pl  app1  persons
+  
+  This will write required support tables:
+  
+  decor/apps/app1/tables/__auto__/fts/persons_ftw.def
+  decor/apps/app1/tables/__auto__/fts/persons_ftm.def
+  
+  There are the word index and map index.
+  Then decor-update-fts.pl will rebuild database for these two tables and
+  start rebuilding FTS index by reading all records' NAME and ADDR fields
+  (those marked with FTS).
+  
+  NOTE: currently all FTS marked fields will be considered FTS grid filters
+        and used as such. this will be changed with an option.
