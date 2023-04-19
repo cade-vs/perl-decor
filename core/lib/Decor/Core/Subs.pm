@@ -955,7 +955,6 @@ sub sub_menu
 sub __filter_to_where
 {
   my $filter =    shift;
-  my $table  = uc shift;
 
   my @where;
   my @bind;
@@ -964,6 +963,7 @@ sub __filter_to_where
     {
     $f = uc $f;
     boom "invalid FILTER FIELD [$f]"  unless $f =~ /^[A-Z_0-9\.]+$/o;
+    next if $f eq '__FTS__';
 
     my $vref = ref( $v );
     $v = [ $v ] if $vref eq 'HASH';
@@ -992,20 +992,6 @@ sub __filter_to_where
           {
           push @where, "UPPER(.$f) LIKE UPPER(?)";
           push @bind,  "%$val%";
-          }
-        elsif( $op eq 'FTS' )
-          {
-          my @val = lc( $val ) =~ /\w{2,}/g;
-          
-          my $ftsj;
-          for my $v ( @val )
-            {
-            $ftsj++;
-            push @fts_joins, "INNER JOIN ${table}_FTM FTS_M_$ftsj ON    ${table}._ID = FTS_M_$ftsj.RL";
-            push @fts_joins, "INNER JOIN ${table}_FTW FTS_W_$ftsj ON FTS_W_$ftsj._ID = FTS_M_$ftsj.WL";
-            push @where, "FTS_W_$ftsj.W = ?";
-            push @bind, $v;
-            }
           }
         else
           {
@@ -1062,7 +1048,7 @@ sub sub_select
 
   my @where;
   my @bind;
-  my ( $where, $bind, $fts_joins ) = __filter_to_where( $filter, $table );
+  my ( $where, $bind ) = __filter_to_where( $filter );
 
   if( des_exists_category( 'FILTER', $table, 'DEFAULT_SELECT' ) )
     {
@@ -1106,7 +1092,7 @@ sub sub_select
   $dbio->set_profile_locked( $profile );
   $dbio->taint_mode_enable_all();
 
-  my $res = $dbio->select( $table, $fields, $where_clause, { JOINS => $fts_joins, BIND => $where_bind, LIMIT => $limit, OFFSET => $offset, ORDER_BY => $order_by, GROUP_BY => $group_by, DISTINCT => $distinct } );
+  my $res = $dbio->select( $table, $fields, $where_clause, { FTS => $filter->{ '__FTS__' }, BIND => $where_bind, LIMIT => $limit, OFFSET => $offset, ORDER_BY => $order_by, GROUP_BY => $group_by, DISTINCT => $distinct } );
 
   $mo->{ 'SELECT_HANDLE' } = $select_handle;
   $mo->{ 'XS'            } = 'OK';

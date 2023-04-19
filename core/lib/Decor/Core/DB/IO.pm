@@ -179,6 +179,7 @@ sub select
     return '0E0';
     }
 
+  my @joins;
   my @where;
   my @bind;
 
@@ -211,6 +212,21 @@ sub select
     
     my ( $resolved_alias, $resolved_table, $resolved_field ) = $self->__select_resolve_field( $table, $ff );
     push @select_fields, $af ? "$af($resolved_alias.$resolved_field)" : "$resolved_alias.$resolved_field";
+    }
+
+  if( $opts->{ 'FTS' } )
+    {
+    my @val = lc( $opts->{ 'FTS' } ) =~ /\w{2,}/g;
+    
+    my $ftsj;
+    for my $v ( @val )
+      {
+      $ftsj++;
+      push @joins, "INNER JOIN ${table}_FTM FTS_M_$ftsj ON    ${table}._ID = FTS_M_$ftsj.RL";
+      push @joins, "INNER JOIN ${table}_FTW FTS_W_$ftsj ON FTS_W_$ftsj._ID = FTS_M_$ftsj.WL";
+      push @where, "FTS_W_$ftsj.W = ?";
+      push @bind, $v;
+      }
     }
 
   # resolve fields in where clause
@@ -251,11 +267,10 @@ sub select
 
   my $select_tables = $db_table . "\n" . __explain_join_tree( $self->{ 'SELECT' }{ 'JOIN_TREE' }{ 'NEXT' } );
 
-  my $joins  = $opts->{ 'JOINS'  };
-  if( $joins and @$joins > 0 )
+  if( @joins > 0 )
     {
     $select_tables .= "\n";
-    $select_tables .= join "\n", @$joins;
+    $select_tables .= join "\n", @joins;
     $select_tables .= "\n";
     }
   

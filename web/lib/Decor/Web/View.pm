@@ -203,7 +203,8 @@ sub de_web_format_field
   elsif( $type_name eq 'INT' or $type_name eq 'REAL' )
     {
     #$fmt_class .= $field_data > 0 ? " hi" : ""; # FIXME: move to field options
-    $data_fmt = type_format_human( $field_data, $fdes->{ 'TYPE' } );
+    $data_fmt = type_format( $field_data, $fdes->{ 'TYPE' } );
+    $data_fmt = type_format_human( $data_fmt, $fdes->{ 'TYPE' } ) unless $fdes->get_attr( 'WEB', $vtype, 'NO_HUMAN_FMT' );
     }
   elsif( $type_name eq 'UTIME' or $type_name eq 'DATE' )
     {
@@ -223,7 +224,7 @@ sub de_web_format_field
       $sep .= ' &nbsp; &rArr;'  if $details >= 3 and $ud  < 0;
       $sep .= ' &nbsp; ='       if $details >= 3 and $ud == 0;
        
-      my $diff;
+      my $diff;                                               
       if( $type_name eq 'UTIME' )
         {
         $diff = unix_time_diff_in_words_relative( $ud ) if $details <= 2;

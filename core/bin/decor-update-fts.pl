@@ -178,8 +178,8 @@ sub update_fts_data
 
   my $table_lc = lc $table;
 
-  file_save( "$fts_dir/${table_lc}_ftw.def", "# THIS FILE IS AUTO GENERATED\n=W\nchar 92\n=L\nint\n" );
-  file_save( "$fts_dir/${table_lc}_ftm.def", "# THIS FILE IS AUTO GENERATED\n=WL\nlink ${table}_ftw W\n=RL\nlink ${table} _ID\n" );
+  file_save( "$fts_dir/${table_lc}_ftw.def", "# THIS FILE IS AUTO GENERATED\n=W\nchar 92\nindex\n=L\nint\n" );
+  file_save( "$fts_dir/${table_lc}_ftm.def", "# THIS FILE IS AUTO GENERATED\n=WL\nlink ${table}_ftw W\nindex\n=RL\nlink ${table} _ID\nindex\n" );
 
   system( "$root/core/bin/decor-rebuild-db.pl $opt_app_name ${table_lc}_ftw ${table_lc}_ftm");
 

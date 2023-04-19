@@ -41,6 +41,7 @@ sub main
 
   my $core = $reo->de_connect();
   my $tdes = $core->describe( $table );
+  my $sdes = $tdes->get_table_des(); # table "Self" description
 
   my $table_label = $tdes->get_label();
 
@@ -68,6 +69,10 @@ sub main
 
   de_web_expand_resolve_fields_in_place( \@fields, $tdes, \%bfdes, \%lfdes, \%basef );
 
+  my $fts  = $sdes->get_attr( qw( WEB FTS ) );
+  my $input_data_fts = $ui_si{ "__FTS__" };
+  $input_data_fts = join( " ", $input_data_fts =~ /\w{2,}/g );
+
   if( $button eq 'OK' )
     {
     my $filter_rules = {};
@@ -76,6 +81,13 @@ sub main
     my $filter_cnt = 0;
 
 #      print STDERR "<hr><h2></h2><xmp style='text-align: left'>" . Dumper( \@fields, \%basef, \%bfdes, \%lfdes ) . "</xmp>";
+
+    if( $fts and $input_data_fts ne '')
+      {
+      $filter_rules->{ '__FTS__' } = $input_data_fts; 
+      $filter_data->{  '__FTS__' } = $input_data_fts; 
+      $filter_des .= qq[ <li> [~records containing] "$input_data_fts" ];
+      }
 
     # compile rules
     for my $field ( @fields )
@@ -132,14 +144,10 @@ sub main
         }
       elsif( $type_name eq 'CHAR' )
         {
-        my $fts  = $bfdes->get_attr( qw( FTS ) );
         my $grep = $bfdes->get_attr( qw( WEB FILTER GREP ) );
         my $input_data_w = $input_data;
-        if( $fts )
-          {
-          push @field_filter, { OP => 'FTS', VALUE => $input_data, };
-          }
-        elsif( $grep )
+
+        if( $grep )
           {
           push @field_filter, { OP => 'GREP', VALUE => $input_data, };
           }
@@ -194,12 +202,9 @@ sub main
     
     #$text .= "<xmp style='text-align: left;'>" . Dumper( $filter_rules, $filter_data ) . "</xmp>";
     # print STDERR Dumper( $filter_rules, $filter_data );
-    if( $filter_cnt )
-      {
-      $rs->{ 'FILTERS' }{ 'ACTIVE' }{ 'RULES' } = $filter_rules;
-      $rs->{ 'FILTERS' }{ 'ACTIVE' }{ 'DATA'  } = $filter_data;
-      $rs->{ 'FILTERS' }{ 'ACTIVE' }{ 'DES'   } = "<ul>" . $filter_des . "</ul>";
-      }
+    $rs->{ 'FILTERS' }{ 'ACTIVE' }{ 'RULES' } = $filter_rules;
+    $rs->{ 'FILTERS' }{ 'ACTIVE' }{ 'DATA'  } = $filter_data;
+    $rs->{ 'FILTERS' }{ 'ACTIVE' }{ 'DES'   } = "<ul>" . $filter_des . "</ul>";
     return $reo->forward_back( OFFSET => 0 );
     }
 
@@ -221,6 +226,25 @@ sub main
 
 ###  my $row_data = $core->fetch( $select );
 ###  my $row_id = $row_data->{ '_ID' };
+
+  if( $fts )
+    {
+    my $input_data_fts = $ui_si{ "__FTS__" } || ( $rs->{ 'FILTERS' }{ 'ACTIVE' } ? $rs->{ 'FILTERS' }{ 'ACTIVE' }{ 'DATA' }{ "__FTS__" } : undef );
+    my $field_size     = 42;
+    my $field_maxlen   = $field_size * 10;
+    my $field_input    = $filter_form->input(
+                                       NAME     => "__FTS__",
+                                       VALUE    => $input_data_fts,
+                                       SIZE     => $field_size,
+                                       MAXLEN   => $field_maxlen,
+                                       CLEAR    => $clear_icon,
+                                       );
+
+    $text .= "<div class='record-field-value'>
+                <div class='view-field record-field fmt-right'>Find records containing</div>
+                <div class='view-value record-value fmt-left' >$field_input</div>
+              </div>";
+    };          
 
   for my $field ( @fields )
     {

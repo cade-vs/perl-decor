@@ -185,6 +185,8 @@ my %DES_ATTRS = (
                            MASTER_FIELDS  => 3, # fields for display as master record
                            
                            RECORD_NAME => 3, # interpolated list of fields, describing current record
+
+                           FTS          => 3, # enable interfaces to show FTS controls
                          },
                   'TYPE' => {
                            DETAILS      => 3,
@@ -273,6 +275,8 @@ my %DES_ATTRS = (
                            ON_UPDATE    => 1,
 
                            FTS          => 1, # mark field for full text search indexing
+                           
+                           NO_HUMAN_FMT => 3, # do not use human formatting
                          },
                   'INDEX' => {
                            REM         => 1, # remark, comment
