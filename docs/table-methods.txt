@@ -146,7 +146,28 @@
   about to be updated or deleted and if denied, no controls and/or buttons for
   executing the operation will be shown on the screen.
   
-
+  DO_XXX and POST_DO_XXX methods get additional arguments:
+  
+    $hi  -- hash reference with incoming data
+    $ho  -- hash reference with outgoing (result) data
+    
+  Example:  
+  
+      sub on_do_find_user_address
+      {
+        my $current_record = shift;
+        my $hi = shift;
+        my $ho = shift;
+        
+        my $user = $hi->{ 'USER' };
+        
+        #
+        # my $addr = ... find the user's address ...
+        #
+        
+        $ho->{ 'USER_ADDR' } = $addr;
+      }
+  
 
 
   FIXME: TODO: special methods ON_FILTER_METHOD_*
