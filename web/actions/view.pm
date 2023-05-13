@@ -53,8 +53,7 @@ sub main
     return "<#access_denied>" if $id == 0;
     }
 
-  my $browser_window_title = qq( [~View a record from] "<b>$table_label</b>" );
-  $reo->ps_path_add( 'view', $browser_window_title );
+  my ( $browser_window_title, $browser_window_hint ) = $reo->ps_path_add_by_cue( $sdes, 'VIEW' );
 
   my $link_field_disable = $reo->param( 'LINK_FIELD_DISABLE' );
 
@@ -88,14 +87,10 @@ sub main
 
   my $select = $core->select( $table, $fields, { LIMIT => 1, FILTER => { '_ID' => $id } } );
 
-  $text .= "<br>";
-
   my $row_data = $core->fetch( $select );
   return "<p><#no_data><p>" unless $row_data;
 
-  $text .= "<p>";
   $text .= de_master_record_view( $reo );
-  $text .= "<p>";
 
   my $custom_css = lc "css_$table";
   $text .= "<#$custom_css>";

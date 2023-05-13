@@ -133,19 +133,7 @@ sub main
     $id    = $ps->{ 'ID'    };
     }
 
-  my $browser_window_title;
-  if( $edit_mode_insert )
-    {
-    my ( $insert_cue, $insert_cue_hint ) = de_web_get_cue( $sdes, qw( WEB INSERT INSERT_CUE ) );
-    $browser_window_title = $insert_cue || qq(Insert new record into "<b>$table_label</b>");
-    $reo->ps_path_add( 'insert', $browser_window_title );
-    }
-  else
-    {
-    my ( $update_cue, $update_cue_hint ) = de_web_get_cue( $sdes, qw( WEB UPDATE UPDATE_CUE ) );
-    $browser_window_title = $update_cue || qq(Edit record data from "<b>$table_label</b>");
-    $reo->ps_path_add( 'edit', $browser_window_title );
-    }
+  my ( $browser_window_title, $browser_window_hint ) = $reo->ps_path_add_by_cue( $sdes, $edit_mode );
 
   return "<#access_denied>" unless @$fields_ar;
   return "<#access_denied>" if   $edit_mode_insert and ! $tdes->allows( 'INSERT' );
@@ -258,9 +246,7 @@ sub main
 
 ###  my $select = $core->select( $table, $fields, { LIMIT => 1, FILTER => { '_ID' => $id } } );
 
-  $text .= "<p>";
   $text .= de_master_record_view( $reo );
-  $text .= "<p>";
 
   if( $button and $calc_merrs->{ '*' } )
     {
@@ -376,7 +362,7 @@ sub main
 #  $text .= "</table>";
   $text .= "</div>";
 
-  $text .= "<br>";
+  $text .= "<p>";
   $text .= de_html_alink_button( $reo, 'back', "&lArr; [~Cancel]", "[~Cancel this operation]", BTYPE => 'nav'   );
 
   if( $edit_mode_insert and exists $us->{ 'LAST_ROW_DATA' }{ $table } and ! $ps->{ 'ALREADY_USED_LAST_DATA' } )

@@ -1008,7 +1008,11 @@ sub method
 
   boom "cannot execute methods on EMPTY record" if $self->is_empty();
 
-  return undef unless de_code_exists( 'tables', $self->table(), $name );
+  if( ! de_code_exists( 'tables', $self->table(), $name ) )
+    {
+    de_log_debug( "warning: method does not exist: ".$self->table()."::$name" );
+    return undef;
+    }
 
   return de_code_exec( 'tables', $self->table(), $name, $self, @_ );
 }

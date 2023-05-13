@@ -69,8 +69,7 @@ sub main
   my $table_label = $tdes->get_label();
   my $table_type  = $sdes->{ 'TYPE' };
 
-  my $browser_window_title = qq( "<b>$table_label</b>" [~List] );
-  $reo->ps_path_add( 'grid', $browser_window_title );
+  my ( $browser_window_title, $browser_window_hint ) = $reo->ps_path_add_by_cue( $sdes, 'GRID' );
 
   return "<#e_internal>" unless $tdes;
 
@@ -101,9 +100,9 @@ sub main
   
 #  print STDERR Dumper( $tdes );
 
-  $page_size =  15 if $page_size <=   0;
-  $page_size = 300 if $page_size >  300;
-  $offset    =   0 if $offset    <    0;
+  $page_size =   15 if $page_size <=    0;
+  $page_size = 1000 if $page_size >  1000;
+  $offset    =    0 if $offset    <     0;
 
   $page_size             = $sdes->get_attr( qw( WEB GRID PAGE_SIZE ) ) || $page_size;
 
@@ -190,10 +189,10 @@ sub main
   my $scount = $core->count( $table,           { FILTER => $filter, FILTER_NAME => $filter_name, FILTER_BIND => $filter_bind } ) if $select and ! $filter_method;
   my $scount_s = str_num_comma( $scount );
 
-  $browser_window_title .= " <span class=details-text>|</span> $scount_s [~record(s)]";
-  $browser_window_title .= " <span class=details-text>,</span> [~filtered]" if $filter;
-  $browser_window_title .= " <span class=details-text>,</span> [~sorted]"   if $order_by;
-  $reo->ps_path_add( 'grid', $browser_window_title );
+  $browser_window_hint .= "<span class=details-text>:</span> $scount_s [~rec(s)]";
+  $browser_window_hint .= "<span class=details-text>,</span> [~filtered]" if $filter;
+  $browser_window_hint .= "<span class=details-text>,</span> [~sorted]"   if $order_by;
+  $reo->set_browser_window_title( $browser_window_hint );
 
   $ps->{ 'GRID_EXPORT' } = $fields ? [ $table, $fields, { FILTER => $filter, FILTER_NAME => $filter_name, FILTER_BIND => $filter_bind, FILTER_METHOD => $filter_method, OFFSET => 0, LIMIT => 8192, ORDER_BY => ( $order_by || '._ID DESC' ) } ] : undef;
 
@@ -203,7 +202,6 @@ sub main
 #    $text .= "<xmp style='text-align: left;'>" . Dumper( $ps->{ 'FILTERS' } ) . "</xmp>";
 
   $text .= de_master_record_view( $reo );
-  $text .= "<p>";
 
   my $text_grid_head;
   my $text_grid_body;
@@ -562,7 +560,7 @@ sub main
 
       if( $type_name eq 'CHAR' and $type_lname eq 'LOCATION' )
         {
-        $data_fmt = de_html_alink( $reo, 'new', " <img class=icon src=i/map_location.svg> $data_fmt", "[~View map location]", ACTION => 'map_location', LL => $data );
+        $data_fmt = de_html_alink( $reo, 'new', " <img class=icon +++ src=i/map_location.svg> $data_fmt", "[~View map location]", ACTION => 'map_location', LL => $data );
         }
 
       if( $data_ctrl )
@@ -587,8 +585,8 @@ sub main
     {
     my $filter_des = $ps->{ 'FILTERS' }{ 'ACTIVE' }{ 'DES'   };
     my $filter_rmv;
-    $filter_rmv .= de_html_alink_button( $reo, 'new', "(&asymp;) [~Modify filter]",    '[~Filter records]',          ACTION => 'grid_filter', TABLE => $table );
-    $filter_rmv .= de_html_alink_button( $reo, 'here', "(x) [~Remove filter]",           '[~Remove current filter]',   REMOVE_ACTIVE_FILTER => 1 );
+    $filter_rmv .= de_html_alink_button( $reo, 'new', "(&asymp;) [~Modify]",  '[~Filter records]',          ACTION => 'grid_filter', TABLE => $table );
+    $filter_rmv .= de_html_alink_button( $reo, 'here', "(x) [~Remove]",       '[~Remove current filter]',   BTYPE => 'mod', REMOVE_ACTIVE_FILTER => 1 );
     my $filter_dez = html_layout_2lr( $filter_des, $filter_rmv, '<==1>' );
     $text .= "<div class=info-text>$filter_dez</div><p>";
     }
@@ -597,9 +595,9 @@ sub main
     {
     my $sort_des = $ps->{ 'SORTS' }{ 'ACTIVE' }{ 'DES'   };
     my $sort_rmv;
-    $sort_rmv .= de_html_alink_button( $reo, 'new', "(&asymp;) [~Modify sorting]",   '[~Sort records]',          ACTION => 'grid_sort', TABLE => $table );
-    $sort_rmv .= de_html_alink_button( $reo, 'here', "(x) [~Remove sorting]",           '[~Remove sort order]',   REMOVE_ACTIVE_SORT => 1 );
-    my $sort_dez = html_layout_2lr( $sort_des, $sort_rmv, '<==1>' );
+    $sort_rmv .= de_html_alink_button( $reo, 'new', "(&asymp;) [~Modify]",  '[~Sort records]',       ACTION => 'grid_sort', TABLE => $table );
+    $sort_rmv .= de_html_alink_button( $reo, 'here', "(x) [~Remove]",       '[~Remove sort order]',  BTYPE => 'mod', REMOVE_ACTIVE_SORT => 1 );
+    my $sort_dez = html_layout_2lr( "[~Ordered by]: " . $sort_des, $sort_rmv, '<==1>' );
     $text .= "<div class=info-text>$sort_dez</div><p>";
     }
 

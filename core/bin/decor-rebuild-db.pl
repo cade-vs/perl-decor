@@ -35,7 +35,7 @@ $Data::Dumper::Indent   = 3;
 my $opt_app_name;
 my $opt_recreate = 0;
 my $opt_confirm_first = 0;
-my $opt_inc_decor_tables = 0;
+my $opt_inc_decor_tables = 1;
 
 our $help_text = <<END;
 usage: $0 <options> application_name tables
@@ -65,6 +65,7 @@ while( @ARGV )
     {
     $opt_recreate = 1;
     $opt_confirm_first = 1;
+    $opt_inc_decor_tables = 0;
     print "option: recreate database objects\n";
     next unless $1;
     $opt_inc_decor_tables = 1;

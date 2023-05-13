@@ -48,10 +48,11 @@ our $DE_LOG_STDERR_COLORS   = 0;
 
 my $MSG_TYPE_COLOR_RESET = chr(27) . '[0m';
 my %MSG_TYPE_COLOR = (
-                     error  => chr(27) . '[1;31m',
-                     fatal  => chr(27) . '[1;31m',
-                     status => chr(27) . '[36m',
-                     info   => chr(27) . '[1;33m',
+                     error   => chr(27) . '[1;31m',
+                     fatal   => chr(27) . '[1;31m',
+                     status  => chr(27) . '[36m',
+                     info    => chr(27) . '[32m',
+                     warning => chr(27) . '[1;33m',
                      );
 
 
@@ -161,7 +162,7 @@ sub de_log_debug
   my @args = @_;
   chomp( @args );
   my $msg = join( "\n", @args );
-  $msg = "debug: $msg" unless $msg =~ /^debug:/i;
+  $msg = "debug: $msg" unless $msg =~ /^[a-z]+:/i;
   de_log( $msg );
 }
 

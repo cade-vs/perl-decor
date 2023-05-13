@@ -66,6 +66,7 @@ my %DISPATCH_MAP = (
                                    'RECALC'   => \&sub_recalc,
                                    'LOGOUT'   => \&sub_logout,
                                    'DO'       => \&sub_do,
+                                   'TAKE'     => \&sub_take,
                                    'ACCESS'   => \&sub_access,
                                    'FSAVE'    => \&sub_file_save,
                                    'FLOAD'    => \&sub_file_load,
@@ -1497,7 +1498,6 @@ sub sub_do
   my $do     = uc $mi->{ 'DO'     };
   my $data   =    $mi->{ 'DATA'   };
   my $id     =    $mi->{ 'ID'     };
-
   boom "invalid TABLE name [$table]"    unless de_check_name( $table ) or ! des_exists( $table );
   boom "invalid DO name [$do]"          unless de_check_name( $do ) or ! des_exists_category( 'DO', $table, $do );
   boom "invalid DATA [$data]"           unless ref( $data ) eq 'HASH';
@@ -1511,10 +1511,9 @@ sub sub_do
 
   $rec->set_profile_locked( $profile );
 
-  $rec->taint_mode_on( 'TABLE', 'ROWS' );
-
   if( $id )
     {
+    $rec->taint_mode_on( 'TABLE', 'ROWS' );
     $rec->load( $table, $id );
     }
   else
@@ -1522,23 +1521,19 @@ sub sub_do
     $rec->create_read_only( $table );
     }
 
-  # $rec->write( %$data );
-
   $rec->taint_mode_disable_all();
 
-  # TODO: recalc for insert/update
+  $mo->{ 'DATA' } = {};
+
   $rec->__client_io_enable();
-  $rec->method( "DO_$do" );
+  $rec->method( "DO_$do", $data, $mo->{ 'DATA' } );
   $rec->save();
-  $rec->method( "POST_DO_$do" );
+  $rec->method( "POST_DO_$do", $data, $mo->{ 'DATA' } );
   $rec->save();
 
   $rec->inject_return_file_into_mo( $mo );
 
-  #$mo->{ 'MERRS' } = $rec->{ 'METHOD:ERRORS' } if $rec->{ 'METHOD:ERRORS' };
-  #$mo->{ 'RDATA' } = $rec->read_hash_all();
   $mo->{ 'XS'    } = 'OK';
-#print Dumper( $rec, $mi, $mo  );
 }
 
 sub sub_access

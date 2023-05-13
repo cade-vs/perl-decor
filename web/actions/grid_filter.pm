@@ -86,7 +86,7 @@ sub main
       {
       $filter_rules->{ '__FTS__' } = $input_data_fts; 
       $filter_data->{  '__FTS__' } = $input_data_fts; 
-      $filter_des .= qq[ <li> [~records containing] "$input_data_fts" ];
+      $filter_des .= qq[ * [~records containing] "$input_data_fts" <br> ];
       }
 
     # compile rules
@@ -139,7 +139,7 @@ sub main
         push @field_filter, { OP => '==', VALUE => $ind, };
 
         my $bool_fmt = [ "<img src=i/check-view-0.svg>", "<img src=i/check-view-1.svg>" ]->[ !! $ind ];
-        $filter_des .= qq[ <li> $label [~must be] &nbsp; $bool_fmt ];
+        $filter_des .= qq[ * $label [~must be] &nbsp; $bool_fmt <br> ];
         $filter_cnt++;
         }
       elsif( $type_name eq 'CHAR' )
@@ -159,7 +159,7 @@ sub main
           {  
           push @field_filter, { OP => '==', VALUE => $input_data, };
           }
-        $filter_des .= qq[ <li> [~Searching for] "$input_data" [~in] <b>$label</b> ];
+        $filter_des .= qq[ * [~Searching for] "$input_data" [~in] <b>$label</b> <br> ];
         $filter_cnt++;
         }  
       else
@@ -177,7 +177,9 @@ sub main
 
           push @field_filter, { OP => '>=', VALUE => $fr, } if $fr ne '';
           push @field_filter, { OP => '<=', VALUE => $to, } if $to ne '';
-          $filter_des .= qq[ <li> $label [~must be between] "$fr" [~and] "$to" ];
+          $filter_des .= qq[ * $label [~must be between] "$fr" [~and] "$to" <br> ] if   $fr and   $to;
+          $filter_des .= qq[ * $label [~must be after] "$fr" <br> ]                if   $fr and ! $to;
+          $filter_des .= qq[ * $label [~must be before] "$to" <br> ]               if ! $fr and   $to;
           $filter_cnt++;
           }
         else
@@ -191,7 +193,7 @@ sub main
             my ( $linked_table, $linked_field ) = $bfdes->link_details();
             $input_data_f = $core->read_field( $linked_table, $linked_field, $input_data );
             }
-          $filter_des .= qq[ <li> $label [~must be] "$input_data_f" ];
+          $filter_des .= qq[ * $label [~must be] "$input_data_f" <br> ];
           $filter_cnt++;
           }
         }  
@@ -204,7 +206,7 @@ sub main
     # print STDERR Dumper( $filter_rules, $filter_data );
     $rs->{ 'FILTERS' }{ 'ACTIVE' }{ 'RULES' } = $filter_rules;
     $rs->{ 'FILTERS' }{ 'ACTIVE' }{ 'DATA'  } = $filter_data;
-    $rs->{ 'FILTERS' }{ 'ACTIVE' }{ 'DES'   } = "<ul>" . $filter_des . "</ul>";
+    $rs->{ 'FILTERS' }{ 'ACTIVE' }{ 'DES'   } = $filter_des;
     return $reo->forward_back( OFFSET => 0 );
     }
 

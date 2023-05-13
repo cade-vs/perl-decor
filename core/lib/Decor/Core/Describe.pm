@@ -163,6 +163,7 @@ my %DES_ATTRS = (
                            NO_AUTOCOMPLETE => 3, # disable interface autocomplete
 
                            VIEW_CUE    => 3,
+                           GRID_CUE    => 3,
                            INSERT_CUE  => 3, # related "INSERT NEW" button label
                            UPDATE_CUE  => 3, # related "UPDATE" button label
                            UPLOAD_CUE  => 3, # related "UPLOAD" button label
@@ -450,7 +451,7 @@ sub __merge_table_des_file
     next if $line =~ /^([#;]|\/\/)/; # skip comments
     de_log_debug2( "        line: [$line]" );
 
-    if( $line =~ /^\s*=+\s*(([a-zA-Z_][a-zA-Z_0-9]*):\s*)?([a-zA-Z_][a-zA-Z_0-9]*)\s*(.*?)\s*$/ )
+    if( $line =~ /^\s*=+\s*(([a-zA-Z_][a-zA-Z_0-9]*):+\s*)?([a-zA-Z_][a-zA-Z_0-9]*)\s*(.*?)\s*$/ )
       {
       # new category item (section)
          $category  = uc( $2 || 'FIELD' );

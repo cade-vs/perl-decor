@@ -28,6 +28,7 @@ use Decor::Shared::Net::Client;
 use Decor::Shared::Utils;
 use Decor::Shared::Config;
 use Decor::Shared::Types;
+use Decor::Web::Utils;
 
 our @ISA = qw( Web::Reactor );
 
@@ -228,9 +229,9 @@ sub de_load_cfg
 
 sub ps_path_add
 {
-  my $self  = shift;
-  my $icon  = shift;
-  my $title = shift;
+  my $self  =    shift;
+  my $icon  = lc shift;
+  my $title =    shift;
 
   my $ps    = $self->get_page_session();
   my $rs    = $self->get_page_session( 1 );
@@ -243,10 +244,23 @@ sub ps_path_add
 
   push @ps_path, { PS_ID => $ps_id, ICON => $icon, TITLE => $title };
   
-  $title =~ s/<[^>]*>//g; # remove HTML if any
   $self->set_browser_window_title( $title );
 
   return @ps_path;
+}
+
+sub ps_path_add_by_cue
+{
+  my $self  = shift;
+  my $des    =    shift;
+  my $action = uc shift; # also icon
+
+  my ( $title, $hint ) = de_web_get_cue( $des, 'WEB', $action, "${action}_CUE" );
+  $title =~ s|\*(.+?)\*|<b>$1</b>|g;
+  $hint  =~ s|\*(.+?)\*|<b>$1</b>|g;
+  $self->ps_path_add( $action, $title );
+  
+  return wantarray ? ( $title, $hint ) : $title;
 }
 
 

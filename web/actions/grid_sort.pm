@@ -105,7 +105,7 @@ sub main
       }
     
     $rs->{ 'SORTS' }{ 'ACTIVE' }{ 'SQL' } = join( ',', @sort_sql );
-    $rs->{ 'SORTS' }{ 'ACTIVE' }{ 'DES' } = "<ul>" . join( ', ', @sort_des ) . "</ul>";
+    $rs->{ 'SORTS' }{ 'ACTIVE' }{ 'DES' } = join( ' &raquo; ', @sort_des );
     
     return $reo->forward_back();
     }

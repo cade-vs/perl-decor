@@ -1,9 +1,0 @@
-
-grant read
-label Priority
-type enum
-
-=NAME
-
-    type    char    32
-

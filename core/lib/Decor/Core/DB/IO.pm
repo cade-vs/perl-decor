@@ -889,6 +889,25 @@ sub read_first1_by_id_hashref
   return $self->read_first1_hashref( $table, '._ID = ?', { %$opts, BIND => [ $id ] } );
 }
 
+sub read_all_hashrefs
+{
+  my $self  = shift;
+  my $table = shift;
+  my $where = shift;
+  my $opts  = shift; 
+
+  my @data;
+  
+  $self->select( $table, '*', $where, $opts );
+  while( my $data = $self->fetch() )
+    {
+    push @data, $data;
+    }
+  $self->finish();
+  
+  return \@data;
+}
+
 sub read_field
 {
   my $self  = shift;
@@ -902,6 +921,26 @@ sub read_field
   $self->finish();
   
   return $data ? $data->{ $field } : undef;
+}
+
+sub read_all_fields
+{
+  my $self  = shift;
+  my $table = shift;
+  my $field = shift;
+  my $where = shift;
+  my $opts  = shift; 
+  
+  my @data;
+  
+  $self->select( $table, $field, $where, $opts );
+  while( my $data = $self->fetch() )
+    {
+    push @data, $data->{ $field };
+    }
+  $self->finish();
+  
+  return @data ? \@data : undef;
 }
 
 sub count

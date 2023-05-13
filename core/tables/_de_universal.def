@@ -1,12 +1,13 @@
 
   deny all
 
-  web.view_cue           [~View]
-  web.insert_cue         [~Create new record in] %t
-  web.update_cue         [~Edit]
+  web.view_cue           [~View from] "%t"
+  web.grid_cue           [~List] "%t"
+  web.insert_cue         [~Create new in] "%t"
+  web.update_cue         [~Modify from] "%t"
   web.upload_cue         [~Upload]; [~Upload new file in] %t
-  web.delete_cue         [~Delete] 
-  web.copy_cue           [~Copy]; [~Create new record based on this one in] %t
+  web.delete_cue         [~Delete from] "%t"
+  web.copy_cue           [~Copy in] "%t"; [~Create new record based on this one in] %t
   
   web.view_link_cue      [~View linked record]
   web.view_attached_cue  [~View linked records]
