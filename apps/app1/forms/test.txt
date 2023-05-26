@@ -1,5 +1,0 @@
-<xmp>This is OK test form text ![   REF.NAME >                    ]!</xmp>
-<xmp>This is OK test form text ![AMOUNT4 =                        ]!</xmp>
-<xmp>This is OK test form text ![AMOUNT4 <                        ]!</xmp>
-<xmp>This is OK test form text ![AMOUNT4 >                        ]!</xmp>
-<xmp>This is OK test form text ![       AMOUNT3 =55.2f ]!</xmp>

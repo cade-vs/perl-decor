@@ -111,6 +111,8 @@ my $text_zoom_ctrl .= <<END_OF_HTML;
       |
       <a href='javascript:zoom_to_street_level();'>street</a>
       level
+      |
+      <a href='javascript:marker_recenter();'>&raquo;&laquo;</a>
 END_OF_HTML
 
 if( $allow_nav )
@@ -225,7 +227,7 @@ $text .= <<END_OF_HTML;
     map.setCenter( { lng: $lloc, lat: $llac } );
     map.on( 'click',   function (ev) { on_mouse_click( ev ) } );
     map.on( 'zoomend', function (ev) { on_zoomend( ev ) } );
-    marker.on( 'dragend', function ( ev ) { on_marker_dropped( ev ) } );
+    marker.on( 'dragend', function (ev) { on_marker_dropped( ev ) } );
     set_marker_to_lnglat( { lng: $llo, lat: $lla }, 1 );
 
     if( ! $allow_map_select )
@@ -245,6 +247,11 @@ $text .= <<END_OF_HTML;
     function coord_reduce( c )
     {
       return num_dot_reduce( c, 100000 );
+    }
+
+    function marker_recenter()
+    {
+      map.setCenter( marker.getLngLat() );
     }
 
     function update_marker_position_and_zoom( ll )
