@@ -1,7 +1,7 @@
 ##############################################################################
 ##
 ##  DECOR application machinery core
-##  2014-2017 (c) Vladi Belperchinov-Shabanski "Cade"
+##  2014-2023 (c) Vladi Belperchinov-Shabanski "Cade"
 ##  <cade@bis.bg> <cade@biscom.net> <cade@cpan.org>
 ##
 ##  LICENSE: GPLv2
@@ -174,7 +174,12 @@ sub de_app_name
 sub de_app_dir
 {
   boom "call de_init() first to initialize environment!" unless $_INIT_OK;
-  return "$ROOT/apps/$APP_NAME";
+  # TODO: move app dir entirely out of decor dir structure
+  for( "$ROOT/apps/$APP_NAME", "$ROOT/apps/$APP_NAME-app-decor", "$ROOT/apps/decor-app-$APP_NAME" )
+    {
+    return $_ if -d;
+    }
+  boom "app dir root cannot be found for [$ROOT] app name [$APP_NAME]!" unless $_INIT_OK;
 }
 
 sub de_app_cfg

@@ -1,7 +1,7 @@
 ##############################################################################
 ##
 ##  Decor application machinery core
-##  2014-2018 (c) Vladi Belperchinov-Shabanski "Cade"
+##  2014-2023 (c) Vladi Belperchinov-Shabanski "Cade"
 ##  <cade@bis.bg> <cade@biscom.net> <cade@cpan.org>
 ##
 ##  LICENSE: GPLv2
@@ -262,6 +262,8 @@ sub type_format
   my $data = shift;
   my $type = shift; # hashref with type args
 
+  $type = { NAME => $type } unless ref $type;
+
   my $type_name = $type->{ 'NAME' };
 
   if( $type_name eq "DATE" )
@@ -407,6 +409,8 @@ sub type_revert
 {
   my $data = shift;
   my $type = shift; # hashref with type args
+
+  $type = { NAME => $type } unless ref $type;
 
   my $type_name = $type->{ 'NAME' };
 

@@ -32,6 +32,18 @@ use Decor::Web::Utils;
 
 our @ISA = qw( Web::Reactor );
 
+sub de_re_app_dir
+{
+  my $ROOT     = shift;
+  my $APP_NAME = shift;
+  # TODO: move app dir entirely out of decor dir structure
+  for( "$ROOT/apps/$APP_NAME", "$ROOT/apps/$APP_NAME-app-decor", "$ROOT/apps/decor-app-$APP_NAME" )
+    {
+    return $_ if -d 
+    }
+  return undef;
+}
+
 sub new
 {
   my $class = shift;
@@ -48,9 +60,7 @@ sub new
 
   boom "missing APP_NAME" unless $APP_NAME =~ /^[a-z_0-9]+$/;
 
-  my $APP_ROOT  = "$ROOT/apps/$APP_NAME/";
-
-  boom "APP_ROOT path does not exist [$APP_ROOT]" unless -d $APP_ROOT;
+  my $APP_ROOT  = de_re_app_dir( $ROOT, $APP_NAME ) or boom "APP_ROOT path does not exist [$ROOT] app name [$APP_NAME]";
 
   my $lang = lc $cfg->{ 'LANG' } || 'en';
   

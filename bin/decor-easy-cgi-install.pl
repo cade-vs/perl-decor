@@ -11,6 +11,10 @@
 use strict;
 use Cwd qw( abs_path getcwd );
 use Data::Tools;
+
+my $USAGE = "usage: $0  decor-root  decor-app-name  target-http-dir\n";
+
+die $USAGE unless @ARGV == 3;
   
 # bit nonsense but keeping it to be the same in all tools
 my $root = shift() || strip_script_name( $0 ) . "/../" || '/usr/local/decor/';
@@ -26,9 +30,8 @@ my $easy_lib = "$root/easy/lib";
 my $app    = shift;
 my $target = shift;
 
-my $app_dir = "$root/apps/$app";
+my $app_dir = find_app_dir( $root, $app );
 
-my $USAGE = "usage: $0  decor-root  decor-app-name  target-http-dir\n";
 
 die "decor app [$app] does not exist or is not accessible at [$app_dir]\n$USAGE" unless -d $app_dir;
 die "target http dir [$target] does not exist or is not accessible\n$USAGE" unless -d $target;
@@ -82,4 +85,16 @@ sub strip_script_name
   my $s = shift;
   $s =~ s/[^\/]+$//;
   return $s;
+}
+
+sub find_app_dir
+{
+  my $ROOT     = shift;
+  my $APP_NAME = shift;
+  # TODO: move app dir entirely out of decor dir structure
+  for( "$ROOT/apps/$APP_NAME", "$ROOT/apps/$APP_NAME-app-decor", "$ROOT/apps/decor-app-$APP_NAME" )
+    {
+    return $_ if -d 
+    }
+  return undef;
 }
