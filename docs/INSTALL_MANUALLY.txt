@@ -1,0 +1,105 @@
+
+
+let's assume your username for this installation is "alf".
+wherever you see "alf" below, you need to change it with your actual
+username.
+
+
+1. cd ; mkdir pro ; cd pro
+
+2. git clone https://github.com/cade-vs/perl-decor.git
+
+3. specify where DECOR is installed. you have to choose one
+   step of the following 3.1 and 3.2:
+
+3.1 export DECOR_CORE_ROOT=/home/alf/pro/decor
+
+3.2 [as root user]  ln -s /home/alf/pro/perl-decor /usr/local/decor
+
+4. [as root user]
+   cd ~/pro/perl-decor/bin
+   ./install-debian-dev-tools.sh
+   ./install-debian-postgresql.sh
+   ./install-cpan-perl-modules.sh
+
+5. as "alf" user, setup decor environment:
+
+      cd /home/alf/pro/perl-decor/bin
+      ./decor-easy-setup.pl   
+
+6. enable PostgreSQL TCP access:
+   [as "root" user]
+
+   edit /etc/postgresql/13/main/postgresql.conf
+   find this line:
+
+      #listen_addresses = 'localhost'         # what IP address(es) to listen on;
+
+   and change it to:
+
+      listen_addresses = '*'
+
+   it will instruct PostgreSQL to listen on all interfaces
+
+
+   edit /etc/postgresql/13/main/pg_hba.conf
+
+   add this line at the end of file:
+
+      host   all   all   0.0.0.0/0   md5
+
+   and restart postgres:
+
+      /etc/init.d/postgresql restart
+
+
+   SEE ALSO: https://tecadmin.net/postgresql-allow-remote-connections/
+
+7. switch to postgres user and create database user "alf":
+
+      [as "root" user]
+      su - postgres
+      createuser --createdb --login --createrole --pwprompt alf
+      exit
+
+8. as "alf" user, create new database
+
+      createdb --encoding=UTF8 decor
+
+   "decor" database is default name for the app1 app, bundled 
+   with decor itself.
+
+9. 
+
+
+
+    a2dismod cgid
+    a2enmod  cgi
+    dir.conf  --> index.x
+    mime.conf --> AddHandler cgi-script .cgi .x
+
+apache2 site:
+
+    <Directory /var/www/html/decor/>
+       AllowOverride All
+       Order Deny,Allow
+       Allow from all
+       Options +ExecCGI +FollowSymLinks
+       AcceptPathInfo On
+    </Directory>
+
+    PerlModule ModPerl::Registry
+    <Files ~ "\.mpl$">
+          SetHandler perl-script
+          PerlResponseHandler ModPerl::Registry
+          #PerlOptions +ParseHeaders
+          #PerlOptions -GlobalRequest
+          Options +ExecCGI
+    </Files>
+
+
+    # FastCGI setup
+    ProxyPass "/cade/decor/app1-plack-test/index.x" "fcgi://localhost:4003/"
+    ProxyPass "/cade/decor/app1-plack-test/login.x" "fcgi://localhost:4003/"
+
+xxx. install Apache2 or nginx and enable FastCGI.   
