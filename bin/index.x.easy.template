@@ -1,0 +1,4 @@
+#!/usr/local/bin/plackup --no-default-middleware
+# remove --no-default-middleware to allow client-side web browser debug
+use strict;
+do '[--DECOR_APP_ROOT--]/web/psgi/app.psgi';
