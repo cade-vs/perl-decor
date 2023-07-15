@@ -144,29 +144,32 @@ sub load_object
     {
     $table = uc $object;
     @files = find_files_for_table( $object );
-    if( @files )
-      {
-      print "found file: $_\n" for @files;
-      }
-    else
+    if( ! @files )
       {
       print "notice: no files for table [$object] \t-- skipped\n";
       return;
       }
     }  
 
-
-  print "status: loading the following objects:\n";
-  print "        [$_]\n" for @files;
+  if( $opt_verbose > 0 )
+    {
+    print "status: loading the following objects:\n";
+    print "        [$_]\n" for @files;
+    }
 
   my $data = {};
+  my $ac;
   for my $file ( @files )
     {
-    my $c = load_data_file( $table, $data, $file );
+    my $c = load_data_file( $table, $data, $file ) || 0;
+    next unless $c;
     print "status: [$table] <==($c)== [$file]\n";
+    $ac += $c;
     }
-  print Dumper( $data );
+  return unless $ac;  
+  print Dumper( $data ) if $opt_verbose > 0;
   import_data( $table, $data );
+  print "\n\n";
 }
 
 ##############################################################################
@@ -197,19 +200,25 @@ sub import_data
     }
   my $protected_ids = join ',', sort { $a <=> $b } @protected_ids;
   my %protected_ids = map { $_ => 1 } @protected_ids;
+
+  print "status: PROTECTED IDs: $protected_ids\n";
     
   my $dbh = dsn_get_dbh_by_table( $table );
   my $protected = "AND _ID NOT IN ( $protected_ids )" if $protected_ids;
   my $dd_stmt = "DELETE FROM $table WHERE _ID > 0 AND _ID < 10000 $protected";
-  print "status: TABLE cleanup SQL: $dd_stmt\n";
   my $rc = $dbh->do( $dd_stmt );  
+  print "status: TABLE cleanup SQL: $dd_stmt ==> result: $rc\n";
   
+  my $ic; # insert count
   for my $id ( keys %$data )
     {
     next if $protected_ids{ $id };
     
-    $dbio->insert( $table, { %data_default, %{ $data->{ $id }{ 'DATA' } } } );
+    my $rc = $dbio->insert( $table, { %data_default, %{ $data->{ $id }{ 'DATA' } } } );
+    print "$rc  ";
+    $ic++ if $rc > 0;
     }
+  print "\ninserts count: $ic\n" if $ic;
 }
 
 ##############################################################################

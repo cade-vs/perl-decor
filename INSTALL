@@ -17,6 +17,10 @@
 
       su root -c ./bin/install-debian-dev-tools.sh
 
+  2.1. install PostgreSQL and libraries (if using PostgreSQL):
+  
+      su root -c ./bin/install-debian-postgresql.sh
+
   3. clone dependencies with the easy-setup tool:
 
       cd perl-decor
@@ -30,6 +34,10 @@
   5. install required perl modules from CPAN:
 
       su root -c ./bin/install-cpan-perl-modules.sh
+      
+  5.1. if using PostgreSQL, install DBD::Pg module:
+  
+      su cpan DBD::Pg    
 
   6.  enable APACHE either CGI or MOD_PERL support:
 
@@ -49,6 +57,16 @@
              Options +ExecCGI +FollowSymLinks
              ...
           </Directory>
+          
+       6.1.1. mime.conf:
+       
+          AddHandler cgi-script .cgi .pl .x   
+          
+       6.1.2. dir.conf
+       
+          DirectoryIndex index.x index.html index.cgi index.pl
+          
+          # if there are more index names, leave the existing ones as is.
 
        6.2 (alternatively) enable MOD_PERL:
 
@@ -76,6 +94,11 @@
       ./bin/decor-easy-cgi-install.pl  .  app1  /var/www/html/decor-app1
 
   9. create PostgreSQL database, user and setup app initial data:
+
+      # become root
+      su - 
+      # then postgres user
+      su - postgres
 
       # create 'var' directory:
       mkdir var
