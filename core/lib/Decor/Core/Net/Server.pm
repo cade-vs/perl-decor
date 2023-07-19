@@ -138,20 +138,15 @@ sub on_process
       };
     if( $@ )
       {
-      my $ev = $@;
+      my $ev = "$@";
       $ev =~ s/^BOOM: +\[\d+\] +//;
-#      my $err_ref = create_random_id( 9, 'ABCDEFGHJKLMNPQRTVWXY0123456789' ); # print read safe
-#      de_log( "error: XTYPE handler exception err_ref [$err_ref] details [$ev]\n" );
-#      $mo->{ 'XS' } = $ev || "E_INTERNAL: exception err_ref [$err_ref]";
-      $mo->{ 'XS' } = $ev || "E_INTERNAL: unexpected exception [@_]";
+      $mo->{ 'XS' } = $ev =~ /^(E_[A-Z_0-9]+)(:\s*(.*?))?/ ? $ev : "E_INTERNAL: exception [$ev]";
       subs_disable_manual_transaction();
       eval { dsn_rollback(); }; # FIXME: eval/break-main-loop
       if( $@ )
         {
         de_log( "error: DSN ROLLBACK exception [$@]" );
         return;
-        #$self->break_main_loop();
-        #next;
         }
       }
     elsif( ! subs_in_manual_transaction() )
@@ -161,13 +156,11 @@ sub on_process
         {
         de_log( "error: DSN COMMIT exception [$@]" );
         return;
-        #$self->break_main_loop();
-        #next;
         }
       }  
     
     my $xs = $mo->{ 'XS' };
-    
+
     if ( $xs =~ /^(OK|E_[A-Z_0-9]+)(:\s*(.*?))?/ )
       {
       $mo->{ 'XS'     } = uc $1;
@@ -175,20 +168,19 @@ sub on_process
       }
     else  
       {
-      de_log( "error: invalid or empty XTYPE STATUS (XS) [$xs], ignoring message" );
+      #de_log( "error: invalid or empty XTYPE STATUS (XS) [$xs], ignoring message" );
       # TODO: rollback?
       $mo = {};
+      de_log( "error: unexpected or missing XSTATUS, got [$xs]" );
       $mo->{ 'XS' } = "E_STATUS";
-      return;
-      #$self->break_main_loop();
-      #next;
       }
 
     if( $xs ne 'OK' )
       {
       my $err_ref = create_random_id( 9, 'ABCDEFGHJKLMNPQRTVWXY0123456789' ); # print read safe
-      $mo->{ 'XS_ERR_REF' } = $err_ref;
-      de_log( "error: XTYPE [$xt] XSTATUS [$xs] DBI::errstr [$DBI::errstr] err_ref [$err_ref]" );
+      $mo->{ 'XS_REF' } = $err_ref;
+      de_log( "error: XTYPE [$xt] XSTATUS [$xs] XREF [$err_ref]" );
+      de_log( "error: DBI::errstr [$DBI::errstr]" ) if DBI::errstr;
       }
     else
       {

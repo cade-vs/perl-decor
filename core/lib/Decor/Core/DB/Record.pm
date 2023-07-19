@@ -520,6 +520,8 @@ sub write
     {
     my $field = shift( @data );
     my $value = shift( @data );
+    
+    boom "cannot write reference value [$value] for field [$field]" if ref $value;
 
     my ( $dst_table, $dst_field, $dst_id, $dst_fdes ) = $self->__resolve_field( $field, { WRITE => 1 } );
 

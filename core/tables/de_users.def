@@ -5,11 +5,14 @@
 
   web.grid.fields_list  NAME,ACTIVE,PRIMARY_GROUP,PRIVATE_GROUP,GROUPS,LAST_LOGIN_TIME,LOGIN_SESSIONS
 
+  grant read to 971
+
 =NAME
 
   label [~Login name]
   type  char  128
   unique
+  grant read to 971
 
 =PASS
   
@@ -19,6 +22,8 @@
   web.overflow  1
   password
 
+  grant read to 1
+
 =PASS_SALT
     
   label [~Password seed]
@@ -27,60 +32,84 @@
   web.overflow  1
   password
 
+  grant read to 1
+
 =PASS_XTIME
 
   label [~Password expire time]
   type  utime
   web.details 2
 
+  grant read to 971
+
 =PRIMARY_GROUP
 
   label [~User primary group]
   type  link  DE_GROUPS   NAME
+
+  grant read to 971
 
 =PRIVATE_GROUP
 
   label [~User private group]
   type  link  DE_GROUPS   NAME
 
+  grant read to 971
+
 =GROUPS
 
   label [~Attached groups]
   type  backlink  DE_USER_GROUP_MAP   USR
+
+  grant read to 971
 
 =ACTIVE
 
   label [~Active user]
   type  bool
 
+  grant read to 971
+
 =LAST_LOGIN_TIME
 
   label [~Last login time]
   type  utime
   web.details 2
+
+  grant read to 971
   
 =LAST_LOGOUT_TIME
 
   label [~Last login time]
   type  utime
   web.details 2
+
+  grant read to 971
   
 =LAST_LOGIN_SESSION
 
   label [~Last login session]
   type  link DE_SESSIONS CTIME
 
+  grant read to 971
+
 =LAST_LOGIN_SESSION_ACTIVE
 
   label [~Last login active]
   type  link DE_SESSIONS ACTIVE
+
+  grant read to 971
 
 =LOGIN_SESSIONS
 
   label [~Previous login sessions]
   type  backlink  DE_SESSIONS   USR
 
+  grant read to 971
+
 =SESSIONLESS
 
   label [~Sessionsless]
   type  bool
+
+  grant read to 1

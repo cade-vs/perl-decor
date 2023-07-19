@@ -450,7 +450,6 @@ sub sub_begin
   my $remote   = $mi->{ 'REMOTE'   };
 
   my $session_rec;
-  
   if( $user_sid eq 'CREATE' )
     {
     $session_rec = __create_new_anon_session( $remote );

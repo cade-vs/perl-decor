@@ -75,7 +75,7 @@ sub main
   $text .= de_master_record_view( $reo );
   $text .= "<p>";
 
-  my $edit_mode_class_prefix = $edit_mode_insert ? 'insert' : 'edit';
+  my $edit_mode_class_prefix = $edit_mode_insert ? 'insert' : 'update';
 
   my $custom_css = lc "css_$table";
   $text .= "<#$custom_css>";
@@ -84,7 +84,7 @@ sub main
   return "<#no_data>" unless $row_data;
 
   $text .= "<div class='record-table'>";
-  $text .= "<div class='edit-header view-sep record-sep fmt-center'>$browser_window_title</div>";
+  $text .= "<div class='$edit_mode_class_prefix-header record-sep fmt-center'>$browser_window_title</div>";
 
   my $row_id = $row_data->{ '_ID' };
 
@@ -126,6 +126,7 @@ sub main
     
     next if $fdes->get_attr( qw( WEB HIDDEN       ) );
     next if $fdes->get_attr( qw( WEB PREVIEW HIDE ) );
+    next if $fdes->get_attr( qw( NO_PREVIEW ) );
 
     #my $advise = $fdes->{ 'ADVISE' };
     #next unless $advise eq $edit_mode or $advise eq 'ALL';
@@ -197,7 +198,7 @@ sub main
     my $divider = $bfdes->get_attr( 'WEB', 'DIVIDER' );
     if( $divider )
       {
-      $text .= "<div class='$edit_mode_class_prefix-divider $edit_mode_class_prefix-sep record-sep fmt-center'>$divider</div>";
+      $text .= "<div class='$edit_mode_class_prefix-divider record-sep fmt-center'>$divider</div>";
       $record_first = 1;
       }
 

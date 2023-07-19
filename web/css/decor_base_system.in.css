@@ -549,24 +549,64 @@ table.login
 
 /*** view *******************************************************************/
 
-div.view-sep
+div.view-header
         {
         color:            $view-head-colors.1;
         background-color: $view-head-colors.2;
         border: solid 1px $view-head-colors.3;
 
         padding: 0.2em;
-        font: $view-edit-headers-font;
+        font: $view-head-font;
+        }
+
+div.view-divider
+        {
+        color:            $view-div-colors.1;
+        background-color: $view-div-colors.2;
+        border: solid 1px $view-div-colors.3;
+
+        padding: 0.2em;
+        font: $view-div-font;
+        }
+
+div.insert-header
+        {
+        color:            $insert-head-colors.1;
+        background-color: $insert-head-colors.2;
+        border: solid 1px $insert-head-colors.3;
+
+        padding: 0.2em;
+        font: $insert-head-font;
         }
 
 div.insert-divider
         {
-        color:            $view-head-colors.1;
-        background-color: $view-head-colors.2;
-        border: solid 1px $view-head-colors.3;
+        color:            $insert-div-colors.1;
+        background-color: $insert-div-colors.2;
+        border: solid 1px $insert-div-colors.3;
 
         padding: 0.2em;
-        font: $view-edit-headers-font;
+        font: $insert-div-font;
+        }
+
+div.update-header
+        {
+        color:            $update-head-colors.1;
+        background-color: $update-head-colors.2;
+        border: solid 1px $update-head-colors.3;
+
+        padding: 0.2em;
+        font: $update-head-font;
+        }
+
+div.update-divider
+        {
+        color:            $update-div-colors.1;
+        background-color: $update-div-colors.2;
+        border: solid 1px $update-div-colors.3;
+
+        padding: 0.2em;
+        font: $update-div-font;
         }
 
 /* flex */

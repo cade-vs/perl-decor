@@ -23,7 +23,12 @@ our @ISA    = qw( Exporter );
 our @EXPORT = qw( 
 
                 find_user_by_name
+                find_user_by_id
+                create_group
                 create_user
+                attach_user_groups
+                detach_user_groups
+                detach_all_user_groups
                 set_user_pass
                 
                 update_backlink_count
@@ -36,6 +41,7 @@ our @EXPORT = qw(
                 check_unique_field_set
                 );
 
+# note: the result record will be locked
 sub find_user_by_name
 {
   my $name = shift;
@@ -45,20 +51,47 @@ sub find_user_by_name
   return undef;
 }
 
-sub create_user
+# note: the result record will be locked
+sub find_user_by_id
 {
-  my $user   = shift;
-  my $pass   = shift;
-  my $prig   = shift; # primary group, or undef to private instead
-  my $groups = shift || [];
+  my $id = shift;
   
+  my $rec = new Decor::Core::DB::Record;
+  return $rec if $rec->load( 'DE_USERS', $id, { LOCK => 1 } );
+  return undef;
+}
+
+#  my $group_rec = create_group( $new_group_name );
+#  note: on return $group_rec is already saved into DB
+sub create_group
+{
+  my $name   = shift;
+
   # create private group record
   my $grp_rec = new Decor::Core::DB::Record;
   $grp_rec->create( 'DE_GROUPS' );
   $grp_rec->write( 
-                    NAME      => $user, 
+                    NAME      => $name, 
                   );
   $grp_rec->save();
+  
+  return $grp_rec;
+}
+
+#  my $user_rec = create_user( $new_user_name, $password, $primary_group_id, $groups_arrayref );
+#  note: on execution, private group for the new user will be created
+#  note: on return $user_rec is already saved into DB
+#  note: $primary_group_id can be undef to generate new group on the fly
+#  note: created user is ACTIVE by default, check DE_USERS
+sub create_user
+{
+  my $name   = shift;
+  my $pass   = shift;
+  my $pigrp  = shift; # primary group, or undef to use the private instead
+  my $groups = shift || [];
+  
+  # create private group record
+  my $pvt_grp_rec = create_group( $name );
 
   # create user record
   my $user_rec = new Decor::Core::DB::Record;
@@ -68,7 +101,7 @@ sub create_user
   my $user_pass_hex = de_password_salt_hash( $pass, $user_salt ); 
 
   $user_rec->write( 
-                    NAME      => $user, 
+                    NAME      => $name, 
                     ACTIVE    => 1,
                   );
 
@@ -84,26 +117,78 @@ sub create_user
                     );
     }
   
-  $prig ||= $grp_rec->id();
+  $pigrp ||= $pvt_grp_rec->id();
   
-  $user_rec->write( 'PRIMARY_GROUP' => $prig          );
-  $user_rec->write( 'PRIVATE_GROUP' => $grp_rec->id() );
+  $user_rec->write( 'PRIMARY_GROUP' => $pigrp             );
+  $user_rec->write( 'PRIVATE_GROUP' => $pvt_grp_rec->id() );
   
   $user_rec->save();
 
   # attach given groups
-  my $dio = new Decor::Core::DB::IO;
-
-  my @groups = list_uniq( $grp_rec->id(), $prig, @$groups );
-
-  my $user_id = $user_rec->id();
-  for my $group ( @groups )
-    {
-    next if $dio->read_first1_hashref( 'DE_USER_GROUP_MAP', 'USR = ? AND GRP = ?', { BIND => [ $user_id, $group ] } );
-    my $rc = $dio->insert( 'DE_USER_GROUP_MAP', { USR => $user_id, GRP => $group } );
-    }
+  attach_user_groups( $user_rec, [ $pvt_grp_rec->id(), $pigrp, @$groups ] );
   
   return $user_rec;
+}
+
+sub attach_user_groups
+{
+  my $user   = shift; # user id or user rec
+  my $groups = shift || [];
+  
+  my $user_id = ref $user ? $user->id() : $user;
+
+  my $dio = new Decor::Core::DB::IO;
+  my @groups = list_uniq( @$groups );
+
+  my $agc = 0;
+  for my $group ( @groups )
+    {
+    # check if already attached
+    next if $dio->read_first1_hashref( 'DE_USER_GROUP_MAP', 'USR = ? AND GRP = ?', { BIND => [ $user_id, $group ] } );
+    # attach group
+    my $rc = $dio->insert( 'DE_USER_GROUP_MAP', { USR => $user_id, GRP => $group } );
+    $agc++ if $rc;
+    }
+  
+  return $agc;
+}
+
+sub detach_user_groups
+{
+  my $user   = shift; # user id or user rec
+  my $groups = shift || [];
+  
+  my $user_id = ref $user ? $user->id() : $user;
+
+  boom "user_id must be positive, non-zero number" unless $user_id > 0;
+
+  my $dio = new Decor::Core::DB::IO;
+  my @groups = list_uniq( @$groups );
+
+  my $dgc = 0;
+  for my $group ( @groups )
+    {
+    boom "group_id must be positive, non-zero number" unless $group > 0;
+    my $rc = $dio->delete( 'DE_USER_GROUP_MAP', 'USR = ? AND GRP = ?', { BIND => [ $user_id, $group ] } );
+    $dgc++ if $rc;
+    }
+  
+  return $dgc;
+}
+
+sub detach_all_user_groups
+{
+  my $user   = shift; # user id or user rec
+  my $groups = shift || [];
+  
+  my $user_id = ref $user ? $user->id() : $user;
+
+  boom "user_id must be positive, non-zero number" unless $user_id > 0;
+
+  my $dio = new Decor::Core::DB::IO;
+  my $rc = $dio->delete( 'DE_USER_GROUP_MAP', 'USR = ?', { BIND => [ $user_id ] } );
+  
+  return $rc;
 }
 
 sub set_user_pass

@@ -12,4 +12,6 @@ _ID;NAME
 966;allow read globally
 967;restrict all modifications globally
 
+971;allow read-only session data
+
 999;everybody

@@ -34,12 +34,11 @@ sub sub_menu
   my $reo  = shift;
   my $core = shift;
   my $name = shift;
-
   my $menu = $core->menu( $name );
 
   my @res;
 
-#print STDERR Dumper( $menu );
+print STDERR Dumper( '****************************** MENU MENU MENU MENU MENU MENU',  $menu );
 
   for my $key ( sort { $menu->{ $a }{ '_ORDER' } <=> $menu->{ $b }{ '_ORDER' } } keys %$menu )
     {
@@ -49,7 +48,7 @@ sub sub_menu
     next unless $item->{ 'GRANT' }{ 'ACCESS' } or $item->{ 'GRANT' }{ 'ALL' };
     next if     $item->{ 'DENY'  }{ 'ACCESS' } or $item->{ 'DENY'  }{ 'ALL' };
 
-#print STDERR Dumper( $item );
+print STDERR Dumper( $item );
 
     my $label = $item->{ 'LABEL' } || $key;
     my $type  = $item->{ 'TYPE'  };

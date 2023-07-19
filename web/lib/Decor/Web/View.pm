@@ -183,7 +183,7 @@ sub de_web_format_field
       $data_fmt = "<pre>$data_fmt</pre>";
       }
     }
-  elsif( $type_name eq 'INT' and $fdes->{ 'BOOL' } )
+  elsif( $type_lname eq 'BOOL' )
     {
     $data_fmt = $field_data > 0 ? '[&radic;]' : '[&nbsp;]';
     if( $editable )

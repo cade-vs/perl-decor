@@ -90,6 +90,8 @@ sub main
         {
         # insert with copy
         my $row_data = $core->select_first1_by_id( $table, $fields_ar, $copy_id );
+        delete $row_data->{ $_ } for grep { $tdes->{ 'FIELD' }{ $_ }{ 'NO_COPY' } } @$fields_ar;
+        
         $ps->{ 'ROW_DATA' } = $row_data;
         $ps->{ 'ROW_DATA' }{ '_ID' } = $id;
         }
@@ -133,7 +135,7 @@ sub main
     $id    = $ps->{ 'ID'    };
     }
 
-  my ( $browser_window_title, $browser_window_hint ) = $reo->ps_path_add_by_cue( $sdes, $edit_mode );
+  my ( $browser_window_title, $browser_window_hint ) = $reo->ps_path_add_by_cue( $sdes, $edit_mode, $ps->{ 'ROW_DATA' } );
 
   return "<#access_denied>" unless @$fields_ar;
   return "<#access_denied>" if   $edit_mode_insert and ! $tdes->allows( 'INSERT' );
@@ -265,7 +267,7 @@ sub main
 
   $text .= $edit_form_begin;
 
-  my $edit_mode_class_prefix = $edit_mode_insert ? 'insert' : 'edit';
+  my $edit_mode_class_prefix = $edit_mode_insert ? 'insert' : 'update';
 
   my $custom_css = lc "css_$table";
   $text .= "<#$custom_css>";
@@ -275,7 +277,7 @@ sub main
 #  $text .= "</tr>";
 
   $text .= "<div class='record-table'>";
-  $text .= "<div class='edit-header view-sep record-sep fmt-center'>$browser_window_title</div>";
+  $text .= "<div class='$edit_mode_class_prefix-header record-sep fmt-center'>$browser_window_title</div>";
 
 ###  my $row_data = $core->fetch( $select );
 ###  my $row_id = $row_data->{ '_ID' };
@@ -327,7 +329,7 @@ sub main
     my $divider = $fdes->get_attr( 'WEB', 'DIVIDER' );
     if( $divider )
       {
-      $text .= "<div class='$edit_mode_class_prefix-divider $edit_mode_class_prefix-sep record-sep fmt-center'>$divider</div>";
+      $text .= "<div class='$edit_mode_class_prefix-divider record-sep fmt-center'>$divider</div>";
       $record_first = 1;
       }
 
@@ -712,7 +714,7 @@ sub edit_get_field_control_info
       # TODO: nothing for now, could display view information as in action view
       next;
       }
-    elsif( $type_name eq 'INT' and $fdes->{ 'BOOL' } )
+    elsif( $type_lname eq 'BOOL' )
       {
       $field_input .= $edit_form->checkbox_multi(
                                        NAME     => "F:$field",

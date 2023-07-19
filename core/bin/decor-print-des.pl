@@ -88,7 +88,8 @@ $_ = uc $_ for @args;
 
 my $t = shift @args;
 
-my $des = describe_table( $t );
+my $des = describe_table( $t ) or die "unknwon table [$t]\n"; # TODO: suggest similar existing table names
+
 if( ! $opt_verbose )
   {
   $des = dclone( $des );

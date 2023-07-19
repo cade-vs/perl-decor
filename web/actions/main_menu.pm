@@ -130,6 +130,8 @@ print STDERR Dumper( 'MAIN MENU 'x10, $menu );
   $text .= "<table class=main-menu cellspacing=0 cellpadding=0 width=100%><tr class=main-menu>";
   $text .= join( '', @left ) . "<td class=main-menu-fill>&nbsp;</td>" . join( '', @right );
   $text .= "</tr></table>";
+
+print STDERR Dumper( 'MAIN MENU 'x10, $text );
   return $text;
 }
 

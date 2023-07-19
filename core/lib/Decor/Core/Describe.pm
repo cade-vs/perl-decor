@@ -213,6 +213,8 @@ my %DES_ATTRS = (
                            PASSWORD     => 1,
                            FT           => 1, # filter, field transform, value modifier stack
                            INIT         => 1, # field initialization, initial value when insert
+                           NO_COPY      => 1,
+                           NO_PREVIEW   => 1,
 
                            ON_INIT          => 1,
                            ON_RECALC        => 1,
@@ -402,8 +404,9 @@ sub des_get_tables_list
 sub __fix_label_name
 {
   my $name = shift;
+  return $name if $name =~ /^_/; # system name
   $name = uc( substr( $name, 0, 1 ) ) . lc( substr( $name, 1 ) );
-  $name =~ s/_/ /;
+  $name =~ s/_/ /g;
   return $name;
 }
 
@@ -451,31 +454,36 @@ sub __merge_table_des_file
     next if $line =~ /^([#;]|\/\/)/; # skip comments
     de_log_debug2( "        line: [$line]" );
 
-    if( $line =~ /^\s*=+\s*(([a-zA-Z_][a-zA-Z_0-9]*):+\s*)?([a-zA-Z_][a-zA-Z_0-9]*)\s*(.*?)\s*$/ )
+    if( $line =~ /^\s*(=+\s*|_)(([a-zA-Z_][a-zA-Z_0-9]*):+\s*)?([a-zA-Z_][a-zA-Z_0-9]*)\s*(.*?)\s*$/ )
       {
       # new category item (section)
-         $category  = uc( $2 || 'FIELD' );
-         $sect_name = uc( $3 );
-      my $sect_opts =     $4; # fixme: upcase/locase?
+      my $ftype     = $1; # if '_' it is a special field for decor internal use or permission group
+         $category  = uc( $3 || 'FIELD' );
+         $sect_name = uc( $4 );
+      my $sect_opts =     $5; # fixme: upcase/locase?
 
       boom "invalid category [$category] at [$fname at $ln]" unless exists $DES_CATEGORIES{ $category };
 
       de_log_debug2( "       =NEW SECTION: [$category:$sect_name]" );
+
+      $sect_name = '_' . $sect_name if $ftype eq '_';
 
       if( $table ne '_DE_UNIVERSAL' and $table ne '_DE_TEMPLATES' and exists $field_templates->{ $category }{ $sect_name } )
         {
         # copy template field definition if field name matches
         $des->{ $category }{ $sect_name } = { %{ $field_templates->{ $category }{ $sect_name } } };
         }
+      elsif( $sect_name =~ /^_(OWNER|UPDATE|DELETE)(_[A-Z_0-9]+)?/ )
+        {
+        # make it special, link to groups, system use only by default
+        $des->{ $category }{ $sect_name }{ 'TYPE' }                     = 'link  de_groups   name';
+        $des->{ $category }{ $sect_name }{ '__GRANT_DENY_ACCUMULATOR' } = [ 'deny all' ];
+        }  
 
       $des->{ $category }{ $sect_name } ||= {};
-      if( $category eq 'FIELD' )
-        {
-        # automatic names and labels are for FIELDS only
-        $des->{ $category }{ $sect_name }{ 'NAME'   }   = $sect_name;
-        $des->{ $category }{ $sect_name }{ 'LABEL'  } ||= __fix_label_name( $sect_name );
-        $des->{ $category }{ $sect_name }{ '_ORDER' } = ++ $opt->{ '_ORDER' };
-        }
+      $des->{ $category }{ $sect_name }{ 'NAME'   }   = $sect_name;
+      $des->{ $category }{ $sect_name }{ 'LABEL'  } ||= __fix_label_name( $sect_name );
+      $des->{ $category }{ $sect_name }{ '_ORDER' } = ++ $opt->{ '_ORDER' };
 
 # FIXME: 
 #      if( exists $COPY_CATEGORY_ATTRS{ $category } )
@@ -1098,7 +1106,7 @@ sub describe_table
 
   $DES_CACHE{ 'TABLE_DES' }{ $table } = $des;
   # NOTE! check MUST be done after TABLE_DES cache is filled with current table description!
-  __check_table_des( $des );
+  ########__check_table_des( $des ); # TODO: FIXME: check if correct?
 
 #print STDERR "describe_table [$table] " . Dumper( $des );
 
@@ -1114,7 +1122,8 @@ sub preload_all_tables_descriptions
   for my $table ( @$tables )
     {
     de_log_debug( "preloading description for table [$table]" );
-    describe_table( $table );
+    my $des = describe_table( $table );
+    __check_table_des( $des ); # do it only when preloading
     };
 
   # TODO: clear TABLE_DES_RAW cache to free memory (well, not exactly)
@@ -1190,13 +1199,14 @@ sub describe_parse_access_line
   $line =~ s/^\s*//;
   $line =~ s/\s*$//;
 
+  # TODO: FIXME: make RE simpler!
   boom "invalid access line [$line] expected [grant|deny <op> <op> <op> to <grp>; <grp> + <grp>; <grp> + !<grp>] at [@debug_origin]"
-        unless $line =~ /^\s*(GRANT|DENY)\s*((\+)?|\s)\s*(([A-Z_0-9]+\s*?)+?)(\s+TO\s+([A-Z0-9!+;,\s]+))?\s*$/;
+        unless $line =~ /^\s*(GRANT|DENY)\s*((\+)?|\s)\s*([A-Z_0-9;,\s]+?)(\s+TO\s+([A-Z0-9!+;,\s]+))?\s*$/;
 
   my $type_line   = $1;
   my $type_add    = $3;
   my $opers_line  = $4;
-  my $groups_line = $6 ? $7 : 'ALL';
+  my $groups_line = $5 ? $6 : 'ALL';
   $groups_line =~ s/\s*//g;
 
 #print "ACCESS DEBUG LINE [$line] OPER [$opers_line] GROUPS [$groups_line]\n";

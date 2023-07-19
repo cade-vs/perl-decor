@@ -211,7 +211,8 @@ sub tx_msg
   if( ! $mo or ref( $mo ) ne 'HASH' )
     {
     $self->disconnect();
-    return undef;
+#    boom "server closed connection";
+    return { XS => 'E_CONNCLOSED' };
     }
   my $file_size = $mo->{ '___FILE_SIZE' };
   if( $file_size > 0 )
@@ -231,9 +232,11 @@ sub tx_msg
       }
     }
 
-  $self->{ 'STATUS'      } = $mo->{ 'XS'     };
-  $self->{ 'STATUS_MSG'  } = $mo->{ 'XS_MSG' };
-  $self->{ 'STATUS_REF'  } = $mo->{ 'XS_REF' };
+  my $xs     = $self->{ 'STATUS'      } = $mo->{ 'XS'     };
+  my $xs_msg = $self->{ 'STATUS_MSG'  } = $mo->{ 'XS_MSG' };
+  my $xs_ref = $self->{ 'STATUS_REF'  } = $mo->{ 'XS_REF' };
+
+#  boom "non-OK server reply: [$xs] ($xs_msg) <$xs_ref>" unless $xs eq 'OK';
 
   if( $mo->{ 'RETURN_FILE_BODY' } ne '' )
     {
@@ -242,7 +245,6 @@ sub tx_msg
     $self->{ 'RETURN_FILE_MIME' } =                $mo->{ 'RETURN_FILE_MIME' };
     }
 
-  return undef unless $mo->{ 'XS' } eq 'OK';
   return $mo;
 }
 
@@ -911,12 +913,8 @@ sub select_field_ar
   $f =~ s/^\.//;
   while( my $hr = $self->fetch( $sth ) )
     {
-print STDERR Dumper( $hr );
     push @res, $hr->{ $f };
     }
-
-use Data::Dumper;
-print STDERR Dumper( \@_, \@res );
 
   return \@res;
 }

@@ -165,8 +165,8 @@ sub de_connect
     }
   else  
     {
-    $self->log( "error: connect FAILED to host [$de_core_host] application [$de_core_app]:\n" . Dumper( $client ) );
     my $status = $client->status();
+    $self->log( "error: connect FAILED to host [$de_core_host] application [$de_core_app], status [$status]:\n" . Dumper( $client ) );
     $self->logout();
     return $self->render( PAGE => 'error', 'main_action' => "<#$status>" );
     }
@@ -261,11 +261,14 @@ sub ps_path_add
 
 sub ps_path_add_by_cue
 {
-  my $self  = shift;
+  my $self   =    shift;
   my $des    =    shift;
   my $action = uc shift; # also icon
+  my $data   =    shift;
 
   my ( $title, $hint ) = de_web_get_cue( $des, 'WEB', $action, "${action}_CUE" );
+  $title =~ s|\$(\w+)|$data->{uc $1}|gie;
+  $title = str_html_escape( $title );
   $title =~ s|\*(.+?)\*|<b>$1</b>|g;
   $hint  =~ s|\*(.+?)\*|<b>$1</b>|g;
   $self->ps_path_add( $action, $title );

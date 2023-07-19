@@ -392,6 +392,13 @@ sub cmd_list_users
       {
       my $value = $user_rec->read_formatted( $field );
       $value = "<".length($value).">" if $field =~ /^(PASS|PASS_SALT)$/;
+      if( $field eq 'GROUPS' )
+        {
+        my @gg;
+        my $gg = $user_rec->select_backlinked_records( 'GROUPS' );
+        push @gg, $gg->read( 'GRP' ) while $gg->next();
+        $value = scalar(@gg) . " => " . join ', ', sort { $a <=> $b } @gg;
+        }
       print "$field:\t$value\n";
       if( $field eq 'LAST_LOGIN_SESSION' )
         {
@@ -402,17 +409,6 @@ sub cmd_list_users
           my $vll = $ll->read_formatted( $fll );
           print "\t\t$fll:\t$vll\n";
           }
-        next;
-        }
-      if( $field eq 'GROUPS' )
-        {
-        print "\t\t";
-        my $gg = $user_rec->select_backlinked_records( 'GROUPS' );
-        while( $gg->next() )
-          {
-          print $gg->read( 'GRP' ) . ",";
-          }
-        print "\n";
         next;
         }
       }

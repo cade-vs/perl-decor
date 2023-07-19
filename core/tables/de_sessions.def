@@ -5,6 +5,8 @@
   
   web.grid.page_size 1024
 
+  grant read to 971
+
 @isa  _DE_OWNERS  _OWNER
   
 =SID
@@ -17,15 +19,21 @@
   web.preview.maxlen  32
   web.mono
 
+  grant read to 1
+
 =ACTIVE
 
   label [~Active session]
   type  bool
+
+  grant read to 971
   
 =USR
 
   label [~User]
   type  link  DE_USERS  NAME
+
+  grant read to 971
   
 =CTIME
 
@@ -35,6 +43,8 @@
   web.grid.details 2
   web.details      1
 
+  grant read to 971
+
 =ETIME
 
   label [~Logout time]
@@ -42,6 +52,8 @@
 
   web.grid.details 2
   web.details      1
+
+  grant read to 971
 
 =XTIME
 
@@ -51,6 +63,8 @@
   web.grid.details 2
   web.details      1
 
+  grant read to 971
+
 =ATIME
 
   label [~Access time]
@@ -59,8 +73,12 @@
   web.grid.details 2
   web.details      1
 
+  grant read to 971
+
 =REMOTE
 
   label [~Remote info]
   type  char  256
+
+  grant read to 971
 

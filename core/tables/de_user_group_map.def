@@ -1,5 +1,7 @@
 
   label [~User group map]
+
+  grant read to 971
   
 =USR
 
@@ -7,6 +9,8 @@
   type link DE_USERS NAME
 
   web.detach_link_cue    [~Remove group from the user]
+
+  grant read to 971
   
 =GRP
 
@@ -14,6 +18,8 @@
   type link DE_GROUPS NAME
 
   web.detach_link_cue    [~Remove user from the group]
+
+  grant read to 971
   
 
   
