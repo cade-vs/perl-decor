@@ -38,7 +38,7 @@ sub sub_menu
 
   my @res;
 
-print STDERR Dumper( '****************************** MENU MENU MENU MENU MENU MENU',  $menu );
+#print STDERR Dumper( '****************************** MENU MENU MENU MENU MENU MENU',  $menu );
 
   for my $key ( sort { $menu->{ $a }{ '_ORDER' } <=> $menu->{ $b }{ '_ORDER' } } keys %$menu )
     {
@@ -48,7 +48,7 @@ print STDERR Dumper( '****************************** MENU MENU MENU MENU MENU ME
     next unless $item->{ 'GRANT' }{ 'ACCESS' } or $item->{ 'GRANT' }{ 'ALL' };
     next if     $item->{ 'DENY'  }{ 'ACCESS' } or $item->{ 'DENY'  }{ 'ALL' };
 
-print STDERR Dumper( $item );
+#print STDERR Dumper( $item );
 
     my $label = $item->{ 'LABEL' } || $key;
     my $type  = $item->{ 'TYPE'  };

@@ -131,7 +131,7 @@ print STDERR Dumper( 'MAIN MENU 'x10, $menu );
   $text .= join( '', @left ) . "<td class=main-menu-fill>&nbsp;</td>" . join( '', @right );
   $text .= "</tr></table>";
 
-print STDERR Dumper( 'MAIN MENU 'x10, $text );
+#print STDERR Dumper( 'MAIN MENU 'x10, $text );
   return $text;
 }
 
