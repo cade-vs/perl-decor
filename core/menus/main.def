@@ -1,4 +1,6 @@
 
+  grant access to 999; 909
+
 =admin
 
   type submenu _de_admin

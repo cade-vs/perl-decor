@@ -46,6 +46,7 @@ sub main
       $reo->logout();
       }
     $reo->html_content_set( 'login-error' => "<#$status>" );
+
     return "<#login_form>";
     }  
   

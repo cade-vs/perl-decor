@@ -192,7 +192,7 @@ sub de_login
     {
     $self->__setup_client_env( $client );
     my $de_core_session_id = $user_shr->{ 'DECOR_CORE_SESSION_ID' };
-    $self->log( "status: login OK as user [$user] remote [$remote] core session [$de_core_session_id]" );
+    $self->log( "status: login OK as user [$user] remote [$remote] core session [$de_core_session_id]"  . Dumper( $client ) );
     return 1;
     }
   else

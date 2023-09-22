@@ -102,7 +102,7 @@ print STDERR Dumper( 'MAIN MENU 'x10, $menu );
     elsif( $type eq 'ACTION' )
       {
       my $action  = $item->{ 'ACTION'  };
-      next if $reo->is_logged_in() and uc $action =~ /(\[~)?LOGIN(\])?/; # root hack
+      #### DOES NOT WORK WITH ANON SESSIONS: next if $reo->is_logged_in() and uc $action =~ /(\[~)?LOGIN(\])?/; # root hack
       $link = "<a class=menu reactor_new_href=?action=$action>$label</a>";
       }
     else

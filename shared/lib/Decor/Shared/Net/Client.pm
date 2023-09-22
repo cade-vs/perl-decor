@@ -237,6 +237,7 @@ sub tx_msg
   my $xs_ref = $self->{ 'STATUS_REF'  } = $mo->{ 'XS_REF' };
 
 #  boom "non-OK server reply: [$xs] ($xs_msg) <$xs_ref>" unless $xs eq 'OK';
+  return undef unless $xs eq 'OK';
 
   if( $mo->{ 'RETURN_FILE_BODY' } ne '' )
     {
