@@ -223,7 +223,6 @@ sub on_process
       close( $fi );
       # TODO: check if read_size == send file size, boom and disconnect on error
       }
-    
     }
   de_log_debug( "main loop did exit\n" );
 }

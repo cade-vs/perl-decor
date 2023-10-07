@@ -332,7 +332,7 @@ sub main
       {
       my $actdes   = $tdes->get_category_des( 'ACTION', $act );
       my $label  = $actdes->{ 'LABEL'  };
-      my $target = $actdes->{ 'TARGET' };
+      my $target = $actdes->{ 'TARGET' } || $actdes->{ 'NAME' };
       my $icon   = lc( $actdes->{ 'ICON'   } );
       $icon = $icon =~ /^[a-z_0-9]+$/ ? "action_$icon.svg" : "action_generic.svg";
       $vec_ctrl .= de_html_alink_icon( $reo, 'new', $icon, $label, ACTION => $target, ID => $id, TABLE => $table );

@@ -37,6 +37,7 @@ sub main
 
   my $ui = $reo->get_user_input();
 
+  my $rs = $reo->get_page_session(1);
   my $ps = $reo->get_page_session();
 
   my $core = $reo->de_connect();
@@ -407,7 +408,7 @@ sub main
   my $back_hint = @$ps_path > 1 ? ': ' . $ps_path->[ -2 ]{ 'TITLE' } : undef;
   
   $text .= "<br>";
-  $text .= de_html_alink_button( $reo, 'back', "&lArr; [~Back]", "[~Return to previous screen]$back_hint", BTYPE => 'nav' );
+  $text .= de_html_alink_button( $reo, 'back', "&lArr; [~Back]", "[~Return to previous screen]$back_hint", BTYPE => 'nav' ) if $rs;
   if( $tdes->allows( 'UPDATE' ) )
     {
     my $update_cue = de_web_get_cue( $sdes, qw( WEB GRID UPDATE_CUE ) );

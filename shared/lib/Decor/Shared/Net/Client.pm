@@ -602,7 +602,7 @@ sub update
   my $opt    = shift;
   
   my $filter = $opt->{ 'FILTER' } || {};
-  my $id     = $opt->{ 'ID'     };
+  my $id     = $opt->{ 'ID'     } || $data->{ '_ID' };
   my $lock   = $opt->{ 'LOCK'   };
 
   my %mi;

@@ -146,18 +146,22 @@ sub select
     }
   else
     {
-    if( $fields eq '*' )
+    for( split /[\s,]+/, $fields )
       {
-      @fields = @{ $table_des->get_fields_list() };
-      if( $profile and $self->taint_mode_get( 'FIELDS' ) and ! $profile->check_access( 966 ) )
+      if( /^\*$/ )
         {
-        @fields = grep { $profile->check_access_table_field( 'READ', $table, $_ ) } @fields;
+        my @fglob = @{ $table_des->get_fields_list() };
+        if( $profile and $self->taint_mode_get( 'FIELDS' ) and ! $profile->check_access( 966 ) )
+          {
+          @fglob = grep { $profile->check_access_table_field( 'READ', $table, $_ ) } @fglob;
+          }
+        push @fields, @fglob;
+        next;
         }
+
+      push @fields, $_;
       }
-    else
-      {
-      @fields = split /[\s,]+/, $fields;
-      }  
+
     if( ! @fields )
       {
       boom "empty fields list! requested was [$fields]";

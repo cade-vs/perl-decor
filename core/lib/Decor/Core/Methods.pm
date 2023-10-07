@@ -39,6 +39,8 @@ our @EXPORT = qw(
 
                 record_exists_by_fields
                 check_unique_field_set
+                
+                read_dict
                 );
 
 # note: the result record will be locked
@@ -318,6 +320,26 @@ sub check_unique_field_set
   $rec->method_add_field_error( $_, $err ) for @_;
   
   $rec->method_add_error( $err )
+}
+
+sub read_dict
+{
+  my $table  = shift;
+  my $key    = shift;
+  my $fields = shift;
+
+  my %data;
+  
+  my $io = io_new();
+  
+  $io->select( $table, $fields );
+  while( my $hr = $io->fetch() )
+    {
+    $data{ $hr->{ $key } } = $hr;
+    }
+  $io->finish();
+  
+  return \%data;  
 }
 
 ### EOF ######################################################################

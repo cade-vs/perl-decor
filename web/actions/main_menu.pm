@@ -15,13 +15,13 @@ use Data::Dumper;
 sub main
 {
   my $reo = shift;
-  
+
 #  return "<#menu_outside>" unless $reo->is_logged_in();
 
   my $core = $reo->de_connect();
   my $menu = $core->menu( 'MAIN' );
 
-print STDERR Dumper( 'MAIN MENU 'x10, $menu );
+#print STDERR Dumper( 'MAIN MENU 'x10, $menu );
 
   my $text;
   

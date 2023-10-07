@@ -669,15 +669,15 @@ sub de_progress_bar
 
   my $prc;
   my $val;
-  ( $prc, $val ) = ( 100*$1/$2, " ($value)" ) if ! $prc and $value =~ /(\d)\/(\d)/ and $1 < $2 and $2 > 0; # allow string with xx/nn
+  ( $prc, $val ) = ( 100*$1/$2, " ($value)" ) if ! $prc and $value =~ /(\d+)\/(\d+)/ and $1 < $2 and $2 > 0; # allow string with xx/nn
   $prc = $1        if ! $prc and $value =~ /(\d+(\.\d+)?)%?/; # or string with xx.nn%
   $prc = $value    if ! $prc; # assumed a number
-  
+
   $prc =   0 if $prc <   0 or ! $prc;
   $prc = 100 if $prc > 100;
   
-  my $p1  = sprintf( "%.1d%%", $prc ) . $val if $prc < 50;
-  my $p2  = sprintf( "%.1d%%", $prc ) . $val if $prc > 50;
+  my $p1  = sprintf( "%.1f%%", $prc ) . $val if $prc < 50;
+  my $p2  = sprintf( "%.1f%%", $prc ) . $val if $prc > 50;
   
   my $pn  = 100 - $prc;
 

@@ -16,6 +16,7 @@ use Decor::Core::DB::Record;
 use Decor::Core::DB::IO;
 use Decor::Core::Env;
 use Decor::Core::DSN;
+use Decor::Core::Shop;
 
 use Exporter;
 our @ISA    = qw( Exporter );

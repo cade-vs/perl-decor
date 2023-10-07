@@ -1035,7 +1035,7 @@ sub sub_select
 
   # FIXME: TODO: Subs/MessageCheck TABLE ID FIELDS LIMIT OFFSET FILTER validate_hash()
   boom "invalid TABLE name [$table]"    unless de_check_name( $table ) or ! des_exists( $table );
-  boom "invalid FIELDS list [$fields]"  unless $fields   =~ /^([A-Z_0-9\.\,]+|COUNT\(\*\)|\*)$/o; # FIXME: more aggregate funcs
+  boom "invalid FIELDS list [$fields]"  unless $fields   =~ /^([A-Z_0-9\.\,\*]+|COUNT\(\*\)|\*)$/o; # FIXME: more aggregate funcs
   boom "invalid ORDER BY [$order_by]"   unless $order_by =~ /^([A-Z_0-9\.\, ]*)$/o;
   boom "invalid GROUP BY [$group_by]"   unless $group_by =~ /^([A-Z_0-9\.\, ]*)$/o;
   boom "invalid LIMIT [$limit]"         unless $limit    =~ /^[0-9]*$/o;
@@ -1587,10 +1587,12 @@ sub sub_file_save
   my $mime   =    $mi->{ 'MIME'   };
   my $size   =    $mi->{ 'SIZE'   };
   my $fdes   =    $mi->{ 'DES'    };
+  my $data   =    $mi->{ 'DATA'   };
 
   boom "invalid TABLE name [$table]"    unless de_check_name( $table ) or ! des_exists( $table );
   boom "invalid ID [$id]"               if $id ne '' and ! de_check_id( $id );
   boom "invalid SIZE [$size]"           unless $size > 0;
+  boom "invalid DATA [$data]"           unless ref( $data ) eq 'HASH';
 
   my $profile = subs_get_current_profile();
   my $rec = new Decor::Core::DB::Record;
@@ -1621,6 +1623,7 @@ sub sub_file_save
 
   $rec->taint_mode_disable_all();
   $rec->write( NAME => $name, MIME => $mime, SIZE => $size, DES => $fdes );
+  $rec->write( %$data );
   
   my ( $fname, $fname_short ) = $rec->get_file_name();
   my $fname_part = $fname . '.part';
@@ -1655,6 +1658,7 @@ sub sub_file_save
     }
   close( $fo );
 
+  # FIXME: TODO: __exec_inline_method( $rec, 'INSERT' );
   $rec->method( 'FILE_SAVE' );
   $rec->save();
   $rec->method( 'POST_FILE_SAVE' );

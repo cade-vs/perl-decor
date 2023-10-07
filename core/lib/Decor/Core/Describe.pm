@@ -449,7 +449,7 @@ sub __merge_table_des_file
     chomp( $line );
     $line =~ s/^\s*//;
     $line =~ s/\s*$//;
-    last if $line =~ /^__(STATIC|END)__/;
+    last if $line =~ /^__(STATIC|END|DATA)__/;
     next unless $line =~ /\S/;       # skip whitespace
     next if $line =~ /^([#;]|\/\/)/; # skip comments
     de_log_debug2( "        line: [$line]" );

@@ -40,9 +40,10 @@ sub main
 
   my $si = $reo->get_safe_input();
   my $ui = $reo->get_user_input();
+  my $rs = $reo->get_page_session(1);
   my $ps = $reo->get_page_session();
   my $us = $reo->get_user_session();
-  
+
   $ps->{ 'EDIT_SID' } = $us->{ ':ID' } . '.' . $ps->{ ':ID' } . '.' . create_random_id( 64 ) unless $ps->{ 'EDIT_SID' };
 
   my $button    = $reo->get_input_button();
@@ -430,7 +431,7 @@ sub edit_get_field_control_info
       my $rows = $fdes->get_attr( 'WEB', 'ROWS' );
       my $field_size = $flen;
       my $field_maxlen = $field_size;
-      $field_size = 40 if $field_size > 40; # TODO: fixme
+      $field_size = 42 if $field_size > 42; # TODO: fixme
       $field_data_usr_format = undef if $pass_type;
       if( $rows > 1 )
         {
