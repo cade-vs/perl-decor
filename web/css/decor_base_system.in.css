@@ -828,13 +828,13 @@ td.grid-header
         border: solid 1px $grid-head-colors.3;
 
         font-weight: bold;
-        padding: 0.7em;
+        padding: 0.5em;
         white-space: normal;
         }
 
 td.grid-data
         {
-        padding: 0.5em;
+        padding: 0.3em;
         white-space: nowrap;
         border-right: solid 1px $grid-data-colors.3;
         }

@@ -688,7 +688,7 @@ sub de_progress_bar
   
   my $wd = " ;width: ${width}em; " if $width =~ /^\d+$/ and $width > 0;
   
-  return "<div class=progress-div style='$wd'><div class=progress-bar style='width: $prc%; $d1'>$p2</div><div class=progress-empty style='width: $pn%; $d2'>$p1</div></div><p>";
+  return "<div class=progress-div style='$wd'><div class=progress-bar style='width: $prc%; $d1'>$p2</div><div class=progress-empty style='width: $pn%; $d2'>$p1</div></div>";
 }
 
 1;
