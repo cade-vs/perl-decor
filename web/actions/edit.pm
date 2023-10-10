@@ -308,9 +308,8 @@ sub main
     my ( $field_input, $field_input_ctrl, $field_details, $backlinks_text );
     if( ! $fdes->allows( $edit_mode ) or $link_field_disable eq $field )
       {
-      my $advise = $fdes->{ 'ADVISE' };
+      my $advise = uc $fdes->{ 'ADVISE' };
       next unless $advise eq $edit_mode or $advise eq 'ALL';
-      
       my $field_data_usr_format = de_web_format_field( $field_data, $fdes, 'VIEW', { CORE => $core } );
       #$field_input = $edit_form->input(
       #                                   NAME     => "F:$field:DISABLED",

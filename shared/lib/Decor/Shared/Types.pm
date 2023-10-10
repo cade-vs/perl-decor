@@ -281,7 +281,7 @@ sub type_format
      }
    else
      {
-     return 'n/a';
+     return undef;
      }
    }
   elsif ( $type_name eq "TIME" )
@@ -311,12 +311,12 @@ sub type_format
      }
    else
      {
-     return 'n/a';
+     return undef;
      }
    }
   elsif ( $type_name eq "UTIME" )
    {
-   if ( $data >= 0 )
+   if ( $data > 0 )
      {
      my $time_int = int( $data );
      
@@ -340,7 +340,7 @@ sub type_format
      }
    else
      {
-     return 'n/a';
+     return undef;
      }
    }
   elsif ( $type_name eq "REAL" )
@@ -429,12 +429,12 @@ sub type_revert
     }
   elsif ( $type_name eq "TIME" )
     {
-    $data =~ /^(\d+):(\d\d?)(:(\d\d?)(\.(\d+))?)?(\s*(AM|PM))?$/io || return undef;
+    $data =~ /^(\d+)(:(\d\d?)(:(\d\d?)(\.(\d+))?)?(\s*(AM|PM))?)?$/io || return undef;
     my $h = $1;
-    my $m = $2;
-    my $s = $4;
-    my $f = $6;
-    my $ampm = uc $8;
+    my $m = $3;
+    my $s = $5;
+    my $f = $7;
+    my $ampm = uc $9;
 
     if( $ampm )
       {

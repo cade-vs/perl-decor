@@ -225,6 +225,7 @@ my %DES_ATTRS = (
 
                            MAXLEN       => 3, # max remote viewer field length
                            MONO         => 3, # remote viewer should use monospaced font
+                           CODE         => 3, # remote viewer should use monospaced code/computer-related font (e.g. with slashed zero)
                            DETAILS      => 3,
                            OVERFLOW     => 3,
                            COMBO        => 3, # requires link selection to be combo

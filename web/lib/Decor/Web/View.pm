@@ -34,6 +34,7 @@ our @EXPORT = qw(
                 de_data_view
 
                 de_master_record_view
+                de_progress_bar
 
                 );
 
@@ -177,10 +178,19 @@ sub de_web_format_field
 
     $data_fmt = "&empty;" if $data_fmt eq '';
       
-    if( $fdes->get_attr( 'WEB', $vtype, 'MONO' ) )
+    my $fmt_mono = $fdes->get_attr( 'WEB', $vtype, 'MONO' );
+    my $fmt_code = $fdes->get_attr( 'WEB', $vtype, 'CODE' );
+    if( $fmt_mono or $fmt_code )
       {
       $fmt_class .= " fmt-mono";
-      $data_fmt = "<pre>$data_fmt</pre>";
+      
+      my $oo; # open
+      my $cc; # close
+
+      ( $oo, $cc ) = ( $oo . "<pre>",  "</pre>"  . $cc ) if $fmt_mono;
+      ( $oo, $cc ) = ( $oo . "<code>", "</code>" . $cc ) if $fmt_code;
+      
+      $data_fmt = "$oo$data_fmt$cc";
       }
     }
   elsif( $type_lname eq 'BOOL' )
@@ -684,7 +694,7 @@ sub de_progress_bar
   my $d1 = " ;display: none; " if $prc ==   0;
   my $d2 = " ;display: none; " if $prc == 100;
 
-  $p2 = "Complete" if $prc == 100;
+  # $p2 = "Complete" if $prc == 100;
   
   my $wd = " ;width: ${width}em; " if $width =~ /^\d+$/ and $width > 0;
   

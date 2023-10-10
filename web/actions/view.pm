@@ -103,6 +103,7 @@ sub main
   
   my $row_id = $row_data->{ '_ID' };
 
+  $text .= "<p>";
   $text .= "<div class='record-table'>";
   $text .= "<div class='view-header view-sep record-sep fmt-center'>$browser_window_title</div>";
 

@@ -450,6 +450,8 @@ div.record-field-value
         display: flex;
         flex-flow: row;
         width: 100%;
+
+        min-height: 2.5em;
         }
 
 div.record-sep
@@ -468,8 +470,11 @@ div.record-field
         border-top: solid 1px $view-data-colors.4;
         border-right:  solid 1px $view-data-colors.4;
 
-        padding: 0.5em 0 0 1em;
-        padding: 0.5em;
+        padding: 0.3em 0 0 1em;
+        padding: 0.3em;
+
+        display: table-cell;
+        vertical-align: baseline;
 
         display: table-cell;
         vertical-align: baseline;
@@ -482,11 +487,12 @@ div.record-value
 
         border-top: solid 1px $view-data-colors.4;
         
-        padding: 0.5em 0 1em 0;
-        padding: 0.5em;
+        padding: 0.3em 0 1em 0;
+        padding: 0.3em;
 
         display: table-cell;
         vertical-align: baseline;
+
         }
 
 div.record-first
