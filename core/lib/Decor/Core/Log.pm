@@ -91,11 +91,11 @@ sub de_log
   
   for my $msg ( @args )
     {
-    if( $last_log_message eq $msg and $last_log_message_count < $DE_LOG_MAX_REPEAT_MSG )
-      {
-      $last_log_message_count++;
-      next;
-      }
+#    if( $last_log_message eq $msg and $last_log_message_count < $DE_LOG_MAX_REPEAT_MSG )
+#      {
+#      $last_log_message_count++;
+#      next;
+#      }
 
     my $msg_in_type = 'unknown';
     $msg_in_type = lc $1 if $msg =~ /^([a-z_]+):/;
