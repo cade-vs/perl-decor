@@ -1,0 +1,15 @@
+
+  grant access to 999; 909
+
+=preferences
+
+  type edit users
+  grant access to 999
+  
+=logout
+
+  label [~Logout]
+  type  action  logout
+  grant access to 999; 908
+  right
+  confirm [~Are you sure you want to logout?]
