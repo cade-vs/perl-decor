@@ -40,6 +40,8 @@ sub set_profile
   my $self    = shift;
   my $profile = shift;
 
+  return undef unless ref $profile;
+
   boom "PROFILE is locked and cannot be changed" if $self->{ 'PROFILE_LOCKED' };
   
   de_check_ref( $profile, 'Decor::Core::Profile', "invalid or missing PROFILE reference, got [$profile]" );

@@ -353,7 +353,7 @@ sub __create_empty_data
     my $active_group = $profile->get_primary_group();
     for my $field ( @{ $tdes->get_fields_list() } )
       {
-      next unless $field =~ /^_(OWNER|READ|UPDATE|DELETE)(_|$)/;
+      next unless $field =~ /^_(OWNER|READ|UPDATE|DELETE|LINK)(_|$)/;
       $data{ $field } = $active_group;
       }
     }
@@ -390,8 +390,10 @@ sub __read
   my $data_key = shift() ? 'RECORD_DATA_DB' : 'RECORD_DATA';
 
   my @res;
-  for my $field ( @_ )
+  my @fields = @_;
+  for my $field ( @fields )
     {
+    $field =~ s/^-//;
     my ( $dst_table, $dst_field, $dst_id ) = $self->__resolve_field( $field );
     push @res, $dst_table ? $self->{ $data_key }{ $dst_table }{ $dst_id }{ $dst_field } : undef;
     }
@@ -407,10 +409,12 @@ sub __read_formatted
   my $tdes = describe_table( $self->table() );
   
   my @res;
-  for my $f ( @_ )
+  my @fields = @_;
+  for my $field ( @fields )
     {
-    my $v    = $self->__read( $data_key, $f );
-    my $type = $tdes->{ 'FIELD' }{ $f }{ 'TYPE' };
+    $field =~ s/^-//;
+    my $v    = $self->__read( $data_key, $field );
+    my $type = $tdes->{ 'FIELD' }{ $field }{ 'TYPE' };
     my $vf   = type_format( $v, $type );
     push @res, $vf;
     }
@@ -418,6 +422,7 @@ sub __read_formatted
   return wantarray ? @res : shift( @res );
 }
 
+*r = *read;
 # reads current value of the record data
 sub read
 {
@@ -505,6 +510,7 @@ sub read_hash_all_db
   return $self->read_hash_db( @{ $self->get_fields_list() } );
 }
 
+*w = *write;
 sub write
 {
   my $self = shift;
@@ -570,22 +576,22 @@ sub write
             }
           }  
         
-#  print STDERR "LINK-------------------------------CHECK--------------------- $dst_table, $dst_field, $dst_id => $linked_table:$field=$value\n";
+# print STDERR "LINK-------------------------------CHECK--------------------- $dst_table, $dst_field, $dst_id => $linked_table:$field=$value\n";
 
-        my $upd_rec = new Decor::Core::DB::Record;
-        $upd_rec->set_profile_locked( $profile );
-        $upd_rec->taint_mode_on( 'ROWS' );
-          
-        last LINKCHECK if $upd_rec->select_first1( $linked_table, '_ID = ?', { BIND => [ $linked_id ] } );
+        # TODO: should we check also TABLE access?
+        my $check_io = new Decor::Core::DB::IO;
+        $check_io->set_profile_locked( $profile );
+        $check_io->taint_mode_on( 'ROWS' );
+        last LINKCHECK if $check_io->read_field( $linked_table, '_ID', '_ID = ?', { BIND => [ $linked_id ], CHECK_ROW_ACCESS => [ 'READ', 'LINK' ] } );
 
         my $user = subs_get_current_user();
         my $sess = subs_get_current_session();
 
         my $user_id = $user->id();
         my $sess_id = $sess->id();
-        my $res_rec = new Decor::Core::DB::Record;
 
-        last LINKCHECK if $res_rec->select_first1( 'DE_RESERVED_IDS', 'USR = ? AND SESS = ? AND RESERVED_TABLE = ? AND RESERVED_ID = ? AND ACTIVE = ?', { BIND => [ $user_id, $sess_id, $linked_table, $linked_id, 1 ] } );
+        my $reserved_io = new Decor::Core::DB::IO;
+        last LINKCHECK if $reserved_io->read_field( 'DE_RESERVED_IDS', '_ID', 'USR = ? AND SESS = ? AND RESERVED_TABLE = ? AND RESERVED_ID = ? AND ACTIVE = ?', { BIND => [ $user_id, $sess_id, $linked_table, $linked_id, 1 ] } );
         
         my $table = $self->table();
         boom "E_ACCESS: Record::write(): LINK field [$table:$field=$value] points to a forbidden or invalid record [$dst_table:_ID:$value]";
@@ -822,7 +828,14 @@ sub select
   $self->__reshape( $table );
 
   $self->{ 'BASE_TABLE' } = $table;
-  # TODO: copy taint mode to $dbio
+
+  if( $self->__get_profile() )
+    {
+    $dbio->set_profile( $self->__get_profile() );
+    ############ $dbio->taint_mode_on( $self->taint_mode_get_all_enabled() );
+    # FIXME: this should only enable ROWS taint?
+    $dbio->taint_mode_on( 'ROWS' ) if $self->taint_mode_get( 'ROWS' );
+    }
 
   my $fields = des_table_get_fields_list( $table );
   return $dbio->select( $table, $fields, $where, $opt );

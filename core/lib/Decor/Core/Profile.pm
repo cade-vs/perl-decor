@@ -263,7 +263,7 @@ sub check_access_table_boom
   my $table = uc $_[1];
 
   my $res = $self->check_access_table( @_ );
-  die "E_ACCESS: [$oper] denied for table [$table] res [$res]" unless $res;
+  boom "E_ACCESS: [$oper] denied for table [$table] res [$res]" unless $res;
   
   return $res;
 }

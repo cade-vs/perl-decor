@@ -1,5 +1,5 @@
-_ID;NAME
+_ID;NAME;PRIMARY_GROUP;PRIVATE_GROUP
 
-!1;root
+!1;root;1;1
 
-!909;anon
+!909;anon;909;909

@@ -17,12 +17,12 @@ use Scalar::Util qw( weaken );
 use IO::Socket::INET;
 use Data::Tools;
 use Data::Tools::Socket;
+use Data::Tools::Socket::Protocols;
 use Exception::Sink;
 use Data::Dumper;
 use MIME::Base64;
 
 use Decor::Shared::Utils;
-use Decor::Shared::Net::Protocols;
 use Decor::Shared::Net::Client::Table::Description;
 use Decor::Shared::Net::Client::Table::Category::Self::Description;
 use Decor::Shared::Net::Client::Table::Category::Field::Description;
@@ -182,8 +182,9 @@ sub tx_msg
   
   my $ptype = 'p'; # FIXME: config?
 #  my $ptype = 's'; # FIXME: config?
+  my $ptype = 's'; # FIXME: config?
 
-  my $mi_res = de_net_protocol_write_message( $socket, $ptype, $mi, $timeout );
+  my $mi_res = socket_protocol_write_message( $socket, $ptype, $mi, $timeout );
   if( $mi_res == 0 )
     {
     $self->disconnect();
@@ -207,7 +208,7 @@ sub tx_msg
     # TODO: check if read_size == send file size, boom and disconnect on error
     }
   my $mo;
-  ( $mo, $ptype ) = de_net_protocol_read_message( $socket, $timeout );
+  ( $mo, $ptype ) = socket_protocol_read_message( $socket, $timeout );
   if( ! $mo or ref( $mo ) ne 'HASH' )
     {
     $self->disconnect();
@@ -278,7 +279,8 @@ sub begin
   $self->{ 'DECOR_CORE_SESSION_ID' } = $mo->{ 'SID'   };
   $self->{ 'CORE_SESSION_XTIME'    } = $mo->{ 'XTIME' } || time() + 10*60;
   $self->{ 'USER_GROUPS'           } = $mo->{ 'UGS'   } || {};
-  $self->{ 'USER_NAME'             } = $mo->{ 'UN'    } || {};
+  $self->{ 'USER_NAME'             } = $mo->{ 'UN'    };
+  $self->{ 'USER_REALNAME'         } = $mo->{ 'URN'   };
 
   return $mo->{ 'SID' };
 }
@@ -449,27 +451,12 @@ sub select
 
   my $table  = uc shift;
   my $fields = shift;
-  my $opt    = shift;
+  my $opt    = shift || {};
   
   my $filter   = $opt->{ 'FILTER' } || {};
-  my $limit    = $opt->{ 'LIMIT'  };
-  my $offset   = $opt->{ 'OFFSET' };
-  my $lock     = $opt->{ 'LOCK'   };
-  my $order_by = $opt->{ 'ORDER_BY' };
-  my $group_by = $opt->{ 'GROUP_BY' };
-  my $distinct = $opt->{ 'DISTINCT' };
   
-  my $filter_name   = $opt->{ 'FILTER_NAME'   };
-  my $filter_bind   = $opt->{ 'FILTER_BIND'   };
-  my $filter_method = $opt->{ 'FILTER_METHOD' };
-
   $fields = join( ',',      @$fields ) if ref( $fields ) eq 'ARRAY';
   $fields = join( ',', keys %$fields ) if ref( $fields ) eq 'HASH';
-
-  for( @$filter_bind )
-    {
-    s/[\n\r;]//g;
-    }
 
   my %mi;
 
@@ -477,16 +464,18 @@ sub select
   $mi{ 'TABLE'    } = $table;
   $mi{ 'FIELDS'   } = uc $fields;
   $mi{ 'FILTER'   } = $filter;
-  $mi{ 'LIMIT'    } = $limit;
-  $mi{ 'OFFSET'   } = $offset;
-  $mi{ 'LOCK'     } = $lock;
-  $mi{ 'ORDER_BY' } = $order_by;
-  $mi{ 'GROUP_BY' } = $group_by;
-  $mi{ 'DISTINCT' } = $distinct;
+
+  $mi{ $_ } = $opt->{ $_ } for qw( LIMIT OFFSET LOCK ORDER_BY GROUP_BY DISTINCT CHECK_ROW_LINK_ACCESS );  
+
+  my $filter_bind = $opt->{ 'FILTER_BIND'   } || [];
+  for( @$filter_bind )
+    {
+    s/[\n\r;]//g;
+    }
   
-  $mi{ 'FILTER_NAME'   } = $filter_name;
-  $mi{ 'FILTER_BIND'   } = join ';', @$filter_bind;
-  $mi{ 'FILTER_METHOD' } = $filter_method;
+  $mi{ 'FILTER_NAME'   } = $opt->{ 'FILTER_NAME'   };
+  $mi{ 'FILTER_BIND'   } = $filter_bind;
+  $mi{ 'FILTER_METHOD' } = $opt->{ 'FILTER_METHOD' };
 
   my $mo = $self->tx_msg( \%mi ) or return undef;
 

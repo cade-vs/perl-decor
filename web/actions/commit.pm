@@ -138,22 +138,12 @@ sub main
     delete $ps->{ ':INVALID' };
     }  
 
-  my $res_msg = $res ? "OK" : "Error";
+  my $res_msg   = $res ? "Success" : "Error!<p>Please, report this error reference to the administrators: " . $core->status_ref() . "";
+  my $res_class = $res ? "info-text" : "error-text";
 
-  my $text .= "<br>";
-  
-  $text .= "<table class=view cellspacing=0 cellpadding=0>";
-  $text .= "<tr class=view-header>";
-  $text .= "<td class='view-header fmt-right'>[~Field]</td>";
-  $text .= "<td class='view-header fmt-left' >[~Value]</td>";
-  $text .= "</tr>";
-
-  $text .= "<tr class=view>";
-  $text .= "<td class='view-field' >[~Operation result]</td>";
-  $text .= "<td class='view-value' >$res_msg</td>";
-  $text .= "</tr>";
-
-  $text .= "</table>";
+  $text .= "<p>";
+  $text .= "<div class=$res_class><h3>Operation result: $res_msg</h3></div>";
+  $text .= "<p>";
 
 #  my $ok_hint = $edit_mode_insert ? "Confirm new record insert" : "Confirm record update";
   

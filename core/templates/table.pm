@@ -1,6 +1,9 @@
 package decor::tables::[--TABLE--];
 use strict;
+
+use Decor::Core::Shop;
 use Decor::Core::Methods;
+use Decor::Core::Subs::Env;
 
 #-----------------------------------------------------------------------------
 
@@ -24,11 +27,17 @@ sub on_recalc_update
 sub on_insert
 {
   my $r = shift;
+
+  # on_recalc( $r );
+  # on_recalc_insert( $r );
 }
 
 sub on_update
 {
   my $r = shift;
+
+  # on_recalc( $r );
+  # on_recalc_update( $r );
 }
 
 #-----------------------------------------------------------------------------

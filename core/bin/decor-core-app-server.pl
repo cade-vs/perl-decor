@@ -13,12 +13,13 @@ use lib ( map { die "invalid DECOR_CORE_ROOT dir [$_]\n" unless -d; ( "$_/core/l
 use open ':std', ':encoding(UTF-8)';
 
 use Data::Tools;
+use Data::Tools::Socket::Protocols;
+
 use Decor::Core::Env;
 use Decor::Core::Log;
 use Decor::Core::DSN;
 use Decor::Core::Describe;
 use Decor::Core::Net::Server::App;
-use Decor::Shared::Net::Protocols;
 use Decor::Shared::Utils;
 
 INIT { $| = 1; }
@@ -206,7 +207,7 @@ if( $opt_preload )
   de_init( APP_NAME => $opt_app_name );
   preload_all_tables_descriptions();
   }
-de_net_protocols_allow( $opt_net_protocols );
+socket_protocols_allow( $opt_net_protocols );
 
 my $server_pkg  = "$DEFAULT_SERVER_MODULE_PREFIX$server_module";
 my $server_file = perl_package_to_file( $server_pkg );

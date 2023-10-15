@@ -198,6 +198,7 @@ sub dsn_get_db_name_by_table
     }
   
   my $des = describe_table( $table );
+  boom "unknown table [$table]" unless $des;
   my $db_name = dsn_get_db_name( $des->get_dsn_name() );
 
   $DSN_TABLE_DB_NAME_CACHE{ $table } = $db_name;

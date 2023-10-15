@@ -6,6 +6,12 @@
   type submenu _de_admin
   grant access to 1
   
+=user_prefs
+
+  label !username
+  type submenu user_prefs
+  right
+
 =login
 
   label [~Login]
@@ -13,10 +19,3 @@
   grant access to 909
   right
 
-=logout
-
-  label [~Logout]
-  type  action  logout
-  grant access to 999; 908
-  right
-  confirm [~Are you sure you want to logout?]

@@ -302,6 +302,8 @@ my %DES_ATTRS = (
                            DENY        => 1,
                            PRINT       => 3,
                            HIDE        => 3,
+                           
+                           CONFIRM     => 1,
                          },
                   'ACTION' => {
                            REM         => 1, # remark, comment

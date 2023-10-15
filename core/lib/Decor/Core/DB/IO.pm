@@ -112,7 +112,7 @@ sub select
   my $fields = shift; # can be string, array ref or hash ref
   my $where  = shift;
   my $opts   = shift;
-  
+
   $opts = { 'BIND' => $opts } if ref( $opts ) eq 'ARRAY'; # directly BIND values
 
   boom "BIND opt must be ARRAY ref" if $opts->{ 'BIND' } and ref( $opts->{ 'BIND' } ) ne 'ARRAY';
@@ -189,7 +189,9 @@ sub select
 
   push @where, "$db_table._ID > 0" unless $opts->{ 'MANUAL' };
 
-  push @where, $self->__get_row_access_where_list( $table, 'OWNER', 'READ' );
+  my $check_row_access = $opts->{ 'CHECK_ROW_ACCESS' } || [ 'READ' ];
+
+  push @where, $self->__get_row_access_where_list( $table, 'OWNER', @$check_row_access );
   
   # resolve fields in select
   my @select_fields;
@@ -482,7 +484,7 @@ sub __get_row_access_where_list
   my @where;
   for my $oper ( @_ )
     {
-    # TODO: check for valid opers
+    boom "invalid row access operator [$oper]" unless $oper =~ /^(OWNER|READ|UPDATE|DELETE|LINK)$/;
     my $sccnt = 0; # security checks count
     my @oper_where;
     for my $field ( @$fields )

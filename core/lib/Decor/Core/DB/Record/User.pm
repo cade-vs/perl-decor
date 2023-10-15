@@ -31,6 +31,21 @@ sub get_private_group
   return $self->read( 'PRIVATE_GROUP' );
 }
 
+sub get_groups
+{
+  my $self   = shift;
+
+  my $io = new Decor::Core::DB::IO;
+  return $io->read_all_fields( 'DE_USER_GROUP_MAP', 'GRP', 'USR = ?', { BIND => [ $self->id() ] } );
+}
+
+sub has_group
+{
+  my $self   = shift;
+  
+  return exists $self->get_groups()->{ shift() };
+}
+
 sub is_active
 {
   my $self   = shift;

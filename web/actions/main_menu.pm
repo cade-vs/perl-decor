@@ -39,6 +39,8 @@ sub main
     my $label = $item->{ 'LABEL' } || $key;
     my $type  = $item->{ 'TYPE'  };
 
+    $label = "<&user_info><#page_expire_hint>" if lc $label eq '!username';
+
     my $link;
     if( $type eq 'SUBMENU' )
       {
@@ -81,7 +83,7 @@ sub main
     elsif( $type eq 'EDIT' )
       {
       my $table  = $item->{ 'TABLE'  };
-      $link = "<a class=menu reactor_none_href=?action=edit&table=$table>$label</a>";
+      $link = "<a class=menu reactor_none_href=?action=edit&table=$table&id=0>$label</a>";
       }
     elsif( $type eq 'VIEW' )
       {
@@ -192,6 +194,11 @@ sub sub_menu
       my $table  = $item->{ 'TABLE'  };
       push @res, "<a class=menu reactor_none_href=?action=edit&table=$table&id=-1 $menu_args><img src=i/menu-item-insert.svg class=icon> $label</a>";
       }
+    elsif( $type eq 'EDIT' )
+      {
+      my $table  = $item->{ 'TABLE'  };
+      push @res, "<a class=menu reactor_none_href=?action=edit&table=$table&id=0 $menu_args><img src=i/menu-item-insert.svg class=icon> $label</a>";
+      }
     elsif( $type eq 'DO' )
       {
       my $table  = $item->{ 'TABLE'  };
@@ -202,6 +209,12 @@ sub sub_menu
       {
       my $url  = $item->{ 'URL'  };
       push @res, "<a class=menu target=_blank href=$url $menu_args><img src=i/menu-item-url.svg class=icon> $label</a>";
+      }
+    elsif( $type eq 'ACTION' )
+      {
+      my $action  = $item->{ 'ACTION'  };
+      #### DOES NOT WORK WITH ANON SESSIONS: next if $reo->is_logged_in() and uc $action =~ /(\[~)?LOGIN(\])?/; # root hack
+      push @res, "<a class=menu reactor_new_href=?action=$action $menu_args>$label</a>";
       }
     else
       {

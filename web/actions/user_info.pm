@@ -17,9 +17,10 @@ sub main
   return "n/a" unless $reo->is_logged_in();
 
   my $us = $reo->get_user_session();
-  my $un = $us->{ 'USER_NAME' };
+  my $un  = $us->{ 'USER_NAME' };
+  my $urn = $us->{ 'USER_REALNAME' };
 
-  return "<span class=hi>$un</span>";
+  return "<span class=main-menu>$urn [$un]</span>";
 }
 
 1;

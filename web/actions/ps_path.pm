@@ -15,7 +15,7 @@ sub main
   my $ps_id = $reo->get_page_session_id();
 
   my $ps_path = $ps->{ 'PS_PATH' } || [];
-  
+
   return "<#main_ps_path_tr_hide>" unless @$ps_path > 0;
   
   my $text;

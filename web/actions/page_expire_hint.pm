@@ -37,7 +37,7 @@ sub main
       var s = Math.floor( page_expire_time % 60 );
       var str;
       str = page_expire_time < 60 ? '<span class="warning pulse">' : '<span>';
-      str += '<~page expires in> ';
+      str += '<~expire:> ';
       if( m >  0 ) str += m + '<~min>';
       if( m <= 0 ) str += s + '<~sec>';
       str += '</span>';
@@ -47,7 +47,7 @@ sub main
       }
     else
       {
-      el.innerHTML = '<span class="warning pulse">page expired</span>'
+      el.innerHTML = '<span class="warning pulse">PAGE EXPIRED!</span>'
       }
   }
 

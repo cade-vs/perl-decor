@@ -668,10 +668,11 @@ sub main
       my $dodes   = $tdes->get_category_des( 'DO', $do );
       next if  $dodes->get_attr( qw( WEB GRID HIDE  ) );
       my $dolabel = $dodes->get_attr( qw( WEB GRID LABEL ) );
+      my $confirm = $dodes->get_attr( qw( CONFIRM ) );
       # FIXME: map DOs through $ps
       my $do_id = ++ $ps->{ ':DO_NAME_MAP' }{ '*' };
       $ps->{ ':DO_NAME_MAP' }{ $do_id } = $do;
-      $text .= $grid_form->button( NAME => "DO:$do_id", VALUE => "$dolabel &sect;" );
+      $text .= $grid_form->button( NAME => "DO:$do_id", VALUE => "$dolabel &sect;", CONFIRM => $confirm );
       }
     
     $text .= $grid_form->end();

@@ -409,7 +409,7 @@ sub __sub_find_and_check_user_pass
   my $user_pass = $user_rec->read( 'PASS' );
   # TODO: use configurable digests
   my $user_pass_hex = de_password_salt_hash( $user_pass, $salt );
-  die "E_LOGIN: Wrong password for user [$user]" unless $pass eq $user_pass_hex;
+  die "E_LOGIN: Wrong password for user [$user]" unless $user_pass ne '' and $pass eq $user_pass_hex;
   return $user_rec;
 };
 
@@ -428,15 +428,14 @@ sub __setup_user_inside
 
   subs_set_dispatch_map( 'USER' );
 
-  my $un  = $user_rec->read( 'NAME' );
-  my $ugs = $profile->get_groups_hr();
-  
+  # FIXME: TODO: export more consistently when DATA link appears
   $mo->{ 'SID'   } = $session_rec->read( 'SID' );
-  $mo->{ 'UGS'   } = $ugs; # user groups (UGS)
-  $mo->{ 'UN'    } = $un;
+  $mo->{ 'UGS'   } = $profile->get_groups_hr();
+  $mo->{ 'UN'    } = $user_rec->read( 'NAME' );
+  $mo->{ 'URN'   } = $user_rec->read( 'DATA.REALNAME' );
   $mo->{ 'XTIME' } = $session_rec->read( 'XTIME' );
 
-  de_log_debug( "debug: user [$un] connected with groups: " . Dumper( $ugs ) );
+  de_log_debug( "debug: user [$mo->{ 'UN' }]{$mo->{ 'URN' }} connected with groups: " . Dumper( $mo->{ 'UGS' } ) );
   
   return 1;
 }
@@ -879,7 +878,7 @@ sub sub_describe
 
   my $profile = subs_get_current_profile();
 
-  my $des = describe_table( $table );
+  my $des = describe_table( $table ) or boom "E_UNKNOWN: Unknown table [$table]";
 
   my $new = clone( { %$des } );
 
@@ -1030,11 +1029,12 @@ sub sub_select
   my $group_by = uc $mi->{ 'GROUP_BY' };
   my $distinct =    $mi->{ 'DISTINCT' } ? 1 : 0;
   my $filter_name   = uc $mi->{ 'FILTER_NAME' };
-  my $filter_bind   = uc $mi->{ 'FILTER_BIND' };
+  my $filter_bind   =    $mi->{ 'FILTER_BIND' } || [];
   my $filter_method = uc $mi->{ 'FILTER_METHOD' };
 
   # FIXME: TODO: Subs/MessageCheck TABLE ID FIELDS LIMIT OFFSET FILTER validate_hash()
-  boom "invalid TABLE name [$table]"    unless de_check_name( $table ) or ! des_exists( $table );
+  boom "invalid TABLE name [$table]"    unless de_check_name( $table );
+  boom "unknown TABLE [$table]"         unless des_exists( $table );
   boom "invalid FIELDS list [$fields]"  unless $fields   =~ /^([A-Z_0-9\.\,\*]+|COUNT\(\*\)|\*)$/o; # FIXME: more aggregate funcs
   boom "invalid ORDER BY [$order_by]"   unless $order_by =~ /^([A-Z_0-9\.\, ]*)$/o;
   boom "invalid GROUP BY [$group_by]"   unless $group_by =~ /^([A-Z_0-9\.\, ]*)$/o;
@@ -1044,6 +1044,10 @@ sub sub_select
   boom "invalid FILTER_NAME name [$filter_name]"  unless $filter_name eq '' or de_check_name( $filter_name );
   boom "invalid FILTER_METHOD name [$filter_method]"  unless $filter_method eq '' or de_check_name( $filter_method );
 
+  for( @$filter_bind )
+    {
+    s/[\n\r;]//g;
+    }
   # TODO: check TABLE READ ACCESS
 
   my @where;
@@ -1066,7 +1070,7 @@ sub sub_select
       if( $filter_name_sql )
         {
         push @where, $filter_name_sql;
-        push @bind,  split( /;/, $filter_bind ) if $filter_bind ne '';
+        push @bind,  @$filter_bind if @$filter_bind > 0;
         }
       }
     else
@@ -1092,7 +1096,8 @@ sub sub_select
   $dbio->set_profile_locked( $profile );
   $dbio->taint_mode_enable_all();
 
-  my $res = $dbio->select( $table, $fields, $where_clause, { FTS => $filter->{ '__FTS__' }, BIND => $where_bind, LIMIT => $limit, OFFSET => $offset, ORDER_BY => $order_by, GROUP_BY => $group_by, DISTINCT => $distinct } );
+  my $check_row_access = [ 'READ', 'LINK' ] if $mi->{ 'CHECK_ROW_LINK_ACCESS' };
+  my $res = $dbio->select( $table, $fields, $where_clause, { FTS => $filter->{ '__FTS__' }, BIND => $where_bind, LIMIT => $limit, OFFSET => $offset, ORDER_BY => $order_by, GROUP_BY => $group_by, DISTINCT => $distinct, CHECK_ROW_ACCESS => $check_row_access } );
 
   $mo->{ 'SELECT_HANDLE' } = $select_handle;
   $mo->{ 'XS'            } = 'OK';
@@ -1545,6 +1550,8 @@ sub sub_access
   my $oper   = uc $mi->{ 'OPER'   };
   my $data   =    $mi->{ 'DATA'   }; # not supported yet
 
+print STDERR Dumper( $mi );
+
   boom "invalid TABLE name [$table]"    unless de_check_name( $table ) or ! des_exists( $table );
   boom "invalid DATA [$data]"           if $data and ref( $data ) ne 'HASH';
   boom "invalid ID [$id]"               unless de_check_id( $id );
@@ -1561,7 +1568,7 @@ sub sub_access
 
   $rec->set_profile_locked( $profile );
 
-  $rec->taint_mode_enable_all();
+  $rec->taint_mode_on( 'ROWS' );
 
   boom "E_ACCESS: unable to load requested record TABLE [$table] ID [$id]"
       unless $rec->select_first1( $table, "_ID = ?", { BIND => [ $id ] } );

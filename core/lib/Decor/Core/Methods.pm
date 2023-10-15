@@ -38,6 +38,7 @@ our @EXPORT = qw(
                 reorder_date_time
 
                 record_exists_by_fields
+                record_exists_by_fields_add_error
                 check_unique_field_set
                 
                 read_dict
@@ -68,6 +69,8 @@ sub find_user_by_id
 sub create_group
 {
   my $name   = shift;
+  
+  return undef unless $name; # cannot be really '0' :)
 
   # create private group record
   my $grp_rec = new Decor::Core::DB::Record;
@@ -127,7 +130,7 @@ sub create_user
   $user_rec->save();
 
   # attach given groups
-  attach_user_groups( $user_rec, [ $pvt_grp_rec->id(), $pigrp, @$groups ] );
+  attach_user_groups( $user_rec, [ 999, $pvt_grp_rec->id(), $pigrp, @$groups ] );
   
   return $user_rec;
 }
@@ -285,15 +288,14 @@ sub rec_sort_fields_n
 
 *reorder_date_time = *rec_sort_fields_n;
 
-
 sub record_exists_by_fields
 {
   my $rec = shift;
 
   boom "error: method: check_unique_field_set(): arg 0 must be a record object" unless ref $rec;
   
-  my @where;
-  my @bind;
+  my @where = '_ID <> ?';
+  my @bind  = id $rec;
 
   for my $f ( @_ )
     {
@@ -305,6 +307,18 @@ sub record_exists_by_fields
   my $db = io_new();
   
   return $db->read_field( $rec->table(), '_ID', $where, { BIND => \@bind } );
+}
+
+sub record_exists_by_fields_add_error
+{
+  my $rec    = shift;
+  my @fields = @_;
+  
+  return undef unless record_exists_by_fields( $rec, @fields );
+  
+  $rec->method_add_field_error( $_, 'Already exists!' ) for @fields;
+  
+  return 1;
 }
 
 sub check_unique_field_set

@@ -17,11 +17,11 @@ use Data::Dumper;
 use Exception::Sink;
 use Data::Tools;
 use Data::Tools::Socket;
+use Data::Tools::Socket::Protocols;
 use Net::Waiter 1.02;
 
 use Decor::Core::DSN;
 use Decor::Core::Log;
-use Decor::Shared::Net::Protocols;
 use Decor::Core::Subs::Env;
 
 use parent qw( Net::Waiter );
@@ -45,7 +45,8 @@ sub on_accept_ok
   my $sock = shift;
   binmode( $sock );
   my $peerhost = $sock->peerhost();
-  de_log_debug( "client connected from $peerhost" );
+  my $peerport = $sock->peerport();
+  de_log( "status: client connected from $peerhost:$peerport" );
   if( $self->ssl_in_use() )
     {
     my $cn = $self->get_client_socket()->peer_certificate( 'cn' );
@@ -94,21 +95,18 @@ sub on_process
     
     my $ptype;
     my $nerr;
-    ( $mi, $ptype, $nerr ) = de_net_protocol_read_message( $socket );
+    ( $mi, $ptype, $nerr ) = socket_protocol_read_message( $socket );
 
-    if( $nerr eq 'E_COMM' )
+    if( $nerr eq 'E_EOF' )
       {
       de_log( "status: end of communication channel" );
       return;
-      #$self->break_main_loop();
-      #next;
       }
     
     $mo = {};
     $mc++;
     server_idle_end();
     de_log_debug( "received message with PTYPE [$ptype]" );
-
     
     if( ! $mi or ref( $mi ) ne 'HASH' )
       {
@@ -177,7 +175,7 @@ sub on_process
 
     if( $xs ne 'OK' )
       {
-      my $err_ref = create_random_id( 9, 'ABCDEFGHJKLMNPQRTVWXY0123456789' ); # print read safe
+      my $err_ref = create_random_id( 4, 'ABCDEFGHJKLMNPQRTVWXY0123456789' ) . '-' . create_random_id( 4, 'ABCDEFGHJKLMNPQRTVWXY0123456789' ); # print read safe
       $mo->{ 'XS_REF' } = $err_ref;
       de_log( "error: XTYPE [$xt] XSTATUS [$xs] XREF [$err_ref]" );
       de_log( "error: DBI::errstr [$DBI::errstr]" ) if DBI::errstr;
@@ -194,7 +192,7 @@ sub on_process
     delete $mo->{ '___SEND_FILE_SIZE' };
     $mo->{ '___FILE_SIZE' } = $send_file_size if $send_file_size > 0;
     
-    my $mo_res = de_net_protocol_write_message( $socket, $ptype, $mo );
+    my $mo_res = socket_protocol_write_message( $socket, $ptype, $mo );
 
     if( $mo_res == 0 )
       {

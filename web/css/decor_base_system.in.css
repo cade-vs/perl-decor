@@ -219,6 +219,7 @@ div.report-text
         $$div-box $report-box-colors
 
         width: min-content;
+        min-width: 50%;
         text-align: left;
         padding: 0.5em;
         margin-left: auto;

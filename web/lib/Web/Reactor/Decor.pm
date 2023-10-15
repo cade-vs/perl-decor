@@ -116,8 +116,9 @@ sub __setup_client_env
   my $user_shr = $self->get_user_session();
 
   $user_shr->{ 'DECOR_CORE_SESSION_ID' } = $client->{ 'DECOR_CORE_SESSION_ID' };
-  $user_shr->{ 'USER_GROUPS'           } = $client->{ 'USER_GROUPS' } || {};
-  $user_shr->{ 'USER_NAME'             } = $client->{ 'USER_NAME'   } || {};
+  $user_shr->{ 'USER_GROUPS'           } = $client->{ 'USER_GROUPS'   } || {};
+  $user_shr->{ 'USER_NAME'             } = $client->{ 'USER_NAME'     } || 'unknown';
+  $user_shr->{ 'USER_REALNAME'         } = $client->{ 'USER_REALNAME' } || 'unknown';
   
   $self->html_content( 'USER_NAME' => $user_shr->{ 'USER_NAME' } );
   

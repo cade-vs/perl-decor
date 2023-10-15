@@ -115,7 +115,15 @@ sub main
       $fields_ar = $tdes->get_fields_list_by_oper( 'UPDATE' );
       $fields_rd = $tdes->get_fields_list_by_oper( 'READ'   );
 
-      my $row_data = $core->select_first1_by_id( $table, $fields_rd, $id );
+      my $row_data;
+      if( $id == 0 )
+        {
+        $row_data = $core->select_first1( $table, $fields_rd, "", { ORDER_BY => '_ID DESC' } );
+        }
+      else
+        {
+        $row_data = $core->select_first1_by_id( $table, $fields_rd, $id );
+        }  
       $ps->{ 'ROW_DATA' } = { map { $_ => $row_data->{ $_ } } @$fields_ar };
       }
 
@@ -310,7 +318,7 @@ sub main
       {
       my $advise = uc $fdes->{ 'ADVISE' };
       next unless $advise eq $edit_mode or $advise eq 'ALL';
-      my $field_data_usr_format = de_web_format_field( $field_data, $fdes, 'VIEW', { CORE => $core } );
+      my $field_data_usr_format = de_web_format_field( $field_data, $fdes, 'VIEW', { CORE => $core, ID => $id } );
       #$field_input = $edit_form->input(
       #                                   NAME     => "F:$field:DISABLED",
       #                                   VALUE    => $field_data_usr_format,
@@ -548,7 +556,7 @@ sub edit_get_field_control_info
 
         my $combo_orderby = $fdes->get_attr( qw( WEB COMBO ORDERBY ) ) || join( ',', @ord_fld );
 
-        my $combo_select = $core->select( $linked_table, $lfields, { 'FILTER_NAME' => $select_filter_name, 'FILTER_BIND' => \@select_filter_bind, ORDER_BY => $combo_orderby } );
+        my $combo_select = $core->select( $linked_table, $lfields, { 'FILTER_NAME' => $select_filter_name, 'FILTER_BIND' => \@select_filter_bind, ORDER_BY => $combo_orderby, CHECK_ROW_LINK_ACCESS => 1 } );
         push @$combo_data, { KEY => 0, VALUE => '&empty;' } unless $search;
 #$text .= "my $combo_select = $core->select( $linked_table, $lfields )<br>";
         while( my $hr = $core->fetch( $combo_select ) )
@@ -563,12 +571,17 @@ sub edit_get_field_control_info
           push @$combo_data, { KEY => $key, VALUE => $value };
           }
 
+        # auto-select single item if field is required
+        if( $fdes->{ 'REQUIRED' } and @$combo_data == 2 )
+          {
+          $sel_hr->{ $combo_data->[1]{ 'KEY' } } = 1;
+          }
+
         my $fmt_class;
         if( $fdes->get_attr( 'WEB', 'EDIT', 'MONO' ) )
           {
           $fmt_class .= " fmt-mono";
           }
-
 
         my $recalc_on_change = $fdes->get_attr( qw( WEB RECALC_ON_CHANGE ) );
 
@@ -601,6 +614,8 @@ sub edit_get_field_control_info
                                                RESUBMIT_ON_CHANGE => $recalc_on_change,
                                                DISABLED  => $field_disabled,
                                                );
+#$field_input .= "<xmp>".Dumper( $field, $field_data, $combo_data, $sel_hr )."</xmp>";
+
           }
         # end combo
         }
@@ -654,7 +669,7 @@ sub edit_get_field_control_info
             $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "edit.svg", "[~Edit linked data]", ACTION => 'edit', TABLE => $linked_table, ID => $field_data ) if $ltdes->allows( 'UPDATE' );
             }
           my $select_cue = $bfdes->get_attr( qw( WEB EDIT SELECT_CUE ) ) || "[~Select linked record]";
-          $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "select-from.svg", $select_cue, ACTION => 'grid', TABLE => $linked_table, ID => -1, RETURN_DATA_FROM => '_ID', RETURN_DATA_TO => $field, GRID_MODE => 'SELECT', SELECT_KEY_DATA => $field_data, FILTER_NAME => $select_filter_name, FILTER_BIND => \@select_filter_bind ) if $ltdes->allows( 'READ'   );
+          $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "select-from.svg", $select_cue, ACTION => 'grid', TABLE => $linked_table, ID => -1, RETURN_DATA_FROM => '_ID', RETURN_DATA_TO => $field, GRID_MODE => 'SELECT', SELECT_KEY_DATA => $field_data, ORDER_BY => '_ID', FILTER_NAME => $select_filter_name, FILTER_BIND => \@select_filter_bind ) if $ltdes->allows( 'READ'   );
           }
         }
         my $insert_cue = $bfdes->get_attr( qw( WEB EDIT INSERT_CUE ) ) || "[~Insert and link a new record]";
