@@ -97,7 +97,9 @@ sub main
   my $filter_bind        = $reo->param( 'FILTER_BIND' );
   my $filter_method      = $reo->param( 'FILTER_METHOD' );
   my $order_by           = $reo->param( 'ORDER_BY' ) || $tdes->{ '@' }{ 'ORDER_BY' };
-  
+
+
+  $filter_bind = [ $filter_bind ] unless ref $filter_bind;
 #  print STDERR Dumper( $tdes );
 
   $page_size =   15 if $page_size <=    0;
@@ -283,7 +285,6 @@ sub main
   my @actions;
   for my $act ( @{ $tdes->get_category_list_by_oper( 'ACTION', 'EXECUTE' ) }  )
     {
-    my $actdes   = $tdes->get_category_des( 'ACTION', $act );
     push @actions, $act;
     }
 
@@ -385,6 +386,7 @@ sub main
       my $fmt_class  = ( $FMT_CLASS_ALIGN{ $type_name } || 'fmt-left' ) . ' ' . $FMT_CLASS_TYPE{ $type_name };
 
       next if $bfdes->get_attr( qw( WEB GRID HIDE ) );
+      my $allow_wrap = $bfdes->get_attr( qw( WEB GRID ALLOW_WRAP ) );
 
       my $lpassword = $lfdes->get_attr( 'PASSWORD' ) ? 1 : 0;
 
@@ -396,6 +398,7 @@ sub main
       my ( $data_fmt, $fmt_class_fld ) = de_web_format_field( $data, $lfdes, 'GRID', { ID => $id, REO => $reo, CORE => $core } );
       my $data_ctrl;
       $fmt_class .= $fmt_class_fld;
+      $fmt_class .= "fmt-wrap" if $allow_wrap;
 
       if( $bfdes->is_linked() or $bfdes->is_widelinked() )
         {

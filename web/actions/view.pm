@@ -451,6 +451,17 @@ sub main
     $text .= de_html_alink_button( $reo, 'new',  "$dolabel &sect;", "$dolabel", ACTION => 'do', DO => $do, ID => $id, TABLE => $table );
     }
 
+  for my $act ( @{ $tdes->get_category_list_by_oper( 'ACTION', 'EXECUTE' ) }  )
+    {
+    my $actdes   = $tdes->get_category_des( 'ACTION', $act );
+    my $label  = $actdes->{ 'LABEL'  };
+    my $target = $actdes->{ 'TARGET' } || $actdes->{ 'NAME' };
+    my $icon   = lc( $actdes->{ 'ICON'   } );
+    $icon = $icon =~ /^[a-z_0-9]+$/ ? "action_$icon.svg" : "action_generic.svg";
+    $text .= de_html_alink_button( $reo, 'new', "<img src=i/$icon> $label", $label, ACTION => $target, ID => $id, TABLE => $table );
+    }
+
+
   $text .= '<br><br><br>' . join '<br><br><br>', @backlinks_text;
 
 

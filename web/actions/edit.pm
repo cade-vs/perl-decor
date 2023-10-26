@@ -524,6 +524,7 @@ sub edit_get_field_control_info
           {
           my @v = split /\s*;\s*/, ( $search || $combo );
           $spf_fmt = shift @v;
+          $_ = uc $_ for @v;
           @spf_fld = @v;
           @ord_fld = @v;
           }
@@ -564,6 +565,8 @@ sub edit_get_field_control_info
           my @value = map { $hr->{ $_ } } @spf_fld;
           my $key   = $hr->{ '_ID' };
           my $value = sprintf( $spf_fmt, @value );
+          
+          $value = substr( $value, 0, 1021 ) . '...' if length( $value ) > 1021;
 
           $selected_search_value = $value if $key eq $field_data;
 #$text .= "$key -- [$spf_fmt][@spf_fld][$value][@value]<br>";
@@ -589,8 +592,8 @@ sub edit_get_field_control_info
           {
           $field_data ||= 0;
           my $field_size = 42;
-          my $field_maxlen = $field_size;
-          $field_size = 42 if $field_size > 42; # TODO: fixme
+          my $field_maxlen = 1024;
+          $field_size = 1024 if $field_size > 1024; # TODO: fixme
           $field_input .= $edit_form->input(
                                                NAME      => "F:$field",
                                                ID        => $field_id,

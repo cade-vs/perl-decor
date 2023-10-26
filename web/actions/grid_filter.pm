@@ -139,7 +139,7 @@ sub main
         push @field_filter, { OP => '==', VALUE => $ind, };
 
         my $bool_fmt = [ "<img src=i/check-view-0.svg>", "<img src=i/check-view-1.svg>" ]->[ !! $ind ];
-        $filter_des .= qq[ * $label [~must be] &nbsp; $bool_fmt <br> ];
+        $filter_des .= qq[ * $label [~is] &nbsp; $bool_fmt <br> ];
         $filter_cnt++;
         }
       elsif( $type_name eq 'CHAR' )
@@ -177,23 +177,24 @@ sub main
 
           push @field_filter, { OP => '>=', VALUE => $fr, } if $fr ne '';
           push @field_filter, { OP => '<=', VALUE => $to, } if $to ne '';
-          $filter_des .= qq[ * $label [~must be between] "$fr" [~and] "$to" <br> ] if   $fr and   $to;
-          $filter_des .= qq[ * $label [~must be after] "$fr" <br> ]                if   $fr and ! $to;
-          $filter_des .= qq[ * $label [~must be before] "$to" <br> ]               if ! $fr and   $to;
+          $filter_des .= qq[ * $label [~is between] "$fr" [~and] "$to" <br> ] if   $fr and   $to;
+          $filter_des .= qq[ * $label [~is after or larger than] "$fr" <br> ]                if   $fr and ! $to;
+          $filter_des .= qq[ * $label [~is before or less than] "$to" <br> ]               if ! $fr and   $to;
           $filter_cnt++;
           }
         else
           {  
           my $eq = type_revert( $input_data, $type );
           push @field_filter, { OP => '==', VALUE => $eq, };
-          
+        
           my $input_data_f = $input_data;
           if( $bfdes->is_linked() )
             {
+            # FIXME: support multi-select linked fields
             my ( $linked_table, $linked_field ) = $bfdes->link_details();
             $input_data_f = $core->read_field( $linked_table, $linked_field, $input_data );
             }
-          $filter_des .= qq[ * $label [~must be] "$input_data_f" <br> ];
+          $filter_des .= qq[ * $label [~is] "$input_data_f" <br> ];
           $filter_cnt++;
           }
         }  
@@ -269,6 +270,8 @@ sub main
 #      }
 
     my $input_data = $ui_si{ "F:$field" } || ( $rs->{ 'FILTERS' }{ 'ACTIVE' } ? $rs->{ 'FILTERS' }{ 'ACTIVE' }{ 'DATA' }{ $base_field } : undef );
+    # FIXME: support multi-select linked fields
+    my @input_data = $ui_si{ "\@F:$field" } || [];
 
     my $field_error;
 
@@ -279,7 +282,9 @@ sub main
     my $input_tag_args;
     my $field_disabled;
 
-    my $combo = $bfdes->get_attr( qw( WEB COMBO ) );
+    # FIXME: support simple web.filter.grep for linked values without combo or search, GREP will override combo/search if any
+    # FIXME: support search and combo separately!
+    my $combo = $bfdes->get_attr( qw( WEB COMBO ) ) || $bfdes->get_attr( qw( WEB SEARCH ) );
 
     if( $type_name eq 'INT' and $bfdes->{ 'BOOL' } )
       {
@@ -318,6 +323,8 @@ sub main
       my $combo_data = [];
       my $sel_hr     = {};
       $sel_hr->{ $input_data } = 1 if $input_data > 0;
+      # FIXME: support multi-select linked fields
+      $sel_hr->{ $_ } = 1 for @input_data;
 
       my @lfields = @{ $ltdes->get_fields_list_by_oper( 'READ' ) };
       unshift @lfields, $linked_field;
@@ -366,10 +373,18 @@ sub main
         $fmt_class .= " fmt-mono";
         }
 
-      my $multi = 1 || $bfdes->get_attr( qw( WEB FILTER MULTI ) );
+      my $multi = $bfdes->get_attr( qw( WEB FILTER MULTI ) );
       my $rows = $multi ? 5 : 1;
+      # FIXME: support multi-select linked fields
 
-      $field_input = $multi . $filter_form->combo( NAME => "F:$field", CLASS => $fmt_class, DATA => $combo_data, ROWS => $rows, SELECTED => $sel_hr, MULTIPLE => $multi );
+      $field_input = $filter_form->combo( 
+                                       NAME     => "F:$field", 
+                                       CLASS    => $fmt_class, 
+                                       DATA     => $combo_data, 
+                                       ROWS     => $rows, 
+                                       SELECTED => $sel_hr, 
+                                       MULTIPLE => $multi 
+                                       );
       }
     elsif( $bfdes->is_backlinked() )
       {

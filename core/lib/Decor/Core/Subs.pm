@@ -1097,6 +1097,7 @@ sub sub_select
   $dbio->taint_mode_enable_all();
 
   my $check_row_access = [ 'READ', 'LINK' ] if $mi->{ 'CHECK_ROW_LINK_ACCESS' };
+
   my $res = $dbio->select( $table, $fields, $where_clause, { FTS => $filter->{ '__FTS__' }, BIND => $where_bind, LIMIT => $limit, OFFSET => $offset, ORDER_BY => $order_by, GROUP_BY => $group_by, DISTINCT => $distinct, CHECK_ROW_ACCESS => $check_row_access } );
 
   $mo->{ 'SELECT_HANDLE' } = $select_handle;

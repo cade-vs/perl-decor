@@ -271,6 +271,7 @@ my %DES_ATTRS = (
                            BACKLINK_GRID_MODE => 3,
                            
                            OVERDUE      => 3, # instruct viewers to highlight overdue DATE and UTIME
+                           ALLOW_WRAP   => 3,
                            
                            WLINK        => 1,
                            

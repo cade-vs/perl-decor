@@ -899,6 +899,12 @@ tr.grid-2:hover
         width: 1%;
         }
 
+.fmt-wrap
+        {
+        font-family: prime, monospace;
+        white-space: normal !important;
+        }
+
 /*** grid navigation ********************************************************/
 
 /* used to align control on grid pages, TODO: can be used for view/edit/etc. */
@@ -1076,8 +1082,8 @@ select,.grid-link-select
 .icon
         {
         cursor: pointer;
-        height: 2em;
-        padding: 0.3em;
+        height: 2.1em;
+        padding: 0.2em;
         text-decoration: none;
         background-image: none;
         border-radius: 2px;
