@@ -20,6 +20,7 @@ our @EXPORT = qw(
                   
                   type_set_format
                   type_get_format
+                  type_get_format_placeholder_info
                   type_format
                   type_format_human
                   type_revert
@@ -86,6 +87,8 @@ my %TYPE_DEFAULTS = (
                       'WIDELINK' => '',
                     );
 
+# formats
+
 my $FMT_DATE_DMY = '%d.%m.%Y';
 my $FMT_DATE_MDY = '%m.%d.%Y';
 my $FMT_DATE_YMD = '%Y.%m.%d';
@@ -97,106 +100,152 @@ my $FMT_TIME_12S  = '%I:%M %p';
 
 my $FMT_TZ       = '%z %Z';
 
+# format placeholders information (hints)
+
+my $FPI_DATE_DMY = 'DD.MM.YYYY';
+my $FPI_DATE_MDY = 'MM.DD.YYYY';
+my $FPI_DATE_YMD = 'YYYY.MM.DD';
+
+my $FPI_TIME_24   = 'HH:MM:SS';
+my $FPI_TIME_12   = 'HH:MM:SS AM/PM';
+my $FPI_TIME_24S  = 'HH:MM';
+my $FPI_TIME_12S  = 'HH:MM AM/PM';
+
+my $FPI_TZ       = '+HHMM TZNAME';
+
+# TODO: format regexps
+
 my %FORMAT_SPECS = (
                     'DATE' => {
                               'DMY'  => {
                                         FMT => $FMT_DATE_DMY,
+                                        FPI => $FPI_DATE_DMY,
                                         },
                               'MDY'  => {
                                         FMT => $FMT_DATE_MDY,
+                                        FPI => $FPI_DATE_MDY,
                                         },
                               'YMD'  => {
                                         FMT => $FMT_DATE_YMD,
+                                        FPI => $FPI_DATE_YMD,
                                         },
                               },
                     'TIME' => {
                               '24H'  => {
                                         FMT => $FMT_TIME_24,
+                                        FPI => $FPI_TIME_24,
                                         },
                               '12H'  => {
                                         FMT => $FMT_TIME_12,
+                                        FPI => $FPI_TIME_12,
                                         },
                               '24HS' => {
                                         FMT => $FMT_TIME_24S,
+                                        FPI => $FPI_TIME_24S,
                                         },
                               '12HS' => {
                                         FMT => $FMT_TIME_12S,
+                                        FPI => $FPI_TIME_12S,
                                         },
                               },
                    'UTIME' => {
                               'DMY24'  => {
                                         FMT => "$FMT_DATE_DMY $FMT_TIME_24",
+                                        FPI => "$FPI_DATE_DMY $FPI_TIME_24",
                                         },
                               'MDY24'  => {
                                         FMT => "$FMT_DATE_MDY $FMT_TIME_24",
+                                        FPI => "$FPI_DATE_MDY $FPI_TIME_24",
                                         },
                               'YMD24'  => {
                                         FMT => "$FMT_DATE_YMD $FMT_TIME_24",
+                                        FPI => "$FPI_DATE_YMD $FPI_TIME_24",
                                         },
                               'DMY12'  => {
                                         FMT => "$FMT_DATE_DMY $FMT_TIME_12",
+                                        FPI => "$FPI_DATE_DMY $FPI_TIME_12",
                                         },
                               'MDY12'  => {
                                         FMT => "$FMT_DATE_MDY $FMT_TIME_12",
+                                        FPI => "$FPI_DATE_MDY $FPI_TIME_12",
                                         },
                               'YMD12'  => {
                                         FMT => "$FMT_DATE_YMD $FMT_TIME_12",
+                                        FPI => "$FPI_DATE_YMD $FPI_TIME_12",
                                         },
                               'DMY24Z' => {
                                         FMT => "$FMT_DATE_DMY $FMT_TIME_24 $FMT_TZ",
+                                        FPI => "$FPI_DATE_DMY $FPI_TIME_24 $FPI_TZ",
                                         },
                               'MDY24Z' => {
                                         FMT => "$FMT_DATE_MDY $FMT_TIME_24 $FMT_TZ",
+                                        FPI => "$FPI_DATE_MDY $FPI_TIME_24 $FPI_TZ",
                                         },
                               'YMD24Z' => {
                                         FMT => "$FMT_DATE_YMD $FMT_TIME_24 $FMT_TZ",
+                                        FPI => "$FPI_DATE_YMD $FPI_TIME_24 $FPI_TZ",
                                         },
                               'DMY12Z' => {
                                         FMT => "$FMT_DATE_DMY $FMT_TIME_12 $FMT_TZ",
+                                        FPI => "$FPI_DATE_DMY $FPI_TIME_12 $FPI_TZ",
                                         },
                               'MDY12Z' => {
                                         FMT => "$FMT_DATE_MDY $FMT_TIME_12 $FMT_TZ",
+                                        FPI => "$FPI_DATE_MDY $FPI_TIME_12 $FPI_TZ",
                                         },
                               'YMD12Z' => {
                                         FMT => "$FMT_DATE_YMD $FMT_TIME_12 $FMT_TZ",
+                                        FPI => "$FPI_DATE_YMD $FPI_TIME_12 $FPI_TZ",
                                         },
 
 
                               'DMY24S' => {
                                         FMT => "$FMT_DATE_DMY $FMT_TIME_24S",
+                                        FPI => "$FPI_DATE_DMY $FPI_TIME_24S",
                                         },
                               'MDY24S' => {
                                         FMT => "$FMT_DATE_MDY $FMT_TIME_24S",
+                                        FPI => "$FPI_DATE_MDY $FPI_TIME_24S",
                                         },
                               'YMD24S' => {
                                         FMT => "$FMT_DATE_YMD $FMT_TIME_24S",
+                                        FPI => "$FPI_DATE_YMD $FPI_TIME_24S",
                                         },
                               'DMY12S' => {
                                         FMT => "$FMT_DATE_DMY $FMT_TIME_12S",
+                                        FPI => "$FPI_DATE_DMY $FPI_TIME_12S",
                                         },
                               'MDY12S' => {
                                         FMT => "$FMT_DATE_MDY $FMT_TIME_12S",
+                                        FPI => "$FPI_DATE_MDY $FPI_TIME_12S",
                                         },
                               'YMD12S' => {
                                         FMT => "$FMT_DATE_YMD $FMT_TIME_12S",
+                                        FPI => "$FPI_DATE_YMD $FPI_TIME_12S",
                                         },
                               'DMY24SZ'=> {
                                         FMT => "$FMT_DATE_DMY $FMT_TIME_24S $FMT_TZ",
+                                        FPI => "$FPI_DATE_DMY $FPI_TIME_24S $FPI_TZ",
                                         },
                               'MDY24SZ'=> {
                                         FMT => "$FMT_DATE_MDY $FMT_TIME_24S $FMT_TZ",
+                                        FPI => "$FPI_DATE_MDY $FPI_TIME_24S $FPI_TZ",
                                         },
                               'YMD24SZ'=> {
                                         FMT => "$FMT_DATE_YMD $FMT_TIME_24S $FMT_TZ",
+                                        FPI => "$FPI_DATE_YMD $FPI_TIME_24S $FPI_TZ",
                                         },
                               'DMY12SZ'=> {
                                         FMT => "$FMT_DATE_DMY $FMT_TIME_12S $FMT_TZ",
+                                        FPI => "$FPI_DATE_DMY $FPI_TIME_12S $FPI_TZ",
                                         },
                               'MDY12SZ'=> {
                                         FMT => "$FMT_DATE_MDY $FMT_TIME_12S $FMT_TZ",
+                                        FPI => "$FPI_DATE_MDY $FPI_TIME_12S $FPI_TZ",
                                         },
                               'YMD12SZ'=> {
                                         FMT => "$FMT_DATE_YMD $FMT_TIME_12S $FMT_TZ",
+                                        FPI => "$FPI_DATE_YMD $FPI_TIME_12S $FPI_TZ",
                                         },
                               },
                     );
@@ -224,7 +273,7 @@ sub __check_format
 
 sub type_set_format
 {
-  my $type = shift; # hashref with type args
+  my $type = shift; # hashref with type args or scalar with type name
   my $fmt  = shift; # format string
   
   return undef unless $type;
@@ -242,11 +291,20 @@ sub type_set_format
 
 sub type_get_format
 {
-  my $type = shift; # hashref with type args
+  my $type = shift; # hashref with type args or scalar with type name
 
-  my $type_name = $type->{ 'NAME' };
+  my $type_name = ref( $type ) ? $type->{ 'NAME' } : $type;
 
   return $FORMATS{ $type_name };
+}
+
+sub type_get_format_placeholder_info
+{
+  my $type = shift; # hashref with type args or scalar with type name
+
+  my $type_name = ref( $type ) ? $type->{ 'NAME' } : $type;
+
+  return $FORMAT_SPECS{ $type_name }{ $FORMATS{ $type_name } }{ 'FPI' };
 }
 
 sub type_reset_formats
@@ -260,7 +318,7 @@ sub type_reset_formats
 sub type_format
 {
   my $data = shift;
-  my $type = shift; # hashref with type args
+  my $type = shift; # hashref with type args or scalar with type name
 
   $type = { NAME => $type } unless ref $type;
 

@@ -205,7 +205,7 @@ sub select
       push @select_fields, $field;
       next;
       }
-    elsif( $field =~ /^(SUM)\(([A-Z_0-9]+)\)$/ )
+    elsif( $field =~ /^(COUNT|SUM|MIN|MAX|AVG)\(([A-Z_0-9]+)\)$/ )
       {
       # special case AF(FIELD)
       $af = $1;
@@ -236,15 +236,18 @@ sub select
     }
 
   # resolve fields in where clause
-  $where = $self->__resolve_clause_fields( $table, $where ) if $where ne '';
+#  $where = $self->__resolve_clause_fields( $table, $where ) if $where ne '';
+  $where = $self->__resolve_fields_scan( $table, $where ) if $where ne '';
 
   my $order_by = $opts->{ 'ORDER_BY' };
   $order_by = '._ID ASC'  if $order_by eq 'ASC';
   $order_by = '._ID DESC' if $order_by eq 'DESC';
-  $order_by = "ORDER BY\n    " . $self->__resolve_all_fields( $table, $order_by, { 'UNTAINT_FIELDS' => 1 } ) if $order_by ne '';
+#  $order_by = "ORDER BY\n    " . $self->__resolve_all_fields( $table, $order_by, { 'UNTAINT_FIELDS' => 1 } ) if $order_by ne '';
+  $order_by = "ORDER BY\n    " . $self->__resolve_fields_list( $table, $order_by, { 'UNTAINT_FIELDS' => 1 } ) if $order_by ne '';
 
   my $group_by = $opts->{ 'GROUP_BY' };
-  $group_by = "GROUP BY\n    " . $self->__resolve_all_fields( $table, $group_by, { 'UNTAINT_FIELDS' => 1 } ) if $group_by ne '';
+#  $group_by = "GROUP BY\n    " . $self->__resolve_all_fields( $table, $group_by, { 'UNTAINT_FIELDS' => 1 } ) if $group_by ne '';
+  $group_by = "GROUP BY\n    " . $self->__resolve_fields_list( $table, $group_by, { 'UNTAINT_FIELDS' => 1 } ) if $group_by ne '';
 
   # TODO: use inner or left outer joins, instead of simple where join
   # TODO: add option for inner, outer or full joins!
@@ -412,22 +415,22 @@ sub __resolve_single_field
 {
    my $self   = shift;
    my $table  = shift;
+   my $af     = shift; # aggregate function or undef
    my $field  = uc shift; # userid.info.des.asd.qwe
    my $opt    = shift || {};
 
-#print Dumper( "__resolve_single_field = [$field]" );
+#print Dumper( "__resolve_single_field = $table [$af][$field]" );
 
-   $field =~ s/^\.//; # skips leading anchor (.)
+   $field =~ s/^\.//; # skips leading anchor (.) if any
 
    my ( $resolved_alias, $resolved_table, $resolved_field ) = $self->__select_resolve_field( $table, $field, $opt );
 
 #print Dumper( \@_, "$resolved_alias.$resolved_field" );
 
-
-   return "$resolved_alias.$resolved_field";
+   return $af ? "$af($resolved_alias.$resolved_field)" : "$resolved_alias.$resolved_field";
 }
 
-sub __resolve_clause_fields
+sub __resolve_fields_scan
 {
    my $self   = shift;
    my $table  = shift;
@@ -436,27 +439,51 @@ sub __resolve_clause_fields
 
 #print Dumper( "__resolve_clause_fields = [$table] [$clause]" );
 
-   $clause =~ s/((?<![A-Z_0-9])|^)((\.[A-Z_0-9]+)+)/$self->__resolve_single_field( $table, $2, $opt )/gie;
+   $clause =~ s/((?<![A-Z_0-9])|^)(((\.[A-Z_0-9]+)+)|(COUNT|SUM|MIN|MAX|AVG)\(([A-Z_0-9\.]+)\))/$self->__resolve_single_field( $table, $5, ( $3 || $6 ), $opt )/gie;
   
    return $clause;
 }
 
-sub __resolve_all_fields
+sub __resolve_fields_list
 {
    my $self   = shift;
    my $table  = shift;
-   my $fields = shift;
+   my $fields = shift; 
    my $opt    = shift || {};
 
    my @fields = split /,/, $fields;
    for( @fields )
      {
-     s/^\.//;
-     $_ =~ s/^\s*([A-Z_0-9\.]+)/$self->__resolve_single_field( $table, $1, $opt )/ie;
+     s/^((COUNT|SUM|MIN|MAX|AVG)\(([A-Z_0-9\.]+)\)|([A-Z_0-9\.]+))/$self->__resolve_single_field( $table, $2, ( $3 || $4 ), $opt )/ie;
      }
   
   return join( ',', @fields );
 }
+
+sub __resolve_found_fields
+{
+   boom "this function is unavailable!";
+   my $self   = shift;
+   my $table  = shift;
+   my $str    = shift;
+   my $ld     = shift; # boolean, if leading dot is required (1) or optional (0)
+   my $opt    = shift || {};
+
+# print Dumper( "__resolve_found_fields = >>>> [$table] [$str]" );
+
+   #$str =~ s/((?<![A-Z_0-9])|^)((\.[A-Z_0-9]+)+)/$self->__resolve_single_field( $table, $2, $opt )/gie;
+   $ld = $ld ? "" : "?";
+   $str =~ s/
+              (((?<![A-Z_0-9])|^)\.$ld([A-Z_0-9\.]+)((?![(A-Z_0-9\.])|$))
+              |
+              ((COUNT|SUM|MIN|MAX|AVG)\(\s*\.?([A-Z_0-9\.]+)\s*\))
+           /$self->__resolve_single_field( $table, $6, ( $3 | $7 ), $opt )/giex;
+
+# print Dumper( "__resolve_found_fields = <<<< [$str]" );
+  
+   return $str;
+}
+
 
 sub __get_row_access_where_list
 {

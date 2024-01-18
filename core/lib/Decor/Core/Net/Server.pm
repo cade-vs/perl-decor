@@ -106,7 +106,7 @@ sub on_process
     $mo = {};
     $mc++;
     server_idle_end();
-    de_log_debug( "received message with PTYPE [$ptype]" );
+    de_log_debug2( "received message with PTYPE [$ptype]" );
     
     if( ! $mi or ref( $mi ) ne 'HASH' )
       {
@@ -182,7 +182,7 @@ sub on_process
       }
     else
       {
-      de_log_debug( "debug: XTYPE [$xt] XSTATUS [$xs]" );
+      de_log_debug2( "debug: XTYPE [$xt] XSTATUS [$xs]" );
       }  
 
     de_log_dumper2( "MOMO" x 16, $mo );

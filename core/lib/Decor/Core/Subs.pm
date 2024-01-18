@@ -165,7 +165,7 @@ sub subs_process_xt_message
 
   my $handle = $mapc->{ $xt } || $mapg->{ $xt };
 
-  de_log_debug( "debug: processing XTYPE [$xt] xt code handle [$handle]" );
+  de_log_debug2( "debug: processing XTYPE [$xt] xt code handle [$handle]" );
 
   my $res = $handle->( $mi, $mo, $socket );
 }
@@ -1035,8 +1035,8 @@ sub sub_select
   # FIXME: TODO: Subs/MessageCheck TABLE ID FIELDS LIMIT OFFSET FILTER validate_hash()
   boom "invalid TABLE name [$table]"    unless de_check_name( $table );
   boom "unknown TABLE [$table]"         unless des_exists( $table );
-  boom "invalid FIELDS list [$fields]"  unless $fields   =~ /^([A-Z_0-9\.\,\*]+|COUNT\(\*\)|\*)$/o; # FIXME: more aggregate funcs
-  boom "invalid ORDER BY [$order_by]"   unless $order_by =~ /^([A-Z_0-9\.\, ]*)$/o;
+  boom "invalid FIELDS list [$fields]"  unless $fields   =~ /^([A-Z_0-9\.\,\*()]+|COUNT|\(\*\)|\*)$/o; # FIXME: more aggregate funcs
+  boom "invalid ORDER BY [$order_by]"   unless $order_by =~ /^([A-Z_0-9\.\, ()]*)$/o;
   boom "invalid GROUP BY [$group_by]"   unless $group_by =~ /^([A-Z_0-9\.\, ]*)$/o;
   boom "invalid LIMIT [$limit]"         unless $limit    =~ /^[0-9]*$/o;
   boom "invalid OFFSET [$offset]"       unless $offset   =~ /^[0-9]*$/o;
@@ -1099,6 +1099,7 @@ sub sub_select
   my $check_row_access = [ 'READ', 'LINK' ] if $mi->{ 'CHECK_ROW_LINK_ACCESS' };
 
   my $res = $dbio->select( $table, $fields, $where_clause, { FTS => $filter->{ '__FTS__' }, BIND => $where_bind, LIMIT => $limit, OFFSET => $offset, ORDER_BY => $order_by, GROUP_BY => $group_by, DISTINCT => $distinct, CHECK_ROW_ACCESS => $check_row_access } );
+  de_log_debug( "debug: SELECT handle [$select_handle] res count [$res]" );
 
   $mo->{ 'SELECT_HANDLE' } = $select_handle;
   $mo->{ 'XS'            } = 'OK';
@@ -1117,7 +1118,11 @@ sub sub_fetch
   my $fmeth = $SELECT_MAP{ $select_handle }{ 'FM' };
 
   my $hr = $dbio->fetch();
-  if( ! $hr )
+  if( $hr )
+    {
+    $SELECT_MAP{ $select_handle }{ '##' }++;
+    }
+  else  
     {
     $mo->{ 'EOD'  } = 'YES'; # end of data
     $mo->{ 'XS'   } = 'OK';
@@ -1152,6 +1157,9 @@ sub sub_finish
   my $select_handle = $mi->{ 'SELECT_HANDLE' };
   boom "invalid SELECT_HANDLE [$select_handle]" unless exists $SELECT_MAP{ $select_handle };
   my $dbio = $SELECT_MAP{ $select_handle }{ 'IO' };
+  my $fetc = $SELECT_MAP{ $select_handle }{ '##' };
+
+  de_log_debug( "debug: SELECT handle [$select_handle] fetch cnt [$fetc]" );
 
   $dbio->finish();
   delete $SELECT_MAP{ $select_handle };

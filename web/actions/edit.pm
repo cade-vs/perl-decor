@@ -257,6 +257,10 @@ sub main
 
 ###  my $select = $core->select( $table, $fields, { LIMIT => 1, FILTER => { '_ID' => $id } } );
 
+  my $info_message  = $si->{ 'INFO_MESSAGE'  } || $si->{ 'MESSAGE' };
+  my $error_message = $si->{ 'ERROR_MESSAGE' };
+  $text .= "<div class=info-text>$info_message</div>"   if $info_message;
+  $text .= "<div class=error-text>$error_message</div>" if $error_message;
   $text .= de_master_record_view( $reo );
 
   if( $button and $calc_merrs->{ '*' } )
@@ -420,6 +424,7 @@ sub edit_get_field_control_info
     my $type_lname = $fdes->{ 'TYPE'  }{ 'LNAME' };
     my $flen       = $type->{ 'LEN' };
 
+    my $field_data_placeholder_info = type_get_format_placeholder_info( $type );
     my $field_data_usr_format = type_format( $field_data, $type );
     
     my $field_id = "F:$table:$field:" . $reo->create_uniq_id();
@@ -783,6 +788,7 @@ sub edit_get_field_control_info
                                        DISABLED => $field_disabled,
                                        ARGS     => $input_tag_args,
                                        CLEAR    => $clear_icon,
+                                       PHI      => $field_data_placeholder_info,
                                        );
       my $hl_handle = html_hover_layer( $reo, VALUE => "[~Set current date]", DELAY => 250 );
       my $date_format = type_get_format( $type );
@@ -799,6 +805,7 @@ sub edit_get_field_control_info
                                        DISABLED => $field_disabled,
                                        ARGS     => $input_tag_args,
                                        CLEAR    => $clear_icon,
+                                       PHI      => $field_data_placeholder_info,
                                        );
       my $hl_handle = html_hover_layer( $reo, VALUE => "[~Set current time]", DELAY => 250 );
       $field_input_ctrl .= qq( <input type=image class=icon src=i/set-time.svg $hl_handle onClick='set_value( "$field_id", current_time() ); return false;'>);
@@ -814,6 +821,7 @@ sub edit_get_field_control_info
                                        DISABLED => $field_disabled,
                                        ARGS     => $input_tag_args,
                                        CLEAR    => $clear_icon,
+                                       PHI      => $field_data_placeholder_info,
                                        );
       my $hl_handle = html_hover_layer( $reo, VALUE => "[~Set current date+time]", DELAY => 250 );
       my $date_format = type_get_format( $type );

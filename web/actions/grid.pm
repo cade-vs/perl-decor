@@ -48,6 +48,7 @@ sub main
   my $text;
 
   my $grid_mode  = $reo->param( 'GRID_MODE'  ) || 'NORMAL';
+  my $grid_mode_select = 1 if $grid_mode eq 'SELECT';
 
   my $si = $reo->get_safe_input();
   my $ui = $reo->get_user_input();
@@ -229,8 +230,12 @@ sub main
   my ( $download_file_cue, $download_file_cue_hint ) = de_web_get_cue( $sdes, qw( WEB GRID DOWNLOAD_FILE_CUE ) );
   
   $text_grid_navi_left .= de_html_alink_button( $reo, 'back', "&lArr; [~back]", "[~Go back to the previous screen]", BTYPE => 'nav'   ) if $rs;
-  $text_grid_navi_left .= de_html_alink_button( $reo, 'new', "(+) $insert_cue",      $insert_cue_hint,  BTYPE => 'act', ACTION => 'edit',        TABLE => $table, ID => -1, %insert_new_opts ) if $tdes->allows( 'INSERT' );
-  $text_grid_navi_left .= de_html_alink_button( $reo, 'new', "(&uarr;) $upload_cue", $upload_cue_hint,  BTYPE => 'act', ACTION => 'file_up',     TABLE => $table, ID => -1, MULTI => 1       ) if $tdes->allows( 'INSERT' ) and $table_type eq 'FILE';
+
+  if( ! $grid_mode_select )
+    {
+    $text_grid_navi_left .= de_html_alink_button( $reo, 'new', "(+) $insert_cue",      $insert_cue_hint,  BTYPE => 'act', ACTION => 'edit',        TABLE => $table, ID => -1, %insert_new_opts ) if $tdes->allows( 'INSERT' );
+    $text_grid_navi_left .= de_html_alink_button( $reo, 'new', "(&uarr;) $upload_cue", $upload_cue_hint,  BTYPE => 'act', ACTION => 'file_up',     TABLE => $table, ID => -1, MULTI => 1       ) if $tdes->allows( 'INSERT' ) and $table_type eq 'FILE';
+    }
   
   $text_grid_navi_left .= de_html_alink_button( $reo, 'new', "(&asymp;) [~Filter records]",    '[~Filter records]',        ACTION => 'grid_filter', TABLE => $table           ) unless $active_filter;
   # $text_grid_navi_left .= de_html_alink_button( $reo, 'here', "(x) [~Remove filter]",           '[~Remove current filter]',   REMOVE_ACTIVE_FILTER => 1 ) if $active_filter;
@@ -276,17 +281,21 @@ sub main
   $text_grid_head .= "</tr>";
 
   my @dos;
-  for my $do ( @{ $tdes->get_category_list_by_oper( 'DO', 'EXECUTE' ) }  )
-    {
-    my $dodes   = $tdes->get_category_des( 'DO', $do );
-    push @dos, $do;
-    }
-
   my @actions;
-  for my $act ( @{ $tdes->get_category_list_by_oper( 'ACTION', 'EXECUTE' ) }  )
+
+  if( ! $grid_mode_select )
     {
-    push @actions, $act;
-    }
+    for my $do ( @{ $tdes->get_category_list_by_oper( 'DO', 'EXECUTE' ) }  )
+      {
+      my $dodes   = $tdes->get_category_des( 'DO', $do );
+      push @dos, $do;
+      }
+
+    for my $act ( @{ $tdes->get_category_list_by_oper( 'ACTION', 'EXECUTE' ) }  )
+      {
+      push @actions, $act;
+      }
+    }  
 
   my $grid_form = new Web::Reactor::HTML::Form( REO_REACTOR => $reo );
   my $grid_form_begin;
@@ -305,8 +314,9 @@ sub main
     $text_grid_body .= qq( <tr class="$row_class"> );
 
     my $vec_ctrl;
+    my $vec_ctrl_popup;
 
-    if( $grid_mode eq 'SELECT' )
+    if( $grid_mode_select )
       {
       my $return_data_from = $reo->param( 'RETURN_DATA_FROM' );
       my $return_data_to   = $reo->param( 'RETURN_DATA_TO'   );
@@ -325,7 +335,8 @@ sub main
         $select_icon = "select-to-selected.svg";
         $select_hint = 'This is the currently selected record';
         }
-      $vec_ctrl .= de_html_alink( $reo, 'back', $select_icon, $select_hint, @return_args );
+      $vec_ctrl       .= de_html_alink( $reo,        'back', $select_icon, $select_hint, @return_args );
+      $vec_ctrl_popup .= de_html_alink_button( $reo, 'back', "(<) Select this record",        undef, @return_args );
       }
 
 
@@ -336,7 +347,9 @@ sub main
       my $target = $actdes->{ 'TARGET' } || $actdes->{ 'NAME' };
       my $icon   = lc( $actdes->{ 'ICON'   } );
       $icon = $icon =~ /^[a-z_0-9]+$/ ? "action_$icon.svg" : "action_generic.svg";
-      $vec_ctrl .= de_html_alink_icon( $reo, 'new', $icon, $label, ACTION => $target, ID => $id, TABLE => $table );
+      my @return_args = ( ACTION => $target, ID => $id, TABLE => $table );
+      $vec_ctrl       .= de_html_alink_icon(   $reo, 'new',        $icon, $label, @return_args );
+      $vec_ctrl_popup .= de_html_alink_button( $reo, 'new', "(*) $label",  undef, @return_args );
       }
 
 #    print STDERR Dumper( '**------*******---'x 10, $link_field_disable, $link_field_value, Dumper( $row_data ) );
@@ -346,6 +359,7 @@ sub main
       # FIXME: check if this is only for backlinked data!?
       # $vec_ctrl .= de_html_alink_icon( $reo, 'here', "detach.svg",  { CLASS => 'plain', HINT => $detach_link_cue_hint, CONFIRM => '[~Are you sure you want to DETACH this record from the parent record?]' }, ITYPE => 'mod', DETACH_FIELD => $link_field_disable, DETACH_ID => $id );
       $vec_ctrl .= '<div class=vframe>' . de_web_grid_backlink_detach_attach_icon( $reo, $core, $table, $link_field_disable, $id, $link_field_id, $link_field_value, ) . "</div>";
+      # TODO: $vec_ctrl_popup
       }
 
     $vec_ctrl .= de_html_alink_icon( $reo, 'new', "view.svg",    $view_cue_hint,          ACTION => 'view',    ID => $id, TABLE => $table, LINK_FIELD_DISABLE => $link_field_disable  );
@@ -353,12 +367,10 @@ sub main
     $vec_ctrl .= de_html_alink_icon( $reo, 'new', "copy.svg",    $copy_cue_hint,          ACTION => 'edit',    ID =>  -1, TABLE => $table, COPY_ID => $id ) if $tdes->allows( 'INSERT' ) and ! $tdes->{ '@' }{ 'NO_COPY' };
     $vec_ctrl .= de_html_alink_icon( $reo, 'new', 'file_dn.svg', $download_file_cue_hint, ACTION => 'file_dn', ID => $id, TABLE => $table                 ) if $table_type eq 'FILE';
     
-    my $vec_ctrl_popup;
     $vec_ctrl_popup .= de_html_alink_button( $reo, 'new', "(v) View record",        undef, BTYPE => 'act', ACTION => 'view',    ID => $id, TABLE => $table, LINK_FIELD_DISABLE => $link_field_disable  );
     $vec_ctrl_popup .= de_html_alink_button( $reo, 'new', "(e) Edit record",        undef, BTYPE => 'mod', ACTION => 'edit',    ID => $id, TABLE => $table                 ) if $tdes->allows( 'UPDATE' );
     $vec_ctrl_popup .= de_html_alink_button( $reo, 'new', "(+) Copy record as new", undef, BTYPE => 'nav', ACTION => 'edit',    ID =>  -1, TABLE => $table, COPY_ID => $id ) if $tdes->allows( 'INSERT' ) and ! $tdes->{ '@' }{ 'NO_COPY' };
     $vec_ctrl_popup .= de_html_alink_button( $reo, 'new', '(v) Download file',      undef, BTYPE => 'act', ACTION => 'file_dn', ID => $id, TABLE => $table                 ) if $table_type eq 'FILE';
-    $vec_ctrl_popup = "<div class='popup-menu-buttons'>$vec_ctrl_popup</div>";
 
     if( @dos )
       {
@@ -372,7 +384,11 @@ sub main
                                        LABELS   => [ "<img class='icon' src=i/check-edit-0.svg>", "<img class='icon' src=i/check-edit-1.svg>" ],
                                        HINT     => '[~Select this record]',
                                        );
+
+      $vec_ctrl_popup .= qq[ <a class='button act-button' href='javascript:reactor_form_checkbox_toggle_by_id( "VECB:$cb_id" );'>Select record</a> ];
       }
+
+    $vec_ctrl_popup = "<div class='popup-menu-buttons'>$vec_ctrl_popup</div>";
 
     my $row_vec_handle = html_popup_layer( $reo, VALUE => $vec_ctrl_popup, CLASS => 'popup-layer', TYPE => 'CONTEXT' );
 

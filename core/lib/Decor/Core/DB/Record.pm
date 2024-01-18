@@ -412,7 +412,7 @@ sub __read_formatted
   my @fields = @_;
   for my $field ( @fields )
     {
-    $field =~ s/^-//;
+    $field =~ s/^-//; # allows: $value = read $record -NAME
     my $v    = $self->__read( $data_key, $field );
     my $type = $tdes->{ 'FIELD' }{ $field }{ 'TYPE' };
     my $vf   = type_format( $v, $type );
@@ -526,6 +526,8 @@ sub write
     {
     my $field = shift( @data );
     my $value = shift( @data );
+
+    $field =~ s/^-//; # allows: write $record -NAME => $value
     
     boom "cannot write reference value [$value] for field [$field]" if ref $value;
 
