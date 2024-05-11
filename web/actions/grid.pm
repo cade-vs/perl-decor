@@ -237,10 +237,10 @@ sub main
     $text_grid_navi_left .= de_html_alink_button( $reo, 'new', "(&uarr;) $upload_cue", $upload_cue_hint,  BTYPE => 'act', ACTION => 'file_up',     TABLE => $table, ID => -1, MULTI => 1       ) if $tdes->allows( 'INSERT' ) and $table_type eq 'FILE';
     }
   
-  $text_grid_navi_left .= de_html_alink_button( $reo, 'new', "(&asymp;) [~Filter records]",    '[~Filter records]',        ACTION => 'grid_filter', TABLE => $table           ) unless $active_filter;
+  $text_grid_navi_left .= de_html_alink_button( $reo, 'new', "(&asymp;) [~Filter]",    '[~Filter records]',        ACTION => 'grid_filter', TABLE => $table           ) unless $active_filter;
   # $text_grid_navi_left .= de_html_alink_button( $reo, 'here', "(x) [~Remove filter]",           '[~Remove current filter]',   REMOVE_ACTIVE_FILTER => 1 ) if $active_filter;
-  $text_grid_navi_left .= de_html_alink_button( $reo, 'here', "(&lt;) [~Use last filter]",   '[~Enable last used filter]', USE_LAST_FILTER => 1      ) if $last_filter and ! $active_filter;
-  $text_grid_navi_left .= de_html_alink_button( $reo, 'new', "(||) [~Sort records]",      '[~Sort records]',          ACTION => 'grid_sort',   TABLE => $table           ) unless $active_sort;
+  $text_grid_navi_left .= de_html_alink_button( $reo, 'here', "(&lt;) [~Last filter]",   '[~Enable last used filter]', USE_LAST_FILTER => 1      ) if $last_filter and ! $active_filter;
+  $text_grid_navi_left .= de_html_alink_button( $reo, 'new', "(||) [~Sort]",      '[~Sort records]',          ACTION => 'grid_sort',   TABLE => $table           ) unless $active_sort;
 
   my $custom_css = lc "css_$table";
   $text .= "<#$custom_css>";

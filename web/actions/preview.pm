@@ -124,6 +124,7 @@ sub main
     my $type_name = $fdes->{ 'TYPE'  }{ 'NAME' };
     my $label     = $fdes->get_attr( qw( WEB PREVIEW LABEL ) );
     
+
     next if $fdes->get_attr( qw( WEB HIDDEN       ) );
     next if $fdes->get_attr( qw( WEB PREVIEW HIDE ) );
     next if $fdes->get_attr( qw( NO_PREVIEW ) );

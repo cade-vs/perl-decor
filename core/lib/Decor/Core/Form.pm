@@ -10,6 +10,7 @@
 package Decor::Core::Form;
 use strict;
 
+use Data::Dumper;
 use Data::Tools;
 use Exception::Sink;
 
@@ -31,6 +32,8 @@ my %FORM_CACHE;
 
 sub de_form_gen_rec_data
 {
+  print STDERR Dumper( '+++++++++++++++++++++++++++++++++++++++++++++++++', \@_ );
+  
   my $form_name = shift;
   my $rec       = shift;
   my $data      = shift;

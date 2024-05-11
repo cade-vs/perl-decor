@@ -63,7 +63,7 @@ sub __reshape
 
   return 0 if ref( $self ) eq $reshape_class_name;
   
-  de_log_debug( "$self reshaped as '$reshape_class_name'" );
+  de_log_debug2( "$self reshaped as '$reshape_class_name'" );
   my $reshape_file_name = perl_package_to_file( $reshape_class_name );
   require $reshape_file_name;
   bless $self, $reshape_class_name;
@@ -170,8 +170,6 @@ sub select
 
   s/^\.// for @fields; # remove leading anchor (syntax sugar really)
 
-  @fields = sort @fields if de_debug(); # TODO: keep description file order  
-  
   dlock \@fields;
   $self->{ 'SELECT' }{ 'FIELDS'     } = \@fields;
   $self->{ 'SELECT' }{ 'TABLES'     }{ $db_table }++;
@@ -484,7 +482,6 @@ sub __resolve_found_fields
    return $str;
 }
 
-
 sub __get_row_access_where_list
 {
   my $self  = shift;
@@ -533,7 +530,18 @@ sub __get_row_access_where_list
 
 #-----------------------------------------------------------------------------
 
-sub fetch
+# returns array ref of currently selected fields
+
+sub get_select_fields
+{
+  my $self = shift;
+  
+  return $self->{ 'SELECT' }{ 'FIELDS' };
+}
+
+#-----------------------------------------------------------------------------
+
+sub fetch_array
 {
   my $self = shift;
 
@@ -552,6 +560,15 @@ sub fetch
     $self->{ 'SELECT' }{ 'EOD' } = 1; # end of data
     return undef;
     }
+    
+  return \@data;  
+}
+
+sub fetch_hash
+{
+  my $self = shift;
+
+  my $data = $self->fetch_array() or return undef;
 
   my $select_fields = $self->{ 'SELECT' }{ 'FIELDS' };
   
@@ -559,12 +576,14 @@ sub fetch
   my $c = 0;
   for my $field ( @$select_fields )
     {
-    $data{ $field } = $data[ $c ];
+    $data{ $field } = $data->[ $c ];
     $c++;
     }
 
   return \%data;
 }
+
+*fetch = *fetch_hash;
 
 #-----------------------------------------------------------------------------
 
@@ -575,6 +594,8 @@ sub finish
   # FIXME: $self->get_sth();
   my $sth = $self->{ 'SELECT' }{ 'STH' };
   $sth->finish() if $sth;
+  
+  $self->{ 'SELECT' }{ 'FIELDS' } = undef;
 
   $self->reset();
 }

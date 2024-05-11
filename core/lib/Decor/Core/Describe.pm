@@ -475,7 +475,7 @@ sub __merge_table_des_file
       if( $table ne '_DE_UNIVERSAL' and $table ne '_DE_TEMPLATES' and exists $field_templates->{ $category }{ $sect_name } )
         {
         # copy template field definition if field name matches
-        $des->{ $category }{ $sect_name } = { %{ $field_templates->{ $category }{ $sect_name } } };
+        $des->{ $category }{ $sect_name } = dclone( $field_templates->{ $category }{ $sect_name } );
         }
       elsif( $sect_name =~ /^_(OWNER|UPDATE|DELETE)(_[A-Z_0-9]+)?/ )
         {
@@ -564,7 +564,7 @@ sub __merge_table_des_file
         while( my ( $k, $v ) = each %{ $isa->{ '@' }{ '@' } } )
           {
           next if $k =~ /^(NAME|LABEL)$/;
-          $des->{ '@' }{ '@' }{ $k } = $v;
+          $des->{ '@' }{ '@' }{ $k } = ref( $v ) ? dclone( $v ) : $v;
           }
         }
 
@@ -574,7 +574,7 @@ sub __merge_table_des_file
 
         while( my ( $k, $v ) = each %{ $isa->{ 'FIELD' }{ $isa_field } } )
           {
-          $des->{ 'FIELD' }{ $isa_field }{ $k } = $v;
+          $des->{ 'FIELD' }{ $isa_field }{ $k } = ref( $v ) ? dclone( $v ) : $v;
           }
         
         $des->{ 'FIELD' }{ $isa_field }{ '_ORDER' } = ++ $opt->{ '_ORDER' };

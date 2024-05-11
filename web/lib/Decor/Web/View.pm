@@ -425,6 +425,7 @@ sub de_data_grid
 
   my $ctrl_cb  = $opt->{ 'CTRL_CB'  };
   my $order_by = $opt->{ 'ORDER_BY' } || $tdes->{ '@' }{ 'ORDER_BY' } || '._ID DESC';
+  my $sums     = $opt->{ 'SUMS'     };
   
   my @fields = ref( $fields ) eq 'ARRAY' ? @$fields : split /\s*,\s*/, $fields;
   
@@ -450,7 +451,7 @@ sub de_data_grid
   if( $title )
     {
     my $c = @fields + 1 * ( defined $ctrl_cb );
-    $text .= "<div class='view-sep fmt-center' colspan=$c>$title</div>";
+    $text .= "<div class='view-divider fmt-center' colspan=$c>$title</div>";
     }
 
   $text .= "<table class='$class' cellspacing=0 cellpadding=0>";
@@ -482,9 +483,12 @@ sub de_data_grid
     }
   $text .= "</tr>";
 
+  my %sums;
+
   my $row_counter;
   while( my $row_data = $core->fetch( $select ) )
     {
+    $sums{ '*' }++;
     my $id = $row_data->{ '_ID' };
 
     my $row_class = $row_counter++ % 2 ? 'grid-1' : 'grid-2';
@@ -512,6 +516,8 @@ sub de_data_grid
       my $data = $row_data->{ $field };
       my $data_base = $row_data->{ $basef{ $field } } if exists $basef{ $field };
 
+      $sums{ $field } += $data if $sums and $type_name =~ /^(INT|REAL|TIME)$/;
+
       my ( $data_fmt, $fmt_class_fld ) = de_web_format_field( $data, $lfdes, 'GRID', { ID => $id, CORE => $core } );
       my $data_ctrl;
       $fmt_class .= $fmt_class_fld;
@@ -526,6 +532,35 @@ sub de_data_grid
       }
     $text .= "</tr>";
     }
+    
+  if( $sums )  
+    {
+    $text .= "<td class='grid-header fmt-left'>&sum; $sums{'*'}</td>";
+
+    for my $field ( @fields )
+      {
+      next if $field eq '_ID';
+      
+      my $bfdes      = $bfdes{ $field };
+      my $lfdes      = $lfdes{ $field };
+      my $type_name  = $lfdes->{ 'TYPE' }{ 'NAME' };
+      my $ltype_name = $lfdes->{ 'TYPE' }{ 'LNAME' };
+      my $fmt_class  = $FMT_CLASSES{ $type_name } || 'fmt-left';
+
+      my ( $data_fmt, $fmt_class_fld );
+      if( $ltype_name =~ /^(BOOL)$/ )
+        {
+        ( $data_fmt, $fmt_class_fld ) = ( $sums{ $field } . ' of ' . $sums{'*'} );
+        }
+      else
+        {  
+        ( $data_fmt, $fmt_class_fld ) = $type_name =~ /^(INT|REAL|TIME)$/ ? de_web_format_field( $sums{ $field }, $lfdes, 'GRID' ) : ();
+        }
+      $text .= "<td class='grid-header $fmt_class'>$data_fmt</td>";
+      }
+    $text .= "</tr>";
+    }
+    
   $text .= "</table>";
   
 #  return wantarray ? ( $text, $row_counter, $scount ) : $text;

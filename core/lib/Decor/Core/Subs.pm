@@ -434,6 +434,8 @@ sub __setup_user_inside
   $mo->{ 'UN'    } = $user_rec->read( 'NAME' );
   $mo->{ 'URN'   } = $user_rec->read( 'DATA.REALNAME' );
   $mo->{ 'XTIME' } = $session_rec->read( 'XTIME' );
+  $mo->{ 'UID'   } = $user_rec->id();
+  $mo->{ 'UDID'  } = $user_rec->read( 'DATA' );
 
   de_log_debug( "debug: user [$mo->{ 'UN' }]{$mo->{ 'URN' }} connected with groups: " . Dumper( $mo->{ 'UGS' } ) );
   
@@ -1111,14 +1113,16 @@ sub sub_fetch
   my $mi = shift;
   my $mo = shift;
 
-  my $select_handle = $mi->{ 'SELECT_HANDLE' };
+  my $select_handle =    $mi->{ 'SELECT_HANDLE' };
+  my $fetch_array   = !! $mi->{ 'FETCH_ARRAY'   };
   boom "invalid SELECT_HANDLE [$select_handle]" unless exists $SELECT_MAP{ $select_handle };
   my $dbio  = $SELECT_MAP{ $select_handle }{ 'IO' };
   my $table = $SELECT_MAP{ $select_handle }{ 'TN' };
   my $fmeth = $SELECT_MAP{ $select_handle }{ 'FM' };
 
-  my $hr = $dbio->fetch();
-  if( $hr )
+  my $har = $fetch_array ? $dbio->fetch_array() : $dbio->fetch_hash();
+
+  if( $har )
     {
     $SELECT_MAP{ $select_handle }{ '##' }++;
     }
@@ -1130,12 +1134,12 @@ sub sub_fetch
 
   if( de_code_exists( 'tables', $table, 'FETCH' ) )
     {
-    de_code_exec( 'tables', $table, 'FETCH', $hr );
+    de_code_exec( 'tables', $table, 'FETCH', $har, $dbio->get_select_fields() );
     }
 
-  if( $hr and $fmeth and de_code_exists( 'tables', $table, "FILTER_METHOD_$fmeth" ) )
+  if( $har and $fmeth and de_code_exists( 'tables', $table, "FILTER_METHOD_$fmeth" ) )
     {
-    my $res = de_code_exec( 'tables', $table, "FILTER_METHOD_$fmeth", $hr );
+    my $res = de_code_exec( 'tables', $table, "FILTER_METHOD_$fmeth", $har, $dbio->get_select_fields() );
     if( ! $res )
       {
       $mo->{ 'XA'   } = 'A_NEXT'; # advice
@@ -1144,7 +1148,7 @@ sub sub_fetch
       }
     }
 
-  $mo->{ 'DATA' } = $hr;
+  $mo->{ 'DATA' } = $har;
   $mo->{ 'XS'   } = 'OK';
 };
 
@@ -1159,7 +1163,7 @@ sub sub_finish
   my $dbio = $SELECT_MAP{ $select_handle }{ 'IO' };
   my $fetc = $SELECT_MAP{ $select_handle }{ '##' };
 
-  de_log_debug( "debug: SELECT handle [$select_handle] fetch cnt [$fetc]" );
+  de_log_debug2( "debug: SELECT handle [$select_handle] did fetch [$fetc] finished" );
 
   $dbio->finish();
   delete $SELECT_MAP{ $select_handle };
@@ -1213,6 +1217,7 @@ sub __exec_inline_method
     my $fdes  = $des->get_field_des( $field );
     my $ftype = $fdes->{ 'TYPE' }{ 'NAME' };
     my $value = __inline_method_value( $ftype, $fdes->{ "ON_$method" }, $rec );
+
     boom "invalid inline method for table [$table] field [$field] method [ON_$method]" unless defined $value;
     $rec->write( $field => $value );
     }

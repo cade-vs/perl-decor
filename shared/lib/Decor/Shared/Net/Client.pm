@@ -260,6 +260,24 @@ sub get_return_file_body_mime
 
 #-----------------------------------------------------------------------------
 
+sub __setup_client_env
+{
+  my $self = shift;
+  my $mo   = shift;
+
+  # TODO: move to separate hash: $self->{ 'CENV' }{ ... }
+  # and add API: $self->get_client_env();
+  $self->{ 'DECOR_CORE_SESSION_ID' } = $mo->{ 'SID'   };
+  $self->{ 'CORE_SESSION_XTIME'    } = $mo->{ 'XTIME' } || time() + 10*60;
+  $self->{ 'USER_GROUPS'           } = $mo->{ 'UGS'   } || {};
+  $self->{ 'USER_NAME'             } = $mo->{ 'UN'    };
+  $self->{ 'USER_REALNAME'         } = $mo->{ 'URN'   };
+  $self->{ 'USER_ID'               } = $mo->{ 'UID'   };
+  $self->{ 'USER_DATA_ID'          } = $mo->{ 'UDID'  };
+  
+  return 1;
+}
+
 sub begin
 {
   my $self = shift;
@@ -276,11 +294,7 @@ sub begin
   my $mo = $self->tx_msg( \%mi ) or return undef;
   # FIXME: TODO: if failed then disconnect?
 
-  $self->{ 'DECOR_CORE_SESSION_ID' } = $mo->{ 'SID'   };
-  $self->{ 'CORE_SESSION_XTIME'    } = $mo->{ 'XTIME' } || time() + 10*60;
-  $self->{ 'USER_GROUPS'           } = $mo->{ 'UGS'   } || {};
-  $self->{ 'USER_NAME'             } = $mo->{ 'UN'    };
-  $self->{ 'USER_REALNAME'         } = $mo->{ 'URN'   };
+  $self->__setup_client_env( $mo );
 
   return $mo->{ 'SID' };
 }
@@ -309,8 +323,7 @@ sub login
   my $mo = $self->tx_msg( \%mi ) or return undef;
   # FIXME: TODO: if failed then disconnect?
 
-  $self->{ 'CORE_SESSION_XTIME' } = $mo->{ 'XTIME' } || time() + 10*60;
-  $self->{ 'USER_GROUPS'        } = $mo->{ 'UGS'   } || {};
+  $self->__setup_client_env( $mo );
 
   return 1;
 }
@@ -487,6 +500,7 @@ sub fetch
   my $self = shift;
 
   my $select_handle = shift;
+  my $opt    = shift || {};
 
 #print STDERR Dumper( "++++++++++++++++----FETCH--FETCH--FETCH----$select_handle-------->>>>>>>>>>>>>>>>>" );
 
@@ -496,6 +510,7 @@ sub fetch
 
   $mi{ 'XT' } = 'F';
   $mi{ 'SELECT_HANDLE'  } = $select_handle;
+  $mi{ 'FETCH_ARRAY'    } = 1 if $opt->{ 'FETCH_ARRAY' };
 
   my $mo;
   
@@ -515,6 +530,11 @@ sub fetch
 
   return undef if $mo->{ 'EOD' };
   return $mo->{ 'DATA' };
+}
+
+sub fetch_array
+{
+  return $_[0]->fetch( $_[1], { 'FETCH_ARRAY' => 1 } );
 }
 
 sub finish
@@ -849,6 +869,20 @@ sub read_field
                  $self->finish( $select );
   
   return $row_data->{ $field };
+}
+
+sub read_fields_by_id
+{
+  my $self   = shift;
+  my $table  = shift;
+  my $fields = shift;
+  my $id     = shift;
+
+  my $select   = $self->select( $table, $fields, { LIMIT => 1, FILTER => { '_ID' => $id } } ) or return undef;
+  my $row_data = $self->fetch_array( $select ) or return undef;
+                 $self->finish( $select );
+  
+  return @$row_data;
 }
 
 sub select_first1

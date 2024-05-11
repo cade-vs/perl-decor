@@ -120,7 +120,7 @@ sub main
       $input_data =~ s/\s*$//;
       next if $input_data eq '';
       
-      my $combo = $bfdes->get_attr( qw( WEB COMBO ) );
+      my $combo = $bfdes->get_attr( qw( WEB COMBO ) ) || $bfdes->get_attr( qw( WEB SEARCH ) );
       if( $bfdes->is_linked() and ! $combo )
         {
         $fdes      = $lfdes;

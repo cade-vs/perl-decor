@@ -71,18 +71,10 @@ sub new
             'APP_NAME'       => $APP_NAME,
             'APP_ROOT'       => $APP_ROOT,
             'LIB_DIRS'       => [ "$APP_ROOT/web/lib", "$APP_ROOT/lib", "$ROOT/shared/lib", "$ROOT/web/lib" ],
-            'HTML_DIRS'      => $lang ?
-                                    [
-                                      "$APP_ROOT/web/html/$lang/",
-                                      "$ROOT/web/html/$lang/",
-                                      "$APP_ROOT/web/html/default/",
-                                      "$ROOT/web/html/default/"
-                                    ]
-                                :
-                                    [
-                                      "$APP_ROOT/web/html/default/",
-                                      "$ROOT/web/html/default/"
-                                    ],
+            'HTML_DIRS'      => [
+                                  "$APP_ROOT/web/html/",
+                                  "$ROOT/web/html/"
+                                ],
             'ACTIONS_DIRS'   => [ "$APP_ROOT/web/actions", "$ROOT/web/actions" ],
             'REO_ACT_CLASS' => 'Web::Reactor::Actions::Decor',
             'REO_PRE_CLASS' => 'Web::Reactor::Preprocessor::Extended',
@@ -119,6 +111,8 @@ sub __setup_client_env
   $user_shr->{ 'USER_GROUPS'           } = $client->{ 'USER_GROUPS'   } || {};
   $user_shr->{ 'USER_NAME'             } = $client->{ 'USER_NAME'     } || 'unknown';
   $user_shr->{ 'USER_REALNAME'         } = $client->{ 'USER_REALNAME' } || 'unknown';
+  $user_shr->{ 'USER_ID'               } = $client->{ 'USER_ID'       };
+  $user_shr->{ 'USER_DATA_ID'          } = $client->{ 'USER_DATA_ID'  };
   
   $self->html_content( 'USER_NAME' => $user_shr->{ 'USER_NAME' } );
   

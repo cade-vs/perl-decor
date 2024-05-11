@@ -319,7 +319,7 @@ sub main
 
           my $details_limit = $bfdes->get_attr( qw( WEB VIEW DETAILS_LIMIT ) ) || 16;
 
-          my ( $dd_grid, $dd_count ) = de_data_grid( $core, $backlinked_table, $details_fields, { FILTER => { $backlinked_field => $id }, LIMIT => $details_limit, CLASS => 'grid view record', TITLE => "[~Related] $linked_table_label", CTRL_CB => $sub_de_data_grid_cb } ) ;
+          my ( $dd_grid, $dd_count ) = de_data_grid( $core, $backlinked_table, $details_fields, { FILTER => { $backlinked_field => $id }, LIMIT => $details_limit, CLASS => 'grid view record', TITLE => "[~Related] $linked_table_label", CTRL_CB => $sub_de_data_grid_cb, SUMS => 1 } ) ;
           $field_details .= $dd_grid;
 
           if( uc( $bfdes->get_attr( 'WEB', 'GRID', 'BACKLINK_GRID_MODE' ) ) eq 'ALL' )
