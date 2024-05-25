@@ -270,6 +270,8 @@ my %NATIVE_TYPES = (
 
                    'LINK'     => [ 'number', 'number(32)'   ],
                    'BACKLINK' => [ 'number', 'number(32)'   ],
+
+                   'MAP'      => [ 'number', 'number(32)'   ],
                    );
 
 sub get_native_type

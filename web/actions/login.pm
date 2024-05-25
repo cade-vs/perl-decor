@@ -35,7 +35,7 @@ sub main
 
   if( $reo->de_login( $user, $pass ) )
     {
-    $reo->login();                                                                                                              
+    $reo->login( $user );
     $reo->forward_new( ACTION => 'home' );
     }
   else

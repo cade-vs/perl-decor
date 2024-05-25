@@ -324,6 +324,8 @@ my %NATIVE_TYPES = (
                    'LINK'     => 'INTEGER',
                    'BACKLINK' => 'INTEGER',
                    'WIDELINK' => 'TEXT',
+
+                   'MAP'      => 'INTEGER',
                    );
 
 sub get_native_type

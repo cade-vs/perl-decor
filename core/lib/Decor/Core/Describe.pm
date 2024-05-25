@@ -453,7 +453,7 @@ sub __merge_table_des_file
     chomp( $line );
     $line =~ s/^\s*//;
     $line =~ s/\s*$//;
-    last if $line =~ /^__(STATIC|END|DATA)__/;
+    last if $line =~ /^__(STATIC(:(CSV|XML|JSON))?|END|DATA)__/;
     next unless $line =~ /\S/;       # skip whitespace
     next if $line =~ /^([#;]|\/\/)/; # skip comments
     de_log_debug2( "        line: [$line]" );
@@ -814,17 +814,21 @@ sub __postprocess_table_raw_description
     $fld_des->{ 'TABLE' } = $table;
 
     # "logic" types: LOCATION, EMAIL, etc.
+    my $ltype;
     if( exists $DE_LTYPE_NAMES{ $type } )
       {
-      $type_des->{ 'LNAME' } = $type;
+      $ltype = $type;
+      $type_des->{ 'LNAME' } = $ltype;
       
       if( @type > 0 )
         {
-        $type = $DE_LTYPE_NAMES{ $type }[0];
+        # if there are more args on the description line, take just the mapped type and use the rest args
+        $type = $DE_LTYPE_NAMES{ $ltype }[0];
         }
       else  
         {
-        @type = ( @{ $DE_LTYPE_NAMES{ $type } } );
+        # no args on the describe line, use the args from the mapped type
+        @type = ( @{ $DE_LTYPE_NAMES{ $ltype } } );
         $type = shift @type;
         }
       }
@@ -837,6 +841,12 @@ sub __postprocess_table_raw_description
       #$fld_des->{ 'LINKED_FIELD' } = shift @type || boom "missing LINK FIELD in table [$table] field [$field] from [@debug_origin]";
       
       $fld_des->{ 'LINKED_TABLE' } = $table if uc $fld_des->{ 'LINKED_TABLE' } eq '%TABLE'; # self-link
+      }
+    elsif( $type eq 'MAP' )
+      {
+      $fld_des->{ 'MAP_TABLE'        } = shift @type || boom "missing MAP TABLE      in table [$table] field [$field] from [@debug_origin]";
+      $fld_des->{ 'MAP_NEAR_FIELD'   } = shift @type || boom "missing MAP NEAR FIELD in table [$table] field [$field] from [@debug_origin]";
+      $fld_des->{ 'MAP_FAR_FIELD'    } = shift @type || boom "missing MAP FAR FIELD  in table [$table] field [$field] from [@debug_origin]";
       }
     elsif( $type eq 'BACKLINK' or $type eq 'BACK' )
       {

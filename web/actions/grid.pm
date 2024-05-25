@@ -130,7 +130,7 @@ sub main
 
 #print STDERR "=======================>>>>>>>>>>>>>>>>>>>>>>>> "  . Dumper( \@fields, \%basef, $fields );  
 
-  return "<#e_access>" unless $fields;
+  return "<#e_no_fields>" unless $fields; # TODO: <#access_denied>
 
   # update record in-place with incoming data
   my $update_record_with_id = $reo->param( 'UPDATE_RECORD_WITH_ID' );

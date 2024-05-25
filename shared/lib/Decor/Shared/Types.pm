@@ -60,6 +60,8 @@ our %DE_TYPE_NAMES = (
                       'LINK'     => 1,
                       'BACKLINK' => 1,
                       'WIDELINK' => 1,
+
+                      'MAP'      => 1,
                     );
 dlock %DE_TYPE_NAMES;
 
@@ -85,6 +87,8 @@ my %TYPE_DEFAULTS = (
                       'LINK'     => 0,
                       'BACKLINK' => 0,
                       'WIDELINK' => '',
+
+                      'MAP'      => 0,
                     );
 
 # formats

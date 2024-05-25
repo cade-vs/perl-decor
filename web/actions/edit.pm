@@ -683,6 +683,15 @@ sub edit_get_field_control_info
         my $insert_cue = $bfdes->get_attr( qw( WEB EDIT INSERT_CUE ) ) || "[~Insert and link a new record]";
         $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "insert.svg",      $insert_cue, ACTION => 'edit', TABLE => $linked_table, ID => -1, RETURN_DATA_FROM => '_ID', RETURN_DATA_TO => $field ) if $ltdes->allows( 'INSERT' );
       }
+    elsif( $type_name eq 'MAP' )
+      {
+
+      my $map_edit_cue = $bfdes->get_attr( qw( WEB EDIT MAP_EDIT_CUE ) ) || "[~Edit map]";
+      $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "insert.svg",      $map_edit_cue, ACTION => 'edit_map', TABLE => $table, FIELD => $field, ID => $id, MASTER_RECORD => "$table:$id" ); # TODO: if $ltdes->allows( 'INSERT' );
+
+      my $map_data_ar = de_web_read_map_field_data( $core, $table, $field, $id );
+      $field_input      = "<xmp>" . Dumper( $map_data_ar ) . "</xmp>";
+      }
     elsif( $type_name eq 'BACKLINK' )
       {
       my ( $backlinked_table, $backlinked_field ) = $bfdes->backlink_details();

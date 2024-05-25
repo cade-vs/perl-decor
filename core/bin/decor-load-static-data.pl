@@ -28,9 +28,6 @@ use Exception::Sink;
 
 data_tools_set_text_io_utf8();
 
-#print Dumper( [ parse_scsv_line( qq[; '  123'  ;testing   ;this\\;is it; "asd";qwe] ) ] );
-#die;
-
 my $p0 = file_name_ext( $0 );
 
 our $help_text = <<END;
@@ -263,12 +260,12 @@ sub load_data_file
     s/\s*$//;
     next unless /\S/;
     
-    $data = 1, next if ! $data and /__STATIC__/; # FIXME: TODO: handle xml, json, etc. formats
+    $data = 1, next if ! $data and /__STATIC(:(CSV|XML|JSON))?__/; # FIXME: TODO: handle xml, json, etc. formats
     $data = 0, next if   $data and /__END__/;
     
     next unless $data;
 
-    my $line_data = parse_csv_line( $_, ';' ); # FIXME: TODO: allow different delimiter
+    my $line_data = parse_csv_line( $_, ';', 1 ); # FIXME: TODO: allow different delimiter
 
     if( ! @fields )
       {
@@ -304,24 +301,4 @@ sub load_data_file
   return $c;
 }
 
-sub parse_scsv_line
-{
-  my $line = shift;
-  
-  my @line = split( /(?<!\\);/, $line );
-  s/\\;/;/ for @line;
-  s/^\s*(['"]?)(.*?)\1\s*$/$2/ for @line;
-  
-  return @line;
-}
-
 ##############################################################################
-
-=pod
-
-
-FIELD,FIELD,FIELD
-P,asd,asd,asd
-
-
-=cut

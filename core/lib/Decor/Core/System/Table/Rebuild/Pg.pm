@@ -268,6 +268,8 @@ my %NATIVE_TYPES = (
                    
                    'LINK'     => 'bigint',
                    'BACKLINK' => 'bigint',
+                   
+                   'MAP'      => 'bigint',
                    );
 
 sub get_native_type

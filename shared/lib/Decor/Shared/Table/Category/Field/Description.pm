@@ -46,6 +46,13 @@ sub is_widelinked
   return $self->{ 'TYPE' }{ 'NAME' } eq 'WIDELINK';
 }
 
+sub is_map
+{
+  my $self   = shift;
+  
+  return $self->{ 'TYPE' }{ 'NAME' } eq 'MAP';
+}
+
 sub link_details
 {
   my $self   = shift;
@@ -75,6 +82,22 @@ sub backlink_details
     my $table = $self->{ 'TABLE' };
     my $field = $self->{ 'NAME'  };
     boom "backlink details requested for table [$table] field [$field] but this is not a BACKLINKED field";
+    }  
+}
+
+sub map_details
+{
+  my $self   = shift;
+
+  if( $self->is_map() )  
+    {
+    return ( $self->{ 'MAP_TABLE' }, $self->{ 'MAP_NEAR_FIELD' }, $self->{ 'MAP_FAR_FIELD' } );
+    }
+  else
+    {
+    my $table = $self->{ 'TABLE' };
+    my $field = $self->{ 'NAME'  };
+    boom "map details requested for table [$table] field [$field] but this is not a MAP field";
     }  
 }
 

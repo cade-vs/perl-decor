@@ -15,6 +15,8 @@
   
   Currently only semicolon-delimited CSVs are recognised.
   
+  First line has field names, followed by the actual data on the next lines.
+  
   TODO: handle comma-separated CSVs and more formats (XML,JSON,etc.)
   
   Table definition files, table/*.def files, can hold also static data at 
@@ -27,5 +29,8 @@
   
       __END__
       
-      
+  NOTE: __STATIC__ and __END__ are designed to be incorporated in table
+  definition files (*.def). however they are supported in CSV standalone
+  files also, so it is possible to comment part of the data by alternating
+  __END__ and __STATIC__.    
 
