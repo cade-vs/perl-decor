@@ -35,7 +35,8 @@ sub main
 
   my ( $far_ar, $far_field ) = de_web_read_map_far_table_data( $core, $table, $field );
   my $map_data_ar = de_web_read_map_field_data( $core, $table, $field, $id );
-  my $map_data = { map { $_->{ $map_far_field } => $_->{ '_ID' } } @$map_data_ar };
+  my $map_data  = { map { $_->{ $map_far_field } => $_->{ '_ID'   } } @$map_data_ar };
+  my $map_state = { map { $_->{ $map_far_field } => $_->{ 'STATE' } } @$map_data_ar };
 
   if( $button eq 'OK' )
     {
@@ -54,6 +55,7 @@ sub main
         $res = $core->insert( $map_table, { $map_near_field => $id, $map_far_field => $row_id, 'STATE' => $value } ) if $value;
         }  
       }
+    return $reo->forward_back();
     }
 
   $text .= "<xmp>" . Dumper( $far_ar, $map_data_ar, $map_data ) . "</xmp>";
@@ -67,7 +69,7 @@ sub main
   for my $row ( @$far_ar )
     {
     my $row_id = $row->{ '_ID' };
-    my $value = !! $ui->{ "F:$row_id" };
+    my $value  = $map_state->{ $row_id };
     my $label  = $row->{ $far_field };
     my $field_input = $map_edit_form->checkbox_multi(
                                      NAME     => "F:$row_id",
