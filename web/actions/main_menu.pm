@@ -55,7 +55,7 @@ sub main
         $link = "<a class=main-menu reactor_none_href=?action=menu&menu=$submenu_name>$label</a>";
         my $menu_ar = sub_menu( $reo, $core, $submenu_name );
         my $menu_item_text   = html_ftree( $menu_ar, 'ARGS' => 'class=menu cellpadding=0 width=100% border=0', 'ARGS_TR' => 'class=menu', 'ARGS_TD' => 'class=menu menu-popup' );
-        my $menu_item_handle = html_popup_layer( $reo, VALUE => $menu_item_text, CLASS => 'popup-layer popup-layer-inline', TYPE => 'CLICK' );
+        my $menu_item_handle = html_popup_layer( $reo, VALUE => $menu_item_text, CLASS => 'popup-layer popup-layer-inline', TYPE => 'CLICK', TIMEOUT => 1000, SINGLE => 1 );
         $link = "<a class=main-menu reactor_none_href=?action=menu&menu=$submenu_name $menu_item_handle>+ $label</a>";
         }
       }
