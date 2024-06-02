@@ -1,0 +1,16 @@
+
+
+
+  DECOR APPLICATION MACHINERY
+  2014-2019 (c) Vladi Belperchinov-Shabanski "Cade"
+
+
+WEB ACTIONS DEVELOPMENT
+
+TODO: explain USER sessions
+TODO: explain PAGE sessions
+TODO: explain HOLD data
+
+TODO: implement and explain CARRY data
+
+

@@ -25,6 +25,7 @@ our @ISA    = qw( Exporter );
 our @EXPORT = qw( 
 
                 de_form_gen_rec_data
+                de_form_process_text
 
                 );
 
@@ -32,7 +33,7 @@ my %FORM_CACHE;
 
 sub de_form_gen_rec_data
 {
-  print STDERR Dumper( '+++++++++++++++++++++++++++++++++++++++++++++++++', \@_ );
+  # print STDERR Dumper( '+++++++++++++++++++++++++++++++++++++++++++++++++', \@_ );
   
   my $form_name = shift;
   my $rec       = shift;
@@ -43,10 +44,22 @@ sub de_form_gen_rec_data
 
   my $form_text = file_load( $form_file );
   
-  $form_text =~ s/\[(.*?)\]/__form_process_item( $1, 'F', $rec, $data, $opts )/gie;
-  $form_text =~ s/\{(.*?)\}/__form_process_item( $1, 'T', $rec, $data, $opts )/gie;
+  $form_text = de_form_process_text( $form_text, $rec, $data, $opts );
 
   return $form_text;
+}
+
+sub de_form_process_text
+{
+  my $text = shift;
+  my $rec  = shift;
+  my $data = shift;
+  my $opts = shift;
+
+  $text =~ s/\[(.*?)\]/__form_process_item( $1, 'F', $rec, $data, $opts )/gie;
+  $text =~ s/\{(.*?)\}/__form_process_item( $1, 'T', $rec, $data, $opts )/gie;
+
+  return $text;
 }
 
 sub __form_process_item

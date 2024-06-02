@@ -831,11 +831,16 @@ sub delete
 
   $opts = { 'BIND' => $opts } if ref( $opts ) eq 'ARRAY'; # directly BIND values
 
+  push @where, "$db_table._ID > 0" unless $opts->{ 'MANUAL' };
+
+  push @where, $self->__get_row_access_where_list( $table, 'OWNER', 'DELETE' );
+
   if( $where ne '' )
     {
     # FIXME: different databases support vastly differs as well :(
     # resolve fields in where clause
     #$where = $self->__resolve_clause_fields( $table, $where );
+    #$where = $self->__resolve_fields_scan( $table, $where );
 
     push @where, $where;
     push @bind,  @{ $opts->{ 'BIND' } || [] };
@@ -851,8 +856,6 @@ sub delete
   # FIXME: different databases support vastly differs as well :(
   #push @where, keys %{ $self->{ 'SELECT' }{ 'RESOLVE_WHERE' } };
   #delete $self->{ 'SELECT' }{ 'RESOLVE_WHERE' };
-
-  # TODO: support for _DELETE_* fields
 
   my $where_clause;
   if( @where )

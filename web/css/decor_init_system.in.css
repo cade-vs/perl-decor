@@ -59,7 +59,7 @@ $edit-link-data-box   #CCC  #113  #000  #555
 $edit-link-empty-box  #CCC  #311  #000  #555
 
 /*$              fg    bg    border-color */
-$warning-colors  #FFF  #822  #633
+$warning-colors  #FFF  #522  #933
 
 /*$       fg    -- this is the highlight color, usually should be body-fg but higher */
 $hi-color #FFF
@@ -75,7 +75,7 @@ $menu-colors  #CCC  #224  #FFF   #335   #445
 
 /*$                  fg    bg    border  inside-border */
 $view-data-colors    #EEE  #333  #555    #444
-$view-head-colors    #FFF  #159  #37A 
+$view-head-colors    #FFF  #48B  #37A 
 $view-div-colors     $view-head-colors
 
 $insert-data-colors  $view-data-colors

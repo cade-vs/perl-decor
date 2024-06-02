@@ -345,7 +345,7 @@ sub main
       $record_first = 1;
       }
 
-    $field_error = "<div class=warning align=right>$field_error</div>" if $field_error;
+    $field_error = "<div class=warning align=left>$field_error</div>" if $field_error;
 
     my $input_layout = html_layout_2lr( $field_input, '&nbsp;&nbsp;' . $field_input_ctrl, '<==1>' );
     my $base_field_class = lc "css_edit_class_$base_field";
@@ -394,7 +394,9 @@ sub main
     }
   $text .= $edit_form->end();
 
+  $text .= "<div class='record-table-envelope'>";
   $text .= join '', @backlinks_text;
+  $text .= "</div>";
 
   return $text;
 }
@@ -685,12 +687,10 @@ sub edit_get_field_control_info
       }
     elsif( $type_name eq 'MAP' )
       {
-
       my $map_edit_cue = $bfdes->get_attr( qw( WEB EDIT MAP_EDIT_CUE ) ) || "[~Edit map]";
-      $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "insert.svg",      $map_edit_cue, ACTION => 'edit_map', TABLE => $table, FIELD => $field, ID => $id, MASTER_RECORD => "$table:$id" ); # TODO: if $ltdes->allows( 'INSERT' );
+      $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "map-edit.svg",      $map_edit_cue, ACTION => 'edit_map', TABLE => $table, FIELD => $field, ID => $id, MASTER_RECORD => "$table:$id" ); # TODO: if $ltdes->allows( 'INSERT' );
 
-      my $map_data_ar = de_web_read_map_field_data( $core, $table, $field, $id );
-      $field_input      = "<xmp>" . Dumper( $map_data_ar ) . "</xmp>";
+      $field_input .= join '', map { "* $_<br>" } @{ de_get_selected_map_names( $core, $bfdes, $id ) };
       }
     elsif( $type_name eq 'BACKLINK' )
       {

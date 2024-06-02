@@ -17,6 +17,7 @@ use Data::Tools::Time;
 
 use Decor::Shared::Types;
 use Decor::Web::HTML::Utils;
+use Decor::Web::Utils;
 
 use Web::Reactor::HTML::Layout;
 
@@ -380,6 +381,10 @@ sub de_web_format_field
         $data_fmt = "&empty;";
         }  
       }  
+    }
+  elsif( $fdes->is_map() )
+    {
+    $data_fmt = join '', map { "* $_<br>" } @{ de_get_selected_map_names( $core, $fdes, $id ) };
     }
   elsif( $fdes->is_backlinked() )
     {

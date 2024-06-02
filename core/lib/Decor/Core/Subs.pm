@@ -959,7 +959,6 @@ sub __filter_to_where
 
   my @where;
   my @bind;
-  my @fts_joins;
   while( my ( $f, $v ) = each %$filter )
     {
     $f = uc $f;
@@ -1014,7 +1013,7 @@ sub __filter_to_where
     # TODO: more complex filter rules
     }
 
-  return ( \@where, \@bind, \@fts_joins );
+  return ( \@where, \@bind );
 }
 
 sub sub_select
@@ -1390,11 +1389,11 @@ sub sub_update
 
   $rec->taint_mode_enable_all();
 
-  my ( $where, $bind, $fts_joins ) = __filter_to_where( $id > 0 ? { '_ID' => $id } : $filter, $table );
+  my ( $where, $bind ) = __filter_to_where( $id > 0 ? { '_ID' => $id } : $filter, $table );
   my $where_clause = join ' AND ', @$where;
 
   boom "E_ACCESS: unable to load requested record TABLE [$table] ID [$id]"
-      unless $rec->select_first1( $table, $where_clause, { JOINS => $fts_joins, BIND => $bind, LOCK => $lock } );
+      unless $rec->select_first1( $table, $where_clause, { BIND => $bind, LOCK => $lock } );
 
   # TODO: check RECORD UPDATE ACCESS
   boom "E_ACCESS: UPDATE is not allowed for requested record TABLE [$table] ID [$id]"
@@ -1424,9 +1423,25 @@ sub sub_delete
   my $mi = shift;
   my $mo = shift;
 
+  boom "sub_delete is not yet implemented";
+
+  my $table  = uc $mi->{ 'TABLE'  };
+  my $id     =    $mi->{ 'ID'     };
+  my $filter =    $mi->{ 'FILTER' } || {};
+
+  boom "invalid TABLE name [$table]"    unless de_check_name( $table ) or ! des_exists( $table );
+  boom "invalid ID [$id]"               if $id ne '' and ! de_check_id( $id );
+  boom "invalid FILTER [$filter]"       unless ref( $filter ) eq 'HASH';
+  
   my $profile = subs_get_current_profile();
   boom "E_ACCESS: user group 967 has global write restriction" if ! $profile->has_root_access() and $profile->check_access( 967 ); # FIXME: move to common
-  boom "sub_delete is not yet implemented";
+  boom "E_ACCESS: access denied oper [DELETE] for table [$table]" unless $profile->check_access_table( 'DELETE', $table );
+  
+  my ( $where, $bind ) = __filter_to_where( $id > 0 ? { '_ID' => $id } : $filter, $table );
+  my $where_clause = join ' AND ', @$where;
+
+
+
 };
 
 sub sub_init

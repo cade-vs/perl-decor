@@ -259,6 +259,7 @@ my %DES_ATTRS = (
                            ATTACH_LINK_CUE   => 3,
                            UPLOAD_LINK_CUE   => 3,
                            DOWNLOAD_LINK_CUE => 3,
+                           MAP_EDIT_CUE      => 3,
                            
                            DIVIDER     => 3,
 

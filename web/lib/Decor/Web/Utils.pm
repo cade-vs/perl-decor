@@ -13,7 +13,6 @@ use strict;
 use Exception::Sink;
 use Data::Tools;
 use Web::Reactor::HTML::Utils;
-use Decor::Web::View;
 
 use Exporter;
 our @ISA    = qw( Exporter );
@@ -27,6 +26,7 @@ our @EXPORT = qw(
                 
                 de_web_read_map_field_data
                 de_web_read_map_far_table_data
+                de_get_selected_map_names
                 );
 
 ##############################################################################
@@ -126,9 +126,6 @@ sub de_web_read_map_field_data
   my $fdes  = $tdes->get_field_des( $field );
   my ( $map_table, $map_near_field, $map_far_field ) = $fdes->map_details();
 
-  my $mtdes  = $core->describe( $map_table ) or return [];
-  my $mffdes = $mtdes->get_field_des( $map_far_field );
-
   my $ar = $core->select_arhr( $map_table, [ '_ID', $map_far_field, 'STATE' ], { FILTER => { $map_near_field => $local_id }, ORDER_BY => '_ID' } );
   
   return $ar;
@@ -142,16 +139,36 @@ sub de_web_read_map_far_table_data
 
   my $tdes  = $core->describe( $table ) or return [];
   my $fdes  = $tdes->get_field_des( $field );
-  my ( $map_table, $map_near_field, $map_far_field ) = $fdes->map_details();
+  my ( $map_table, $map_near_field, $map_far_field, $far_table, $far_field ) = $fdes->map_details();
 
-  my $mtdes  = $core->describe( $map_table ) or return [];
-  my $mffdes = $mtdes->get_field_des( $map_far_field );
+#  my $mtdes  = $core->describe( $map_table ) or return [];
+#  my $mffdes = $mtdes->get_field_des( $map_far_field );
 
-  my ( $far_table, $far_field ) = $mffdes->link_details();
+#  my ( $far_table, $far_field ) = $mffdes->link_details();
 
-  my $ar = $core->select_arhr( $far_table, [ '_ID', $far_field ], { ORDER_BY => 'PRI,_ID' } );
+  my $ar = $core->select_arhr( $far_table, [ '_ID', $far_field, @_ ], { ORDER_BY => 'PRI,_ID' } );
   
   return wantarray ? ( $ar, $far_field ) : $ar;
+}
+
+sub de_get_selected_map_names
+{
+  my $core  = shift;
+  my $bfdes = shift;
+  my $id    = shift;
+  
+  my $table = $bfdes->table();
+  my $field = $bfdes->name();
+
+  my ( $map_table, $map_near_field, $map_far_field, $far_table, $far_field ) = $bfdes->map_details();
+
+  my $map_data_ar = de_web_read_map_field_data( $core, $table, $field, $id );
+  my @state_ids = map { $_->{ 'STATE' } ? $_->{ $map_far_field } : () } @$map_data_ar;
+
+  #$field_input      .= "<xmp>" . Dumper( $map_data_ar, \@state_ids ) . "</xmp>";
+  my $map_selected = $core->select_field_ar( $far_table, $far_field, { FILTER => { '_ID' => [ { OP => 'IN', VALUE => \@state_ids } ] }, ORDER_BY => 'PRI,_ID' } );
+  
+  return $map_selected;
 }
 
 ### EOF ######################################################################

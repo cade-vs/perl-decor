@@ -91,7 +91,12 @@ sub map_details
 
   if( $self->is_map() )  
     {
-    return ( $self->{ 'MAP_TABLE' }, $self->{ 'MAP_NEAR_FIELD' }, $self->{ 'MAP_FAR_FIELD' } );
+    my $mtdes  = $self->describe( $self->{ 'MAP_TABLE' } );
+    my $mffdes = $mtdes->get_field_des( $self->{ 'MAP_FAR_FIELD' } );
+    my ( $far_table, $far_field ) = $mffdes->link_details();
+    # TODO: FIXME: URGENT: move to table description loading postprocessing!
+    
+    return ( $self->{ 'MAP_TABLE' }, $self->{ 'MAP_NEAR_FIELD' }, $self->{ 'MAP_FAR_FIELD' }, $far_table, $far_field );
     }
   else
     {

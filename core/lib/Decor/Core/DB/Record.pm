@@ -163,8 +163,8 @@ sub create
   my $table = uc shift;
   my $id    =    shift;
 
-  boom "invalid TABLE name [$table]" unless des_exists( $table );
-  boom "invalid ID [$id]"            unless $id eq '' or de_check_id( $id );
+  boom "invalid TABLE name [$table] or does not exist" unless des_exists( $table );
+  boom "invalid ID [$id]"                              unless $id eq '' or de_check_id( $id );
 
   $self->check_if_locked_to( $table );
 
@@ -205,7 +205,7 @@ sub load
   my $id    = shift;
   my $opt   = shift || {};
 
-  boom "invalid TABLE name [$table]" unless des_exists( $table );
+  boom "invalid TABLE name [$table] or does not exist" unless des_exists( $table );
   de_check_id_boom( $id, "invalid ID [$id]" );
   # TODO: check if opt is hashref
 
@@ -710,7 +710,7 @@ sub __resolve_field
         my $dbio = $self->{ 'DB::IO' };
         my $data = $dbio->read_first1_by_id_hashref( $linked_table, $next_id );
 
-### FIXME: if $data is empty then boom()!?
+        boom "DB data error: $current_table:$current_id:$current_field points to non-existing record: $linked_table:$next_id" unless $data;
 
         #FIXME: loadin path records is not a modification, remove after test
         ###$self->{ 'RECORD_MODIFIED' }++;
@@ -823,6 +823,8 @@ sub select
   my $table = uc shift;
   my $where = shift;
   my $opt   = shift;
+
+  boom "invalid TABLE name [$table] or does not exist" unless des_exists( $table );
 
   $self->reset();
   my $dbio = $self->{ 'SELECT::DB::IO' } = new Decor::Core::DB::IO;
@@ -1114,11 +1116,17 @@ sub method_get_errors_count
 our %MIME_TYPES = (
                   HTML => 'text/html',
                   TEXT => 'text/plain',
+                  CSV  => 'text/csv',
                   JPG  => 'image/jpeg',
                   JPEG => 'image/jpeg',
                   GIF  => 'image/gif',
                   PNG  => 'image/png',
                   BIN  => 'application/octet-stream',
+                  PDF  => 'application/pdf',
+                  TAR  => 'application/x-tar',
+                  ZIP  => 'application/zip',
+                  XML  => 'application/xml',
+                  JSON => 'application/json',
                   );
 
 sub return_file_text
@@ -1126,7 +1134,7 @@ sub return_file_text
   my $self = shift;
   my $text = shift;
   my $type = uc shift || 'TEXT';
-  
+
   $self->__check_client_io();
   $self->{ 'CLIENT:IO:FILE:BODY' } = $text;
   $self->{ 'CLIENT:IO:FILE:MIME' } = $MIME_TYPES{ $type } || $type;

@@ -2,7 +2,7 @@
 
 
   DECOR APPLICATION MACHINERY
-  2014-2019 (c) Vladi Belperchinov-Shabanski "Cade"
+  2014-2014 (c) Vladi Belperchinov-Shabanski "Cade"
 
   MENU DEFINITION
 

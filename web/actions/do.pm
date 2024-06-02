@@ -14,6 +14,7 @@ use Web::Reactor::HTML::Layout;
 use Decor::Web::HTML::Utils;
 use Decor::Web::View;
 use Data::Dumper;
+use MIME::Base64;
 
 sub main
 {
@@ -52,9 +53,9 @@ sub main
       
       my ( $file_body, $file_mime ) = $core->get_return_file_body_mime();
 
-# FIXME: URGENT: ONLY FOR TEXT MIMEs
-use Encode;
-$file_body = Encode::decode_utf8( $file_body );
+## FIXME: URGENT: ONLY FOR TEXT MIMEs
+#use Encode;
+#$file_body = Encode::decode_utf8( $file_body );
       
       if( $file_mime ne '' )
         {
@@ -65,6 +66,17 @@ $file_body = Encode::decode_utf8( $file_body );
         elsif( $file_mime eq 'text/html' )
           {
           $html_file .= $file_body;
+          }
+        elsif( $file_mime eq 'application/pdf' )
+          {
+          my $base64data = encode_base64( $file_body );
+          $text .= qq[
+          
+                     <object data="data:application/pdf;base64,$base64data" type="application/pdf" width="80%" height="780px">
+                       <p>Unable to display PDF file. <a href="3f281f29132dddd14fded85bfc.pdf">Download</a> instead.</p>
+                     </object>
+          
+                    ];
           }
         else
           {
@@ -85,10 +97,25 @@ $file_body = Encode::decode_utf8( $file_body );
     $html_file .= $file_body;
     }  
   
-  $html_file ||= "*** DONE ***"; # FIXME: must be more meaningful text :)
-  $text .= "<div class=report-text>$html_file</div>";
-  $reo->html_content_set( 'for_printer' => $html_file );
-
+=pod
+  if( $file_mime eq 'application/pdf' )
+    {
+    my $base64data = encode_base64( $file_body );
+    $text .= qq[
+    
+               <object data="data:application/pdf;base64,$base64data" type="application/pdf" width="100%" height="600px">
+                 <p>Unable to display PDF file. <a href="3f281f29132dddd14fded85bfc.pdf">Download</a> instead.</p>
+               </object>
+    
+              ];
+    }
+  else
+    {  
+    $html_file ||= "*** DONE ***"; # FIXME: must be more meaningful text :)
+    $text .= "<div class=report-text>$html_file</div>";
+    $reo->html_content_set( 'for_printer' => $html_file );
+    }
+=cut
   $text .= "<p>";
   $text .= de_html_alink_button( $reo, 'back', "&lArr; [~Continue]", "[~Return and continue on previous screen]" );
   $text .= "<a class=button href='javascript:window.print()'><~Print this text></a>" if $dodes->get_attr( 'WEB', 'PRINT' );

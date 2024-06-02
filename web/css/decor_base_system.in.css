@@ -435,15 +435,22 @@ td.ps-path
 
 /*** record base config for view, edit, insert, preview tables **************/
 
+div.record-table-envelope
+        {
+        margin: auto;
+        width:  100%;
+        max-width: 1200px;
+        }
+
 div.record-table
         {
+        margin: auto;
         width:  100%;
-        max-width: 1000px;
+        max-width: 1200px;
 
         color:            $view-data-colors.1;
         background-color: $view-data-colors.2;
         border: solid 1px $view-data-colors.3;
-        margin: auto;
         }
         
 div.record-field-value

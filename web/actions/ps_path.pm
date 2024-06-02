@@ -44,7 +44,10 @@ sub main
 
   my $pc = @$ps_path;
   my $pc_str = str_countable( $pc, "[~step]", "[~steps]" );
-  $text = "[~History]: <b>$pc</b> $pc_str $text";
+#  $text = "[~History]: <b>$pc</b> $pc_str $text";
+  $text = "[$pc] $text";
+  
+  # TODO: make it drop-down menu with previous steps!
 
   return $text;
 }

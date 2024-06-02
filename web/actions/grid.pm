@@ -558,7 +558,7 @@ sub main
           
           # TODO: option to avoid count
 
-#          $bcnt = $core->count( $backlinked_table, { FILTER => { $backlinked_field => $id } } ) unless $bcnt > 0;
+          $bcnt = $core->count( $backlinked_table, { FILTER => { $backlinked_field => $id } } ) unless $bcnt > 0;
           # TODO: option to allow unattached count
           # my $ucnt = $core->count( $backlinked_table, { FILTER => { $backlinked_field =>   0 } } );
           }
@@ -566,7 +566,9 @@ sub main
           {
           my $view_attached_cue   = $bfdes->get_attr( qw( WEB GRID VIEW_ATTACHED_CUE   ) ) || "[~View attached records]";
           $bcnt = str_num_comma( $bcnt );
-          $bcnt = de_html_alink( $reo, 'new', "$bcnt rec(s)", "(=) $view_attached_cue", ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => $id, FILTER => { $backlinked_field => $id }, MASTER_RECORD => "$table:$id" );
+          my $recs_s = str_countable( $bcnt, 'rec', 'recs' );
+          $recs_s = $bltdes->get_label();
+          #$bcnt = de_html_alink( $reo, 'new', "$bcnt $recs_s", "(=) $view_attached_cue", ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => $id, FILTER => { $backlinked_field => $id }, MASTER_RECORD => "$table:$id" );
           }
 
         $data_fmt = $bcnt || '';

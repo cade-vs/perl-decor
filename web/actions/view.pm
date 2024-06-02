@@ -446,7 +446,7 @@ sub main
   for my $do ( @{ $tdes->get_category_list_by_oper( 'DO', 'EXECUTE' ) }  )
     {
     my $dodes   = $tdes->get_category_des( 'DO', $do );
-    next if  $dodes->get_attr( qw( WEB GRID HIDE  ) );
+    next if $dodes->get_attr( qw( WEB VIEW HIDE  ) );
     my $dolabel = $dodes->get_attr( qw( WEB VIEW LABEL ) );
     $text .= de_html_alink_button( $reo, 'new',  "$dolabel &sect;", "$dolabel", ACTION => 'do', DO => $do, ID => $id, TABLE => $table );
     }
@@ -462,7 +462,9 @@ sub main
     }
 
 
-  $text .= '<br><br><br>' . join '<br><br><br>', @backlinks_text;
+  $text .= "<div class='record-table-envelope'>";
+  $text .= join '', @backlinks_text;
+  $text .= "</div>";
 
 
   $text .= "<#view_bottom_$table>";
