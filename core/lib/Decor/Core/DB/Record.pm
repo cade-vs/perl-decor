@@ -814,6 +814,56 @@ sub copy_from_rec
   $self->write( $src_rec->read_hash( @_ ) );
 }
 
+# syn: inc( $field1 => $inc_value1, 'field2' => 44, ... )
+# ret: last modified field original value
+# doc: increments record's fields' values with given numbers or with 1 if omitted
+# exa: $rec->inc( 'SESSIONS' ); # increment by 1, returns old value
+# exa: $rec->inc( 'USERS' => 3, 'OFFICES' ); # USERS+3, OFFICES+1, returns original OFFICES' value
+
+sub inc
+{
+  my $self    = shift;
+  
+  my @data = shift;
+  while( @data )
+    {
+    my $f = shift;
+    my $v = shift || 1;
+    
+    my $vo = $self->read( $f );
+    $self->write( $f, $vo + $v );
+    
+    return $vo unless @data;
+    }
+
+  return undef; # unreachanble
+}
+
+# syn: inc( $field1 => $inc_value1, 'field2' => 44, ... )
+# ret: last modified field original value
+# doc: decrements record's fields' values with given numbers or with 1 if omitted
+# ref: inc()
+
+sub dec
+{
+  my $self    = shift;
+  
+  my @data = shift;
+  while( @data )
+    {
+    my $f = shift;
+    my $v = shift || 1;
+    
+    my $vo = $self->read( $f );
+    $self->write( $f, $vo - $v );
+    
+    return $vo unless @data;
+    }
+
+  return undef; # unreachanble
+}
+
+
 #-----------------------------------------------------------------------------
 
 sub select

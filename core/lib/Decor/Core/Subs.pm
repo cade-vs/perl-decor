@@ -113,8 +113,10 @@ my %SELECT_WHERE_OPERATORS = (
                     '=='   => '=',
                     '<'    => '<',
                     '<='   => '<=',
+                    '=<'   => '<=',  # 
                     '>'    => '>',
                     '>='   => '>=',
+                    '=>'   => '>=',  #
                     '<>'   => '<>',
                     'LIKE' => 'LIKE',
                     'IN'   => 'IN',
@@ -127,6 +129,10 @@ my %SELECT_WHERE_OPERATORS = (
 
                     'GREP' => 'GREP',
                     'FTS'  => 'FTS', 
+                    '><'   => '><',
+                    '=><'  => '=><',
+                    '><='  => '><=',
+                    '=><=' => '=><=',
                     );
 
 
@@ -992,6 +998,16 @@ sub __filter_to_where
           {
           push @where, "UPPER(.$f) LIKE UPPER(?)";
           push @bind,  "%$val%";
+          }
+        elsif( $op =~ /(=?>)(<=?)/ )
+          {
+          # between
+          my $op1 = $SELECT_WHERE_OPERATORS{ $1 };
+          my $op2 = $SELECT_WHERE_OPERATORS{ $2 };
+          my $lo = $ff->{ 'LO'  } || $ff->{ 'LOW'  } || $ff->{ 'FR' } ||  $ff->{ 'FROM' };
+          my $hi = $ff->{ 'HI'  } || $ff->{ 'HIGH' } || $ff->{ 'TO' };
+          push @where, ".$f $op1 ? AND .$f $op2 ?";
+          push @bind, $lo, $hi;
           }
         else
           {
