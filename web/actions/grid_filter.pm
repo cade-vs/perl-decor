@@ -284,7 +284,8 @@ sub main
 
     # FIXME: support simple web.filter.grep for linked values without combo or search, GREP will override combo/search if any
     # FIXME: support search and combo separately!
-    my $combo = $bfdes->get_attr( qw( WEB COMBO ) ) || $bfdes->get_attr( qw( WEB SEARCH ) );
+    my $combo  = $bfdes->get_attr( qw( WEB COMBO  ) );
+    my $search = $bfdes->get_attr( qw( WEB SEARCH ) );
 
     if( $type_name eq 'INT' and $bfdes->{ 'BOOL' } )
       {
@@ -301,7 +302,7 @@ sub main
                                        LABELS   => [ '<img class="icon" src=i/check-edit-na.svg>', '<img class="icon" src=i/check-edit-1.svg>', '<img class="icon" src=i/check-edit-0.svg>' ],
                                        );
       }
-    elsif( $bfdes->is_linked() and $combo )
+    elsif( $bfdes->is_linked() and ( $combo or $search ) )
       {
       my ( $linked_table, $linked_field ) = $bfdes->link_details();
       my $ltdes = $core->describe( $linked_table );
@@ -335,6 +336,8 @@ sub main
 
       de_web_expand_resolve_fields_in_place( \@lfields, $ltdes, \%bfdes, \%lfdes, \%basef );
 
+      my $selected_search_value;
+      
       my $lfields = join ',', '_ID', @lfields, values %basef;
 
       # $text .= "<hr><h2>$field</h2><xmp style='text-align: left'>" . Dumper( \@lfields, $lfields, \%basef, \%bfdes, \%lfdes ) . "</xmp>";
@@ -354,16 +357,18 @@ sub main
       my $combo_orderby = $bfdes->get_attr( qw( WEB COMBO ORDERBY ) ) || join( ',', @spf_fld );
       my $combo_select  = $core->select( $linked_table, $lfields, { FILTER => $combo_filter, ORDER_BY => $combo_orderby } );
       
-      push @$combo_data, { KEY => '', VALUE => '&empty;' };
+      push @$combo_data, { KEY => '', VALUE => '--' };
       
 #$text .= "my $combo_select = $core->select( $linked_table, $lfields )<br>";
       while( my $hr = $core->fetch( $combo_select ) )
         {
         my @value = map { $hr->{ $_ } } @spf_fld;
+        my $key   = $hr->{ '_ID' };
         my $value = sprintf( $spf_fmt, @value );
 
+        $selected_search_value = $value if $key eq $input_data;
 #$text .= "[$spf_fmt][@spf_fld][$value][@value]<br>";
-        $value =~ s/\s/&nbsp;/g;
+        #$value =~ s/\s/&nbsp;/g;
         push @$combo_data, { KEY => $hr->{ '_ID' }, VALUE => $value };
         }
 
@@ -377,14 +382,31 @@ sub main
       my $rows = $multi ? 5 : 1;
       # FIXME: support multi-select linked fields
 
-      $field_input = $filter_form->combo( 
-                                       NAME     => "F:$field", 
-                                       CLASS    => $fmt_class, 
-                                       DATA     => $combo_data, 
-                                       ROWS     => $rows, 
-                                       SELECTED => $sel_hr, 
-                                       MULTIPLE => $multi 
-                                       );
+      if( $search )
+        {
+        $field_input = $filter_form->input(
+                                             NAME      => "F:$field",
+                                             ID        => $field_id,
+                                             VALUE     => $selected_search_value,
+                                             KEY       => $input_data,
+                                             EMPTY_KEY => 0,
+                                             DATALIST  => $combo_data,
+                                             );
+        }
+      else
+        {  
+        $field_input = $filter_form->combo( 
+                                             NAME     => "F:$field", 
+                                             CLASS    => $fmt_class, 
+                                             DATA     => $combo_data, 
+                                             ROWS     => $rows, 
+                                             SELECTED => $sel_hr, 
+                                             MULTIPLE => $multi 
+                                             );
+#$field_input .= "<xmp>".Dumper( $field, $field_data, $combo_data, $sel_hr )."</xmp>";
+
+          }
+      # end of combo
       }
     elsif( $bfdes->is_backlinked() )
       {
