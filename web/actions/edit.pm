@@ -788,6 +788,11 @@ sub edit_get_field_control_info
       }
     elsif( $type_name eq 'DATE' )
       {
+      my $date_picker_div = "<div id='$field_id:DATE_SELECT_DIV'></div>";
+      my $row_vec_handle = html_popup_layer( $reo, VALUE => $date_picker_div, CLASS => 'popup-layer', TYPE => 'CONTEXT' );
+
+      # $field_input_ctrl .= qq( <input type=image class=icon src=i/set-time.svg $row_vec_handle> );
+
       $field_input .= $edit_form->input(
                                        NAME     => "F:$field",
                                        ID       => $field_id,
@@ -795,13 +800,20 @@ sub edit_get_field_control_info
                                        SIZE     => 32,
                                        MAXLEN   => 64,
                                        DISABLED => $field_disabled,
-                                       ARGS     => $input_tag_args,
+                                       EXTRA    => $row_vec_handle,
                                        CLEAR    => $clear_icon,
                                        PHI      => $field_data_placeholder_info,
                                        );
       my $hl_handle = html_hover_layer( $reo, VALUE => "[~Set current date]", DELAY => 250 );
       my $date_format = type_get_format( $type );
       $field_input_ctrl .= qq( <input type=image class=icon src=i/set-time.svg $hl_handle  onClick='set_value( "$field_id", current_date( "$date_format" ) ); return false;'> );
+
+      my $date_picker_div = "<div id='$field_id:DATE_SELECT_DIV:ICON'></div>";
+      my $row_vec_handle = html_popup_layer( $reo, VALUE => $date_picker_div, CLASS => 'popup-layer', TYPE => 'CLICK' );
+      $field_input_ctrl .= qq( <input type=image class=icon src=i/calendar.svg id='$field_id:cal-icon' $row_vec_handle> );
+
+      $reo->html_content_accumulator( 'ACCUMULATOR_JS_ONLOAD', "nz_setup_picker( '$field_id:DATE_SELECT_DIV',      '$field_id', new Date( Date.now() ), '$date_format', function() { reactor_popup_hide_by_id( '$field_id' ) } );\n" );
+      $reo->html_content_accumulator( 'ACCUMULATOR_JS_ONLOAD', "nz_setup_picker( '$field_id:DATE_SELECT_DIV:ICON', '$field_id', new Date( Date.now() ), '$date_format', function() { reactor_popup_hide_by_id( '$field_id:cal-icon' ) } );\n" );
       }
     elsif( $type_name eq 'TIME' )
       {
@@ -821,6 +833,9 @@ sub edit_get_field_control_info
       }
     elsif( $type_name eq 'UTIME' )
       {
+      my $date_picker_div = "<div id='$field_id:UTIME_SELECT_DIV'></div>";
+      my $row_vec_handle = html_popup_layer( $reo, VALUE => $date_picker_div, CLASS => 'popup-layer', TYPE => 'CONTEXT' );
+
       $field_input .= $edit_form->input(
                                        NAME     => "F:$field",
                                        ID       => $field_id,
@@ -828,13 +843,20 @@ sub edit_get_field_control_info
                                        SIZE     => 32,
                                        MAXLEN   => 64,
                                        DISABLED => $field_disabled,
-                                       ARGS     => $input_tag_args,
+                                       EXTRA    => $row_vec_handle,
                                        CLEAR    => $clear_icon,
                                        PHI      => $field_data_placeholder_info,
                                        );
       my $hl_handle = html_hover_layer( $reo, VALUE => "[~Set current date+time]", DELAY => 250 );
       my $date_format = type_get_format( $type );
       $field_input_ctrl .= qq(<input type=image class=icon src=i/set-time.svg $hl_handle onClick='set_value( "$field_id", current_utime( "$date_format" ) ); return false;'>);
+
+      my $date_picker_div = "<div id='$field_id:UTIME_SELECT_DIV:ICON'></div>";
+      my $row_vec_handle = html_popup_layer( $reo, VALUE => $date_picker_div, CLASS => 'popup-layer', TYPE => 'CLICK' );
+      $field_input_ctrl .= qq( <input type=image class=icon src=i/calendar.svg id='$field_id:cal-icon' $row_vec_handle> );
+
+      $reo->html_content_accumulator( 'ACCUMULATOR_JS_ONLOAD', "nz_setup_picker( '$field_id:UTIME_SELECT_DIV',      '$field_id', new Date( Date.now() ), '$date_format', function() { reactor_popup_hide_by_id( '$field_id' ) } );" );
+      $reo->html_content_accumulator( 'ACCUMULATOR_JS_ONLOAD', "nz_setup_picker( '$field_id:UTIME_SELECT_DIV:ICON', '$field_id', new Date( Date.now() ), '$date_format', function() { reactor_popup_hide_by_id( '$field_id:cal-icon' ) } );" );
       }
     else
       {
