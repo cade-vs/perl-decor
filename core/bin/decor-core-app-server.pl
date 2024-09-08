@@ -54,6 +54,7 @@ options:
     -r         -- log to STDERR
     -rr        -- log to both files and STDERR
     -rc        -- use ANSI-colored STDERR log messages (same as -rrc)
+    -g         -- use single log file (no detail split)
     -u srvmod  -- server module (default: App) AVOID IF UNSURE! USE -e FIRST!
     -sc cert   -- file with SSL/X509 certificate
     -sk key    -- file with SSl/X509 certificate key
@@ -115,11 +116,17 @@ while( @ARGV )
     }
   if( /-r(r)?(c)?/ )
     {
+    # FIXME: cleanup logic
     $DE_LOG_TO_STDERR = 1;
     $DE_LOG_TO_FILES  = $1 ? 1 : 0;
     $DE_LOG_STDERR_COLORS = $2 ? 1 : 0;
     print "status: option: forwarding logs to STDERR\n";
     next;
+    }
+  if( /-g/ )
+    {
+    # FIXME: cleanup logic
+    $DE_LOG_TO_FILES  = 2;
     }
   if( /-t/ )
     {
