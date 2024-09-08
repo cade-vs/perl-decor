@@ -91,6 +91,7 @@ sub de_log
   
   for my $msg ( @args )
     {
+    # FIXME: add log option to enable/disable repeating messages suppressing
 #    if( $last_log_message eq $msg and $last_log_message_count < $DE_LOG_MAX_REPEAT_MSG )
 #      {
 #      $last_log_message_count++;
