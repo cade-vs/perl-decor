@@ -102,7 +102,8 @@ sub de_log
     $msg_in_type = lc $1 if $msg =~ /^([a-z_]+):/;
     next if $msg_in_type eq 'debug' and ! de_debug();
 
-    my @msg_types = ( $msg_in_type ) unless $DE_LOG_TO_FILES == 2;
+    my @msg_types;
+    @msg_types = ( $msg_in_type ) unless $DE_LOG_TO_FILES == 2;
     push @msg_types, 'global' if $DE_LOG_TO_FILES and de_init_done();
 
     my $tm = strftime( "%Y%m%d-%H%M%S", localtime() );
