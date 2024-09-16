@@ -15,6 +15,10 @@ use POSIX;
 use Fcntl qw( :flock );                                                                                                         
 use Data::Dumper;
 use Exception::Sink;
+use Time::HiRes;
+use Data::Tools;
+use Data::Tools::Math;
+
 use Decor::Core::Env;
 
 use Exporter;
@@ -78,6 +82,7 @@ sub de_set_log_dir
 }
 
 my $last_log_message;
+my $last_log_message_time;
 my $last_log_message_count;
 my %de_log_files;
 
@@ -106,8 +111,12 @@ sub de_log
     @msg_types = ( $msg_in_type ) unless $DE_LOG_TO_FILES == 2;
     push @msg_types, 'global' if $DE_LOG_TO_FILES and de_init_done();
 
-    my $tm = strftime( "%Y%m%d-%H%M%S", localtime() );
-    my $lp = "$tm ${DE_LOG_PREFIX}[$$]"; # log msg prefix
+    my $ti = Time::HiRes::time();
+    my $tm = strftime( "%Y%m%d-%H%M%S", localtime( $ti ) );
+    $tm .= '.' . str_pad( num_round( ( $ti - int( $ti ) ) * ( 10 ** 3 ), 0 ), -3, '0' ); # TODO: if option, and if option enabled: require Time::HiRes
+    my $di = sprintf "%0.3f", $ti - $last_log_message_time;
+    my $lp = "$tm <$di> ${DE_LOG_PREFIX}[$$]"; # log msg prefix
+    $last_log_message_time = $ti;
 
     my @msg;
     
