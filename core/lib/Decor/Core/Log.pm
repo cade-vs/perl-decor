@@ -30,6 +30,7 @@ our @EXPORT = qw(
                 $DE_LOG_STDERR_COLORS
 
                 de_set_log_prefix
+                de_set_log_session
                 de_set_log_dir
                 
                 de_log
@@ -62,14 +63,18 @@ my %MSG_TYPE_COLOR = (
 
 # TODO: push/pop of temporary secondary prefixes (hints), use wrapper class
 
-my $DE_LOG_PREFIX = 'decor';
-my $DE_LOG_DIR    = '';
+my $DE_LOG_PREFIX  = 'decor';
+my $DE_LOG_SESSION = undef;
+my $DE_LOG_DIR     = '';
 
 sub de_set_log_prefix
 {
-  my $prefix = shift;
-  
-  $DE_LOG_PREFIX = $prefix;
+  $DE_LOG_PREFIX = shift;
+}
+
+sub de_set_log_session
+{
+  $DE_LOG_SESSION = shift;
 }
 
 sub de_set_log_dir
@@ -114,8 +119,9 @@ sub de_log
     my $ti = Time::HiRes::time();
     my $tm = strftime( "%Y%m%d-%H%M%S", localtime( $ti ) );
     $tm .= '.' . str_pad( num_round( ( $ti - int( $ti ) ) * ( 10 ** 3 ), 0 ), -3, '0' ); # TODO: if option, and if option enabled: require Time::HiRes
-    my $di = sprintf "%0.3f", $ti - $last_log_message_time;
-    my $lp = "$tm <$di> ${DE_LOG_PREFIX}[$$]"; # log msg prefix
+    my $di = sprintf " <%0.3f>", $ti - $last_log_message_time if $last_log_message_time > 0;
+    my $lp = "$tm$di ${DE_LOG_PREFIX}[$$]"; # log msg prefix
+    $lp .= "{$DE_LOG_SESSION}" if $DE_LOG_SESSION;
     $last_log_message_time = $ti;
 
     my @msg;

@@ -292,10 +292,12 @@ sub select
   my $dbh = $self->{ 'SELECT' }{ 'DBH' } = dsn_get_dbh_by_table( $table );
   my $sth = $self->{ 'SELECT' }{ 'STH' } = $dbh->prepare( $sql_stmt );
 
-  my $retval = $sth->execute( @bind );
-  $retval = ( $sth->rows() or '0E0' ) if $retval;
+  my $rc = $sth->execute( @bind );
+  $rc = ( $sth->rows() or '0E0' ) if $rc;
 
-  return $retval;
+  de_log( "status: DB: SELECT: $table, fields: " . @select_fields . ", rc: $rc" );
+
+  return $rc;
 }
 
 sub __select_limit_clause
@@ -682,6 +684,8 @@ sub insert
   my $dbh = dsn_get_dbh_by_table( $table );
   my $rc = $dbh->do( $sql_stmt, {}, @values );
 
+  de_log( "status: DB: INSERT: $table, fields: " . @values . ", rc: $rc" );
+
   return $rc ? $data->{ "_ID" } : 0;
 }
 
@@ -783,6 +787,8 @@ sub update
   my $dbh = dsn_get_dbh_by_table( $table );
   my $rc = $dbh->do( $sql_stmt, {}, ( @values, @bind ) );
 
+  de_log( "status: DB: UPDATE: $table, fields: " . @values . ", rc: $rc" );
+
   return $rc ? $rc : 0;
 }
 
@@ -872,6 +878,8 @@ sub delete
 
   my $dbh = dsn_get_dbh_by_table( $table );
   my $rc = $dbh->do( $sql_stmt, {}, ( @bind ) );
+
+  de_log( "status: DB: DELETE: $table, rc: $rc" );
 
   return $rc ? $rc : 0;
 }

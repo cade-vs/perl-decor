@@ -443,7 +443,7 @@ sub __setup_user_inside
   $mo->{ 'UID'   } = $user_rec->id();
   $mo->{ 'UDID'  } = $user_rec->read( 'DATA' );
 
-  de_log_debug( "debug: user [$mo->{ 'UN' }]{$mo->{ 'URN' }} connected with groups: " . Dumper( $mo->{ 'UGS' } ) );
+  de_log( "status: user [$mo->{ 'UN' }]{$mo->{ 'URN' }} connected with groups: " . join( ', ', sort { $a <=> $b } keys %{ $mo->{ 'UGS' } } ) );
   
   return 1;
 }
@@ -472,6 +472,7 @@ sub sub_begin
   __session_update_times( $session_rec );
 
   $session_rec->save();
+  de_set_log_session( $session_rec->id() );
 
   my $user_rec = $session_rec->get_linked_record( 'USR' );
   boom "E_INTERNAL: cannot load USER for session [$user_sid] and remote [$remote]" unless $user_rec;
@@ -531,6 +532,7 @@ sub sub_login
                         );
   __session_update_times( $session_rec, 1 );
   $session_rec->save();
+  de_set_log_session( $session_rec->id() );
 
   __setup_user_inside( $user_rec, $session_rec, $mo );
 
@@ -553,6 +555,7 @@ sub sub_logout
                      'ATIME'  => time(),
                      );
   $session_rec->save();
+  de_set_log_session( undef );
 
   $user_rec->write(
                     'LAST_LOGOUT_TIME'    => time(),

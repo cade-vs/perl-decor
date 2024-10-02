@@ -63,7 +63,7 @@ sub __reshape
 
   return 0 if ref( $self ) eq $reshape_class_name;
   
-  de_log_debug( "$self reshaped as '$reshape_class_name'" );
+  de_log_debug2( "debug: Decor::Core::DB::Record: $self reshaped as '$reshape_class_name'" );
   my $reshape_file_name = perl_package_to_file( $reshape_class_name );
   require $reshape_file_name;
   bless $self, $reshape_class_name;
