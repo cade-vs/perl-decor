@@ -106,7 +106,7 @@ sub connect
   my $self        = shift;
   my $server_addr = shift; # ip:port
   my $app_name    = shift;
-  my $opt         = shift;
+  my $opt         = shift || {};
 
   my $socket = IO::Socket::INET->new( PeerAddr => $server_addr, Timeout => 2.0 );
   
@@ -117,7 +117,7 @@ sub connect
     $self->{ 'SERVER_ADDR' } = $server_addr;
     $self->{ 'SOCKET'      } = $socket;
 
-    return 1 if $opt->{ 'MANUAL' };
+    return 1 if $opt->{ 'MANUAL' } or $opt->{ 'RAW' };
     my $mo = $self->tx_msg( { 'XT' => 'CAPS', 'APP_NAME' => $app_name } );
     if( ! $mo )
       {
@@ -132,6 +132,11 @@ sub connect
     }  
   
   return 1;
+}
+
+sub connect_raw
+{
+  return $_[0]->connect( $_[1], $_[2], { %{ $_[3] || {} }, RAW => 1 } );
 }
 
 sub disconnect

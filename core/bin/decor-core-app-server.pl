@@ -113,8 +113,8 @@ while( @ARGV )
     {
     die "-e must be specified before -u!\n" unless $opt_preload;
     $server_module = shift;
-    $server_module = uc( substr( $server_module, 0, 1 ) ) . lc( substr( $server_module, 1 ) );
-    die "invalid server module name [$server_module] check -u parameter!\n" unless de_check_name( $server_module );
+    # $server_module = uc( substr( $server_module, 0, 1 ) ) . lc( substr( $server_module, 1 ) );
+    die "invalid server module name [$server_module] check -u parameter!\n" unless de_check_pkg_name( $server_module );
     print "status: option: using server module [$DEFAULT_SERVER_MODULE_PREFIX$server_module]\n";
     next;
     }
