@@ -38,6 +38,8 @@ my $server_module = $DEFAULT_SERVER_MODULE;
 my $opt_ssl;
 my %opt_ssl;
 
+my $opt_daemonize;
+
 eval { require IO::Socket::SSL; };
 my $no_ssl = $@ if $@;
 
@@ -60,6 +62,7 @@ options:
     -sk key    -- file with SSl/X509 certificate key
     -su bundle -- file with trusted SSL/X509 certificate issuers
                   if -su given, all clients' certificates will be verified!
+    -z         -- daemonize process (detach from controlling terminal)
     --         -- end of options
 notes:
   * first argument is application name and it is mandatory!
@@ -175,6 +178,12 @@ while( @ARGV )
     print "status: option: debug level raised, now is [$level] \n";
     next;
     }
+  if( /^-z/ )
+    {
+    $opt_daemonize++;
+    print "status: option: going daemon... :>\n";
+    next;
+    }
   if( /^(--?h(elp)?|help)$/io )
     {
     print $help_text;
@@ -231,6 +240,8 @@ if( $@ )
   exit(111);
   }
 
-print "server started with pid [$$]\n";
+print "status: server started with pid [$$]\n";
+
+daemonize() if $opt_daemonize;
 my $server = new $server_pkg %srv_opt;
 $server->run();

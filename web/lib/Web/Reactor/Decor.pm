@@ -134,6 +134,9 @@ sub de_connect
   my $de_core_timeout = $cfg->{ 'DECOR_CORE_TIMEOUT'   } || 64;
   my $lang            = $cfg->{ 'LANG' };
 
+  $de_core_host  = 'localhost' . $de_core_host unless $de_core_host =~ /^[^:]+(:|\s*$)/; # adds host if not specified
+  $de_core_host .= ':42000' unless $de_core_host =~ /:\d+$/; # adds port if not specified
+
   my $user_shr = $self->get_user_session();
   my $http_env = $self->get_http_env();
   my $remote   = $self->get_client_ip();
