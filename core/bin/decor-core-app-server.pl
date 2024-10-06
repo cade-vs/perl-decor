@@ -243,6 +243,7 @@ if( $@ )
 
 
 daemonize() if $opt_daemonize;
+de_reopen_logs();
 print "status: server started with pid [$$]\n";
 my $server = new $server_pkg %srv_opt;
 $server->run();
