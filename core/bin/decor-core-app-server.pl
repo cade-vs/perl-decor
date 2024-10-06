@@ -229,6 +229,8 @@ socket_protocols_allow( $opt_net_protocols );
 my $server_pkg  = "$DEFAULT_SERVER_MODULE_PREFIX$server_module";
 my $server_file = perl_package_to_file( $server_pkg );
 
+de_set_log_prefix( perl_package_to_file( $server_module ) );
+
 print "info: starting server [$server_pkg] main listen loop on port [$opt_listen_port]...\n";
 
 eval
