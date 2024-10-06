@@ -241,8 +241,8 @@ if( $@ )
   exit(111);
   }
 
-print "status: server started with pid [$$]\n";
 
 daemonize() if $opt_daemonize;
+print "status: server started with pid [$$]\n";
 my $server = new $server_pkg %srv_opt;
 $server->run();
