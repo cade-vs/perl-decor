@@ -13,6 +13,7 @@ use lib ( map { die "invalid DECOR_CORE_ROOT dir [$_]\n" unless -d; ( "$_/core/l
 use open ':std', ':encoding(UTF-8)';
 
 use Data::Tools;
+use Data::Tools::Process;
 use Data::Tools::Socket::Protocols;
 
 use Decor::Core::Env;
