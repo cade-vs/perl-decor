@@ -243,7 +243,6 @@ if( $@ )
   exit(111);
   }
 
-
 daemonize() if $opt_daemonize;
 de_reopen_logs();
 print "status: server started with pid [$$]\n";

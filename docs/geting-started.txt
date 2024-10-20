@@ -244,6 +244,8 @@
         }
      ---eof--------------------------
 
+     DECOR_CORE_HOST
+
  14. point your browser to the web-visible directory (probably it is something
      like: http://localhost/my_first_app if you are on the same machine) and
      login with previously created user.

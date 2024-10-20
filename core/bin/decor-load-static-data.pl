@@ -107,6 +107,8 @@ while( @ARGV )
 
 my $opt_app_name = shift @args;
 
+de_set_log_prefix( 'decor-load-static' );
+
 de_init( APP_NAME => $opt_app_name );
 
 my @objects = @args;

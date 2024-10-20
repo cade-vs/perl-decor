@@ -110,6 +110,8 @@ else
   exit 1;
   }  
 
+de_set_log_prefix( 'decor-core-tools' );
+
 #-----------------------------------------------------------------------------
 
 de_init( APP_NAME => $opt_app_name );
