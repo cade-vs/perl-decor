@@ -645,10 +645,10 @@ sub main
     my $page_less = int( $page_size / 2 );
     my $link_page_more = de_html_alink( $reo, 'here', "+",       { HINT => '[~Show more rows per page]', ID => 'a-nav-page-more' },   PAGE_SIZE => $page_more );
     my $link_page_less = de_html_alink( $reo, 'here', "&mdash;", { HINT => '[~Show less rows per page]', ID => 'a-nav-page-less' },   PAGE_SIZE => $page_less );
-    my $link_page_all  = $scount <= 1021 ? de_html_alink( $reo, 'here', "=", { HINT => '[~Show all rows in one page]', ID => 'a-nav-page-all' }, PAGE_SIZE => $scount, OFFSET => 0 ) : '';
+    my $link_page_all  = $scount <= 1021 ? de_html_alink( $reo, 'here', "*", { HINT => '[~Show all rows in one page]', ID => 'a-nav-page-all' }, PAGE_SIZE => $scount, OFFSET => 0 ) : '';
     $link_page_all = "/$link_page_all" if $link_page_all;
 
-    my $link_page_reset = de_html_alink( $reo, 'here', "*",       { HINT => '[~Reset default page size]', ID => 'a-nav-page-reset' },   PAGE_SIZE => 0 ) if $page_size > 15;
+    my $link_page_reset = de_html_alink( $reo, 'here', "=",       { HINT => '[~Reset default page size]', ID => 'a-nav-page-reset' },   PAGE_SIZE => 0 ) if $page_size > 15;
     $link_page_reset = "/$link_page_reset" if $link_page_reset;
 
     my $offset_from = $offset + 1;

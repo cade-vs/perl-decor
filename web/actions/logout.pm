@@ -8,6 +8,9 @@ sub main
   my $reo = shift;
 
   $reo->de_logout();
+  
+  print STDERR "info: >>>>>>>>>>>>>>>>>>>>>> LOGOUT\n";
+  
   return "<#logout_done>";
 }
 

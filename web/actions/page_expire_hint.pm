@@ -24,12 +24,14 @@ sub main
   <script type="text/javascript">
 
   var page_expire_time    = $expire_time;
-  var page_expire_timeout = 4;
+  var page_expire_timeout = 0;
 
   function report_page_expire_time()
   {
     var el = document.getElementById( 'page_expire_time_hint' );
     if( ! el ) return;
+
+    page_expire_time -= page_expire_timeout;
 
     if( page_expire_time > 0 )
       {
@@ -42,12 +44,13 @@ sub main
       if( m <= 0 ) str += s + '<~sec>';
       str += '</span>';
       el.innerHTML = str;
+      page_expire_timeout = ( page_expire_time > 60 ? 20 : 1 );
       setTimeout( 'report_page_expire_time()', page_expire_timeout * 1000 );
-      page_expire_time -= page_expire_timeout;
       }
     else
       {
       el.innerHTML = '<span class="warning pulse">PAGE EXPIRED!</span>'
+      window.location.href = '?';
       }
   }
 
