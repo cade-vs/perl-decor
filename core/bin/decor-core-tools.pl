@@ -383,19 +383,17 @@ sub cmd_list_users
   my $user_rec = new Decor::Core::DB::Record;
   $user_rec->select( 'DE_USERS', $where, { BIND => \@bind, ORDER_BY => 'DESC' } );
   
-#  use Data::Dumper;
-#  print Dumper($user_rec);
-  
   my $ufields = $user_rec->get_fields_list();
   while( $user_rec->next() )
     {
     my @u;
+    push @u, { KEY => 'NAME', VALUE => $user_rec->read_formatted( 'NAME' ) };
     
-    print "-----------------------------------------------------------\n";
     for my $field ( @$ufields )
       {
+      next if $field eq 'NAME'; # already on top
       my $value = $user_rec->read_formatted( $field );
-      $value = "<".length($value).">" if $field =~ /^(PASS|PASS_SALT)$/;
+      $value = "length <".length($value).">" if $field =~ /^(PASS|PASS_SALT)$/;
       if( $field eq 'GROUPS' )
         {
         my @gg;
@@ -403,8 +401,9 @@ sub cmd_list_users
         push @gg, $gg->read( 'GRP' ) while $gg->next();
         $value = scalar(@gg) . " => " . join ', ', sort { $a <=> $b } @gg;
         }
-      print "$field:\t$value\n";
       push @u, { KEY => $field, VALUE => $value };
+
+      # TODO: FIXME: enable last login sessions
       if( $field eq 'LAST_LOGIN_SESSION' )
         {
         my $ll = new Decor::Core::DB::Record;
@@ -412,13 +411,13 @@ sub cmd_list_users
         for my $fll ( @{ $ll->get_fields_list() } )
           {
           my $vll = $ll->read_formatted( $fll );
-          print "\t\t$fll:\t$vll\n";
+          # print "$fll -> $vll\n";
           }
         next;
         }
       }
 
-    # print format_ascii_table( \@u );
+    print format_ascii_table( \@u );
     }
 }
 

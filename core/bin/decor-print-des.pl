@@ -90,7 +90,7 @@ my $t = shift @args;
 
 my $des = describe_table( $t ) or die "unknwon table [$t]\n"; # TODO: suggest similar existing table names
 
-if( ! $opt_verbose )
+if( $opt_verbose )
   {
   $des = dclone( $des );
   dunlock( $des );
@@ -116,7 +116,6 @@ if( ! $opt_verbose )
   $des->{ '@' } = $des->{ '@' }{ '@' };
   delete $des->{ '@' }{ '@' };
   }
-
   
 if( @args )
   {
@@ -129,26 +128,34 @@ if( @args )
   for my $f ( @args )
     {
     print "--- TABLE [$t] FIELD [$f]" . "-" x 42 . "\n";
-    print Dumper( $des->{ 'FIELD' }{ $f } );
+    if( exists $des->{ 'FIELD' }{ $f } )
+      {
+      print Dumper( $des->{ 'FIELD' }{ $f } );
+      }
+    else
+      {
+      print "ERROR: FIELD [$f] DOES NOT EXIST.\n";
+      }  
     }
   }
 else
   {
   print Dumper( $des );
 
-  print "-" x 79 . "\n";
+
+  my @des;
+  push @des, [ qw( ORDER FIELD LABEL TYPE LEN DOT ) ];
   
-  print "#\tORDER\tFIELD\t\tTYPE\tLEN\n";
   my $c;
   for my $field ( sort { $des->{ 'FIELD' }{ $a }{ '_ORDER' } <=> $des->{ 'FIELD' }{ $b }{ '_ORDER' } } keys %{ $des->{ 'FIELD' } } )
     {
     my $order = $des->{ 'FIELD' }{ $field }{ '_ORDER' };
+    my $label = $des->{ 'FIELD' }{ $field }{ 'LABEL' };
     my $type  = $des->{ 'FIELD' }{ $field }{ 'TYPE' }{ 'NAME' };
     my $dot   = $des->{ 'FIELD' }{ $field }{ 'TYPE' }{ 'DOT'  };
     my $len   = $des->{ 'FIELD' }{ $field }{ 'TYPE' }{ 'LEN'  };
-    $c++;
-    print "$c\t$order\t$field\t\t$type\t$len\n";
+    push @des, [ $order, $field, $label, $type, $len, $dot ]
     }
-  
-  print "-" x 79 . "\n";
+
+  print format_ascii_table( \@des );
   }
