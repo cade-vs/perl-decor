@@ -91,8 +91,8 @@ sub main
     return $reo->forward_new( ACTION => 'do', DO => $do, IDS => \@do_ids, TABLE => $table ) if @do_ids;
     }
 
-  my $link_field_disable = $reo->param( 'LINK_FIELD_DISABLE' );
-  my $link_field_id      = $reo->param( 'LINK_FIELD_ID'      );
+  my $link_field_disable = uc $reo->param( 'LINK_FIELD_DISABLE' );
+  my $link_field_id      =    $reo->param( 'LINK_FIELD_ID'      );
 #  my $link_field_value   = $reo->param( 'LINK_FIELD_VALUE'   );
   my $filter_name        = $reo->param( 'FILTER_NAME' );
   my $filter_bind        = $reo->param( 'FILTER_BIND' );

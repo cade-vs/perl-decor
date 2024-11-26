@@ -66,6 +66,9 @@ sub main
   $text .= $map_edit_form->begin( NAME => "form_edit_$table", DEFAULT_BUTTON => 'REDIRECT:OK' );
   my $form_id = $map_edit_form->get_id();
 
+  $text .= de_html_alink_button( $reo, 'back', "&lArr; [~Cancel]", "[~Cancel this operation]"   );
+  $text .= $map_edit_form->button( NAME => 'OK', VALUE => "[~OK] &rArr;" );
+
   $text .= "<div class='record-table'>";
   for my $row ( @$far_ar )
     {

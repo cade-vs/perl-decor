@@ -52,8 +52,8 @@ sub main
   # save extra args
   $reo->param( $_ ) for qw( LINK_TO_TABLE LINK_TO_FIELD LINK_TO_ID RETURN_DATA_FROM RETURN_DATA_TO );
 
-  my $link_field_disable = $reo->param( 'LINK_FIELD_DISABLE' );
-  my $link_field_id      = $reo->param( 'LINK_FIELD_ID' );
+  my $link_field_disable = uc $reo->param( 'LINK_FIELD_DISABLE' );
+  my $link_field_id      =    $reo->param( 'LINK_FIELD_ID' );
 
   my $core = $reo->de_connect();
   my $tdes = $core->describe( $table );
@@ -65,7 +65,7 @@ sub main
     {
     $id = $core->select_first1_field( $table, '_ID', { ORDER_BY => 'DESC' } );
 
-    return "<#access_denied>" if $id == 0;
+    #return "<#access_denied>" if $id == 0;
     }
 
   my $edit_mode_insert;
@@ -154,6 +154,12 @@ sub main
   my $fields = join ',', @$fields_ar;
 
   my %ui_si = ( %$ui, %$si ); # merge inputs, SAFE_INPUT has priority
+
+  if( $edit_mode_insert and $link_field_disable and $link_field_id and ! exists $ui_si{ "F:$link_field_disable" } )
+    {
+    # link field disable always requires to be filled on insert, unless already passed in the params
+    $ui_si{ "F:$link_field_disable" } = $link_field_id;
+    }
 
   # input data
   for my $field ( @$fields_ar )
