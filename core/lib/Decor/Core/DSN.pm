@@ -95,6 +95,11 @@ sub __dsn_parse_config
   return $DSN;
 }
 
+sub __dbi_error_handler
+{
+  boom_skip( "$_[0] $_[1] {$_[2]}", 1 );
+}
+
 sub __dsn_dbh_connect
 {
   my $name  = uc shift;
@@ -125,6 +130,7 @@ sub __dsn_dbh_connect
                            'FetchHashKeyName'   => 'NAME_uc',
                            'PrintError'         => 0,
                            'RaiseError'         => 1,
+                           'HandleError'        => \&__dbi_error_handler,
                            'ShowErrorStatement' => 1,
                          } 
                        );

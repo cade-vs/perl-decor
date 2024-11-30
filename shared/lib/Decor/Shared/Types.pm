@@ -453,6 +453,8 @@ sub type_format_human
 {
   my $data = shift;
   my $type = shift; # hashref with type args
+
+  $type = { NAME => $type } unless ref $type;
   
   my $fmt_data = type_format( $data, $type );
 

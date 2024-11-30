@@ -99,7 +99,7 @@ sub on_process
 
     if( $nerr eq 'E_EOF' )
       {
-      de_log( "status: end of communication channel" );
+      de_log_debug( "debug: end of communication channel" );
       return;
       }
     

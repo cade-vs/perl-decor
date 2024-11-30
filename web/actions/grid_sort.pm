@@ -142,7 +142,10 @@ sub main
 
     my $base_field = $bfdes->{ 'NAME' };
 
-    next if $bfdes->get_attr( 'WEB', 'HIDDEN' );
+    # skip hidden, backlinks, widelinks
+    next if $bfdes->get_attr( 'WEB', 'HIDE' );
+    next if $type_name eq 'BACKLINK'; 
+    next if $type_name eq 'WIDELINK'; 
 
     my $label    = $bfdes->get_attr( qw( WEB GRID LABEL ) );
 

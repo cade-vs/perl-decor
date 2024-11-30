@@ -11,14 +11,14 @@
   
   available field types are:
   
-  "char"
+  "CHAR"
   
       CHAR types take one argument, which is maximum field length.
       it holds arbitrary text data.
       
       argument is optional and has default value of 256
   
-  "int"
+  "INT"
   
       INT takes one argument, which is maximum number digits.
       it holds any integer number (either negative, positive or zero).
@@ -26,14 +26,14 @@
       argument is optional and by default is defined as the largest
       allowed integer type supported by the currently selected database.
 
-  "bool"
+  "BOOL"
 
       BOOL has no arguments and holds TRUE or FALSE.
       
       it is defined as shortest possible integer and value of 0 means FALSE
       and value of 1 means TRUE. all values above 1 are converted to 1.
   
-  "real"
+  "REAL"
 
       REAL takes one argument, combined precision and scale as follows:
       
@@ -53,7 +53,7 @@
       
       argument is optional and has default value of 36.18
 
-  "link"
+  "LINK"
   
       LINK takes two arguments, "linked table name" and "linked field name".
       
@@ -73,7 +73,7 @@
       
       both arguments are mandatory and have no default value!
   
-  "backlink" (can be specified also as "back")
+  "BACKLINK" (can be specified also as "back")
   
       BACKLINK takes two arguments, "backlinked table name" and 
       "backlinked field".
@@ -96,7 +96,7 @@
       NOTE: LINK and BACKLINK are the two sides of a link between two tables.
       BACKLINKs must always point to LINK-type field in the remote table.       
 
-  "widelink" (can be specified also as "wide")
+  "WIDELINK" (can be specified also as "wide")
   
       WIDELINK does not have arguments.
       
@@ -151,7 +151,7 @@
           # $widelink_hashref hash will have TABLE, ID and FIELD keys
           
   
-  "date"
+  "DATE"
   
       DATE has no arguments and holds calendar date.
       
@@ -161,15 +161,15 @@
       if "day" is ommited it is considered 1st of the month.
       if "month" is omitted it is considered January.
   
-  "time"
+  "TIME"
 
-      DATE has no arguments and holds time.
+      TIME has no arguments and holds time.
       
       it is defined as integer and holds number of seconds. it can be used
       as day time or any time period. its user readable form is 
       "hour:minutes:seconds".
 
-  "utime"
+  "UTIME"
 
       UTIME has no arguments and holds date+time timestamp.
       
@@ -179,6 +179,71 @@
       assumed 00:00:00. 
       if day is ommited it is considered 1st of the month.
       if month is omitted it is considered January.
+
+  "MAP"
+  
+      MAP has 3 arguments: map_table_name  near_field_name  far_field_name
+      
+      map_table_name  -- this is the name of the actual mapping table
+                         it has two fields, near field, which is a LINK
+                         pointing the current table and far field, a LINK
+                         pointing to the other table, usually a dictionary.
+                         
+      near_field_name -- near link field name
+      far_field_name  -- far  link field name
+      
+      example:
+     
+      if there is need to have a table with meals, which contains list of
+      ingredients for each different meal but we want to have a common
+      dictionary map with the ingredients. each record of table MEALS will
+      point to a number of records from the MAP table and each MAP record
+      will point to the ingredient in the INGREDIENTS table and back to
+      the MEAL record:
+      
+      
+      TABLE MEAL          TABLE:INGREDIENTS_MAP          TABLE:INGREDIENTS 
+      =MEAL_NAME   <----- =MEAL
+                                    =INGREDIENT   -----> =INGREDIENT_NAME
+                                    
+
+      so definition for MEALS table is:
+      ----------------------------------------
+      =MEAL_NAME
+          type  char  64
+      =INGREDIENTS
+          type  map  INGREDIENTS_MAP   MEAL   INGREDIENT
+          
+
+      definition for INGREDIENTS table is:
+      ----------------------------------------
+      =INGREDIENT_NAME
+          type  char  64
+
+
+      and definition for INGREDIENTS_MAP table is:
+      ----------------------------------------
+      =MEAL
+          type  link  MEALS         NAME
+      =INGREDIENT
+          type  link  INGREDIENTS   NAME
+      
+
+
+      DECOR will show special control to view and edit the INGREDIENTS field
+      in the MEALS table, to view current set of ingredients or to modify it
+      (add, change, remove)
+      
+      it does not make much sense in this example but the same mapping records
+      can be managed from the opposite side as well. it is possible that the
+      INGREDIENTS table has MAP field MEALS to allow seeing which meals contain
+      this ingredient and possibly to change them. to achieve this, INGREDIENTS
+      table needs this MAP field:
+      
+      =MEALS
+          type  map  INGREDIENTS_MAP   INGREDIENT   MEAL
+          
+      which reverses the map data logic and offers opposite side control.    
 
 
   ============================================================================

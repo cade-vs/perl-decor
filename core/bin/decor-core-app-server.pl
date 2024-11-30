@@ -13,6 +13,7 @@ use lib ( map { die "invalid DECOR_CORE_ROOT dir [$_]\n" unless -d; ( "$_/core/l
 use open ':std', ':encoding(UTF-8)';
 
 use Data::Tools;
+use Data::Tools::Process;
 use Data::Tools::Socket::Protocols;
 
 use Decor::Core::Env;
@@ -38,6 +39,8 @@ my $server_module = $DEFAULT_SERVER_MODULE;
 my $opt_ssl;
 my %opt_ssl;
 
+my $opt_daemonize;
+
 eval { require IO::Socket::SSL; };
 my $no_ssl = $@ if $@;
 
@@ -54,11 +57,13 @@ options:
     -r         -- log to STDERR
     -rr        -- log to both files and STDERR
     -rc        -- use ANSI-colored STDERR log messages (same as -rrc)
+    -g         -- use single log file (no detail split)
     -u srvmod  -- server module (default: App) AVOID IF UNSURE! USE -e FIRST!
     -sc cert   -- file with SSL/X509 certificate
     -sk key    -- file with SSl/X509 certificate key
     -su bundle -- file with trusted SSL/X509 certificate issuers
                   if -su given, all clients' certificates will be verified!
+    -z         -- daemonize process (detach from controlling terminal)
     --         -- end of options
 notes:
   * first argument is application name and it is mandatory!
@@ -108,18 +113,24 @@ while( @ARGV )
     {
     die "-e must be specified before -u!\n" unless $opt_preload;
     $server_module = shift;
-    $server_module = uc( substr( $server_module, 0, 1 ) ) . lc( substr( $server_module, 1 ) );
-    die "invalid server module name [$server_module] check -u parameter!\n" unless de_check_name( $server_module );
+    # $server_module = uc( substr( $server_module, 0, 1 ) ) . lc( substr( $server_module, 1 ) );
+    die "invalid server module name [$server_module] check -u parameter!\n" unless de_check_pkg_name( $server_module );
     print "status: option: using server module [$DEFAULT_SERVER_MODULE_PREFIX$server_module]\n";
     next;
     }
   if( /-r(r)?(c)?/ )
     {
+    # FIXME: cleanup logic
     $DE_LOG_TO_STDERR = 1;
     $DE_LOG_TO_FILES  = $1 ? 1 : 0;
     $DE_LOG_STDERR_COLORS = $2 ? 1 : 0;
     print "status: option: forwarding logs to STDERR\n";
     next;
+    }
+  if( /-g/ )
+    {
+    # FIXME: cleanup logic
+    $DE_LOG_TO_FILES  = 2;
     }
   if( /-t/ )
     {
@@ -168,6 +179,12 @@ while( @ARGV )
     print "status: option: debug level raised, now is [$level] \n";
     next;
     }
+  if( /^-z/ )
+    {
+    $opt_daemonize++;
+    print "status: option: going daemon... :>\n";
+    next;
+    }
   if( /^(--?h(elp)?|help)$/io )
     {
     print $help_text;
@@ -212,6 +229,8 @@ socket_protocols_allow( $opt_net_protocols );
 my $server_pkg  = "$DEFAULT_SERVER_MODULE_PREFIX$server_module";
 my $server_file = perl_package_to_file( $server_pkg );
 
+de_set_log_prefix( perl_package_to_file( $server_module ) );
+
 print "info: starting server [$server_pkg] main listen loop on port [$opt_listen_port]...\n";
 
 eval
@@ -224,6 +243,8 @@ if( $@ )
   exit(111);
   }
 
-print "server started with pid [$$]\n";
+daemonize() if $opt_daemonize;
+de_reopen_logs();
+print "status: server started with pid [$$]\n";
 my $server = new $server_pkg %srv_opt;
 $server->run();

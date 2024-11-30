@@ -91,8 +91,8 @@ sub main
     return $reo->forward_new( ACTION => 'do', DO => $do, IDS => \@do_ids, TABLE => $table ) if @do_ids;
     }
 
-  my $link_field_disable = $reo->param( 'LINK_FIELD_DISABLE' );
-  my $link_field_id      = $reo->param( 'LINK_FIELD_ID'      );
+  my $link_field_disable = uc $reo->param( 'LINK_FIELD_DISABLE' );
+  my $link_field_id      =    $reo->param( 'LINK_FIELD_ID'      );
 #  my $link_field_value   = $reo->param( 'LINK_FIELD_VALUE'   );
   my $filter_name        = $reo->param( 'FILTER_NAME' );
   my $filter_bind        = $reo->param( 'FILTER_BIND' );
@@ -645,10 +645,10 @@ sub main
     my $page_less = int( $page_size / 2 );
     my $link_page_more = de_html_alink( $reo, 'here', "+",       { HINT => '[~Show more rows per page]', ID => 'a-nav-page-more' },   PAGE_SIZE => $page_more );
     my $link_page_less = de_html_alink( $reo, 'here', "&mdash;", { HINT => '[~Show less rows per page]', ID => 'a-nav-page-less' },   PAGE_SIZE => $page_less );
-    my $link_page_all  = $scount <= 1021 ? de_html_alink( $reo, 'here', "=", { HINT => '[~Show all rows in one page]', ID => 'a-nav-page-all' }, PAGE_SIZE => $scount, OFFSET => 0 ) : '';
+    my $link_page_all  = $scount <= 1021 ? de_html_alink( $reo, 'here', "*", { HINT => '[~Show all rows in one page]', ID => 'a-nav-page-all' }, PAGE_SIZE => $scount, OFFSET => 0 ) : '';
     $link_page_all = "/$link_page_all" if $link_page_all;
 
-    my $link_page_reset = de_html_alink( $reo, 'here', "*",       { HINT => '[~Reset default page size]', ID => 'a-nav-page-reset' },   PAGE_SIZE => 0 ) if $page_size > 15;
+    my $link_page_reset = de_html_alink( $reo, 'here', "=",       { HINT => '[~Reset default page size]', ID => 'a-nav-page-reset' },   PAGE_SIZE => 0 ) if $page_size > 15;
     $link_page_reset = "/$link_page_reset" if $link_page_reset;
 
     my $offset_from = $offset + 1;
