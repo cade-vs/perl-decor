@@ -144,13 +144,30 @@ div#div_for_screen
               }
         }
 
-/*** globals ****************************************************************/
+/*** a **********************************************************************/
 
 a       
         {
         color: $link-colors.1;
         border-bottom: dotted 1px $link-colors.2;
+        text-decoration: none;
+        }
 
+a.plain
+        {
+        border: none;
+        text-decoration: none;
+        }
+
+a.t
+        {
+        border: none;
+        text-decoration: none;
+        }
+
+td > a
+        {
+        border: none;
         text-decoration: none;
         }
 
@@ -166,11 +183,19 @@ a:focus
         border-bottom: solid 1px $link-colors.6;
         }
 
-a.plain
+td > a:hover
         {
         border: none;
         text-decoration: none;
         }
+
+td > a:focus
+        {
+        border: none;
+        text-decoration: none;
+        }
+
+/*** globals ****************************************************************/
 
 img
         {
@@ -825,7 +850,7 @@ table.grid
         width:  100%;
         }
 
-td.grid-header
+tr.grid-header > td
         {
         color:            $grid-head-colors.1;
         background-color: $grid-head-colors.2;
@@ -836,7 +861,7 @@ td.grid-header
         white-space: normal;
         }
 
-td.grid-data
+tr.grid-data > td, td.grid-data
         {
         padding: 0.3em;
         white-space: nowrap;
