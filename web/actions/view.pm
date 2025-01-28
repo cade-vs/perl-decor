@@ -462,10 +462,11 @@ sub main
     }
 
 
+  $text .= de_html_alink_button( $reo, 'new', 'Actions Log', "View modifications made by users",  BTYPE => '', ACTION => 'alog_view', TABLE => $table, OID => $id );
+
   $text .= "<div class='record-table-envelope'>";
   $text .= join '', @backlinks_text;
   $text .= "</div>";
-
 
   $text .= "<#view_bottom_$table>";
 

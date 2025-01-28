@@ -26,6 +26,7 @@ use Decor::Core::Describe;
 use Decor::Core::Menu;
 use Decor::Core::Code;
 use Decor::Core::DSN;
+use Decor::Core::Utils;
 
 use Clone qw( clone );
 
@@ -1353,10 +1354,11 @@ sub sub_insert
   $rec->method( 'INSERT' );
   $rec->edit_cache_save();
 
-
   $rec->save();
   $rec->method( 'POST_INSERT' );
   $rec->save();
+
+  de_add_alog_rec_if_des( 'CREATE', $rec );
 
   # extra processing, attach, etc.
   my $lt_table  = uc $mi->{ 'LINK_TO_TABLE'  };
@@ -1431,6 +1433,8 @@ sub sub_update
   $rec->method( 'POST_UPDATE' );
   $rec->save();
 
+  de_add_alog_rec_if_des( 'MODIFY', $rec );
+
   $rec->inject_return_file_into_mo( $mo );
 
   $mo->{ 'XS' } = 'OK';
@@ -1459,6 +1463,8 @@ sub sub_delete
   my ( $where, $bind ) = __filter_to_where( $id > 0 ? { '_ID' => $id } : $filter, $table );
   my $where_clause = join ' AND ', @$where;
 
+  # FIXMEL: URGENT: finish delete code :)
+  # de_add_alog_rec_if_des( 'DELETE', $rec );
 
 
 };

@@ -152,6 +152,8 @@ my %DES_ATTRS = (
                            ORDER_BY    => 1,
                            
                            VIRTUAL     => 1,
+                           
+                           ALOG        => 1,
 
                            ON_INIT          => 1,
                            ON_RECALC        => 1,

@@ -10,7 +10,7 @@
 package Decor::Core::DSN;
 use strict;
 
-use DBI;
+use DBI 1.40;
 use Sys::SigAction qw( set_sig_handler );
 use Exception::Sink;
 use Data::Tools 1.09;

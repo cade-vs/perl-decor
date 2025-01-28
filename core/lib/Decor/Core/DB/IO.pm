@@ -170,6 +170,8 @@ sub select
 
   s/^\.// for @fields; # remove leading anchor (syntax sugar really)
 
+  @fields = sort @fields; # optimize prepare_cached...
+  
   dlock \@fields;
   $self->{ 'SELECT' }{ 'FIELDS'     } = \@fields;
   $self->{ 'SELECT' }{ 'TABLES'     }{ $db_table }++;
@@ -289,11 +291,13 @@ sub select
   de_log_debug( "sql: ".__PACKAGE__."::select:\n---BEGIN SQL---\n$sql_stmt\n---SQL BIND ARGS---\n@bind\n---END SQL---" );
   de_log_debug_stack2();
 
-  my $dbh = $self->{ 'SELECT' }{ 'DBH' } = dsn_get_dbh_by_table( $table );
-  my $sth = $self->{ 'SELECT' }{ 'STH' } = $dbh->prepare( $sql_stmt );
-
-  my $rc = $sth->execute( @bind );
+  my $dbh = dsn_get_dbh_by_table( $table );
+  my $sth = $dbh->prepare_cached( $sql_stmt, {}, 3 );
+  my $rc  = $sth->execute( @bind );
   $rc = ( $sth->rows() or '0E0' ) if $rc;
+
+  $self->{ 'SELECT' }{ 'DBH' } = $dbh;
+  $self->{ 'SELECT' }{ 'STH' } = $sth;
 
   de_log( "status: DB: SELECT: $table, fields: " . @select_fields . ", rc: $rc" );
 
@@ -653,8 +657,10 @@ sub insert
   my $columns;
   my $values;
   my @values;
-  while( my ( $field, $value ) = each %$data )
+  for my $field ( sort keys %$data ) # optimize prepare_chached...
     {
+    my $value = $data->{ $field }; 
+    
     $field = uc $field;
     if( $profile and $self->taint_mode_get( 'FIELDS' ) )
       {
@@ -682,7 +688,8 @@ sub insert
 #print STDERR Dumper( '-' x 72, __PACKAGE__ . "::INSERT: table [$table] data/sql/values", $data, $sql_stmt, \@values );
 
   my $dbh = dsn_get_dbh_by_table( $table );
-  my $rc = $dbh->do( $sql_stmt, {}, @values );
+  my $sth = $dbh->prepare_cached( $sql_stmt, {}, 3 );
+  my $rc  = $sth->execute( @values );
 
   de_log( "status: DB: INSERT: $table, fields: " . @values . ", rc: $rc" );
 
@@ -785,7 +792,8 @@ sub update
 #print STDERR Dumper( '-' x 72, __PACKAGE__ . "::UPDATE: table [$table] data/sql/values/where/bind", $data, $sql_stmt, \@values, $where_clause, \@bind, $self );
 
   my $dbh = dsn_get_dbh_by_table( $table );
-  my $rc = $dbh->do( $sql_stmt, {}, ( @values, @bind ) );
+  my $sth = $dbh->prepare_cached( $sql_stmt, {}, 3 );
+  my $rc  = $sth->execute( ( @values, @bind ) );
 
   de_log( "status: DB: UPDATE: $table, fields: " . @values . ", rc: $rc" );
 

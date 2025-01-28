@@ -390,7 +390,8 @@ sub __read
   my $data_key = shift() ? 'RECORD_DATA_DB' : 'RECORD_DATA';
 
   my @res;
-  my @fields = @_;
+  my @fields = ( @_ == 1 and $_[0] eq '*' ) ? @{ $self->get_fields_list() } : @_;
+
   for my $field ( @fields )
     {
     $field =~ s/^-//;
@@ -409,7 +410,8 @@ sub __read_formatted
   my $tdes = describe_table( $self->table() );
   
   my @res;
-  my @fields = @_;
+  my @fields = ( @_ == 1 and $_[0] eq '*' ) ? @{ $self->get_fields_list() } : @_;
+  
   for my $field ( @fields )
     {
     $field =~ s/^-//; # allows: $value = read $record -NAME
@@ -473,7 +475,9 @@ sub __read_hash
   my $data_key = shift() ? 'RECORD_DATA_DB' : 'RECORD_DATA';
 
   my @res;
-  for my $field ( @_ )
+  my @fields = ( @_ == 1 and $_[0] eq '*' ) ? @{ $self->get_fields_list() } : @_;
+
+  for my $field ( @fields )
     {
     my ( $dst_table, $dst_field, $dst_id ) = $self->__resolve_field( $field );
 
@@ -493,7 +497,7 @@ sub read_hash
 sub read_hash_db
 {
   my $self = shift;
-  return $self->__read_hash( 0, @_ );
+  return $self->__read_hash( 1, @_ );
 }
 
 sub read_hash_all

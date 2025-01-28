@@ -30,6 +30,8 @@ our @EXPORT = qw(
                 subs_get_current_session
                 subs_lock_current_session
                 
+                subs_get_current_session_id
+                
                 subs_set_current_profile
                 subs_get_current_profile
                 subs_lock_current_profile
@@ -138,6 +140,13 @@ sub subs_lock_current_session
   $SESSION_LOCKED = 1;
   
   return $SESSION;
+};
+
+sub subs_get_current_session_id
+{
+  boom "requesting current session but it is empty" unless $SESSION;
+  
+  return $SESSION->id();
 };
 
 #--- PROFILE -----------------------------------------------------------------

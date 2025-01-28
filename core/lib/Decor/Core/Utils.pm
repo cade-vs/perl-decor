@@ -15,6 +15,9 @@ use Exception::Sink;
 
 use Decor::Shared::Utils;
 use Decor::Core::Env;
+use Decor::Core::Describe;
+use Decor::Core::Shop;
+use Decor::Core::Subs::Env;
 
 use Exporter;
 our @ISA    = qw( Exporter );
@@ -22,6 +25,9 @@ our @EXPORT = qw(
 
                 de_get_core_subtype_dirs
                 de_core_subtype_file_find
+
+                de_add_alog_rec
+                de_add_alog_rec_if_des
 
                 );
 
@@ -76,6 +82,40 @@ sub de_core_subtype_file_find
   return undef;
 }
 
+sub de_add_alog_rec
+{
+  my $oper = shift;
+  my $rec  = shift;
+
+  my $data = ref_freeze( { $rec->read_hash( '*' ) } );
+
+  my $log_rec = record_create( 'DE_ALOG' );
+  $log_rec->write(
+                  USR   => subs_get_current_user()->read( 'DATA' ),
+                  SESS  => subs_get_current_session_id(),
+                  TAB   => $rec->table(),
+                  OID   => $rec->id(),
+                  OPER  => $oper,
+                  CTIME => time(),
+                  DATA  => $data,
+                );
+              
+  $log_rec->save();            
+  
+  return 1;
+}
+
+sub de_add_alog_rec_if_des
+{
+  my $oper = shift;
+  my $rec  = shift;
+  
+  use Data::Dumper;
+  print Dumper(describe_table( $rec->table() ));
+  #return 0 unless describe_table( $rec->table() )->get_self_des()->{ 'ALOG' };
+  
+  return de_add_alog_rec( $oper, $rec );
+}
 
 ### EOF ######################################################################
 1;

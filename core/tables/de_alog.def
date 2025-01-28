@@ -1,0 +1,40 @@
+
+  label   Audit log
+  grant   read
+
+=USR
+
+  link  USERS   USERNAME
+  label User
+
+=SESS
+
+  link  DE_SESSIONS   CTIME
+  label User Session
+  grant cross read
+
+=TAB
+
+  char  32
+  label Table
+
+=OID
+
+  int
+  label Original Id
+
+=OPER
+
+  char  32
+  label Operation
+
+=CTIME
+
+  utime
+  label Time
+
+=DATA
+
+  char 256000
+  web.rows  8
+
