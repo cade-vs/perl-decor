@@ -10,6 +10,9 @@
 package Decor::Core::Table::Description;
 use strict;
 
+use Decor::Core::Base;
+use Decor::Shared::Table::Description;
+
 use parent 'Decor::Core::Base';
 use parent 'Decor::Shared::Table::Description';
 
@@ -23,53 +26,11 @@ use Decor::Core::Log;
 
 ##############################################################################
 
-sub describe
-{
-  my $self = shift;
-  
-  return Decor::Core::Describe::describe_table( @_ );
-}
-
-sub is_virtual
-{
-  my $self = shift;
-  
-  return $self->{ '@' }{ 'VIRTUAL' };
-}
-
-sub get_table_type
-{
-  my $self = shift;
-  
-  return $self->{ '@' }{ 'TYPE' };
-}
-
-sub get_table_name
-{
-  my $self = shift;
-  
-  return $self->{ '@' }{ '_TABLE_NAME' };
-}
-
-sub get_fields_list
-{
-  my $self = shift;
-  
-  return $self->{ '@' }{ '_FIELDS_LIST' };
-}
-
 sub get_indexes_list
 {
   my $self = shift;
   
   return $self->{ '@' }{ '_INDEXES_LIST' };
-}
-
-sub get_dos_list
-{
-  my $self = shift;
-  
-  return $self->{ '@' }{ '_DOS_LIST' };
 }
 
 sub get_index_des

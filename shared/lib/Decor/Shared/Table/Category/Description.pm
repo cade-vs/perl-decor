@@ -23,7 +23,9 @@ sub is_self_category
 
 sub describe
 {
-  boom "describe must be reimplemented in the subclass";
+  my $self = shift;
+
+  return $self->get_top_des()->describe( @_ );
 }
 
 sub get_attr
@@ -47,18 +49,49 @@ sub get_attr
   return $self->{ $attr };
 }
 
+sub get_top_des
+{
+  my $self = shift;
+
+  boom "missing top/super des callback" unless $self->{ ':SUPER_CB' };
+  return $self->{ ':SUPER_CB' }->();
+}
+
 sub get_self_des
 {
   my $self = shift;
 
-  if( $self->is_self_category() )
-    {
-    return $self;
-    }
-  else
-    {  
-    return $self->{ ':SELF_DES' } if exists $self->{ ':SELF_DES' };
-    }
+  return $self->get_top_des()->{ '@' };
+}
+
+sub table
+{
+  my $self = shift;
+  
+  return $self->{ 'TABLE' };
+}
+
+sub name
+{
+  my $self = shift;
+  
+  return $self->{ 'NAME' };
+}
+
+sub allows
+{
+  my $self = shift;
+  
+  my $oper    = uc shift;
+  my $profile = shift; # not used here, only inside core
+
+  return 0 if    ( exists $self->{ 'DENY'  }{ $oper } and $self->{ 'DENY'  }{ $oper } ) 
+              or ( exists $self->{ 'DENY'  }{ 'ALL' } and $self->{ 'DENY'  }{ 'ALL' } );
+
+  return 1 if    ( exists $self->{ 'GRANT' }{ $oper } and $self->{ 'GRANT' }{ $oper } ) 
+              or ( exists $self->{ 'GRANT' }{ 'ALL' } and $self->{ 'GRANT' }{ 'ALL' } );
+  
+  return 0;
 }
 
 ### EOF ######################################################################

@@ -10,15 +10,13 @@
 package Decor::Shared::Net::Client::Table::Category::Do::Description;
 use strict;
 
+use Decor::Shared::Net::Client::Table::Category::Description;
+use Decor::Shared::Table::Category::Do::Description;
+    
 use parent 'Decor::Shared::Net::Client::Table::Category::Description';
-use parent 'Decor::Shared::Table::Category::Description';
-
-use Data::Dumper;
-use Exception::Sink;
-use Data::Tools;
+use parent 'Decor::Shared::Table::Category::Do::Description';
 
 ##############################################################################
-
 
 ### EOF ######################################################################
 1;

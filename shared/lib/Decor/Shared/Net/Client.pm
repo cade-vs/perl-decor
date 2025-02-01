@@ -13,17 +13,21 @@ use Exporter;
 use Exception::Sink;
 
 use Hash::Util   qw( lock_ref_keys unlock_ref_keys );
-use Scalar::Util qw( weaken );
+#use Scalar::Util qw( weaken );
 use IO::Socket::INET;
-use Data::Tools;
+use Data::Tools 1.47;
 use Data::Tools::Socket;
 use Data::Tools::Socket::Protocols;
 use Exception::Sink;
 use Data::Dumper;
 use MIME::Base64;
+use Data::Lock qw( dlock dunlock );
 
+use Decor::Shared::Describe;
 use Decor::Shared::Utils;
+
 use Decor::Shared::Net::Client::Table::Description;
+use Decor::Shared::Net::Client::Table::Category::Description;
 use Decor::Shared::Net::Client::Table::Category::Self::Description;
 use Decor::Shared::Net::Client::Table::Category::Field::Description;
 use Decor::Shared::Net::Client::Table::Category::Do::Description;
@@ -413,29 +417,17 @@ sub describe
 
   my $mo = $self->tx_msg( \%mi ) or return undef; # TODO: boom "describe: cannot get description for table [$table]";
 
-  $self->{ 'CACHE' }{ 'DESCRIBE' }{ $table } = $mo->{ 'DES' };
+print STDERR Dumper( $mo );
 
-  $mo->{ 'DES' }{ 'CACHE' } = {};
-  $mo->{ 'DES' }{ ':CLIENT_OBJECT' } = $self;
-  bless $mo->{ 'DES' },        'Decor::Shared::Net::Client::Table::Description';
-  bless $mo->{ 'DES' }{ '@' }, 'Decor::Shared::Net::Client::Table::Category::Self::Description';
-  for my $cat ( qw( FIELD DO ACTION ) )
-    {
-    for my $item ( keys %{ $mo->{ 'DES' }{ $cat } } )
-      {
-      $mo->{ 'DES' }{ $cat }{ $item }{ ':CLIENT_OBJECT' } = $self;
-      weaken( $mo->{ 'DES' }{ $cat }{ $item }{ ':CLIENT_OBJECT' } );
-      
-      $mo->{ 'DES' }{ $cat }{ $item }{ ':SELF_DES' } = $mo->{ 'DES' }{ '@' };
-      weaken( $mo->{ 'DES' }{ $cat }{ $item }{ ':SELF_DES' } );
-      
-      my $p = uc( substr( $cat, 0, 1 ) ) . lc( substr( $cat, 1 ) );
-      bless $mo->{ 'DES' }{ $cat }{ $item }, "Decor::Shared::Net::Client::Table::Category::${p}::Description";
-      }
-    }  
-  hash_lock_recursive( $mo->{ 'DES' } );
-#  lock_ref_keys( $mo->{ 'DES' } );  
-  unlock_ref_keys( $mo->{ 'DES' }{ 'CACHE' } );
+  my $des = $self->{ 'CACHE' }{ 'DESCRIBE' }{ $table } = $mo->{ 'DES' };
+
+  bless_description_tree( $des, 'Decor::Shared::Net::Client', qw( FIELD DO ACTION ) );
+
+  $des->__set_describe_callback( sub { return $self->describe( @_ ) } );
+  $des->{ 'CACHE' } = {};
+  
+  dlock( $des );
+  dunlock( $des->{ 'CACHE' } );
 
   return $mo->{ 'DES' };
 }

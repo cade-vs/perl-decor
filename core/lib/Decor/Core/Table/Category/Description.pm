@@ -10,18 +10,11 @@
 package Decor::Core::Table::Category::Description;
 use strict;
 
-use Data::Dumper;
-use Exception::Sink;
-use Data::Tools;
+use Decor::Shared::Table::Category::Description;
+
+use parent 'Decor::Shared::Table::Category::Description';
 
 ##############################################################################
-
-sub describe
-{
-  my $self = shift;
-  
-  return describe_table( @_ );
-}
 
 ### EOF ######################################################################
 1;

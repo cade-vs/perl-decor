@@ -10,6 +10,8 @@
 package Decor::Shared::Table::Category::Field::Description;
 use strict;
 
+use Decor::Shared::Table::Category::Description;
+
 use parent 'Decor::Shared::Table::Category::Description';
 
 use Data::Dumper;
@@ -112,6 +114,8 @@ sub describe_linked_field
   
   my ( $linked_table, $linked_field, $type ) = $self->link_details();
   
+print STDERR "************************** self $self\n" . Dumper( $self );
+  
   my $ltdes = $self->describe( $linked_table );
   if( ! $ltdes or ! exists $ltdes->{ 'FIELD' }{ $linked_field } )
     {
@@ -127,7 +131,7 @@ sub describe_linked_field
 sub expand_field_path
 {
   my $self   = shift;
-  
+
   my $cfdes = $self;
   my @res = ( $self->{ 'NAME' } );
   while(4)

@@ -1050,6 +1050,9 @@ sub get_linked_record
   
   # TODO: support for WIDELINKs
   boom "cannot get linked record of [$field] it is not a LINK field" unless $ftype_name eq 'LINK';
+
+use Data::Dumper;
+print STDERR Dumper( \%Decor::Core::Table::Category::Field::Description:: );
   
   my ( $linked_table, $linked_field ) = $fdes->link_details();
   

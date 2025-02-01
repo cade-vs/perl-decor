@@ -899,6 +899,10 @@ sub sub_describe
   __replace_grant_deny( $profile, $new->{ '@' }, $des->{ '@' } );
   delete $new->{ 'INDEX'  };
   delete $new->{ 'FILTER' };
+  delete $new->{ ':DESCRIBE_CB' };
+  delete $new->{ ':SUPER_CB' };
+  delete $new->{ '@' }{ ':DESCRIBE_CB' };
+  delete $new->{ '@' }{ ':SUPER_CB' };
 
   for my $cat ( qw( FIELD DO ) )
     {
@@ -911,6 +915,8 @@ sub sub_describe
       #dunlock $hr->{ 'DENY'  };
       __replace_grant_deny( $profile, $hrn, $hrd, $table, $field );
       delete $hrn->{ 'DEBUG::ORIGIN' };
+      delete $hrn->{ ':DESCRIBE_CB' };
+      delete $hrn->{ ':SUPER_CB' };
       }
     }  
 # print STDERR Dumper( '='x100, $new );

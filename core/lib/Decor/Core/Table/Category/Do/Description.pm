@@ -7,18 +7,16 @@
 ##  LICENSE: GPLv2
 ##
 ##############################################################################
-package Decor::CoreTable::Category::Do::Description;
+package Decor::Core::Table::Category::Do::Description;
 use strict;
 
-use parent 'Decor::Core::Table::Category::Description';
-use parent 'Decor::Shared::Table::Category::Description';
+use Decor::Core::Table::Category::Description;
+use Decor::Shared::Table::Category::Do::Description;
 
-use Data::Dumper;
-use Exception::Sink;
-use Data::Tools;
+use parent 'Decor::Core::Table::Category::Description';
+use parent 'Decor::Shared::Table::Category::Do::Description';
 
 ##############################################################################
-
 
 ### EOF ######################################################################
 1;

@@ -19,14 +19,18 @@ use Tie::IxHash;
 use Data::Lock qw( dlock dunlock );
 
 use Decor::Shared::Types;
+use Decor::Shared::Describe;
 use Decor::Shared::Utils;
 use Decor::Core::Env;
 use Decor::Core::Log;
 #use Decor::Core::Config;
+
 use Decor::Core::Table::Description;
 use Decor::Core::Table::Category::Description;
-use Decor::Core::Table::Category::Do::Description;
+use Decor::Core::Table::Category::Self::Description;
 use Decor::Core::Table::Category::Field::Description;
+use Decor::Core::Table::Category::Do::Description;
+use Decor::Core::Table::Category::Action::Description;
 
 use Exporter;
 our @ISA    = qw( Exporter );
@@ -74,6 +78,7 @@ my %TYPE_ATTRS = (
                       'NAME'   => undef,
                       'LEN'    => undef,
                       'DOT'    => undef,
+                      'FMT'    => undef,
                  );
 
 my %DES_KEY_TYPES  = (
@@ -107,12 +112,6 @@ my %DES_CATEGORIES = (
                        'DO'     => 1,
                        'ACTION' => 1,
                      );
-
-my %BLESS_CATEGORIES = (
-                       'FIELD'  => 1,
-                       'DO'     => 1,
-                     );
-
 
 my @TABLE_ATTRS = qw(
                       TYPE
@@ -818,10 +817,10 @@ sub __postprocess_table_raw_description
 
     # "logic" types: LOCATION, EMAIL, etc.
     my $ltype;
+    $type_des->{ 'LNAME' } = $ltype;
     if( exists $DE_LTYPE_NAMES{ $type } )
       {
       $ltype = $type;
-      $type_des->{ 'LNAME' } = $ltype;
       
       if( @type > 0 )
         {
@@ -998,23 +997,17 @@ sub __postprocess_table_raw_description
     }
 
   # add empty keys to fields description before locking
-  for my $category ( qw( FIELD INDEX FILTER DO ACTION ) )
+  for my $cat ( qw( FIELD INDEX FILTER DO ACTION ) )
     {
-    next unless exists $des->{ $category };
-    for my $key ( keys %{ $des->{ $category } })
+    next unless exists $des->{ $cat };
+    for my $key ( keys %{ $des->{ $cat } })
       {
-      for my $attr ( grep { $DES_ATTRS{ $category }{ $_ } < 3 } keys %{ $DES_ATTRS{ $category } } )
+      for my $attr ( grep { $DES_ATTRS{ $cat }{ $_ } < 3 } keys %{ $DES_ATTRS{ $cat } } )
         {
-        next if exists $des->{ $category }{ $key }{ $attr };
-        $des->{ $category }{ $key }{ $attr } = undef;
+        next if exists $des->{ $cat }{ $key }{ $attr };
+        $des->{ $cat }{ $key }{ $attr } = undef;
         }
       # TODO: delete __GRANT_DENY_ACCUMULATOR unless $DEBUG  
-
-      if( $BLESS_CATEGORIES{ $category } )
-        {
-        my $p = uc( substr( $category, 0, 1 ) ) . lc( substr( $category, 1 ) );
-        bless $des->{ $category }{ $key }, "Decor::Core::Table::Category::${p}::Description";
-        }
       }
     }
 
@@ -1027,8 +1020,8 @@ sub __postprocess_table_raw_description
 
   # print STDERR "TABLE DES POST PROCESSSED [$table]($des):" . Dumper( $des );
 
-  bless $des, 'Decor::Core::Table::Description';
-  dlock $des;
+############  bless $des, 'Decor::Core::Table::Description';
+############  dlock $des;
   #hash_lock_recursive( $des );
 
 #print STDERR "=====(FINAL) $table: " . Dumper( $des );
@@ -1120,6 +1113,14 @@ sub describe_table
     de_log( "error: cannot find/load description for table [$table] dirs [@$tables_dirs]" );
     return undef;
     }
+
+  bless_description_tree( $des, 'Decor::Core', qw( FIELD DO ACTION ) );
+
+  $des->__set_describe_callback( sub { return describe_table( @_ ) } );
+  $des->{ 'CACHE' } = {};
+  
+  dlock( $des );
+  dunlock( $des->{ 'CACHE' } );
 
   $DES_CACHE{ 'TABLE_DES' }{ $table } = $des;
   # NOTE! check MUST be done after TABLE_DES cache is filled with current table description!

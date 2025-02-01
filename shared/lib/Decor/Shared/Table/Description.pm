@@ -16,9 +16,62 @@ use Data::Tools;
 
 ##############################################################################
 
+sub __set_describe_callback
+{
+  my $self = shift;
+  
+  $self->{ ':DESCRIBE_CB' } = shift;
+}
+
 sub describe
 {
-  boom "describe must be reimplemented in the subclass";
+  my $self = shift;
+  
+  boom "missing describe callback" unless $self->{ ':DESCRIBE_CB' };
+  
+  return $self->{ ':DESCRIBE_CB' }->( @_ );
+}
+
+sub is_virtual
+{
+  my $self = shift;
+  
+  return $self->{ '@' }{ 'VIRTUAL' };
+}
+
+sub get_table_type
+{
+  my $self = shift;
+  
+  return $self->{ '@' }{ 'TYPE' };
+}
+
+sub get_table_name
+{
+  my $self = shift;
+  
+  return $self->{ '@' }{ '_TABLE_NAME' };
+}
+
+sub get_table_type
+{
+  my $self = shift;
+  
+  return $self->{ '@' }{ 'TYPE' };
+}
+
+sub get_fields_list
+{
+  my $self = shift;
+  
+  return $self->{ '@' }{ '_FIELDS_LIST' };
+}
+
+sub get_dos_list
+{
+  my $self = shift;
+  
+  return $self->{ '@' }{ '_DOS_LIST' };
 }
 
 sub get_label
@@ -33,13 +86,6 @@ sub get_table_des
   my $self  =    shift;
   
   return $self->{ '@' };
-}
-
-sub get_table_name
-{
-  my $self  =    shift;
-  
-  return $self->{ '@' }{ 'NAME' };
 }
 
 sub get_field_des
@@ -68,6 +114,22 @@ sub get_category_des
     }
 
   return $self->{ $category }{ $item };
+}
+
+sub allows
+{
+  my $self = shift;
+  
+  my $oper    = uc shift;
+  my $profile = shift; # not used here, only inside core
+
+  return 0 if    ( exists $self->{ '@' }{ 'DENY'  }{ $oper } and $self->{ '@' }{ 'DENY'  }{ $oper } ) 
+              or ( exists $self->{ '@' }{ 'DENY'  }{ 'ALL' } and $self->{ '@' }{ 'DENY'  }{ 'ALL' } );
+
+  return 1 if    ( exists $self->{ '@' }{ 'GRANT' }{ $oper } and $self->{ '@' }{ 'GRANT' }{ $oper } ) 
+              or ( exists $self->{ '@' }{ 'GRANT' }{ 'ALL' } and $self->{ '@' }{ 'GRANT' }{ 'ALL' } );
+  
+  return 0;
 }
 
 sub exists
@@ -155,6 +217,57 @@ sub get_fields_list
   my $self = shift;
 
   return $self->get_cat_list( 'FIELD' );
+}
+
+#-----------------------------------------------------------------------------
+
+sub get_fields_list_by_oper
+{
+  my $self     = shift;
+
+  return $self->get_category_list_by_oper( 'FIELD', @_ );
+}
+
+sub get_category_list_by_oper
+{
+  my $self = shift;
+  
+  my $category = uc shift;
+  my $oper     = uc shift;
+  my $profile  = uc shift; # not used by shared and client, only inside core
+  
+  return $self->{ 'CACHE' }{ 'LIST_BY_OPER' }{ $category }{ $oper } if exists $self->{ 'CACHE' }{ 'LIST_BY_OPER' }{ $category }{ $oper };
+  
+  my @items;
+  
+  for my $item ( keys %{ $self->{ $category } } )
+    {
+print STDERR Dumper( "++++++++++++++++++++++ $category -> $item | $self->{ $category }{ $item }->allows( $oper, $profile )", $self->{ $category }{ $item } );
+    next unless $self->{ $category }{ $item }->allows( $oper, $profile );
+    push @items, $item;
+    }
+
+  @items = sort { $self->{ $category }{ $a }{ '_ORDER' } <=> $self->{ $category }{ $b }{ '_ORDER' } } @items;
+
+  $self->{ 'CACHE' }{ 'LIST_BY_OPER' }{ $category }{ $oper } = \@items;
+  
+  return \@items;
+}
+
+sub sort_category_list_by_order
+{
+  my $self = shift;
+  
+  my $category = uc shift;
+
+  return sort { $self->{ $category }{ $a }{ '_ORDER' } <=> $self->{ $category }{ $b }{ '_ORDER' } } @_;
+}
+
+sub sort_fields_list_by_order
+{
+  my $self = shift;
+  
+  return $self->sort_category_list_by_order( 'FIELD', @_ );
 }
 
 ### EOF ######################################################################
