@@ -904,7 +904,7 @@ sub sub_describe
   delete $new->{ '@' }{ ':DESCRIBE_CB' };
   delete $new->{ '@' }{ ':SUPER_CB' };
 
-  for my $cat ( qw( FIELD DO ) )
+  for my $cat ( qw( FIELD DO ACTION ) )
     {
     for my $field ( @{ $new->{ '@' }{ "_${cat}S_LIST" } } )
       {

@@ -10,6 +10,8 @@
 package Decor::Core::Table::Category::Description;
 use strict;
 
+use Exception::Sink;
+
 use Decor::Shared::Table::Category::Description;
 
 use parent 'Decor::Shared::Table::Category::Description';
