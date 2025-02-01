@@ -92,5 +92,10 @@ sub get_db_sequence_name
   return "${schema}DE_SQ_$table";
 }
 
+sub allows
+{
+  boom "core description allows() is not implemented yet!";
+}
+
 ### EOF ######################################################################
 1;

@@ -16,5 +16,10 @@ use parent 'Decor::Shared::Table::Category::Description';
 
 ##############################################################################
 
+sub allows
+{
+  boom "core description allows() is not implemented yet!";
+}
+
 ### EOF ######################################################################
 1;

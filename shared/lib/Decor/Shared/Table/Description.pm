@@ -242,7 +242,6 @@ sub get_category_list_by_oper
   
   for my $item ( keys %{ $self->{ $category } } )
     {
-print STDERR Dumper( "++++++++++++++++++++++ $category -> $item | $self->{ $category }{ $item }->allows( $oper, $profile )", $self->{ $category }{ $item } );
     next unless $self->{ $category }{ $item }->allows( $oper, $profile );
     push @items, $item;
     }
