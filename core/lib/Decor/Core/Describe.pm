@@ -759,12 +759,6 @@ sub __postprocess_table_raw_description
 
   boom "missing description (load error) for table [$table]" unless $des;
 
-  # postprocessing TABLE (self) ---------------------------------------------
-  my @fields  = sort { $des->{ 'FIELD'  }{ $a }{ '_ORDER' } <=> $des->{ 'FIELD'  }{ $b }{ '_ORDER' } } keys %{ $des->{ 'FIELD'  } };
-  my @indexes = sort { $des->{ 'INDEX'  }{ $a }{ '_ORDER' } <=> $des->{ 'INDEX'  }{ $b }{ '_ORDER' } } keys %{ $des->{ 'INDEX'  } };
-  my @dos     = sort { $des->{ 'DO'     }{ $a }{ '_ORDER' } <=> $des->{ 'DO'     }{ $b }{ '_ORDER' } } keys %{ $des->{ 'DO'     } };
-  my @actions = sort { $des->{ 'ACTION' }{ $a }{ '_ORDER' } <=> $des->{ 'ACTION' }{ $b }{ '_ORDER' } } keys %{ $des->{ 'ACTION' } };
-
   # move table config in more comfortable location
   $des->{ '@' } = $des->{ '@' }{ '@' };
 
@@ -787,10 +781,13 @@ sub __postprocess_table_raw_description
     $des->{ '@' }{ $attr } = undef;
     }
 
-  # more postprocessing work
+  # postprocessing TABLE (self) 1/2 see below -------------------------------
+  my @fields  = sort { $des->{ 'FIELD'  }{ $a }{ '_ORDER' } <=> $des->{ 'FIELD'  }{ $b }{ '_ORDER' } } keys %{ $des->{ 'FIELD'  } };
+  my @dos     = sort { $des->{ 'DO'     }{ $a }{ '_ORDER' } <=> $des->{ 'DO'     }{ $b }{ '_ORDER' } } keys %{ $des->{ 'DO'     } };
+  my @actions = sort { $des->{ 'ACTION' }{ $a }{ '_ORDER' } <=> $des->{ 'ACTION' }{ $b }{ '_ORDER' } } keys %{ $des->{ 'ACTION' } };
+
   $des->{ '@' }{ '_TABLE_NAME'   } = $table;
   $des->{ '@' }{ '_FIELDS_LIST'  } = \@fields;
-  $des->{ '@' }{ '_INDEXES_LIST' } = \@indexes;
   $des->{ '@' }{ '_DOS_LIST'     } = \@dos;
   $des->{ '@' }{ '_ACTIONS_LIST' } = \@actions;
   $des->{ '@' }{ 'DSN'           } = uc( $des->{ '@' }{ 'DSN' } ) || 'MAIN';
@@ -984,7 +981,25 @@ sub __postprocess_table_raw_description
       }
 =cut      
 #print STDERR "=====(GRANT DENY)==REZZZZ+++ $table $field: " . Dumper( $des->{ 'FIELD' }{ $field } );
+
+
+    if( ( ( $field ne '_ID' and $field =~ /^_/ ) or $fld_des->{ 'INDEX' } ) and ! $fld_des->{ 'NO_INDEX' } )
+      {
+      my $idx_name = "SF_$table\_$field";
+      my $idx = $des->{ 'INDEX' }{ $idx_name } = {};
+      $idx->{ 'NAME'   } = $idx_name;
+      $idx->{ 'FIELDS' } = $field;
+      $idx->{ 'REM'    } = 'AUTO INDEX';
+      $idx->{ 'UNIQUE' } = $fld_des->{ 'UNIQUE' };
+      
+      $idx->{ '_ORDER' } = '1001';
+      }
+    
     }
+
+  # more postprocessing TABLE (self) 2/2 see above--------------------------------
+  my @indexes = sort { $des->{ 'INDEX'  }{ $a }{ '_ORDER' } <=> $des->{ 'INDEX'  }{ $b }{ '_ORDER' } } keys %{ $des->{ 'INDEX'  } };
+  $des->{ '@' }{ '_INDEXES_LIST' } = \@indexes;
 
   for my $do ( @dos )
     {

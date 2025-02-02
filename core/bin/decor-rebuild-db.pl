@@ -101,9 +101,10 @@ while( @ARGV )
 
 my $opt_app_name = shift @args;
 
+print "info: application name in use [$opt_app_name]\n" if $opt_app_name;
+print "use -rrc to see more progress on the console\n";
 print "option: database objects to handle: @args\n" if @args;
 print "info: ALL database objects will be handled\n" unless @args;
-print "info: application name in use [$opt_app_name]\n" if $opt_app_name;
 
 #-----------------------------------------------------------------------------
 
@@ -244,27 +245,6 @@ sub rebuild_table
   #print Dumper( 'INDEX DB DES:', $table, $schema, $index_db_des );
 
   my $dbh = $dbo->get_dbh();
-  my $fields = $des->get_fields_list();
-  for my $field ( @$fields )
-    {
-    my $fld_des = $des->get_field_des( $field );
-    my $index  = uc $fld_des->{ 'INDEX'  };
-    my $unique =    $fld_des->{ 'UNIQUE' };
-
-    next unless $index;  # no index required
-    next if     $unique; # unique index required, but it is already created in table definition
-    
-    my $dx_name = "DX_${db_table}_${field}";
-    
-    if( ! exists $index_db_des->{ $dx_name } )
-      {
-      my $unique_str = 'UNIQUE' if $unique; # no op for now, already in table creation
-      my $sql_stmt = "CREATE $unique_str INDEX $dx_name ON $db_table ( $field )";
-      de_log( "info: creating $unique_str index [$dx_name] on table [$table] db table [$db_table] field [$field]" );
-      de_log_debug( "debug: sql: [$sql_stmt]" );
-      $dbh->do( $sql_stmt );
-      }
-    }
 
   my $indexes = $des->get_indexes_list();
   for my $index ( @$indexes )
@@ -278,15 +258,14 @@ sub rebuild_table
     $fields = join ',', @fields;
 
     my $dx_name = "DX_$index";
+    next if exists $index_db_des->{ $dx_name };
     
-    if( ! exists $index_db_des->{ $dx_name } )
-      {
-      my $unique_str = 'UNIQUE' if $unique; # no op for now, already in table creation
-      my $sql_stmt = "CREATE $unique_str INDEX $dx_name ON $db_table ( $fields )";
-      de_log( "info: creating $unique_str index [$dx_name] on table [$table] db table [$db_table] fields [$fields]" );
-      de_log_debug( "debug: sql: [$sql_stmt]" );
-      $dbh->do( $sql_stmt );
-      }
+    my $unique_str = 'UNIQUE' if $unique; # no op for now, already in table creation
+    my $sql_stmt = "CREATE $unique_str INDEX $dx_name ON $db_table ( $fields )";
+    de_log( "info: creating $unique_str index [$dx_name] on table [$table] db table [$db_table] fields [$fields]" );
+    de_log_debug( "debug: sql: [$sql_stmt]" );
+    $dbh->do( $sql_stmt );
+
     }
 
   # base-records (zero-id records)

@@ -142,9 +142,8 @@ else
   {
   print Dumper( $des );
 
-
   my @des;
-  push @des, [ qw( ORDER FIELD LABEL TYPE LEN DOT ) ];
+  push @des, [ qw( _ORDER FIELD LABEL TYPE LEN DOT ) ];
   
   my $c;
   for my $field ( sort { $des->{ 'FIELD' }{ $a }{ '_ORDER' } <=> $des->{ 'FIELD' }{ $b }{ '_ORDER' } } keys %{ $des->{ 'FIELD' } } )
@@ -157,5 +156,15 @@ else
     push @des, [ $order, $field, $label, $type, $len, $dot ]
     }
 
-  print format_ascii_table( \@des );
+  print "\n[ FIELDS ]\n", format_ascii_table( \@des );
+  
+  my @idx;
+  push @idx, [ qw( _ORDER NAME FIELDS UNIQUE REM ) ];
+  for my $idx ( sort { $des->{ 'INDEX' }{ $a }{ '_ORDER' } <=> $des->{ 'INDEX' }{ $b }{ '_ORDER' } } keys %{ $des->{ 'INDEX' } } )
+    {
+    push @idx, [ map { $des->{ 'INDEX' }{ $idx }{ $_ } } qw( _ORDER NAME FIELDS UNIQUE REM ) ]
+    }
+  print "\n[ INDEXES ]\n", format_ascii_table( \@idx );
+  
+  
   }
