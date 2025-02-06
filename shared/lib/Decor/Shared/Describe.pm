@@ -60,6 +60,7 @@ sub bless_description_tree
   return 1;
 }
 
+# TODO: move to data::tools with 3rd arg, seen cache hashref
 sub require_and_bless_ref
 {
   my $ref = shift;
