@@ -7,21 +7,13 @@
 ##  LICENSE: GPLv2
 ##
 ##############################################################################
-package Decor::Core::Table::Category::Description;
+package Decor::Core::Description::Table::Category::Field;
 use strict;
 
-use Exception::Sink;
-
-use Decor::Shared::Table::Category::Description;
-
-use parent 'Decor::Shared::Table::Category::Description';
+use parent 'Decor::Core::Description::Table::Category';
+use parent 'Decor::Shared::Description::Table::Category::Field';
 
 ##############################################################################
-
-sub allows
-{
-  boom "core description allows() is not implemented yet!";
-}
 
 ### EOF ######################################################################
 1;

@@ -26,13 +26,6 @@ use Data::Lock qw( dlock dunlock );
 use Decor::Shared::Describe;
 use Decor::Shared::Utils;
 
-use Decor::Shared::Net::Client::Table::Description;
-use Decor::Shared::Net::Client::Table::Category::Description;
-use Decor::Shared::Net::Client::Table::Category::Self::Description;
-use Decor::Shared::Net::Client::Table::Category::Field::Description;
-use Decor::Shared::Net::Client::Table::Category::Do::Description;
-use Decor::Shared::Net::Client::Table::Category::Action::Description;
-
 sub new
 {
   my $class = shift;

@@ -7,7 +7,7 @@
 ##  LICENSE: GPLv2
 ##
 ##############################################################################
-package Decor::Shared::Table::Category::Description;
+package Decor::Shared::Description::Table::Category;
 use strict;
 
 use Data::Dumper;

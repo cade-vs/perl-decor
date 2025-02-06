@@ -7,14 +7,11 @@
 ##  LICENSE: GPLv2
 ##
 ##############################################################################
-package Decor::Shared::Net::Client::Table::Category::Do::Description;
+package Decor::Shared::Net::Client::Description::Table::Category::Do;
 use strict;
 
-use Decor::Shared::Net::Client::Table::Category::Description;
-use Decor::Shared::Table::Category::Do::Description;
-    
-use parent 'Decor::Shared::Net::Client::Table::Category::Description';
-use parent 'Decor::Shared::Table::Category::Do::Description';
+use parent 'Decor::Shared::Net::Client::Description::Table::Category';
+use parent 'Decor::Shared::Description::Table::Category::Do';
 
 ##############################################################################
 

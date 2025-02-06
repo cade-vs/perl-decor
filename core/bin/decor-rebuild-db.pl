@@ -44,6 +44,7 @@ options:
     -fs       -- as -f but includes DECOR system tables
     -d        -- debug mode, can be used multiple times to rise debug level
     -o        -- ask for confirmation before executing tasks
+    -xnl      -- use non-locking index creation
     -r        -- log to STDERR
     -rr       -- log to both files and STDERR
     --        -- end of options

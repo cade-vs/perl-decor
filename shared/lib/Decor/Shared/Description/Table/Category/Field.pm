@@ -7,12 +7,10 @@
 ##  LICENSE: GPLv2
 ##
 ##############################################################################
-package Decor::Shared::Table::Category::Field::Description;
+package Decor::Shared::Description::Table::Category::Field;
 use strict;
 
-use Decor::Shared::Table::Category::Description;
-
-use parent 'Decor::Shared::Table::Category::Description';
+use parent 'Decor::Shared::Description::Table::Category';
 
 use Data::Dumper;
 use Exception::Sink;

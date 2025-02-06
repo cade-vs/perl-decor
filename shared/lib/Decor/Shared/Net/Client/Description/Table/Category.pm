@@ -7,14 +7,10 @@
 ##  LICENSE: GPLv2
 ##
 ##############################################################################
-package Decor::Core::Table::Category::Field::Description;
+package Decor::Shared::Net::Client::Description::Table::Category;
 use strict;
 
-use Decor::Core::Table::Category::Description;
-use Decor::Shared::Table::Category::Field::Description;
-
-use parent 'Decor::Core::Table::Category::Description';
-use parent 'Decor::Shared::Table::Category::Field::Description';
+use parent 'Decor::Shared::Description::Table::Category';
 
 ##############################################################################
 

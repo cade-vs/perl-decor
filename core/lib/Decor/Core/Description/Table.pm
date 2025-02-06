@@ -7,14 +7,11 @@
 ##  LICENSE: GPLv2
 ##
 ##############################################################################
-package Decor::Core::Table::Description;
+package Decor::Core::Description::Table;
 use strict;
 
-use Decor::Core::Base;
-use Decor::Shared::Table::Description;
-
 use parent 'Decor::Core::Base';
-use parent 'Decor::Shared::Table::Description';
+use parent 'Decor::Shared::Description::Table';
 
 use Data::Dumper;
 use Exception::Sink;

@@ -22,7 +22,7 @@ use Decor::Core::Env;
 use Decor::Core::Log;
 use Decor::Core::Describe;
 #use Decor::Core::Config;
-use Decor::Core::Table::Description;
+use Decor::Core::Description::Table;
 
 use Exporter;
 our @ISA    = qw( Exporter );

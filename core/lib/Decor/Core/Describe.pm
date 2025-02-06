@@ -25,12 +25,12 @@ use Decor::Core::Env;
 use Decor::Core::Log;
 #use Decor::Core::Config;
 
-use Decor::Core::Table::Description;
-use Decor::Core::Table::Category::Description;
-use Decor::Core::Table::Category::Self::Description;
-use Decor::Core::Table::Category::Field::Description;
-use Decor::Core::Table::Category::Do::Description;
-use Decor::Core::Table::Category::Action::Description;
+#use Decor::Core::Table::Description;
+#use Decor::Core::Table::Category::Description;
+#use Decor::Core::Table::Category::Self::Description;
+#use Decor::Core::Table::Category::Field::Description;
+#use Decor::Core::Table::Category::Do::Description;
+#use Decor::Core::Table::Category::Action::Description;
 
 use Exporter;
 our @ISA    = qw( Exporter );

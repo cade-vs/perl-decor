@@ -7,14 +7,14 @@
 ##  LICENSE: GPLv2
 ##
 ##############################################################################
-package Decor::Shared::Table::Category::Action::Description;
+package Decor::Core::Description::Table::Category::Self;
 use strict;
 
-use Decor::Shared::Table::Category::Description;
-    
-use parent 'Decor::Shared::Table::Category::Description';
+use parent 'Decor::Core::Description::Table::Category';
+use parent 'Decor::Shared::Description::Table::Category';
 
 ##############################################################################
+
 
 ### EOF ######################################################################
 1;

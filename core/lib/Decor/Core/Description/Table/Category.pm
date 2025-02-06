@@ -7,14 +7,19 @@
 ##  LICENSE: GPLv2
 ##
 ##############################################################################
-package Decor::Shared::Net::Client::Table::Description;
+package Decor::Core::Description::Table::Category;
 use strict;
 
-use Decor::Shared::Table::Description;
+use Exception::Sink;
 
-use parent 'Decor::Shared::Table::Description';
+use parent 'Decor::Shared::Description::Table::Category';
 
 ##############################################################################
+
+sub allows
+{
+  boom "core description allows() is not implemented yet!";
+}
 
 ### EOF ######################################################################
 1;

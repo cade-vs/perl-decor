@@ -7,39 +7,12 @@
 ##  LICENSE: GPLv2
 ##
 ##############################################################################
-package Decor::Shared::Table::Category::Self::Description;
+package Decor::Shared::Description::Table::Category::Action;
 use strict;
 
-use Decor::Shared::Table::Category::Description;
-
-use parent 'Decor::Shared::Table::Category::Description';
-
-use Data::Dumper;
-use Exception::Sink;
-use Data::Tools;
+use parent 'Decor::Shared::Description::Table::Category';
 
 ##############################################################################
-
-sub is_self_category
-{
-  return 1;
-}
-
-sub get_table_name
-{
-  my $self  =    shift;
-  
-  return $self->{ 'TABLE' };
-}
-
-sub get_label
-{
-  my $self  =    shift;
-  
-  return $self->{ 'LABEL' };
-}
-
-
 
 ### EOF ######################################################################
 1;
