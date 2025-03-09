@@ -5,7 +5,8 @@
 
 
 -- create index concurrent (Pg) or online (Oracle) for non-locking
-
+        https://www.postgresql.org/docs/current/sql-createindex.html
+        https://www.plsql.co/index-online.html
 
 
 

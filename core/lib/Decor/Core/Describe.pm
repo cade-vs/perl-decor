@@ -618,7 +618,7 @@ sub __merge_table_des_file
         $key = $3;
         }
 
-
+      $key = $DE_TYPE_ALIASES{ $key } if exists $DE_TYPE_ALIASES{ $key };
       if( $key_path eq '' and ( exists $DE_TYPE_NAMES{ $key } or exists $DE_LTYPE_NAMES{ $key } ) )
         {
         $value = "$key $value";
@@ -814,7 +814,6 @@ sub __postprocess_table_raw_description
 
     # "logic" types: LOCATION, EMAIL, etc.
     my $ltype;
-    $type_des->{ 'LNAME' } = $ltype;
     if( exists $DE_LTYPE_NAMES{ $type } )
       {
       $ltype = $type;
@@ -831,6 +830,7 @@ sub __postprocess_table_raw_description
         $type = shift @type;
         }
       }
+    $type_des->{ 'LNAME' } = $ltype;
 
     # "high" level types
     if( $type eq 'LINK' )
@@ -847,7 +847,7 @@ sub __postprocess_table_raw_description
       $fld_des->{ 'MAP_NEAR_FIELD'   } = shift @type || boom "missing MAP NEAR FIELD in table [$table] field [$field] from [@debug_origin]";
       $fld_des->{ 'MAP_FAR_FIELD'    } = shift @type || boom "missing MAP FAR FIELD  in table [$table] field [$field] from [@debug_origin]";
       }
-    elsif( $type eq 'BACKLINK' or $type eq 'BACK' )
+    elsif( $type eq 'BACKLINK' ) # or $type eq 'BACK'  -- moved to %DE_TYPE_ALIASES
       {
       $type = 'BACKLINK';
       $fld_des->{ 'BACKLINKED_TABLE' } = shift @type || boom "missing BACKLINK TABLE in table [$table] field [$field] from [@debug_origin]";
@@ -863,7 +863,7 @@ sub __postprocess_table_raw_description
       my $len = shift( @type ) || 128;
       $type_des->{ 'LEN' } = $len;
       }
-    elsif( $type eq 'BOOL' )
+    elsif( $ltype eq 'BOOL' )
       {
       $fld_des->{ 'BOOL' } = 1;
 

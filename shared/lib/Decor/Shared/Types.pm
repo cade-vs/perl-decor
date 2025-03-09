@@ -16,6 +16,7 @@ use Exporter;
 our @ISA    = qw( Exporter );
 our @EXPORT = qw(
                   %DE_TYPE_NAMES
+                  %DE_TYPE_ALIASES
                   %DE_LTYPE_NAMES
                   
                   type_set_format
@@ -64,6 +65,12 @@ our %DE_TYPE_NAMES = (
                       'MAP'      => 1,
                     );
 dlock %DE_TYPE_NAMES;
+
+our %DE_TYPE_ALIASES = (
+                      'BACK'     => 'BACKLINK',
+                      'WIDE'     => 'WIDELINK',
+                      );
+dlock %DE_TYPE_ALIASES;
 
 # "logic" types
 our %DE_LTYPE_NAMES = (

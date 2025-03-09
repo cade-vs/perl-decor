@@ -112,8 +112,6 @@ sub describe_linked_field
   
   my ( $linked_table, $linked_field, $type ) = $self->link_details();
   
-print STDERR "************************** self $self\n" . Dumper( $self );
-  
   my $ltdes = $self->describe( $linked_table );
   if( ! $ltdes or ! exists $ltdes->{ 'FIELD' }{ $linked_field } )
     {

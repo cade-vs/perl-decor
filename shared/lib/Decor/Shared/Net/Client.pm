@@ -410,7 +410,7 @@ sub describe
 
   my $mo = $self->tx_msg( \%mi ) or return undef; # TODO: boom "describe: cannot get description for table [$table]";
 
-print STDERR Dumper( $mo );
+#print STDERR Dumper( $mo );
 
   my $des = $self->{ 'CACHE' }{ 'DESCRIBE' }{ $table } = $mo->{ 'DES' };
 

@@ -231,9 +231,11 @@ sub __session_update_times
   my $force       = shift;
 
   my $atime = $session_rec->read( 'ATIME' );
+  my $xtime = $session_rec->read( 'XTIME' );
   
   # update access & expire time but not less than a minute away
-  return 0 unless $force or time() - $atime > 60;
+  # however, reset timer if requested less than 60 seconds until expire
+  return 0 unless $force or time() - $atime > 60 or $xtime - time() < 60;
 
   my $xtime = $session_rec->read( 'USR' ) == 909 ?
               de_app_cfg( 'SESSION_ANON_EXPIRE_TIME', 24*60*60 ) # 24 hours for anonimous sessions
@@ -445,7 +447,7 @@ sub __setup_user_inside
   $mo->{ 'UDID'  } = $user_rec->read( 'DATA' );
 
   de_log( "status: user [$mo->{ 'UN' }]{$mo->{ 'URN' }} connected with groups: " . join( ', ', sort { $a <=> $b } keys %{ $mo->{ 'UGS' } } ) );
-  
+
   return 1;
 }
 
@@ -1550,7 +1552,6 @@ sub sub_recalc
   $mo->{ 'MERRS' } = $merrs if $merrs;
   $mo->{ 'RDATA' } = $rec->read_hash_all();
   $mo->{ 'XS'    } = 'OK';
-#print Dumper( $rec, $mi, $mo  );
 }
 
 sub sub_do
@@ -1609,8 +1610,6 @@ sub sub_access
   my $id     =    $mi->{ 'ID'     };
   my $oper   = uc $mi->{ 'OPER'   };
   my $data   =    $mi->{ 'DATA'   }; # not supported yet
-
-print STDERR Dumper( $mi );
 
   boom "invalid TABLE name [$table]"    unless de_check_name( $table ) or ! des_exists( $table );
   boom "invalid DATA [$data]"           if $data and ref( $data ) ne 'HASH';
