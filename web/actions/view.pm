@@ -291,12 +291,12 @@ sub main
         $data_fmt .= de_html_alink( $reo, 'new', "<b class=hi>$count_s</b> [~records from] <b class=hi>$linked_table_label</b>",   "[~View all backlinked records from] <b class=hi>$linked_table_label</b>",  ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => $id, FILTER => { $backlinked_field => $id } );
         $data_fmt .= de_html_alink( $reo, 'new', " ( + <b class=hi>$uncount_s</b> [~NOT connected records])",   "[~View all backlinked records from] <b class=hi>$linked_table_label</b>",  ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_VALUE => 0, FILTER => { $backlinked_field => 0 } ) if $uncount > 0;
 
-        my $details_fields = $bfdes->get_attr( qw( WEB EDIT DETAILS_FIELDS ) );
-        if( $details_fields )
+        my $detail_fields = $bfdes->get_attr( qw( WEB EDIT DETAIL_FIELDS ) );
+        if( $detail_fields )
           {
           my $backlink_text = "<p>";
 
-          $details_fields = join ',', @{ $bltdes->get_fields_list() } if $details_fields eq '*';
+          $detail_fields = join ',', @{ $bltdes->get_fields_list() } if $detail_fields eq '*';
 
           my $bltsdes = $bltdes->get_table_des();
           my $bltable_type = $bltsdes->{ 'TYPE' };
@@ -319,7 +319,7 @@ sub main
 
           my $details_limit = $bfdes->get_attr( qw( WEB VIEW DETAILS_LIMIT ) ) || 16;
 
-          my ( $dd_grid, $dd_count ) = de_data_grid( $core, $backlinked_table, $details_fields, { FILTER => { $backlinked_field => $id }, LIMIT => $details_limit, CLASS => 'grid view record', TITLE => "[~Related] $linked_table_label", CTRL_CB => $sub_de_data_grid_cb, SUMS => 1 } ) ;
+          my ( $dd_grid, $dd_count ) = de_data_grid( $core, $backlinked_table, $detail_fields, { FILTER => { $backlinked_field => $id }, LIMIT => $details_limit, CLASS => 'grid view record', TITLE => "[~Related] $linked_table_label", CTRL_CB => $sub_de_data_grid_cb, SUMS => 0 } ) ;
           $field_details .= $dd_grid;
 
           if( uc( $bfdes->get_attr( 'WEB', 'GRID', 'BACKLINK_GRID_MODE' ) ) eq 'ALL' )

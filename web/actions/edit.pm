@@ -309,6 +309,7 @@ sub main
     {
     my $fdes       = $tdes->{ 'FIELD'  }{ $field };
     my $label      = $fdes->get_attr( 'WEB', $edit_mode, 'LABEL' ) || $field;
+    my $required   = '&reg;' if $fdes->get_attr( 'REQUIRED' );
 
     next if $fdes->get_attr( 'WEB', $edit_mode, 'HIDE' );
 
@@ -364,7 +365,7 @@ sub main
     my $record_first_class = 'record-first' if $record_first;
     $record_first = 0;
     $text .= "<div class='record-field-value'>
-                <div class='$edit_mode_class_prefix-field record-field $record_first_class $base_field_class' >$label$field_error</div>
+                <div class='$edit_mode_class_prefix-field record-field $record_first_class $base_field_class' >$label<span class=hi title='Required field'>$required</span>$field_error</div>
                 <div class='$edit_mode_class_prefix-value record-value $record_first_class $base_field_class' >$input_layout</div>
               </div>";
 
@@ -706,12 +707,12 @@ sub edit_get_field_control_info
 
       my $count = $core->count( $backlinked_table, { FILTER => { $backlinked_field => $id } });
 
-      my $details_fields = $bfdes->get_attr( qw( WEB EDIT DETAILS_FIELDS ) );
-      if( $details_fields and $count > 0)
+      my $detail_fields = $bfdes->get_attr( qw( WEB EDIT DETAIL_FIELDS ) );
+      if( $detail_fields and $count > 0)
         {
         my $backlink_text;
 
-        $details_fields = join ',', @{ $bltdes->get_fields_list() } if $details_fields eq '*';
+        $detail_fields = join ',', @{ $bltdes->get_fields_list() } if $detail_fields eq '*';
 
         my $sub_de_data_grid_cb = sub
           {
@@ -724,7 +725,7 @@ sub edit_get_field_control_info
           };
       
         my $details_limit = $bfdes->get_attr( qw( WEB EDIT DETAILS_LIMIT ) ) || 16;
-        $field_details .= "<p>" . de_data_grid( $core, $backlinked_table, $details_fields, { FILTER => { $backlinked_field => $id }, LIMIT => $details_limit, CLASS => 'grid view record', TITLE => "[~Related] $linked_table_label", CTRL_CB => $sub_de_data_grid_cb } ) ;
+        $field_details .= "<p>" . de_data_grid( $core, $backlinked_table, $detail_fields, { FILTER => { $backlinked_field => $id }, LIMIT => $details_limit, CLASS => 'grid view record', TITLE => "[~Related] $linked_table_label", CTRL_CB => $sub_de_data_grid_cb } ) ;
 
         my ( $insert_cue, $insert_cue_hint ) = de_web_get_cue( $bltdes->get_table_des(), qw( WEB GRID INSERT_CUE ) );
         $field_details .= de_html_form_button_redirect( $reo, 'new', $edit_form, "[~View all records]",  "[~View all backlinked records from] <b>$linked_table_label</b>",  BTYPE => 'nav', ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, FILTER => { $backlinked_field => $id } ) if $bltdes->allows( 'READ' ) and $count > 0 and $count > $details_limit;

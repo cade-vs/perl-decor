@@ -267,8 +267,8 @@ my %DES_ATTRS = (
                            SHOW        => 3,
                            HIDE        => 3,
                            
-                           DETAILS_FIELDS => 3,
-                           DETAILS_LIMIT  => 3,
+                           DETAIL_FIELDS => 3,
+                           DETAILS_LIMIT => 3,
                            
                            BACKLINK_GRID_MODE => 3,
                            

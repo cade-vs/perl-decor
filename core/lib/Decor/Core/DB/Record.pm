@@ -1044,26 +1044,53 @@ sub get_linked_record
   my $self  = shift;
   my $field = shift;
 
-  my $fdes = describe_table_field( $self->table(), $field );
+  my ( $dst_table, $dst_field, $dst_id ) = $self->__resolve_field( $field );
+
+  my $fdes = describe_table_field( $dst_table, $dst_field );
   my $ftype_name = $fdes->{ 'TYPE' }{ 'NAME' };
   
   # TODO: support for WIDELINKs
   boom "cannot get linked record of [$field] it is not a LINK field" unless $ftype_name eq 'LINK';
 
-use Data::Dumper;
-print STDERR Dumper( \%Decor::Core::Table::Category::Field::Description:: );
-  
   my ( $linked_table, $linked_field ) = $fdes->link_details();
   
+  my $id;
+  if( $field =~ /\./ ) 
+    {
+    # there is path
+    my $prec = new Decor::Core::DB::Record;
+    $prec->load( $dst_table, $dst_id ) or return undef;
+    $id = $prec->read( $dst_field );
+    }
+  else
+    {
+    # no path, this is the same record (self)
+    $id = $self->read( $field );
+    }
+  
+  
   my $lrec = new Decor::Core::DB::Record;
-  
-  my $id = $self->read( $field );
-  
-  return undef unless $id > 0;
-  
-  return undef unless $lrec->load( $linked_table, $id );
-  
+  $lrec->load( $linked_table, $id ) or return undef;
   return $lrec;
+}
+
+sub count_backlinked_records
+{
+  my $self  = shift;
+  my $field = shift;
+  my $opts  = shift || {};
+
+  my ( $dst_table, $dst_field, $dst_id ) = $self->__resolve_field( $field );
+  
+  my $fdes = describe_table_field( $dst_table, $dst_field );
+  my $ftype_name = $fdes->{ 'TYPE' }{ 'NAME' };
+  
+  boom "cannot select backlinked records of [$field] it is not a BACKLINK field" unless $ftype_name eq 'BACKLINK';
+  
+  my ( $backlinked_table, $backlinked_field ) = $fdes->backlink_details();
+
+  my $sio  = new Decor::Core::DB::IO;
+  return $sio->count( $backlinked_table, "$backlinked_field = ?", { BIND => [ $dst_id ], %$opts } );
 }
 
 ### METHODS ##################################################################
