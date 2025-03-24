@@ -170,8 +170,6 @@ sub select
 
   s/^\.// for @fields; # remove leading anchor (syntax sugar really)
 
-  @fields = sort @fields; # optimize prepare_cached...
-  
   dlock \@fields;
   $self->{ 'SELECT' }{ 'FIELDS'     } = \@fields;
   $self->{ 'SELECT' }{ 'TABLES'     }{ $db_table }++;
