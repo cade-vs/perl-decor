@@ -212,7 +212,6 @@ sub de_version
 
 sub de_root
 {
-  boom "call de_init() first to initialize environment!" unless $_INIT_OK;
   return $ROOT;
 }
 

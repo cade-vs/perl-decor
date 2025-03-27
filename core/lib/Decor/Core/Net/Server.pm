@@ -16,6 +16,7 @@ use strict;
 use Data::Dumper;
 use Exception::Sink;
 use Data::Tools;
+use Data::Tools::Process;
 use Data::Tools::Socket;
 use Data::Tools::Socket::Protocols;
 use Net::Waiter 1.02;
@@ -264,6 +265,26 @@ sub server_idle_end
 }
 
 #-----------------------------------------------------------------------------
+
+sub on_child_start
+{
+  my $self = shift;
+
+  my $pid_root = $self->{ 'OPT' }{ 'PID_ROOT' } or return undef;
+  
+  pidfile_create( "$pid_root.d/$$" );
+}  
+
+sub on_child_exit
+{
+  my $self = shift;
+
+  my $pid_root = $self->{ 'OPT' }{ 'PID_ROOT' } or return undef;
+
+  pidfile_remove( "$pid_root.d/$$" ) if $pid_root;
+}
+
+
 
 ### EOF ######################################################################
 1;

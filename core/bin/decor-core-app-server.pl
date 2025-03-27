@@ -245,6 +245,15 @@ if( $@ )
 
 daemonize() if $opt_daemonize;
 de_reopen_logs();
+
+my $pid_root = de_root() . "/var/core/$opt_app_name\_$</pid/app_server/$server_pkg/$$";
+pidfile_create( $pid_root );
+
+$srv_opt{ 'PID_ROOT' } = $pid_root;
+
 print "status: server started with pid [$$]\n";
 my $server = new $server_pkg %srv_opt;
 $server->run();
+
+pidfile_remove( $pid_root );
+rmdir( "$pid_root.d" );
