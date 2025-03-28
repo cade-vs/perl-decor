@@ -210,6 +210,7 @@ if( $opt_preload )
 #-----------------------------------------------------------------------------
 
 my %srv_opt = (
+
               PORT    => $opt_listen_port,
               NO_FORK => $opt_no_fork,
               PREFORK => $opt_prefork,
@@ -217,6 +218,7 @@ my %srv_opt = (
               SSL     => $opt_ssl,
               
               %opt_ssl
+
               );
 
 if( $opt_preload )
@@ -246,7 +248,7 @@ if( $@ )
 daemonize() if $opt_daemonize;
 de_reopen_logs();
 
-my $pid_root = de_root() . "/var/core/$opt_app_name\_$</pid/app_server/$server_pkg/$$";
+my $pid_root = de_root() . "/var/core/$opt_app_name\_$</pid/app_server/$server_pkg.port$opt_listen_port";
 pidfile_create( $pid_root );
 
 $srv_opt{ 'PID_ROOT' } = $pid_root;
