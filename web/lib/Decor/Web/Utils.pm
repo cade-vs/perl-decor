@@ -141,12 +141,15 @@ sub de_web_read_map_far_table_data
   my $fdes  = $tdes->get_field_des( $field );
   my ( $map_table, $map_near_field, $map_far_field, $far_table, $far_field ) = $fdes->map_details();
 
+  my $far_orderby = $fdes->get_attr( qw( WEB EDIT FAR_ORDERBY ) ) || '_ID';
+  $far_orderby = '_ID' unless $far_orderby or $far_orderby == 1;
+
 #  my $mtdes  = $core->describe( $map_table ) or return [];
 #  my $mffdes = $mtdes->get_field_des( $map_far_field );
 
 #  my ( $far_table, $far_field ) = $mffdes->link_details();
 
-  my $ar = $core->select_arhr( $far_table, [ '_ID', $far_field, @_ ], { ORDER_BY => 'PRI,_ID' } );
+  my $ar = $core->select_arhr( $far_table, [ '_ID', $far_field, @_ ], { ORDER_BY => $far_orderby } );
   
   return wantarray ? ( $ar, $far_field ) : $ar;
 }
@@ -162,11 +165,14 @@ sub de_get_selected_map_names
 
   my ( $map_table, $map_near_field, $map_far_field, $far_table, $far_field ) = $bfdes->map_details();
 
+  my $far_orderby = $bfdes->get_attr( qw( WEB EDIT FAR_ORDERBY ) ) || '_ID';
+  $far_orderby = '_ID' unless $far_orderby or $far_orderby == 1;
+
   my $map_data_ar = de_web_read_map_field_data( $core, $table, $field, $id );
   my @state_ids = map { $_->{ 'STATE' } ? $_->{ $map_far_field } : () } @$map_data_ar;
 
   #$field_input      .= "<xmp>" . Dumper( $map_data_ar, \@state_ids ) . "</xmp>";
-  my $map_selected = $core->select_field_ar( $far_table, $far_field, { FILTER => { '_ID' => [ { OP => 'IN', VALUE => \@state_ids } ] }, ORDER_BY => 'PRI,_ID' } );
+  my $map_selected = $core->select_field_ar( $far_table, $far_field, { FILTER => { '_ID' => [ { OP => 'IN', VALUE => \@state_ids } ] }, ORDER_BY => $far_orderby } );
   
   return $map_selected;
 }

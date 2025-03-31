@@ -431,6 +431,8 @@ sub de_data_grid
   my $ctrl_cb  = $opt->{ 'CTRL_CB'  };
   my $order_by = $opt->{ 'ORDER_BY' } || $tdes->{ '@' }{ 'ORDER_BY' } || '._ID DESC';
   my $sums     = $opt->{ 'SUMS'     };
+
+  $fields = $tdes->get_fields_list() if $fields eq '*';
   
   my @fields = ref( $fields ) eq 'ARRAY' ? @$fields : split /\s*,\s*/, $fields;
   

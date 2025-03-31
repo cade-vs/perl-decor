@@ -262,6 +262,9 @@ my %DES_ATTRS = (
                            DOWNLOAD_LINK_CUE => 3,
                            MAP_EDIT_CUE      => 3,
                            
+                           FAR_DETAILS => 2, # list of fields to show when selecting map records
+                           FAR_ORDERBY => 2, # order to be used when reading FAR_DETAILS
+                           
                            DIVIDER     => 3,
 
                            SHOW        => 3,
