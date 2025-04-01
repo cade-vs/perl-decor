@@ -28,7 +28,7 @@ sub describe
   my $self = shift;
   
   boom "missing describe callback" unless $self->{ ':DESCRIBE_CB' };
-  
+
   return $self->{ ':DESCRIBE_CB' }->( @_ );
 }
 

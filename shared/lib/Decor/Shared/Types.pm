@@ -525,7 +525,8 @@ sub type_revert
     $time_frac = undef if $time_frac eq '.';
 
     my @data = ( $data );
-    push @data, $type->{ 'TZ' } if $type->{ 'TZ' } ne '';
+
+    push @data, $type->{ 'TZ' } if exists $type->{ 'TZ' } and $type->{ 'TZ' } ne '';
     return str2time( @data ) . $time_frac;
     }
   elsif ( $type_name eq "REAL" )

@@ -423,7 +423,8 @@ sub __read_formatted
   return wantarray ? @res : shift( @res );
 }
 
-*r = *read;
+*r   = *read;
+*rdb = *read_db;
 # reads current value of the record data
 sub read
 {

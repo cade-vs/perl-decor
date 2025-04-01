@@ -408,7 +408,7 @@ sub describe
   $mi{ 'XT'    } = 'D';
   $mi{ 'TABLE' } = $table;
 
-  my $mo = $self->tx_msg( \%mi ) or return undef; # TODO: boom "describe: cannot get description for table [$table]";
+  my $mo = $self->tx_msg( \%mi ) or boom "describe: cannot get description for table [$table]";
 
 #print STDERR Dumper( $mo );
 
