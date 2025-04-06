@@ -78,7 +78,9 @@ sub get_label
 {
   my $self = shift;
 
-  return $self->{ '@' }{ 'LABEL' };
+  my @label = split /\s*;\s*/, $self->{ '@' }{ 'LABEL' };
+
+  return wantarray ? ( $label[1], $label[2] || $label[0] ) : $label[0];
 }
 
 sub get_table_des

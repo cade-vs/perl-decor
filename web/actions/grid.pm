@@ -390,8 +390,6 @@ sub main
 
     $vec_ctrl_popup = "<div class='popup-menu-buttons'>$vec_ctrl_popup</div>";
 
-    my $row_vec_handle = html_popup_layer( $reo, VALUE => $vec_ctrl_popup, CLASS => 'popup-layer', TYPE => 'CONTEXT' );
-
     $text_grid_body .= "<td class='grid-data fmt-ctrl fmt-mono'>$vec_ctrl</td>";
     for my $field ( @fields )
       {
@@ -403,6 +401,7 @@ sub main
 
       next if $bfdes->get_attr( qw( WEB GRID HIDE ) );
       my $allow_wrap = $bfdes->get_attr( qw( WEB GRID ALLOW_WRAP ) );
+      my $label      = $bfdes->get_attr( qw( WEB GRID LABEL ) );
 
       my $lpassword = $lfdes->get_attr( 'PASSWORD' ) ? 1 : 0;
 
@@ -415,6 +414,14 @@ sub main
       my $data_ctrl;
       $fmt_class .= $fmt_class_fld;
       $fmt_class .= "fmt-wrap" if $allow_wrap;
+
+      my $row_vec_handle;
+      my $vec_ctrl_field_popup = $vec_ctrl_popup;
+      if( ! $bfdes->is_unique() and ! $bfdes->is_backlinked() and ! $bfdes->is_widelinked() )
+        {
+        $vec_ctrl_field_popup .= de_html_alink_button( $reo, 'new', "(&cong;) [~View all records with the same] <b>$label</b>: $data_fmt",  undef, ACTION => 'grid',                   TABLE => $table, FILTER => { $base_field => $data_base } );
+        }
+      $row_vec_handle = html_popup_layer( $reo, VALUE => $vec_ctrl_field_popup, CLASS => 'popup-layer', TYPE => 'CONTEXT' );
 
       if( $bfdes->is_linked() or $bfdes->is_widelinked() )
         {

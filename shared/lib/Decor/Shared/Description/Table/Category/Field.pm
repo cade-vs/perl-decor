@@ -53,6 +53,20 @@ sub is_map
   return $self->{ 'TYPE' }{ 'NAME' } eq 'MAP';
 }
 
+sub is_required
+{
+  my $self   = shift;
+  
+  return $self->{ 'REQUIRED' };
+}
+
+sub is_unique
+{
+  my $self   = shift;
+  
+  return $self->{ 'UNIQUE' };
+}
+
 sub link_details
 {
   my $self   = shift;

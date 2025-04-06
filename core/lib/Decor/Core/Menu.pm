@@ -386,7 +386,7 @@ sub __postprocess_menu_hash
         # FIXME: add hint that this menu has problems
         }
       $item_des->{ 'TABLE' }   = $table;
-      $item_des->{ 'LABEL' } ||= $des->{ '@' }{ 'LABEL' };
+      $item_des->{ 'LABEL' } ||= $des->get_label();
       }
     elsif( $type =~ /^(URL)$/ )
       {

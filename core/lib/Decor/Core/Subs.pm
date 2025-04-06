@@ -1428,6 +1428,8 @@ sub sub_update
   boom "E_ACCESS: UPDATE is not allowed for requested record TABLE [$table] ID [$id]"
       unless $profile->check_access_row( 'UPDATE', $rec->table(), $rec );
 
+
+
   $rec->write( %$data );
 
   $rec->taint_mode_disable_all();
