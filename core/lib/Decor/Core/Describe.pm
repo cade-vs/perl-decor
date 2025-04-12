@@ -449,6 +449,8 @@ sub __merge_table_des_file
 
   my $field_templates = __load_table_raw_description( '_DE_TEMPLATES' ) unless $table eq '_DE_UNIVERSAL' or $table eq '_DE_TEMPLATES';
 
+  my $key_prefix_pin; # pinned keys: web.edit.       will follow next lines with   .something    ...
+  
   my $ln; # line number
   while( my $line = <$inf> )
     {
@@ -465,6 +467,8 @@ sub __merge_table_des_file
 
     if( $line =~ /^\s*(=+\s*|_)(([a-zA-Z_][a-zA-Z_0-9]*):+\s*)?([a-zA-Z_][a-zA-Z_0-9]*)\s*(.*?)\s*$/ )
       {
+      $key_prefix_pin = undef; # remove key pin
+
       # new category item (section)
       my $ftype     = $1; # if '_' it is a special field for decor internal use or permission group
          $category  = uc( $3 || 'FIELD' );
@@ -610,6 +614,20 @@ sub __merge_table_des_file
       {
       my $key   = uc $1;
       my $value =    $2;
+
+      if( $key =~ /\.$/ )
+        {
+        $key_prefix_pin = $key;
+        next;
+        }
+      elsif( $key =~ /^\./ )
+        {
+        $key = $key_prefix_pin . substr( $key, 1 ); # remove leading dot
+        }
+      else
+        {
+        $key_prefix_pin = undef;
+        }    
 
       $key =~ s/-/_/g;
 
