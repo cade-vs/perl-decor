@@ -2,7 +2,7 @@
 
 
   DECOR APPLICATION MACHINERY
-  2014-2021 (c) Vladi Belperchinov-Shabanski "Cade"
+  2014-2025 (c) Vladi Belperchinov-Shabanski "Cade"
 
   TABLE DEFINITION
 
@@ -186,6 +186,28 @@
         if given "2" or more, will variate the additional information.
         for UTIME,TIME,DATE fields, "2" will show the additional text under 
         the field value, "1" will show it next to it.
+
+  TABLE/FIELD ATTRIBUTES KEY PINNING
+  
+  Table and field attribute keys (names) can be prefix-pinned, for example,
+  the following 3 attributes:
+
+    web.edit.map_edit_cue   Select letters
+    web.edit.far_details    NAME,CATEGORY,BODY
+    web.edit.far_orderby    PRIORITY,_ID
+
+  can be written in description def files as:
+  
+    web.edit.
+            .map_edit_cue   Select letters
+            .far_details    NAME,CATEGORY,BODY
+            .far_orderby    PRIORITY,_ID
+
+  "web.edit." is key-prefix pin. all the following attributes with leading dot
+  will inherit this prefix. 
+  
+  pinning will be reset if there is another pin, attribute without leading dot
+  or field or other category definition (line with leading "=").
 
   INDEXES DEFINITIONS
   
