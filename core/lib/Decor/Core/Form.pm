@@ -87,6 +87,8 @@ sub __form_process_item
   $item_align = $1 if $fmt =~ /([<=~>])/;
   my ( $item_format, $item_format_name ) = ( 1, $2 ) if $fmt =~ /F(\(\s*([A-Z]+)\s*\))?/;
   my $sub_form_name = uc( $1 ) if $fmt =~ /\@([a-z_]+)/i;
+  
+  # print STDERR ">>>>>>>>>>>>>>>>>>>>>>>>>> $item | $fmt | $sub_form_name ( $item_len, $item_dot ) $item_align\n";  
 
   my $value;
   if( $type eq 'T' )
@@ -104,7 +106,7 @@ sub __form_process_item
     my $tdes = describe_table( $rec->table() );
     my ( $bfdes, $lfdes ) = $tdes->resolve_path( $name );
 
-    if( $bfdes->is_backlinked() )
+    if( $lfdes->is_backlinked() )
       {
       my $brec = $rec->select_backlinked_records( $name );
       while( $brec->next() )

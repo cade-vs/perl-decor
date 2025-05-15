@@ -1024,8 +1024,10 @@ sub select_backlinked_records
   my $self  = shift;
   my $field = shift;
   my $opts  = shift || {};
+
+  my ( $dst_table, $dst_field, $dst_id ) = $self->__resolve_field( $field );
   
-  my $fdes = describe_table_field( $self->table(), $field );
+  my $fdes = describe_table_field( $dst_table, $dst_field );
   my $ftype_name = $fdes->{ 'TYPE' }{ 'NAME' };
   
   boom "cannot select backlinked records of [$field] it is not a BACKLINK field" unless $ftype_name eq 'BACKLINK';
@@ -1035,7 +1037,7 @@ sub select_backlinked_records
   
   my $srec = new Decor::Core::DB::Record;
   
-  $srec->select( $backlinked_table, "$backlinked_field = ?", { BIND => [ $base_id ], %$opts } );
+  $srec->select( $backlinked_table, "$backlinked_field = ?", { BIND => [ $dst_id ], %$opts } );
   
   return $srec;
 }
