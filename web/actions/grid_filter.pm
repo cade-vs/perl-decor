@@ -216,7 +216,7 @@ sub main
 
   $text .= "<br>";
 
-  my $filter_form = new Web::Reactor::HTML::Form( REO_REACTOR => $reo );
+  my $filter_form = new Web::Reactor::HTML::Form( $reo );
   my $filter_form_begin;
   $filter_form_begin .= $filter_form->begin( NAME => "form_filter_$table", DEFAULT_BUTTON => 'OK' );
   my $form_id = $filter_form->get_id();
@@ -321,7 +321,7 @@ sub main
         @spf_fld = @v;
         }
 
-      my $combo_data = [];
+      my @combo_data;
       my $sel_hr     = {};
       $sel_hr->{ $input_data } = 1 if $input_data > 0;
       # FIXME: support multi-select linked fields
@@ -357,19 +357,19 @@ sub main
       my $combo_orderby = $bfdes->get_attr( qw( WEB COMBO ORDERBY ) ) || join( ',', @spf_fld );
       my $combo_select  = $core->select( $linked_table, $lfields, { FILTER => $combo_filter, ORDER_BY => $combo_orderby } );
       
-      push @$combo_data, { KEY => '', VALUE => '--' };
+      push @combo_data, { KEY => '*', VALUE => '', LABEL => '&empty;' };
       
 #$text .= "my $combo_select = $core->select( $linked_table, $lfields )<br>";
       while( my $hr = $core->fetch( $combo_select ) )
         {
-        my @value = map { $hr->{ $_ } } @spf_fld;
-        my $key   = $hr->{ '_ID' };
-        my $value = sprintf( $spf_fmt, @value );
+        my @label = map { $hr->{ $_ } } @spf_fld;
+        my $label = sprintf( $spf_fmt, @label );
+        my $id    = $hr->{ '_ID' };
 
-        $selected_search_value = $value if $key eq $input_data;
+        $selected_search_value = $id if $id eq $input_data;
 #$text .= "[$spf_fmt][@spf_fld][$value][@value]<br>";
         #$value =~ s/\s/&nbsp;/g;
-        push @$combo_data, { KEY => $hr->{ '_ID' }, VALUE => $value };
+        push @combo_data, { KEY => '*', VALUE => $id, LABEL => $label };
         }
 
       my $fmt_class;
@@ -390,7 +390,7 @@ sub main
                                              VALUE     => $selected_search_value,
                                              KEY       => $input_data,
                                              EMPTY_KEY => 0,
-                                             DATALIST  => $combo_data,
+                                             DATALIST  => \@combo_data,
                                              );
         }
       else
@@ -398,7 +398,7 @@ sub main
         $field_input = $filter_form->combo( 
                                              NAME     => "F:$field", 
                                              CLASS    => $fmt_class, 
-                                             DATA     => $combo_data, 
+                                             DATA     => \@combo_data, 
                                              ROWS     => $rows, 
                                              SELECTED => $sel_hr, 
                                              MULTIPLE => $multi 

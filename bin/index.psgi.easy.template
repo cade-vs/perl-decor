@@ -4,7 +4,6 @@ use strict;
 use lib '[--DECOR_ROOT--]/easy/lib';
 use lib '[--DECOR_ROOT--]/web/lib';
 use lib '[--DECOR_ROOT--]/shared/lib';
-use Web::Reactor::Decor;
 use Data::Dumper;
 use Time::HR;
 
@@ -41,6 +40,7 @@ sub
     my $res;
     eval
       {
+      require Web::Reactor::Decor;
       $res = Web::Reactor::Decor->new( $env, $cfg )->run();
       };
     if( $@ or ! $res )

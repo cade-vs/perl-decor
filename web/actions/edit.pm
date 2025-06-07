@@ -277,7 +277,7 @@ sub main
     $text .= "<br>";
     }
 
-  my $edit_form = new Web::Reactor::HTML::Form( REO_REACTOR => $reo );
+  my $edit_form = new Web::Reactor::HTML::Form( $reo );
   my $edit_form_begin;
   $edit_form_begin .= $edit_form->begin( NAME => "form_edit_$table", DEFAULT_BUTTON => 'REDIRECT:PREVIEW' );
   $edit_form_begin .= $edit_form->input( NAME => "ACTION", RETURN => "edit", HIDDEN => 1 );
@@ -548,7 +548,7 @@ sub edit_get_field_control_info
           $_ = $ltdes->expand_field_path( $_ );
           }
 
-        my $combo_data = [];
+        my @combo_data;
         my $sel_hr     = {};
         $sel_hr->{ $field_data } = 1;
 
@@ -572,26 +572,24 @@ sub edit_get_field_control_info
         my $combo_orderby = $fdes->get_attr( qw( WEB COMBO ORDERBY ) ) || join( ',', @ord_fld );
 
         my $combo_select = $core->select( $linked_table, $lfields, { 'FILTER_NAME' => $select_filter_name, 'FILTER_BIND' => \@select_filter_bind, ORDER_BY => $combo_orderby, CHECK_ROW_LINK_ACCESS => 1 } );
-        push @$combo_data, { KEY => 0, VALUE => '&empty;' } unless $search;
+        push @combo_data, { KEY => '*', VALUE => 0, LABEL => '&empty;' } unless $search;
 #$text .= "my $combo_select = $core->select( $linked_table, $lfields )<br>";
         while( my $hr = $core->fetch( $combo_select ) )
           {
-          my @value = map { $hr->{ $_ } } @spf_fld;
-          my $key   = $hr->{ '_ID' };
-          my $value = sprintf( $spf_fmt, @value );
+          my @label = map { $hr->{ $_ } } @spf_fld;
+          my $label = sprintf( $spf_fmt, @label );
+          my $id    = $hr->{ '_ID' };
           
-          $value = substr( $value, 0, 1021 ) . '...' if length( $value ) > 1021;
+          $label = substr( $label, 0, 1021 ) . '...' if length( $label ) > 1021;
 
-          $selected_search_value = $value if $key eq $field_data;
-#$text .= "$key -- [$spf_fmt][@spf_fld][$value][@value]<br>";
-#          $value =~ s/\s/&nbsp;/g;
-          push @$combo_data, { KEY => $key, VALUE => $value };
+          $selected_search_value = $id if $id eq $field_data;
+          push @combo_data, { KEY => '*', VALUE => $id, LABEL => $label };
           }
 
         # auto-select single item if field is required
-        if( $fdes->{ 'REQUIRED' } and @$combo_data == 2 )
+        if( $fdes->{ 'REQUIRED' } and @combo_data == 2 )
           {
-          $sel_hr->{ $combo_data->[1]{ 'KEY' } } = 1;
+          $sel_hr->{ $combo_data[1]{ 'KEY' } } = 1;
           }
 
         my $fmt_class;
@@ -614,7 +612,7 @@ sub edit_get_field_control_info
                                                VALUE     => $selected_search_value,
                                                KEY       => $field_data,
                                                EMPTY_KEY => 0,
-                                               DATALIST  => $combo_data,
+                                               DATALIST  => \@combo_data,
                                                SIZE      => $field_size,
                                                MAXLEN    => $field_maxlen,
                                                RESUBMIT_ON_CHANGE => $recalc_on_change,
@@ -625,7 +623,7 @@ sub edit_get_field_control_info
           {  
           $field_input = $edit_form->combo(    NAME     => "F:$field", 
                                                CLASS    => $fmt_class, 
-                                               DATA     => $combo_data, 
+                                               DATA     => \@combo_data, 
                                                SELECTED => $sel_hr,
                                                RADIO    => $radio,
                                                RESUBMIT_ON_CHANGE => $recalc_on_change,

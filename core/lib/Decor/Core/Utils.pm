@@ -110,9 +110,7 @@ sub de_add_alog_rec_if_des
   my $oper = shift;
   my $rec  = shift;
   
-  use Data::Dumper;
-  print Dumper(describe_table( $rec->table() ));
-  #return 0 unless describe_table( $rec->table() )->get_self_des()->{ 'ALOG' };
+  return 0 unless describe_table( $rec->table() )->get_table_des()->{ 'ALOG' };
   
   return de_add_alog_rec( $oper, $rec );
 }

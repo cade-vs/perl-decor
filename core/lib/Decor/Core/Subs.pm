@@ -441,10 +441,10 @@ sub __setup_user_inside
   $mo->{ 'SID'   } = $session_rec->read( 'SID' );
   $mo->{ 'UGS'   } = $profile->get_groups_hr();
   $mo->{ 'UN'    } = $user_rec->read( 'NAME' );
-  $mo->{ 'URN'   } = $user_rec->read( 'DATA.REALNAME' );
+  $mo->{ 'URN'   } = $user_rec->exists( 'DATA' ) ? $user_rec->read( 'DATA.NAME' ) : $user_rec->read( 'NAME' );
   $mo->{ 'XTIME' } = $session_rec->read( 'XTIME' );
   $mo->{ 'UID'   } = $user_rec->id();
-  $mo->{ 'UDID'  } = $user_rec->read( 'DATA' );
+  $mo->{ 'UDID'  } = $user_rec->read( 'DATA' ) if $user_rec->exists( 'DATA' );
 
   de_log( "status: user [$mo->{ 'UN' }]{$mo->{ 'URN' }} connected with groups: " . join( ', ', sort { $a <=> $b } keys %{ $mo->{ 'UGS' } } ) );
 
@@ -1427,8 +1427,6 @@ sub sub_update
   # TODO: check RECORD UPDATE ACCESS
   boom "E_ACCESS: UPDATE is not allowed for requested record TABLE [$table] ID [$id]"
       unless $profile->check_access_row( 'UPDATE', $rec->table(), $rec );
-
-
 
   $rec->write( %$data );
 

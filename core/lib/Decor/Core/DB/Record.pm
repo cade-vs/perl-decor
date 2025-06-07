@@ -1122,6 +1122,19 @@ sub method
   return de_code_exec( 'tables', $self->table(), $name, $self, @_ );
 }
 
+### HELPERS ##################################################################
+
+
+# TODO: allow F1.F2.F3...
+
+sub exists
+{
+  my $self  = shift;
+  my $field = shift;
+  
+  return des_exists( $self->table(), $field );
+}
+
 ### CLIENT IO ################################################################
 
 sub __client_io_enable

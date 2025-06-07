@@ -302,19 +302,19 @@ sub de_web_format_field
 
 
     my $combo_form_text;
-    my $combo_form = new Web::Reactor::HTML::Form( REO_REACTOR => $reo );
+    my $combo_form = new Web::Reactor::HTML::Form( $reo );
     
     $combo_form_text .= $combo_form->begin( NAME => $reo->create_uniq_id(), );
     $combo_form->state( 'UPDATE_RECORD_WITH_ID' => $id );
 
     my @combo_data;
-    push @combo_data, { KEY => 0, VALUE => '&empty;' };
+    push @combo_data, { KEY => '*', VALUE => 0, LABEL => '&empty;' };
     while( my $hr = $core->fetch( $combo_select ) )
       {
       my @value = map { $hr->{ $_ } } @spf_fld;
       my $value = sprintf( $spf_fmt, @value );
-      my $key   = $hr->{ '_ID' };
-      push @combo_data, { KEY => $key, VALUE => $value };
+      my $id    = $hr->{ '_ID' };
+      push @combo_data, { KEY => '*', VALUE => $id, LABEL => $value };
       }
 
 #print STDERR "**************************************************************: " . Dumper( \@combo_data );
@@ -331,7 +331,7 @@ sub de_web_format_field
                                              SELECTED => $field_data,
                                              RADIO    => $radio,
                                              
-                                             EXTRA    => 'onchange="this.form.submit()"',
+                                             SUBMIT_ON_CHANGE => 1,
                                              );
 
     $combo_form_text .= $combo_form->end();

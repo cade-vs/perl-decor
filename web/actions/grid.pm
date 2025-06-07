@@ -297,7 +297,7 @@ sub main
       }
     }  
 
-  my $grid_form = new Web::Reactor::HTML::Form( REO_REACTOR => $reo );
+  my $grid_form = new Web::Reactor::HTML::Form( $reo );
   my $grid_form_begin;
   $grid_form_begin .= $grid_form->begin( NAME => "grid_edit_$table", DEFAULT_BUTTON => 'NOOP' );
   my $grid_form_id = $grid_form->get_id();
@@ -402,6 +402,7 @@ sub main
       next if $bfdes->get_attr( qw( WEB GRID HIDE ) );
       my $allow_wrap = $bfdes->get_attr( qw( WEB GRID ALLOW_WRAP ) );
       my $label      = $bfdes->get_attr( qw( WEB GRID LABEL ) );
+      my $editable   = $bfdes->get_attr( qw( WEB GRID EDITABLE ) );
 
       my $lpassword = $lfdes->get_attr( 'PASSWORD' ) ? 1 : 0;
 
@@ -486,7 +487,7 @@ sub main
                 }  
               }  
 
-            $data_fmt =~ s/\./&#46;/g;
+###### WHY??????????            ## $data_fmt =~ s/\./&#46;/g;
             if( $ltdes->get_table_type() eq 'FILE' )
               {
               $data_fmt   = de_html_alink( $reo, 'new', "$data_fmt",                      $view_cue, ACTION => 'file_dn', ID => $linked_id, TABLE => $linked_table );
@@ -495,7 +496,7 @@ sub main
               }
             else
               {  
-              $data_fmt   = de_html_alink( $reo, 'new', "$data_fmt",  $view_cue, ACTION => 'view', ID => $linked_id, TABLE => $linked_table ) unless $enum or $linked_id < 1;
+              $data_fmt   = de_html_alink( $reo, 'new', "$data_fmt",  $view_cue, ACTION => 'view', ID => $linked_id, TABLE => $linked_table ) unless $enum or $linked_id < 1 or $editable;
               }
 
             if( ! $enum )
