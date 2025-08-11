@@ -29,6 +29,7 @@ our @EXPORT = qw(
                 de_html_popup
                 de_html_popup_icon
 
+                de_html_dumper
                 );
 
 ##############################################################################
@@ -212,6 +213,22 @@ sub de_html_popup_icon
     my $handle = html_popup_layer( $reo, VALUE => $popup, TYPE => 'CLICK', %$opt );
     return "<img class='icon' src='i/$value' $handle>";
     }  
+}
+
+##############################################################################
+
+sub de_html_dumper
+{
+  use Data::Dumper;
+  local $Data::Dumper::Sortkeys = 1;
+
+  my $text;
+  
+  $text .= "<div align=left><xmp>";
+  $text .= Dumper( $_ ) for @_;
+  $text .= "</xmp></div>";
+  
+  return $text;
 }
 
 

@@ -1,6 +1,6 @@
 
 # label [~Contracts]
-# grant all to 10
+# grant all to 10; 20; 30+40
 
 #=CLIENT
 #

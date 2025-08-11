@@ -5,6 +5,11 @@ use Decor::Core::Shop;
 use Decor::Core::Methods;
 use Decor::Core::Subs::Env;
 
+# my $user_rec  = subs_get_current_user();
+# my $user_data = $user_rec->read( 'DATA' );
+# my $sess_rec  = subs_get_current_session();
+# my $prof_rec  = subs_get_current_profile();
+
 #-----------------------------------------------------------------------------
 
 sub on_recalc

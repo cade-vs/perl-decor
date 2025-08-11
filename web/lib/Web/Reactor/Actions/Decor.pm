@@ -54,17 +54,7 @@ sub call
     return undef;
     }
 
-  my $data;
-  
-  eval
-    {
-    $data = $cr->( $reo, %args );
-    };
-  if( $@ )  
-    {
-    $reo->log( "error: call decor action failed: $name(%args): $@" );
-    return undef;
-    }
+  my $data = $cr->( $reo, %args );
 
   return $data;
 }

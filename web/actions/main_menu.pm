@@ -213,8 +213,9 @@ sub sub_menu
     elsif( $type eq 'ACTION' )
       {
       my $action  = $item->{ 'ACTION'  };
+      my $icon    = $item->{ 'ICON'    }; # FIXME: check icon name
       #### DOES NOT WORK WITH ANON SESSIONS: next if $reo->is_logged_in() and uc $action =~ /(\[~)?LOGIN(\])?/; # root hack
-      push @res, "<a class=menu reactor_new_href=?action=$action $menu_args>$label</a>";
+      push @res, "<a class=menu reactor_new_href=?action=$action $menu_args><img src=i/$icon class=icon> $label</a>";
       }
     else
       {

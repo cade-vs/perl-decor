@@ -66,13 +66,6 @@ my %MENU_KEY_SHORTCUTS = (
                         'UNIQ' => 'UNIQUE', # not used
                         );
 
-my @TABLE_ATTRS = qw(
-                      SCHEMA
-                      LABEL
-                      GRANT
-                      DENY
-                    );
-
 # FIXME: more categories INDEX: ACTION: etc.
 my %MENU_ATTRS = (
                   '@' => {
@@ -93,6 +86,7 @@ my %MENU_ATTRS = (
                            ORDER_BY      => 1,
                            RIGHT         => 1,
                            CONFIRM       => 1,
+                           ICON          => 1,
                          },
                 );
 

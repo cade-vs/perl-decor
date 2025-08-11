@@ -25,7 +25,6 @@ our @EXPORT = qw(
 
                 de_code_reset_map
 
-                de_code_file_find
                 de_code_get_map
                 de_code_exists
                 de_code_reset_map

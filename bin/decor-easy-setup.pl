@@ -91,5 +91,6 @@ sub strip_script_name
 {
   my $s = shift;
   $s =~ s/[^\/]+$//;
+  $s ||= './';
   return $s;
 }

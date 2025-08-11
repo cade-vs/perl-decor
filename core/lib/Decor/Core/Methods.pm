@@ -17,6 +17,7 @@ use Decor::Shared::Utils;
 use Decor::Core::Env;
 use Decor::Core::DB::Record;
 use Decor::Core::Shop;
+use Decor::Core::Subs::Env;
 
 use Exporter;
 our @ISA    = qw( Exporter );
@@ -33,6 +34,10 @@ our @EXPORT = qw(
                 
                 update_backlink_count
                 update_backlink_sum
+                
+                update_rec_cby
+                update_rec_mby
+                update_rec_by
                 
                 rec_sort_fields_n
                 reorder_date_time
@@ -270,6 +275,38 @@ sub update_backlink_sum
     {
     $io->update_id( $table_rec, { $field => $sum }, $id );
     }  
+}
+
+sub update_rec_cby
+{
+  my $r = shift;
+
+  my $user = subs_get_current_user();
+  
+  w $r 'CBY'   => r $user 'DATA';
+  w $r 'CTIME' => time();
+  
+  return ( $user, $user->id() );
+}
+
+sub update_rec_mby
+{
+  my $r = shift;
+
+  my $user = subs_get_current_user();
+  
+  w $r 'MBY'   => r $user 'DATA';
+  w $r 'MTIME' => time();
+  
+  return ( $user, $user->id() );
+}
+
+sub update_rec_by
+{
+  my $r = shift;
+  
+         update_rec_cby( $r );
+  return update_rec_mby( $r );
 }
 
 sub rec_sort_fields_n
