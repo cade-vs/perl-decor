@@ -2,6 +2,19 @@
 
 
 
+-- link view format, similar to:
+   
+   web.search %s | %s; IDENT; NAME
+   
+   but used for record VIEW and GRIDS
+
+
+
+-- hide/show fields from ON_ methods
+
+
+
+
 
 
 -- create index concurrent (Pg) or online (Oracle) for non-locking

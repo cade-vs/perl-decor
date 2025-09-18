@@ -247,7 +247,7 @@ sub main
 
   $text_grid_head .= "<table class=grid cellspacing=0 cellpadding=0>";
   $text_grid_head .= "<tr class=grid-header>";
-  $text_grid_head .= "<td class='grid-header fmt-left'>Ctrl</td>";
+  $text_grid_head .= "<td class='fmt-left'>Ctrl</td>";
 
   @fields = grep { /^_/ ? $reo->user_has_group( 1 ) ? 1 : 0 : 1 } @fields;
 
@@ -276,7 +276,7 @@ sub main
     my $ltdes     = $core->describe( $lfdes->get_table_name() );
     my $enum      = $ltdes->get_table_type() eq 'ENUM';
 
-    $text_grid_head .= "<td class='grid-header $fmt_class'>$label</td>";
+    $text_grid_head .= "<td class='$fmt_class'>$label</td>";
     }
   $text_grid_head .= "</tr>";
 
@@ -307,11 +307,13 @@ sub main
   my $row_counter;
   while( my $row_data = $core->fetch( $select ) )
     {
+    $row_counter++;
+    
     my $id = $row_data->{ '_ID' };
     my $link_field_value = $row_data->{ $link_field_disable };
 
-    my $row_class = $row_counter++ % 2 ? 'grid-1' : 'grid-2';
-    $text_grid_body .= qq( <tr class="$row_class"> );
+    my $row_class;# = $row_counter % 2 ? 'grid-1' : 'grid-2';
+    $text_grid_body .= qq( <tr class="grid-data"> );
 
     my $vec_ctrl;
     my $vec_ctrl_popup;

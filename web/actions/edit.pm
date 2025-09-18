@@ -565,7 +565,8 @@ sub edit_get_field_control_info
         de_web_expand_resolve_fields_in_place( \@lfields, $ltdes, \%bfdes, \%lfdes, \%basef );
 
       #$text .= Dumper( \%basef );
-        my $selected_search_value;
+        my $datalist_sk; # selected key
+        my $datalist_sl; # selected label
 
         my $lfields = join ',', '_ID', @lfields, values %basef;
 
@@ -582,7 +583,7 @@ sub edit_get_field_control_info
           
           $label = substr( $label, 0, 1021 ) . '...' if length( $label ) > 1021;
 
-          $selected_search_value = $id if $id eq $field_data;
+          ( $datalist_sk, $datalist_sl ) = ( $id, $label ) if $id eq $field_data;
           push @combo_data, { KEY => '*', VALUE => $id, LABEL => $label };
           }
 
@@ -609,10 +610,10 @@ sub edit_get_field_control_info
           $field_input .= $edit_form->input(
                                                NAME      => "F:$field",
                                                ID        => $field_id,
-                                               VALUE     => $selected_search_value,
-                                               KEY       => $field_data,
-                                               EMPTY_KEY => 0,
+                                               VALUE     => $datalist_sl,
                                                DATALIST  => \@combo_data,
+                                               DATALIST_SELECTED_KEY => $datalist_sk,
+                                               EMPTY_KEY => 0,
                                                SIZE      => $field_size,
                                                MAXLEN    => $field_maxlen,
                                                RESUBMIT_ON_CHANGE => $recalc_on_change,

@@ -868,13 +868,13 @@ tr.grid-data > td, td.grid-data
         border-right: solid 1px $grid-data-colors.3;
         }
 
-tr.grid-1
+tr.grid-data:nth-child(even)
         {
         background-color: $grid-data-row-odd-even.1;
         border-bottom: solid 1px $grid-data-colors.3;
         }
 
-tr.grid-2
+tr.grid-data:nth-child(odd)
         {
         background-color: $grid-data-row-odd-even.2;
         border-bottom: solid 1px $grid-data-colors.3;

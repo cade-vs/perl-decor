@@ -122,13 +122,14 @@ de_reopen_logs();
 
 de_log( "status: process package:trigger [$pkg:$trigger] is running with pid [$$]" . ( $opt_daemonize ? " daemonized" : undef ) );
 
-my $pres;
+my $pres; # items processed (work done) it is either zero or positive non-zero count, could be negative non-zero
 while( ! is_exit_requested() )
   {
   eval
     {
     $pres = de_code_exec( 'PROCESSES', $pkg, "ON_$trigger", @args );
-    last if ! $pres or is_exit_requested();
+    sleep(1), next if $pres; # if non-zero, the more data is expected, so wait less
+    last if is_exit_requested();
     };
 
   if( surface( 'REQUEST_EXIT' ) )
@@ -155,8 +156,7 @@ while( ! is_exit_requested() )
 
 pidfile_remove( $pid_root );
 
-de_log( "status: process $pkg:$trigger finidhes with result [$pres]" );
-de_done();
+de_log( "status: process $pkg:$trigger finished with result [$pres]" );
 
 ##############################################################################
 

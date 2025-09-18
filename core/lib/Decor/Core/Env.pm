@@ -162,6 +162,7 @@ sub de_init
 
 sub de_init_done
 {
+  # TODO: aaaaaaaaaaah remove :)
   return $APP_NAME ne '';
 }
 
