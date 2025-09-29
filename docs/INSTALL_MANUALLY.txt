@@ -64,7 +64,7 @@ username.
 
 8. as "alf" user, create new database
 
-      createdb --encoding=UTF8 decor
+      createdb -E UTF8 -T template0 --locale=en_US.UTF8  decor
 
    "decor" database is default name for the app1 app, bundled 
    with decor itself.

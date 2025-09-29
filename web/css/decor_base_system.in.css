@@ -79,6 +79,29 @@ body
         font: $body-font;
         }
 
+div.body
+        {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        } 
+
+div.body-head
+        {
+        }
+        
+div.body-main
+        {
+        flex-grow: 3333;
+        overflow: scroll;
+        text-align: center;
+        }
+        
+div.body-foot
+        {
+        }
+
+
 .fill
         {
         width: 100%;
@@ -316,7 +339,7 @@ a.logo
 
 /*** main menu **************************************************************/
 
-table.main-menu
+div.main-menu-box
         {
         color: $menu-colors.1;
         background-color: $menu-colors.2;
@@ -328,28 +351,27 @@ table.main-menu
 
         font: $main-menu-font;
         width:  100%;
+        
+        display: flex;
+        flex-direction: row;
+        align-items: baseline;
         }
 
-td.main-menu
+div.main-menu-item
         {
-        border-right: solid 1px $menu-colors.5;
-
-        width:  1%;
         padding: 0.1em;
+        padding-left: 1em;
+        border-left: solid 1px $menu-colors.5;
         }
 
-td.main-menu:hover
+div.main-menu-item:hover
         {
         background-color: $menu-colors.4;
         }
 
-td.main-menu-fill
+div.main-menu-item-fill
         {
-        border-right: solid 1px $menu-colors.5;
-
-        width:  100%;
-        padding: 0;
-        text-align: right;
+        flex-grow: 33;
         }
 
 a.main-menu

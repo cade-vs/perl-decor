@@ -129,9 +129,10 @@ sub main
     }
 
 
-  $text .= "<table class=main-menu cellspacing=0 cellpadding=0 width=100%><tr class=main-menu>";
-  $text .= join( '', @left ) . "<td class=main-menu-fill>&nbsp;</td>" . join( '', @right );
-  $text .= "</tr></table>";
+  my $glue = "</div><div class=main-menu-item>";
+  $text .= "<div class=menu-item>";
+  $text .= join( $glue, @left ) . "</div><div class=main-menu-item-fill>$glue" . join( $glue, @right );
+  $text .= "</div>";
 
 #print STDERR Dumper( 'MAIN MENU 'x10, $text );
   return $text;
