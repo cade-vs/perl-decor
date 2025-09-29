@@ -16,7 +16,7 @@ sub main
 {
   my $reo = shift;
 
-#  return "<#menu_outside>" unless $reo->is_logged_in();
+  return "<#menu_outside>" unless $reo->is_logged_in();
 
   my $core = $reo->de_connect();
   my $menu = $core->menu( 'MAIN' );

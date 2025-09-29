@@ -355,6 +355,8 @@ div.main-menu-box
         display: flex;
         flex-direction: row;
         align-items: baseline;
+        
+        height: 2.2em;
         }
 
 div.main-menu-item
