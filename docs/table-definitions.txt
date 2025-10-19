@@ -78,6 +78,34 @@
   logic. All groups are numbers which represents group record _ID in table
   DE_GROUPS.
 
+  Available field attributes are:
+
+  "label"  (optional, default value is the physical table name, i.e. file name)
+
+  "s"
+  "p"
+  "sp"     (optional, defaults to "item", "items")
+           those define the singular and plural names of the things kept in
+           the table records. those are optional and if not used, default 
+           values will be generic "item" and "items". used mostly to construct
+           more informative link titles and cues for actions on the records.
+
+           example: 
+           
+            ---begin-of-file-----
+            
+            label  All types of tree leaves
+            
+            s   leaf
+            p   leaves
+            
+            sp  leaf  leaves
+
+            grant all
+            
+            ---cut---------------
+
+
   FIELDS DEFINITIONS
   
   Table fields (or columns) are defined with '=' followed by the field name
@@ -100,7 +128,7 @@
   There is also field type definition (mandatory) and few other attributes
   (optional).
   
-  Currently available attributes are:
+  Available field attributes are:
   
   "type"   (mandatory, only default values for lengths)
   
@@ -139,7 +167,7 @@
         
         label is not mandatory but if left empty it will copy the field name
         itself.
-        
+
   "required"  (optional, value is optional and defaults to 1, shortcut: "req")
   
         this field will be required to have data for insert and update, if

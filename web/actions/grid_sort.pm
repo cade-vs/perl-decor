@@ -110,7 +110,7 @@ sub main
     return $reo->forward_back();
     }
 
-  my $filter_form = new Web::Reactor::HTML::Form( REO_REACTOR => $reo );
+  my $filter_form = new Web::Reactor::HTML::Form( $reo );
   my $filter_form_begin;
   $filter_form_begin .= $filter_form->begin( NAME => "form_filter_$table", DEFAULT_BUTTON => 'OK' );
   my $form_id = $filter_form->get_id();

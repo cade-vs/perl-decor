@@ -212,7 +212,7 @@ sub main
   my $text_grid_navi_left;
   my $text_grid_navi_right;
   my $text_grid_navi_mid;
-  
+
   my %insert_new_opts;
   
   if( $link_field_disable )
@@ -383,11 +383,10 @@ sub main
                                        ID       => "VECB:$cb_id",
                                        VALUE    => 0,
                                        RET      => [ '0', '1' ],
-                                       LABELS   => [ "<img class='icon' src=i/check-edit-0.svg>", "<img class='icon' src=i/check-edit-1.svg>" ],
+                                       LABELS   => [ "<img class='checkbox' src=i/check-edit-0.svg>", "<img class='checkbox' src=i/check-edit-1.svg>" ],
                                        HINT     => '[~Select this record]',
                                        );
-
-      $vec_ctrl_popup .= qq[ <a class='button act-button' href='javascript:reactor_form_checkbox_toggle_by_id( "VECB:$cb_id" );'>Select record</a> ];
+      $vec_ctrl_popup .= qq[ <a class='button act-button' href='javascript:reactor_form_multi_checkbox_toggle_by_id( "VECB:$cb_id" );'>(&radic;) Toggle record</a> ];
       }
 
     $vec_ctrl_popup = "<div class='popup-menu-buttons'>$vec_ctrl_popup</div>";

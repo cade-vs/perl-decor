@@ -138,6 +138,10 @@ my %DES_ATTRS = (
                   '@' => {
                            REM         => 1, # remark, comment
                            
+                           S           => 1,
+                           P           => 1,
+                           SP          => 1,
+                           
                            TYPE        => 1,
                            SCHEMA      => 1,
                            LABEL       => 1,
@@ -714,6 +718,16 @@ sub __merge_table_des_file
         # remark, comment, holds array of all found REMs' values
         $des->{ $category }{ $sect_name }{ 'REM' } ||= [];
         push @{ $des->{ $category }{ $sect_name }{ 'REM' } }, $value;
+        next;
+        }
+      if( $key eq 'SP' )
+        {
+        # singular and plural forms of the items contained in the table
+        if( $value =~ /(\S+)\s+(\S+)/ )
+          {
+          $des->{ $category }{ $sect_name }{ 'S' } = $1;
+          $des->{ $category }{ $sect_name }{ 'P' } = $2;
+          }
         next;
         }
       

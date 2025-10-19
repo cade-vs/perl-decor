@@ -288,8 +288,8 @@ sub main
         my $uncount_s = str_num_comma( $uncount );
         
         $data_fmt = undef;
-        $data_fmt .= de_html_alink( $reo, 'new', "<b class=hi>$count_s</b> [~records from] <b class=hi>$linked_table_label</b>",   "[~View all backlinked records from] <b class=hi>$linked_table_label</b>",  ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => $id, FILTER => { $backlinked_field => $id } );
-        $data_fmt .= de_html_alink( $reo, 'new', " ( + <b class=hi>$uncount_s</b> [~NOT connected records])",   "[~View all backlinked records from] <b class=hi>$linked_table_label</b>",  ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_VALUE => 0, FILTER => { $backlinked_field => 0 } ) if $uncount > 0;
+        $data_fmt .= de_html_alink( $reo, 'new', "<b class=hi>$count_s</b> [~items]",   "[~View all related items]",                  ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_VALUE => $id, LINK_FIELD_ID => $id, FILTER => { $backlinked_field => $id } );
+        $data_fmt .= de_html_alink( $reo, 'new', " ( + <b class=hi>$uncount_s</b> [~NOT connected])",   "[~View all related items]",  ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_VALUE =>   0,                       FILTER => { $backlinked_field =>   0 } ) if $uncount > 0;
 
         my $detail_fields = $bfdes->get_attr( qw( WEB EDIT DETAIL_FIELDS ) );
         if( $detail_fields )
@@ -380,7 +380,8 @@ sub main
       $record_first = 1;
       }
 
-    my $data_layout = $no_layout_ctrls ? $data_fmt : html_layout_2lr_flex( $data_fmt, $data_ctrl, '<==1>' );
+#    my $data_layout = $no_layout_ctrls ? $data_fmt : html_layout_2lr_flex( $data_fmt, $data_ctrl, '<==1>' );
+    my $data_layout = $no_layout_ctrls ? $data_fmt : html_hbox( '<100,1n>', $data_fmt, $data_ctrl );
     my $base_field_class = lc "css_view_class_$base_field";
 #    $text .= "<tr class=view>";
 #    $text .= "<td class='view-field record-field $base_field_class                ' >$label</td>";
@@ -390,8 +391,8 @@ sub main
     my $record_first_class = 'record-first' if $record_first;
     $record_first = 0;
     $text .= "<div class='record-field-value'>
-                <div class='view-field record-field $record_first_class $base_field_class                ' >$label</div>
-                <div class='view-value record-value $record_first_class $base_field_class $data_fmt_class' >$data_layout</div>
+                <div class='view-field record-field $record_first_class $base_field_class                ' ><div>$label</div></div>
+                <div class='view-value record-value $record_first_class $base_field_class $data_fmt_class' ><div>$data_layout</div></div>
               </div>";
 
     if( $field_details )

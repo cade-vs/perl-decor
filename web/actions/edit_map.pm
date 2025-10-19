@@ -73,7 +73,7 @@ sub main
 
 #$text .= "<xmp>" . Dumper( $far_ar, $map_data_ar, $map_data ) . "</xmp>";
 
-  my $map_edit_form = new Web::Reactor::HTML::Form( REO_REACTOR => $reo );
+  my $map_edit_form = new Web::Reactor::HTML::Form( $reo );
   my $map_edit_form_begin;
   $text .= $map_edit_form->begin( NAME => "form_edit_$table", DEFAULT_BUTTON => 'REDIRECT:OK' );
   my $form_id = $map_edit_form->get_id();

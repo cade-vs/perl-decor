@@ -509,6 +509,7 @@ div.record-field-value
         width: 100%;
 
         min-height: 2.5em;
+        padding-top: 0.3em;
         }
 
 div.record-sep
@@ -524,11 +525,12 @@ div.record-field
         
         font-weight: bold;
 
-        border-top: solid 1px $view-data-colors.4;
+        border-bottom: solid 1px $view-data-colors.4;
         border-right:  solid 1px $view-data-colors.4;
 
-        padding: 0.3em 0 0 1em;
-        padding: 0.3em;
+        padding: 0.3em 1em 0.3em 0.3em;
+
+        align-content: center;
         }
 
 div.record-value
@@ -536,15 +538,21 @@ div.record-value
         flex: 2;
         text-align: left;
 
-        border-top: solid 1px $view-data-colors.4;
+        border-bottom: solid 1px $view-data-colors.4;
         
-        padding: 0.3em 0 1em 0;
-        padding: 0.3em;
+        padding: 0.3em 0.3em 0.3em 1em;
+
+        align-content: center;
         }
 
 div.record-first
         {
         border-top: none;
+        }
+        
+div.record-last
+        {
+        border-bottom: none;
         }
 
 @media (max-width: 665px) 
@@ -1128,7 +1136,7 @@ select,.grid-link-select
 .icon
         {
         cursor: pointer;
-        height: 2.2em;
+        height: 2em;
         padding: 0.3em;
         text-decoration: none;
         background-image: none;
@@ -1142,13 +1150,14 @@ select,.grid-link-select
 .icon:hover
         {
         $$setup-act-fg-bg-border-hi  $icon-colors
+        padding: 0.3em;
         }
 
 .icon-clear
         {
         cursor: pointer;
-        height: 1.4em;
-        margin-left: -2.2em;
+        height: 1em;
+        margin-left: -1.2em;
         }
 
 .act-icon
@@ -1192,6 +1201,18 @@ a.icon
         padding: 0;
         text-decoration: none;
         }
+
+.checkbox
+        {
+        cursor: pointer;
+        height: 1.2em;
+        padding: 0;
+        border: none;
+        text-decoration: none;
+        background-image: none;
+        margin: 0.2em;
+        }
+
 
 /*** hover layer ************************************************************/
 
