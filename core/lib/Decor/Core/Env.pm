@@ -95,13 +95,14 @@ sub de_init
 
   my $app_dir = de_app_dir();
 
-  boom "cannot find/access application [$APP_NAME] path [$app_dir]" unless -d $app_dir;
+  boom "cannot find/access application [$APP_NAME] app dir [$app_dir]" unless -d $app_dir;
   
   my $log_prefix = $init{ 'LOG_PREFIX' };
   my $log_dir = "$ROOT/var/core/$app_name\_$</log/$log_prefix/";
   dir_path_ensure( $log_dir ) or boom "cannot find/access log dir [$log_dir] for app [$APP_NAME] path [$app_dir]";
   de_set_log_dir( $log_dir );
 
+  # FIXME: common simple config load for arbitrary config files
   my $cfg = de_config_load_file( "$app_dir/etc/app.conf" );
   if( $cfg )
     {

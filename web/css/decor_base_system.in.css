@@ -1158,6 +1158,7 @@ select,.grid-link-select
         cursor: pointer;
         height: 1em;
         margin-left: -1.2em;
+        color: $icon-clear-colors.1
         }
 
 .act-icon

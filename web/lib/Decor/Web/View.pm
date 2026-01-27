@@ -396,7 +396,7 @@ sub de_web_format_field
     my $count = $field_data || $core->count( $backlinked_table, { FILTER => { $backlinked_field => $id } });
     $count = 'Unknown' if $count eq '';
 
-    $data_fmt = qq( <b class=hi>$count</b> [~records from] <b class=hi>$linked_table_label</b> );
+    $data_fmt = qq( <b class=hi>$count</b> [~items] );
     }
   else
     {

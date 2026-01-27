@@ -1096,6 +1096,37 @@ sub count_backlinked_records
   return $sio->count( $backlinked_table, "$backlinked_field = ?", { BIND => [ $dst_id ], %$opts } );
 }
 
+sub select_map_far_records
+{
+  my $self  = shift;
+  my $field = shift;
+  my $opts  = shift || {};
+
+  my ( $dst_table, $dst_field, $dst_id ) = $self->__resolve_field( $field );
+  
+  my $fdes = describe_table_field( $dst_table, $dst_field );
+  my $ftype_name = $fdes->{ 'TYPE' }{ 'NAME' };
+  
+  boom "cannot select map records of [$field] it is not a MAP field" unless $ftype_name eq 'MAP';
+
+  my ( $map_table, $map_near_field, $map_far_field, $far_table, $far_field ) = $fdes->map_details();
+
+  # FIXME: far far far from optimal!
+  my $io = new Decor::Core::DB::IO;
+  my $ids = $io->read_all_fields( $map_table, $map_far_field, "$map_near_field = ?", { BIND => [ $dst_id ] } );
+
+  my $ipc = join( ',', ( '?' ) x @$ids );
+
+  my $far_rec = new Decor::Core::DB::Record;
+  if( @$ids > 0 )
+    {
+    $far_rec->select( $far_table, "_ID in ( $ipc )", { BIND => [ @$ids ] } ) or return undef;
+    }
+
+  return $far_rec;
+}
+
+
 ### METHODS ##################################################################
 
 sub method_exists
