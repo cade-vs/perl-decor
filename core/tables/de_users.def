@@ -70,6 +70,14 @@
 
   grant read to 971
 
+=DISABLED
+
+  # usually off, used to temporary override of ACTIVE without losing state
+  label [~Temporary disabled]
+  type  bool
+
+  grant read to 971
+
 =LAST_LOGIN_TIME
 
   label [~Last login time]

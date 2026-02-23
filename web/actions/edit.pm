@@ -618,7 +618,7 @@ sub edit_get_field_control_info
                                                EMPTY_KEY => 0,
                                                SIZE      => $field_size,
                                                MAXLEN    => $field_maxlen,
-                                               RESUBMIT_ON_CHANGE => $recalc_on_change,
+                                               SUBMIT_ON_CHANGE => $recalc_on_change,
                                                DISABLED  => $field_disabled,
                                                );
           }
@@ -629,7 +629,7 @@ sub edit_get_field_control_info
                                                DATA     => \@combo_data, 
                                                SELECTED => $sel_hr,
                                                RADIO    => $radio,
-                                               RESUBMIT_ON_CHANGE => $recalc_on_change,
+                                               SUBMIT_ON_CHANGE => $recalc_on_change,
                                                DISABLED  => $field_disabled,
                                                );
 #$field_input .= "<xmp>".Dumper( $field, $field_data, $combo_data, $sel_hr )."</xmp>";

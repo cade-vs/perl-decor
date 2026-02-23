@@ -621,11 +621,11 @@ div.view-header
         }
 
 div.view-divider
-        {
+        {                  
         color:            $view-div-colors.1;
         background-color: $view-div-colors.2;
         border: solid 1px $view-div-colors.3;
-
+        
         padding: 0.2em;
         font: $view-div-font;
         }
@@ -912,13 +912,13 @@ tr.grid-data:nth-child(odd)
         border-bottom: solid 1px $grid-data-colors.3;
         }
 
-tr.grid-1:hover
+tr.grid-data:nth-child(even):hover
         {
         border-bottom: solid 1px $grid-data-row-odd-even.4;
         background-color: $grid-data-row-odd-even.3;
         }
 
-tr.grid-2:hover
+tr.grid-data:nth-child(odd):hover
         {
         border-bottom: solid 1px $grid-data-row-odd-even.4;
         background-color: $grid-data-row-odd-even.3;
