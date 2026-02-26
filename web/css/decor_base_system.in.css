@@ -341,28 +341,44 @@ a.logo
 
 div.main-menu-box
         {
-        color: $menu-colors.1;
-        background-color: $menu-colors.2;
-        border-bottom: solid 1px $menu-colors.5;
+        color:                      $menu-colors.1;
+        background-color:           $menu-colors.2;
+        border-bottom:    solid 1px $menu-colors.5;
 
         vertical-align: middle;
         white-space: nowrap;
         cursor: pointer;
 
         font: $main-menu-font;
-        width:  100%;
+        width: 100%;
         
         display: flex;
         flex-direction: row;
-        align-items: baseline;
-        
-        height: 2.2em;
         }
+
+div.main-menu-left
+        {
+        flex: 1;
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        }
+
+div.main-menu-right
+        {
+        flex: 1;
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-end;
+        }
+
+
+
 
 div.main-menu-item
         {
-        padding: 0.1em;
-        padding-left: 1em;
+        padding: 0.5em;
+        padding-left: 0.5em;
         border-left: solid 1px $menu-colors.5;
         }
 
@@ -371,12 +387,7 @@ div.main-menu-item:hover
         background-color: $menu-colors.4;
         }
 
-div.main-menu-item-fill
-        {
-        flex-grow: 33;
-        }
-
-a.main-menu
+div.main-menu-item > a
         {
         color: $menu-colors.1;
 

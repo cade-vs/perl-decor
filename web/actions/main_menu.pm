@@ -24,10 +24,10 @@ sub main
 #print STDERR Dumper( 'MAIN MENU 'x10, $menu );
 
   my $text;
-  
+
   my @left;
   my @right;
-
+  
   for my $key ( sort { $menu->{ $a }{ '_ORDER' } <=> $menu->{ $b }{ '_ORDER' } } keys %$menu )
     {
     next if $key eq '@';
@@ -41,6 +41,11 @@ sub main
 
     $label = "<&user_info><#page_expire_hint>" if lc $label eq '!username';
 
+    my $confirm = $item->{ 'CONFIRM' };
+    my $menu_args;
+    $confirm = "[~Are you sure?]" if $confirm == 1;
+    $menu_args .= '  ' . qq( onclick="return confirm('$confirm');" ) if $confirm =~ /^([^"']+)$/;
+
     my $link;
     if( $type eq 'SUBMENU' )
       {
@@ -48,15 +53,15 @@ sub main
 #      $link = "<a class=main-menu reactor_none_href=?action=menu&menu=$submenu_name>$label</a>";
       if( $submenu_name =~ /^_DE_/ )
         {
-        $link = "<a class=main-menu reactor_none_href=?action=menu&menu=$submenu_name>= $label</a>";
+        $link = "<a $menu_args reactor_none_href=?action=menu&menu=$submenu_name>= $label</a>";
         }
       else
         {  
-        $link = "<a class=main-menu reactor_none_href=?action=menu&menu=$submenu_name>$label</a>";
+        $link = "<a $menu_args reactor_none_href=?action=menu&menu=$submenu_name>$label</a>";
         my $menu_ar = sub_menu( $reo, $core, $submenu_name );
         my $menu_item_text   = html_ftree( $menu_ar, 'ARGS' => 'class=menu cellpadding=0 width=100% border=0', 'ARGS_TR' => 'class=menu', 'ARGS_TD' => 'class=menu menu-popup' );
         my $menu_item_handle = html_popup_layer( $reo, VALUE => $menu_item_text, CLASS => 'popup-layer popup-layer-inline', TYPE => 'CLICK', TIMEOUT => 1000, SINGLE => 1 );
-        $link = "<a class=main-menu reactor_none_href=?action=menu&menu=$submenu_name $menu_item_handle>+ $label</a>";
+        $link = "<a $menu_args reactor_none_href=?action=menu&menu=$submenu_name $menu_item_handle>+ $label</a>";
         }
       }
     elsif( $type eq 'GRID' )
@@ -73,39 +78,39 @@ sub main
                                   FILTER_METHOD => $filter_method,
                                   ORDER_BY      => $order_by,
                                 );
-      $link = "<a class=main-menu href=?_=$href>$label</a>";
+      $link = "<a $menu_args href=?_=$href>$label</a>";
       }
     elsif( $type eq 'INSERT' )
       {
       my $table  = $item->{ 'TABLE'  };
-      $link = "<a class=menu reactor_none_href=?action=edit&table=$table&id=-1>$label</a>";
+      $link = "<a $menu_args reactor_none_href=?action=edit&table=$table&id=-1>$label</a>";
       }
     elsif( $type eq 'EDIT' )
       {
       my $table  = $item->{ 'TABLE'  };
-      $link = "<a class=menu reactor_none_href=?action=edit&table=$table&id=0>$label</a>";
+      $link = "<a $menu_args reactor_none_href=?action=edit&table=$table&id=0>$label</a>";
       }
     elsif( $type eq 'VIEW' )
       {
       my $table  = $item->{ 'TABLE'  };
-      $link = "<a class=menu reactor_none_href=?action=view&table=$table>$label</a>";
+      $link = "<a $menu_args reactor_none_href=?action=view&table=$table>$label</a>";
       }
     elsif( $type eq 'URL' )
       {
       my $url  = $item->{ 'URL'  };
-      $link = "<a class=menu target=_blank href=$url>$label</a>";
+      $link = "<a $menu_args target=_blank href=$url>$label</a>";
       }
     elsif( $type eq 'DO' )
       {
       my $table  = $item->{ 'TABLE'  };
       my $do     = $item->{ 'DO'     };
-      $link = "<a class=menu reactor_none_href=?action=do&table=$table&do=$do>$label</a>";
+      $link = "<a $menu_args reactor_none_href=?action=do&table=$table&do=$do>$label</a>";
       }
     elsif( $type eq 'ACTION' )
       {
       my $action  = $item->{ 'ACTION'  };
       #### DOES NOT WORK WITH ANON SESSIONS: next if $reo->is_logged_in() and uc $action =~ /(\[~)?LOGIN(\])?/; # root hack
-      $link = "<a class=menu reactor_new_href=?action=$action>$label</a>";
+      $link = "<a $menu_args reactor_new_href=?action=$action>$label</a>";
       }
     else
       {
@@ -113,25 +118,22 @@ sub main
       next;
       }  
 
-    my $confirm = $item->{ 'CONFIRM' };
-    my $menu_args;
-    $confirm = "[~Are you sure?]" if $confirm == 1;
-    $menu_args .= '  ' . qq( onclick="return confirm('$confirm');" ) if $confirm =~ /^([^"']+)$/;
-
-    if( $item->{ 'RIGHT' } )
-      {
-      unshift @right, "<td class=main-menu $menu_args>$link</td>";
-      }
-    else
-      {
-      push    @left,  "<td class=main-menu $menu_args>$link</td>";   
-      }
+  $link = "<div class=main-menu-item>$link</div>";
+  if( $item->{ 'RIGHT' } )
+    {
+    unshift @right, $link;
     }
+  else
+    {
+    push    @left,  $link;   
+    }
+  }
 
-
-  my $glue = "</div><div class=main-menu-item>";
-  $text .= "<div class=menu-item>";
-  $text .= join( $glue, @left ) . "</div><div class=main-menu-item-fill>$glue" . join( $glue, @right );
+  $text .= "<div class=main-menu-left>";
+  $text .= join( '', @left );
+  $text .= "</div>";
+  $text .= "<div class=main-menu-right>";
+  $text .= join( '', @right );
   $text .= "</div>";
 
 #print STDERR Dumper( 'MAIN MENU 'x10, $text );
@@ -214,7 +216,8 @@ sub sub_menu
     elsif( $type eq 'ACTION' )
       {
       my $action  = $item->{ 'ACTION'  };
-      my $icon    = $item->{ 'ICON'    }; # FIXME: check icon name
+      my $icon    = $item->{ 'ICON'    };
+      $icon = 'menu-item-action.svg' unless $icon =~ /[a-z0-9_\-]+\.[a-z]+/i; 
       #### DOES NOT WORK WITH ANON SESSIONS: next if $reo->is_logged_in() and uc $action =~ /(\[~)?LOGIN(\])?/; # root hack
       push @res, "<a class=menu reactor_new_href=?action=$action $menu_args><img src=i/$icon class=icon> $label</a>";
       }

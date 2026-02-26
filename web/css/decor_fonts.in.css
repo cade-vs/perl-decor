@@ -1,0 +1,101 @@
+/*############################################################################
+##
+##  Decor application machinery core
+##  2014-2023 (c) Vladi Belperchinov-Shabanski "Cade"
+##  <cade@bis.bg> <cade@biscom.net> <cade@cpan.org>
+##
+##  LICENSE: GPLv2
+##
+############################################################################*/
+
+@font-face 
+        {
+        font-family: 'oswald-bold';
+        src: url('fonts/Oswald-Bold.ttf')  format('truetype');
+        }
+
+@font-face 
+        {
+        font-family: 'oswald';
+        src: url('fonts/Oswald-Regular.ttf')  format('truetype');
+        }
+
+@font-face 
+        {
+        font-family: 'mont';
+        src: url('fonts/Montserrat-Regular.ttf')  format('truetype');
+        }
+
+@font-face 
+        {
+        font-family: 'mont-bold';
+        src: url('fonts/Montserrat-SemiBold.ttf')  format('truetype');
+        }
+
+@font-face 
+        {
+        font-family: 'prime';
+        src: url('fonts/CourierPrime-Regular.ttf')  format('truetype');
+        }
+
+@font-face 
+        {
+        font-family: 'prime-bold';
+        src: url('fonts/CourierPrime-Bold.ttf')  format('truetype');
+        }
+
+@font-face 
+        {
+        font-family: 'primecode';
+        src: url('fonts/CourierCode-Roman.ttf')  format('truetype');
+        }
+
+@font-face 
+        {
+        font-family: 'primecode-bold';
+        src: url('fonts/CourierCode-Bold.ttf')  format('truetype');
+        }
+
+@font-face 
+        {
+        font-family: 'rubik';
+        src: url('fonts/Rubik-Regular.ttf')  format('truetype');
+        }
+
+@font-face 
+        {
+        font-family: 'rubik-bold';
+        src: url('fonts/Rubik-Bold.ttf')  format('truetype');
+        }
+
+@font-face 
+        {
+        font-family: 'comforter';
+        src: url('fonts/Comforter-Regular.ttf')  format('truetype');
+        }
+
+@font-face 
+        {
+        font-family: 'roboto';
+        src: url('fonts/Roboto-Regular.ttf')  format('truetype');
+        }
+
+@font-face 
+        {
+        font-family: 'roboto-medium';
+        src: url('fonts/Roboto-Medium.ttf')  format('truetype');
+        }
+
+@font-face 
+        {
+        font-family: 'roboto-bold';
+        src: url('fonts/Roboto-Bold.ttf')  format('truetype');
+        }
+
+@font-face 
+        {
+        font-family: 'bebas';
+        src: url('fonts/BebasNeue-Regular.ttf')  format('truetype');
+        }
+
+/*** end of fonts ***********************************************************/

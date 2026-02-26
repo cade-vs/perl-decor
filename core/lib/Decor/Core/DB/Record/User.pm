@@ -53,5 +53,12 @@ sub is_active
   return $self->read( 'ACTIVE' ) > 0;
 }
 
+sub is_disabled
+{
+  my $self   = shift;
+
+  return $self->read( 'DISABLED' ) > 0;
+}
+
 ### EOF ######################################################################
 1;

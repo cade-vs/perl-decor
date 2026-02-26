@@ -13,3 +13,4 @@
   grant access to 999; 908
   right
   confirm [~Are you sure you want to logout?]
+  icon menu-item-lilo.svg

@@ -1,0 +1,56 @@
+
+
+
+  DECOR APPLICATION MACHINERY
+  2014-2025 (c) Vladi Belperchinov-Shabanski "Cade"
+
+  ============================================================================
+  SYNOPSIS
+  ============================================================================
+
+  "FORMs" are text fragments, which are populated with data from given record
+  or data hash:
+  
+        my $rec = record_load( 'LETTERS_TABLE', $letter_rec_id );
+        
+        my $data = { 'TODAY' => time(), PAGESNUM => 4 };
+        
+        my $opts = {}; # additional generation parameters, see below
+        
+        $txt = de_form_gen_rec_data( 'LETTER_FORM', $rec, $data, $opts );
+  
+  ============================================================================
+  FORM FIELD TYPES
+  ============================================================================
+  
+  All special placeholders are contained in square brackets:
+  
+  [FIELD_NAME]    if "FIELD_NAME" exists in $data hash it will be read from 
+                  there, if not, it will be searched in $rec (at this point 
+                  record reading may fail if FIELD_NAME does not represent
+                  existing table field).
+                  
+                  FIELD_NAME value will be used raw, i.e. for TIME fields,
+                  it will be the count of seconds since epoch. if formatted
+                  value needed, placeholders may request formatting:
+                  
+  [LTR_TIME  F]   if LTR_TIME is record field, format name and structure will
+                  be assumed from there. if it is just data hash value it will
+                  need and type name:
+                               
+  [LTR_TIME  F(UTIME)]  assumes UTIME type for LTR_TIME data hash value.
+
+
+
+  [MEMBERS @MLIST]  if MEMBERS is backlinked record, linking multiple recs,
+                    this place holder will be replaced with multiple executions
+                    of MLIST form with each of the matching backlinked recs.
+  
+  Plain text can also be formatted but should be in curly brackets:
+  
+  {This is title|}
+  
+
+  ============================================================================
+  EOF
+  ============================================================================

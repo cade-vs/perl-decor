@@ -1,0 +1,59 @@
+
+label Send mail queue
+
+read-only
+grant all
+
+=TO_NAME_INFO
+
+  char  64
+  # used only for auditing purposes, not used for the actual email or smtp
+
+=RCPT
+
+  char  128
+
+=CC
+
+  char  128
+
+=BCC
+
+  char  128
+
+=SUBJ
+
+  char  256
+
+=BODY
+
+  char  4096
+
+=STATUS
+
+  int
+  # status 0 means waiting to send, any other number is result of smtp
+
+=STATUS_DES
+
+  char 256
+  
+=CTIME
+
+=PTIME
+
+  utime
+  # process time, do it not before this
+
+=PCOUNT
+
+  int
+  # nomber of processing attempts
+  
+=MTIME
+
+  # last processing attempt time  
+
+=DEBUG
+
+  int

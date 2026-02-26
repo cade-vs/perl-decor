@@ -413,6 +413,7 @@ sub __sub_find_and_check_user_pass
   my $user_rec = __sub_find_user( $user );
 
   die "E_LOGIN: User [$user] not active"              unless $user_rec->is_active();
+  die "E_LOGIN: User [$user] disabled"                if     $user_rec->is_disabled();
   die "E_LOGIN: Invalid password for user [$user] "   unless de_check_user_pass_digest( $pass );
 
   my $user_pass = $user_rec->read( 'PASS' );
