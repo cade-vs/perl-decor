@@ -627,7 +627,7 @@ div.view-header
         background-color: $view-head-colors.2;
         border: solid 1px $view-head-colors.3;
 
-        padding: 0.2em;
+        padding: 0.5em;
         font: $view-head-font;
         }
 
@@ -637,7 +637,7 @@ div.view-divider
         background-color: $view-div-colors.2;
         border: solid 1px $view-div-colors.3;
         
-        padding: 0.2em;
+        padding: 0.5em;
         font: $view-div-font;
         }
 
@@ -647,7 +647,7 @@ div.insert-header
         background-color: $insert-head-colors.2;
         border: solid 1px $insert-head-colors.3;
 
-        padding: 0.2em;
+        padding: 0.5em;
         font: $insert-head-font;
         }
 
@@ -657,7 +657,7 @@ div.insert-divider
         background-color: $insert-div-colors.2;
         border: solid 1px $insert-div-colors.3;
 
-        padding: 0.2em;
+        padding: 0.5em;
         font: $insert-div-font;
         }
 
@@ -667,7 +667,7 @@ div.update-header
         background-color: $update-head-colors.2;
         border: solid 1px $update-head-colors.3;
 
-        padding: 0.2em;
+        padding: 0.5em;
         font: $update-head-font;
         }
 
@@ -677,7 +677,7 @@ div.update-divider
         background-color: $update-div-colors.2;
         border: solid 1px $update-div-colors.3;
 
-        padding: 0.2em;
+        padding: 0.5em;
         font: $update-div-font;
         }
 
@@ -1012,7 +1012,7 @@ input:hover,textarea:hover,select:hover,.grid-link-select:hover
 
 input:focus,textarea:focus,select:focus,button:focus
         {
-        color: $input-field-focus-colors.1;
+        color:            $input-field-focus-colors.1;
         background-color: $input-field-focus-colors.2;
         border: solid 1px $input-field-focus-colors.3;
 
