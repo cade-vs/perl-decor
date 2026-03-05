@@ -43,12 +43,12 @@ $$div-box
 $$setup-act-fg-bg-border
         color:            $1;
         background-color: $2;
-        border: solid 2px $3;
+        border: solid 0.2em $3;
 
 $$setup-act-fg-bg-border-hi
         color:            $4;
         background-color: $5;
-        border: solid 2px $6;
+        border: solid 0.2em $6;
 
 /*** fonts ******************************************************************/
 
@@ -246,9 +246,9 @@ div.info-text
         {
         $$div-box $info-box-colors
 
-        width:  80%;
+        width:  90%;
         text-align: center;
-        padding: 0.3em;
+        padding: 0.5em;
         padding-left: 1em;
         margin-left: auto;
         margin-right: auto;
@@ -1084,8 +1084,8 @@ select,.grid-link-select
 
         display: inline-block;
         cursor: pointer;
-        padding: 0.4em 1.2em 0.4em 1.2em;
-        margin:  0.3em;
+        padding: 0.5em 1.5em 0.5em 1.5em;
+        margin:  0.5em;
 
         white-space: nowrap;
         font: $buttons-font;

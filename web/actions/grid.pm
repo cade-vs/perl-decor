@@ -611,6 +611,7 @@ sub main
   
   $text_grid_foot .= "</table>";
 
+  my @infos;
   if( $active_filter )
     {
     my $filter_des = $ps->{ 'FILTERS' }{ 'ACTIVE' }{ 'DES'   };
@@ -618,7 +619,7 @@ sub main
     $filter_rmv .= de_html_alink_button( $reo, 'new', "(&asymp;) [~Modify]",  '[~Filter records]',          ACTION => 'grid_filter', TABLE => $table );
     $filter_rmv .= de_html_alink_button( $reo, 'here', "(x) [~Remove]",       '[~Remove current filter]',   BTYPE => 'mod', REMOVE_ACTIVE_FILTER => 1 );
     my $filter_dez = html_layout_2lr( $filter_des, $filter_rmv, '<==1>' );
-    $text .= "<div class=info-text>$filter_dez</div><p>";
+    push @infos, $filter_dez;
     }
 
   if( $active_sort )
@@ -628,8 +629,10 @@ sub main
     $sort_rmv .= de_html_alink_button( $reo, 'new', "(&asymp;) [~Modify]",  '[~Sort records]',       ACTION => 'grid_sort', TABLE => $table );
     $sort_rmv .= de_html_alink_button( $reo, 'here', "(x) [~Remove]",       '[~Remove sort order]',  BTYPE => 'mod', REMOVE_ACTIVE_SORT => 1 );
     my $sort_dez = html_layout_2lr( "[~Ordered by]: " . $sort_des, $sort_rmv, '<==1>' );
-    $text .= "<div class=info-text>$sort_dez</div><p>";
+    push @infos, $sort_dez;
     }
+
+  $text .= "<div class=info-text>". html_layout_2lr( $infos[0], $infos[1], '<==>' ) ."</div><p>" if @infos;
 
   if( $row_counter == 0 )
     {
