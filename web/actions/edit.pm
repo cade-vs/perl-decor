@@ -306,11 +306,12 @@ sub main
 
   my $record_first = 1;
   my %advise = map { $_ => 1 } @{ $tdes->get_fields_list_by_oper( 'READ' ) };
-  for my $field ( $tdes->sort_fields_list_by_order( list_uniq( @$fields_ar, keys %advise ) ) )
+  my @fields = $tdes->sort_fields_list_by_order( list_uniq( @$fields_ar, keys %advise ) );
+  for my $field ( @fields )
     {
     my $fdes       = $tdes->{ 'FIELD'  }{ $field };
     my $label      = $fdes->get_attr( 'WEB', $edit_mode, 'LABEL' ) || $field;
-    my $required   = "<span style='cursor: help' title='[~Required field]'>&reg;</span>" if $fdes->get_attr( 'REQUIRED' );
+    my $required   = "<span class='required' title='[~Required field]'>*</span>" if $fdes->get_attr( 'REQUIRED' );
 
     next if $fdes->get_attr( 'WEB', $edit_mode, 'HIDE' );
 
@@ -364,11 +365,12 @@ sub main
 #    $text .= "<td class='$edit_mode_class_prefix-value record-value $base_field_class' >$input_layout</td>\n";
 #    $text .= "</tr>\n";
     
-    my $record_first_class = 'record-first' if $record_first;
-    $record_first = 0;
+    my $record_fl_class;
+    $record_fl_class = 'record-first' if $field eq $fields[0];
+    $record_fl_class = 'record-last'  if $field eq $fields[-1];
     $text .= "<div class='record-field-value'>
-                <div class='$edit_mode_class_prefix-field record-field $record_first_class $base_field_class' >$label<span class=hi title='Required field'>$required</span>$field_error</div>
-                <div class='$edit_mode_class_prefix-value record-value $record_first_class $base_field_class' >$input_layout</div>
+                <div class='$edit_mode_class_prefix-field record-field $record_fl_class $base_field_class' >$label<span class=hi title='Required field'>$required</span>$field_error</div>
+                <div class='$edit_mode_class_prefix-value record-value $record_fl_class $base_field_class' >$input_layout</div>
               </div>";
 
 
@@ -395,11 +397,11 @@ sub main
 
   if( $tdes->{ '@' }{ 'NO_PREVIEW' } )
     {
-    $text .= de_html_form_button_redirect( $reo, 'here', $edit_form, "[~OK] &rArr;", { HINT => "[~Save data]" }, BUTTON_ID => 'OK', ACTION => 'commit' );
+    $text .= de_html_form_button_redirect( $reo, 'here', $edit_form, "[~OK] &rArr;", { BTYPE => 'act', HINT => "[~Save data]" }, BUTTON_ID => 'OK', ACTION => 'commit' );
     }
   else  
     {
-    $text .= de_html_form_button_redirect( $reo, 'here', $edit_form, "[~Preview] &rArr;", { HINT => "[~Preview data before save]" }, BUTTON_ID => 'PREVIEW', ACTION => 'preview' );
+    $text .= de_html_form_button_redirect( $reo, 'here', $edit_form, "[~Preview] &rArr;", { BTYPE => 'act', HINT => "[~Preview data before save]" }, BUTTON_ID => 'PREVIEW', ACTION => 'preview' );
     }
   $text .= $edit_form->end();
 

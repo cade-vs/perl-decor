@@ -421,7 +421,7 @@ sub main
       my $vec_ctrl_field_popup = $vec_ctrl_popup;
       if( ! $bfdes->is_unique() and ! $bfdes->is_backlinked() and ! $bfdes->is_widelinked() )
         {
-        $vec_ctrl_field_popup .= de_html_alink_button( $reo, 'new', "(&cong;) [~View all records with the same] <b>$label</b>: $data_fmt",  undef, ACTION => 'grid',                   TABLE => $table, FILTER => { $base_field => $data_base } );
+        $vec_ctrl_field_popup .= de_html_alink_button( $reo, 'new', "(&cong;) [~List the same] <b>$label</b>: $data_fmt",  undef, ACTION => 'grid',                   TABLE => $table, FILTER => { $base_field => $data_base } );
         }
       $row_vec_handle = html_popup_layer( $reo, VALUE => $vec_ctrl_field_popup, CLASS => 'popup-layer', TYPE => 'CONTEXT' );
 

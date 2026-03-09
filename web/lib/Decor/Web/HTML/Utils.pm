@@ -61,7 +61,7 @@ sub de_html_form_button_redirect
 
   $args .= " $hl_handle ";
 
-  my $btype = $args{ 'BTYPE' };
+  my $btype = $opt->{ 'BTYPE' };
   $btype = "$btype-button" if $btype;
 
   my $text;

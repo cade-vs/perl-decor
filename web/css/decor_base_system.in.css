@@ -43,12 +43,12 @@ $$div-box
 $$setup-act-fg-bg-border
         color:            $1;
         background-color: $2;
-        border: solid 0.2em $3;
+        border: solid 0.15em $3;
 
 $$setup-act-fg-bg-border-hi
         color:            $4;
         background-color: $5;
-        border: solid 0.2em $6;
+        border: solid 0.15em $6;
 
 /*** fonts ******************************************************************/
 
@@ -174,6 +174,19 @@ a
         color: $link-colors.1;
         border-bottom: dotted 1px $link-colors.2;
         text-decoration: none;
+        font: $links-font
+        }
+
+a:hover 
+        {
+        color: $link-colors.3;
+        border-bottom: solid 1px $link-colors.4;
+        }
+
+a:focus
+        {
+        color: $link-colors.5;
+        border-bottom: solid 1px $link-colors.6;
         }
 
 a.plain
@@ -192,18 +205,7 @@ td > a
         {
         border: none;
         text-decoration: none;
-        }
-
-a:hover 
-        {
-        color: $link-colors.3;
-        border-bottom: solid 1px $link-colors.4;
-        }
-
-a:focus
-        {
-        color: $link-colors.5;
-        border-bottom: solid 1px $link-colors.6;
+        border-bottom: dotted 1px $link-colors.2;
         }
 
 td > a:hover
@@ -377,8 +379,8 @@ div.main-menu-right
 
 div.main-menu-item
         {
-        padding: 0.5em;
-        padding-left: 0.5em;
+        padding-left: 1em;
+        padding-right: 1em;
         border-left: solid 1px $menu-colors.5;
         }
 
@@ -510,7 +512,7 @@ div.record-table
 
         color:            $view-data-colors.1;
         background-color: $view-data-colors.2;
-        border: solid 1px $view-data-colors.3;
+        border: solid 2px $view-data-colors.3;
         }
         
 div.record-field-value
@@ -520,13 +522,14 @@ div.record-field-value
         width: 100%;
 
         min-height: 2.5em;
-        padding-top: 0.3em;
         }
 
-div.record-sep
+div.record-sep1
         {
         flex: auto;
         text-align: center;
+        border-bottom: solid 1px #f00;
+        background-color: #f00;
         }
 
 div.record-field
@@ -550,8 +553,8 @@ div.record-value
         text-align: left;
 
         border-bottom: solid 1px $view-data-colors.4;
-        
-        padding: 0.3em 0.3em 0.3em 1em;
+
+        padding: 0.5em 0.5em 0.5em 1em;
 
         align-content: center;
         }
@@ -635,7 +638,7 @@ div.view-divider
         {                  
         color:            $view-div-colors.1;
         background-color: $view-div-colors.2;
-        border: solid 1px $view-div-colors.3;
+        border-bottom: solid 1px $view-div-colors.3;
         
         padding: 0.5em;
         font: $view-div-font;
@@ -881,6 +884,18 @@ td.insert-value
         color:            $details-text-colors.1
         }
 
+.required
+        {
+        color: $label-required;
+        cursor: help;
+        font-size: larger;
+        }
+
+div.record-field-value:has(input:focus),div.record-field-value:has(textarea:focus)  
+        {
+        background-color: #fffde7;
+        }
+
 /*** grid *******************************************************************/
 
 table.grid
@@ -890,7 +905,7 @@ table.grid
         border: solid 1px $grid-data-colors.3;
 
         border-collapse: collapse;
-        width:  100%;
+        width:  99%;
         }
 
 tr.grid-header > td
@@ -995,8 +1010,14 @@ input,textarea,select,.grid-link-select
         
         color: $input-field-colors.1;
         background-color: $input-field-colors.2;
-        border: solid 1px $input-field-colors.3;
+        border: solid 1px $input-field-colors.2;
+        border-right: solid 1px $input-field-colors.3;
         }
+        
+input::placeholder
+        {
+        color: #AAA;
+        }        
 
 input.search_list,textarea
         {
@@ -1080,16 +1101,21 @@ select,.grid-link-select
 
 .button,button
         {
+        display: inline-block;
+        text-decoration: none;  /* links have underline by default */
+        text-align: center;
         border-radius: 2px;
 
-        display: inline-block;
         cursor: pointer;
-        padding: 0.5em 1.5em 0.5em 1.5em;
+        padding-top: 0.5em;
+        padding-bottom: 0.5em;
+        padding-left: 2em;
+        padding-right: 2em;
         margin:  0.5em;
 
         white-space: nowrap;
         font: $buttons-font;
-        
+
         $$setup-act-fg-bg-border     $button-colors
         }
 
@@ -1217,7 +1243,7 @@ a.icon
 .checkbox
         {
         cursor: pointer;
-        height: 1.2em;
+        height: 1.7em;
         padding: 0;
         border: none;
         text-decoration: none;

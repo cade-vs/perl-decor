@@ -7,6 +7,7 @@
   web.grid.details 4
   read-only
   on_insert now
+  on_recalc_insert now
 
 =MTIME
 
@@ -16,6 +17,7 @@
   web.grid.details 4
   read-only
   on_update now
+  on_recalc_update now
 
 =CBY
 

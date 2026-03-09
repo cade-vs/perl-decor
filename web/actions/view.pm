@@ -411,12 +411,12 @@ sub main
   my $back_hint = @$ps_path > 1 ? ': ' . $ps_path->[ -2 ]{ 'TITLE' } : undef;
   
   $text .= "<br>";
-  $text .= de_html_alink_button( $reo, 'back', "&lArr; [~Back]", "[~Return to previous screen]$back_hint", BTYPE => 'nav' ) if $rs;
+  $text .= de_html_alink_button( $reo, 'back', "(<) [~Back]", "[~Return to previous screen]$back_hint", BTYPE => 'nav' ) if $rs;
   if( $tdes->allows( 'UPDATE' ) )
     {
     my $update_cue = de_web_get_cue( $sdes, qw( WEB GRID UPDATE_CUE ) );
     # FIXME: row access!
-    $text .= de_html_alink_button( $reo, 'new',  "$update_cue &uArr;", $update_cue, BTYPE => 'mod', ACTION => 'edit', ID => $id, TABLE => $table, LINK_FIELD_DISABLE => $link_field_disable, MASTER_RECORD_TABLE => $master_record_table, MASTER_RECORD_ID => $master_record_id );
+    $text .= de_html_alink_button( $reo, 'new',  "$update_cue (^)", $update_cue, BTYPE => 'mod', ACTION => 'edit', ID => $id, TABLE => $table, LINK_FIELD_DISABLE => $link_field_disable, MASTER_RECORD_TABLE => $master_record_table, MASTER_RECORD_ID => $master_record_id );
     }
 
   if( $table_type ne 'FILE' and $tdes->allows( 'INSERT' ) and ! $tdes->{ '@' }{ 'NO_COPY' } )

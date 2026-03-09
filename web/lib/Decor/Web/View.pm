@@ -458,7 +458,7 @@ sub de_data_grid
   if( $title )
     {
     my $c = @fields + 1 * ( defined $ctrl_cb );
-    $text .= "<div class='view-divider fmt-center' colspan=$c>$title</div>";
+    $text .= "<div class='fmt-right' colspan=$c>//$title</div>";
     }
 
   $text .= "<table class='$class' cellspacing=0 cellpadding=0>";
