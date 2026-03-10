@@ -82,7 +82,7 @@ sub main
 
   if( $res )
     {
-    # no error, return to caller
+    # no error, return to caller unless DO is specified to confirm or provide more information!!!!!!!!!!!!!!!!!
     
     $reo->forward( '_R' => $rs->{ ':ID' }, ACTION => 'DO', TABLE => $table, ID => $id, DO => 'POST_INSERT' ) if   $edit_mode_insert and $tdes->exists( 'DO', 'POST_INSERT' );
     $reo->forward( '_R' => $rs->{ ':ID' }, ACTION => 'DO', TABLE => $table, ID => $id, DO => 'POST_UPDATE' ) if ! $edit_mode_insert and $tdes->exists( 'DO', 'POST_UPDATE' );
@@ -148,7 +148,7 @@ sub main
 #  my $ok_hint = $edit_mode_insert ? "Confirm new record insert" : "Confirm record update";
   
   $text .= "<br>";
-  $text .= de_html_alink_button( $reo, 'here', "&lArr; [~Back]",     "[~Back to data edit screen]", ACTION => 'edit'   );
+  $text .= de_html_alink_button( $reo, 'here', "[~Edit] &uArr;",   "[~Back to data edit screen]", BTYPE => 'mod', ACTION => 'edit'   );
   $text .= de_html_alink_button( $reo, 'back', "[~Continue] &crarr;", "[~Operation done, continue...]"       );
 #  $text .= de_html_alink_button( $reo, 'new',  "OK",     $ok_hint,                   ACTION => 'commit' );
 

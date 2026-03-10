@@ -3,8 +3,15 @@
 
 =preferences
 
+  label Preferences
   type edit users
   grant access to 999
+
+=pwd
+
+  label Change password
+  type insert de_pwd
+  grant access to 999; 908
   
 =logout
 
