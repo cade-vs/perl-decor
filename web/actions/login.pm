@@ -27,8 +27,8 @@ sub main
     {  
     return "<#login_form>" unless $button eq 'LOGIN';
 
-    $user = $ui->{ 'USER' };
-    $pass = $ui->{ 'PASS' };
+    $user = $ui->{ 'USER'     };
+    $pass = $ui->{ 'PASSWORD' };
     }
   
   my $client = $reo->de_connect();

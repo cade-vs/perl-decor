@@ -199,17 +199,13 @@ sub cmd_create_user
 
   $user_rec->create( 'DE_USERS', $uid );
   
-  my $user_salt     = create_random_id( 128 );
-  my $user_pass_hex = de_password_salt_hash( $pass, $user_salt ); 
-
   $user_rec->write( 
                     NAME      => $user, 
-                    PASS      => $user_pass_hex,
-                    PASS_SALT => $user_salt,
                     ACTIVE    => 1,
                   );
   $user_rec->write( 'PRIMARY_GROUP' => $grp_rec->id() );
   $user_rec->write( 'PRIVATE_GROUP' => $grp_rec->id() );
+  $user_rec->set_password( $pass );
   
   $user_rec->save();
   $user_rec->commit();
@@ -260,15 +256,11 @@ sub cmd_user_pwd
   
   my $user_rec = find_user( $user );
 
-  my $user_salt     = create_random_id( 128 );
-  my $user_pass_hex = de_password_salt_hash( $pass, $user_salt ); 
-
   $user_rec->write( 
                     NAME      => $user, 
-                    PASS      => $user_pass_hex,
-                    PASS_SALT => $user_salt,
                     ACTIVE    => 1,
                   );
+  $user_rec->set_password( $pass );
   
   $user_rec->save();
   $user_rec->commit();

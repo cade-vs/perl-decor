@@ -27,6 +27,7 @@ use Decor::Core::Menu;
 use Decor::Core::Code;
 use Decor::Core::DSN;
 use Decor::Core::Utils;
+use Decor::Core::Crypto;
 
 use Clone qw( clone );
 
@@ -51,7 +52,6 @@ my %DISPATCH_MAP = (
                                  },
                      'USER'   => {
                                    'LOGIN'    => \&sub_login,
-                                   'PREPARE'  => \&sub_login_prepare,
 
                                    'SEED'     => \&sub_seed,
                                    'DESCRIBE' => \&sub_describe,
@@ -97,7 +97,6 @@ my %MAP_SHORTCUTS = (
                     'M'   => 'MENU',
                     'N'   => 'NEXTID',
                     'O'   => 'DO',
-                    'P'   => 'PREPARE',
                     'PC'  => 'PCHECK',
                     'R'   => 'ROLLBACK',
                     'S'   => 'SELECT',
@@ -140,8 +139,6 @@ my %SELECT_WHERE_OPERATORS = (
 my %SELECT_MAP;
 my $SELECT_MAP_COUNTER;
 my $SELECT_MAP_COUNT;
-
-my $PREPARE_LOGIN_SESSION_SALT;
 
 sub subs_set_dispatch_map
 {
@@ -206,8 +203,6 @@ sub __sub_reset_state
   %SELECT_MAP         = ();
   $SELECT_MAP_COUNTER = 0;
   $SELECT_MAP_COUNT   = 0;
-  
-  $PREPARE_LOGIN_SESSION_SALT = undef;
   
   return 1;
 }
@@ -407,19 +402,18 @@ sub __sub_find_user
 sub __sub_find_and_check_user_pass
 {
   my $user = shift;
-  my $pass = shift; # expected to be whirlpool de_password_salt_hash()
-  my $salt = shift;
+  my $pass = shift; # expected to be RSA encrypted
 
   my $user_rec = __sub_find_user( $user );
 
+  $pass = de_decrypt( 'pass', $pass );
+
   die "E_LOGIN: User [$user] not active"              unless $user_rec->is_active();
   die "E_LOGIN: User [$user] disabled"                if     $user_rec->is_disabled();
-  die "E_LOGIN: Invalid password for user [$user] "   unless de_check_user_pass_digest( $pass );
+  die "E_LOGIN: Invalid password for user [$user] "   if     $pass eq '';
 
-  my $user_pass = $user_rec->read( 'PASS' );
-  # TODO: use configurable digests
-  my $user_pass_hex = de_password_salt_hash( $user_pass, $salt );
-  die "E_LOGIN: Wrong password for user [$user]" unless $user_pass ne '' and $pass eq $user_pass_hex;
+  die "E_LOGIN: Wrong password for user [$user]" unless $user_rec->verify_password( $pass );
+  
   return $user_rec;
 };
 
@@ -486,26 +480,6 @@ sub sub_begin
   $mo->{ 'XS'    } = 'OK';
 }
 
-sub sub_login_prepare
-{
-  my $mi = shift;
-  my $mo = shift;
-
-  my $user     = $mi->{ 'USER' };
-  my $user_rec = $user ? __sub_find_user( $user ) : undef;
-  
-  my $user_salt = $user_rec ? $user_rec->read( 'PASS_SALT' ) : undef;
-     $user_salt = create_random_id( 128 ) unless de_check_name( $user_salt );
-  
-  $PREPARE_LOGIN_SESSION_SALT = create_random_id( 128 );
-
-  $mo->{ 'LOGIN_SALT' } = $PREPARE_LOGIN_SESSION_SALT;
-  $mo->{ 'USER_SALT'  } = $user_salt;
-  $mo->{ 'XS'         } = 'OK';
-
-  return 1;
-}
-
 sub sub_login
 {
   my $mi = shift;
@@ -517,13 +491,9 @@ sub sub_login
 
   die "E_LOGIN: ANONYMOUS login is forbidden" if $user =~ /^(ANON|ANONYMOUS)$/;
 
-  my $session_salt = $PREPARE_LOGIN_SESSION_SALT;
-  $PREPARE_LOGIN_SESSION_SALT = undef;
-
-  die "E_INTERNAL: missing session SALT, call XT=PREPARE first" unless de_check_name( $session_salt );
   die "E_INTERNAL: invalid remote string" unless de_check_user_login_name( $remote );
   
-  my $user_rec = __sub_find_and_check_user_pass( $user, $pass, $session_salt );
+  my $user_rec = __sub_find_and_check_user_pass( $user, $pass );
 
   # TODO: allow/deny root login
   die "E_LOGIN: User not active" unless $user_rec->read( 'ACTIVE' ) > 0;
@@ -805,21 +775,16 @@ sub sub_check_user_password
   my $user     = $mi->{ 'USER'     };
   my $pass     = $mi->{ 'PASS'     };
 
-  my $session_salt = $PREPARE_LOGIN_SESSION_SALT;
-  $PREPARE_LOGIN_SESSION_SALT = undef;
+  $pass = de_decrypt( 'pass', $pass );
 
-  die "E_INTERNAL: missing session SALT, call XT=PREPARE first" unless de_check_name( $session_salt );
-  die "E_PASSWORD: Invalid user [$user] or password"            unless de_check_user_pass_digest( $pass );
+  die "E_PASSWORD: Invalid password for user [$user] "   if     $pass eq '';
 
   my $user_rec  = subs_get_current_user();
   my $user_pass = $user_rec->read( 'PASS' );
 
   die "E_LOGIN: Invalid user [$user] password"   unless de_check_user_pass_digest( $pass );
 
-  my $user_pass = $user_rec->read( 'PASS' );
-  # TODO: use configurable digests
-  my $user_pass_hex = de_password_salt_hash( $user_pass, $session_salt );
-  die "E_PASSWORD: Wrong user [$user] password"   unless $pass eq $user_pass_hex;
+  die "E_PASSWORD: Wrong password for user [$user]" unless $user_rec->verify_password( $pass );
 
   $mo->{ 'XS'    } = 'OK';
 }

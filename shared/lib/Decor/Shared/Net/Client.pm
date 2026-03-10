@@ -310,16 +310,11 @@ sub login
   my $remote = shift;
 
 
-  my $mop = $self->tx_msg( { 'XT' => 'P', 'USER' => $user } ) or return undef;
-
-  my $login_salt = $mop->{ 'LOGIN_SALT' };
-  my $user_salt  = $mop->{ 'USER_SALT'  };
-
   my %mi;
 
   $mi{ 'XT'     } = 'LI';
   $mi{ 'USER'   } = $user;
-  $mi{ 'PASS'   } = de_password_salt_hash( de_password_salt_hash( $pass, $user_salt ), $login_salt );
+  $mi{ 'PASS'   } = $pass;
   $mi{ 'REMOTE' } = $remote;
   
   my $mo = $self->tx_msg( \%mi ) or return undef;

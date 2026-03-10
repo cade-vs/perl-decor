@@ -10,8 +10,11 @@
 package Decor::Core::DB::Record::User;
 use strict;
 
+use Crypt::Argon2 qw( argon2id_pass argon2_verify );
+
 use Decor::Core::DB::Record;
 use Exception::Sink;
+use Data::Tools;
 
 use parent 'Decor::Core::DB::Record';
 
@@ -58,6 +61,33 @@ sub is_disabled
   my $self   = shift;
 
   return $self->read( 'DISABLED' ) > 0;
+}
+
+sub set_password
+{
+  my $self   = shift;
+  
+  my $pass   = shift;
+  
+  # Hash a password
+  my $salt    = create_random_id( 16 );
+  my $encoded = argon2id_pass( $pass, $salt,  32, '32M', 1, 32 );
+  
+  # PASS_SALT not needed in the case of using argon2
+  $self->write( 'PASS' => $encoded, 'PASS_SALT' => $salt );
+  
+  return 1;
+}
+
+sub verify_password
+{
+  my $self   = shift;
+
+  my $pass   = shift;
+  
+  my $encoded = $self->read( 'PASS' );
+  
+  return argon2_verify( $encoded, $pass );
 }
 
 ### EOF ######################################################################
