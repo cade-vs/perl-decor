@@ -1,0 +1,35 @@
+
+  label   [~Change password]
+
+  grant read insert to 999; 908
+  
+  no-preview
+
+=PASSWORD
+  
+  label [~Current password]
+  type  char  256
+
+  web.overflow  1
+  password
+
+=PASSWORD1
+  
+  label [~New password]
+  type  char  256
+
+  web.overflow  1
+  password
+
+=PASSWORD2
+  
+  label [~Confirm new password]
+  type  char  256
+
+  web.overflow  1
+  password
+
+=CBY
+=CTIME
+
+
