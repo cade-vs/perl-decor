@@ -340,7 +340,7 @@ sub __select_resolve_field
 
     if( ! $opt->{ 'UNTAINT_FIELDS' } and $profile and $self->taint_mode_get( 'FIELDS' ) )
       {
-      boom "cannot get across field, READ/CROSS denied, current position is [$table_now:$field_now]" 
+      boom "cannot get across field, READ/CROSS denied [$table:$field] current position is [$table_now:$field_now]" 
           unless
              $profile->check_access_table_field( 'READ',  $table_now, $field_now )
           or 
