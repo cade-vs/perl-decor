@@ -553,7 +553,11 @@ sub main
 #          $data_ctrl .= "<br>\n";
           
           # TODO: option to avoid count
-          $bcnt = $core->count( $backlinked_table, { FILTER => { $backlinked_field => [ { OP => 'IN', VALUE => [ $id, 0 ] } ] } } );
+          #$bcnt = $core->count( $backlinked_table, { FILTER => { $backlinked_field => [ { OP => 'IN', VALUE => [ $id, 0 ] } ] } } );
+          
+          # FIXME: URGENT: fix all the backlink-grid-mode mess!!!!!!!!!!!!!!!!!!!!
+          
+          $bcnt = $core->count( $backlinked_table, { FILTER => { $backlinked_field => [ { OP => 'IN', VALUE => [ $id ] } ] } } );
           }
         else
           {  

@@ -83,22 +83,36 @@ div.body
         {
         display: flex;
         flex-direction: column;
-        height: 100%;
+        min-height: 100vh;
+        margin: 0;
         } 
 
 div.body-head
         {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 2em;
+        z-index: 100;
         }
         
 div.body-main
         {
-        flex-grow: 3333;
-        overflow: scroll;
+        flex: 1;
+        margin-top: 2em;
+        padding-left: 0.5em;
+        padding-right: 0.5em;
+
         text-align: center;
         }
         
 div.body-foot
         {
+      background: #999;
+      color: #fff;
+        padding: 0.25em;
+        padding-left: 2em;
         }
 
 
@@ -356,6 +370,8 @@ div.main-menu-box
         
         display: flex;
         flex-direction: row;
+        
+        height: 100%;
         }
 
 div.main-menu-left
@@ -881,7 +897,9 @@ td.insert-value
 
 .details-text
         {
-        color:            $details-text-colors.1
+        color:            $details-text-colors.1;
+        background-color: $details-text-colors.2;
+        font-size: 0.8em;
         }
 
 .required
@@ -1172,14 +1190,19 @@ select,.grid-link-select
 
 .icon
         {
+        display: inline-block;
         cursor: pointer;
+        width:  2em;
         height: 2em;
-        padding: 0.3em;
+        padding: 0.2em;
         text-decoration: none;
         background-image: none;
         border-radius: 2px;
-        margin: 1px 1px 1px 1px;
+        margin: 0.1em;
 
+        fill: currentColor;
+        shape-rendering: crispEdges;
+        vertical-align: middle;
         font: $buttons-font;
 
         $$setup-act-fg-bg-border  $icon-colors
@@ -1187,7 +1210,7 @@ select,.grid-link-select
 .icon:hover
         {
         $$setup-act-fg-bg-border-hi  $icon-colors
-        padding: 0.3em;
+        padding: 0.4em;
         }
 
 .icon-clear

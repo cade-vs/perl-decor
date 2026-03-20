@@ -84,8 +84,16 @@ sub __value_image_fix
   my %args  = @_;
   my $class = $args{ 'CLASS' } || 'icon';
   #$value = "<img class=icon src=i/$value>" if $value =~ /^[a-z_0-9]+\.(png|jpg|jpeg|gif)$/i;
-  my $ire = '[a-z_\-0-9]+\.(png|jpg|jpeg|gif|svg)';
-  $value =~ s/^($ire)|($ire)$/<img class='$class' src=i\/$1>/gio;
+  if( $value =~ /[a-z_\-0-9]+\.svg#[a-z_\-0-9]+/ )
+    {
+    # external svg sprite pack
+    $value = "<svg class='$class'><use href='i/$value'></svg>";
+    }
+  else
+    {  
+    # regular img html image element
+    $value =~ s/([a-z_\-0-9]+\.(png|jpg|jpeg|gif|svg))/<img class='$class' src=i\/$1>/gio;
+    }
   return $value;
 }
 

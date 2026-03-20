@@ -1330,6 +1330,7 @@ sub sub_insert
 
   $rec->save();
   $rec->method( 'POST_INSERT' );
+  $rec->method( 'POST_SAVE'   );
   $rec->save();
 
   de_add_alog_rec_if_des( 'CREATE', $rec );
@@ -1405,6 +1406,7 @@ sub sub_update
 
   $rec->save();
   $rec->method( 'POST_UPDATE' );
+  $rec->method( 'POST_SAVE'   );
   $rec->save();
 
   de_add_alog_rec_if_des( 'MODIFY', $rec );

@@ -83,6 +83,20 @@ sub get_label
   return wantarray ? ( $label[1], $label[2] || $label[0] ) : $label[0];
 }
 
+sub get_s
+{
+  my $self = shift;
+
+  return $self->{ '@' }{ 'S' };
+}
+
+sub get_p
+{
+  my $self = shift;
+
+  return $self->{ '@' }{ 'P' };
+}
+
 sub get_table_des
 {
   my $self  =    shift;

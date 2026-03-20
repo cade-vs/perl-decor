@@ -98,4 +98,30 @@
         src: url('fonts/BebasNeue-Regular.ttf')  format('truetype');
         }
 
+@font-face 
+        {
+        font-family: 'plexmono';
+        src: url('fonts/IBMPlexMono-Regular.ttf')  format('truetype');
+        }
+ 
+@font-face 
+        {
+        font-family: 'plexmono-bold';
+        src: url('fonts/IBMPlexMono-Bold.ttf')  format('truetype');
+        }
+ 
+@font-face 
+        {
+        font-family: 'plexmono-semibold';
+        src: url('fonts/IBMPlexMono-SemiBold.ttf')  format('truetype');
+        }
+
+/*** icons ******************************************************************/
+
+@font-face 
+        {
+        font-family: 'icons-remix';
+        src: url('icons/remixicon.woff2')  format('woff2');
+        }
+                                  
 /*** end of fonts ***********************************************************/

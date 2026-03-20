@@ -311,6 +311,7 @@ sub main
     {
     my $fdes       = $tdes->{ 'FIELD'  }{ $field };
     my $label      = $fdes->get_attr( 'WEB', $edit_mode, 'LABEL' ) || $field;
+    my $type_name  = $fdes->{ 'TYPE' }{ 'NAME'  };
     my $required   = "<span class='required' title='[~Required field]'>*</span>" if $fdes->get_attr( 'REQUIRED' );
 
     next if $fdes->get_attr( 'WEB', $edit_mode, 'HIDE' );
@@ -318,6 +319,8 @@ sub main
     my $base_field = $field;
 
     my $field_data = $ps->{ 'ROW_DATA' }{ $field };
+
+    next if $fdes->get_attr( 'WEB', $edit_mode, 'HIDE_IF_EMPTY' ) and ( ( $type_name eq 'CHAR' and $field_data eq '' ) or ( $type_name ne 'CHAR' and $field_data == 0 ) ); # FIXME: move to func
 
     my $field_error;
 

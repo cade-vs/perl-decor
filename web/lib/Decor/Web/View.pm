@@ -711,7 +711,8 @@ sub de_master_record_view
   my $master_fields = uc $sdes->get_attr( qw( WEB MASTER_FIELDS ) ) or return undef;
 
   #return de_data_grid( $core, $linked_table, $master_fields, { FILTER => { '_ID' => $link_id }, LIMIT => 1, CLASS => 'grid view record', TITLE => "[~Master record from] $linked_table_label" } ) if $master_fields;
-  return de_data_view( $core, $master_record_table, $master_fields, $master_record_id, { CLASS => 'view record', TITLE => "[~Master record from] $table_label" } );
+  my $title = $tdes->get_s() || "[~Master record from] $table_label";
+  return "<p>" . de_data_view( $core, $master_record_table, $master_fields, $master_record_id, { CLASS => 'view record', TITLE => $title } );
 }
 
 sub de_progress_bar

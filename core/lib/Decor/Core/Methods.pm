@@ -249,7 +249,7 @@ sub update_backlink_count
     }  
 }
 
-# usage: backlink table, backlink field --> table/rec, field, <id>
+# usage: backlink-table, backlink-field, backlink-sum --> dest-table/rec, dest-sum-field, <id>
 sub update_backlink_sum
 {
   my $backlink_table = shift;
