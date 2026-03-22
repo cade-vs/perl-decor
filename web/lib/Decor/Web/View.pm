@@ -465,7 +465,7 @@ sub de_data_grid
   
   $text .= "<tr class=grid-header>";
   
-  $text .= "<td class='grid-header fmt-left'>Ctrl</td>" if $ctrl_cb;
+  $text .= "<td class='grid-header fmt-left'>[~Ctrl]</td>" if $ctrl_cb;
 
   for my $field ( @fields )
     {

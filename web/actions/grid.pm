@@ -247,7 +247,7 @@ sub main
 
   $text_grid_head .= "<table class=grid cellspacing=0 cellpadding=0>";
   $text_grid_head .= "<tr class=grid-header>";
-  $text_grid_head .= "<td class='fmt-left'>Ctrl</td>";
+  $text_grid_head .= "<td class='fmt-left'>[~Ctrl]</td>";
 
   @fields = grep { /^_/ ? $reo->user_has_group( 1 ) ? 1 : 0 : 1 } @fields;
 

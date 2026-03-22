@@ -219,7 +219,7 @@ sub tr_hash_save
     $v =~ s/\n/\\n/g;
     $data .= "$k=$v\n";
     }
-  return file_save( $fn, $data );
+  return file_text_save( $fn, $data );
 }
 
 sub tr_hash_load
@@ -227,7 +227,7 @@ sub tr_hash_load
   my $fn = shift;
   my %tr;
 
-  for( split /\n/, file_load( $fn, { encoding => 'UTF-8' } ) )
+  for( split /\n/, file_text_load( $fn ) )
     {
     my ( $k, $v ) = split /=/, $_, 2;
     $k =~ s/\\=/=/g;

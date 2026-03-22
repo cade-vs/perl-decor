@@ -192,6 +192,8 @@ my %DES_ATTRS = (
                            
                            RECORD_NAME => 3, # interpolated list of fields, describing current record
 
+                           VIEW_ON_INSERT   => 3, # will forward UI to record view right after successful insert
+
                            FTS          => 3, # enable interfaces to show FTS controls
                          },
                   'TYPE' => {
@@ -245,7 +247,7 @@ my %DES_ATTRS = (
                            DISPLAY      => 3, # advise display view, for example: web.display progress-bar
 
                            ADVISE      => 1, # takes arguments, INSERT,UPDATE,EDIT to be shown even if read-only on those screens
-                          
+                           
                            HIDE_IF_EMPTY    => 3, # hide field if it is empty
                            NO_AUTOCOMPLETE  => 3, # disable interface autocomplete
                            RECALC_ON_CHANGE => 3, # recalc record form if field changes

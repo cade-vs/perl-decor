@@ -109,7 +109,6 @@ sub main
     elsif( $type eq 'ACTION' )
       {
       my $action  = $item->{ 'ACTION'  };
-      #### DOES NOT WORK WITH ANON SESSIONS: next if $reo->is_logged_in() and uc $action =~ /(\[~)?LOGIN(\])?/; # root hack
       $link = "<a $menu_args reactor_new_href=?action=$action>$label</a>";
       }
     else

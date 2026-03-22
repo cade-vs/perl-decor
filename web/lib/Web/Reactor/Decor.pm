@@ -78,7 +78,7 @@ sub new
             'ACTIONS_DIRS'   => [ "$APP_ROOT/web/actions", "$ROOT/web/actions" ],
             'REO_ACT_CLASS' => 'Web::Reactor::Actions::Decor',
             'REO_PRE_CLASS' => 'Web::Reactor::Preprocessor::Extended',
-            #'TRANS_DIRS'     => [ "$ROOT/web/trans", "$APP_ROOT/web/trans" ],
+            'TRANS_DIRS'     => [ "$ROOT/web/trans", "$APP_ROOT/web/trans" ],
             'TRANS_FILE'     => "$APP_ROOT/web/trans/$lang/$lang.tr",
             'SESS_VAR_DIR'   => "$ROOT/var/$APP_NAME/sess/",
             %$cfg,

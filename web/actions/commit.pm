@@ -35,7 +35,7 @@ sub main
 
   my $core = $reo->de_connect();
   my $tdes = $core->describe( $table );
-
+  my $sdes = $tdes->get_table_des(); # table "Self" description
 
   my $fields_ar        = $ps->{ 'FIELDS_WRITE_AR'  };
   my $edit_mode_insert = $ps->{ 'EDIT_MODE_INSERT' };
@@ -106,8 +106,11 @@ sub main
     
     if( $file_mime eq '' )
       {
+      # no return, text, forward to VIEW screen as requested 
+      return $reo->forward( '_R' => $rs->{ ':ID' }, ACTION => 'VIEW', TABLE => $table, ID => $id ) if $edit_mode_insert and $sdes->get_attr( qw( WEB VIEW_ON_INSERT ) );
+
       # no return file, go back now
-      $reo->forward_back( @return_args );
+      return $reo->forward_back( @return_args );
       }
     else  
       {

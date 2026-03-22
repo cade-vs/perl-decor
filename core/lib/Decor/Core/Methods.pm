@@ -113,6 +113,7 @@ sub create_user
   $user_rec->write( 
                     NAME      => $name, 
                     ACTIVE    => 1,
+                    DISABLED  => 0,
                   );
 
   # setup password if specified, otherwise user will not be able to login
@@ -325,6 +326,11 @@ sub rec_sort_fields_n
 
 *reorder_date_time = *rec_sort_fields_n;
 
+# args: list of fields
+# returns _ID of a record with the same data in the given fields, 
+# i.e. if the same record exists
+# if return is 0 or undef, such record does not exist
+# note: if record with the current _ID exists in the database, it will be skipped
 sub record_exists_by_fields
 {
   my $rec = shift;
@@ -346,6 +352,9 @@ sub record_exists_by_fields
   return $db->read_field( $rec->table(), '_ID', $where, { BIND => \@bind } );
 }
 
+# checks for existing record with record_exists_by_fields() and if so ill
+# add error hints to all given records for the screen form
+# returns 1 if errors re issued and undef if no record found
 sub record_exists_by_fields_add_error
 {
   my $rec    = shift;
