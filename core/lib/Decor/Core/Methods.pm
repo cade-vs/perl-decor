@@ -32,6 +32,9 @@ our @EXPORT = qw(
                 detach_all_user_groups
                 set_user_pass
                 
+                backlink_count
+                backlink_sum
+                
                 update_backlink_count
                 update_backlink_sum
                 
@@ -223,6 +226,31 @@ sub set_user_pass
   return 1;                
 }
 
+sub backlink_count
+{
+  my $backlink_table = shift;
+  my $backlink_field = shift;
+  my $id             = shift;
+
+  my $io = new Decor::Core::DB::IO;
+  my $count = $io->count( $backlink_table, "$backlink_field = ?", { BIND => [ $id ] } );
+  
+  return $count;
+}
+
+sub backlink_sum
+{
+  my $backlink_table = shift;
+  my $backlink_field = shift;
+  my $id             = shift;
+  my $backlink_sum_f = shift;
+
+  my $io = new Decor::Core::DB::IO;
+  my $sum = $io->sum( $backlink_table, $backlink_sum_f, "$backlink_field = ?", { BIND => [ $id ] } );
+  
+  return $sum;
+}
+
 # usage: backlink table, backlink field --> table/rec, field, <id>
 sub update_backlink_count
 {
@@ -255,7 +283,7 @@ sub update_backlink_sum
 {
   my $backlink_table = shift;
   my $backlink_field = shift;
-  my $backlink_sum   = uc shift;
+  my $backlink_sum   = shift;
   my $table_rec      = shift;
   my $field          = shift;
   my $id             = shift;

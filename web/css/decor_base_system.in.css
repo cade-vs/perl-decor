@@ -701,7 +701,7 @@ div.update-divider
         }
 
 /* flex */
-/* moved to record-* above
+/*$ moved to record-* above
 div.view-flow
         {
         display: flex;
@@ -806,7 +806,7 @@ div.view-value
 
 /*** edit *******************************************************************/
 
-/*
+/*$
 
 table.edit
         {
@@ -842,7 +842,7 @@ td.edit-field
 
 /*** insert *******************************************************************/
 
-/*
+/*$
 
 table.insert
         {
