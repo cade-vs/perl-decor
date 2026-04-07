@@ -78,7 +78,7 @@ sub create_group
 {
   my $name   = shift;
   
-  return undef unless $name; # cannot be really '0' :)
+  boom "group name is empty" unless $name; # cannot be really '0' :)
 
   # create private group record
   my $grp_rec = new Decor::Core::DB::Record;

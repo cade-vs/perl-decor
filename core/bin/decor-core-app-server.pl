@@ -13,7 +13,7 @@ use lib ( map { die "invalid DECOR_CORE_ROOT dir [$_]\n" unless -d; ( "$_/core/l
 use open ':std', ':encoding(UTF-8)';
 
 use Data::Tools;
-use Data::Tools::Process;
+use Data::Tools::Process 1.51;
 use Data::Tools::Socket::Protocols;
 
 use Decor::Core::Env;
@@ -33,6 +33,8 @@ my $opt_no_fork = 0;
 my $opt_prefork = 0;
 my $opt_maxfork = 0;
 my $opt_preload = 0;
+my $opt_stop    = 0;
+my $opt_restart = 0;
 my $opt_listen_port = 42000;
 my $opt_net_protocols = '*';
 my $server_module = $DEFAULT_SERVER_MODULE;
@@ -64,6 +66,8 @@ options:
     -su bundle -- file with trusted SSL/X509 certificate issuers
                   if -su given, all clients' certificates will be verified!
     -z         -- daemonize process (detach from controlling terminal)
+    -stop      -- same <system,srvmod,port> server will be stopped only
+    -restart   -- same as -stop but current server will be started
     --         -- end of options
 notes:
   * first argument is application name and it is mandatory!
@@ -85,31 +89,31 @@ while( @ARGV )
     push @args, @ARGV;
     last;
     }
-  if( /-f/ )
+  if( /^-f$/ )
     {
     $opt_no_fork = 1;
     print "status: option: run in foreground (no fork) mode\n";
     next;
     }
-  if( /-k/ )
+  if( /^-k$/ )
     {
     $opt_prefork = shift;
     print "status: option: run in prefork mode, spawning initial $opt_prefork processes\n";
     next;
     }
-  if( /-x/ )
+  if( /^-x$/ )
     {
     $opt_maxfork = shift;
     print "status: option: max fork $opt_prefork processes\n";
     next;
     }
-  if( /-p/ )
+  if( /^-p(\d+)?$/ )
     {
-    $opt_listen_port = shift;
+    $opt_listen_port = $1 || shift;
     print "status: option: listening on port [$opt_listen_port]\n";
     next;
     }
-  if( /-u/ )
+  if( /^-u$/ )
     {
     die "-e must be specified before -u!\n" unless $opt_preload;
     $server_module = shift;
@@ -118,7 +122,7 @@ while( @ARGV )
     print "status: option: using server module [$DEFAULT_SERVER_MODULE_PREFIX$server_module]\n";
     next;
     }
-  if( /-r(r)?(c)?/ )
+  if( /^-r(r)?(c)?$/ )
     {
     # FIXME: cleanup logic
     $DE_LOG_TO_STDERR = 1;
@@ -127,18 +131,18 @@ while( @ARGV )
     print "status: option: forwarding logs to STDERR\n";
     next;
     }
-  if( /-g/ )
+  if( /^-g$/ )
     {
     # FIXME: cleanup logic
     $DE_LOG_TO_FILES  = 2;
     }
-  if( /-t/ )
+  if( /^-t$/ )
     {
     $opt_net_protocols = shift;
     print "status: option: allowed network protocols [$opt_net_protocols]\n";
     next;
     }
-  if( /-sc/ )
+  if( /^-sc$/ )
     {
     die "error: SSL not available: $no_ssl" if $no_ssl;
     $opt_ssl{ 'SSL_cert_file' } = shift;
@@ -147,7 +151,7 @@ while( @ARGV )
     $opt_ssl{ 'SSL' } = 1;
     next;
     }
-  if( /-sk/ )
+  if( /^-sk$/ )
     {
     die "error: SSL not available: $no_ssl" if $no_ssl;
     $opt_ssl{ 'SSL_key_file' } = shift;
@@ -156,7 +160,7 @@ while( @ARGV )
     $opt_ssl{ 'SSL' } = 1;
     next;
     }
-  if( /-su/ )
+  if( /^-su$/ )
     {
     die "error: SSL not available: $no_ssl" if $no_ssl;
     $opt_ssl{ 'SSL_ca_file' } = shift;
@@ -166,23 +170,36 @@ while( @ARGV )
     $opt_ssl{ 'SSL' } = 1;
     next;
     }
-  if( /-e/ )
+  if( /^-e$/ )
     {
     $opt_preload  = 1;
     $opt_app_name = lc shift @ARGV;
     print "status: option: preload application, will serve single app\n";
     next;
     }
-  if( /^-d/ )
+  if( /^-d$/ )
     {
     my $level = de_debug_inc();
     print "status: option: debug level raised, now is [$level] \n";
     next;
     }
-  if( /^-z/ )
+  if( /^-z$/ )
     {
     $opt_daemonize++;
     print "status: option: going daemon... :>\n";
+    next;
+    }
+  if( /^-stop$/ )
+    {
+    $opt_stop++;
+    print "status: option: server STOP is requested.\n";
+    next;
+    }
+  if( /^-restart$/ )
+    {
+    $opt_stop++;
+    $opt_restart++;
+    print "status: option: server RESTART is requested.\n";
     next;
     }
   if( /^(--?h(elp)?|help)$/io )
@@ -235,27 +252,58 @@ de_set_log_prefix( perl_package_to_file( $server_module ) );
 
 print "info: starting server [$server_pkg] main listen loop on port [$opt_listen_port]...\n";
 
+my $pid_root = de_root() . "/var/core/$opt_app_name\_$</pid/app_server/$server_pkg.port$opt_listen_port";
+
+if( -e $pid_root )
+  {
+  if( $opt_stop )
+    {
+    pidfile_kill_and_remove( $pid_root, 15, '4s', 9 ); # TERM, 4sec, KILL
+    exit(222) unless $opt_restart;
+    }
+  else
+    {
+    my $opid = int( file_load( $pid_root ) );
+    if( kill( 0, $opid ) )
+      {
+      print "server already running with pid file: $pid_root\n";
+      print "use -restart to stop it before starting new one.\n";
+      exit(211);
+      }
+    else
+      {
+      unlink( $pid_root );
+      }  
+    }  
+  }
+else
+  {
+  exit(212) if $opt_stop and ! $opt_restart;
+  }  
+
 eval
   {
   require $server_file;
   };
 if( $@ )  
   {
-  print "cannot load server module [$server_pkg] from file [$server_file] reason [$@]\n";
+  print "error: cannot load server module [$server_pkg] from file [$server_file] reason [$@]\n";
   exit(111);
   }
 
 daemonize() if $opt_daemonize;
 de_reopen_logs();
 
-my $pid_root = de_root() . "/var/core/$opt_app_name\_$</pid/app_server/$server_pkg.port$opt_listen_port";
 pidfile_create( $pid_root );
 
 $srv_opt{ 'PID_ROOT' } = $pid_root;
 
 print "status: server started with pid [$$]\n";
 my $server = new $server_pkg %srv_opt;
-$server->run();
 
+my $err = $server->run();
+print "error: cannot open server port [$opt_listen_port]\n" if $err;
+
+print "status: exit\n" if $err;
 pidfile_remove( $pid_root );
 rmdir( "$pid_root.d" );

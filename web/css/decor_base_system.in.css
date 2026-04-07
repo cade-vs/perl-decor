@@ -93,7 +93,7 @@ div.body-head
         top: 0;
         left: 0;
         width: 100%;
-        height: 2em;
+        height: 2.5em;
         z-index: 100;
         }
         
@@ -397,7 +397,10 @@ div.main-menu-item
         {
         padding-left: 1em;
         padding-right: 1em;
-        border-left: solid 1px $menu-colors.5;
+        border-left: solid 2px $menu-colors.5;
+        vertical-align: center;
+        display: flex;
+        align-items: center;
         }
 
 div.main-menu-item:hover
