@@ -606,7 +606,7 @@ sub edit_get_field_control_info
           $fmt_class .= " fmt-mono";
           }
 
-        my $recalc_on_change = $fdes->get_attr( qw( WEB RECALC_ON_CHANGE ) );
+        my $recalc_on_change = 'http_form_submit( this.form, null, null )' if $fdes->get_attr( qw( WEB RECALC_ON_CHANGE ) );
 
         if( $search )
           {

@@ -460,7 +460,7 @@ sub main
     my $target = $actdes->{ 'TARGET' } || $actdes->{ 'NAME' };
     my $icon   = lc( $actdes->{ 'ICON'   } );
     $icon = $icon =~ /^[a-z_0-9]+$/ ? "action_$icon.svg" : "action_generic.svg";
-    $text .= de_html_alink_button( $reo, 'new', "<img src=i/$icon> $label", $label, ACTION => $target, ID => $id, TABLE => $table );
+    $text .= de_html_alink_button( $reo, 'new', "$icon $label", $label, ACTION => $target, ID => $id, TABLE => $table );
     }
 
 
@@ -471,6 +471,7 @@ sub main
   $text .= "</div>";
 
   $text .= "<#view_bottom_$table>";
+  $text .= "<p>";
 
   return $text;
 }
