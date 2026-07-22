@@ -23,7 +23,6 @@ use Web::Reactor::HTML::Utils;
 use Web::Reactor::HTML::Layout;
 
 my $clear_icon = 'i/input-clear.svg';
-my $clear_icon = 1;
 
 sub main
 {
