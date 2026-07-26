@@ -347,8 +347,7 @@ sub __setup_user_profile
 
   my $profile = new Decor::Core::Profile;
   
-  my $pass_xtime = $user_rec->read( 'PASS_XTIME' );
-  if( $pass_xtime > 0 and $pass_xtime < time() )
+  if( $user_rec->password_expired() )
     {
     # password expired
     $profile->set_groups( 908 );

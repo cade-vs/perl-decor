@@ -3,7 +3,7 @@
   label   [~System users]
   system
 
-  web.grid.fields_list  NAME,ACTIVE,PRIMARY_GROUP,PRIVATE_GROUP,GROUPS,LAST_LOGIN_TIME,LOGIN_SESSIONS
+  web.grid.fields_list  NAME,ACTIVE,PRIMARY_GROUP,PRIVATE_GROUP,GROUPS,CREDENTIALS,LAST_LOGIN_TIME
 
   grant read to 971
 
@@ -14,8 +14,15 @@
   unique
   grant read to 971
 
+# ---------------------------------------------------------------------------
+# DEPRECATED: PASS / PASS_SALT / PASS_XTIME have moved to DE_USER_CREDS.
+# They are retained ONLY so decor-migrate-user-creds.pl can copy existing
+# values across. Remove these three fields (phase 2) once migration is done
+# and rebuild the database.
+# ---------------------------------------------------------------------------
+
 =PASS
-  
+
   label [~Password]
   type  char  256
 
@@ -25,7 +32,7 @@
   grant read to 1
 
 =PASS_SALT
-    
+
   label [~Password seed]
   type  char  256
 
@@ -41,6 +48,8 @@
   web.details 2
 
   grant read to 971
+
+# --- end deprecated block --------------------------------------------------
 
 =PRIMARY_GROUP
 
@@ -60,6 +69,13 @@
 
   label [~Attached groups]
   type  backlink  DE_USER_GROUP_MAP   USR
+
+  grant read to 971
+
+=CREDENTIALS
+
+  label [~Login credentials]
+  type  backlink  DE_USER_CREDS   USR
 
   grant read to 971
 
@@ -85,7 +101,7 @@
   web.details 2
 
   grant read to 971
-  
+
 =LAST_LOGOUT_TIME
 
   label [~Last login time]
@@ -93,7 +109,7 @@
   web.details 2
 
   grant read to 971
-  
+
 =LAST_LOGIN_SESSION
 
   label [~Last login session]

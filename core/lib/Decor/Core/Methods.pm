@@ -109,34 +109,23 @@ sub create_user
   # create user record
   my $user_rec = new Decor::Core::DB::Record;
   $user_rec->create( 'DE_USERS' );
-  
-  my $user_salt     = create_random_id( 128 );
-  my $user_pass_hex = de_password_salt_hash( $pass, $user_salt ); 
 
-  $user_rec->write( 
-                    NAME      => $name, 
+  $user_rec->write(
+                    NAME      => $name,
                     ACTIVE    => 1,
                     DISABLED  => 0,
                   );
 
-  # setup password if specified, otherwise user will not be able to login
-  if( $pass ne '' )
-    {
-    my $user_salt     = create_random_id( 128 );
-    my $user_pass_hex = de_password_salt_hash( $pass, $user_salt ); 
-
-    $user_rec->write( 
-                      PASS      => $user_pass_hex,
-                      PASS_SALT => $user_salt,
-                    );
-    }
-  
   $pigrp ||= $pvt_grp_rec->id();
-  
+
   $user_rec->write( 'PRIMARY_GROUP' => $pigrp             );
   $user_rec->write( 'PRIVATE_GROUP' => $pvt_grp_rec->id() );
-  
+
   $user_rec->save();
+
+  # setup password if specified, otherwise user will not be able to login.
+  # must run AFTER save() so the credential row can reference the user id.
+  $user_rec->set_password( $pass ) if $pass ne '';
 
   # attach given groups
   attach_user_groups( $user_rec, [ 999, $pvt_grp_rec->id(), $pigrp, @$groups ] );
@@ -215,15 +204,7 @@ sub set_user_pass
   return undef unless $user_rec;
   return undef unless $pass ne '';
 
-  my $user_salt     = create_random_id( 128 );
-  my $user_pass_hex = de_password_salt_hash( $pass, $user_salt ); 
-
-  $user_rec->write( 
-                    PASS      => $user_pass_hex,
-                    PASS_SALT => $user_salt,
-                  );
-  
-  return 1;                
+  return $user_rec->set_password( $pass );
 }
 
 sub backlink_count
