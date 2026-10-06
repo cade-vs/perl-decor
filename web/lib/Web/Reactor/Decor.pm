@@ -39,7 +39,7 @@ sub de_re_app_dir
   # TODO: move app dir entirely out of decor dir structure
   for( "$ROOT/apps/$APP_NAME", "$ROOT/apps/$APP_NAME-app-decor", "$ROOT/apps/decor-app-$APP_NAME" )
     {
-    return $_ if -d 
+    return $_ if -d
     }
   return undef;
 }
@@ -63,7 +63,7 @@ sub new
   my $APP_ROOT  = de_re_app_dir( $ROOT, $APP_NAME ) or boom "APP_ROOT path does not exist [$ROOT] app name [$APP_NAME]";
 
   my $lang = lc $cfg->{ 'LANG' } || 'en';
-  
+
   boom "invalid LANG specified, got [$lang]" unless $lang =~ /^[a-z][a-z]$/;
 
   my %cfg = (
@@ -76,11 +76,13 @@ sub new
                                   "$ROOT/web/html/"
                                 ],
             'ACTIONS_DIRS'   => [ "$APP_ROOT/web/actions", "$ROOT/web/actions" ],
-            'REO_ACT_CLASS' => 'Web::Reactor::Actions::Decor',
-            'REO_PRE_CLASS' => 'Web::Reactor::Preprocessor::Extended',
+            'ACTIONS_PKGS'   => 'decor::actions::',
+
             'TRANS_DIRS'     => [ "$ROOT/web/trans", "$APP_ROOT/web/trans" ],
             'TRANS_FILE'     => "$APP_ROOT/web/trans/$lang.tr",
             'SESS_VAR_DIR'   => "$ROOT/var/$APP_NAME/sess/",
+
+
             %$cfg,
             );
 
@@ -104,7 +106,7 @@ sub __setup_client_env
 {
   my $self   = shift;
   my $client = shift;
-  
+
   my $user_shr = $self->get_user_session();
 
   $user_shr->{ 'DECOR_CORE_SESSION_ID' } = $client->{ 'DECOR_CORE_SESSION_ID' };
@@ -113,9 +115,9 @@ sub __setup_client_env
   $user_shr->{ 'USER_REALNAME'         } = $client->{ 'USER_REALNAME' } || 'unknown';
   $user_shr->{ 'USER_ID'               } = $client->{ 'USER_ID'       };
   $user_shr->{ 'USER_DATA_ID'          } = $client->{ 'USER_DATA_ID'  };
-  
-  $self->html_content( 'USER_NAME' => $user_shr->{ 'USER_NAME' } );
-  
+
+  $self->html_hold_set( 'USER_NAME' => $user_shr->{ 'USER_NAME' } );
+
   $self->set_user_session_expire_time( $client->{ 'CORE_SESSION_XTIME' } );
 }
 
@@ -127,7 +129,7 @@ sub de_connect
 
   return $self->{ 'DECOR_CLIENT_OBJECT' } if $self->{ 'DECOR_CLIENT_OBJECT' } and $self->{ 'DECOR_CLIENT_OBJECT' }->is_connected();
 
-  my $cfg = $self->get_cfg();
+  my $cfg = $self->cfg();
 
   my $de_core_app     = $cfg->{ 'DECOR_CORE_APP'       };
   my $de_core_host    = $cfg->{ 'DECOR_CORE_HOST'      };
@@ -138,7 +140,7 @@ sub de_connect
   $de_core_host .= ':42000' unless $de_core_host =~ /:\d+$/; # adds port if not specified
 
   my $user_shr = $self->get_user_session();
-  my $http_env = $self->get_http_env();
+  my $http_env = $self->env();
   my $remote   = $self->get_client_ip();
 
   my $de_core_session_id = $user_shr->{ 'DECOR_CORE_SESSION_ID' } || 'CREATE';
@@ -161,7 +163,7 @@ sub de_connect
     $self->{ 'DECOR_CLIENT_OBJECT' } = $client;
     return $client;
     }
-  else  
+  else
     {
     my $status = $client->status();
     $self->log( "error: connect FAILED to host [$de_core_host] application [$de_core_app], status [$status]:\n" . Dumper( $client ) );
@@ -179,7 +181,7 @@ sub de_login
   my $pass   = shift;
 
   my $user_shr = $self->get_user_session();
-  my $http_env = $self->get_http_env();
+  my $http_env = $self->env();
   my $remote   = $self->get_client_ip();
 
   my $client = $self->de_connect() or boom "cannot de_login(), DECOR CLIENT OBJECT is missing";
@@ -207,10 +209,10 @@ sub de_logout
   my $self   = shift;
 
   my $client = $self->de_connect() or boom "cannot de_logout(), DECOR CLIENT OBJECT is missing";
-  
+
   $client->logout();
   $self->logout();
-  
+
   delete $self->{ 'DECOR_CLIENT_OBJECT' };
   return 1;
 }
@@ -251,7 +253,7 @@ sub ps_path_add
   $icon .= '.svg' unless $icon =~ /\.(png|gif|jpg|jpeg)$/i;
 
   push @ps_path, { PS_ID => $ps_id, ICON => $icon, TITLE => $title };
-  
+
   $self->set_browser_window_title( $title );
 
   return @ps_path;
@@ -270,7 +272,7 @@ sub ps_path_add_by_cue
   $title =~ s|\*(.+?)\*|<b>$1</b>|g;
   $hint  =~ s|\*(.+?)\*|<b>$1</b>|g;
   $self->ps_path_add( $action, $title );
-  
+
   return wantarray ? ( $title, $hint ) : $title;
 }
 

@@ -825,8 +825,8 @@ sub edit_get_field_control_info
       my $row_vec_handle = html_popup_layer( $reo, VALUE => $date_picker_div, CLASS => 'popup-layer', TYPE => 'CLICK' );
       $field_input_ctrl .= qq( <input type=image class=icon src=i/calendar.svg id='$field_id:cal-icon' $row_vec_handle> );
 
-      $reo->html_content_accumulator( 'ACCUMULATOR_JS_ONLOAD', "nz_setup_picker( '$field_id:DATE_SELECT_DIV',      '$field_id', new Date( Date.now() ), '$date_format', function() { reactor_popup_hide_by_id( '$field_id' ) } );\n" );
-      $reo->html_content_accumulator( 'ACCUMULATOR_JS_ONLOAD', "nz_setup_picker( '$field_id:DATE_SELECT_DIV:ICON', '$field_id', new Date( Date.now() ), '$date_format', function() { reactor_popup_hide_by_id( '$field_id:cal-icon' ) } );\n" );
+      $reo->html_hold_kit_add( 'ACCUMULATOR_JS_ONLOAD', "nz_setup_picker( '$field_id:DATE_SELECT_DIV',      '$field_id', new Date( Date.now() ), '$date_format', function() { reactor_popup_hide_by_id( '$field_id' ) } );\n" );
+      $reo->html_hold_kit_add( 'ACCUMULATOR_JS_ONLOAD', "nz_setup_picker( '$field_id:DATE_SELECT_DIV:ICON', '$field_id', new Date( Date.now() ), '$date_format', function() { reactor_popup_hide_by_id( '$field_id:cal-icon' ) } );\n" );
       }
     elsif( $type_name eq 'TIME' )
       {
@@ -868,8 +868,8 @@ sub edit_get_field_control_info
       my $row_vec_handle = html_popup_layer( $reo, VALUE => $date_picker_div, CLASS => 'popup-layer', TYPE => 'CLICK' );
       $field_input_ctrl .= qq( <input type=image class=icon src=i/calendar.svg id='$field_id:cal-icon' $row_vec_handle> );
 
-      $reo->html_content_accumulator( 'ACCUMULATOR_JS_ONLOAD', "nz_setup_picker( '$field_id:UTIME_SELECT_DIV',      '$field_id', new Date( Date.now() ), '$date_format', function() { reactor_popup_hide_by_id( '$field_id' ) } );" );
-      $reo->html_content_accumulator( 'ACCUMULATOR_JS_ONLOAD', "nz_setup_picker( '$field_id:UTIME_SELECT_DIV:ICON', '$field_id', new Date( Date.now() ), '$date_format', function() { reactor_popup_hide_by_id( '$field_id:cal-icon' ) } );" );
+      $reo->html_hold_kit_add( 'ACCUMULATOR_JS_ONLOAD', "nz_setup_picker( '$field_id:UTIME_SELECT_DIV',      '$field_id', new Date( Date.now() ), '$date_format', function() { reactor_popup_hide_by_id( '$field_id' ) } );" );
+      $reo->html_hold_kit_add( 'ACCUMULATOR_JS_ONLOAD', "nz_setup_picker( '$field_id:UTIME_SELECT_DIV:ICON', '$field_id', new Date( Date.now() ), '$date_format', function() { reactor_popup_hide_by_id( '$field_id:cal-icon' ) } );" );
       }
     else
       {

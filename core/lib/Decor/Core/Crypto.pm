@@ -16,7 +16,7 @@ BEGIN
 our @ISA    = qw( Exporter );
 our @EXPORT = qw(
 
-                de_crypt
+                de_encrypt
                 de_decrypt
 
                 );
@@ -26,8 +26,7 @@ use Data::Lock qw( dlock dunlock );
 use Data::Dumper;
 use Exception::Sink;
 use Data::Tools 1.09;
-use Crypt::PK::RSA;
-use MIME::Base64 qw( encode_base64 decode_base64 );
+use Data::Tools::Crypto::RSA;
 
 use Decor::Shared::Types;
 use Decor::Shared::Utils;
@@ -47,11 +46,11 @@ sub __key_fn
 {
   my $key_name = shift;
   my $private  = shift;
-  
+
   my $app_dir = de_app_dir();
 
   my $sx = $private ? 'pvt' : 'pub';
-  
+
   return "$app_dir/keys/$key_name-$sx.pem";
 }
 
@@ -64,10 +63,12 @@ sub __get_rsa
 
   return $RSAO{ $sx }{ $key_name } if exists $RSAO{ $sx }{ $key_name };
 
-  my $rsa = Crypt::PK::RSA->new( __key_fn( $key_name, $private ) );
+  my $fn  = __key_fn( $key_name, $private );
+
+  my $rsa = Data::Tools::Crypto::RSA->new( file_text_load( $fn ) );
 
   $RSAO{ $sx }{ $key_name } = $rsa;
-  
+
   return $rsa;
 }
 
@@ -76,20 +77,20 @@ sub __get_rsa_pvt { return __get_rsa( shift(), 1 ); }
 
 ### PUBLIC ###################################################################
 
-sub de_crypt
+sub de_encrypt
 {
   my $key_name = shift;
   my $data     = shift;
-  
-  return encode_base64( __get_rsa_pub( $key_name )->encrypt( $data, 'oaep', 'SHA256' ) );
+
+  return __get_rsa_pub( $key_name )->encrypt_hex( $data );
 }
 
 sub de_decrypt
 {
   my $key_name = shift;
   my $data     = shift;
-  
-  return __get_rsa_pvt( $key_name )->decrypt( decode_base64( $data ), 'oaep', 'SHA256' );
+
+  return __get_rsa_pvt( $key_name )->decrypt_hex( $data );
 }
 
 

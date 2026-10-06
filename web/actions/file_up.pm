@@ -45,7 +45,7 @@ sub main
   # FIXME: check implementation and enable multiple file uploads
 
   $multi = undef if $id > 0;
-  $reo->html_content( 'multiple' => 'multiple' ) if $multi;
+  $reo->html_hold_set( 'multiple' => 'multiple' ) if $multi;
 
   my $text;
 

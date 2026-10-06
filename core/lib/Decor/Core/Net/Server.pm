@@ -59,7 +59,7 @@ sub on_process_xt_message
 {
   my $mi = shift;
   my $mo = shift;
-  
+
   boom "on_process_xt_message() must be reimplemented in current class";
   return undef;
 }
@@ -83,7 +83,7 @@ sub on_process
   $self->on_process_begin_reset( $socket );
 
   my $mc =  0; # message counter
-  my $mi = {}; # input message
+  my $mi;      # input message. it is either hash reference or binary data scalar
   my $mo = {}; # output message
   while(4)
     {
@@ -93,7 +93,7 @@ sub on_process
       last;
       }
     server_idle_begin();
-    
+
     my $ptype;
     my $nerr;
     ( $mi, $ptype, $nerr ) = socket_protocol_read_message( $socket );
@@ -103,12 +103,14 @@ sub on_process
       de_log_debug( "debug: end of communication channel" );
       return;
       }
-    
+
+    $mi = { 'XT_BINDATA' => $mi } if $ptype eq 'b';
+
     $mo = {};
     $mc++;
     server_idle_end();
     de_log_debug2( "received message with PTYPE [$ptype]" );
-    
+
     if( ! $mi or ref( $mi ) ne 'HASH' )
       {
       de_log( "error: invalid or empty XTYPE incoming message received" );
@@ -156,8 +158,8 @@ sub on_process
         de_log( "error: DSN COMMIT exception [$@]" );
         return;
         }
-      }  
-    
+      }
+
     my $xs = $mo->{ 'XS' };
 
     if ( $xs =~ /^(OK|E_[A-Z_0-9]+)(:\s*(.*?))?/ )
@@ -165,7 +167,7 @@ sub on_process
       $mo->{ 'XS'     } = uc $1;
       # $mo->{ 'XS_MSG' } =    $3; # error details message will not be reported back to client!
       }
-    else  
+    else
       {
       #de_log( "error: invalid or empty XTYPE STATUS (XS) [$xs], ignoring message" );
       # TODO: rollback?
@@ -184,7 +186,7 @@ sub on_process
     else
       {
       de_log_debug2( "debug: XTYPE [$xt] XSTATUS [$xs]" );
-      }  
+      }
 
     de_log_dumper2( "MOMO" x 16, $mo );
     my $send_file_name = $mo->{ '___SEND_FILE_NAME' };
@@ -192,7 +194,7 @@ sub on_process
     delete $mo->{ '___SEND_FILE_NAME' };
     delete $mo->{ '___SEND_FILE_SIZE' };
     $mo->{ '___FILE_SIZE' } = $send_file_size if $send_file_size > 0;
-    
+
     my $mo_res = socket_protocol_write_message( $socket, $ptype, $mo );
 
     if( $mo_res == 0 )
@@ -271,9 +273,9 @@ sub on_child_start
   my $self = shift;
 
   my $pid_root = $self->{ 'OPT' }{ 'PID_ROOT' } or return undef;
-  
+
   pidfile_create( "$pid_root.d/$$" );
-}  
+}
 
 sub on_child_exit
 {

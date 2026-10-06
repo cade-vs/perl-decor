@@ -20,7 +20,7 @@ sub main
     $ps->{ 'ACTION' } = $action unless exists $ps->{ 'ACTION' } and $ps->{ 'ACTION' } eq $action; # avoid writing to session storage
 
     my $act = $reo->act->call( $action );
-    $reo->html_content( 'main_action' => $act );
+    $reo->html_hold_set( 'main_action' => $act );
     }
   else
     {

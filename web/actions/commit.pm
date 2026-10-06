@@ -127,7 +127,7 @@ sub main
         {
         $html_file .= "*** UNSUPPORTED DATA TYPE ***";
         }  
-      $reo->html_content_set( 'for_printer' => $html_file );
+      $reo->html_hold_set( 'for_printer' => $html_file );
       $text .= "<p>";
       $text .= $html_file;
       $text .= "<p><br>";

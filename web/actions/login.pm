@@ -7,8 +7,8 @@ sub main
 {
   my $reo = shift;
 
-  my $auto_user = $reo->{ 'ENV' }{ 'DECOR_AUTO_USER' };
-  my $auto_pass = $reo->{ 'ENV' }{ 'DECOR_AUTO_PASS' };
+  my $auto_user = $reo->cfg()->{ 'DECOR_AUTO_USER' }; # config keys, the old reactor kept the config under {ENV}
+  my $auto_pass = $reo->cfg()->{ 'DECOR_AUTO_PASS' };
 
   my $ui = $reo->get_user_input();
 
@@ -45,7 +45,7 @@ sub main
       {
       $reo->logout();
       }
-    $reo->html_content_set( 'login-error' => "<#$status>" );
+    $reo->html_hold_set( 'login-error' => "<#$status>" );
 
     return "<#login_form>";
     }  
