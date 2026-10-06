@@ -21,14 +21,14 @@ sub main
   my $ui = $reo->get_user_input();
 
   my %ui_si = ( %$ui, %$si ); # merge inputs, SAFE_INPUT has priority
-  
+
+  my %data;
+
   while( my ( $k, $v ) = each %ui_si )
     {
     next unless $k =~ /^F:([A-Z_0-9]+)$/;
-    $data{ $k } = $v;
+    $data{ $1 } = $v;
     }
-
-  my %data;
 
   my $core = $reo->de_connect();
 
