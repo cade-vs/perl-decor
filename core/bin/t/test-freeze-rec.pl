@@ -16,7 +16,7 @@ use Time::HR;
 
 use Data::Dumper;
 use Decor::Core::Env;
-use Decor::Core::Config;
+use Decor::Shared::Config;
 use Decor::Core::DB::Record;
 
 use Storable qw( nfreeze thaw );

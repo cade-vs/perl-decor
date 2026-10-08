@@ -840,7 +840,7 @@ sub inc
     return $vo unless @data;
     }
 
-  return undef; # unreachanble
+  return undef; # unreachable
 }
 
 # syn: inc( $field1 => $inc_value1, 'field2' => 44, ... )
@@ -864,7 +864,7 @@ sub dec
     return $vo unless @data;
     }
 
-  return undef; # unreachanble
+  return undef; # unreachable
 }
 
 

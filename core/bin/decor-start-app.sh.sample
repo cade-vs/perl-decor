@@ -1,0 +1,39 @@
+#!/bin/bash
+
+SYS=app1
+PORT=42103
+SYS_HOME=/home/cade/pro/app1-app-decor/
+GIT_ORIGIN=fax
+GIT_BRANCH=master
+
+
+#--------------------------------------------------------------------------------------------------------------
+
+git -C /home/cade/pro/decor                pull hub master
+git -C /home/cade/pro/perl-data-tools/     pull hub master
+git -C /home/cade/pro/perl-exception-sink  pull hub master
+git -C /home/cade/pro/reactor/             pull hub master
+
+cd ${SYS_HOME}
+
+PID=`cat /home/cade/pro/decor/var/core/${SYS}_${UID}/pid/app_server/Decor::Core::Net::Server::App.port${PORT}`
+
+echo "stopping $SYS with PID $PID..."
+kill    $PID 1> /dev/null 2> /dev/null
+sleep 2
+kill -9 $PID 1> /dev/null 2> /dev/null
+sleep 1
+
+echo "stopped, waiting 4 seconds to update and restart. press CTRL+C to cancel?"
+sleep 4
+
+git pull ${GIT_ORIGIN} ${GIT_BRANCH}
+
+/home/cade/pro/decor/core/bin/decor-rebuild-db.pl         ${SYS}
+/home/cade/pro/decor/core/bin/decor-load-static-data.pl   ${SYS}
+/home/cade/pro/decor/core/bin/decor-core-app-server.pl -e ${SYS} -p ${PORT} -d 1>> decor.log 2>> decor.log &
+
+sleep 2
+NPID=`cat /home/cade/pro/decor/var/core/${SYS}_${UID}/pid/app_server/Decor::Core::Net::Server::App.port${PORT}`
+
+echo "$SYS restarted with PID $NPID into $SYS_HOME"

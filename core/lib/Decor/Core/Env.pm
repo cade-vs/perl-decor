@@ -11,8 +11,7 @@ package Decor::Core::Env;
 use strict;
 
 use Exporter;
-BEGIN
-{
+
 our @ISA    = qw( Exporter );
 our @EXPORT = qw(
 
@@ -24,6 +23,7 @@ our @EXPORT = qw(
                 de_bundles
                 de_bundles_dirs
                 de_app_cfg
+                de_log_dir
 
                 de_version
                 de_root
@@ -33,7 +33,6 @@ our @EXPORT = qw(
                 de_debug_off
 
                 );
-}
 
 use Data::Lock qw( dlock dunlock );
 use Data::Dumper;
@@ -43,7 +42,6 @@ use Data::Tools 1.09;
 use Decor::Shared::Types;
 use Decor::Shared::Utils;
 use Decor::Shared::Config;
-use Decor::Core::Log;
 
 $Data::Dumper::Sortkeys = 1;
 
@@ -57,6 +55,7 @@ unshift @INC, $ROOT . '/core/lib',  $ROOT . '/shared/lib';
 my @ORIGINAL_INC = @INC;
 
 my $APP_NAME;
+my $LOG_DIR;
 
 my %APP_CFG;
 my %APP_CFG_KEYS = (
@@ -86,7 +85,7 @@ sub de_init
     }
 
   $_INIT_OK = 1;
-  
+
   data_tools_set_text_io_utf8();
 
   dlock $APP_NAME = $app_name;
@@ -96,11 +95,11 @@ sub de_init
   my $app_dir = de_app_dir();
 
   boom "cannot find/access application [$APP_NAME] app dir [$app_dir]" unless -d $app_dir;
-  
+
   my $log_prefix = $init{ 'LOG_PREFIX' };
   my $log_dir = "$ROOT/var/core/$app_name\_$</log/$log_prefix/";
   dir_path_ensure( $log_dir ) or boom "cannot find/access log dir [$log_dir] for app [$APP_NAME] path [$app_dir]";
-  de_set_log_dir( $log_dir );
+  $LOG_DIR = $log_dir;
 
   # FIXME: common simple config load for arbitrary config files
   my $cfg = de_config_load_file( "$app_dir/etc/app.conf" );
@@ -125,7 +124,7 @@ sub de_init
   for my $bundle ( @BUNDLES )
     {
     boom "error: invalid bundle name [$bundle]! check USE_BUNDLES in app.conf" unless de_check_name_ext( $bundle );
-    # FIXME: bad logic, should not complain if no bundles are used at all, 
+    # FIXME: bad logic, should not complain if no bundles are used at all,
     # report locations and bundle name for other "not-found" errors
     my $found;
     for my $bundle_dir ( ( "$app_dir/bundles", "$ROOT/bundles" ) )
@@ -156,7 +155,7 @@ sub de_init
   dlock \@ETC_DIRS;
 
   type_set_format({NAME => 'UTIME'},'YMD24');
-  
+
   @INC = ( @inc, @ORIGINAL_INC );
   #print STDERR Dumper( 'APP_CFG:', \%APP_CFG, 'BUNDLES:', \@BUNDLES, 'BUNDLES DIRS:', \@BUNDLES_DIRS );
 }
@@ -195,6 +194,11 @@ sub de_app_cfg
   my $res = ( exists $APP_CFG{ $key } and $APP_CFG{ $key } ne '' ) ? $APP_CFG{ $key } : $def;
 
   return $res;
+}
+
+sub de_log_dir
+{
+  return $LOG_DIR;
 }
 
 sub de_bundles

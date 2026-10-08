@@ -12,8 +12,8 @@ use strict;
 use lib ( map { die "invalid DECOR_CORE_ROOT dir [$_]\n" unless -d; ( "$_/core/lib", "$_/shared/lib" ) } ( $ENV{ 'DECOR_CORE_ROOT' } || '/usr/local/decor' ) );
 use Data::Dumper;
 use IO::Socket::INET;
-use Decor::Core::Utils;
-use Decor::Shared::Net::Protocols;
+use Decor::Shared::Utils;
+use Data::Tools::Socket::Protocols;
 
 my $host = ( shift() || 'localhost:4243' );
 my $socket = IO::Socket::INET->new( PeerAddr => $host )
@@ -50,8 +50,8 @@ while(42)
     my $mi = { XT => 'PREPARE', USER => $user };
     my $mo = {};
 
-    my $res = de_net_protocol_write_message( $socket, 'p', $mi );
-    my $mo = de_net_protocol_read_message( $socket );
+    my $res = socket_protocol_write_message( $socket, 'p', $mi );
+    my $mo = socket_protocol_read_message( $socket );
 
     print Dumper( $mi, $mo );
 
@@ -63,19 +63,19 @@ while(42)
     my $mi = { XT => 'BEGIN', USER => $user, PASS => de_password_salt_hash( de_password_salt_hash( $pass, $user_salt ), $login_salt ), REMOTE => $remote };
     my $mo = {};
 
-    my $res = de_net_protocol_write_message( $socket, 'p', $mi );
-    my $mo = de_net_protocol_read_message( $socket );
+    my $res = socket_protocol_write_message( $socket, 'p', $mi );
+    my $mo = socket_protocol_read_message( $socket );
 
     print Dumper( $mi, $mo );
 
     next;
     }
 
-  my $res = de_net_protocol_write_message( $socket, 'p', $mi );
+  my $res = socket_protocol_write_message( $socket, 'p', $mi );
   
   die "error sending message [$res]\n" unless $res;
 
-  my $mo = de_net_protocol_read_message( $socket );
+  my $mo = socket_protocol_read_message( $socket );
 
   print "receiving query reply message:\n";
   print Dumper( $mo );

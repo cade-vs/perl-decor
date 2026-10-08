@@ -28,7 +28,7 @@ use MIME::Base64;
 use Data::HexDump;
 
 use Decor::Core::Env;
-use Decor::Core::Config;
+use Decor::Shared::Config;
 use Decor::Core::Profile;
 use Decor::Core::Describe;
 use Decor::Core::Log;

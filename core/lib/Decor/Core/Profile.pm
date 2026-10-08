@@ -21,7 +21,7 @@ use Decor::Core::Describe;
 
 ##############################################################################
 
-# TODO: expire cache if description acces is modified
+# TODO: expire cache if description access is modified
 
 ##############################################################################
 
@@ -60,7 +60,7 @@ sub add_groups
     de_check_id_boom( $group, "invalid group id [$group] expected number" );
     $group = int( $group );
 
-    # skip ROOT and NOBODY groups, the must never appear inside profile
+    # skip ROOT and NOBODY groups, they must never appear inside profile
     next if $group == 1 or $group == 900 or $group == 901;
     
     $self->{ 'GROUPS' }{ $group } = 1; # fixme: group classes/types

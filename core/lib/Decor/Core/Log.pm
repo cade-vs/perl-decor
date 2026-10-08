@@ -12,7 +12,7 @@ use strict;
 use open ':std', ':encoding(UTF-8)';
 
 use POSIX;
-use Fcntl qw( :flock );                                                                                                         
+use Fcntl qw( :flock );
 use Data::Dumper;
 use Exception::Sink;
 use Time::HiRes;
@@ -23,7 +23,8 @@ use Decor::Core::Env;
 
 use Exporter;
 our @ISA    = qw( Exporter );
-our @EXPORT = qw( 
+
+our @EXPORT = qw(
 
                 $DE_LOG_TO_STDERR
                 $DE_LOG_TO_FILES
@@ -31,17 +32,21 @@ our @EXPORT = qw(
 
                 de_set_log_prefix
                 de_set_log_session
-                de_set_log_dir
-                
+
                 de_log
                 de_log_debug
                 de_log_debug2
                 de_log_debug_stack
                 de_log_debug_stack2
-                
+
                 de_log_dumper
                 de_log_dumper2
-                
+
+                de_log_info
+                de_log_notice
+                de_log_status
+                de_log_warning
+
                 de_reopen_logs
 
                 );
@@ -65,7 +70,6 @@ my %MSG_TYPE_COLOR = (
 
 my $DE_LOG_PREFIX  = 'decor';
 my $DE_LOG_SESSION = undef;
-my $DE_LOG_DIR     = '';
 
 sub de_set_log_prefix
 {
@@ -75,15 +79,6 @@ sub de_set_log_prefix
 sub de_set_log_session
 {
   $DE_LOG_SESSION = shift;
-}
-
-sub de_set_log_dir
-{
-  my $dir = shift;
-
-  boom "invalid or unreachable log directory [$dir]" unless -d $dir;
-
-  $DE_LOG_DIR = $dir;
 }
 
 my $last_log_message;
@@ -98,7 +93,7 @@ sub de_log
   chomp( @args );
 
   $DE_LOG_TO_STDERR = 1 if ! $DE_LOG_TO_STDERR and ! $DE_LOG_TO_FILES;
-  
+
   for my $msg ( @args )
     {
     # FIXME: add log option to enable/disable repeating messages suppressing
@@ -125,7 +120,7 @@ sub de_log
     $last_log_message_time = $ti;
 
     my @msg;
-    
+
     push @msg, "$lp this message was repeated $last_log_message_count times:\n"
         if $last_log_message_count;
     $last_log_message = $msg;
@@ -138,17 +133,18 @@ sub de_log
       if( $DE_LOG_TO_FILES )
         {
         my $fh = $de_log_files{ $msg_type };
-        if( de_init_done() and $DE_LOG_TO_FILES and -d $DE_LOG_DIR and ! $fh )
+        my $log_dir = de_log_dir();
+        if( de_init_done() and $DE_LOG_TO_FILES and -d $log_dir and ! $fh ) # cc
           {
-          open( $fh, '>>', "$DE_LOG_DIR/$msg_type.log" );
+          open( $fh, '>>', "$log_dir/$msg_type.log" ); # cc
           $de_log_files{ $msg_type } = $fh;
           }
         __log_to_file( $fh, @msg ) if $fh;
-        }  
+        }
       # msg_type
       }
 
-    if( $DE_LOG_TO_STDERR )  
+    if( $DE_LOG_TO_STDERR )
       {
       if( $DE_LOG_STDERR_COLORS )
         {
@@ -211,11 +207,29 @@ sub de_log_dumper2
   de_log_debug( Dumper( @_ ) );
 }
 
+# prefixed log levels, always logged regardless of the debug level
+
+sub __de_log_prefixed
+{
+  my $prefix = shift;
+
+  my @args = @_;
+  chomp( @args );
+  my $msg = join( "\n", @args );
+  $msg = "$prefix: $msg" unless $msg =~ /^\Q$prefix\E:/i;
+  de_log( $msg );
+}
+
+sub de_log_info    { __de_log_prefixed( 'info',    @_ ); }
+sub de_log_notice  { __de_log_prefixed( 'notice',  @_ ); }
+sub de_log_status  { __de_log_prefixed( 'status',  @_ ); }
+sub de_log_warning { __de_log_prefixed( 'warning', @_ ); }
+
 sub de_reopen_logs
 {
   %de_log_files = ();
   1;
 }
-                
+
 ### EOF ######################################################################
 1;

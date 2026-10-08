@@ -39,7 +39,7 @@ sub __save_db_des
     my $t = time();
     my $backup_filename = "$des_filename.$t";
     my $res = rename( $des_filename, $backup_filename );
-    boom "error creating SQlite DB description backup as [$backup_filename]" unless $res;
+    boom "error creating SQLite DB description backup as [$backup_filename]" unless $res;
     }
   
   $des->{ 'SYSTEM' }{ 'DES_FILENAME' } = $des_filename;

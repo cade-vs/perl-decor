@@ -19,7 +19,7 @@ use Time::HR;
 
 use Data::Dumper;
 use Decor::Core::Env;
-use Decor::Core::Config;
+use Decor::Shared::Config;
 use Decor::Core::Profile;
 use Decor::Core::Describe;
 use Decor::Core::DB::IO;

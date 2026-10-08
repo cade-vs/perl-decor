@@ -12,6 +12,7 @@ use strict;
 
 use FindBin;
 use lib '/usr/local/decor/core/lib';
+use lib '/usr/local/decor/shared/lib';
 use lib $FindBin::Bin . "/../../lib";
 
 use Time::HR;
@@ -19,7 +20,7 @@ use Time::HR;
 use Data::Dumper;
 use Data::Tools;
 use Decor::Core::Env;
-use Decor::Core::Config;
+use Decor::Shared::Config;
 use Decor::Core::Profile;
 use Decor::Core::Describe;
 

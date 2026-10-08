@@ -158,12 +158,10 @@ my %DES_ATTRS = (
                            
                            ALOG        => 1,
 
-                           ON_INIT          => 1,
-                           ON_RECALC        => 1,
-                           ON_RECALC_INSERT => 1,
-                           ON_RECALC_UPDATE => 1,
-                           ON_INSERT        => 1,
-                           ON_UPDATE        => 1,
+                           DSN         => 1, # database connection name from the DSN config, MAIN by default
+
+                           # ON_INIT, ON_RECALC, ON_INSERT etc. are not table attributes, # cc20261008
+                           # in '@' they hold lists of fields with such inline methods # cc20261008
                            
                            NO_AUTOCOMPLETE => 3, # disable interface autocomplete
 
@@ -216,6 +214,7 @@ my %DES_ATTRS = (
                            NOT_NULL     => 1,
                            UNIQUE       => 1,
                            INDEX        => 1,
+                           NO_INDEX     => 1, # do not create auto index for system (_*) or index-marked field
                            BOOL         => 1,
                            PASSWORD     => 1,
                            FT           => 1, # filter, field transform, value modifier stack
@@ -443,8 +442,10 @@ sub __merge_table_des_file
   my $category  = '@';
   $des->{ $category }{ $sect_name } ||= {};
   push @{ $des->{ $category }{ $sect_name }{ '__DEBUG_ORIGIN' } }, "$fname at 0" if de_debug();
+  # keep LABEL set by previous files, replace only the default one (previous file name, _DE_UNIVERSAL first)
+  my $prev_name = $des->{ $category }{ $sect_name }{ 'NAME' };
   $des->{ $category }{ $sect_name }{ 'NAME'  } = $table;
-  $des->{ $category }{ $sect_name }{ 'LABEL' } = $table;
+  $des->{ $category }{ $sect_name }{ 'LABEL' } = $table if $des->{ $category }{ $sect_name }{ 'LABEL' } eq '' or $des->{ $category }{ $sect_name }{ 'LABEL' } eq $prev_name;
   $des->{ $category }{ $sect_name }{ 'TYPE'  } ||= 'GENERIC';
   my $file_mtime = file_mtime( $fname );
   if( $des->{ $category }{ $sect_name }{ '_MTIME' } < $file_mtime )
@@ -487,14 +488,14 @@ sub __merge_table_des_file
 
       $sect_name = '_' . $sect_name if $ftype eq '_';
 
-      if( $table ne '_DE_UNIVERSAL' and $table ne '_DE_TEMPLATES' and exists $field_templates->{ $category }{ $sect_name } )
+      if( $table ne '_DE_UNIVERSAL' and $table ne '_DE_TEMPLATES' and exists $field_templates->{ $category }{ $sect_name } and ! exists $des->{ $category }{ $sect_name } )
         {
-        # copy template field definition if field name matches
+        # copy template field definition if field name matches, only when first opened, later files merge into it
         $des->{ $category }{ $sect_name } = dclone( $field_templates->{ $category }{ $sect_name } );
         }
-      elsif( $sect_name =~ /^_(OWNER|UPDATE|DELETE)(_[A-Z_0-9]+)?/ )
+      elsif( $sect_name =~ /^_(OWNER|UPDATE|DELETE)([_0-9][A-Z_0-9]*)?$/ and ! exists $des->{ $category }{ $sect_name } ) # _OWNER, _OWNER2, _OWNER_X but not _OWNERSHIP, _UPDATED
         {
-        # make it special, link to groups, system use only by default
+        # make it special, link to groups, system use only by default, only when first opened, later files merge into it
         $des->{ $category }{ $sect_name }{ 'TYPE' }                     = 'link  de_groups   name';
         $des->{ $category }{ $sect_name }{ '__GRANT_DENY_ACCUMULATOR' } = [ 'deny all' ];
         }  
@@ -589,6 +590,7 @@ sub __merge_table_des_file
 
         while( my ( $k, $v ) = each %{ $isa->{ 'FIELD' }{ $isa_field } } )
           {
+          next if $k eq '__GRANT_DENY_NEW_POLICY'; # local to the source table, current table may set its own grant/deny
           $des->{ 'FIELD' }{ $isa_field }{ $k } = ref( $v ) ? dclone( $v ) : $v;
           }
         
@@ -845,7 +847,7 @@ sub __postprocess_table_raw_description
     my @type = split /[,\s]+/, uc $fld_des->{ 'TYPE' };
     my $type = shift @type;
 
-    my @debug_origin = exists $fld_des->{ '__ORIGIN' } ? @{ $fld_des->{ '__ORIGIN' } } : ();
+    my @debug_origin = exists $fld_des->{ '__DEBUG_ORIGIN' } ? @{ $fld_des->{ '__DEBUG_ORIGIN' } } : ();
     
     $fld_des->{ 'TABLE' } = $table;
 
@@ -963,10 +965,10 @@ sub __postprocess_table_raw_description
       {
       my $spec = shift( @type );
       my $dot = 0;
-      if( $spec ne '' and $spec =~ /^\.(\d+)$/ )
+      if( $spec ne '' )
         {
+        boom "invalid FIELD type SPEC [$spec] for type [$type] in table [$table] field [$field] from [@debug_origin] expected .0 .. .9" unless $spec =~ /^\.(\d)$/;
         $dot = $1;
-        boom "invalid FIELD type SPEC [$spec] for type [$type] in table [$table] field [$field] from [@debug_origin] spec required range 0..9" unless $dot >= 0 and $dot <= 9;
         }
       $type_des->{ 'DOT' } = $dot;
       }
@@ -976,8 +978,10 @@ sub __postprocess_table_raw_description
     # convert grant/deny list to access tree
 #print STDERR "=====(GRANT DENY)==PRE+++ $table $field: " . Dumper( $des->{ 'FIELD' }{ $field } );
 
-    if( exists $fld_des->{ '__GRANT_DENY_ACCUMULATOR' } )
+    if( exists $fld_des->{ '__GRANT_DENY_ACCUMULATOR' } or $type_des->{ 'NAME' } eq 'WIDELINK' ) # cc20261008
       {
+      # WIDELINK without own grant/deny starts from the table ones, preprocess adds deny insert update # cc20261008
+      $fld_des->{ '__GRANT_DENY_ACCUMULATOR' } ||= [ @{ $des->{ '@' }{ '__GRANT_DENY_ACCUMULATOR' } || [] } ]; # cc20261008
       describe_preprocess_grant_deny( $fld_des );
       }
     else
@@ -1066,8 +1070,8 @@ sub __postprocess_table_raw_description
   # mark self inline methods list
   for my $im ( keys %INLINE_METHODS )
     {
-    next unless exists $des->{ '@' }{ $im };
-    $des->{ '@' }{ $im } = [ keys %{ $des->{ '@' }{ $im } } ];
+    # always set, description is locked and Subs.pm reads all of them # cc20261008
+    $des->{ '@' }{ $im } = [ keys %{ $des->{ '@' }{ $im } || {} } ]; # cc20261008
     }
 
   # print STDERR "TABLE DES POST PROCESSSED [$table]($des):" . Dumper( $des );
@@ -1104,7 +1108,7 @@ sub __load_table_raw_description
 
   my $opt = {};
   my $rc;
-  $rc = __merge_table_des_files( \%des, '_DE_UNIVERSAL', $opt ) unless $table eq '_DE_UNIVERSAL' or $table eq '_DE_TEMPLATE'; # zero $rc for UNIVERSAL is ok
+  $rc = __merge_table_des_files( \%des, '_DE_UNIVERSAL', $opt ) unless $table eq '_DE_UNIVERSAL' or $table eq '_DE_TEMPLATES'; # zero $rc for UNIVERSAL is ok
   $rc = __merge_table_des_files( \%des, $table,          $opt );
   return undef unless $rc > 0;
   
@@ -1264,7 +1268,7 @@ sub describe_parse_access_line
   my $line = uc shift;
   my $hr   = shift; # currently preprocessed field description, used for debug origin
 
-  my @debug_origin = exists $hr->{ '__ORIGIN' } ? @{ $hr->{ '__ORIGIN' } } : ();
+  my @debug_origin = exists $hr->{ '__DEBUG_ORIGIN' } ? @{ $hr->{ '__DEBUG_ORIGIN' } } : ();
 
   $line =~ s/^\s*//;
   $line =~ s/\s*$//;
@@ -1291,13 +1295,15 @@ sub describe_parse_access_line
   my @opers  = split /[\s;,]+/, $opers_line;
   my @groups = split /\s*[;,]\s*/, $groups_line;
 
-  $_ = $GROUP_ALIASES{ $_ } || $_ for @groups;
+  # replace aliases in each group of a set ( GUEST+5 ), keep leading ! ( !GUEST )
+  $_ = join '+', map { /^(!?)(.*)$/; $1 . ( $GROUP_ALIASES{ $2 } || $2 ) } split /[+]/ for @groups;
 
+  my @valid_opers;
   for my $op ( @opers )
     {
     if( $op eq 'ALL' )
       {
-      @opers = @OPERS;
+      @valid_opers = @OPERS;
       last;
       }
     if( ! $OPERS{ $op } )
@@ -1305,13 +1311,15 @@ sub describe_parse_access_line
       de_log( "error: unknown operation [$op] in line [$line] at one of [@debug_origin]" );
       next;
       }
+    push @valid_opers, $op;
     }
+  @opers = @valid_opers; # unknown operations are skipped, not added to the access tree
 
   my %access;
 
   for my $op ( @opers )
     {
-    if( @groups == 1 and $groups[ 0 ] > 0 )
+    if( @groups == 1 and $groups[ 0 ] =~ /^\d+$/ and $groups[ 0 ] > 0 )
       {
       $access{ uc $op } = $groups[ 0 ];
       }
@@ -1347,7 +1355,7 @@ sub des_exists_category
 
   # FIXME: TODO: check logic?
 
-  my $table = $_[0];
+  my $table = uc $_[0]; # cache keys are upper case, as in describe_table()
 
   return 0 unless de_check_name( $table );
 
@@ -1371,7 +1379,7 @@ sub des_exists_category
     }
 
   # table exists, but field check is expected
-  my $field = $_[1];
+  my $field = uc $_[1];
   return 0 unless de_check_name( $field );
   
   return 0 unless exists $DES_CACHE{ 'TABLE_DES' }{ $table }{ $category };
@@ -1386,7 +1394,7 @@ sub des_exists_category
     }
 
   # table and field exist, but attribute check is expected
-  my $attr = $_[2];
+  my $attr = uc $_[2];
 
   if( exists $DES_CACHE{ 'TABLE_DES' }{ $table }{ $category }{ $field }{ $attr } )
     {

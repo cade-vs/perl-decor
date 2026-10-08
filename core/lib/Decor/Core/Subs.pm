@@ -233,7 +233,7 @@ sub __session_update_times
   return 0 unless $force or time() - $atime > 60 or $xtime - time() < 60;
 
   my $xtime = $session_rec->read( 'USR' ) == 909 ?
-              de_app_cfg( 'SESSION_ANON_EXPIRE_TIME', 24*60*60 ) # 24 hours for anonimous sessions
+              de_app_cfg( 'SESSION_ANON_EXPIRE_TIME', 24*60*60 ) # 24 hours for anonymous sessions
               :
               de_app_cfg( 'SESSION_USER_EXPIRE_TIME',    10*60 ) # 10 min for logged-in user sessions
               ;
@@ -313,7 +313,7 @@ sub __create_new_anon_session
       }
     if( time() - $ss_time > 5 )
       {
-      die "E_SESSION: cannot create ANON session due timeout";
+      die "E_SESSION: cannot create ANON session due to timeout";
       }
     }
 
@@ -364,7 +364,7 @@ sub __setup_user_profile
     }
   else
     {
-    # reguler user (including root)
+    # regular user (including root)
     $profile->add_groups_from_user( $user_rec );
 
     # common groups setup
@@ -1439,7 +1439,7 @@ sub sub_delete
   my ( $where, $bind ) = __filter_to_where( $id > 0 ? { '_ID' => $id } : $filter, $table );
   my $where_clause = join ' AND ', @$where;
 
-  # FIXMEL: URGENT: finish delete code :)
+  # FIXME: URGENT: finish delete code :)
   # de_add_alog_rec_if_des( 'DELETE', $rec );
 
 

@@ -380,9 +380,9 @@ sub record_exists_by_fields
   return $db->read_field( $rec->table(), '_ID', $where, { BIND => \@bind } );
 }
 
-# checks for existing record with record_exists_by_fields() and if so ill
+# checks for existing record with record_exists_by_fields() and if so will
 # add error hints to all given records for the screen form
-# returns 1 if errors re issued and undef if no record found
+# returns 1 if errors are issued and undef if no record found
 sub record_exists_by_fields_add_error
 {
   my $rec    = shift;
