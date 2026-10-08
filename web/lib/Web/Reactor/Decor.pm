@@ -1,15 +1,7 @@
 ##############################################################################
 ##
 ##  Decor application machinery core
-##  2014-2017 (c) Vladi Belperchinov-Shabanski "Cade"
-##  <cade@bis.bg> <cade@biscom.net> <cade@cpan.org>
-##
-##  LICENSE: GPLv2
-##
-##############################################################################
-##
-##  Web::Reactor application machinery
-##  2013-2017 (c) Vladi Belperchinov-Shabanski "Cade"
+##  2014-2026 (c) Vladi Belperchinov-Shabanski "Cade"
 ##  <cade@bis.bg> <cade@biscom.net> <cade@cpan.org>
 ##
 ##  LICENSE: GPLv2
@@ -17,12 +9,10 @@
 ##############################################################################
 package Web::Reactor::Decor;
 use strict;
-use Exporter;
-use Web::Reactor 2.09;
+use Web::Reactor 3.33;
 use Exception::Sink;
 use Data::Tools;
 use Data::Dumper;
-use Storable;
 
 use Decor::Shared::Net::Client;
 use Decor::Shared::Utils;
@@ -30,9 +20,9 @@ use Decor::Shared::Config;
 use Decor::Shared::Types;
 use Decor::Web::Utils;
 
-our @ISA = qw( Web::Reactor );
+use parent 'Web::Reactor';
 
-sub de_re_app_dir
+sub de_reo_app_dir
 {
   my $ROOT     = shift;
   my $APP_NAME = shift;
@@ -52,7 +42,8 @@ sub new
 
   $class = ref( $class ) || $class;
 
-  my $ROOT     = $cfg->{ 'DECOR_CORE_ROOT' } || '/usr/local/decor/';
+  my $ROOT     = $cfg->{ 'DECOR_CORE_ROOT' } || '/usr/local/decor';
+  $ROOT =~ s/\/+$//;
 
   boom "ROOT path does not exist [$ROOT]" unless -d $ROOT;
 
@@ -60,7 +51,7 @@ sub new
 
   boom "missing APP_NAME" unless $APP_NAME =~ /^[a-z_0-9]+$/;
 
-  my $APP_ROOT  = de_re_app_dir( $ROOT, $APP_NAME ) or boom "APP_ROOT path does not exist [$ROOT] app name [$APP_NAME]";
+  my $APP_ROOT  = $cfg->{ 'APP_ROOT' } || de_reo_app_dir( $ROOT, $APP_NAME ) or boom "APP_ROOT path does not exist [$ROOT] app name [$APP_NAME]";
 
   my $lang = lc $cfg->{ 'LANG' } || 'en';
 
@@ -68,7 +59,6 @@ sub new
 
   my %cfg = (
             'DEBUG'          => 0,
-            'APP_NAME'       => $APP_NAME,
             'APP_ROOT'       => $APP_ROOT,
             'LIB_DIRS'       => [ "$APP_ROOT/web/lib", "$APP_ROOT/lib", "$ROOT/shared/lib", "$ROOT/web/lib" ],
             'HTML_DIRS'      => [
@@ -81,9 +71,13 @@ sub new
             'TRANS_DIRS'     => [ "$ROOT/web/trans", "$APP_ROOT/web/trans" ],
             'TRANS_FILE'     => "$APP_ROOT/web/trans/$lang.tr",
             'SESS_VAR_DIR'   => "$ROOT/var/$APP_NAME/sess/",
+            'RSA_PUB_KEY'    => "$APP_ROOT/keys/pass-pub.pem", # core decrypts with pass-pvt.pem
 
 
             %$cfg,
+
+            'APP_NAME'       => $APP_NAME, # normalized values must not be overridden by %$cfg
+            'LANG'           => $lang,
             );
 
   type_set_format( $_, $cfg->{ "FMT_$_" } ) for qw( DATE TIME UTIME );
@@ -121,11 +115,10 @@ sub __setup_client_env
   $self->set_user_session_expire_time( $client->{ 'CORE_SESSION_XTIME' } );
 }
 
-sub de_connect
+# connects to core without rendering, returns client, or ( undef, error_status, begin_failed )
+sub __de_connect
 {
   my $self = shift;
-
-  my %opt = @_;
 
   return $self->{ 'DECOR_CLIENT_OBJECT' } if $self->{ 'DECOR_CLIENT_OBJECT' } and $self->{ 'DECOR_CLIENT_OBJECT' }->is_connected();
 
@@ -134,31 +127,29 @@ sub de_connect
   my $de_core_app     = $cfg->{ 'DECOR_CORE_APP'       };
   my $de_core_host    = $cfg->{ 'DECOR_CORE_HOST'      };
   my $de_core_timeout = $cfg->{ 'DECOR_CORE_TIMEOUT'   } || 64;
-  my $lang            = $cfg->{ 'LANG' };
 
   $de_core_host  = 'localhost' . $de_core_host unless $de_core_host =~ /^[^:]+(:|\s*$)/; # adds host if not specified
   $de_core_host .= ':42000' unless $de_core_host =~ /:\d+$/; # adds port if not specified
 
   my $user_shr = $self->get_user_session();
-  my $http_env = $self->env();
   my $remote   = $self->get_client_ip();
 
   my $de_core_session_id = $user_shr->{ 'DECOR_CORE_SESSION_ID' } || 'CREATE';
 
   my $client = Decor::Shared::Net::Client->new( TIMEOUT => $de_core_timeout );
 
-  $self->log( "debug: {$client} about to connect to [$de_core_host] app [$de_core_app] with core session [$de_core_session_id]" );
+  $self->log_debug( "debug: {$client} about to connect to [$de_core_host] app [$de_core_app]" ); # cc20261008
 
   if( ! $client->connect( $de_core_host, $de_core_app ) )
     {
-    $self->log( "error: connect FAILED to host [$de_core_host] application [$de_core_app]:\n" . Dumper( $client ) );
-    return $self->render( PAGE => 'error', 'main_action' => "<#e_connect>" );
+    $self->log( "error: connect FAILED to host [$de_core_host] application [$de_core_app]" ); # cc20261008
+    return ( undef, 'e_connect', 0 );
     }
 
 
   if( $client->begin( $de_core_session_id, $remote ) )
     {
-    $self->log( "status: connect OK with session [$de_core_session_id] remote [$remote]" );
+    $self->log_debug( "status: connect OK remote [$remote]" );
     $self->__setup_client_env( $client );
     $self->{ 'DECOR_CLIENT_OBJECT' } = $client;
     return $client;
@@ -166,10 +157,22 @@ sub de_connect
   else
     {
     my $status = $client->status();
-    $self->log( "error: connect FAILED to host [$de_core_host] application [$de_core_app], status [$status]:\n" . Dumper( $client ) );
-    $self->logout();
-    return $self->render( PAGE => 'error', 'main_action' => "<#$status>" );
+    $self->log( "error: connect FAILED to host [$de_core_host] application [$de_core_app], status [$status]" );
+    return ( undef, $status, 1 );
     }
+}
+
+# renders error page on failure, render() sinks, never returns
+sub de_connect
+{
+  my $self = shift;
+
+  my ( $client, $status, $begin_failed ) = $self->__de_connect();
+  return $client if $client;
+
+  $self->logout() if $begin_failed;
+  $self->html_hold_set( 'main_action' => "<#$status>" );
+  return $self->render_page( 'error' );
 }
 
 #-----------------------------------------------------------------------------
@@ -180,24 +183,22 @@ sub de_login
   my $user   = shift;
   my $pass   = shift;
 
-  my $user_shr = $self->get_user_session();
-  my $http_env = $self->env();
   my $remote   = $self->get_client_ip();
 
-  my $client = $self->de_connect() or boom "cannot de_login(), DECOR CLIENT OBJECT is missing";
+  my $client = $self->de_connect(); # de_connect() renders error page on failure
 
-  $self->log( "debug: {$client} about login as [$user] remote [$remote]" );
+  $self->log_debug( "debug: {$client} about to login as [$user] remote [$remote]" );
 
   if( $client->login( $user, $pass, $remote ) )
     {
     $self->__setup_client_env( $client );
-    my $de_core_session_id = $user_shr->{ 'DECOR_CORE_SESSION_ID' };
-    $self->log( "status: login OK as user [$user] remote [$remote] core session [$de_core_session_id]"  . Dumper( $client ) );
+    $self->log( "status: login OK as user [$user] remote [$remote]" );
     return 1;
     }
   else
     {
-    $self->log( "error: login FAILED as user [$user] remote [$remote]:\n" . Dumper( $client ) );
+    my $status = $client->status();
+    $self->log( "error: login FAILED as user [$user] remote [$remote], status [$status]" );
     return undef;
     }
 }
@@ -208,9 +209,13 @@ sub de_logout
 {
   my $self   = shift;
 
-  my $client = $self->de_connect() or boom "cannot de_logout(), DECOR CLIENT OBJECT is missing";
-
-  $client->logout();
+  # connect to core only if there is a core session to close
+  my $user_shr = $self->get_user_session();
+  if( $self->{ 'DECOR_CLIENT_OBJECT' } or $user_shr->{ 'DECOR_CORE_SESSION_ID' } )
+    {
+    my ( $client ) = $self->__de_connect(); # no error page, web logout must happen anyway
+    $client->logout() if $client;
+    }
   $self->logout();
 
   delete $self->{ 'DECOR_CLIENT_OBJECT' };
@@ -229,7 +234,11 @@ sub de_load_cfg
   my $app_root = $self->get_app_root();
 
   my $fnf = "$app_root/web/etc/$fn.cfg";
-  $self->log( "error: config file not found [$fnf]" ) unless -e $fnf;
+  if( ! -e $fnf )
+    {
+    $self->log( "error: config file not found [$fnf]" );
+    return undef;
+    }
   my $cfg = de_config_load_file( $fnf );
 
   return $cfg;
@@ -250,7 +259,7 @@ sub ps_path_add
   my @ps_path = @{ $rs->{ 'PS_PATH' } || [] };
   $ps->{ 'PS_PATH' } = \@ps_path;
 
-  $icon .= '.svg' unless $icon =~ /\.(png|gif|jpg|jpeg)$/i;
+  $icon .= '.svg' unless $icon =~ /\.(svg|png|gif|jpg|jpeg)$/i;
 
   push @ps_path, { PS_ID => $ps_id, ICON => $icon, TITLE => $title };
 
@@ -268,7 +277,9 @@ sub ps_path_add_by_cue
 
   my ( $title, $hint ) = de_web_get_cue( $des, 'WEB', $action, "${action}_CUE" );
   $title =~ s|\$(\w+)|$data->{uc $1}|gie;
+  $hint  =~ s|\$(\w+)|$data->{uc $1}|gie;
   $title = str_html_escape( $title );
+  $hint  = str_html_escape( $hint  );
   $title =~ s|\*(.+?)\*|<b>$1</b>|g;
   $hint  =~ s|\*(.+?)\*|<b>$1</b>|g;
   $self->ps_path_add( $action, $title );
