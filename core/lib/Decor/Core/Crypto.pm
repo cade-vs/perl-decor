@@ -22,11 +22,10 @@ our @EXPORT = qw(
                 );
 }
 
-use Data::Lock qw( dlock dunlock );
 use Data::Dumper;
 use Exception::Sink;
 use Data::Tools 1.09;
-use Data::Tools::Crypto::RSA;
+use Data::Tools::Crypto::RSA 1.53;
 
 use Decor::Shared::Types;
 use Decor::Shared::Utils;
@@ -38,7 +37,7 @@ $Data::Dumper::Sortkeys = 1;
 
 ### PRIVATE ##################################################################
 
-my $VERSION = '1.01';
+our $VERSION = '1.02';
 
 my %RSAO;
 
