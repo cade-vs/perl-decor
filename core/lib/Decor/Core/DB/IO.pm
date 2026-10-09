@@ -453,10 +453,16 @@ sub __resolve_fields_list
    my $fields = shift; 
    my $opt    = shift || {};
 
+   # each item must be exactly: field, path or aggregate, optionally followed by ASC or DESC,
+   # anything else is rejected, nothing is passed to SQL unresolved
    my @fields = split /,/, $fields;
    for( @fields )
      {
-     s/^((COUNT|SUM|MIN|MAX|AVG)\(([A-Z_0-9\.]+)\)|([A-Z_0-9\.]+))/$self->__resolve_single_field( $table, $2, ( $3 || $4 ), $opt )/ie;
+     s/^\s+//;
+     s/\s+$//;
+     boom "invalid field list item [$_] in [$fields]" unless /^(?:(COUNT|SUM|MIN|MAX|AVG)\(\s*([A-Z_0-9\.]+)\s*\)|([A-Z_0-9\.]+))(\s+(?:ASC|DESC))?$/i;
+     my ( $af, $field, $dir ) = ( $1, ( $2 || $3 ), uc $4 );
+     $_ = $self->__resolve_single_field( $table, $af, $field, $opt ) . $dir;
      }
   
   return join( ',', @fields );
@@ -518,7 +524,7 @@ sub __get_row_access_where_list
     for my $field ( @$fields )
       {
 #print STDERR "+++++++++++++++++++++++++++ [$oper][$field]\n";
-      next unless $field =~ /^_${oper}(_[A-Z_0-9]+)?$/;
+      next unless $field =~ /^_${oper}([_0-9][A-Z_0-9]*)?$/; # _OWNER, _OWNER2, _OWNER_X but not _OWNERSHIP, same as in Describe.pm
 
       push @oper_where, "( $db_table.$field IN ( $groups_string ) )";
 #print STDERR "+++++++++++++++++++++++++++ ( $db_table.$field IN ( $groups_string ) )\n";

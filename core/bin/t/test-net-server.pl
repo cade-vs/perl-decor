@@ -50,7 +50,7 @@ while(42)
     my $mi = { XT => 'PREPARE', USER => $user };
     my $mo = {};
 
-    my $res = socket_protocol_write_message( $socket, 'p', $mi );
+    my $res = socket_protocol_write_message( $socket, 's', $mi );
     my $mo = socket_protocol_read_message( $socket );
 
     print Dumper( $mi, $mo );
@@ -63,7 +63,7 @@ while(42)
     my $mi = { XT => 'BEGIN', USER => $user, PASS => de_password_salt_hash( de_password_salt_hash( $pass, $user_salt ), $login_salt ), REMOTE => $remote };
     my $mo = {};
 
-    my $res = socket_protocol_write_message( $socket, 'p', $mi );
+    my $res = socket_protocol_write_message( $socket, 's', $mi );
     my $mo = socket_protocol_read_message( $socket );
 
     print Dumper( $mi, $mo );
@@ -71,7 +71,7 @@ while(42)
     next;
     }
 
-  my $res = socket_protocol_write_message( $socket, 'p', $mi );
+  my $res = socket_protocol_write_message( $socket, 's', $mi );
   
   die "error sending message [$res]\n" unless $res;
 

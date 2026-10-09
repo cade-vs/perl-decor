@@ -182,8 +182,6 @@ sub tx_msg
   delete $mi->{ '___SEND_FILE_SIZE' };
   delete $mi->{ '___RECV_FILE_HAND' };
   
-  my $ptype = 'p'; # FIXME: config?
-#  my $ptype = 's'; # FIXME: config?
   my $ptype = 's'; # FIXME: config?
 
   my $mi_res = socket_protocol_write_message( $socket, $ptype, $mi, $timeout );

@@ -137,11 +137,11 @@ my %TABLE_TYPES = (
 my %DES_ATTRS = (
                   '@' => {
                            REM         => 1, # remark, comment
-                           
+
                            S           => 1,
                            P           => 1,
                            SP          => 1,
-                           
+
                            TYPE        => 1,
                            SCHEMA      => 1,
                            LABEL       => 1,
@@ -153,16 +153,16 @@ my %DES_ATTRS = (
                            NO_PREVIEW  => 1,
 
                            ORDER_BY    => 1,
-                           
+
                            VIRTUAL     => 1,
-                           
+
                            ALOG        => 1,
 
                            DSN         => 1, # database connection name from the DSN config, MAIN by default
 
                            # ON_INIT, ON_RECALC, ON_INSERT etc. are not table attributes, # cc20261008
                            # in '@' they hold lists of fields with such inline methods # cc20261008
-                           
+
                            NO_AUTOCOMPLETE => 3, # disable interface autocomplete
 
                            VIEW_CUE    => 3,
@@ -171,8 +171,8 @@ my %DES_ATTRS = (
                            UPDATE_CUE  => 3, # related "UPDATE" button label
                            UPLOAD_CUE  => 3, # related "UPLOAD" button label
                            DELETE_CUE  => 3, # related "DELETE" button label
-                           COPY_CUE    => 3, # related "DELETE" button label
-                           
+                           COPY_CUE    => 3, # related "COPY" button label
+
                            VIEW_LINK_CUE     => 3,
                            VIEW_ATTACHED_CUE => 3,
                            VIEW_DETACHED_CUE => 3,
@@ -187,7 +187,7 @@ my %DES_ATTRS = (
                            PAGE_SIZE      => 3, # default page size for grid lists, if big enough, there will be no pagination
                            FIELDS_LIST    => 3, # fields to be shown
                            MASTER_FIELDS  => 3, # fields for display as master record
-                           
+
                            RECORD_NAME => 3, # interpolated list of fields, describing current record
 
                            VIEW_ON_INSERT   => 3, # will forward UI to record view right after successful insert
@@ -199,7 +199,7 @@ my %DES_ATTRS = (
                          },
                   'FIELD' => {
                            REM         => 1, # remark, comment
-                           
+
                            TABLE        => 1,
                            NAME         => 1,
 
@@ -246,16 +246,16 @@ my %DES_ATTRS = (
                            DISPLAY      => 3, # advise display view, for example: web.display progress-bar
 
                            ADVISE      => 1, # takes arguments, INSERT,UPDATE,EDIT to be shown even if read-only on those screens
-                           
+
                            HIDE_IF_EMPTY    => 3, # hide field if it is empty
                            NO_AUTOCOMPLETE  => 3, # disable interface autocomplete
                            RECALC_ON_CHANGE => 3, # recalc record form if field changes
-                           
+
                            SELECT_FILTER_NAME => 3, # filter to be used on LINKED table
                            SELECT_FILTER_BIND => 3, # bind values from field in current table
-                           
+
                            SECTION_NAME    => 3,
-                           
+
                            VIEW_LINK_CUE     => 3,
                            VIEW_ATTACHED_CUE => 3,
                            VIEW_DETACHED_CUE => 3,
@@ -266,59 +266,54 @@ my %DES_ATTRS = (
                            UPLOAD_LINK_CUE   => 3,
                            DOWNLOAD_LINK_CUE => 3,
                            MAP_EDIT_CUE      => 3,
-                           
+
                            FAR_DETAILS => 2, # list of fields to show when selecting map records
                            FAR_ORDERBY => 2, # order to be used when reading FAR_DETAILS
-                           
+
                            DIVIDER     => 3,
 
                            SHOW        => 3,
                            HIDE        => 3,
-                           
+
                            DETAIL_FIELDS => 3,
                            DETAILS_LIMIT => 3,
-                           
+
                            BACKLINK_GRID_MODE => 3,
-                           
+
                            OVERDUE      => 3, # instruct viewers to highlight overdue DATE and UTIME
                            ALLOW_WRAP   => 3,
-                           
+
                            WLINK        => 1,
-                           
-                           ON_RECALC    => 1,
-                           ON_INSERT    => 1,
-                           ON_UPDATE    => 1,
 
                            FTS          => 1, # mark field for full text search indexing
-                           
+
                            NO_HUMAN_FMT => 3, # do not use human formatting
                          },
                   'INDEX' => {
                            REM         => 1, # remark, comment
-                           
+
                            FIELDS      => 1,
                            UNIQUE      => 1,
-                           FIELDS      => 1,
                          },
                   'FILTER' => {
                            REM         => 1, # remark, comment
-                           
+
                            SQL_WHERE   => 1,
                          },
                   'DO' => {
                            REM         => 1, # remark, comment
-                           
+
                            LABEL       => 2,
                            GRANT       => 1,
                            DENY        => 1,
                            PRINT       => 3,
                            HIDE        => 3,
-                           
+
                            CONFIRM     => 1,
                          },
                   'ACTION' => {
                            REM         => 1, # remark, comment
-                           
+
                            LABEL       => 1,
                            TARGET      => 1,
                            ICON        => 1,
@@ -406,7 +401,7 @@ sub des_get_tables_list
     }
 
   s/^.*?\/([^\/]+)\.def$/uc($1)/ie for @tables;
-  @tables = keys %{ { map { $_ => 1 } grep { ! /^_+/ } @tables } };
+  @tables = sort keys %{ { map { $_ => 1 } grep { ! /^_+/ } @tables } };
 
   $DES_CACHE{ 'TABLES_LIST_AR' } = \@tables;
 
@@ -454,10 +449,11 @@ sub __merge_table_des_file
     $des->{ $category }{ $sect_name }{ '_MTIME' } = $file_mtime;
     }
 
-  my $field_templates = __load_table_raw_description( '_DE_TEMPLATES' ) unless $table eq '_DE_UNIVERSAL' or $table eq '_DE_TEMPLATES';
+  my $field_templates;
+  $field_templates = __load_table_raw_description( '_DE_TEMPLATES' ) unless $table eq '_DE_UNIVERSAL' or $table eq '_DE_TEMPLATES';
 
   my $key_prefix_pin; # pinned keys: web.edit.       will follow next lines with   .something    ...
-  
+
   my $ln; # line number
   while( my $line = <$inf> )
     {
@@ -498,14 +494,14 @@ sub __merge_table_des_file
         # make it special, link to groups, system use only by default, only when first opened, later files merge into it
         $des->{ $category }{ $sect_name }{ 'TYPE' }                     = 'link  de_groups   name';
         $des->{ $category }{ $sect_name }{ '__GRANT_DENY_ACCUMULATOR' } = [ 'deny all' ];
-        }  
+        }
 
       $des->{ $category }{ $sect_name } ||= {};
       $des->{ $category }{ $sect_name }{ 'NAME'   }   = $sect_name;
       $des->{ $category }{ $sect_name }{ 'LABEL'  } ||= __fix_label_name( $sect_name );
       $des->{ $category }{ $sect_name }{ '_ORDER' } = ++ $opt->{ '_ORDER' };
 
-# FIXME: 
+# FIXME:
 #      if( exists $COPY_CATEGORY_ATTRS{ $category } )
 #        {
 #        $des->{ $category }{ $sect_name }{ $_ } = $des->{ '@' }{ '@' }{ $_ } for keys %{ $COPY_CATEGORY_ATTRS{ $category } };
@@ -516,10 +512,9 @@ sub __merge_table_des_file
       next;
       }
 
-    if( $line =~ /^\s*@(is)\s+([a-zA-Z_0-9]+)/i )
+    if( $line =~ /^\s*\@is\s+([a-zA-Z_0-9]+)/i )
       {
-      my $name = uc $2;
-      $line = "\@isa _DE_$2 **";
+      $line = "\@isa _DE_$1 **";
       }
 
     if( $line =~ /^\s*@(isa|include)\s+([a-zA-Z_0-9]+)\s*(.*?)\s*$/i )
@@ -545,7 +540,7 @@ sub __merge_table_des_file
           $isa_copy_table_des = 1;
           next;
           }
-        
+
         if( $arg eq '**' )
           {
           $isa_copy_table_des = 1;
@@ -561,7 +556,7 @@ sub __merge_table_des_file
           else
             {
             delete $isa_fields{ $arg };
-            }  
+            }
           }
         elsif( $arg =~ s/\*/\.*?/g )
           {
@@ -593,18 +588,18 @@ sub __merge_table_des_file
           next if $k eq '__GRANT_DENY_NEW_POLICY'; # local to the source table, current table may set its own grant/deny
           $des->{ 'FIELD' }{ $isa_field }{ $k } = ref( $v ) ? dclone( $v ) : $v;
           }
-        
+
         $des->{ 'FIELD' }{ $isa_field }{ '_ORDER' } = ++ $opt->{ '_ORDER' };
         $des->{ 'FIELD' }{ $isa_field }{ '__ISA'  } = 1;
         }
 
       next;
       }
-      
+
     if( $line =~ /^\s*@(remove)\s*(.*?)\s*$/i )
       {
       my $args = $2; # options/arguments, FIXME: upcase/lowcase?
-      
+
       my @args = split /[\s,]+/, uc $args;
 
       boom "\@remove error: empty argument list at [$fname at $ln]" unless @args;
@@ -635,7 +630,7 @@ sub __merge_table_des_file
       else
         {
         $key_prefix_pin = undef;
-        }    
+        }
 
       $key =~ s/-/_/g;
 
@@ -658,7 +653,7 @@ sub __merge_table_des_file
 
       $key = $DES_KEY_SHORTCUTS{ $key } if exists $DES_KEY_SHORTCUTS{ $key };
       boom "unknown attribute key $error_location" unless exists $DES_ATTRS{ $category }{ $key };
-      
+
       my $attr_type = $DES_ATTRS{ $category }{ $key };
 
       if( $attr_type == 1 and $key_path ne '' )
@@ -697,7 +692,7 @@ sub __merge_table_des_file
         # special case
         if( $des->{ $category }{ $sect_name }{ '__ISA'  } and ! $des->{ $category }{ $sect_name }{ '__GRANT_DENY_NEW_POLICY'  } )
           {
-          # if this is ISA section, it may bring ISA grant/deny. 
+          # if this is ISA section, it may bring ISA grant/deny.
           # however if new grant/deny policy given in current table, old ones must be discarded
           # this must happen only once!
           delete $des->{ $category }{ $sect_name }{ '__GRANT_DENY_ACCUMULATOR' };     # grant/deny access accumulator array
@@ -727,14 +722,12 @@ sub __merge_table_des_file
       if( $key eq 'SP' )
         {
         # singular and plural forms of the items contained in the table
-        if( $value =~ /(\S+)\s+(\S+)/ )
-          {
-          $des->{ $category }{ $sect_name }{ 'S' } = $1;
-          $des->{ $category }{ $sect_name }{ 'P' } = $2;
-          }
+        boom "invalid SP [$value] expected exactly two words: <singular> <plural> $error_location" unless $value =~ /^(\S+)\s+(\S+)$/;
+        $des->{ $category }{ $sect_name }{ 'S' } = $1;
+        $des->{ $category }{ $sect_name }{ 'P' } = $2;
         next;
         }
-      
+
       if( $DES_KEY_TYPES{ $key } eq '@' )
         {
         $des->{ $category }{ $sect_name }{ $key } ||= [];
@@ -758,6 +751,7 @@ sub __merge_table_des_file
       next;
       }
 
+    boom "invalid line [$line] at [$fname at $ln]"; # nothing above matched, mistyped directive (\@inlcude) or garbage
     }
   close( $inf );
 
@@ -831,11 +825,6 @@ sub __postprocess_table_raw_description
   $des->{ '@' }{ '_ACTIONS_LIST' } = \@actions;
   $des->{ '@' }{ 'DSN'           } = uc( $des->{ '@' }{ 'DSN' } ) || 'MAIN';
 
-  for my $method ( keys %INLINE_METHODS )
-    {
-    $des->{ '@' }{ "ON_$method"  } = [ grep { exists $des->{ 'FIELD' }{ $_ }{ "ON_$method" } } keys %{ $des->{ 'FIELD' } } ];
-    }
-
 #print STDERR "TABLE DES AFTER SELF PP [$table]:" . Dumper( $des, \@fields );
   # postprocessing FIELDs ---------------------------------------------------
 
@@ -848,7 +837,7 @@ sub __postprocess_table_raw_description
     my $type = shift @type;
 
     my @debug_origin = exists $fld_des->{ '__DEBUG_ORIGIN' } ? @{ $fld_des->{ '__DEBUG_ORIGIN' } } : ();
-    
+
     $fld_des->{ 'TABLE' } = $table;
 
     # "logic" types: LOCATION, EMAIL, etc.
@@ -856,13 +845,13 @@ sub __postprocess_table_raw_description
     if( exists $DE_LTYPE_NAMES{ $type } )
       {
       $ltype = $type;
-      
+
       if( @type > 0 )
         {
         # if there are more args on the description line, take just the mapped type and use the rest args
         $type = $DE_LTYPE_NAMES{ $ltype }[0];
         }
-      else  
+      else
         {
         # no args on the describe line, use the args from the mapped type
         @type = ( @{ $DE_LTYPE_NAMES{ $ltype } } );
@@ -877,7 +866,7 @@ sub __postprocess_table_raw_description
       $fld_des->{ 'LINKED_TABLE' } = shift @type || boom "missing LINK TABLE in table [$table] field [$field] from [@debug_origin]";
       $fld_des->{ 'LINKED_FIELD' } = shift @type || 'NAME';
       #$fld_des->{ 'LINKED_FIELD' } = shift @type || boom "missing LINK FIELD in table [$table] field [$field] from [@debug_origin]";
-      
+
       $fld_des->{ 'LINKED_TABLE' } = $table if uc $fld_des->{ 'LINKED_TABLE' } eq '%TABLE'; # self-link
       }
     elsif( $type eq 'MAP' )
@@ -888,11 +877,10 @@ sub __postprocess_table_raw_description
       }
     elsif( $type eq 'BACKLINK' ) # or $type eq 'BACK'  -- moved to %DE_TYPE_ALIASES
       {
-      $type = 'BACKLINK';
       $fld_des->{ 'BACKLINKED_TABLE' } = shift @type || boom "missing BACKLINK TABLE in table [$table] field [$field] from [@debug_origin]";
       $fld_des->{ 'BACKLINKED_KEY'   } = shift @type || boom "missing BACKLINK KEY   in table [$table] field [$field] from [@debug_origin]";
       $fld_des->{ 'BACKLINKED_SRC'   } = shift @type || '_ID';
-      
+
       $fld_des->{ 'BACKLINKED_TABLE' } = $table if uc $fld_des->{ 'BACKLINKED_TABLE' } eq '%TABLE'; # self-backlink
       }
     if( $type eq 'WIDELINK' or $type eq 'WIDE' )
@@ -937,7 +925,7 @@ sub __postprocess_table_raw_description
       {
       my $spec = shift( @type );
       $spec = '.4' if $spec eq ''; # default spec, FIXME: get from config?
-      if( $spec ne '' and $spec =~ /^(\d*)(\.(\d*))?$/ )
+      if( $spec =~ /^(\d*)(\.(\d*))?$/ )
         {
         my $len = $1;
         my $dot = $3;
@@ -989,7 +977,7 @@ sub __postprocess_table_raw_description
       # add option to avoid this!
       $fld_des->{ 'GRANT' } ||= $des->{ '@' }{ 'GRANT' };
       $fld_des->{ 'DENY'  } ||= $des->{ '@' }{ 'DENY'  };
-      }  
+      }
 
     # mark self inline methods list
     for my $im ( keys %INLINE_METHODS )
@@ -997,7 +985,7 @@ sub __postprocess_table_raw_description
       next unless exists $fld_des->{ $im };
       $des->{ '@' }{ $im }{ $field } = 1;
       }
-    
+
 #print STDERR "=====(GRANT DENY)==REZ+++ $table $field: " . Dumper( $fld_des );
 
     # FIXME: more categories INDEX: ACTION: etc.
@@ -1011,7 +999,7 @@ sub __postprocess_table_raw_description
 =pod
     for my $grant_deny ( qw( GRANT DENY ) )
       {
-      
+
       next;
       for my $oper ( keys %{ $des->{ '@' }{ $grant_deny } } )
         {
@@ -1020,7 +1008,7 @@ sub __postprocess_table_raw_description
         $des->{ 'FIELD' }{ $field }{ $grant_deny }{ $oper } = $des->{ '@' }{ $grant_deny }{ $oper }
         }
       }
-=cut      
+=cut
 #print STDERR "=====(GRANT DENY)==REZZZZ+++ $table $field: " . Dumper( $des->{ 'FIELD' }{ $field } );
 
 
@@ -1032,10 +1020,10 @@ sub __postprocess_table_raw_description
       $idx->{ 'FIELDS' } = $field;
       $idx->{ 'REM'    } = 'AUTO INDEX';
       $idx->{ 'UNIQUE' } = $fld_des->{ 'UNIQUE' };
-      
+
       $idx->{ '_ORDER' } = '1001';
       }
-    
+
     }
 
   # more postprocessing TABLE (self) 2/2 see above--------------------------------
@@ -1063,7 +1051,7 @@ sub __postprocess_table_raw_description
         next if exists $des->{ $cat }{ $key }{ $attr };
         $des->{ $cat }{ $key }{ $attr } = undef;
         }
-      # TODO: delete __GRANT_DENY_ACCUMULATOR unless $DEBUG  
+      # TODO: delete __GRANT_DENY_ACCUMULATOR unless $DEBUG
       }
     }
 
@@ -1111,7 +1099,7 @@ sub __load_table_raw_description
   $rc = __merge_table_des_files( \%des, '_DE_UNIVERSAL', $opt ) unless $table eq '_DE_UNIVERSAL' or $table eq '_DE_TEMPLATES'; # zero $rc for UNIVERSAL is ok
   $rc = __merge_table_des_files( \%des, $table,          $opt );
   return undef unless $rc > 0;
-  
+
   $DES_CACHE{ 'TABLE_DES_RAW' }{ $table } = \%des;
 
   return \%des;
@@ -1125,7 +1113,7 @@ sub __check_table_des
   for my $field ( @fields )
     {
     my $fld_des = $des->{ 'FIELD' }{ $field };
-    
+
     my $type  = $fld_des->{ 'TYPE' }{ 'NAME' };
     my $table = $fld_des->get_table_name();
 
@@ -1174,7 +1162,7 @@ sub describe_table
 
   $des->__set_describe_callback( sub { return describe_table( @_ ) } );
   $des->{ 'CACHE' } = {};
-  
+
   dlock( $des );
   dunlock( $des->{ 'CACHE' } );
 
@@ -1198,7 +1186,7 @@ sub preload_all_tables_descriptions
     de_log_debug( "preloading description for table [$table]" );
     my $des = describe_table( $table );
     __check_table_des( $des ); # do it only when preloading
-    };
+    }
 
   # TODO: clear TABLE_DES_RAW cache to free memory (well, not exactly)
   delete $DES_CACHE{ 'TABLE_DES_RAW' };
@@ -1213,7 +1201,7 @@ sub describe_table_field
   my $table = shift;
   my $field = shift;
 
-  my $des = describe_table( $table );
+  my $des = describe_table( $table ) or boom "unknown table [$table]"; # describe_table() returns undef for unknown table if not preloaded
   return $des->get_table_des() if $field eq '@'; # shortcut to self
   return $des->get_field_des( $field );
 }
@@ -1247,7 +1235,7 @@ sub describe_preprocess_grant_deny
         push @{ $access{ $ty }{ $o } }, @{ $ac->{ $o } };
         }
       else
-        {  
+        {
         # set mode, remove previous permissions
         $access{ $ty }{ $o } = $ac->{ $o };
         }
@@ -1321,11 +1309,11 @@ sub describe_parse_access_line
     {
     if( @groups == 1 and $groups[ 0 ] =~ /^\d+$/ and $groups[ 0 ] > 0 )
       {
-      $access{ uc $op } = $groups[ 0 ];
+      $access{ $op } = $groups[ 0 ];
       }
     else
       {
-      $access{ uc $op } = [ map { [ split /[+]/ ] } @groups ];
+      $access{ $op } = [ map { [ split /[+]/ ] } @groups ];
       }
     }
 
@@ -1381,7 +1369,7 @@ sub des_exists_category
   # table exists, but field check is expected
   my $field = uc $_[1];
   return 0 unless de_check_name( $field );
-  
+
   return 0 unless exists $DES_CACHE{ 'TABLE_DES' }{ $table }{ $category };
 
   if( exists $DES_CACHE{ 'TABLE_DES' }{ $table }{ $category }{ $field } )
@@ -1414,7 +1402,7 @@ sub des_table_get_fields_list
 {
   my $table = shift;
 
-  my $des = describe_table( $table );
+  my $des = describe_table( $table ) or boom "unknown table [$table]"; # describe_table() returns undef for unknown table if not preloaded
   return $des->get_fields_list();
 }
 

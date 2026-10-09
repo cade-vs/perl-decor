@@ -15,6 +15,7 @@ use Exception::Sink;
 use Data::Tools;
 use Data::Tools::Socket;
 use Data::Structure::Util qw( unbless );
+use Time::JulianDay qw( gm_julian_day ); # ON_<method> NOW for DATE fields
 
 use Decor::Shared::Utils;
 use Decor::Core::Env;
@@ -76,7 +77,7 @@ my %DISPATCH_MAP = (
                                    'COMMIT'   => \&sub_commit,
                                    'ROLLBACK' => \&sub_rollback,
                                  },
-                                 
+
                    );
 
 my %MAP_SHORTCUTS = (
@@ -113,22 +114,22 @@ my %SELECT_WHERE_OPERATORS = (
                     '=='   => '=',
                     '<'    => '<',
                     '<='   => '<=',
-                    '=<'   => '<=',  # 
+                    '=<'   => '<=',  #
                     '>'    => '>',
                     '>='   => '>=',
                     '=>'   => '>=',  #
                     '<>'   => '<>',
                     'LIKE' => 'LIKE',
                     'IN'   => 'IN',
-                    'eq'   => '=',
-                    'lt'   => '<',
-                    'le'   => '<=',
-                    'gt'   => '>',
-                    'ge'   => '>=',
-                    'ne'   => '<>',
+                    'EQ'   => '=',  # keys must be upper case, OP is upper cased before lookup
+                    'LT'   => '<',
+                    'LE'   => '<=',
+                    'GT'   => '>',
+                    'GE'   => '>=',
+                    'NE'   => '<>',
 
                     'GREP' => 'GREP',
-                    'FTS'  => 'FTS', 
+                    'FTS'  => 'FTS',
                     '><'   => '><',
                     '=><'  => '=><',
                     '><='  => '><=',
@@ -158,7 +159,7 @@ sub subs_process_xt_message
   my $mi = shift;
   my $mo = shift;
   my $socket = shift;
-  
+
   my $xt = uc $mi->{ 'XT' };
 
   $xt = $MAP_SHORTCUTS{ $xt } if exists $MAP_SHORTCUTS{ $xt };
@@ -199,11 +200,11 @@ sub __sub_reset_state
 {
   subs_reset_dispatch_map();
   subs_reset_current_all();
-  
+
   %SELECT_MAP         = ();
   $SELECT_MAP_COUNTER = 0;
   $SELECT_MAP_COUNT   = 0;
-  
+
   return 1;
 }
 
@@ -227,7 +228,7 @@ sub __session_update_times
 
   my $atime = $session_rec->read( 'ATIME' );
   my $xtime = $session_rec->read( 'XTIME' );
-  
+
   # update access & expire time but not less than a minute away
   # however, reset timer if requested less than 60 seconds until expire
   return 0 unless $force or time() - $atime > 60 or $xtime - time() < 60;
@@ -242,14 +243,14 @@ sub __session_update_times
                        'ATIME' => time(),
                        'XTIME' => time() + $xtime,
                      );
-  
+
   return 1;
 }
 
 sub __session_check_xtime
 {
   my $session_rec = shift;
-  
+
   #print STDERR Dumper( '*' x 100, $session_rec, time() );
 
   # TODO: use variable-length or fixed-length sessions
@@ -265,14 +266,14 @@ sub __session_check_xtime
   # TODO: FIXME: IF: set last login session logout time in $user?
 
   __sub_reset_state();
-    
+
   die "E_SESSION_EXPIRED: user session expired";
 }
 
 sub __create_new_anon_session
 {
   my $remote = shift;
-  
+
   my $time_now = time(); # to keep the same time for all data here
 
   my $session_rec = new Decor::Core::DB::Record;
@@ -289,6 +290,17 @@ sub __create_new_anon_session
                      );
 
   __session_update_times( $session_rec, 1 );
+
+  __session_save_with_new_sid( $session_rec, 'ANON' );
+
+  return $session_rec;
+}
+
+# sets new random, unique SID and saves the session, used for new sessions and on login
+sub __session_save_with_new_sid
+{
+  my $session_rec = shift;
+  my $what        = shift; # for log/error messages only
 
   my $ss_time = time();
   while(4)
@@ -308,12 +320,12 @@ sub __create_new_anon_session
       }
     else
       {
-      de_log( "status: new ANON session created [$sid]" );
+      de_log( "status: new $what session SID set [$sid]" );
       last;
       }
     if( time() - $ss_time > 5 )
       {
-      die "E_SESSION: cannot create ANON session due to timeout";
+      die "E_SESSION: cannot create $what session due to timeout";
       }
     }
 
@@ -336,7 +348,7 @@ sub __sub_find_session
     $session_rec->finish();
     return $session_rec;
     }
-  
+
   die "E_SESSION: Session not found [$session_sid] from remote [$remote]";
   return undef; # never reached
 };
@@ -346,7 +358,7 @@ sub __setup_user_profile
   my $user_rec = shift;
 
   my $profile = new Decor::Core::Profile;
-  
+
   my $pass_xtime = $user_rec->read( 'PASS_XTIME' );
   if( $pass_xtime > 0 and $pass_xtime < time() )
     {
@@ -356,7 +368,7 @@ sub __setup_user_profile
   elsif( $user_rec->id() == 909 )
     {
     # anonymous connection
-    $profile->add_groups( 909 ); 
+    $profile->add_groups( 909 );
     $profile->remove_groups( 999, 900, 901 ); # everyone, nobody, noone
 
     # primary group
@@ -376,9 +388,9 @@ sub __setup_user_profile
 
     # enable root access if user is root (id==1)
     $profile->enable_root_access() if $user_rec->id() == 1;
-    }  
-    
-  return $profile;  
+    }
+
+  return $profile;
 }
 
 sub __sub_find_user
@@ -413,7 +425,7 @@ sub __sub_find_and_check_user_pass
   die "E_LOGIN: Invalid password for user [$user] "   if     $pass eq '';
 
   die "E_LOGIN: Wrong password for user [$user]" unless $user_rec->verify_password( $pass );
-  
+
   return $user_rec;
 };
 
@@ -422,7 +434,7 @@ sub __setup_user_inside
   my $user_rec    = shift;
   my $session_rec = shift;
   my $mo          = shift;
-  
+
   my $profile = __setup_user_profile( $user_rec );
 
   subs_reset_current_all();
@@ -459,7 +471,7 @@ sub sub_begin
     {
     $session_rec = __create_new_anon_session( $remote );
     }
-  elsif( $user_sid )  
+  elsif( $user_sid )
     {
     $session_rec = __sub_find_session( $user_sid, $remote );
     }
@@ -474,7 +486,14 @@ sub sub_begin
 
   my $user_rec = $session_rec->get_linked_record( 'USR' );
   boom "E_INTERNAL: cannot load USER for session [$user_sid] and remote [$remote]" unless $user_rec;
-  
+
+  # user may be deactivated or disabled after login, same checks as on login, ANON user has no such flags
+  if( $user_rec->id() != 909 )
+    {
+    die "E_SESSION: User not active"   unless $user_rec->read( 'ACTIVE'   ) > 0;
+    die "E_SESSION: User disabled"     if     $user_rec->read( 'DISABLED' ) > 0;
+    }
+
   __setup_user_inside( $user_rec, $session_rec, $mo );
 
   $mo->{ 'XS'    } = 'OK';
@@ -492,7 +511,7 @@ sub sub_login
   die "E_LOGIN: ANONYMOUS login is forbidden" if $user =~ /^(ANON|ANONYMOUS)$/;
 
   die "E_INTERNAL: invalid remote string" unless de_check_user_login_name( $remote );
-  
+
   my $user_rec = __sub_find_and_check_user_pass( $user, $pass );
 
   # TODO: allow/deny root login
@@ -505,7 +524,8 @@ sub sub_login
                           'REMOTE' => $remote,
                         );
   __session_update_times( $session_rec, 1 );
-  $session_rec->save();
+  # new SID on login, SID known before login (anon session) must not become authenticated
+  __session_save_with_new_sid( $session_rec, 'USER' );
   de_set_log_session( $session_rec->id() );
 
   __setup_user_inside( $user_rec, $session_rec, $mo );
@@ -575,7 +595,7 @@ sub sub_begin_prepare
   else
     {
     $mo->{ 'USER_SALT'  } = create_random_id( 128 );
-    }  
+    }
 
   $mo->{ 'XS'    } = 'OK';
   return 1;
@@ -613,7 +633,7 @@ sub sub_begin
     $profile->set_primary_group( 0 );
     subs_lock_current_profile( $profile );
     subs_set_dispatch_map( 'USER' );
-    
+
     $mo->{ 'UGS'   } = { 909 => 1 }; # user groups
     # TODO: expire time, further advise
     $mo->{ 'XTIME' } = -1; # ANON sessions are without limit
@@ -886,7 +906,7 @@ sub sub_describe
       delete $hrn->{ ':DESCRIBE_CB' };
       delete $hrn->{ ':SUPER_CB' };
       }
-    }  
+    }
 # print STDERR Dumper( '='x100, $new );
 
   $mo->{ 'DES'   } = $new;
@@ -906,6 +926,9 @@ sub sub_menu
 
   my $menu = de_menu_get( $menu_name );
 
+  # work on a copy, $menu is the shared cached menu, it must not be modified per user
+  my $new = clone( { %$menu } );
+
   if( ( $profile->has_root_access() or $profile->check_access( 966 ) ) and $menu_name eq '_DE_ALL_TABLES' )
     {
     my $tables = des_get_tables_list();
@@ -913,14 +936,12 @@ sub sub_menu
     my $o = 1;
     for my $table ( sort @$tables )
       {
-      $menu->{ $table }{ 'TYPE'   } = 'GRID';
-      $menu->{ $table }{ 'TABLE'  } = $table;
-      $menu->{ $table }{ 'GRANT'  }{ 'ACCESS' } = 1;
-      $menu->{ $table }{ '_ORDER' } = $o++;
+      $new->{ $table }{ 'TYPE'   } = 'GRID';
+      $new->{ $table }{ 'TABLE'  } = $table;
+      $new->{ $table }{ 'GRANT'  }{ 'ACCESS' } = 1;
+      $new->{ $table }{ '_ORDER' } = $o++;
       };
     }
-
-  my $new = clone( { %$menu } );
 
   for my $item ( @{ $new->{ '@' }{ '_ITEMS_LIST' } } )
     {
@@ -1055,7 +1076,7 @@ sub sub_select
     my $filter_name_sql = $tdes->{ 'FILTER' }{ 'DEFAULT_SELECT' }{ 'SQL_WHERE' };
     push @where, $filter_name_sql if $filter_name_sql;
     }
-  
+
   if( $filter_name )
     {
     if( des_exists_category( 'FILTER', $table, $filter_name ) )
@@ -1071,12 +1092,12 @@ sub sub_select
     else
       {
       boom "unknown FILTER_NAME name [$filter_name] for table [$table]";
-      }  
+      }
     }
 
   my $where_clause = join ' AND ', map { "( $_ )" } ( @$where, @where );
   my $where_bind   = [ @$bind, @bind ];
-  
+
   my $profile = subs_get_current_profile();
 
   my $select_handle;
@@ -1119,7 +1140,7 @@ sub sub_fetch
     {
     $SELECT_MAP{ $select_handle }{ '##' }++;
     }
-  else  
+  else
     {
     $mo->{ 'EOD'  } = 'YES'; # end of data
     $mo->{ 'XS'   } = 'OK';
@@ -1176,20 +1197,20 @@ sub sub_finish
 sub __inline_method_value
 {
   my $ftype =    shift;
-  my $value = uc shift;
+  my $value =    shift;
   my $rec   =    shift;
-  
+
   my @value = split /\s+/, $value;
 
-  my $cmd = shift @value;
-  
+  my $cmd = uc shift @value; # only command and field names are upper cased, SET value is kept as given
+
   return shift @value               if $cmd eq 'SET';
   return gm_julian_day(time())      if $cmd eq 'NOW' and $ftype eq 'DATE';
   return time()                     if $cmd eq 'NOW' and $ftype eq 'UTIME';
-  return $rec->read( shift @value ) if $cmd eq 'SELF';
-  return subs_get_current_user()->read( shift @value ) if $cmd eq 'USER';
-  return subs_get_current_session()->read( shift @value ) if $cmd eq 'SESS' or $cmd eq 'SESSION';
-  
+  return $rec->read( uc shift @value ) if $cmd eq 'SELF';
+  return subs_get_current_user()->read( uc shift @value ) if $cmd eq 'USER';
+  return subs_get_current_session()->read( uc shift @value ) if $cmd eq 'SESS' or $cmd eq 'SESSION';
+
   return undef;
 }
 
@@ -1201,10 +1222,10 @@ sub __exec_inline_method
   my $table = $rec->table();
   my $des   = describe_table( $table );
   my $sdes  = $des->get_table_des();
-  
+
   my $fields = $sdes->{ "ON_$method" };
   return unless @$fields;
-  
+
   for my $field ( @$fields )
     {
     my $fdes  = $des->get_field_des( $field );
@@ -1226,7 +1247,7 @@ sub __sub_attach_edit_cache_sid_to_rec
 
   my $sess = subs_get_current_session();
   my $sess_sid = $sess->read( 'SID' );
-  
+
   $rec->__edit_cache_set_key( $sess_sid . '.' . $esid );
 }
 
@@ -1386,6 +1407,7 @@ sub sub_update
   $rec->taint_mode_enable_all();
 
   my ( $where, $bind ) = __filter_to_where( $id > 0 ? { '_ID' => $id } : $filter, $table );
+  boom "E_ACCESS: UPDATE requires ID or non-empty FILTER, TABLE [$table]" unless @$where; # empty WHERE would update the first record of the table
   my $where_clause = join ' AND ', @$where;
 
   boom "E_ACCESS: unable to load requested record TABLE [$table] ID [$id]"
@@ -1431,11 +1453,11 @@ sub sub_delete
   boom "invalid TABLE name [$table]"    unless de_check_name( $table ) or ! des_exists( $table );
   boom "invalid ID [$id]"               if $id ne '' and ! de_check_id( $id );
   boom "invalid FILTER [$filter]"       unless ref( $filter ) eq 'HASH';
-  
+
   my $profile = subs_get_current_profile();
   boom "E_ACCESS: user group 967 has global write restriction" if ! $profile->has_root_access() and $profile->check_access( 967 ); # FIXME: move to common
   boom "E_ACCESS: access denied oper [DELETE] for table [$table]" unless $profile->check_access_table( 'DELETE', $table );
-  
+
   my ( $where, $bind ) = __filter_to_where( $id > 0 ? { '_ID' => $id } : $filter, $table );
   my $where_clause = join ' AND ', @$where;
 
@@ -1573,7 +1595,7 @@ sub sub_access
 {
   my $mi = shift;
   my $mo = shift;
-  
+
   my $table  = uc $mi->{ 'TABLE'  };
   my $id     =    $mi->{ 'ID'     };
   my $oper   = uc $mi->{ 'OPER'   };
@@ -1588,7 +1610,7 @@ sub sub_access
 
   my $profile = subs_get_current_profile();
   boom "E_ACCESS: access denied oper [$oper] for table [$table]" unless $profile->check_access_table( $oper, $table );
-  
+
   boom "E_ACCESS: access denied: invalid record ID [$id] for table [$table]" unless $id > 0;
 
   my $rec = new Decor::Core::DB::Record;
@@ -1605,7 +1627,7 @@ sub sub_access
 
   boom "E_ACCESS: method access denied oper [$oper] for table [$table] ID [$id]"
       if $rec->method_exists( 'ACCESS' ) and ! $rec->method( 'ACCESS', $oper );
-  
+
   $mo->{ 'XS'    } = 'OK';
 }
 
@@ -1635,7 +1657,7 @@ sub sub_file_save
 
   my $des = describe_table( $table );
   boom "E_ACCESS: FILE_SAVE access denied, table [$table] is not of type FILE" unless $des->get_table_type() eq 'FILE';
-  
+
   if( $id ne '' )
     {
     $rec->select( $table, '_ID = ?', { BIND => [ $id ] } );
@@ -1647,7 +1669,7 @@ sub sub_file_save
     else
       {
       boom "E_NOT_FOUND: FILE_LOAD access denied, FILE ID [$id] not found";
-      }  
+      }
     }
   else
     {
@@ -1658,7 +1680,7 @@ sub sub_file_save
   $rec->taint_mode_disable_all();
   $rec->write( NAME => $name, MIME => $mime, SIZE => $size, DES => $fdes );
   $rec->write( %$data );
-  
+
   my ( $fname, $fname_short ) = $rec->get_file_name();
   my $fname_part = $fname . '.part';
 
@@ -1671,7 +1693,7 @@ sub sub_file_save
       $rec->write( MIME => $mime );
       }
     }
-  
+
   $rec->write( SYS_FNAME => $fname_short );
 
   # FIXME: move to server IO like in Client IO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -1692,6 +1714,13 @@ sub sub_file_save
     }
   close( $fo );
 
+  if( $file_size > 0 )
+    {
+    # client disconnected or timed out, do not save the record or keep partial file
+    unlink( $fname_part );
+    boom "E_IO: FILE_SAVE incomplete upload, received [" . ( $size - $file_size ) . "] of [$size] bytes, TABLE [$table] ID [$id]";
+    }
+
   # FIXME: TODO: __exec_inline_method( $rec, 'INSERT' );
   $rec->method( 'FILE_SAVE' );
   $rec->save();
@@ -1702,7 +1731,7 @@ sub sub_file_save
 
   $mo->{ 'ID'   } = $rec->id();
   $mo->{ 'XS'   } = 'OK';
-  
+
   return 1;
 }
 
@@ -1728,7 +1757,7 @@ sub sub_file_load
 
   boom "E_ACCESS: FILE_LOAD access denied oper [READ] for table [$table]" unless $profile->check_access_table( 'READ', $table );
 
-  
+
   $rec->select( $table, '_ID = ?', { BIND => [ $id ] } );
   if( $rec->next() )
     {
@@ -1737,10 +1766,10 @@ sub sub_file_load
   else
     {
     boom "E_NOT_FOUND: FILE_LOAD access denied, FILE ID [$id] not found";
-    }  
+    }
 
   my ( $name, $mime, $size ) = $rec->read( qw( NAME MIME SIZE ) );
-  
+
   my $fname = $rec->get_file_name();
 
   $size = -s $fname; # physical file size is always better than database saved one :)
@@ -1753,7 +1782,7 @@ sub sub_file_load
   $mo->{ 'SIZE' } = $size;
   $mo->{ 'ID'   } = $rec->id();
   $mo->{ 'XS'   } = 'OK';
-  
+
   return 1;
 }
 

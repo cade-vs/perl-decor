@@ -364,7 +364,7 @@ sub check_access_row
 #print STDERR "--------------------------------check access row [$oper] [$table] [$dsrc] [---] ($sccnt)\n";
   for my $field ( @$fields )
     {
-    next unless $field =~ /^_${oper}(_[A-Z_0-9]+)?/;
+    next unless $field =~ /^_${oper}([_0-9][A-Z_0-9]*)?$/; # _OWNER, _OWNER2, _OWNER_X but not _OWNERSHIP, same as in Describe.pm and DB/IO.pm
 
     $sccnt++;
     my $grp = ref( $dsrc ) eq 'HASH' ? $dsrc->{ $field } : $dsrc->read( $field );
