@@ -11,10 +11,14 @@ package Decor::Core::Description::Table::Category::Self;
 use strict;
 
 use parent 'Decor::Core::Description::Table::Category';
-use parent 'Decor::Shared::Description::Table::Category';
+use parent 'Decor::Shared::Description::Table::Category::Self';
 
 ##############################################################################
 
+sub is_self_category
+{
+  return 1;
+}
 
 ### EOF ######################################################################
 1;

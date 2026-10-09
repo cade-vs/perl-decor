@@ -45,7 +45,7 @@ sub get_groups
 sub has_group
 {
   my $self   = shift;
-  
+
   return exists $self->get_groups()->{ shift() };
 }
 
@@ -66,16 +66,17 @@ sub is_disabled
 sub set_password
 {
   my $self   = shift;
-  
+
   my $pass   = shift;
-  
+
   # Hash a password
   my $salt    = create_random_id( 16 );
   my $encoded = argon2id_pass( $pass, $salt,  32, '32M', 1, 32 );
-  
+  # TODO: a tool to calibrate parameters for the local machine
+
   # PASS_SALT not needed in the case of using argon2
   $self->write( 'PASS' => $encoded, 'PASS_SALT' => $salt );
-  
+
   return 1;
 }
 
@@ -84,9 +85,9 @@ sub verify_password
   my $self   = shift;
 
   my $pass   = shift;
-  
+
   my $encoded = $self->read( 'PASS' );
-  
+
   return argon2_verify( $encoded, $pass );
 }
 

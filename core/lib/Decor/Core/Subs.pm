@@ -475,6 +475,10 @@ sub sub_begin
     {
     $session_rec = __sub_find_session( $user_sid, $remote );
     }
+  else
+    {
+    die "E_SESSION: missing USER_SID, expected session id or CREATE";
+    }
 
   # first check expire time
   __session_check_xtime(  $session_rec );
@@ -527,6 +531,12 @@ sub sub_login
   # new SID on login, SID known before login (anon session) must not become authenticated
   __session_save_with_new_sid( $session_rec, 'USER' );
   de_set_log_session( $session_rec->id() );
+
+  $user_rec->write(
+                    'LAST_LOGIN_SESSION' => $session_rec->id(),
+                    'LAST_LOGIN_TIME'    => time(),
+                  );
+  $user_rec->save();
 
   __setup_user_inside( $user_rec, $session_rec, $mo );
 
@@ -802,8 +812,6 @@ sub sub_check_user_password
   my $user_rec  = subs_get_current_user();
   my $user_pass = $user_rec->read( 'PASS' );
 
-  die "E_LOGIN: Invalid user [$user] password"   unless de_check_user_pass_digest( $pass );
-
   die "E_PASSWORD: Wrong password for user [$user]" unless $user_rec->verify_password( $pass );
 
   $mo->{ 'XS'    } = 'OK';
@@ -987,6 +995,11 @@ sub __filter_to_where
           {
           $val = [ $val ] if ref( $val ) eq '';
           my $vc = @$val;
+          if( $vc == 0 )
+            {
+            push @where, "1 = 0"; # empty IN list matches nothing, "IN ()" is invalid SQL
+            next;
+            }
           my @inph = ( '?' ) x $vc; # IN place holders
           my $inph = join ',', @inph;
 
@@ -1003,8 +1016,9 @@ sub __filter_to_where
           # between
           my $op1 = $SELECT_WHERE_OPERATORS{ $1 };
           my $op2 = $SELECT_WHERE_OPERATORS{ $2 };
-          my $lo = $ff->{ 'LO'  } || $ff->{ 'LOW'  } || $ff->{ 'FR' } ||  $ff->{ 'FROM' };
-          my $hi = $ff->{ 'HI'  } || $ff->{ 'HIGH' } || $ff->{ 'TO' };
+          # first given bound, 0 is a valid bound
+          my ( $lo ) = grep { defined and $_ ne '' } map { $ff->{ $_ } } qw( LO LOW FR FROM );
+          my ( $hi ) = grep { defined and $_ ne '' } map { $ff->{ $_ } } qw( HI HIGH TO     );
           push @where, ".$f $op1 ? AND .$f $op2 ?";
           push @bind, $lo, $hi;
           }
@@ -1146,7 +1160,7 @@ sub sub_fetch
     $mo->{ 'XS'   } = 'OK';
     }
 
-  if( de_code_exists( 'tables', $table, 'FETCH' ) )
+  if( $har and de_code_exists( 'tables', $table, 'FETCH' ) ) # no FETCH trigger call at end of data
     {
     de_code_exec( 'tables', $table, 'FETCH', $har, $dbio->get_select_fields() );
     }
