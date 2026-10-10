@@ -356,7 +356,7 @@ sub main
       }
 
 #    print STDERR Dumper( '**------*******---'x 10, $link_field_disable, $link_field_value, Dumper( $row_data ) );
-    if( $link_field_disable and exists $tdes->{ 'FIELD' }{ $link_field_disable } and $tdes->{ 'FIELD' }{ $link_field_disable }->allows( 'UPDATE' ) )
+    if( $link_field_disable and exists $tdes->{ 'FIELD' }{ $link_field_disable } and de_web_profile()->allows( $tdes->{ 'FIELD' }{ $link_field_disable }, 'UPDATE' ) )
       {
       my ( $detach_link_cue, $detach_link_cue_hint ) = de_web_get_cue( $tdes->{ 'FIELD' }{ $link_field_disable }, qw( WEB GRID DETACH_LINK_CUE   ) );
       # FIXME: check if this is only for backlinked data!?

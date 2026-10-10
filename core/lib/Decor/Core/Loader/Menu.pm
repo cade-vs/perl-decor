@@ -228,7 +228,14 @@ sub __merge_menu_file
       next;
       }
 
-    boom "invalid line [$line] in menu [$menu_name] at [$fname at $ln]";
+    de_log( "error: menu: invalid line [$line] in menu [$menu_name] at [$fname at $ln]" );
+    if( $line =~ /^=/ )
+      {
+      # invalid item name, the following attributes belong to it, the whole item is removed (see __INVALID)
+      $item_name = "__INVALID_ITEM_$ln";
+      $menu->{ $item_name }{ '__INVALID' }++;
+      $menu->{ $item_name }{ '_ORDER'    } = ++ $opt->{ '_ORDER' };
+      }
     }
   close( $inf );
 
