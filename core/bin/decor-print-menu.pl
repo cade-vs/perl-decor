@@ -12,19 +12,12 @@ use strict;
 
 use lib ( map { die "invalid DECOR_CORE_ROOT dir [$_]\n" unless -d; ( "$_/core/lib", "$_/shared/lib" ) } ( $ENV{ 'DECOR_CORE_ROOT' } || '/usr/local/decor' ) );
 
-use Time::HR;
-
-use Storable qw( dclone );
-use Data::Lock qw( dlock dunlock );
-use Data::Tools 1.09;
 
 use Data::Dumper;
 use Decor::Core::Boot;
 use Decor::Core::Debug;
-use Decor::Core::Profile;
 use Decor::Core::Loader::Menu;
 use Decor::Core::Log;
-use Decor::Shared::Config;
 
 $Data::Dumper::Sortkeys = 1;
 $Data::Dumper::Indent   = 3;
@@ -55,19 +48,19 @@ while( @ARGV )
     push @args, @ARGV;
     last;
     }
-  if( /^-d/ )
+  if( /^-d$/ )
     {
     my $level = de_debug_inc();
     print "option: debug level raised, now is [$level] \n";
     next;
     }
     
-  if( /^-v/ )
+  if( /^-v$/ )
     {
     $opt_verbose = 1;
     next;
     }
-  if( /-r(r)?/ )
+  if( /^-r(r)?$/ )
     {
     $DE_LOG_TO_STDERR = 1;
     $DE_LOG_TO_FILES  = $1 ? 1 : 0;
@@ -82,7 +75,7 @@ while( @ARGV )
   push @args, $_;
   }
 
-my $opt_app_name = shift @args;
+$opt_app_name = lc shift @args;
 
 de_boot( APP_NAME => $opt_app_name );
 

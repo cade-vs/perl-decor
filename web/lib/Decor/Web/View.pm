@@ -9,6 +9,7 @@
 ##############################################################################
 package Decor::Web::View;
 use strict;
+use Decor::Shared::Describe;
 use Data::Dumper;
 use Exception::Sink;
 use Time::JulianDay;
@@ -48,7 +49,7 @@ sub de_web_expand_resolve_fields_in_place
   my $basef  = shift; # base fields
 
   my @res_fields;
-  my $table = $tdes->get_table_name();
+  my $table = des_table_name( $tdes );
 
   #print STDERR Dumper( $fields, $tdes->{ 'FIELD' }, '---------------------------+++---'  );
   for( @$fields )
@@ -56,16 +57,16 @@ sub de_web_expand_resolve_fields_in_place
     # resolve fields
     if( /\./ )
       {
-      ( $bfdes->{ $_ }, $lfdes->{ $_ } ) = $tdes->resolve_path( $_ );
+      ( $bfdes->{ $_ }, $lfdes->{ $_ } ) = des_resolve( $tdes, $_ );
       $basef->{ $_ } = $bfdes->{ $_ }->{ 'NAME' };
       }
     else
       {
       boom "unknown FIELD NAME [$_] for TABLE [$table]" unless exists $tdes->{ 'FIELD' }{ $_ };
       my $fdes    = $tdes->{ 'FIELD' }{ $_ };
-      if( $fdes->is_linked() )
+      if( des_is_linked( $fdes ) )
         {
-        my ( $xf, $ldes ) = $fdes->expand_field_path();
+        my ( $xf, $ldes ) = des_field_expand_path( $fdes );
         $lfdes->{ $_  } = $ldes;
         $lfdes->{ $xf } = $ldes;
         $basef->{ $xf } = $fdes->{ 'NAME' };
@@ -113,23 +114,23 @@ sub de_web_format_field
 
 #boom "!!!!!!!!!!!!!!!!" unless $core;
 
-  my $table = $fdes->table();
-  my $fname = $fdes->name();
+  my $table = des_item_table( $fdes );
+  my $fname = des_item_name( $fdes );
   my $type_name  = $fdes->{ 'TYPE' }{ 'NAME'  };
   my $type_lname = $fdes->{ 'TYPE' }{ 'LNAME' };
 
-  my $editable = $opts->{ 'NO_EDIT' } ? undef : $fdes->get_attr( 'WEB', $vtype, 'EDITABLE' );
+  my $editable = $opts->{ 'NO_EDIT' } ? undef : des_get_attr( $fdes, 'WEB', $vtype, 'EDITABLE' );
 
   my $data_fmt;
   my $fmt_class;
 
-  my $password = ( $fdes->get_attr( 'PASSWORD' ) or $fname =~ /^PWD_/ ) ? 1 : 0;
+  my $password = ( des_get_attr( $fdes, 'PASSWORD' ) or $fname =~ /^PWD_/ ) ? 1 : 0;
 
-  my $web_display = $fdes->get_attr( 'WEB', $vtype, 'DISPLAY' );
+  my $web_display = des_get_attr( $fdes, 'WEB', $vtype, 'DISPLAY' );
 
   if( $type_name =~ /^(CHAR|INT|REAL)$/ and $web_display =~ /^progress(-bar)?/i )
     {
-    my $maxlen = $fdes->get_attr( 'WEB', $vtype, 'MAXLEN' );
+    my $maxlen = des_get_attr( $fdes, 'WEB', $vtype, 'MAXLEN' );
     $data_fmt = de_progress_bar( $field_data, $maxlen );
     }
   elsif( $type_name eq 'CHAR' )
@@ -139,7 +140,7 @@ sub de_web_format_field
 
     $data_fmt = "[~(hidden)]" if $password and $data_fmt ne '';
     
-    my $maxlen = $fdes->get_attr( 'WEB', $vtype, 'MAXLEN' );
+    my $maxlen = des_get_attr( $fdes, 'WEB', $vtype, 'MAXLEN' );
     if( $maxlen )
       {
       $maxlen = 16 if $maxlen == 0 and $maxlen == 1; # default
@@ -179,8 +180,8 @@ sub de_web_format_field
 
     $data_fmt = "&empty;" if $data_fmt eq '';
       
-    my $fmt_mono = $fdes->get_attr( 'WEB', $vtype, 'MONO' );
-    my $fmt_code = $fdes->get_attr( 'WEB', $vtype, 'CODE' );
+    my $fmt_mono = des_get_attr( $fdes, 'WEB', $vtype, 'MONO' );
+    my $fmt_code = des_get_attr( $fdes, 'WEB', $vtype, 'CODE' );
     if( $fmt_mono or $fmt_code )
       {
       $fmt_class .= " fmt-mono";
@@ -215,13 +216,13 @@ sub de_web_format_field
     {
     #$fmt_class .= $field_data > 0 ? " hi" : ""; # FIXME: move to field options
     $data_fmt = type_format( $field_data, $fdes->{ 'TYPE' } );
-    $data_fmt = type_format_human( $data_fmt, $fdes->{ 'TYPE' } ) unless $fdes->get_attr( 'WEB', $vtype, 'NO_HUMAN_FMT' );
+    $data_fmt = type_format_human( $data_fmt, $fdes->{ 'TYPE' } ) unless des_get_attr( $fdes, 'WEB', $vtype, 'NO_HUMAN_FMT' );
     }
   elsif( $type_name eq 'UTIME' or $type_name eq 'DATE' )
     {
     return '&empty;' if $field_data == 0;
     $data_fmt = type_format( $field_data, $fdes->{ 'TYPE' } );
-    my $details = $fdes->get_attr( 'WEB', $vtype, 'DETAILS' );
+    my $details = des_get_attr( $fdes, 'WEB', $vtype, 'DETAILS' );
 
     my $ud = $type_name eq 'UTIME' ? time() - $field_data : gm_julian_day(time()) - $field_data; # time delta
     if( $details )
@@ -251,25 +252,25 @@ sub de_web_format_field
       $data_fmt .= " <span class=details-text>$sep $diff</span>";
       }
     
-    if( $ud > 0 and $fdes->get_attr( 'WEB', $vtype, 'OVERDUE' ) )
+    if( $ud > 0 and des_get_attr( $fdes, 'WEB', $vtype, 'OVERDUE' ) )
       {
       $data_fmt = "<span class=warning>[~DUE]</span> " . $data_fmt;
       }
     
     }
-  elsif( $type_name eq 'LINK' and $editable and $fdes->allows( 'UPDATE' ) )
+  elsif( $type_name eq 'LINK' and $editable and de_web_profile()->allows( $fdes, 'UPDATE' ) )
     {
-    my ( $linked_table, $linked_field ) = $fdes->link_details();
+    my ( $linked_table, $linked_field ) = des_link_details( $fdes );
     my $ltdes = $core->describe( $linked_table );
-    my $lfdes = $ltdes->get_field_des( $linked_field );
+    my $lfdes = des_field_des( $ltdes, $linked_field );
 
     my $linked_data = $core->read_field( $linked_table, $linked_field, $field_data );
     $data_fmt = $field_data > 0 ? type_format( $linked_data, $lfdes->{ 'TYPE' } ) : '&empty;';
 
-    my $select_filter_name = $fdes->get_attr( 'WEB', 'SELECT_FILTER' );
+    my $select_filter_name = des_get_attr( $fdes, 'WEB', 'SELECT_FILTER' );
 
-    my $combo = $fdes->get_attr( qw( WEB COMBO ) );
-    my $radio = $fdes->get_attr( qw( WEB RADIO ) );
+    my $combo = des_get_attr( $fdes, qw( WEB COMBO ) );
+    my $radio = des_get_attr( $fdes, qw( WEB RADIO ) );
 
     my $spf_fmt;
     my @spf_fld;
@@ -286,7 +287,7 @@ sub de_web_format_field
       @spf_fld = @v;
       }
 
-    my @lfields = @{ $ltdes->get_fields_list_by_oper( 'READ' ) };
+    my @lfields = @{ des_fields_list_by_oper( $ltdes, 'READ', de_web_profile() ) };
     unshift @lfields, $linked_field;
 
     my %bfdes; # base/begin/origin field descriptions, indexed by field path
@@ -297,7 +298,7 @@ sub de_web_format_field
 
     my $lfields = join ',', '_ID', @lfields, values %basef;
 
-    my $combo_orderby = $fdes->get_attr( qw( WEB COMBO ORDERBY ) ) || join( ',', @spf_fld );
+    my $combo_orderby = des_get_attr( $fdes, qw( WEB COMBO ORDERBY ) ) || join( ',', @spf_fld );
     my $combo_select = $core->select( $linked_table, $lfields, { 'FILTER_NAME' => $select_filter_name, ORDER_BY => $combo_orderby } );
 
 
@@ -319,7 +320,7 @@ sub de_web_format_field
 
 #print STDERR "**************************************************************: " . Dumper( \@combo_data );
 
-    if( $fdes->get_attr( 'WEB', 'EDIT', 'MONO' ) )
+    if( des_get_attr( $fdes, 'WEB', 'EDIT', 'MONO' ) )
       {
       $fmt_class .= " fmt-mono";
       }
@@ -338,21 +339,21 @@ sub de_web_format_field
 
     $data_fmt = $combo_form_text;
     }
-  elsif( $fdes->is_linked() or $fdes->is_widelinked() )
+  elsif( des_is_linked( $fdes ) or des_is_widelinked( $fdes ) )
     {
     my ( $linked_table, $linked_id, $linked_field );
-    if( $fdes->is_widelinked() ) 
+    if( des_is_widelinked( $fdes ) ) 
       {
       ( $linked_table, $linked_id, $linked_field ) = type_widelink_parse2( $field_data );
 
       my $ltdes = $core->describe( $linked_table );
       if( $ltdes )
         {
-        my $linked_table_label = $ltdes->get_label();
+        my $linked_table_label = des_table_label( $ltdes );
         if( $linked_field )
           {
           $data_fmt = $core->read_field( $linked_table, $linked_field, $linked_id );
-          my $lfdes = $ltdes->get_field_des( $linked_field );
+          my $lfdes = des_field_des( $ltdes, $linked_field );
           $data_fmt  = de_web_format_field( $data_fmt, $lfdes, 'VIEW', { ID => $linked_id } );
           }
         else
@@ -367,9 +368,9 @@ sub de_web_format_field
       }
     else
       {
-      ( $linked_table, $linked_field ) = $fdes->link_details();
+      ( $linked_table, $linked_field ) = des_link_details( $fdes );
       my $ldes = $core->describe( $linked_table );
-      my ( $linked_field_x, $linked_field_x_des ) = $ldes->get_field_des( $linked_field )->expand_field_path();
+      my ( $linked_field_x, $linked_field_x_des ) = des_field_des( $ldes, $linked_field )->expand_field_path();
 
       if( $field_data > 0 )
         {
@@ -382,16 +383,16 @@ sub de_web_format_field
         }  
       }  
     }
-  elsif( $fdes->is_map() )
+  elsif( des_is_map( $fdes ) )
     {
     $data_fmt = join '', map { "* $_<br>" } @{ de_get_selected_map_names( $core, $fdes, $id ) };
     }
-  elsif( $fdes->is_backlinked() )
+  elsif( des_is_backlinked( $fdes ) )
     {
-    my ( $backlinked_table, $backlinked_field ) = $fdes->backlink_details();
+    my ( $backlinked_table, $backlinked_field ) = des_backlink_details( $fdes );
     
     my $bltdes = $core->describe( $backlinked_table );
-    my $linked_table_label = $bltdes->get_label();
+    my $linked_table_label = des_table_label( $bltdes );
 
     my $count = $field_data || $core->count( $backlinked_table, { FILTER => { $backlinked_field => $id } });
     $count = 'Unknown' if $count eq '';
@@ -432,7 +433,7 @@ sub de_data_grid
   my $order_by = $opt->{ 'ORDER_BY' } || $tdes->{ '@' }{ 'ORDER_BY' } || '._ID DESC';
   my $sums     = $opt->{ 'SUMS'     };
 
-  $fields = $tdes->get_fields_list() if $fields eq '*';
+  $fields = des_fields_list( $tdes ) if $fields eq '*';
   
   my @fields = ref( $fields ) eq 'ARRAY' ? @$fields : split /\s*,\s*/, $fields;
   
@@ -478,11 +479,11 @@ sub de_data_grid
 
     my $base_field = $bfdes->{ 'NAME' };
 
-    my $blabel    = $bfdes->get_attr( qw( WEB GRID LABEL ) );
+    my $blabel    = des_get_attr( $bfdes, qw( WEB GRID LABEL ) );
     my $label     = "$blabel";
     if( $bfdes ne $lfdes )
       {
-      my $llabel     = $lfdes->get_attr( qw( WEB GRID LABEL ) );
+      my $llabel     = des_get_attr( $lfdes, qw( WEB GRID LABEL ) );
       $label .= "/$llabel";
       }
 
@@ -516,7 +517,7 @@ sub de_data_grid
       my $type_name = $lfdes->{ 'TYPE' }{ 'NAME' };
       my $fmt_class = $FMT_CLASSES{ $type_name } || 'fmt-left';
 
-      my $lpassword = $lfdes->get_attr( 'PASSWORD' ) ? 1 : 0;
+      my $lpassword = des_get_attr( $lfdes, 'PASSWORD' ) ? 1 : 0;
 
       my $base_field = exists $basef{ $field } ? $basef{ $field } : $field;
 
@@ -593,7 +594,7 @@ sub de_data_view
   my @fields;
   if( $fields eq '*' )
     {
-    @fields = @{ $tdes->get_fields_list_by_oper( 'READ' ) };
+    @fields = @{ des_fields_list_by_oper( $tdes, 'READ', de_web_profile() ) };
     }
   else
     {
@@ -632,9 +633,9 @@ sub de_data_view
     my $type_name  = $lfdes->{ 'TYPE' }{ 'NAME'  };
     my $type_lname = $lfdes->{ 'TYPE' }{ 'LNAME' };
 
-    my $lpassword = $lfdes->get_attr( 'PASSWORD' ) ? 1 : 0;
+    my $lpassword = des_get_attr( $lfdes, 'PASSWORD' ) ? 1 : 0;
 
-    my $label     = $bfdes->get_attr( qw( WEB VIEW LABEL ) );
+    my $label     = des_get_attr( $bfdes, qw( WEB VIEW LABEL ) );
 
     my $base_field = exists $basef{ $field } ? $basef{ $field } : $field;
 
@@ -645,7 +646,7 @@ sub de_data_view
     my $field_details;
     my $no_layout_ctrls = 0;
 
-    my $overflow  = $bfdes->get_attr( qw( WEB VIEW OVERFLOW ) );
+    my $overflow  = des_get_attr( $bfdes, qw( WEB VIEW OVERFLOW ) );
     if( $overflow )
       {
       $data_fmt = str_html_escape( $data_fmt );
@@ -663,7 +664,7 @@ sub de_data_view
       # $data_fmt = de_html_alink_button( $reo, 'new', " <img src=i/map_location.svg> $data_fmt", "[~View map location]", ACTION => 'map_location', LL => $data );
       }
 
-    my $divider = $bfdes->get_attr( 'WEB', 'DIVIDER' );
+    my $divider = des_get_attr( $bfdes, 'WEB', 'DIVIDER' );
     if( $divider )
       {
       $text .= "<div class='view-divider view-sep record-sep fmt-center'>$divider</div>";
@@ -706,12 +707,12 @@ sub de_master_record_view
   return undef unless $master_record_table and $master_record_id;
 
   my $tdes = $core->describe( $master_record_table );
-  my $sdes = $tdes->get_table_des(); # table "Self" description
-  my $table_label = $tdes->get_label();
-  my $master_fields = uc $sdes->get_attr( qw( WEB MASTER_FIELDS ) ) or return undef;
+  my $sdes = des_table_des( $tdes ); # table "Self" description
+  my $table_label = des_table_label( $tdes );
+  my $master_fields = uc des_get_attr( $sdes, qw( WEB MASTER_FIELDS ) ) or return undef;
 
   #return de_data_grid( $core, $linked_table, $master_fields, { FILTER => { '_ID' => $link_id }, LIMIT => 1, CLASS => 'grid view record', TITLE => "[~Master record from] $linked_table_label" } ) if $master_fields;
-  my $title = $tdes->get_s() || "[~Master record from] $table_label";
+  my $title = des_table_s( $tdes ) || "[~Master record from] $table_label";
   return "<p>" . de_data_view( $core, $master_record_table, $master_fields, $master_record_id, { CLASS => 'view record', TITLE => $title } );
 }
 

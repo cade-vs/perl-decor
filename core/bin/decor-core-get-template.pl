@@ -12,6 +12,7 @@ use strict;
 use lib ( map { die "invalid DECOR_CORE_ROOT dir [$_]\n" unless -d; ( "$_/core/lib", "$_/shared/lib" ) } ( $ENV{ 'DECOR_CORE_ROOT' } || '/usr/local/decor' ) );
 use Term::ReadKey;
 use Decor::Core::Env;
+use Decor::Core::Boot;
 use Decor::Core::Debug;
 use Decor::Core::Log;
 use Decor::Core::Loader::Table;
@@ -50,14 +51,14 @@ while( @ARGV )
     push @args, @ARGV;
     last;
     }
-  if( /-r(r)?/ )
+  if( /^-r(r)?$/ )
     {
     $DE_LOG_TO_STDERR = 1;
     $DE_LOG_TO_FILES  = $1 ? 1 : 0;
     print "option: forwarding logs to STDERR\n";
     next;
     }
-  if( /^-d/ )
+  if( /^-d$/ )
     {
     my $level = de_debug_inc();
     print "option: debug level raised, now is [$level] \n";
@@ -85,7 +86,7 @@ else
 
 #-----------------------------------------------------------------------------
 
-de_init( APP_NAME => $opt_app_name );                                                                                           
+de_boot( APP_NAME => $opt_app_name );                                                                                           
 my $root = de_root();
 
 for( @args )

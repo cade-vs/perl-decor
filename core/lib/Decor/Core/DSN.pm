@@ -21,6 +21,7 @@ use Data::Dumper;
 use Decor::Shared::Config;
 use Decor::Core::Env;
 use Decor::Core::Loader::Table;
+use Decor::Shared::Describe;
 use Decor::Core::Log;
 
 use Exporter;
@@ -134,7 +135,10 @@ sub __dsn_dbh_connect
                            'ShowErrorStatement' => 1,
                          } 
                        );
-    
+
+    # FIXME: DBI dies here itself (RaiseError), but if a driver returns undef instead,
+    #        the next line autovivifies $dbh into a plain hash, $@ stays empty and the
+    #        failure surfaces later as "Can't call method ... on unblessed reference"
     $dbh->{ 'LongReadLen' } = 4096; # FIXME: TODO: get from config
     };
   alarm(0); # reset alarm
@@ -185,7 +189,7 @@ sub dsn_get_dbh_by_table
     return $DSN_TABLE_DBH_CACHE{ $table };
     }
   
-  my $des = load_table( $table );
+  my $des = des_describe( $table );
   my $dsn = $des->{ '@' }{ 'DSN' };
 
   my $dbh = dsn_get_dbh_by_name( $dsn );
@@ -205,7 +209,7 @@ sub dsn_get_db_name_by_table
   
   my $des = load_table( $table );
   boom "unknown table [$table]" unless $des;
-  my $db_name = dsn_get_db_name( $des->get_dsn_name() );
+  my $db_name = dsn_get_db_name( des_dsn_name( $des ) );
 
   $DSN_TABLE_DB_NAME_CACHE{ $table } = $db_name;
   

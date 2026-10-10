@@ -147,6 +147,7 @@ sub __des_describe_soft
   return undef unless uc( $t ) =~ /^[A-Z_0-9]+$/;
 
   my $tdes = eval { des_describe( $t ) };
+  die $@ if ! $tdes and $@ !~ /unknown table/; # real error (load error in a .def, source not set), must not look like unknown table
   return $tdes;
 }
 
@@ -164,7 +165,12 @@ sub des_exists
   my $tdes = __des_describe_soft( $t ) or return 0;
   return 1 unless defined $path and $path ne '';
 
-  my $fdes = eval { scalar des_resolve( $tdes, $path ) } or return 0;
+  my $fdes = eval { scalar des_resolve( $tdes, $path ) };
+  if( ! $fdes )
+    {
+    die $@ if $@ !~ /unknown (table|category)|non-linked field|cannot be crossed/; # real error (load error in a linked table .def) must not look like missing field
+    return 0;
+    }
   return 2 unless defined $attr and $attr ne '';
 
   return exists $fdes->{ uc $attr } ? 3 : 0;
@@ -183,10 +189,12 @@ sub des_exists_category
   my $tdes = __des_describe_soft( $t ) or return 0;
   return 1 if $item eq '';
 
-  return 0 unless exists $tdes->{ $cat } and exists $tdes->{ $cat }{ $item };
+  # '@' item is shortcut to table self, regardless category, same as des_category_des()
+  my $ides = $item eq '@' ? $tdes->{ '@' } : ( exists $tdes->{ $cat } and exists $tdes->{ $cat }{ $item } ) ? $tdes->{ $cat }{ $item } : undef;
+  return 0 unless $ides;
   return 2 if $attr eq '';
 
-  return exists $tdes->{ $cat }{ $item }{ $attr } ? 3 : 0;
+  return exists $ides->{ $attr } ? 3 : 0;
 }
 
 sub des_exists_boom
@@ -381,12 +389,12 @@ sub des_fields_list_by_oper
 ### ITEM #####################################################################
 
 # table name the item belongs to, TABLE back reference is set by the loader
-# on all items (self '@', fields, DOs, ACTIONs), _TABLE_NAME kept as fallback
+# on all items (self '@', fields, DOs, ACTIONs, INDEXes, FILTERs), _TABLE_NAME kept as fallback
 sub des_item_table
 {
   my $des = shift;
 
-  my $table = $des->{ 'TABLE' } || $des->{ '_TABLE_NAME' };
+  my $table = ( exists $des->{ 'TABLE' } and $des->{ 'TABLE' } ) || ( exists $des->{ '_TABLE_NAME' } and $des->{ '_TABLE_NAME' } ); # items are locked, missing keys must not be read
   boom "description item [$des->{ 'NAME' }] has no table reference (TABLE)" unless $table;
 
   return $table;
@@ -587,6 +595,7 @@ sub des_resolve
 
   while( @path )
     {
+    boom "during path resolve of [$path] table self [\@] cannot be crossed" if $f eq '@';
     boom "during path resolve of [$path] non-linked field [$f] is found" unless des_is_linked( $cfdes );
 
     my ( $table ) = des_link_details( $cfdes );

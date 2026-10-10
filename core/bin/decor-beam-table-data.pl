@@ -27,7 +27,7 @@ use Crypt::CBC;
 use MIME::Base64;
 use Data::HexDump;
 
-use Decor::Core::Env;
+use Decor::Core::Boot;
 use Decor::Core::Debug;
 use Decor::Shared::Config;
 use Decor::Core::Profile;
@@ -70,19 +70,19 @@ while( @ARGV )
     push @args, @ARGV;
     last;
     }
-  if( /^-d/ )
+  if( /^-d$/ )
     {
     my $level = de_debug_inc();
     print "option: debug level raised, now is [$level] \n";
     next;
     }
     
-  if( /^-v/ )
+  if( /^-v$/ )
     {
     $opt_verbose = 1;
     next;
     }
-  if( /^-r(r)?/ )
+  if( /^-r(r)?$/ )
     {
     $DE_LOG_TO_STDERR = 1;
     $DE_LOG_TO_FILES  = $1 ? 1 : 0;
@@ -99,7 +99,7 @@ while( @ARGV )
 
 my $opt_app_name = shift @args;
 
-de_init( APP_NAME => $opt_app_name );
+de_boot( APP_NAME => $opt_app_name );
 
 my $cfn = shift @args;
 my $cfg = terse_config_load( $cfn );

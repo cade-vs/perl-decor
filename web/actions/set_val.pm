@@ -9,6 +9,7 @@
 ##############################################################################
 package decor::actions::set_val;
 use strict;
+use Decor::Shared::Describe;
 use Web::Reactor::HTML::Utils;
 use Web::Reactor::HTML::Layout;
 use Decor::Web::HTML::Utils;
@@ -37,8 +38,8 @@ sub main
 
   my $data = $core->read_field( $table, $fname, $id );
 
-  my $fdes = $tdes->get_field_des( $fname );
-  my $fname_ex = $fdes->expand_field_path();
+  my $fdes = des_field_des( $tdes, $fname );
+  my $fname_ex = des_field_expand_path( $fdes );
 
   my %bfdes; # base/begin/origin field descriptions, indexed by field path
   my %lfdes; # linked/last       field descriptions, indexed by field path, pointing to trail field

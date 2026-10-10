@@ -214,6 +214,8 @@ sub allows
   my $des  = shift;
   my $oper = uc shift;
 
+  $des = $des->{ '@' } if ref( $des ) and exists $des->{ '@' }; # whole table description given, check its self item
+
   return 0 if $self->match_tree( $des->{ 'DENY'  }, $oper );
   return 1 if $self->match_tree( $des->{ 'GRANT' }, $oper );
   return 0;

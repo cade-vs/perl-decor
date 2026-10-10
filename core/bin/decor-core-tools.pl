@@ -11,11 +11,12 @@
 use strict;
 use lib ( map { die "invalid DECOR_CORE_ROOT dir [$_]\n" unless -d; ( "$_/core/lib", "$_/shared/lib" ) } ( $ENV{ 'DECOR_CORE_ROOT' } || '/usr/local/decor' ) );
 use Term::ReadKey;
-use Decor::Core::Env;
+use Decor::Core::Boot;
 use Decor::Core::Debug;
 use Decor::Core::DSN;
 use Decor::Core::Log;
 use Decor::Core::Loader::Table;
+use Decor::Shared::Describe;
 use Decor::Core::DB::Record;
 use Decor::Core::DB::IO;
 use Decor::Core::Shop;
@@ -26,7 +27,6 @@ use Data::Dumper;
 $|++;
 
 my $opt_app_name;
-my $opt_all_yes;
 
 our $help_text = <<END;
 usage: $0 <options> application_name command args
@@ -34,7 +34,6 @@ options:
     -d        -- increase DEBUG level (can be used multiple times)
     -r        -- log to STDERR
     -rr       -- log to both files and STDERR
-    -y        -- assume "yes" answer to all questions :)
     --        -- end of options
 commands:    
   list-users
@@ -72,23 +71,17 @@ while( @ARGV )
     push @args, @ARGV;
     last;
     }
-  if( /-r(r)?/ )
+  if( /^-r(r)?$/ )
     {
     $DE_LOG_TO_STDERR = 1;
     $DE_LOG_TO_FILES  = $1 ? 1 : 0;
     print "option: forwarding logs to STDERR\n";
     next;
     }
-  if( /^-d/ )
+  if( /^-d$/ )
     {
     my $level = de_debug_inc();
     print "option: debug level raised, now is [$level] \n";
-    next;
-    }
-  if( /^-y/ )
-    {
-    $opt_all_yes = 1;
-    print "option: assuming 'yes' to all questions \n";
     next;
     }
   if( /^(--?h(elp)?|help)$/io )
@@ -99,7 +92,7 @@ while( @ARGV )
   push @args, $_;
   }
 
-my $opt_app_name = lc shift @args;
+$opt_app_name = lc shift @args;
 
 if( $opt_app_name =~ /^[A-Z_0-9]+$/i )
   {
@@ -115,7 +108,7 @@ de_set_log_prefix( 'decor-core-tools' );
 
 #-----------------------------------------------------------------------------
 
-de_init( APP_NAME => $opt_app_name );
+de_boot( APP_NAME => $opt_app_name );
 
 my $cmd = lc shift @args;
 
@@ -242,7 +235,7 @@ sub cmd_create_group
   $grp_rec->save();
   $grp_rec->commit();
   
-  my $gid = $grp_rec->id();
+  $gid = $grp_rec->id();
   print "info: new group [$grp] created with id [$gid]\n";
 }
 
@@ -257,10 +250,6 @@ sub cmd_user_pwd
   
   my $user_rec = find_user( $user );
 
-  $user_rec->write( 
-                    NAME      => $user, 
-                    ACTIVE    => 1,
-                  );
   $user_rec->set_password( $pass );
   
   $user_rec->save();
@@ -350,7 +339,6 @@ sub cmd_list_users
   my @ids   = grep { $_ =~ /^\d+$/ } @args;
   my @names = grep { $_ =~ /\D/ } @args;
 
-  my $bind_names = join ',', @names;
   my @where;
   my @bind;
   
@@ -525,11 +513,10 @@ sub ubc
 
   for my $t ( @tables )
     {
-    my $des = load_table( $t );
-    my $fields = $des->get_fields_list();
+    my $fields = des_fields_list( $t );
     for my $f ( @$fields )
       {
-      my $fld_des = $des->get_field_des( $f );
+      my $fld_des = des_field_des( $t, $f );
       next unless $fld_des->{ 'TYPE' }{ 'NAME' } eq 'BACKLINK';
       my $bt = $fld_des->{ 'BACKLINKED_TABLE' };
       my $bk = $fld_des->{ 'BACKLINKED_KEY'   };

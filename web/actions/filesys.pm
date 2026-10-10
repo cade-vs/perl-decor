@@ -9,6 +9,7 @@
 ##############################################################################
 package decor::actions::filesys;
 use strict;
+use Decor::Shared::Describe;
 use Web::Reactor::HTML::Utils;
 use Decor::Web::HTML::Utils;
 use Decor::Web::View;
@@ -48,9 +49,9 @@ sub main
 
   my $core = $reo->de_connect();
   my $tdes = $core->describe( $table );
-  my $sdes = $tdes->get_table_des();
+  my $sdes = des_table_des( $tdes );
 
-  my $table_label = $tdes->get_label();
+  my $table_label = des_table_label( $tdes );
 
   $reo->ps_path_add( 'filesys', qq( [~List files from] "<b>$table_label</b>" ) );
 
@@ -71,9 +72,9 @@ sub main
 
 sub __resolve_path
 {
-  $core     = shift;
-  $table    = shift;
-  $root_dir = shift;
+  my $core     = shift;
+  my $table    = shift;
+  my $root_dir = shift;
   
   return 0;
 }  

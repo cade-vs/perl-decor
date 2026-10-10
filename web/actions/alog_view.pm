@@ -9,6 +9,7 @@
 ##############################################################################
 package decor::actions::alog_view;
 use strict;
+use Decor::Shared::Describe;
 use Web::Reactor::HTML::Utils;
 use Web::Reactor::HTML::Layout;
 use Decor::Web::HTML::Utils;
@@ -29,16 +30,16 @@ sub main
   my $oid    = $reo->param( 'OID'    );
 
   my $tdes = $core->describe( $table );
-  my $sdes = $tdes->get_table_des(); # table "Self" description
+  my $sdes = des_table_des( $tdes ); # table "Self" description
 
-  my $select = $core->select( 'DE_ALOG', 'USR,USR.USERNAME,SESS,SESS.CTIME,OPER,CTIME,DATA', { FILTER => { TAB => $table, OID => $oid }, ORDER_BY => '._ID ASC' } );
+  my $select = $core->select( 'DE_ALOG', 'USR,USR.NAME,SESS,SESS.CTIME,OPER,CTIME,DATA', { FILTER => { TAB => $table, OID => $oid }, ORDER_BY => '._ID ASC' } );
 
   my $c = 1;
   my $last_data = {};
   while( my $row_data = $core->fetch( $select ) )
     {
     my $user       = $row_data->{ 'USR' };
-    my $username   = $row_data->{ 'USR.USERNAME' };
+    my $username   = $row_data->{ 'USR.NAME' };
     my $sess       = $row_data->{ 'SESS' };
     my $sess_ctime = type_format( $row_data->{ 'SESS.CTIME' }, 'UTIME' );
     my $oper       = $row_data->{ 'OPER' };
@@ -59,14 +60,14 @@ sub main
       my $fr = $last_data->{ $f };
       my $to =      $data->{ $f };
 
-      my $fdes = $tdes->get_field_des( $f );
+      my $fdes = des_field_des( $tdes, $f );
       
       $fr = de_web_format_field( $fr, $fdes, 'VIEW', { ID => $oid, CORE => $core } );
       $to = de_web_format_field( $to, $fdes, 'VIEW', { ID => $oid, CORE => $core } );
 
       next if $fr eq $to;
 
-      my $label = $fdes->get_attr( qw( WEB VIEW LABEL ) );
+      my $label = des_get_attr( $fdes, qw( WEB VIEW LABEL ) );
       
       $text .= "<div class='record-field-value'>
                   <div class='view-field record-field' >$label</div>

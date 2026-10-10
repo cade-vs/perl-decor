@@ -17,9 +17,11 @@ use Exception::Sink;
 use Data::Dumper;
 
 use Decor::Core::Env;
+use Decor::Core::Boot;
 use Decor::Core::Debug;
 #use Decor::Core::Config;
 use Decor::Core::Loader::Table;
+use Decor::Shared::Describe;
 use Decor::Core::DSN;
 use Decor::Core::Profile;
 use Decor::Core::Log;
@@ -63,7 +65,7 @@ while( @ARGV )
     push @args, @ARGV;
     last;
     }
-  if( /-f(s)?/ )
+  if( /^-f(s)?$/ )
     {
     $opt_recreate = 1;
     $opt_confirm_first = 1;
@@ -74,19 +76,19 @@ while( @ARGV )
     print "option: will consider and DECOR system tables\n";
     next;
     }
-  if( /-o/ )
+  if( /^-o$/ )
     {
     $opt_confirm_first = 1;
     print "option: ask confirmation before executing tasks\n";
     next;
     }
-  if( /^-d/ )
+  if( /^-d$/ )
     {
     my $level = de_debug_inc();
     print "option: debug level raised, now is [$level] \n";
     next;
     }
-  if( /-r(r)?/ )
+  if( /^-r(r)?$/ )
     {
     $DE_LOG_TO_STDERR = 1;
     $DE_LOG_TO_FILES  = $1 ? 1 : 0;
@@ -110,7 +112,7 @@ print "info: ALL database objects will be handled\n" unless @args;
 
 #-----------------------------------------------------------------------------
 
-de_init( APP_NAME => $opt_app_name );
+de_boot( APP_NAME => $opt_app_name );
 
 my $root = de_root();
 
@@ -142,9 +144,9 @@ for my $table ( sort @tables )
   print "rebuilding table: ($cc/$ac/$prc%) $table\n";
   my $des = load_table( $table );
   my $dbh = dsn_get_dbh_by_table( $table );
-  my $db_name = dsn_get_db_name( $des->get_dsn_name() );
+  my $db_name = dsn_get_db_name( des_dsn_name( $des ) );
 
-  my $dbo = get_rebuild_obj( $des->get_dsn_name(), $db_name, $dbh );
+  my $dbo = get_rebuild_obj( des_dsn_name( $des ), $db_name, $dbh );
 
   #print Dumper( $des, $db_name );
   
@@ -189,15 +191,15 @@ sub rebuild_table
   my $dbo  = shift;
   my $des  = shift;
   
-  my $table     = $des->get_table_name();
-  my $db_table  = $des->get_db_table_name();
-  my $table_des = $des->get_table_des();
+  my $table     = des_table_name( $des );
+  my $db_table  = des_db_table_name( $des );
+  my $table_des = des_table_des( $des );
   my $schema    = $table_des->{ 'SCHEMA' };
   
   # handle tables -------------------------------
   my $table_db_des = $dbo->describe_db_table( $table, $schema );
   
-  if( $des->is_virtual() )
+  if( des_is_virtual( $des ) )
     {
     de_log( "status: table [$table] is VIRTUAL: will be skipped!" );
     return;
@@ -248,10 +250,10 @@ sub rebuild_table
 
   my $dbh = $dbo->get_dbh();
 
-  my $indexes = $des->get_indexes_list();
+  my $indexes = des_indexes_list( $des );
   for my $index ( @$indexes )
     {
-    my $idx_des = $des->get_index_des( $index );
+    my $idx_des = des_index_des( $des, $index );
     my $unique =    $idx_des->{ 'UNIQUE' };
     my $fields = uc $idx_des->{ 'FIELDS' };
     
@@ -276,12 +278,12 @@ sub rebuild_table
     {
     de_log( "info: missing base record in table [$table], will recreate it" );
     my $des = load_table( $table );
-    my $fields = $des->get_fields_list();
+    my $fields = des_fields_list( $des );
 
     my %base_data;
     for my $field ( @$fields )
       {
-      my $fdes = $des->get_field_des( $field );
+      my $fdes = des_field_des( $des, $field );
       my $type_name = $fdes->{ 'TYPE' }{ 'NAME' };
       # TODO: is it enough to check for non-CHAR and set them to zero?
       $base_data{ $field } = $type_name eq 'CHAR' ? '' : 0;
@@ -298,8 +300,8 @@ sub table_drop
   my $dbo  = shift;
   my $des  = shift;
   
-  my $table    = $des->get_table_name();
-  my $db_table = $des->get_db_table_name();
+  my $table    = des_table_name( $des );
+  my $db_table = des_db_table_name( $des );
   
   my $dbh = $dbo->get_dbh();
   my $sql_stmt = "DROP TABLE $db_table";
@@ -313,15 +315,15 @@ sub table_create
   my $dbo  = shift;
   my $des  = shift;
   
-  my $table    = $des->get_table_name();
-  my $db_table = $des->get_db_table_name();
+  my $table    = des_table_name( $des );
+  my $db_table = des_db_table_name( $des );
 
   my @sql_columns;
 
-  my $fields = $des->get_fields_list();
+  my $fields = des_fields_list( $des );
   for my $field ( @$fields )
     {
-    my $fld_des = $des->get_field_des( $field );
+    my $fld_des = des_field_des( $des, $field );
 
     my $type = $fld_des->{ 'TYPE' }{ 'NAME' };
     my $len  = $fld_des->{ 'TYPE' }{ 'LEN'  };
@@ -359,17 +361,17 @@ sub table_alter
   
   #print Dumper( $table_db_des );
   
-  my $table    = $des->get_table_name();
-  my $db_table = $des->get_db_table_name();
+  my $table    = des_table_name( $des );
+  my $db_table = des_db_table_name( $des );
 
   my @sql_columns;
   my @sql_zero;
 
-  my $fields = $des->get_fields_list();
+  my $fields = des_fields_list( $des );
   my $add_columns = 0;
   for my $field ( @$fields )
     {
-    my $fld_des = $des->get_field_des( $field );
+    my $fld_des = des_field_des( $des, $field );
 
     my $type      = $fld_des->{ 'TYPE' };
     my $type_name = $type->{ 'NAME' };
@@ -436,8 +438,8 @@ sub sequence_create
   my $des  = shift;
   my $start_with = shift;
   
-  my $table    = $des->get_table_name();
-  my $db_seq   = $des->get_db_sequence_name();
+  my $table    = des_table_name( $des );
+  my $db_seq   = des_db_sequence_name( $des );
 
   $dbo->sequence_create( $des, $start_with );
   de_log( "info: create sequence for table [$table] db sequence [$db_seq] start with [$start_with]" );
@@ -450,8 +452,8 @@ sub sequence_drop
   my $dbo  = shift;
   my $des  = shift;
   
-  my $table    = $des->get_table_name();
-  my $db_seq   = $des->get_db_sequence_name();
+  my $table    = des_table_name( $des );
+  my $db_seq   = des_db_sequence_name( $des );
   
   $dbo->sequence_drop( $des );
   de_log( "info: drop sequence for table [$table] db sequence [$db_seq]" );
@@ -465,8 +467,8 @@ sub sequence_alter
   my $des  = shift;
   my $start_with = shift;
 
-  my $table    = $des->get_table_name();
-  my $db_seq   = $des->get_db_sequence_name();
+  my $table    = des_table_name( $des );
+  my $db_seq   = des_db_sequence_name( $des );
 
   my $current = $dbo->sequence_get_current_value( $des );
   

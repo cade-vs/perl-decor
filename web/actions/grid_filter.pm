@@ -9,6 +9,7 @@
 ##############################################################################
 package decor::actions::grid_filter;
 use strict;
+use Decor::Shared::Describe;
 use Data::Dumper;
 use Exception::Sink;
 
@@ -41,18 +42,18 @@ sub main
 
   my $core = $reo->de_connect();
   my $tdes = $core->describe( $table );
-  my $sdes = $tdes->get_table_des(); # table "Self" description
+  my $sdes = des_table_des( $tdes ); # table "Self" description
 
-  my $table_label = $tdes->get_label();
+  my $table_label = des_table_label( $tdes );
 
-  my @fields = @{ $tdes->get_fields_list_by_oper( 'READ' ) };
+  my @fields = @{ des_fields_list_by_oper( $tdes, 'READ', de_web_profile() ) };
 
 #print STDERR Dumper( "READ fields: ", \@fields );
 
   my $browser_window_title = qq([~Filter records from] "<b>$table_label</b>");
   $reo->ps_path_add( 'filter', $browser_window_title );
 
-#print STDERR Dumper( "error:", \@fields, $ps->{ 'ROW_DATA' }, 'insert', $edit_mode_insert, 'allow', $tdes->allows( 'UPDATE' ) );
+#print STDERR Dumper( "error:", \@fields, $ps->{ 'ROW_DATA' }, 'insert', $edit_mode_insert, 'allow', de_web_profile()->allows( $tdes, 'UPDATE' ) );
 
   return "<#access_denied>" unless @fields > 0;
 
@@ -69,7 +70,7 @@ sub main
 
   de_web_expand_resolve_fields_in_place( \@fields, $tdes, \%bfdes, \%lfdes, \%basef );
 
-  my $fts  = $sdes->get_attr( qw( WEB FTS ) );
+  my $fts  = des_get_attr( $sdes, qw( WEB FTS ) );
   my $input_data_fts = $ui_si{ "__FTS__" };
   $input_data_fts = join( " ", $input_data_fts =~ /\w{2,}/g );
 
@@ -102,12 +103,12 @@ sub main
       my $base_field = $bfdes->{ 'NAME' };
       my $field_out  = $base_field;
 
-      my $label    = $bfdes->get_attr( qw( WEB GRID LABEL ) );
+      my $label    = des_get_attr( $bfdes, qw( WEB GRID LABEL ) );
 
 #      my $label     = "$blabel";
 #      if( $bfdes ne $lfdes )
 #        {
-#        my $llabel     = $lfdes->get_attr( qw( WEB GRID LABEL ) );
+#        my $llabel     = des_get_attr( $lfdes, qw( WEB GRID LABEL ) );
 #        $label .= "<span class=details-text>/</span>$llabel";
 #        }
 
@@ -120,8 +121,8 @@ sub main
       $input_data =~ s/\s*$//;
       next if $input_data eq '';
       
-      my $combo = $bfdes->get_attr( qw( WEB COMBO ) ) || $bfdes->get_attr( qw( WEB SEARCH ) );
-      if( $bfdes->is_linked() and ! $combo )
+      my $combo = des_get_attr( $bfdes, qw( WEB COMBO ) ) || des_get_attr( $bfdes, qw( WEB SEARCH ) );
+      if( des_is_linked( $bfdes ) and ! $combo )
         {
         $fdes      = $lfdes;
         $field_out = $field;
@@ -144,7 +145,7 @@ sub main
         }
       elsif( $type_name eq 'CHAR' )
         {
-        my $grep = $bfdes->get_attr( qw( WEB FILTER GREP ) );
+        my $grep = des_get_attr( $bfdes, qw( WEB FILTER GREP ) );
         my $input_data_w = $input_data;
 
         if( $grep )
@@ -188,10 +189,10 @@ sub main
           push @field_filter, { OP => '==', VALUE => $eq, };
         
           my $input_data_f = $input_data;
-          if( $bfdes->is_linked() )
+          if( des_is_linked( $bfdes ) )
             {
             # FIXME: support multi-select linked fields
-            my ( $linked_table, $linked_field ) = $bfdes->link_details();
+            my ( $linked_table, $linked_field ) = des_link_details( $bfdes );
             $input_data_f = $core->read_field( $linked_table, $linked_field, $input_data );
             }
           $filter_des .= qq[ * $label [~is] "$input_data_f" <br> ];
@@ -258,14 +259,14 @@ sub main
 
     my $base_field = $bfdes->{ 'NAME' };
 
-    next if $bfdes->get_attr( 'WEB', 'HIDDEN' );
+    next if des_get_attr( $bfdes, 'WEB', 'HIDDEN' );
 
-    my $label    = $bfdes->get_attr( qw( WEB GRID LABEL ) );
+    my $label    = des_get_attr( $bfdes, qw( WEB GRID LABEL ) );
 
 #    my $label     = "$blabel";
 #    if( $bfdes ne $lfdes )
 #      {
-#      my $llabel     = $lfdes->get_attr( qw( WEB GRID LABEL ) );
+#      my $llabel     = des_get_attr( $lfdes, qw( WEB GRID LABEL ) );
 #      $label .= "/$llabel";
 #      }
 
@@ -284,8 +285,8 @@ sub main
 
     # FIXME: support simple web.filter.grep for linked values without combo or search, GREP will override combo/search if any
     # FIXME: support search and combo separately!
-    my $combo  = $bfdes->get_attr( qw( WEB COMBO  ) );
-    my $search = $bfdes->get_attr( qw( WEB SEARCH ) );
+    my $combo  = des_get_attr( $bfdes, qw( WEB COMBO  ) );
+    my $search = des_get_attr( $bfdes, qw( WEB SEARCH ) );
 
     if( $type_name eq 'INT' and $bfdes->{ 'BOOL' } )
       {
@@ -302,9 +303,9 @@ sub main
                                        LABELS   => [ '<img class="icon" src=i/check-edit-na.svg>', '<img class="icon" src=i/check-edit-1.svg>', '<img class="icon" src=i/check-edit-0.svg>' ],
                                        );
       }
-    elsif( $bfdes->is_linked() and ( $combo or $search ) )
+    elsif( des_is_linked( $bfdes ) and ( $combo or $search ) )
       {
-      my ( $linked_table, $linked_field ) = $bfdes->link_details();
+      my ( $linked_table, $linked_field ) = des_link_details( $bfdes );
       my $ltdes = $core->describe( $linked_table );
       
       my $spf_fmt;
@@ -327,7 +328,7 @@ sub main
       # FIXME: support multi-select linked fields
       $sel_hr->{ $_ } = 1 for @input_data;
 
-      my @lfields = @{ $ltdes->get_fields_list_by_oper( 'READ' ) };
+      my @lfields = @{ des_fields_list_by_oper( $ltdes, 'READ', de_web_profile() ) };
       unshift @lfields, $linked_field;
 
       my %bfdes; # base/begin/origin field descriptions, indexed by field path
@@ -343,7 +344,7 @@ sub main
       # $text .= "<hr><h2>$field</h2><xmp style='text-align: left'>" . Dumper( \@lfields, $lfields, \%basef, \%bfdes, \%lfdes ) . "</xmp>";
 
       my $combo_filter;
-      if( $bfdes->get_attr( qw( WEB COMBO DISTINCT ) ) )
+      if( des_get_attr( $bfdes, qw( WEB COMBO DISTINCT ) ) )
         {
         my $ds  = $core->select( $table, $base_field, { DISTINCT => 1 } );
         my @di;
@@ -354,7 +355,7 @@ sub main
         $combo_filter = { '_ID' => { OP => 'IN', VALUE => \@di } };
         }  
 
-      my $combo_orderby = $bfdes->get_attr( qw( WEB COMBO ORDERBY ) ) || join( ',', @spf_fld );
+      my $combo_orderby = des_get_attr( $bfdes, qw( WEB COMBO ORDERBY ) ) || join( ',', @spf_fld );
       my $combo_select  = $core->select( $linked_table, $lfields, { FILTER => $combo_filter, ORDER_BY => $combo_orderby } );
       
       push @combo_data, { KEY => '*', VALUE => '', LABEL => '&empty;' };
@@ -373,12 +374,12 @@ sub main
         }
 
       my $fmt_class;
-      if( $bfdes->get_attr( qw( WEB EDIT MONO ) ) )
+      if( des_get_attr( $bfdes, qw( WEB EDIT MONO ) ) )
         {
         $fmt_class .= " fmt-mono";
         }
 
-      my $multi = $bfdes->get_attr( qw( WEB FILTER MULTI ) );
+      my $multi = des_get_attr( $bfdes, qw( WEB FILTER MULTI ) );
       my $rows = $multi ? 5 : 1;
       # FIXME: support multi-select linked fields
 
@@ -408,7 +409,7 @@ sub main
           }
       # end of combo
       }
-    elsif( $bfdes->is_backlinked() )
+    elsif( des_is_backlinked( $bfdes ) )
       {
       # cannot be filtered for now...
       # should be used as INT, to filter backlinked records count
@@ -428,15 +429,15 @@ sub main
                                        CLEAR    => $clear_icon,
                                        );
       
-      if( $bfdes->is_linked() )
+      if( des_is_linked( $bfdes ) )
         {
-        my ( $linked_table, $linked_field ) = $bfdes->link_details();
-        my $select_cue = $bfdes->get_attr( qw( WEB EDIT SELECT_CUE ) ) || "[~Select linked record]";
+        my ( $linked_table, $linked_field ) = des_link_details( $bfdes );
+        my $select_cue = des_get_attr( $bfdes, qw( WEB EDIT SELECT_CUE ) ) || "[~Select linked record]";
         $field_input_ctrl .= "\n" . de_html_form_button_redirect( $reo, 'new', $filter_form, "select-from.svg", $select_cue, ACTION => 'grid', TABLE => $linked_table, ID => -1, RETURN_DATA_FROM => $linked_field, RETURN_DATA_TO => $field, GRID_MODE => 'SELECT', SELECT_KEY_DATA => $input_data );
         }
       }  
 
-    my $divider = $bfdes->get_attr( 'WEB', 'DIVIDER' );
+    my $divider = des_get_attr( $bfdes, 'WEB', 'DIVIDER' );
     if( $divider )
       {
       $text .= "<div class='view-divider view-sep record-sep fmt-center'>$divider</div>";

@@ -15,7 +15,7 @@ use Exception::Sink;
 
 use Decor::Shared::Utils;
 use Decor::Core::Env;
-use Decor::Core::Loader::Table;
+use Decor::Shared::Describe;
 use Decor::Core::Shop;
 use Decor::Core::Subs::Env;
 
@@ -110,7 +110,7 @@ sub de_add_alog_rec_if_des
   my $oper = shift;
   my $rec  = shift;
   
-  return 0 unless load_table( $rec->table() )->get_table_des()->{ 'ALOG' };
+  return 0 unless des_table_des( $rec->table() )->{ 'ALOG' };
   
   return de_add_alog_rec( $oper, $rec );
 }

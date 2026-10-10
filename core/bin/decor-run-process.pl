@@ -22,6 +22,7 @@ use Exception::Sink;
 
 use Data::Dumper;
 use Decor::Core::Env;
+use Decor::Core::Boot;
 use Decor::Core::Debug;
 use Decor::Core::DSN;
 use Decor::Core::Profile;
@@ -59,24 +60,24 @@ while( @ARGV )
     push @args, @ARGV;
     last;
     }
-  if( /^-d/ )
+  if( /^-d$/ )
     {
     my $level = de_debug_inc();
     print "option: debug level raised, now is [$level] \n";
     next;
     }
-  if( /^-z/ )
+  if( /^-z$/ )
     {
     $opt_daemonize++;
     print "option: daemonize\n";
     next;
     }
-  if( /^-v/ )
+  if( /^-v$/ )
     {
     $opt_verbose = 1;
     next;
     }
-  if( /-r(r)?/ )
+  if( /^-r(r)?$/ )
     {
     $DE_LOG_TO_STDERR = 1;
     $DE_LOG_TO_FILES  = $1 ? 1 : 0;
@@ -105,7 +106,7 @@ $SIG{ 'INT'  } = sub { $request_exit = 1 };
 $SIG{ 'TERM' } = sub { $request_exit = 2 };
 $SIG{ 'HUP'  } = \&usr_signal_sub;
 
-de_init( APP_NAME => $opt_app_name );
+de_boot( APP_NAME => $opt_app_name );
 
 my $pkg = shift @args;
 my $trigger = 'main';

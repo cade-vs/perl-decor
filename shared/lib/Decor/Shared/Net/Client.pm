@@ -21,9 +21,9 @@ use Data::Tools::Socket::Protocols;
 use Exception::Sink;
 use Data::Dumper;
 use MIME::Base64;
-use Data::Lock qw( dlock dunlock );
+use Data::Lock qw( dlock );
 
-use Decor::Shared::Describe_old;
+use Decor::Shared::Describe;
 use Decor::Shared::Utils;
 
 sub new
@@ -407,13 +407,7 @@ sub describe
 
   my $des = $self->{ 'CACHE' }{ 'DESCRIBE' }{ $table } = $mo->{ 'DES' };
 
-  bless_description_tree( $des, 'Decor::Shared::Net::Client', qw( FIELD DO ACTION ) );
-
-  $des->__set_describe_callback( sub { return $self->describe( @_ ) } );
-  $des->{ 'CACHE' } = {};
-  
-  dlock( $des );
-  dunlock( $des->{ 'CACHE' } );
+  dlock( $des ); # plain description tree, read with Decor::Shared::Describe des_*() functions
 
   return $mo->{ 'DES' };
 }
@@ -956,7 +950,7 @@ sub select_backlinked_records
   my $id    = shift;
   my $opt    = shift;
   
-  my ( $backlink_table, $backlink_field ) = $self->describe( $table )->get_field_des( $field )->backlink_details();
+  my ( $backlink_table, $backlink_field ) = des_backlink_details( des_field_des( $self->describe( $table ), $field ) );
   
   return $self->select( $backlink_table, '*', { FILTER => { $backlink_field => $id }, %$opt } );
 }

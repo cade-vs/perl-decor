@@ -27,6 +27,8 @@ use Decor::Core::Log;
 use Exporter;
 our @ISA    = qw( Exporter );
 our @EXPORT = qw(
+
+                loader_opers
                 loader_reset
 
                 loader_dirs
@@ -50,7 +52,7 @@ sub loader_reset
 
 # loader_dirs( 'tables' ) returns array ref of dirs to search for definition
 # files of a kind, in merge order: core, bundles, app
-# currently kind is "table" or "menu"
+# currently kind is "tables" or "menus", the definition files directory name
 
 sub loader_dirs
 {
@@ -63,8 +65,6 @@ sub loader_dirs
   my $root         = de_root();
   my $app_dir      = de_app_dir();
   my $bundles_dirs = de_bundles_dirs();
-
-  # FIXME: move here all bundles-related code from Env.def
 
   my @dirs;
   push @dirs, "$root/core/$kind";
@@ -85,8 +85,10 @@ sub loader_names
   my @names;
   push @names, glob_tree( "$_/*.def" ) for @{ loader_dirs( $kind ) };
 
-  s/^.*?\/([^\/]+)\.def$/uc($1)/ie for @names;
-  @names = sort keys %{ { map { $_ => 1 } grep { ! /^_+/ } @names } };
+  s/^.*?\/([^\/]+)\.def$/$1/ for @names;
+  # loader_files() looks for lower case file names only
+  de_log( "error: definition file name [$_.def] is not lower case and cannot be loaded, skipped" ) for grep { $_ ne lc $_ } @names;
+  @names = sort keys %{ { map { uc $_ => 1 } grep { $_ eq lc $_ and ! /^_+/ } @names } };
 
   return $LOADER_CACHE{ 'NAMES' }{ $kind } = \@names;
 }
@@ -118,6 +120,12 @@ my %OPERS = (
                       'CROSS'   => 1,
                  );
 my @OPERS = keys %OPERS;
+
+# loader_opers() returns the list of all access operations (READ, INSERT, ...)
+sub loader_opers
+{
+  return sort keys %OPERS;
+}
 
 my %GROUP_ALIASES = (
                       'ALL'    => 999,

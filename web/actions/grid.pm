@@ -9,6 +9,7 @@
 ##############################################################################
 package decor::actions::grid;
 use strict;
+use Decor::Shared::Describe;
 use utf8;
 
 use Data::Dumper;
@@ -65,9 +66,9 @@ sub main
 
   my $core = $reo->de_connect();
   my $tdes = $core->describe( $table );
-  my $sdes = $tdes->get_table_des(); # table "Self" description
+  my $sdes = des_table_des( $tdes ); # table "Self" description
 
-  my $table_label = $tdes->get_label();
+  my $table_label = des_table_label( $tdes );
   my $table_type  = $sdes->{ 'TYPE' };
 
   my ( $browser_window_title, $browser_window_hint ) = $reo->ps_path_add_by_cue( $sdes, 'GRID' );
@@ -107,12 +108,12 @@ sub main
   $page_size = 1000 if $page_size >  1000;
   $offset    =    0 if $offset    <     0;
 
-  $page_size             = $sdes->get_attr( qw( WEB GRID PAGE_SIZE ) ) || $page_size;
+  $page_size             = des_get_attr( $sdes, qw( WEB GRID PAGE_SIZE ) ) || $page_size;
 
   my @fields;
-  my $fields_list = uc $sdes->get_attr( qw( WEB GRID FIELDS_LIST ) );
+  my $fields_list = uc des_get_attr( $sdes, qw( WEB GRID FIELDS_LIST ) );
   @fields = list_uniq( '_ID', split( /[\s\,\;]+/, $fields_list ) ) if $fields_list;
-  @fields = @{ $tdes->get_fields_list_by_oper( 'READ' ) } unless @fields > 0;
+  @fields = @{ des_fields_list_by_oper( $tdes, 'READ', de_web_profile() ) } unless @fields > 0;
 
 ### testing
 #push @fields, 'USR.ACTIVE';
@@ -233,8 +234,8 @@ sub main
 
   if( ! $grid_mode_select )
     {
-    $text_grid_navi_left .= de_html_alink_button( $reo, 'new', "(+) $insert_cue",      $insert_cue_hint,  BTYPE => 'act', ACTION => 'edit',        TABLE => $table, ID => -1, %insert_new_opts ) if $tdes->allows( 'INSERT' );
-    $text_grid_navi_left .= de_html_alink_button( $reo, 'new', "(&uarr;) $upload_cue", $upload_cue_hint,  BTYPE => 'act', ACTION => 'file_up',     TABLE => $table, ID => -1, MULTI => 1       ) if $tdes->allows( 'INSERT' ) and $table_type eq 'FILE';
+    $text_grid_navi_left .= de_html_alink_button( $reo, 'new', "(+) $insert_cue",      $insert_cue_hint,  BTYPE => 'act', ACTION => 'edit',        TABLE => $table, ID => -1, %insert_new_opts ) if de_web_profile()->allows( $tdes, 'INSERT' );
+    $text_grid_navi_left .= de_html_alink_button( $reo, 'new', "(&uarr;) $upload_cue", $upload_cue_hint,  BTYPE => 'act', ACTION => 'file_up',     TABLE => $table, ID => -1, MULTI => 1       ) if de_web_profile()->allows( $tdes, 'INSERT' ) and $table_type eq 'FILE';
     }
   
   $text_grid_navi_left .= de_html_alink_button( $reo, 'new', "(&asymp;) [~Filter]",    '[~Filter records]',        ACTION => 'grid_filter', TABLE => $table           ) unless $active_filter;
@@ -262,19 +263,19 @@ sub main
     my $base_field = $bfdes->{ 'NAME' };
 
     next if $link_field_disable and $base_field eq $link_field_disable;
-    next if $bfdes->get_attr( qw( WEB GRID HIDE ) );
+    next if des_get_attr( $bfdes, qw( WEB GRID HIDE ) );
 
-    my $label     = $bfdes->get_attr( qw( WEB GRID LABEL ) );
+    my $label     = des_get_attr( $bfdes, qw( WEB GRID LABEL ) );
 
 #    my $label     = "$blabel";
 #    if( ! $enum and $bfdes ne $lfdes )
 #      {
-#      my $llabel     = $lfdes->get_attr( qw( WEB GRID LABEL ) );
+#      my $llabel     = des_get_attr( $lfdes, qw( WEB GRID LABEL ) );
 #      $label .= "<span class=details-text>/</span>$llabel";
 #      }
 
-    my $ltdes     = $core->describe( $lfdes->get_table_name() );
-    my $enum      = $ltdes->get_table_type() eq 'ENUM';
+    my $ltdes     = $core->describe( des_item_table( $lfdes ) );
+    my $enum      = des_table_type( $ltdes ) eq 'ENUM';
 
     $text_grid_head .= "<td class='$fmt_class'>$label</td>";
     }
@@ -285,13 +286,13 @@ sub main
 
   if( ! $grid_mode_select )
     {
-    for my $do ( @{ $tdes->get_category_list_by_oper( 'DO', 'EXECUTE' ) }  )
+    for my $do ( @{ des_category_list_by_oper( $tdes, 'DO', 'EXECUTE', de_web_profile() ) }  )
       {
-      my $dodes   = $tdes->get_category_des( 'DO', $do );
+      my $dodes   = des_category_des( $tdes, 'DO', $do );
       push @dos, $do;
       }
 
-    for my $act ( @{ $tdes->get_category_list_by_oper( 'ACTION', 'EXECUTE' ) }  )
+    for my $act ( @{ des_category_list_by_oper( $tdes, 'ACTION', 'EXECUTE', de_web_profile() ) }  )
       {
       push @actions, $act;
       }
@@ -344,7 +345,7 @@ sub main
 
     for my $act ( @actions )
       {
-      my $actdes   = $tdes->get_category_des( 'ACTION', $act );
+      my $actdes   = des_category_des( $tdes, 'ACTION', $act );
       my $label  = $actdes->{ 'LABEL'  };
       my $target = $actdes->{ 'TARGET' } || $actdes->{ 'NAME' };
       my $icon   = lc( $actdes->{ 'ICON'   } );
@@ -365,13 +366,13 @@ sub main
       }
 
     $vec_ctrl .= de_html_alink_icon( $reo, 'new', "view.svg",    $view_cue_hint,          ACTION => 'view',    ID => $id, TABLE => $table, LINK_FIELD_DISABLE => $link_field_disable  );
-    $vec_ctrl .= de_html_alink_icon( $reo, 'new', "edit.svg",    $update_cue_hint,        ACTION => 'edit',    ID => $id, TABLE => $table                 ) if $tdes->allows( 'UPDATE' );
-    $vec_ctrl .= de_html_alink_icon( $reo, 'new', "copy.svg",    $copy_cue_hint,          ACTION => 'edit',    ID =>  -1, TABLE => $table, COPY_ID => $id ) if $tdes->allows( 'INSERT' ) and ! $tdes->{ '@' }{ 'NO_COPY' };
+    $vec_ctrl .= de_html_alink_icon( $reo, 'new', "edit.svg",    $update_cue_hint,        ACTION => 'edit',    ID => $id, TABLE => $table                 ) if de_web_profile()->allows( $tdes, 'UPDATE' );
+    $vec_ctrl .= de_html_alink_icon( $reo, 'new', "copy.svg",    $copy_cue_hint,          ACTION => 'edit',    ID =>  -1, TABLE => $table, COPY_ID => $id ) if de_web_profile()->allows( $tdes, 'INSERT' ) and ! $tdes->{ '@' }{ 'NO_COPY' };
     $vec_ctrl .= de_html_alink_icon( $reo, 'new', 'file_dn.svg', $download_file_cue_hint, ACTION => 'file_dn', ID => $id, TABLE => $table                 ) if $table_type eq 'FILE';
     
     $vec_ctrl_popup .= de_html_alink_button( $reo, 'new', "(v) View record",        undef, BTYPE => 'act', ACTION => 'view',    ID => $id, TABLE => $table, LINK_FIELD_DISABLE => $link_field_disable  );
-    $vec_ctrl_popup .= de_html_alink_button( $reo, 'new', "(e) Edit record",        undef, BTYPE => 'mod', ACTION => 'edit',    ID => $id, TABLE => $table                 ) if $tdes->allows( 'UPDATE' );
-    $vec_ctrl_popup .= de_html_alink_button( $reo, 'new', "(+) Copy record as new", undef, BTYPE => 'nav', ACTION => 'edit',    ID =>  -1, TABLE => $table, COPY_ID => $id ) if $tdes->allows( 'INSERT' ) and ! $tdes->{ '@' }{ 'NO_COPY' };
+    $vec_ctrl_popup .= de_html_alink_button( $reo, 'new', "(e) Edit record",        undef, BTYPE => 'mod', ACTION => 'edit',    ID => $id, TABLE => $table                 ) if de_web_profile()->allows( $tdes, 'UPDATE' );
+    $vec_ctrl_popup .= de_html_alink_button( $reo, 'new', "(+) Copy record as new", undef, BTYPE => 'nav', ACTION => 'edit',    ID =>  -1, TABLE => $table, COPY_ID => $id ) if de_web_profile()->allows( $tdes, 'INSERT' ) and ! $tdes->{ '@' }{ 'NO_COPY' };
     $vec_ctrl_popup .= de_html_alink_button( $reo, 'new', '(v) Download file',      undef, BTYPE => 'act', ACTION => 'file_dn', ID => $id, TABLE => $table                 ) if $table_type eq 'FILE';
 
     if( @dos )
@@ -400,12 +401,12 @@ sub main
       my $type_lname = $lfdes->{ 'TYPE' }{ 'LNAME' };
       my $fmt_class  = ( $FMT_CLASS_ALIGN{ $type_name } || 'fmt-left' ) . ' ' . $FMT_CLASS_TYPE{ $type_name };
 
-      next if $bfdes->get_attr( qw( WEB GRID HIDE ) );
-      my $allow_wrap = $bfdes->get_attr( qw( WEB GRID ALLOW_WRAP ) );
-      my $label      = $bfdes->get_attr( qw( WEB GRID LABEL ) );
-      my $editable   = $bfdes->get_attr( qw( WEB GRID EDITABLE ) );
+      next if des_get_attr( $bfdes, qw( WEB GRID HIDE ) );
+      my $allow_wrap = des_get_attr( $bfdes, qw( WEB GRID ALLOW_WRAP ) );
+      my $label      = des_get_attr( $bfdes, qw( WEB GRID LABEL ) );
+      my $editable   = des_get_attr( $bfdes, qw( WEB GRID EDITABLE ) );
 
-      my $lpassword = $lfdes->get_attr( 'PASSWORD' ) ? 1 : 0;
+      my $lpassword = des_get_attr( $lfdes, 'PASSWORD' ) ? 1 : 0;
 
       my $base_field = exists $basef{ $field } ? $basef{ $field } : $field;
 
@@ -419,13 +420,13 @@ sub main
 
       my $row_vec_handle;
       my $vec_ctrl_field_popup = $vec_ctrl_popup;
-      if( ! $bfdes->is_unique() and ! $bfdes->is_backlinked() and ! $bfdes->is_widelinked() )
+      if( ! des_is_unique( $bfdes ) and ! des_is_backlinked( $bfdes ) and ! des_is_widelinked( $bfdes ) )
         {
         $vec_ctrl_field_popup .= de_html_alink_button( $reo, 'new', "(&cong;) [~List the same] <b>$label</b>: $data_fmt",  undef, ACTION => 'grid',                   TABLE => $table, FILTER => { $base_field => $data_base } );
         }
       $row_vec_handle = html_popup_layer( $reo, VALUE => $vec_ctrl_field_popup, CLASS => 'popup-layer', TYPE => 'CONTEXT' );
 
-      if( $bfdes->is_linked() or $bfdes->is_widelinked() )
+      if( des_is_linked( $bfdes ) or des_is_widelinked( $bfdes ) )
         {
         if( $link_field_disable and $base_field eq $link_field_disable )
           {
@@ -433,19 +434,19 @@ sub main
           }
         else
           {
-          my $view_cue   = $bfdes->get_attr( qw( WEB GRID VIEW_CUE   ) ) || "[~View linked record]";
-          my $edit_cue   = $bfdes->get_attr( qw( WEB GRID EDIT_CUE   ) ) || "[~Edit linked record]";
-          my $insert_cue = $bfdes->get_attr( qw( WEB GRID INSERT_CUE ) ) || "[~Insert and link a new record]";
+          my $view_cue   = des_get_attr( $bfdes, qw( WEB GRID VIEW_CUE   ) ) || "[~View linked record]";
+          my $edit_cue   = des_get_attr( $bfdes, qw( WEB GRID EDIT_CUE   ) ) || "[~Edit linked record]";
+          my $insert_cue = des_get_attr( $bfdes, qw( WEB GRID INSERT_CUE ) ) || "[~Insert and link a new record]";
           
           my ( $linked_table, $linked_id, $linked_field );
-          if( $bfdes->is_linked() ) 
+          if( des_is_linked( $bfdes ) ) 
             {
-            ( $linked_table, $linked_field ) = $bfdes->link_details();
+            ( $linked_table, $linked_field ) = des_link_details( $bfdes );
             $linked_id = $data_base;
             }
           else
             {
-            # $bfdes->is_widelinked()
+            # des_is_widelinked( $bfdes )
             ( $linked_table, $linked_id, $linked_field ) = type_widelink_parse2( $data );
             if( $linked_table )
               {
@@ -460,15 +461,15 @@ sub main
           if( $linked_table )
             {
             my $ltdes = $core->describe( $linked_table );
-            my $enum  = $ltdes->get_table_type() eq 'ENUM';
+            my $enum  = des_table_type( $ltdes ) eq 'ENUM';
             
-            my $linked_table_label = $ltdes->get_label();
-            if( $bfdes->is_widelinked() )
+            my $linked_table_label = des_table_label( $ltdes );
+            if( des_is_widelinked( $bfdes ) )
               {
               if( $linked_field )
                 {
                 $data_fmt = $core->read_field( $linked_table, $linked_field, $linked_id );
-                my $lfdes = $ltdes->get_field_des( $linked_field );
+                my $lfdes = des_field_des( $ltdes, $linked_field );
                 $data_fmt  = de_web_format_field( $data_fmt, $lfdes, 'VIEW', { ID => $linked_id } );
                 }
               else
@@ -478,7 +479,7 @@ sub main
               }
             else
               {
-              if( $bfdes->get_attr( 'WEB', 'GRID', 'EDITABLE' ) and $bfdes->allows( 'UPDATE' ) )
+              if( des_get_attr( $bfdes, 'WEB', 'GRID', 'EDITABLE' ) and de_web_profile()->allows( $bfdes, 'UPDATE' ) )
                 {
                 ( $data_fmt, $fmt_class_fld ) = de_web_format_field( $linked_id, $bfdes, 'GRID', { ID => $id, REO => $reo, CORE => $core } );
                 }
@@ -489,7 +490,7 @@ sub main
               }  
 
 ###### WHY??????????            ## $data_fmt =~ s/\./&#46;/g;
-            if( $ltdes->get_table_type() eq 'FILE' )
+            if( des_table_type( $ltdes ) eq 'FILE' )
               {
               $data_fmt   = de_html_alink( $reo, 'new', "$data_fmt",                      $view_cue, ACTION => 'file_dn', ID => $linked_id, TABLE => $linked_table );
               $data_ctrl .= de_html_alink_button_fill( $reo, 'new', '(&darr;) [~Download file]',       undef,     ACTION => 'file_dn', ID => $linked_id, TABLE => $linked_table );
@@ -507,13 +508,13 @@ sub main
                 $data_ctrl .= de_html_alink_button_fill( $reo, 'new', "(v) $view_cue",   undef,                ACTION => 'view', ID => $linked_id, TABLE => $linked_table );
                 $data_ctrl .= "<br>\n";
                 }
-              if( $ltdes->allows( 'UPDATE' ) and $linked_id > 0 )
+              if( de_web_profile()->allows( $ltdes, 'UPDATE' ) and $linked_id > 0 )
                 {
                 # FIXME: check for record access too!
                 $data_ctrl .= de_html_alink_button_fill( $reo, 'new', "(e) $edit_cue", undef, BTYPE => 'mod', ACTION => 'edit', ID => $linked_id, TABLE => $linked_table );
                 $data_ctrl .= "<br>\n";
                 }
-              if( $bfdes->is_linked() and $ltdes->allows( 'INSERT' ) and $tdes->allows( 'UPDATE' ) and $bfdes->allows( 'UPDATE' ) )
+              if( des_is_linked( $bfdes ) and de_web_profile()->allows( $ltdes, 'INSERT' ) and de_web_profile()->allows( $tdes, 'UPDATE' ) and de_web_profile()->allows( $bfdes, 'UPDATE' ) )
                 {
                 # FIXME: check for record access too!
                 $data_ctrl .= de_html_alink_button_fill( $reo, 'new', "(+) $insert_cue", undef, BTYPE => 'act', ACTION => 'edit', ID => -1,         TABLE => $linked_table, LINK_TO_TABLE => $table, LINK_TO_FIELD => $base_field, LINK_TO_ID => $id );
@@ -523,20 +524,20 @@ sub main
             } # if $linked_table  
           }
         }
-      elsif( $bfdes->is_backlinked() )
+      elsif( des_is_backlinked( $bfdes ) )
         {
-        my ( $backlinked_table, $backlinked_field ) = $bfdes->backlink_details();
+        my ( $backlinked_table, $backlinked_field ) = des_backlink_details( $bfdes );
         my $bltdes = $core->describe( $backlinked_table );
-        my $blsdes = $bltdes->get_table_des(); # backlinked table "Self" description
+        my $blsdes = des_table_des( $bltdes ); # backlinked table "Self" description
     
-        if( $bltdes->allows( 'INSERT' ) )
+        if( de_web_profile()->allows( $bltdes, 'INSERT' ) )
           {
           ### my ( $insert_link_cue, $insert_link_cue_hint ) = de_web_get_cue( $bfdes, qw( WEB GRID INSERT_LINK_CUE ) );
           my ( $insert_link_cue, $insert_link_cue_hint ) = de_web_get_cue( $blsdes, qw( WEB GRID INSERT_CUE ) );
           $data_ctrl .= de_html_alink_button_fill( $reo, 'new', "(+) $insert_link_cue", $insert_link_cue_hint, BTYPE => 'act', ACTION => 'edit', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, LINK_FIELD_DISABLE => $backlinked_field );
 #          $data_ctrl .= "<br>\n";
 
-          if( $bltdes->get_table_type() eq 'FILE' )
+          if( des_table_type( $bltdes ) eq 'FILE' )
             {
             my ( $upload_link_cue, $upload_link_cue_hint ) = de_web_get_cue( $bfdes, qw( WEB GRID UPLOAD_LINK_CUE ) );
             $data_ctrl .= de_html_alink_button( $reo, 'new', "(&uarr;) $upload_link_cue", $upload_link_cue_hint, BTYPE => 'act', ACTION => 'file_up', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, LINK_FIELD_DISABLE => $backlinked_field, MULTI => 1 );
@@ -546,9 +547,9 @@ sub main
 
         $data_fmt = ""; # TODO: hide count, which is currently unsupported
         my $bcnt = $data || 'n/a';
-        if( uc( $bfdes->get_attr( 'WEB', 'GRID', 'BACKLINK_GRID_MODE' ) ) eq 'ALL' )
+        if( uc( des_get_attr( $bfdes, 'WEB', 'GRID', 'BACKLINK_GRID_MODE' ) ) eq 'ALL' )
           {
-          my $view_all_cue   = $bfdes->get_attr( qw( WEB GRID VIEW_ALL_CUE   ) ) || "[~View all records]";
+          my $view_all_cue   = des_get_attr( $bfdes, qw( WEB GRID VIEW_ALL_CUE   ) ) || "[~View all records]";
           $data_ctrl .= de_html_alink_button( $reo, 'new', "(*) $view_all_cue",           undef,                 ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => $id, FILTER => { $backlinked_field => [ { OP => 'IN', VALUE => [ $id, 0 ] } ] } );
 #          $data_ctrl .= "<br>\n";
           
@@ -561,11 +562,11 @@ sub main
           }
         else
           {  
-          my $view_attached_cue   = $bfdes->get_attr( qw( WEB GRID VIEW_ATTACHED_CUE   ) ) || "[~View attached records]";
+          my $view_attached_cue   = des_get_attr( $bfdes, qw( WEB GRID VIEW_ATTACHED_CUE   ) ) || "[~View attached records]";
           $data_ctrl .= de_html_alink_button( $reo, 'new', "(=) $view_attached_cue",           undef,                 ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => $id, FILTER => { $backlinked_field => $id }, MASTER_RECORD => "$table:$id" );
 #         $data_ctrl .= "<br>\n";
 
-          my $view_unattached_cue   = $bfdes->get_attr( qw( WEB GRID VIEW_UNATTACHED_CUE   ) ) || "[~View unattached records]";
+          my $view_unattached_cue   = des_get_attr( $bfdes, qw( WEB GRID VIEW_UNATTACHED_CUE   ) ) || "[~View unattached records]";
           $data_ctrl .= de_html_alink_button( $reo, 'new', "(+) $view_unattached_cue",          undef,                 ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => 0, FILTER => { $backlinked_field => 0 } );
 #          $data_ctrl .= "<br>\n";
           
@@ -577,10 +578,10 @@ sub main
           }
         if( $bcnt > 0 )
           {
-          my $view_attached_cue   = $bfdes->get_attr( qw( WEB GRID VIEW_ATTACHED_CUE   ) ) || "[~View attached records]";
+          my $view_attached_cue   = des_get_attr( $bfdes, qw( WEB GRID VIEW_ATTACHED_CUE   ) ) || "[~View attached records]";
           $bcnt = str_num_comma( $bcnt );
           #my $recs_s = str_countable( $bcnt, 'rec', 'recs' );
-          #$recs_s = $bltdes->get_label();
+          #$recs_s = des_table_label( $bltdes );
           $bcnt = de_html_alink( $reo, 'new', "$bcnt", "(=) $view_attached_cue", ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => $id, FILTER => { $backlinked_field => $id }, MASTER_RECORD => "$table:$id" );
           }
 
@@ -702,10 +703,10 @@ sub main
     delete $ps->{ ':DO_NAME_MAP' };
     for my $do ( @dos )
       {
-      my $dodes   = $tdes->get_category_des( 'DO', $do );
-      next if  $dodes->get_attr( qw( WEB GRID HIDE  ) );
-      my $dolabel = $dodes->get_attr( qw( WEB GRID LABEL ) );
-      my $confirm = $dodes->get_attr( qw( CONFIRM ) );
+      my $dodes   = des_category_des( $tdes, 'DO', $do );
+      next if  des_get_attr( $dodes, qw( WEB GRID HIDE  ) );
+      my $dolabel = des_get_attr( $dodes, qw( WEB GRID LABEL ) );
+      my $confirm = des_get_attr( $dodes, qw( CONFIRM ) );
       # FIXME: map DOs through $ps
       my $do_id = ++ $ps->{ ':DO_NAME_MAP' }{ '*' };
       $ps->{ ':DO_NAME_MAP' }{ $do_id } = $do;

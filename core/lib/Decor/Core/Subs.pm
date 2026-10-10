@@ -15,6 +15,7 @@ use Exception::Sink;
 use Data::Tools;
 use Data::Tools::Socket;
 use Data::Structure::Util qw( unbless );
+use Scalar::Util qw( reftype );
 use Time::JulianDay qw( gm_julian_day ); # ON_<method> NOW for DATE fields
 
 use Decor::Shared::Utils;
@@ -23,6 +24,7 @@ use Decor::Core::Log;
 use Decor::Core::DB::Record;
 use Decor::Core::Subs::Env;
 use Decor::Core::Profile;
+use Decor::Core::Loader;
 use Decor::Core::Loader::Table;
 use Decor::Shared::Describe;
 use Decor::Core::Loader::Menu;
@@ -38,6 +40,7 @@ our @ISA    = qw( Exporter );
 our @EXPORT = qw(
 
                 subs_process_xt_message
+                subs_set_boot_handler
 
                 );
 
@@ -178,6 +181,20 @@ sub subs_process_xt_message
 
 ##############################################################################
 
+# boot handler is called with application name requested by the remote
+# client when the environment is not booted yet (server serving multiple apps),
+# set by the outside world (app server), core modules must not use Boot
+my $BOOT_HANDLER;
+
+sub subs_set_boot_handler
+{
+  my $handler = shift;
+
+  boom "invalid boot handler [$handler] expected CODE ref" if $handler and ref( $handler ) ne 'CODE';
+  $BOOT_HANDLER = $handler;
+  return 1;
+}
+
 sub sub_caps
 {
   my $mi = shift;
@@ -187,7 +204,19 @@ sub sub_caps
   if( $app_name )
     {
     boom "invalid APP_NAME [$app_name]" unless de_check_name( $app_name );
-    boom "mismatched APP_NAME expected [@{[ de_app_name() ]}] got [$app_name]" unless de_app_name() eq $app_name; # environment is set by de_boot()
+    if( de_init_done() )
+      {
+      boom "mismatched APP_NAME expected [@{[ de_app_name() ]}] got [$app_name]" unless de_app_name() eq $app_name;
+      }
+    else
+      {
+      boom "cannot boot APP_NAME [$app_name] no boot handler is set" unless $BOOT_HANDLER;
+      $BOOT_HANDLER->( $app_name );
+      }
+    }
+  else
+    {
+    boom "APP_NAME is required, no application is booted yet" unless de_init_done();
     }
 
   $mo->{ 'VER'   } = de_version();
@@ -195,7 +224,7 @@ sub sub_caps
 
   $mo->{ 'XS'    } = 'OK';
   return 1;
-};
+}
 
 sub __sub_reset_state
 {
@@ -234,15 +263,15 @@ sub __session_update_times
   # however, reset timer if requested less than 60 seconds until expire
   return 0 unless $force or time() - $atime > 60 or $xtime - time() < 60;
 
-  my $xtime = $session_rec->read( 'USR' ) == 909 ?
-              de_app_cfg( 'SESSION_ANON_EXPIRE_TIME', 24*60*60 ) # 24 hours for anonymous sessions
-              :
-              de_app_cfg( 'SESSION_USER_EXPIRE_TIME',    10*60 ) # 10 min for logged-in user sessions
-              ;
+  my $expire = $session_rec->read( 'USR' ) == 909 ?
+               de_app_cfg( 'SESSION_ANON_EXPIRE_TIME', 24*60*60 ) # 24 hours for anonymous sessions
+               :
+               de_app_cfg( 'SESSION_USER_EXPIRE_TIME',    10*60 ) # 10 min for logged-in user sessions
+               ;
 
   $session_rec->write(
                        'ATIME' => time(),
-                       'XTIME' => time() + $xtime,
+                       'XTIME' => time() + $expire,
                      );
 
   return 1;
@@ -419,6 +448,8 @@ sub __sub_find_and_check_user_pass
 
   my $user_rec = __sub_find_user( $user );
 
+  die "E_LOGIN: ANONYMOUS login is forbidden" if $user_rec->id() == 909; # anonymous account is id 909, regardless of its name, checked before the password
+
   $pass = de_decrypt( 'pass', $pass );
 
   die "E_LOGIN: User [$user] not active"              unless $user_rec->is_active();
@@ -513,14 +544,11 @@ sub sub_login
   my $pass     = $mi->{ 'PASS'     };
   my $remote   = $mi->{ 'REMOTE'   };
 
-  die "E_LOGIN: ANONYMOUS login is forbidden" if $user =~ /^(ANON|ANONYMOUS)$/;
-
   die "E_INTERNAL: invalid remote string" unless de_check_user_login_name( $remote );
 
-  my $user_rec = __sub_find_and_check_user_pass( $user, $pass );
+  my $user_rec = __sub_find_and_check_user_pass( $user, $pass ); # checks anonymous, active state and password
 
   # TODO: allow/deny root login
-  die "E_LOGIN: User not active" unless $user_rec->read( 'ACTIVE' ) > 0;
 
   my $session_rec = subs_get_current_session();
      $session_rec->write(
@@ -562,10 +590,13 @@ sub sub_logout
   $session_rec->save();
   de_set_log_session( undef );
 
-  $user_rec->write(
-                    'LAST_LOGOUT_TIME'    => time(),
-                  );
-  $user_rec->save();
+  if( $user_rec->id() != 909 ) # anonymous user record is shared, no logout time for it
+    {
+    $user_rec->write(
+                      'LAST_LOGOUT_TIME'    => time(),
+                    );
+    $user_rec->save();
+    }
 
   __sub_reset_state();
 
@@ -811,7 +842,6 @@ sub sub_check_user_password
   die "E_PASSWORD: Invalid password for user [$user] "   if     $pass eq '';
 
   my $user_rec  = subs_get_current_user();
-  my $user_pass = $user_rec->read( 'PASS' );
 
   die "E_PASSWORD: Wrong password for user [$user]" unless $user_rec->verify_password( $pass );
 
@@ -820,58 +850,25 @@ sub sub_check_user_password
 
 #--- DESCRIBE/MENU -----------------------------------------------------------
 
+# remote description trees carry only the allowed operations, collapsed to
+# the single group 888, the remote side evaluates them with a profile holding
+# group 888 (web: Decor::Web::Utils::de_web_profile()), DENY is always empty
 sub __replace_grant_deny
 {
   my $profile = shift;
-  my $hrn     = shift;
-  my $hrd     = shift;
+  my $hrn     = shift; # remote (new) item
+  my $hrd     = shift; # local description item
 
-  if( $profile->has_root_access() )
+  my %grant;
+  for my $oper ( loader_opers() )
     {
-    $hrn->{ 'GRANT' } = { ALL => 1 };
-    $hrn->{ 'DENY'  } = {};
-    delete $hrn->{ 'WEB.HIDDEN' };
-    return 1;
+    $grant{ $oper } = 888 if $profile->allows( $hrd, $oper ); # root, 966/967 and the trees, same as the server checks
     }
+  $grant{ 'ALL' } = 888 if $profile->has_root_access(); # remote checks may test ALL
 
-  for my $grant_deny ( qw( GRANT DENY ) )
-    {
-    if( ! $hrd->{ $grant_deny } )
-      {
-      $hrn->{ $grant_deny } = {};
-      next;
-      }
-#    while( my ( $k, $v ) = each %{ $hrd->{ $grant_deny } } )
-    for my $op ( keys %{ $hrd->{ $grant_deny } } )
-      {
-# my $res = $profile->__check_access_tree( $op, $hrd->{ $grant_deny } );
-# print STDERR "=====(@_)======+++++ [$res] <- $op, $grant_deny, " . Dumper( $hrd );
-      $hrn->{ $grant_deny }{ $op } = $profile->match_tree( $hrd->{ $grant_deny }, $op );
-      }
-    }
-
-  for my $oper ( keys %{ $hrn->{ 'DENY' } } )
-    {
-    next unless $hrn->{ 'DENY' }{ $oper };
-    delete $hrn->{ 'GRANT' }{ $oper };
-    }
-
-  if( $profile->check_access( 966 ) )
-    {
-    for( qw( READ CROSS ACCESS ) )
-      {
-      delete $hrn->{ 'DENY' }{ $_ };
-      $hrn->{ 'GRANT' }{ $_ } = 966;
-      }
-    }
-  if( $profile->check_access( 967 ) )
-    {
-    for( qw( INSERT UPDATE DELETE EXECUTE ) )
-      {
-      delete $hrn->{ 'GRANT' }{ $_ };
-      $hrn->{ 'DENY' }{ $_ } = 967;
-      }
-    }
+  $hrn->{ 'GRANT' } = \%grant;
+  $hrn->{ 'DENY'  } = {};
+  delete $hrn->{ 'WEB.HIDDEN' } if $profile->has_root_access();
 
   return 1;
 };
@@ -893,13 +890,11 @@ sub sub_describe
 
 # print STDERR Dumper( '-'x100, $des, $new, ref($new) );
 
+  unbless $new->{ '@' };
   __replace_grant_deny( $profile, $new->{ '@' }, $des->{ '@' } );
   delete $new->{ 'INDEX'  };
   delete $new->{ 'FILTER' };
-  delete $new->{ ':DESCRIBE_CB' };
-  delete $new->{ ':SUPER_CB' };
-  delete $new->{ '@' }{ ':DESCRIBE_CB' };
-  delete $new->{ '@' }{ ':SUPER_CB' };
+  delete $new->{ '@' }{ '__DEBUG_ORIGIN' };
 
   for my $cat ( qw( FIELD DO ACTION ) )
     {
@@ -910,11 +905,14 @@ sub sub_describe
       unbless $hrn;
       #dunlock $hr;
       #dunlock $hr->{ 'DENY'  };
-      __replace_grant_deny( $profile, $hrn, $hrd, $table, $field );
-      delete $hrn->{ 'DEBUG::ORIGIN' };
-      delete $hrn->{ ':DESCRIBE_CB' };
-      delete $hrn->{ ':SUPER_CB' };
+      __replace_grant_deny( $profile, $hrn, $hrd );
+      delete $hrn->{ '__DEBUG_ORIGIN' };
       }
+    }
+  # origins of the remaining categories (i.e. TYPE) are not needed by clients either
+  for my $cat ( grep { reftype( $new->{ $_ } ) eq 'HASH' } keys %$new )
+    {
+    delete $_->{ '__DEBUG_ORIGIN' } for grep { reftype( $_ ) eq 'HASH' } values %{ $new->{ $cat } };
     }
 # print STDERR Dumper( '='x100, $new );
 
@@ -933,7 +931,7 @@ sub sub_menu
 
   my $profile = subs_get_current_profile();
 
-  my $menu = load_menu( $menu_name );
+  my $menu = load_menu( $menu_name ) or boom "E_UNKNOWN: Unknown menu [$menu_name]";
 
   # work on a copy, $menu is the shared cached menu, it must not be modified per user
   my $new = clone( { %$menu } );
@@ -947,7 +945,7 @@ sub sub_menu
       {
       $new->{ $table }{ 'TYPE'   } = 'GRID';
       $new->{ $table }{ 'TABLE'  } = $table;
-      $new->{ $table }{ 'GRANT'  }{ 'ACCESS' } = 1;
+      $new->{ $table }{ 'GRANT'  }{ 'ACCESS' } = 888; # remote mapped group
       $new->{ $table }{ '_ORDER' } = $o++;
       };
     }
@@ -958,7 +956,7 @@ sub sub_menu
     my $hrn =  $new->{ $item };
     __replace_grant_deny( $profile, $hrn, $hrm );
 
-    delete $hrn->{ 'DEBUG::ORIGIN' };
+    delete $hrn->{ '__DEBUG_ORIGIN' };
     }
 
   $mo->{ 'MENU'  } = $new;
@@ -1235,15 +1233,14 @@ sub __exec_inline_method
   my $method = uc shift;
 
   my $table = $rec->table();
-  my $des   = load_table( $table );
-  my $sdes  = $des->get_table_des();
+  my $sdes  = des_table_des( $table );
 
   my $fields = $sdes->{ "ON_$method" };
   return unless @$fields;
 
   for my $field ( @$fields )
     {
-    my $fdes  = $des->get_field_des( $field );
+    my $fdes  = des_field_des( $table, $field );
     my $ftype = $fdes->{ 'TYPE' }{ 'NAME' };
     my $value = __inline_method_value( $ftype, $fdes->{ "ON_$method" }, $rec );
 
@@ -1273,7 +1270,7 @@ sub sub_get_next_id
 
   my $table  = uc $mi->{ 'TABLE'  };
 
-  boom "invalid TABLE name [$table]"    unless de_check_name( $table ) or ! des_exists( $table );
+  boom "invalid TABLE name [$table]"    unless de_check_name( $table ) and des_exists( $table );
 
   my $dbio = new Decor::Core::DB::IO;
   my $new_id = $dbio->get_next_table_id( $table );
@@ -1310,12 +1307,11 @@ sub sub_insert
   my $data   =    $mi->{ 'DATA'   };
   my $id     =    $mi->{ 'ID'     };
 
-  boom "invalid TABLE name [$table]"    unless de_check_name( $table ) or ! des_exists( $table );
+  boom "invalid TABLE name [$table]"    unless de_check_name( $table ) and des_exists( $table );
   boom "invalid DATA [$data]"           unless ref( $data ) eq 'HASH';
   boom "invalid ID [$id]"               if $id ne '' and ! de_check_id( $id );
 
   my $profile = subs_get_current_profile();
-  boom "E_ACCESS: user group 967 has global write restriction" if ! $profile->has_root_access() and $profile->check_access( 967 ); # FIXME: move to common
   boom "E_ACCESS: access denied oper [INSERT] for table [$table]" unless $profile->check_access_table( 'INSERT', $table );
 
   $id ||= $data->{ '_ID' };
@@ -1406,13 +1402,12 @@ sub sub_update
   my $lock   =    $mi->{ 'LOCK'   } ? 1 : 0;
   my $filter =    $mi->{ 'FILTER' } || {};
 
-  boom "invalid TABLE name [$table]"    unless de_check_name( $table ) or ! des_exists( $table );
+  boom "invalid TABLE name [$table]"    unless de_check_name( $table ) and des_exists( $table );
   boom "invalid DATA [$data]"           unless ref( $data ) eq 'HASH';
   boom "invalid ID [$id]"               if $id ne '' and ! de_check_id( $id );
   boom "invalid FILTER [$filter]"       unless ref( $filter ) eq 'HASH';
 
   my $profile = subs_get_current_profile();
-  boom "E_ACCESS: user group 967 has global write restriction" if ! $profile->has_root_access() and $profile->check_access( 967 ); # FIXME: move to common
   boom "E_ACCESS: access denied oper [UPDATE] for table [$table]" unless $profile->check_access_table( 'UPDATE', $table );
 
   my $rec = new Decor::Core::DB::Record;
@@ -1421,7 +1416,7 @@ sub sub_update
 
   $rec->taint_mode_enable_all();
 
-  my ( $where, $bind ) = __filter_to_where( $id > 0 ? { '_ID' => $id } : $filter, $table );
+  my ( $where, $bind ) = __filter_to_where( $id > 0 ? { '_ID' => $id } : $filter );
   boom "E_ACCESS: UPDATE requires ID or non-empty FILTER, TABLE [$table]" unless @$where; # empty WHERE would update the first record of the table
   my $where_clause = join ' AND ', @$where;
 
@@ -1465,15 +1460,14 @@ sub sub_delete
   my $id     =    $mi->{ 'ID'     };
   my $filter =    $mi->{ 'FILTER' } || {};
 
-  boom "invalid TABLE name [$table]"    unless de_check_name( $table ) or ! des_exists( $table );
+  boom "invalid TABLE name [$table]"    unless de_check_name( $table ) and des_exists( $table );
   boom "invalid ID [$id]"               if $id ne '' and ! de_check_id( $id );
   boom "invalid FILTER [$filter]"       unless ref( $filter ) eq 'HASH';
 
   my $profile = subs_get_current_profile();
-  boom "E_ACCESS: user group 967 has global write restriction" if ! $profile->has_root_access() and $profile->check_access( 967 ); # FIXME: move to common
   boom "E_ACCESS: access denied oper [DELETE] for table [$table]" unless $profile->check_access_table( 'DELETE', $table );
 
-  my ( $where, $bind ) = __filter_to_where( $id > 0 ? { '_ID' => $id } : $filter, $table );
+  my ( $where, $bind ) = __filter_to_where( $id > 0 ? { '_ID' => $id } : $filter );
   my $where_clause = join ' AND ', @$where;
 
   # FIXME: URGENT: finish delete code :)
@@ -1490,7 +1484,7 @@ sub sub_init
   my $table  = uc   $mi->{ 'TABLE'  };
   my $id     =      $mi->{ 'ID'     };
 
-  boom "invalid TABLE name [$table]"    unless de_check_name( $table ) or ! des_exists( $table );
+  boom "invalid TABLE name [$table]"    unless de_check_name( $table ) and des_exists( $table );
   boom "invalid ID [$id]"               if $id ne '' and ! de_check_id( $id );
 
   my $rec = new Decor::Core::DB::Record;
@@ -1518,7 +1512,7 @@ sub sub_recalc
   my $id     =      $mi->{ 'ID'     };
   my $insert = 1 if $mi->{ 'INSERT' };
 
-  boom "invalid TABLE name [$table]"    unless de_check_name( $table ) or ! des_exists( $table );
+  boom "invalid TABLE name [$table]"    unless de_check_name( $table ) and des_exists( $table );
   boom "invalid ID [$id]"               if $id ne '' and ! de_check_id( $id );
 
   my $rec = new Decor::Core::DB::Record;
@@ -1568,13 +1562,12 @@ sub sub_do
   my $do     = uc $mi->{ 'DO'     };
   my $data   =    $mi->{ 'DATA'   };
   my $id     =    $mi->{ 'ID'     };
-  boom "invalid TABLE name [$table]"    unless de_check_name( $table ) or ! des_exists( $table );
-  boom "invalid DO name [$do]"          unless de_check_name( $do ) or ! des_exists_category( 'DO', $table, $do );
+  boom "invalid TABLE name [$table]"    unless de_check_name( $table ) and des_exists( $table );
+  boom "invalid DO name [$do]"          unless de_check_name( $do ) and des_exists_category( 'DO', $table, $do );
   boom "invalid DATA [$data]"           unless ref( $data ) eq 'HASH';
   boom "invalid ID [$id]"               unless $id eq '' or de_check_id( $id );
 
   my $profile = subs_get_current_profile();
-  boom "E_ACCESS: user group 967 has global write restriction" if ! $profile->has_root_access() and $profile->check_access( 967 ); # FIXME: move to common
   boom "E_ACCESS: access denied do [$do] for table [$table]" unless $profile->check_access_table_category( 'EXECUTE', $table, 'DO', $do );
 
   my $rec = new Decor::Core::DB::Record;
@@ -1616,7 +1609,7 @@ sub sub_access
   my $oper   = uc $mi->{ 'OPER'   };
   my $data   =    $mi->{ 'DATA'   }; # not supported yet
 
-  boom "invalid TABLE name [$table]"    unless de_check_name( $table ) or ! des_exists( $table );
+  boom "invalid TABLE name [$table]"    unless de_check_name( $table ) and des_exists( $table );
   boom "invalid DATA [$data]"           if $data and ref( $data ) ne 'HASH';
   boom "invalid ID [$id]"               unless de_check_id( $id );
   boom "invalid OPER [$oper]"           unless de_check_name( $oper );
@@ -1660,7 +1653,7 @@ sub sub_file_save
   my $fdes   =    $mi->{ 'DES'    };
   my $data   =    $mi->{ 'DATA'   };
 
-  boom "invalid TABLE name [$table]"    unless de_check_name( $table ) or ! des_exists( $table );
+  boom "invalid TABLE name [$table]"    unless de_check_name( $table ) and des_exists( $table );
   boom "invalid ID [$id]"               if $id ne '' and ! de_check_id( $id );
   boom "invalid SIZE [$size]"           unless $size > 0;
   boom "invalid DATA [$data]"           unless ref( $data ) eq 'HASH';
@@ -1670,8 +1663,7 @@ sub sub_file_save
   $rec->set_profile_locked( $profile );
   $rec->taint_mode_enable_all();
 
-  my $des = load_table( $table );
-  boom "E_ACCESS: FILE_SAVE access denied, table [$table] is not of type FILE" unless $des->get_table_type() eq 'FILE';
+  boom "E_ACCESS: FILE_SAVE access denied, table [$table] is not of type FILE" unless des_table_type( $table ) eq 'FILE';
 
   if( $id ne '' )
     {
@@ -1683,7 +1675,7 @@ sub sub_file_save
       }
     else
       {
-      boom "E_NOT_FOUND: FILE_LOAD access denied, FILE ID [$id] not found";
+      boom "E_NOT_FOUND: FILE_SAVE access denied, FILE ID [$id] not found";
       }
     }
   else
@@ -1712,8 +1704,18 @@ sub sub_file_save
   $rec->write( SYS_FNAME => $fname_short );
 
   # FIXME: move to server IO like in Client IO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  open( my $fo, '>', $fname_part );
-  binmode( $fo );
+  my $fo;
+  my $open_err;
+  if( open( $fo, '>', $fname_part ) )
+    {
+    binmode( $fo );
+    }
+  else
+    {
+    # incoming file data is still read below and discarded, keeps the client/server protocol in sync
+    $open_err = "$!";
+    $fo = undef;
+    }
   my $buf_size = 1024*1024;
   my $read;
   my $file_size = $size;
@@ -1722,12 +1724,14 @@ sub sub_file_save
     my $data;
     my $read_size = $file_size > $buf_size ? $buf_size : $file_size;
     $read = socket_read( $socket, \$data, $read_size );
-    print $fo $data;
+    print $fo $data if $fo;
     last unless $read > 0;
     $file_size -= $read;
     last if $file_size <= 0;
     }
-  close( $fo );
+  close( $fo ) if $fo;
+
+  boom "E_IO: FILE_SAVE cannot write file [$fname_part] [$open_err], TABLE [$table] ID [$id]" if $open_err;
 
   if( $file_size > 0 )
     {
@@ -1759,7 +1763,7 @@ sub sub_file_load
   my $table  = uc $mi->{ 'TABLE'  };
   my $id     =    $mi->{ 'ID'     };
 
-  boom "invalid TABLE name [$table]"    unless de_check_name( $table ) or ! des_exists( $table );
+  boom "invalid TABLE name [$table]"    unless de_check_name( $table ) and des_exists( $table );
   boom "invalid ID [$id]"               unless de_check_id( $id );
 
   my $profile = subs_get_current_profile();
@@ -1767,8 +1771,7 @@ sub sub_file_load
   $rec->set_profile_locked( $profile );
   $rec->taint_mode_enable_all();
 
-  my $des = load_table( $table );
-  boom "E_ACCESS: FILE_LOAD access denied, table [$table] is not of type FILE" unless $des->get_table_type() eq 'FILE';
+  boom "E_ACCESS: FILE_LOAD access denied, table [$table] is not of type FILE" unless des_table_type( $table ) eq 'FILE';
 
   boom "E_ACCESS: FILE_LOAD access denied oper [READ] for table [$table]" unless $profile->check_access_table( 'READ', $table );
 
@@ -1826,16 +1829,6 @@ sub sub_commit
 };
 
 
-sub sub_commit
-{
-  my $mi = shift;
-  my $mo = shift;
-
-  subs_disable_manual_transaction();
-  dsn_commit();
-
-  $mo->{ 'XS' } = 'OK';
-};
 
 
 sub sub_rollback

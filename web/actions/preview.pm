@@ -9,6 +9,8 @@
 ##############################################################################
 package decor::actions::preview;
 use strict;
+use Decor::Shared::Describe;
+use Decor::Web::Utils;
 
 use Data::Dumper;
 use Data::Tools 1.21;
@@ -41,15 +43,15 @@ sub main
   return "<#e_data>" unless $table and $id;
 
   my $tdes        = $core->describe( $table );
-  my $table_label = $tdes->get_label();
+  my $table_label = des_table_label( $tdes );
 
   my @fields           = @{ $ps->{ 'FIELDS_WRITE_AR'  } };
   my $edit_mode_insert = $ps->{ 'EDIT_MODE_INSERT' };
   
   my $edit_mode        = $edit_mode_insert ? 'INSERT' : 'UPDATE';
 
-  #push @fields, @{ $tdes->get_fields_list_by_oper( 'READ' ) };
-  @fields = $tdes->sort_fields_by_order( list_uniq( @fields ) );
+  #push @fields, @{ des_fields_list_by_oper( $tdes, 'READ', de_web_profile() ) };
+  @fields = des_sort_fields_by_order( $tdes, list_uniq( @fields ) );
   
   #print STDERR Dumper( '*'x200, \@fields, $tdes );
 
@@ -114,20 +116,20 @@ sub main
 
   @fields = grep { /^_/ ? $reo->user_has_group( 1 ) ? 1 : 0 : 1 } @fields;
 
-  my %advise = map { $_ => 1 } @{ $tdes->get_fields_list_by_oper( 'READ' ) };
+  my %advise = map { $_ => 1 } @{ des_fields_list_by_oper( $tdes, 'READ', de_web_profile() ) };
 
   my $record_first = 1;
-  for my $field ( $tdes->sort_fields_list_by_order( list_uniq( @fields, keys %advise ) ) )
+  for my $field ( des_sort_fields_by_order( $tdes, list_uniq( @fields, keys %advise ) ) )
     {
     my $fdes      = $tdes->{ 'FIELD' }{ $field };
     my $bfdes     = $fdes; # keep sync code with view/grid, bfdes is begin/origin-field
     my $type_name = $fdes->{ 'TYPE'  }{ 'NAME' };
-    my $label     = $fdes->get_attr( qw( WEB PREVIEW LABEL ) );
+    my $label     = des_get_attr( $fdes, qw( WEB PREVIEW LABEL ) );
     
 
-    next if $fdes->get_attr( qw( WEB HIDDEN       ) );
-    next if $fdes->get_attr( qw( WEB PREVIEW HIDE ) );
-    next if $fdes->get_attr( qw( NO_PREVIEW ) );
+    next if des_get_attr( $fdes, qw( WEB HIDDEN       ) );
+    next if des_get_attr( $fdes, qw( WEB PREVIEW HIDE ) );
+    next if des_get_attr( $fdes, qw( NO_PREVIEW ) );
 
     #my $advise = $fdes->{ 'ADVISE' };
     #next unless $advise eq $edit_mode or $advise eq 'ALL';
@@ -135,7 +137,7 @@ sub main
     my $base_field = $field;
 
     my $data = $row_data->{ $field };
-    next if $fdes->get_attr( qw( WEB VIEW HIDE_IF_EMPTY ) ) and ( ( $type_name eq 'CHAR' and $data eq '' ) or ( $type_name ne 'CHAR' and $data == 0 ) ); # FIXME: move to func
+    next if des_get_attr( $fdes, qw( WEB VIEW HIDE_IF_EMPTY ) ) and ( ( $type_name eq 'CHAR' and $data eq '' ) or ( $type_name ne 'CHAR' and $data == 0 ) ); # FIXME: move to func
 
     my $data_fmt = de_web_format_field( $data, $fdes, 'PREVIEW', { CORE => $core, NO_EDIT => 1, ID => $id } );
     my $field_error;
@@ -144,21 +146,21 @@ sub main
 
 =pod
     # FIXME: remove this and replace with plain de_web_format_field
-    if( $bfdes->is_linked() or $bfdes->is_widelinked() )
+    if( des_is_linked( $bfdes ) or des_is_widelinked( $bfdes ) )
       {
       my ( $linked_table, $linked_id, $linked_field );
-      if( $bfdes->is_widelinked() ) 
+      if( des_is_widelinked( $bfdes ) ) 
         {
         ( $linked_table, $linked_id, $linked_field ) = type_widelink_parse2( $data );
 
         my $ltdes = $core->describe( $linked_table );
         if( $ltdes )
           {
-          my $linked_table_label = $ltdes->get_label();
+          my $linked_table_label = des_table_label( $ltdes );
           if( $linked_field )
             {
             $data_fmt = $core->read_field( $linked_table, $linked_field, $linked_id );
-            my $lfdes = $ltdes->get_field_des( $linked_field );
+            my $lfdes = des_field_des( $ltdes, $linked_field );
             $data_fmt  = de_web_format_field( $data_fmt, $lfdes, 'VIEW', { ID => $linked_id } );
             }
           else
@@ -173,21 +175,21 @@ sub main
         }
       else
         {
-        ( $linked_table, $linked_field ) = $bfdes->link_details();
+        ( $linked_table, $linked_field ) = des_link_details( $bfdes );
         my $ldes = $core->describe( $linked_table );
-        my ( $linked_field_x, $linked_field_x_des ) = $ldes->get_field_des( $linked_field )->expand_field_path();
+        my ( $linked_field_x, $linked_field_x_des ) = des_field_des( $ldes, $linked_field )->expand_field_path();
 
         my $linked_field_x_data = $core->read_field( $linked_table, $linked_field_x, $data );
 
         $data_fmt = de_web_format_field( $linked_field_x_data, $linked_field_x_des, 'PREVIEW' );
         }  
       }
-    elsif( $bfdes->is_backlinked() )
+    elsif( des_is_backlinked( $bfdes ) )
       {
-      my ( $backlinked_table, $backlinked_field ) = $bfdes->backlink_details();
+      my ( $backlinked_table, $backlinked_field ) = des_backlink_details( $bfdes );
       
       my $bltdes = $core->describe( $backlinked_table );
-      my $linked_table_label = $bltdes->get_label();
+      my $linked_table_label = des_table_label( $bltdes );
 
       my $count = $core->count( $backlinked_table, { FILTER => { $backlinked_field => $id } });
       $count = 'Unknown' if $count eq '';
@@ -196,7 +198,7 @@ sub main
       }
 =cut
 
-    my $divider = $bfdes->get_attr( 'WEB', 'DIVIDER' );
+    my $divider = des_get_attr( $bfdes, 'WEB', 'DIVIDER' );
     if( $divider )
       {
       $text .= "<div class='$edit_mode_class_prefix-divider record-sep fmt-center'>$divider</div>";

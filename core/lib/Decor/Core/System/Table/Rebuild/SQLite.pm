@@ -11,6 +11,7 @@
 package Decor::Core::System::Table::Rebuild::SQLite;
 use strict;
 use Decor::Core::Log;
+use Decor::Shared::Describe;
 use Data::Dumper;
 use Exception::Sink;
 use Data::Lock qw( dlock dunlock );
@@ -253,7 +254,7 @@ sub sequence_create
     $sqlite_des->{ 'SYSTEM' }{ 'SYSTEM_SEQUENCES_TABLE' } = time();
     }
 
-  my $db_seq   = $des->get_db_sequence_name();
+  my $db_seq   = des_db_sequence_name( $des );
   
   my $ss = "DELETE FROM DE_SYS_SQLITE_SEQUENCES WHERE SN = ?";
   de_log_debug( "debug: sequence_create: sql: [$ss]" );
@@ -279,7 +280,7 @@ sub sequence_drop
 
   my $sqlite_des = $self->__load_db_des();
 
-  my $db_seq   = $des->get_db_sequence_name();
+  my $db_seq   = des_db_sequence_name( $des );
   
   return undef unless exists $sqlite_des->{ 'SEQUENCES' }{ $db_seq };
 
@@ -300,7 +301,7 @@ sub sequence_get_current_value
 
   my $dbh = $self->get_dbh();
 
-  my $db_seq   = $des->get_db_sequence_name();
+  my $db_seq   = des_db_sequence_name( $des );
 
   my $ss  = "SELECT SV FROM DE_SYS_SQLITE_SEQUENCES WHERE SN = ?";
   my $sth = $dbh->prepare( $ss );

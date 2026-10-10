@@ -17,10 +17,11 @@ use Data::Tools::Process 1.51;
 use Data::Tools::Socket::Protocols;
 
 use Decor::Core::Env;
+use Decor::Core::Boot;
 use Decor::Core::Debug;
 use Decor::Core::Log;
 use Decor::Core::DSN;
-use Decor::Core::Loader::Table;
+use Decor::Core::Subs;
 use Decor::Core::Net::Server::App;
 use Decor::Shared::Utils;
 
@@ -39,7 +40,6 @@ my $opt_restart = 0;
 my $opt_listen_port = 42000;
 my $opt_net_protocols = '*';
 my $server_module = $DEFAULT_SERVER_MODULE;
-my $opt_ssl;
 my %opt_ssl;
 
 my $opt_daemonize;
@@ -71,7 +71,7 @@ options:
     -restart   -- same as -stop but current server will be started
     --         -- end of options
 notes:
-  * first argument is application name and it is mandatory!
+  * without -e, application name is taken from the remote client (CAPS)
   * options cannot be grouped: -fd is invalid, correct is: -f -d
 END
 
@@ -105,7 +105,7 @@ while( @ARGV )
   if( /^-x$/ )
     {
     $opt_maxfork = shift;
-    print "status: option: max fork $opt_prefork processes\n";
+    print "status: option: max fork $opt_maxfork processes\n";
     next;
     }
   if( /^-p(\d+)?$/ )
@@ -127,7 +127,7 @@ while( @ARGV )
     {
     # FIXME: cleanup logic
     $DE_LOG_TO_STDERR = 1;
-    $DE_LOG_TO_FILES  = $1 ? 1 : 0;
+    $DE_LOG_TO_FILES  = ( $1 or $2 ) ? 1 : 0; # -rc is the same as -rrc, see help
     $DE_LOG_STDERR_COLORS = $2 ? 1 : 0;
     print "status: option: forwarding logs to STDERR\n";
     next;
@@ -136,6 +136,7 @@ while( @ARGV )
     {
     # FIXME: cleanup logic
     $DE_LOG_TO_FILES  = 2;
+    next;
     }
   if( /^-t$/ )
     {
@@ -233,7 +234,6 @@ my %srv_opt = (
               NO_FORK => $opt_no_fork,
               PREFORK => $opt_prefork,
               MAXFORK => $opt_maxfork,
-              SSL     => $opt_ssl,
               
               %opt_ssl
 
@@ -241,8 +241,12 @@ my %srv_opt = (
 
 if( $opt_preload )
   {
-  de_init( APP_NAME => $opt_app_name );
-  load_tables_preload();
+  de_boot( APP_NAME => $opt_app_name, PRELOAD => 1 );
+  }
+else
+  {
+  # serving multiple apps, boot on request with app name from the remote client
+  subs_set_boot_handler( sub { de_boot( APP_NAME => shift ) } );
   }
 socket_protocols_allow( $opt_net_protocols );
 
@@ -253,7 +257,10 @@ de_set_log_prefix( perl_package_to_file( $server_module ) );
 
 print "info: starting server [$server_pkg] main listen loop on port [$opt_listen_port]...\n";
 
-my $pid_root = de_root() . "/var/core/$opt_app_name\_$</pid/app_server/$server_pkg.port$opt_listen_port";
+# root is known only after de_boot(), otherwise the same as in de_boot()
+my $root = de_init_done() ? de_root() : $ENV{ 'DECOR_CORE_ROOT' } || '/usr/local/decor';
+my $pid_app  = $opt_app_name ne '' ? $opt_app_name : '_all'; # multi-app server (no -e) has its own pid dir
+my $pid_root = "$root/var/core/$pid_app\_$</pid/app_server/$server_pkg.port$opt_listen_port";
 
 if( -e $pid_root )
   {

@@ -53,7 +53,7 @@ use Decor::Core::Loader::Menu;
 #               environment variable or /usr/local/decor
 #   PRELOAD     optional, preload all tables descriptions and menus
 #
-# calling de_boot() again for the same application does nothing,
+# calling de_boot() again for the same application only honours PRELOAD,
 # different application name booms
 #
 sub de_boot
@@ -67,6 +67,7 @@ sub de_boot
     {
     my $booted_app_name = de_app_name();
     boom "mismatched APP_NAME expected [$booted_app_name] got [$app_name]" unless $booted_app_name eq $app_name;
+    __boot_preload() if $init{ 'PRELOAD' }; # already booted, preload may still be requested
     return 1;
     }
 
@@ -77,18 +78,13 @@ sub de_boot
   my $root = $init{ 'ROOT' } || $ENV{ 'DECOR_CORE_ROOT' } || '/usr/local/decor';
   boom "invalid ROOT directory [$root] use either [/usr/local/decor] or DECOR_CORE_ROOT env var" unless $root ne '' and -d $root;
 
-  Decor::Core::Env::set_env( 'ROOT', $root );
   de_inc_add( "$root/core/lib", "$root/shared/lib" );
 
   # --- application -----------------------------------------------------------
 
-  Decor::Core::Env::set_env( 'APP_NAME', $app_name );
-
   # TODO: move app dir entirely out of decor dir structure
   my ( $app_dir ) = grep { -d } ( "$root/apps/$app_name", "$root/apps/$app_name-app-decor", "$root/apps/decor-app-$app_name" );
   boom "cannot find/access application [$app_name] app dir in root [$root]" unless $app_dir;
-
-  Decor::Core::Env::set_env( 'APP_DIR', $app_dir );
 
   # --- log dir ---------------------------------------------------------------
 
@@ -96,20 +92,16 @@ sub de_boot
   my $log_dir = "$root/var/core/$app_name\_$</log/$log_prefix/";
   dir_path_ensure( $log_dir ) or boom "cannot find/access log dir [$log_dir] for app [$app_name] path [$app_dir]";
 
-  Decor::Core::Env::set_env( 'LOG_DIR', $log_dir );
-
   # --- application config ----------------------------------------------------
 
   # FIXME: common simple config load for arbitrary config files
-  my $cfg = de_config_load_file( "$app_dir/etc/app.conf" );
+  my $cfg = -e "$app_dir/etc/app.conf" ? de_config_load_file( "$app_dir/etc/app.conf" ) : undef; # app.conf is optional
   my %app_cfg = $cfg ? %{ $cfg->{ '@' }{ '@' } } : ();
   dlock \%app_cfg;
 
-  Decor::Core::Env::set_env( 'APP_CFG', \%app_cfg );
-
   # --- bundles ---------------------------------------------------------------
 
-  my @bundles = sort split /[\s\,]+/, exists $app_cfg{ 'USE' } ? $app_cfg{ 'USE' } : ''; # app cfg is locked, missing keys must not be accessed
+  my @bundles = sort grep { $_ ne '' } split /[\s\,]+/, exists $app_cfg{ 'USE' } ? $app_cfg{ 'USE' } : ''; # app cfg is locked, missing keys must not be accessed
   # FIXME: should allow excluding bundles for temporary or debug with "-bundle" f.e.
 
   # FIXME: should be used explicitly with use bundles?
@@ -146,19 +138,29 @@ sub de_boot
   push @inc, "$app_dir/lib";
   push @etc, "$app_dir/etc";
 
-  my @etc_dirs = ( @etc, "$root/core/lib" );
+  my @etc_dirs = ( @etc, "$root/core/etc" );
 
   dlock \@bundles;
   dlock \@bundles_dirs;
   dlock \@inc;
   dlock \@etc_dirs;
 
+  de_inc_add( @inc );
+
+  # --- store -----------------------------------------------------------------
+
+  # all checks above passed, store everything at once, a failed boot leaves
+  # the environment store empty (only @INC and the log dir are touched above),
+  # so a later de_boot() can try again (another app)
+  Decor::Core::Env::set_env( 'ROOT',         $root          );
+  Decor::Core::Env::set_env( 'APP_NAME',     $app_name      );
+  Decor::Core::Env::set_env( 'APP_DIR',      $app_dir       );
+  Decor::Core::Env::set_env( 'LOG_DIR',      $log_dir       );
+  Decor::Core::Env::set_env( 'APP_CFG',      \%app_cfg      );
   Decor::Core::Env::set_env( 'BUNDLES',      \@bundles      );
   Decor::Core::Env::set_env( 'BUNDLES_DIRS', \@bundles_dirs );
   Decor::Core::Env::set_env( 'LIB_DIRS',     \@inc          );
   Decor::Core::Env::set_env( 'ETC_DIRS',     \@etc_dirs     );
-
-  de_inc_add( @inc );
 
   # --- shared setup ----------------------------------------------------------
 
@@ -173,12 +175,15 @@ sub de_boot
 
   Decor::Core::Env::lock_env();
 
-  if( $init{ 'PRELOAD' } )
-    {
-    load_tables_preload();
-    load_menus_preload();
-    }
+  __boot_preload() if $init{ 'PRELOAD' };
 
+  return 1;
+}
+
+sub __boot_preload
+{
+  load_tables_preload();
+  load_menus_preload();
   return 1;
 }
 
@@ -189,6 +194,7 @@ sub de_boot_reset
   loader_reset();
   load_tables_reset();
   load_menus_reset();
+  de_reopen_logs(); # log files of the previous app must not be used further
   return 1;
 }
 

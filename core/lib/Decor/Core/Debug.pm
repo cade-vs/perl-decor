@@ -54,7 +54,7 @@ sub de_debug_dec
 
 sub de_debug_off
 {
-  $DEBUG = undef;
+  $DEBUG = 0;
   return $DEBUG;
 }
 

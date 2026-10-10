@@ -9,6 +9,7 @@
 ##############################################################################
 package decor::actions::commit;
 use strict;
+use Decor::Shared::Describe;
 use Data::Dumper;
 use Exception::Sink;
 
@@ -35,7 +36,7 @@ sub main
 
   my $core = $reo->de_connect();
   my $tdes = $core->describe( $table );
-  my $sdes = $tdes->get_table_des(); # table "Self" description
+  my $sdes = des_table_des( $tdes ); # table "Self" description
 
   my $fields_ar        = $ps->{ 'FIELDS_WRITE_AR'  };
   my $edit_mode_insert = $ps->{ 'EDIT_MODE_INSERT' };
@@ -84,8 +85,8 @@ sub main
     {
     # no error, return to caller unless DO is specified to confirm or provide more information!!!!!!!!!!!!!!!!!
     
-    $reo->forward( '_R' => $rs->{ ':ID' }, ACTION => 'DO', TABLE => $table, ID => $id, DO => 'POST_INSERT' ) if   $edit_mode_insert and $tdes->exists( 'DO', 'POST_INSERT' );
-    $reo->forward( '_R' => $rs->{ ':ID' }, ACTION => 'DO', TABLE => $table, ID => $id, DO => 'POST_UPDATE' ) if ! $edit_mode_insert and $tdes->exists( 'DO', 'POST_UPDATE' );
+    $reo->forward( '_R' => $rs->{ ':ID' }, ACTION => 'DO', TABLE => $table, ID => $id, DO => 'POST_INSERT' ) if   $edit_mode_insert and des_exists_category( 'DO', $tdes, 'POST_INSERT' );
+    $reo->forward( '_R' => $rs->{ ':ID' }, ACTION => 'DO', TABLE => $table, ID => $id, DO => 'POST_UPDATE' ) if ! $edit_mode_insert and des_exists_category( 'DO', $tdes, 'POST_UPDATE' );
 
     my $return_data_from = $reo->param( 'RETURN_DATA_FROM' );
     my $return_data_to   = $reo->param( 'RETURN_DATA_TO'   );
@@ -107,7 +108,7 @@ sub main
     if( $file_mime eq '' )
       {
       # no return, text, forward to VIEW screen as requested 
-      return $reo->forward( '_R' => $rs->{ ':ID' }, ACTION => 'VIEW', TABLE => $table, ID => $id ) if $edit_mode_insert and $sdes->get_attr( qw( WEB VIEW_ON_INSERT ) );
+      return $reo->forward( '_R' => $rs->{ ':ID' }, ACTION => 'VIEW', TABLE => $table, ID => $id ) if $edit_mode_insert and des_get_attr( $sdes, qw( WEB VIEW_ON_INSERT ) );
 
       # no return file, go back now
       return $reo->forward_back( @return_args );

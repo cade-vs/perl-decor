@@ -14,6 +14,9 @@ use Exception::Sink;
 use Data::Tools;
 use Web::Reactor::HTML::Utils;
 
+use Decor::Shared::Describe;
+use Decor::Shared::Profile;
+
 use Exporter;
 our @ISA    = qw( Exporter );
 our @EXPORT = qw( 
@@ -21,6 +24,7 @@ our @EXPORT = qw(
                 de_web_handle_redirect_buttons
                 
                 de_web_get_cue
+                de_web_profile
                 
                 de_web_update_record_with_id
                 
@@ -54,39 +58,26 @@ sub de_web_handle_redirect_buttons
 
 ##############################################################################
 
+# description trees received from the core server are already remapped per
+# user, allowed operations carry the single group 888 (see Decor::Core::Subs
+# __replace_grant_deny), so one constant profile evaluates them:
+#   de_web_profile()->allows( $des, 'READ' )
+#   des_fields_list_by_oper( $tdes, 'READ', de_web_profile() )
+my $WEB_PROFILE;
+
+sub de_web_profile
+{
+  return $WEB_PROFILE if $WEB_PROFILE;
+
+  $WEB_PROFILE = Decor::Shared::Profile->new();
+  $WEB_PROFILE->add_groups( 888 );
+  return $WEB_PROFILE;
+}
+
+# kept for compatibility, moved to Decor::Shared::Describe
 sub de_web_get_cue
 {
-  my $des_obj = shift;
-  
-  my $cue = $des_obj->get_attr( @_ );
-  if( ! $cue and ! $des_obj->is_self_category() )
-    {
-#use Data::Dumper;
-#print STDERR Dumper( '+-*-' x 200, $des_obj->is_self_category(), $des_obj );
-
-    $cue = $des_obj->get_self_des()->get_attr( @_ );
-    }
-  
-  my @cue = split /\s*;\s*/, $cue;
-  
-  s/%t/$des_obj->get_label()/gie for @cue;
-  
-  if( wantarray() )
-    {
-    if( @cue > 1 )
-      {
-      return @cue[ 0 ] if $cue[ 1 ] eq '-';
-      return @cue[ 0, 1 ];
-      }
-    else
-      {
-      return @cue[ 0, 0 ];
-      }  
-    }
-  else
-    {
-    return $cue[ 0 ];
-    }  
+  return des_get_cue( @_ );
 }
 
 ##############################################################################
@@ -123,8 +114,8 @@ sub de_web_read_map_field_data
   my $local_id = shift;
 
   my $tdes  = $core->describe( $table ) or return [];
-  my $fdes  = $tdes->get_field_des( $field );
-  my ( $map_table, $map_near_field, $map_far_field ) = $fdes->map_details();
+  my $fdes  = des_field_des( $tdes, $field );
+  my ( $map_table, $map_near_field, $map_far_field ) = des_map_details( $fdes );
 
   my $ar = $core->select_arhr( $map_table, [ '_ID', $map_far_field, 'STATE' ], { FILTER => { $map_near_field => $local_id }, ORDER_BY => '_ID' } );
   
@@ -138,16 +129,16 @@ sub de_web_read_map_far_table_data
   my $field = shift;
 
   my $tdes  = $core->describe( $table ) or return [];
-  my $fdes  = $tdes->get_field_des( $field );
-  my ( $map_table, $map_near_field, $map_far_field, $far_table, $far_field ) = $fdes->map_details();
+  my $fdes  = des_field_des( $tdes, $field );
+  my ( $map_table, $map_near_field, $map_far_field, $far_table, $far_field ) = des_map_details( $fdes );
 
-  my $far_orderby = $fdes->get_attr( qw( WEB EDIT FAR_ORDERBY ) ) || '_ID';
+  my $far_orderby = des_get_attr( $fdes, qw( WEB EDIT FAR_ORDERBY ) ) || '_ID';
   $far_orderby = '_ID' unless $far_orderby or $far_orderby == 1;
 
 #  my $mtdes  = $core->describe( $map_table ) or return [];
-#  my $mffdes = $mtdes->get_field_des( $map_far_field );
+#  my $mffdes = des_field_des( $mtdes, $map_far_field );
 
-#  my ( $far_table, $far_field ) = $mffdes->link_details();
+#  my ( $far_table, $far_field ) = des_link_details( $mffdes );
 
   my $ar = $core->select_arhr( $far_table, [ '_ID', $far_field, @_ ], { ORDER_BY => $far_orderby } );
   
@@ -160,12 +151,12 @@ sub de_get_selected_map_names
   my $bfdes = shift;
   my $id    = shift;
   
-  my $table = $bfdes->table();
-  my $field = $bfdes->name();
+  my $table = des_item_table( $bfdes );
+  my $field = des_item_name( $bfdes );
 
-  my ( $map_table, $map_near_field, $map_far_field, $far_table, $far_field ) = $bfdes->map_details();
+  my ( $map_table, $map_near_field, $map_far_field, $far_table, $far_field ) = des_map_details( $bfdes );
 
-  my $far_orderby = $bfdes->get_attr( qw( WEB EDIT FAR_ORDERBY ) ) || '_ID';
+  my $far_orderby = des_get_attr( $bfdes, qw( WEB EDIT FAR_ORDERBY ) ) || '_ID';
   $far_orderby = '_ID' unless $far_orderby or $far_orderby == 1;
 
   my $map_data_ar = de_web_read_map_field_data( $core, $table, $field, $id );

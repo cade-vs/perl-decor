@@ -19,7 +19,6 @@ use Encode qw( is_utf8 encode decode );
 use Decor::Shared::Utils;
 use Decor::Core::Env;
 use Decor::Core::DSN;
-use Decor::Core::Loader::Table;
 use Decor::Shared::Describe;
 use Decor::Core::Log;
 
@@ -132,8 +131,8 @@ sub select
 
   $fields = '*' if $fields eq '';
   
-  my $table_des = load_table( $table );
-  my $db_table  = $table_des->get_db_table_name();
+  my $table_des = des_describe( $table );
+  my $db_table  = des_db_table_name( $table_des );
   my @fields;
   
   my $fields_ref = ref( $fields );
@@ -151,7 +150,7 @@ sub select
       {
       if( /^\*$/ )
         {
-        my @fglob = @{ $table_des->get_fields_list() };
+        my @fglob = @{ des_fields_list( $table_des ) };
         if( $profile and $self->taint_mode_get( 'FIELDS' ) and ! $profile->check_access( 966 ) )
           {
           @fglob = grep { $profile->check_access_table_field( 'READ', $table, $_ ) } @fglob;
@@ -176,7 +175,7 @@ sub select
   $self->{ 'SELECT' }{ 'TABLES'     }{ $db_table }++;
   $self->{ 'SELECT' }{ 'BASE_TABLE' } = $table;
 
-  if( $table_des->is_virtual() )
+  if( des_is_virtual( $table_des ) )
     {
     $self->{ 'VIRTUAL' }++;
     return '0E0';
@@ -354,7 +353,7 @@ sub __select_resolve_field
       } 
 
     my $fld_des = des_field_des( $table_now, $field_now );
-    boom "cannot resolve field, current position is NOT A LINK [$table_now:$field_now] in field path [$field]" unless $fld_des->is_linked();
+    boom "cannot resolve field, current position is NOT A LINK [$table_now:$field_now] in field path [$field]" unless des_is_linked( $fld_des );
 
     my $table_next = $fld_des->{ 'LINKED_TABLE' };
     boom "cannot resolve field, current position is [$table_now:$field_now] in field path [$field]" unless des_exists( $table_next );
@@ -368,7 +367,7 @@ sub __select_resolve_field
       my $alias_counter = sprintf( "%04d", ++ $self->{ 'SELECT' }{ 'TABLES_ALIASES_COUNT' } );
       boom "__select_resolve_field(): table alias limit of 9999 is already reached" unless $alias_counter < 9998;
       $join_tree->{ 'TABLE'       } = $table_next;
-      my $db_table_next = $join_tree->{ 'DB_TABLE'    } = load_table( $table_next )->get_db_table_name();
+      my $db_table_next = $join_tree->{ 'DB_TABLE'    } = des_db_table_name( $table_next );
       $alias_next       = $join_tree->{ 'TABLE_ALIAS' } = "_TABLE_ALIAS_$alias_counter";
 
       my $join_type = "INNER "; # to be precise :)
@@ -512,14 +511,15 @@ sub __get_row_access_where_list
 
   my $groups_string = $profile->get_groups_string();
 
-  my $table_des = load_table( $table );
-  my $fields    = $table_des->get_fields_list();
-  my $db_table  = $table_des->get_db_table_name();
+  my $table_des = des_describe( $table );
+  my $fields    = des_fields_list( $table_des );
+  my $db_table  = des_db_table_name( $table_des );
   
   my @where;
   for my $oper ( @_ )
     {
     boom "invalid row access operator [$oper]" unless $oper =~ /^(OWNER|READ|UPDATE|DELETE|LINK)$/;
+    next if $oper eq 'READ' and $profile->check_access( 966 ); # 966 reads all rows, same as Decor::Core::Profile::check_access_row( 'READ' )
     my $sccnt = 0; # security checks count
     my @oper_where;
     for my $field ( @$fields )
@@ -645,9 +645,9 @@ sub insert
     $profile->check_access_table_boom( 'INSERT', $table );
     }
 
-  my $table_des = load_table( $table );
+  my $table_des = des_describe( $table );
   
-  return 1 if $table_des->is_virtual();
+  return 1 if des_is_virtual( $table_des );
 
   if( ! exists $data->{ "_ID" } )
     {
@@ -672,7 +672,7 @@ sub insert
       $profile->check_access_table_field_boom( 'INSERT', $table, $field );
       }
 
-    my $fld_des = $table_des->get_field_des( $field );
+    my $fld_des = des_field_des( $table_des, $field );
     my $field_type_name = $fld_des->{ 'TYPE' }{ 'NAME' };
     
     $value = 0 if $field_type_name ne 'CHAR' and $value == 0;
@@ -684,7 +684,7 @@ sub insert
   chop( $columns );
   chop( $values  );
 
-  my $db_table = $table_des->get_db_table_name();
+  my $db_table = des_db_table_name( $table_des );
   my $sql_stmt = "INSERT INTO\n    $db_table\n    ( $columns )\nVALUES\n    ( $values )";
 
   de_log_debug( "sql: ".__PACKAGE__."::insert:\n---BEGIN SQL---\n$sql_stmt\n---SQL BIND ARGS---\n@values\n---SQL BIND HASH---\n".Dumper( $data )."\n---END SQL---" );
@@ -726,10 +726,10 @@ sub update
   my @where;
   my @bind;
 
-  my $table_des = load_table( $table );
-  my $db_table  = $table_des->get_db_table_name();
+  my $table_des = des_describe( $table );
+  my $db_table  = des_db_table_name( $table_des );
 
-  return 1 if $table_des->is_virtual();
+  return 1 if des_is_virtual( $table_des );
 
   $opts = { 'BIND' => $opts } if ref( $opts ) eq 'ARRAY'; # directly BIND values
 
@@ -765,7 +765,7 @@ sub update
       $profile->check_access_table_field_boom( 'INSERT', $table, $field );
       }
 
-    my $fld_des = $table_des->get_field_des( $field );
+    my $fld_des = des_field_des( $table_des, $field );
     my $field_type_name = $fld_des->{ 'TYPE' }{ 'NAME' };
     
     # TODO: FIXME: stupid :)
@@ -788,7 +788,7 @@ sub update
     $where_clause = join( "\n    AND ", @where );
     }
 
-  my $db_table = $table_des->get_db_table_name();
+  my $db_table = des_db_table_name( $table_des );
   my $sql_stmt = "UPDATE\n    $db_table\nSET\n    $columns\nWHERE\n    $where_clause";
 
   de_log_debug( "sql: ".__PACKAGE__."::update:\n---BEGIN SQL---\n$sql_stmt\n---SQL BIND VALUES---\n@values\n---SQL BIND ARGS---\n@bind\n---SQL BIND HASH---\n".Dumper( $data )."\n---END SQL---" );
@@ -843,10 +843,10 @@ sub delete
   my @where;
   my @bind;
 
-  my $table_des = load_table( $table );
-  my $db_table  = $table_des->get_db_table_name();
+  my $table_des = des_describe( $table );
+  my $db_table  = des_db_table_name( $table_des );
 
-  return 1 if $table_des->is_virtual();
+  return 1 if des_is_virtual( $table_des );
 
   $opts = { 'BIND' => $opts } if ref( $opts ) eq 'ARRAY'; # directly BIND values
 
@@ -882,7 +882,7 @@ sub delete
     $where_clause = join( "\n    AND ", @where );
     }
 
-  my $db_table = $table_des->get_db_table_name();
+  my $db_table = des_db_table_name( $table_des );
   my $sql_stmt = "DELETE FROM\n    $db_table\nWHERE\n    $where_clause";
 
   de_log_debug( "sql: ".__PACKAGE__."::update:\n---BEGIN SQL---\n$sql_stmt\n---SQL BIND ARGS---\n@bind\n---END SQL---" );
@@ -930,11 +930,11 @@ sub get_next_table_id
 
   $self->__reshape( $table );
 
-  my $table_des = load_table( $table );
-  my $db_seq    = $table_des->get_db_sequence_name();
-  my $dsn       = $table_des->get_dsn_name();
+  my $table_des = des_describe( $table );
+  my $db_seq    = des_db_sequence_name( $table_des );
+  my $dsn       = des_dsn_name( $table_des );
 
-  return 1 if $table_des->is_virtual();
+  return 1 if des_is_virtual( $table_des );
   
   my $new_id = $self->get_next_sequence( $db_seq, $dsn );
   de_log_debug( "debug: get_next_table_id: for table [$table] new val [$new_id]" );

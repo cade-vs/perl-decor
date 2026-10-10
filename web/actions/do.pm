@@ -9,6 +9,8 @@
 ##############################################################################
 package decor::actions::do;
 use strict;
+use Decor::Shared::Describe;
+use Decor::Web::Utils;
 use Web::Reactor::HTML::Utils;
 use Web::Reactor::HTML::Layout;
 use Decor::Web::HTML::Utils;
@@ -32,13 +34,13 @@ sub main
   my $core = $reo->de_connect();
   my $tdes = $core->describe( $table );
 
-  my $table_label = $tdes->get_label();
+  my $table_label = des_table_label( $tdes );
 
   $reo->ps_path_add( 'do', qq( Do work on "<b>$table_label</b>" ) );
 
-  my $dodes   = $tdes->get_category_des( 'DO', $do );
+  my $dodes   = des_category_des( $tdes, 'DO', $do );
   
-  return "<#access_denied>" unless $dodes->allows( 'EXECUTE' );
+  return "<#access_denied>" unless de_web_profile()->allows( $dodes, 'EXECUTE' );
   
   my @ids;
   push @ids, $id   if $id   > 0;
@@ -118,7 +120,7 @@ $file_body = Encode::decode_utf8( $file_body );
 =cut
   $text .= "<p>";
   $text .= de_html_alink_button( $reo, 'back', "&lArr; [~Continue]", "[~Return and continue on previous screen]" );
-  $text .= "<a class=button href='javascript:window.print()'><~Print this text></a>" if $dodes->get_attr( 'WEB', 'PRINT' );
+  $text .= "<a class=button href='javascript:window.print()'><~Print this text></a>" if des_get_attr( $dodes, 'WEB', 'PRINT' );
   
   return $text;
 }

@@ -19,7 +19,7 @@ use Time::HR;
 
 use Data::Dumper;
 use Data::Tools;
-use Decor::Core::Env;
+use Decor::Core::Boot;
 use Decor::Shared::Config;
 use Decor::Core::Profile;
 use Decor::Core::Loader::Table;
@@ -41,7 +41,7 @@ my $xml = new XML::Bare( text => '<xml>', );
 $Data::Dumper::Sortkeys = 1;
 $Data::Dumper::Indent   = 3;
 
-de_init( APP_NAME => 'app1' );
+de_boot( APP_NAME => 'app1' );
 
 my $tables_list = load_tables_list();
 my $des = load_table( 'test1' );

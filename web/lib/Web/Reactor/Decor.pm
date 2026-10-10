@@ -15,6 +15,7 @@ use Data::Tools;
 use Data::Dumper;
 
 use Decor::Shared::Net::Client;
+use Decor::Shared::Describe;
 use Decor::Shared::Utils;
 use Decor::Shared::Config;
 use Decor::Shared::Types;
@@ -96,10 +97,21 @@ sub load_trans_file
 
 #-----------------------------------------------------------------------------
 
+# shared des_*() functions take descriptions from the current core client
+sub __de_set_describe_source
+{
+  my $client = shift;
+
+  des_set_source( sub { return $client->describe( shift ) } );
+  return 1;
+}
+
 sub __setup_client_env
 {
   my $self   = shift;
   my $client = shift;
+
+  __de_set_describe_source( $client );
 
   my $user_shr = $self->get_user_session();
 
@@ -120,7 +132,11 @@ sub __de_connect
 {
   my $self = shift;
 
-  return $self->{ 'DECOR_CLIENT_OBJECT' } if $self->{ 'DECOR_CLIENT_OBJECT' } and $self->{ 'DECOR_CLIENT_OBJECT' }->is_connected();
+  if( $self->{ 'DECOR_CLIENT_OBJECT' } and $self->{ 'DECOR_CLIENT_OBJECT' }->is_connected() )
+    {
+    __de_set_describe_source( $self->{ 'DECOR_CLIENT_OBJECT' } );
+    return $self->{ 'DECOR_CLIENT_OBJECT' };
+    }
 
   my $cfg = $self->cfg();
 

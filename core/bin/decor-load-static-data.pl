@@ -15,10 +15,12 @@ use open ':std', ':encoding(UTF-8)';
 
 use Term::ReadKey;
 use Decor::Core::Env;
+use Decor::Core::Boot;
 use Decor::Core::Debug;
 use Decor::Core::DSN;
 use Decor::Core::Log;
 use Decor::Core::Loader::Table;
+use Decor::Shared::Describe;
 use Decor::Core::DB::Record;
 use Decor::Core::DB::IO;
 use Decor::Shared::Utils;
@@ -65,31 +67,31 @@ while( @ARGV )
     push @args, @ARGV;
     last;
     }
-  if( /^-d/ )
+  if( /^-d$/ )
     {
     my $level = de_debug_inc();
     print "option: debug level raised, now is [$level] \n";
     next;
     }
-  if( /^-t/ )
+  if( /^-t$/ )
     {
     $use_files = 0;
     print "option: using TABLE names\n";
     next;
     }
-  if( /^-i/ )
+  if( /^-i$/ )
     {
     $use_files = 1;
     print "option: using FILE names\n";
     next;
     }
     
-  if( /^-v/ )
+  if( /^-v$/ )
     {
     $opt_verbose = 1;
     next;
     }
-  if( /-r(r)?(c)?/ )
+  if( /^-r(r)?(c)?$/ )
     {
     $DE_LOG_TO_STDERR = 1;
     $DE_LOG_TO_FILES  = $1 ? 1 : 0;
@@ -110,7 +112,7 @@ my $opt_app_name = shift @args;
 
 de_set_log_prefix( 'decor-load-static' );
 
-de_init( APP_NAME => $opt_app_name );
+de_boot( APP_NAME => $opt_app_name );
 
 my @objects = @args;
 @objects = sort @{ load_tables_list() } if ! $use_files and ! @objects;
@@ -182,11 +184,11 @@ sub import_data
   my $tdes = load_table( $table );
 
   my $des = load_table( $table );
-  my $fields = $des->get_fields_list();
+  my $fields = des_fields_list( $des );
   my %data_default;
   for my $field ( @$fields )
     {
-    my $fdes      = $des->get_field_des( $field );
+    my $fdes      = des_field_des( $des, $field );
     my $type_name = $fdes->{ 'TYPE' }{ 'NAME' };
     $data_default{ $field } = $type_name eq 'CHAR' ? '' : 0;
     }

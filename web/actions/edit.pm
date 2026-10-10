@@ -9,6 +9,7 @@
 ##############################################################################
 package decor::actions::edit;
 use strict;
+use Decor::Shared::Describe;
 use Data::Dumper;
 use Data::Tools;
 use Exception::Sink;
@@ -57,9 +58,9 @@ sub main
 
   my $core = $reo->de_connect();
   my $tdes = $core->describe( $table );
-  my $sdes = $tdes->get_table_des(); # table "Self" description
+  my $sdes = des_table_des( $tdes ); # table "Self" description
 
-  my $table_label = $tdes->get_label();
+  my $table_label = des_table_label( $tdes );
 
   if( $id == 0 )
     {
@@ -85,7 +86,7 @@ sub main
       my $status_ref = $core->status_ref();
       return "<#e_internal>[$status_ref]" unless $id > 0;
 
-      $fields_ar = $tdes->get_fields_list_by_oper( 'INSERT' );
+      $fields_ar = des_fields_list_by_oper( $tdes, 'INSERT', de_web_profile() );
 
       if( $copy_id )
         {
@@ -112,8 +113,8 @@ sub main
       $edit_mode        = 'UPDATE';
 
       my $fields_rd;
-      $fields_ar = $tdes->get_fields_list_by_oper( 'UPDATE' );
-      $fields_rd = $tdes->get_fields_list_by_oper( 'READ'   );
+      $fields_ar = des_fields_list_by_oper( $tdes, 'UPDATE', de_web_profile() );
+      $fields_rd = des_fields_list_by_oper( $tdes, 'READ', de_web_profile() );
 
       my $row_data;
       if( $id == 0 )
@@ -147,8 +148,8 @@ sub main
   my ( $browser_window_title, $browser_window_hint ) = $reo->ps_path_add_by_cue( $sdes, $edit_mode, $ps->{ 'ROW_DATA' } );
 
   return "<#access_denied>" unless @$fields_ar;
-  return "<#access_denied>" if   $edit_mode_insert and ! $tdes->allows( 'INSERT' );
-  return "<#access_denied>" if ! $edit_mode_insert and ! $tdes->allows( 'UPDATE' );
+  return "<#access_denied>" if   $edit_mode_insert and ! de_web_profile()->allows( $tdes, 'INSERT' );
+  return "<#access_denied>" if ! $edit_mode_insert and ! de_web_profile()->allows( $tdes, 'UPDATE' );
   return "<#access_denied>" if ! $edit_mode_insert and ! $core->access( 'UPDATE', $table, $id );
 
   my $fields = join ',', @$fields_ar;
@@ -181,7 +182,7 @@ sub main
       next unless @$upload;
       $upload = shift @$upload;
 
-      my ( $linked_table, $linked_field ) = $fdes->link_details();
+      my ( $linked_table, $linked_field ) = des_link_details( $fdes );
 
       my $upload_fn = file_name_ext( $upload->{ 'filename' } );
       my $mime      = $upload->{ 'headers' }{ 'content-type' };
@@ -304,22 +305,22 @@ sub main
   my @backlinks_text;
 
   my $record_first = 1;
-  my %advise = map { $_ => 1 } @{ $tdes->get_fields_list_by_oper( 'READ' ) };
-  my @fields = $tdes->sort_fields_list_by_order( list_uniq( @$fields_ar, keys %advise ) );
+  my %advise = map { $_ => 1 } @{ des_fields_list_by_oper( $tdes, 'READ', de_web_profile() ) };
+  my @fields = des_sort_fields_by_order( $tdes, list_uniq( @$fields_ar, keys %advise ) );
   for my $field ( @fields )
     {
     my $fdes       = $tdes->{ 'FIELD'  }{ $field };
-    my $label      = $fdes->get_attr( 'WEB', $edit_mode, 'LABEL' ) || $field;
+    my $label      = des_get_attr( $fdes, 'WEB', $edit_mode, 'LABEL' ) || $field;
     my $type_name  = $fdes->{ 'TYPE' }{ 'NAME'  };
-    my $required   = "<span class='required' title='[~Required field]'>*</span>" if $fdes->get_attr( 'REQUIRED' );
+    my $required   = "<span class='required' title='[~Required field]'>*</span>" if des_get_attr( $fdes, 'REQUIRED' );
 
-    next if $fdes->get_attr( 'WEB', $edit_mode, 'HIDE' );
+    next if des_get_attr( $fdes, 'WEB', $edit_mode, 'HIDE' );
 
     my $base_field = $field;
 
     my $field_data = $ps->{ 'ROW_DATA' }{ $field };
 
-    next if $fdes->get_attr( 'WEB', $edit_mode, 'HIDE_IF_EMPTY' ) and ( ( $type_name eq 'CHAR' and $field_data eq '' ) or ( $type_name ne 'CHAR' and $field_data == 0 ) ); # FIXME: move to func
+    next if des_get_attr( $fdes, 'WEB', $edit_mode, 'HIDE_IF_EMPTY' ) and ( ( $type_name eq 'CHAR' and $field_data eq '' ) or ( $type_name ne 'CHAR' and $field_data == 0 ) ); # FIXME: move to func
 
     my $field_error;
 
@@ -329,7 +330,7 @@ sub main
       }
 
     my ( $field_input, $field_input_ctrl, $field_details, $backlinks_text );
-    if( ! $fdes->allows( $edit_mode ) or $link_field_disable eq $field )
+    if( ! de_web_profile()->allows( $fdes, $edit_mode ) or $link_field_disable eq $field )
       {
       my $advise = uc $fdes->{ 'ADVISE' };
       next unless $advise eq $edit_mode or $advise eq 'ALL';
@@ -349,7 +350,7 @@ sub main
     push @backlinks_text, @$backlinks_text if $backlinks_text;
     next unless defined $field_input;
 
-    my $divider = $fdes->get_attr( 'WEB', 'DIVIDER' );
+    my $divider = des_get_attr( $fdes, 'WEB', 'DIVIDER' );
     if( $divider )
       {
       $text .= "<div class='$edit_mode_class_prefix-divider record-sep fmt-center'>$divider</div>";
@@ -455,7 +456,7 @@ sub edit_get_field_control_info
     if( $type_name eq 'CHAR' )
       {
       my $pass_type = 1 if $fdes->{ 'PASSWORD' } or $field =~ /^PASSWORD/;
-      my $rows = $fdes->get_attr( 'WEB', 'ROWS' );
+      my $rows = des_get_attr( $fdes, 'WEB', 'ROWS' );
       my $field_size = $flen;
       my $field_maxlen = $field_size;
       $field_size = 42 if $field_size > 42; # TODO: fixme
@@ -500,13 +501,13 @@ sub edit_get_field_control_info
 
       if( $field_data > 0 )
         {
-        my ( $linked_table, $linked_field ) = $fdes->link_details();
+        my ( $linked_table, $linked_field ) = des_link_details( $fdes );
         my $ltdes = $core->describe( $linked_table );
         my $file_name = $core->read_field( $linked_table, 'NAME', $field_data );
         $field_input .= $file_name;
         $field_input .= "<p>";
 
-        $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "file_dn.svg", "[~Download current file]",           ACTION => 'file_dn', TABLE => $linked_table, ID => $field_data ) if $ltdes->allows( 'READ' );
+        $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "file_dn.svg", "[~Download current file]",           ACTION => 'file_dn', TABLE => $linked_table, ID => $field_data ) if de_web_profile()->allows( $ltdes, 'READ' );
 
         # FIXME: TODO: set option
         $field_input .= qq( <iframe reactor_src="?action=file_dn&table=$linked_table&id=$field_data" width="100%" height="700px"></iframe><p> );
@@ -518,17 +519,17 @@ sub edit_get_field_control_info
       {
       next if $link_field_disable and $link_field_disable eq $field;
 
-      my ( $linked_table, $linked_field ) = $fdes->link_details();
+      my ( $linked_table, $linked_field ) = des_link_details( $fdes );
       my $ltdes = $core->describe( $linked_table );
-      my $enum  = $ltdes->get_table_type() eq 'ENUM';
+      my $enum  = des_table_type( $ltdes ) eq 'ENUM';
 
-      my $select_filter_name = uc $fdes->get_attr( 'WEB', 'SELECT_FILTER_NAME' );
-      my $select_filter_bind = uc $fdes->get_attr( 'WEB', 'SELECT_FILTER_BIND' );
+      my $select_filter_name = uc des_get_attr( $fdes, 'WEB', 'SELECT_FILTER_NAME' );
+      my $select_filter_bind = uc des_get_attr( $fdes, 'WEB', 'SELECT_FILTER_BIND' );
       my @select_filter_bind = map { $ps->{ 'ROW_DATA' }{ $_ } || 0 } split /[\s,]+/, $select_filter_bind;
 
-      my $search = $fdes->get_attr( qw( WEB SEARCH ) );
-      my $combo  = $fdes->get_attr( qw( WEB COMBO  ) );
-      my $radio  = $fdes->get_attr( qw( WEB RADIO  ) );
+      my $search = des_get_attr( $fdes, qw( WEB SEARCH ) );
+      my $combo  = des_get_attr( $fdes, qw( WEB COMBO  ) );
+      my $radio  = des_get_attr( $fdes, qw( WEB RADIO  ) );
       if( $radio or $combo or $search )
         {
         my $spf_fmt;
@@ -551,14 +552,14 @@ sub edit_get_field_control_info
 
         for( @spf_fld )
           {
-          $_ = $ltdes->expand_field_path( $_ );
+          $_ = des_expand_path( $ltdes, $_ );
           }
 
         my @combo_data;
         my $sel_hr     = {};
         $sel_hr->{ $field_data } = 1;
 
-#        my @lfields = @{ $ltdes->get_fields_list_by_oper( 'READ' ) };
+#        my @lfields = @{ des_fields_list_by_oper( $ltdes, 'READ', de_web_profile() ) };
         my @lfields = @spf_fld;
         unshift @lfields, '_ID', $linked_field;
 
@@ -576,7 +577,7 @@ sub edit_get_field_control_info
 
         my $lfields = join ',', '_ID', @lfields, values %basef;
 
-        my $combo_orderby = $fdes->get_attr( qw( WEB COMBO ORDERBY ) ) || join( ',', @ord_fld );
+        my $combo_orderby = des_get_attr( $fdes, qw( WEB COMBO ORDERBY ) ) || join( ',', @ord_fld );
 
         my $combo_select = $core->select( $linked_table, $lfields, { 'FILTER_NAME' => $select_filter_name, 'FILTER_BIND' => \@select_filter_bind, ORDER_BY => $combo_orderby, CHECK_ROW_LINK_ACCESS => 1 } );
         push @combo_data, { KEY => '*', VALUE => 0, LABEL => '&empty;' } unless $search;
@@ -600,12 +601,12 @@ sub edit_get_field_control_info
           }
 
         my $fmt_class;
-        if( $fdes->get_attr( 'WEB', 'EDIT', 'MONO' ) )
+        if( des_get_attr( $fdes, 'WEB', 'EDIT', 'MONO' ) )
           {
           $fmt_class .= " fmt-mono";
           }
 
-        my $recalc_on_change = 'http_form_submit( this.form, null, null )' if $fdes->get_attr( qw( WEB RECALC_ON_CHANGE ) );
+        my $recalc_on_change = 'http_form_submit( this.form, null, null )' if des_get_attr( $fdes, qw( WEB RECALC_ON_CHANGE ) );
 
         if( $search )
           {
@@ -644,8 +645,8 @@ sub edit_get_field_control_info
       else
         {
         # is not combo, i.e. regular LINK
-        my $lfdes = $fdes->describe_linked_field();
-        my ( $link_path, $llfdes ) = $lfdes->expand_field_path();
+        my $lfdes = des_describe_linked_field( $fdes );
+        my ( $link_path, $llfdes ) = des_field_expand_path( $lfdes );
         my $link_data = $core->read_field( $linked_table, $link_path, $field_data );
         my $link_data_fmt;
         my $link_data_class = 'link-data';
@@ -667,57 +668,57 @@ sub edit_get_field_control_info
         {
         if( $field_data > 0 )
           {
-          my $detach_cue = $bfdes->get_attr( qw( WEB EDIT DETACH_LINKED_CUE ) ) || "[~Detach linked record]";
+          my $detach_cue = des_get_attr( $bfdes, qw( WEB EDIT DETACH_LINKED_CUE ) ) || "[~Detach linked record]";
           $field_input_ctrl .= de_html_form_button_redirect( $reo, 'here', $edit_form, "detach.svg",      $detach_cue, "F:$field" => 0 );
           }
         
-        if( $ltdes->get_table_type() eq 'FILE' )
+        if( des_table_type( $ltdes ) eq 'FILE' )
           {
           if( $field_data > 0 )
             {
-            $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "file_up.svg", "[~Upload and replace current file]", ACTION => 'file_up', TABLE => $linked_table, ID => $field_data ) if $ltdes->allows( 'UPDATE' );
-            $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "file_dn.svg", "[~Download current file]",           ACTION => 'file_dn', TABLE => $linked_table, ID => $field_data ) if $ltdes->allows( 'READ' );
+            $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "file_up.svg", "[~Upload and replace current file]", ACTION => 'file_up', TABLE => $linked_table, ID => $field_data ) if de_web_profile()->allows( $ltdes, 'UPDATE' );
+            $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "file_dn.svg", "[~Download current file]",           ACTION => 'file_dn', TABLE => $linked_table, ID => $field_data ) if de_web_profile()->allows( $ltdes, 'READ' );
             }
           else
             {
-            $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "file_new.svg", "[~Upload new file]", ACTION => 'file_up', TABLE => $linked_table, ID => -1, RETURN_DATA_TO => $field ) if $ltdes->allows( 'INSERT' );
+            $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "file_new.svg", "[~Upload new file]", ACTION => 'file_up', TABLE => $linked_table, ID => -1, RETURN_DATA_TO => $field ) if de_web_profile()->allows( $ltdes, 'INSERT' );
             }
           }
         else
           {
           if( $field_data > 0 )
             {
-            $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "view.svg", "[~View linked data]", ACTION => 'view', TABLE => $linked_table, ID => $field_data ) if $ltdes->allows( 'READ'   ) and ! $enum;
-            $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "edit.svg", "[~Edit linked data]", ACTION => 'edit', TABLE => $linked_table, ID => $field_data ) if $ltdes->allows( 'UPDATE' );
+            $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "view.svg", "[~View linked data]", ACTION => 'view', TABLE => $linked_table, ID => $field_data ) if de_web_profile()->allows( $ltdes, 'READ' ) and ! $enum;
+            $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "edit.svg", "[~Edit linked data]", ACTION => 'edit', TABLE => $linked_table, ID => $field_data ) if de_web_profile()->allows( $ltdes, 'UPDATE' );
             }
-          my $select_cue = $bfdes->get_attr( qw( WEB EDIT SELECT_CUE ) ) || "[~Select linked record]";
-          $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "select-from.svg", $select_cue, ACTION => 'grid', TABLE => $linked_table, ID => -1, RETURN_DATA_FROM => '_ID', RETURN_DATA_TO => $field, GRID_MODE => 'SELECT', SELECT_KEY_DATA => $field_data, ORDER_BY => '_ID', FILTER_NAME => $select_filter_name, FILTER_BIND => \@select_filter_bind ) if $ltdes->allows( 'READ'   );
+          my $select_cue = des_get_attr( $bfdes, qw( WEB EDIT SELECT_CUE ) ) || "[~Select linked record]";
+          $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "select-from.svg", $select_cue, ACTION => 'grid', TABLE => $linked_table, ID => -1, RETURN_DATA_FROM => '_ID', RETURN_DATA_TO => $field, GRID_MODE => 'SELECT', SELECT_KEY_DATA => $field_data, ORDER_BY => '_ID', FILTER_NAME => $select_filter_name, FILTER_BIND => \@select_filter_bind ) if de_web_profile()->allows( $ltdes, 'READ' );
           }
         }
-        my $insert_cue = $bfdes->get_attr( qw( WEB EDIT INSERT_CUE ) ) || "[~Insert and link a new record]";
-        $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "insert.svg",      $insert_cue, ACTION => 'edit', TABLE => $linked_table, ID => -1, RETURN_DATA_FROM => '_ID', RETURN_DATA_TO => $field ) if $ltdes->allows( 'INSERT' );
+        my $insert_cue = des_get_attr( $bfdes, qw( WEB EDIT INSERT_CUE ) ) || "[~Insert and link a new record]";
+        $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "insert.svg",      $insert_cue, ACTION => 'edit', TABLE => $linked_table, ID => -1, RETURN_DATA_FROM => '_ID', RETURN_DATA_TO => $field ) if de_web_profile()->allows( $ltdes, 'INSERT' );
       }
     elsif( $type_name eq 'MAP' )
       {
-      my $map_edit_cue = $bfdes->get_attr( qw( WEB EDIT MAP_EDIT_CUE ) ) || "[~Edit map]";
-      $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "map-edit.svg",      $map_edit_cue, ACTION => 'edit_map', TABLE => $table, FIELD => $field, ID => $id, MASTER_RECORD => "$table:$id" ); # TODO: if $ltdes->allows( 'INSERT' );
+      my $map_edit_cue = des_get_attr( $bfdes, qw( WEB EDIT MAP_EDIT_CUE ) ) || "[~Edit map]";
+      $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "map-edit.svg",      $map_edit_cue, ACTION => 'edit_map', TABLE => $table, FIELD => $field, ID => $id, MASTER_RECORD => "$table:$id" ); # TODO: if de_web_profile()->allows( $ltdes, 'INSERT' );
 
       $field_input .= join '', map { "* $_<br>" } @{ de_get_selected_map_names( $core, $bfdes, $id ) };
       }
     elsif( $type_name eq 'BACKLINK' )
       {
-      my ( $backlinked_table, $backlinked_field ) = $bfdes->backlink_details();
+      my ( $backlinked_table, $backlinked_field ) = des_backlink_details( $bfdes );
       my $bltdes = $core->describe( $backlinked_table ) or next;
-      my $linked_table_label = $bltdes->get_label();
+      my $linked_table_label = des_table_label( $bltdes );
 
       my $count = $core->count( $backlinked_table, { FILTER => { $backlinked_field => $id } });
 
-      my $detail_fields = $bfdes->get_attr( qw( WEB EDIT DETAIL_FIELDS ) );
+      my $detail_fields = des_get_attr( $bfdes, qw( WEB EDIT DETAIL_FIELDS ) );
       if( $detail_fields and $count > 0)
         {
         my $backlink_text;
 
-        $detail_fields = join ',', @{ $bltdes->get_fields_list() } if $detail_fields eq '*';
+        $detail_fields = join ',', @{ des_fields_list( $bltdes ) } if $detail_fields eq '*';
 
         my $sub_de_data_grid_cb = sub
           {
@@ -725,16 +726,16 @@ sub edit_get_field_control_info
           my $ccid = $reo->create_uniq_id();
           my $text;
           $text .= de_html_form_button_redirect( $reo, 'new', $edit_form, "view.svg", "[~View linked data]", ACTION => 'view', TABLE => $backlinked_table, ID => $id, );
-          $text .= de_html_form_button_redirect( $reo, 'new', $edit_form, "edit.svg", "[~Edit linked data]", ACTION => 'edit', TABLE => $backlinked_table, ID => $id ) if $bltdes->allows( 'UPDATE' );
+          $text .= de_html_form_button_redirect( $reo, 'new', $edit_form, "edit.svg", "[~Edit linked data]", ACTION => 'edit', TABLE => $backlinked_table, ID => $id ) if de_web_profile()->allows( $bltdes, 'UPDATE' );
           return $text;
           };
       
-        my $details_limit = $bfdes->get_attr( qw( WEB EDIT DETAILS_LIMIT ) ) || 16;
+        my $details_limit = des_get_attr( $bfdes, qw( WEB EDIT DETAILS_LIMIT ) ) || 16;
         $field_details .= "<p>" . de_data_grid( $core, $backlinked_table, $detail_fields, { FILTER => { $backlinked_field => $id }, LIMIT => $details_limit, CLASS => 'grid view record', TITLE => "[~Related] $linked_table_label", CTRL_CB => $sub_de_data_grid_cb } ) ;
 
-        my ( $insert_cue, $insert_cue_hint ) = de_web_get_cue( $bltdes->get_table_des(), qw( WEB GRID INSERT_CUE ) );
-        $field_details .= de_html_form_button_redirect( $reo, 'new', $edit_form, "[~View all records]",  "[~View all backlinked records from] <b>$linked_table_label</b>",  BTYPE => 'nav', ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, FILTER => { $backlinked_field => $id } ) if $bltdes->allows( 'READ' ) and $count > 0 and $count > $details_limit;
-        $field_details .= de_html_form_button_redirect( $reo, 'new', $edit_form, $insert_cue, $insert_cue_hint, BTYPE => 'act', ACTION => 'edit', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, ID => -1, "F:$backlinked_field" => $id ) if $bltdes->allows( 'INSERT' );
+        my ( $insert_cue, $insert_cue_hint ) = de_web_get_cue( des_table_des( $bltdes ), qw( WEB GRID INSERT_CUE ) );
+        $field_details .= de_html_form_button_redirect( $reo, 'new', $edit_form, "[~View all records]",  "[~View all backlinked records from] <b>$linked_table_label</b>",  BTYPE => 'nav', ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, FILTER => { $backlinked_field => $id } ) if de_web_profile()->allows( $bltdes, 'READ' ) and $count > 0 and $count > $details_limit;
+        $field_details .= de_html_form_button_redirect( $reo, 'new', $edit_form, $insert_cue, $insert_cue_hint, BTYPE => 'act', ACTION => 'edit', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, ID => -1, "F:$backlinked_field" => $id ) if de_web_profile()->allows( $bltdes, 'INSERT' );
 
         $backlink_text .= $field_details;
       
@@ -744,8 +745,8 @@ sub edit_get_field_control_info
         }
       else
         {
-        $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "grid.svg",   "[~View all backlinked records from] <b>$linked_table_label</b>",  ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, FILTER => { $backlinked_field => $id } ) if $bltdes->allows( 'READ' ) and $count > 0;
-        $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "insert.svg", "[~Insert and link a new record into] <b>$linked_table_label</b>", ACTION => 'edit', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, LINK_FIELD_DISABLE => $backlinked_field ) if $bltdes->allows( 'INSERT' );
+        $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "grid.svg",   "[~View all backlinked records from] <b>$linked_table_label</b>",  ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, FILTER => { $backlinked_field => $id } ) if de_web_profile()->allows( $bltdes, 'READ' ) and $count > 0;
+        $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "insert.svg", "[~Insert and link a new record into] <b>$linked_table_label</b>", ACTION => 'edit', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, LINK_FIELD_DISABLE => $backlinked_field ) if de_web_profile()->allows( $bltdes, 'INSERT' );
 
         $count = 'Unknown' if $count eq '';
 

@@ -12,8 +12,6 @@ use strict;
 
 use lib ( map { die "invalid DECOR_CORE_ROOT dir [$_]\n" unless -d; ( "$_/core/lib", "$_/shared/lib" ) } ( $ENV{ 'DECOR_CORE_ROOT' } || '/usr/local/decor' ) );
 
-use Time::HR;
-
 use Clone qw( clone ); # description tree may hold code refs, Storable cannot clone them
 use Data::Lock qw( dlock dunlock );
 use Data::Tools 1.09;
@@ -21,8 +19,6 @@ use Data::Tools 1.09;
 use Data::Dumper;
 use Decor::Core::Boot;
 use Decor::Core::Debug;
-#use Decor::Core::Config;
-use Decor::Core::Profile;
 use Decor::Core::Loader::Table;
 use Decor::Shared::Describe;
 use Decor::Core::Log;
@@ -34,7 +30,7 @@ my $opt_app_name;
 my $opt_verbose;
 
 our $help_text = <<END;
-usage: $0 <options> application_name table fields
+usage: $0 <options> application_name [table [fields]]
 options:
     -v        -- verbose output
     -d        -- debug mode, can be used multiple times to rise debug level
@@ -43,6 +39,7 @@ options:
     --        -- end of options
 notes:
   * first argument is application name and it is mandatory!
+  * without table name, list of all tables is printed
   * options cannot be grouped: -rd is invalid, correct is: -r -d
 END
 
@@ -55,19 +52,19 @@ while( @ARGV )
     push @args, @ARGV;
     last;
     }
-  if( /^-d/ )
+  if( /^-d$/ )
     {
     my $level = de_debug_inc();
     print "option: debug level raised, now is [$level] \n";
     next;
     }
     
-  if( /^-v/ )
+  if( /^-v$/ )
     {
     $opt_verbose = 1;
     next;
     }
-  if( /-r(r)?/ )
+  if( /^-r(r)?$/ )
     {
     $DE_LOG_TO_STDERR = 1;
     $DE_LOG_TO_FILES  = $1 ? 1 : 0;
@@ -82,13 +79,19 @@ while( @ARGV )
   push @args, $_;
   }
 
-my $opt_app_name = shift @args;
+$opt_app_name = lc shift @args;
 
 de_boot( APP_NAME => $opt_app_name );
 
 $_ = uc $_ for @args;
 
 my $t = shift @args;
+
+if( $t eq '' )
+  {
+  print "$_\n" for @{ load_tables_list() };
+  exit;
+  }
 
 die "unknown table [$t]\n" unless des_exists( $t ); # TODO: suggest similar existing table names
 my $des = load_table( $t );

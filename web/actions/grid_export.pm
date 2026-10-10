@@ -9,6 +9,7 @@
 ##############################################################################
 package decor::actions::grid_export;
 use strict;
+use Decor::Shared::Describe;
 
 use Data::Dumper;
 use Data::Tools 1.21;
@@ -48,7 +49,7 @@ sub main
 
   my $core = $reo->de_connect();
   my $tdes = $core->describe( $table );
-  my $sdes = $tdes->get_table_des(); # table "Self" description
+  my $sdes = des_table_des( $tdes ); # table "Self" description
 
   my $grid_export = $rs->{ 'GRID_EXPORT' };
 
@@ -80,9 +81,9 @@ sub main
       my $type      = $lfdes->{ 'TYPE' };
       my $type_name = $type->{ 'NAME' };
 
-      next if $bfdes->get_attr( qw( WEB GRID HIDE ) );
+      next if des_get_attr( $bfdes, qw( WEB GRID HIDE ) );
 
-      my $lpassword = $lfdes->get_attr( 'PASSWORD' ) ? 1 : 0;
+      my $lpassword = des_get_attr( $lfdes, 'PASSWORD' ) ? 1 : 0;
 
       my $base_field = exists $basef{ $field } ? $basef{ $field } : $field;
 
@@ -94,17 +95,17 @@ sub main
 
       $data_fmt =~ s/`//g; # FIXME: REMOVE ASAP!
 
-      if( $bfdes->is_linked() or $bfdes->is_widelinked() )
+      if( des_is_linked( $bfdes ) or des_is_widelinked( $bfdes ) )
         {
           my ( $linked_table, $linked_id, $linked_field );
-          if( $bfdes->is_linked() ) 
+          if( des_is_linked( $bfdes ) ) 
             {
-            ( $linked_table, $linked_field ) = $bfdes->link_details();
+            ( $linked_table, $linked_field ) = des_link_details( $bfdes );
             $linked_id = $data_base;
             }
           else
             {
-            # $bfdes->is_widelinked()
+            # des_is_widelinked( $bfdes )
             ( $linked_table, $linked_id, $linked_field ) = type_widelink_parse2( $data );
             if( $linked_table )
               {
@@ -120,13 +121,13 @@ sub main
             {
             my $ltdes = $core->describe( $linked_table );
             
-            my $linked_table_label = $ltdes->get_label();
-            if( $bfdes->is_widelinked() )
+            my $linked_table_label = des_table_label( $ltdes );
+            if( des_is_widelinked( $bfdes ) )
               {
               if( $linked_field )
                 {
                 $data_fmt = $core->read_field( $linked_table, $linked_field, $linked_id );
-                my $lfdes = $ltdes->get_field_des( $linked_field );
+                my $lfdes = des_field_des( $ltdes, $linked_field );
                 $data_fmt  = de_web_format_field( $data_fmt, $lfdes, 'VIEW', { ID => $linked_id } );
                 }
               else
@@ -150,14 +151,14 @@ sub main
               }
             } # if $linked_table  
         }
-      elsif( $bfdes->is_backlinked() )
+      elsif( des_is_backlinked( $bfdes ) )
         {
-        my ( $backlinked_table, $backlinked_field ) = $bfdes->backlink_details();
+        my ( $backlinked_table, $backlinked_field ) = des_backlink_details( $bfdes );
         my $bltdes = $core->describe( $backlinked_table );
 
         $data_fmt = ""; # TODO: hide count, which is currently unsupported
         my $bcnt = 'n/a';
-        if( uc( $bfdes->get_attr( 'WEB', 'GRID', 'BACKLINK_GRID_MODE' ) ) eq 'ALL' )
+        if( uc( des_get_attr( $bfdes, 'WEB', 'GRID', 'BACKLINK_GRID_MODE' ) ) eq 'ALL' )
           {
           $bcnt = $core->count( $backlinked_table, { FILTER => { $backlinked_field => [ { OP => 'IN', VALUE => [ $id, 0 ] } ] } } );
           }

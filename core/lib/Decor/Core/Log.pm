@@ -9,7 +9,7 @@
 ##############################################################################
 package Decor::Core::Log;
 use strict;
-use open ':std', ':encoding(UTF-8)';
+use open ':encoding(UTF-8)';
 
 use POSIX;
 use Fcntl qw( :flock );
@@ -115,7 +115,7 @@ sub de_log
     my $ti = Time::HiRes::time();
     my $tm = strftime( "%Y%m%d-%H%M%S", localtime( $ti ) );
     $tm .= '.' . str_pad( num_round( ( $ti - int( $ti ) ) * ( 10 ** 3 ), 0 ), -3, '0' ); # TODO: if option, and if option enabled: require Time::HiRes
-    my $di = sprintf " <%0.3f>", $ti - $last_log_message_time if $last_log_message_time > 0;
+    my $di = $last_log_message_time > 0 ? sprintf( " <%0.3f>", $ti - $last_log_message_time ) : ''; # no conditional my inside the loop
     my $lp = "$tm$di ${DE_LOG_PREFIX}[$$]"; # log msg prefix
     $lp .= "{$DE_LOG_SESSION}" if $DE_LOG_SESSION;
     $last_log_message_time = $ti;
@@ -137,8 +137,14 @@ sub de_log
         my $log_dir = de_env_exists( 'LOG_DIR' ) ? de_log_dir() : undef; # log dir is set by de_boot()
         if( $log_dir and $DE_LOG_TO_FILES and -d $log_dir and ! $fh ) # cc
           {
-          open( $fh, '>>', "$log_dir/$msg_type.log" ); # cc
-          $de_log_files{ $msg_type } = $fh;
+          if( open( $fh, '>>', "$log_dir/$msg_type.log" ) ) # cc
+            {
+            $de_log_files{ $msg_type } = $fh;
+            }
+          else
+            {
+            $fh = undef; # not cached, retried with the next message
+            }
           }
         __log_to_file( $fh, @msg ) if $fh;
         }

@@ -4,7 +4,7 @@
 
 =USR
 
-  link  USERS   USERNAME
+  link  DE_USERS   NAME
   label User
 
 =SESS

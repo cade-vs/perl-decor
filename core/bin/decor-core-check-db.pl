@@ -11,10 +11,11 @@
 use strict;
 use lib ( map { die "invalid DECOR_CORE_ROOT dir [$_]\n" unless -d; ( "$_/core/lib", "$_/shared/lib" ) } ( $ENV{ 'DECOR_CORE_ROOT' } || '/usr/local/decor' ) );
 use Term::ReadKey;
-use Decor::Core::Env;
+use Decor::Core::Boot;
 use Decor::Core::Debug;
 use Decor::Core::Log;
 use Decor::Core::Loader::Table;
+use Decor::Shared::Describe;
 use Decor::Core::DB::Record;
 use Decor::Core::DB::IO;
 use Decor::Shared::Utils;
@@ -48,14 +49,14 @@ while( @ARGV )
     push @args, @ARGV;
     last;
     }
-  if( /-r(r)?/ )
+  if( /^-r(r)?$/ )
     {
     $DE_LOG_TO_STDERR = 1;
     $DE_LOG_TO_FILES  = $1 ? 1 : 0;
     print "option: forwarding logs to STDERR\n";
     next;
     }
-  if( /^-d/ )
+  if( /^-d$/ )
     {
     my $level = de_debug_inc();
     print "option: debug level raised, now is [$level] \n";
@@ -83,10 +84,12 @@ else
 
 #-----------------------------------------------------------------------------
 
-de_init( APP_NAME => $opt_app_name );
+de_boot( APP_NAME => $opt_app_name );
 
 my $table = uc shift @args;
 my $id    =    shift @args;
+
+# FIXME: missing table name is reported by the DB layer as "invalid TABLE name []", should be checked here with usage
 
 if( $id )
   {
@@ -131,14 +134,14 @@ sub check_rec
 
   my $tdes = load_table( $table );
 
-  my $fields = $tdes->get_fields_list();
+  my $fields = des_fields_list( $tdes );
 
   for my $field ( @$fields )
     {
-    my $fdes = $tdes->get_field_des( $field );
-    next unless $fdes->is_linked();
+    my $fdes = des_field_des( $tdes, $field );
+    next unless des_is_linked( $fdes );
     print "$pad [$field]\n";
-    my ( $ltable, $lfield ) = $fdes->link_details();
+    my ( $ltable, $lfield ) = des_link_details( $fdes );
     check_rec( $ltable, $data->{ $field }, $level, { %$seen } );
     }
 }

@@ -50,20 +50,20 @@ while( @ARGV )
     push @args, @ARGV;
     last;
     }
-  if( /^-d/ )
+  if( /^-d$/ )
     {
     my $level = ++$DEBUG;
     print "option: debug level raised, now is [$level] \n";
     next;
     }
-  if( /^-t/ )
+  if( /^-t$/ )
     {
     my $opt_tdir = shift;
     print "option: target directory set to [$opt_tdir] \n";
     next;
     }
     
-  if( /^-v/ )
+  if( /^-v$/ )
     {
     $opt_verbose = 1;
     next;

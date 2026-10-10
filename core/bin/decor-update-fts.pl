@@ -19,9 +19,11 @@ use Data::Tools;
 use Time::Progress;
 
 use Decor::Core::Env;
+use Decor::Core::Boot;
 use Decor::Core::Debug;
 #use Decor::Core::Config;
 use Decor::Core::Loader::Table;
+use Decor::Shared::Describe;
 use Decor::Core::DSN;
 use Decor::Core::Profile;
 use Decor::Core::Log;
@@ -63,26 +65,26 @@ while( @ARGV )
     push @args, @ARGV;
     last;
     }
-  if( /-f/ )
+  if( /^-f$/ )
     {
     $opt_recreate = 1;
     $opt_confirm_first = 1;
     print "option: recreate FTS data\n";
     next;
     }
-  if( /-o/ )
+  if( /^-o$/ )
     {
     $opt_confirm_first = 1;
     print "option: ask confirmation before executing tasks\n";
     next;
     }
-  if( /^-d/ )
+  if( /^-d$/ )
     {
     my $level = de_debug_inc();
     print "option: debug level raised, now is [$level] \n";
     next;
     }
-  if( /-r(r)?/ )
+  if( /^-r(r)?$/ )
     {
     $DE_LOG_TO_STDERR = 1;
     $DE_LOG_TO_FILES  = $1 ? 1 : 0;
@@ -105,7 +107,7 @@ print "info: application name in use [$opt_app_name]\n" if $opt_app_name;
 
 #-----------------------------------------------------------------------------
 
-de_init( APP_NAME => $opt_app_name );
+de_boot( APP_NAME => $opt_app_name );
 
 my $root    = de_root();
 my $app_dir = de_app_dir();
@@ -152,14 +154,14 @@ sub update_fts_data
   
   my $des = load_table( $table );
   my $dbh = dsn_get_dbh_by_table( $table );
-  my $db_name = dsn_get_db_name( $des->get_dsn_name() );
+  my $db_name = dsn_get_db_name( des_dsn_name( $des ) );
 
   my @fields;
   
-  my $fields = $des->get_fields_list();
+  my $fields = des_fields_list( $des );
   for my $f ( @$fields )
     {
-    my $fld_des = $des->get_field_des( $f );
+    my $fld_des = des_field_des( $des, $f );
     next unless $fld_des->{ 'FTS' };
     push @fields, $f;
     }

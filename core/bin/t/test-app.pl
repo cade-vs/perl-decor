@@ -16,7 +16,8 @@ use lib $ENV{ 'DECOR_ROOT' } . '/core/lib/';
 use Time::HR;
 
 use Data::Dumper;
-use Decor::Core::Env; 
+use Decor::Core::Env;
+use Decor::Core::Boot;
 use Decor::Core::Debug;
 use Decor::Core::Loader::Table;
 
@@ -24,7 +25,7 @@ $Data::Dumper::Sortkeys = 1;
 $Data::Dumper::Indent   = 3;
 
 
-de_init( APP_NAME => 'app1' );
+de_boot( APP_NAME => 'app1' );
 
 de_debug_inc();
 my $root = de_root();

@@ -19,7 +19,6 @@ use MIME::Base64;
 use Decor::Shared::Types;
 use Decor::Shared::Utils;
 use Decor::Core::DSN;
-use Decor::Core::Loader::Table;
 use Decor::Shared::Describe;
 use Decor::Core::Log;
 use Decor::Core::DB::IO;
@@ -51,8 +50,8 @@ sub __reshape
   my $self   = shift;
   my $table  = shift;
   
-  my $tdes   = load_table( $table );
-  my $ttype  = $tdes->get_table_type();
+  my $tdes   = des_describe( $table );
+  my $ttype  = des_table_type( $tdes );
   
   my $reshape_class_name = "Decor::Core::DB::Record";
   if( $ttype ne 'GENERIC' )
@@ -339,10 +338,10 @@ sub __create_empty_data
 
   my %data; # FIXME: populate with defaults
 
-  my $tdes = load_table( $table );
-  for my $field ( @{ $tdes->get_fields_list() } )
+  my $tdes = des_describe( $table );
+  for my $field ( @{ des_fields_list( $tdes ) } )
     {
-    my $fdes = $tdes->get_field_des( $field );
+    my $fdes = des_field_des( $tdes, $field );
     $data{ $field } = type_default( $fdes->{ 'TYPE' }{ 'NAME' } );
     }
 
@@ -351,7 +350,7 @@ sub __create_empty_data
   if( $profile and $self->taint_mode_get( 'ROWS' ) )
     {
     my $active_group = $profile->get_primary_group();
-    for my $field ( @{ $tdes->get_fields_list() } )
+    for my $field ( @{ des_fields_list( $tdes ) } )
       {
       next unless $field =~ /^_(OWNER|READ|UPDATE|DELETE|LINK)(_|$)/;
       $data{ $field } = $active_group;
@@ -377,8 +376,8 @@ sub get_fields_list
 
   my $base_table = $self->{ 'BASE_TABLE' };
 
-  my $des = load_table( $base_table );
-  return $des->get_fields_list();
+  my $des = des_describe( $base_table );
+  return des_fields_list( $des );
 }
 
 sub __read
@@ -407,7 +406,7 @@ sub __read_formatted
   my $self     = shift;
   my $data_key = shift;
   
-  my $tdes = load_table( $self->table() );
+  my $tdes = des_describe( $self->table() );
   
   my @res;
   my @fields = ( @_ == 1 and $_[0] eq '*' ) ? @{ $self->get_fields_list() } : @_;
@@ -550,12 +549,12 @@ sub write
 
       my $dst_fdes = des_field_des( $dst_table, $dst_field );
     
-      LINKCHECK: while( $dst_fdes->is_linked() or $dst_fdes->is_widelinked() )
+      LINKCHECK: while( des_is_linked( $dst_fdes ) or des_is_widelinked( $dst_fdes ) )
         {
         my $linked_table;
         my $linked_id;
         
-        if( $dst_fdes->is_linked() )
+        if( des_is_linked( $dst_fdes ) )
           {
           $linked_table = $dst_fdes->{ 'LINKED_TABLE' };
           $linked_id    = $value;
@@ -655,7 +654,7 @@ sub __resolve_field
     my $field_des = des_field_des( $current_table, $current_field );
     my $field_type_name = $field_des->{ 'TYPE' }{ 'NAME' };
 
-    boom "cannot resolve table/field [$current_table/$current_field] it is not a link field" unless $field_des->is_linked();
+    boom "cannot resolve table/field [$current_table/$current_field] it is not a link field" unless des_is_linked( $field_des );
 
     my $linked_table;
     my $next_id;
@@ -996,8 +995,8 @@ sub savepoint
   my $self    = shift;
   my $sp_name = shift;
 
-  my $des = load_table( $self->table() );
-  my $dsn = $des->get_dsn_name();
+  my $des = des_describe( $self->table() );
+  my $dsn = des_dsn_name( $des );
   dsn_savepoint( $sp_name, $dsn );
 }
 
@@ -1013,8 +1012,8 @@ sub rollback_to_savepoint
   my $self    = shift;
   my $sp_name = shift;
 
-  my $des = load_table( $self->table() );
-  my $dsn = $des->get_dsn_name();
+  my $des = des_describe( $self->table() );
+  my $dsn = des_dsn_name( $des );
   dsn_rollback_to_savepoint( $sp_name, $dsn );
 }
 
@@ -1033,7 +1032,7 @@ sub select_backlinked_records
   
   boom "cannot select backlinked records of [$field] it is not a BACKLINK field" unless $ftype_name eq 'BACKLINK';
   
-  my ( $backlinked_table, $backlinked_field ) = $fdes->backlink_details();
+  my ( $backlinked_table, $backlinked_field ) = des_backlink_details( $fdes );
   my $base_id = $self->id();
   
   my $srec = new Decor::Core::DB::Record;
@@ -1056,7 +1055,7 @@ sub get_linked_record
   # TODO: support for WIDELINKs
   boom "cannot get linked record of [$field] it is not a LINK field" unless $ftype_name eq 'LINK';
 
-  my ( $linked_table, $linked_field ) = $fdes->link_details();
+  my ( $linked_table, $linked_field ) = des_link_details( $fdes );
   
   my $id;
   if( $field =~ /\./ ) 
@@ -1091,7 +1090,7 @@ sub count_backlinked_records
   
   boom "cannot select backlinked records of [$field] it is not a BACKLINK field" unless $ftype_name eq 'BACKLINK';
   
-  my ( $backlinked_table, $backlinked_field ) = $fdes->backlink_details();
+  my ( $backlinked_table, $backlinked_field ) = des_backlink_details( $fdes );
 
   my $sio  = new Decor::Core::DB::IO;
   return $sio->count( $backlinked_table, "$backlinked_field = ?", { BIND => [ $dst_id ], %$opts } );
@@ -1110,7 +1109,7 @@ sub select_map_far_records
   
   boom "cannot select map records of [$field] it is not a MAP field" unless $ftype_name eq 'MAP';
 
-  my ( $map_table, $map_near_field, $map_far_field, $far_table, $far_field ) = $fdes->map_details();
+  my ( $map_table, $map_near_field, $map_far_field, $far_table, $far_field ) = des_map_details( $fdes );
 
   # FIXME: far far far from optimal!
   my $io = new Decor::Core::DB::IO;

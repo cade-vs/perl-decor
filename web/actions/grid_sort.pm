@@ -9,6 +9,7 @@
 ##############################################################################
 package decor::actions::grid_sort;
 use strict;
+use Decor::Shared::Describe;
 use Tie::IxHash;
 use Data::Dumper;
 use Exception::Sink;
@@ -43,16 +44,16 @@ sub main
   my $core = $reo->de_connect();
   my $tdes = $core->describe( $table );
 
-  my $table_label = $tdes->get_label();
+  my $table_label = des_table_label( $tdes );
 
-  my @fields = @{ $tdes->get_fields_list_by_oper( 'READ' ) };
+  my @fields = @{ des_fields_list_by_oper( $tdes, 'READ', de_web_profile() ) };
 
 #print STDERR Dumper( "READ fields: ", \@fields );
 
   my $browser_window_title = qq([~Filter records from] "<b>$table_label</b>");
   $reo->ps_path_add( 'filter', $browser_window_title );
 
-#print STDERR Dumper( "error:", \@fields, $ps->{ 'ROW_DATA' }, 'insert', $edit_mode_insert, 'allow', $tdes->allows( 'UPDATE' ) );
+#print STDERR Dumper( "error:", \@fields, $ps->{ 'ROW_DATA' }, 'insert', $edit_mode_insert, 'allow', de_web_profile()->allows( $tdes, 'UPDATE' ) );
 
   return "<#access_denied>" unless @fields > 0;
 
@@ -90,7 +91,7 @@ sub main
     for( keys %sort )
       {
       my $bfdes = $bfdes{ $_ };
-      my $label = $bfdes->get_attr( qw( WEB GRID LABEL ) );
+      my $label = des_get_attr( $bfdes, qw( WEB GRID LABEL ) );
       
       if( $sort{ $_ } == 1 )
         {
@@ -143,16 +144,16 @@ sub main
     my $base_field = $bfdes->{ 'NAME' };
 
     # skip hidden, backlinks, widelinks
-    next if $bfdes->get_attr( 'WEB', 'HIDE' );
+    next if des_get_attr( $bfdes, 'WEB', 'HIDE' );
     next if $type_name eq 'BACKLINK'; 
     next if $type_name eq 'WIDELINK'; 
 
-    my $label    = $bfdes->get_attr( qw( WEB GRID LABEL ) );
+    my $label    = des_get_attr( $bfdes, qw( WEB GRID LABEL ) );
 
 #    my $label     = "$blabel";
 #    if( $bfdes ne $lfdes )
 #      {
-#      my $llabel     = $lfdes->get_attr( qw( WEB GRID LABEL ) );
+#      my $llabel     = des_get_attr( $lfdes, qw( WEB GRID LABEL ) );
 #      $label .= "/$llabel";
 #      }
 
@@ -170,7 +171,7 @@ sub main
     $field_input .= html_element( "input", undef, type => 'hidden', name => $field_control_name, id => $field_control_name, value => '', form => $form_id );
     $field_input .= html_element( "span", $labels_spans, 'data-stages' => 3, 'data-checkbox-input-id' => $field_control_name, onclick => 'reactor_form_sort_toggle(this,"sort-order-input")' );
 
-    my $divider = $bfdes->get_attr( 'WEB', 'DIVIDER' );
+    my $divider = des_get_attr( $bfdes, 'WEB', 'DIVIDER' );
     if( $divider )
       {
       $text .= "<div class='view-divider view-sep record-sep fmt-center'>$divider</div>";

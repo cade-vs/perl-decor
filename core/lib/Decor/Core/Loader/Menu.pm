@@ -14,7 +14,7 @@
 ##############################################################################
 package Decor::Core::Loader::Menu;
 use strict;
-use open ':std', ':encoding(UTF-8)';
+use open ':encoding(UTF-8)';
 
 use Data::Dumper;
 use Exception::Sink;
@@ -23,13 +23,10 @@ use Tie::IxHash;
 use Data::Lock qw( dlock dunlock );
 
 use Decor::Shared::Utils;
-use Decor::Core::Env;
-use Decor::Core::Debug;
+use Decor::Shared::Describe;
 use Decor::Core::Log;
 use Decor::Core::Loader;
 use Decor::Core::Loader::Table;
-#use Decor::Core::Config;
-use Decor::Core::Description::Table;
 
 use Exporter;
 our @ISA    = qw( Exporter );
@@ -46,7 +43,7 @@ our @EXPORT = qw(
 
 # TODO: FIXME: handle LOOP errors!
 
-### TABLE DESCRIPTIONS #######################################################
+### MENU DESCRIPTIONS ########################################################
 
 my %MENU_TYPE_ALIASES = (
                         'SUB'     => 'SUBMENU',
@@ -139,8 +136,6 @@ sub __merge_menu_file
   my $fname     = shift;
   my $opt       = shift || {};
 
-  my $order = 0;
-
   my $inf;
   open( $inf, "<", $fname ) or boom "cannot open menu file [$fname]";
 
@@ -148,6 +143,7 @@ sub __merge_menu_file
 
   my $item_name = '@'; # self :) should be more like 0
   $menu->{ $item_name } ||= {};
+  push @{ $menu->{ $item_name }{ '__DEBUG_ORIGIN' } }, "$fname at 0"; # file/line for error messages
   my $file_mtime = file_mtime( $fname );
   if( $menu->{ $item_name }{ '_MTIME' } < $file_mtime )
     {
@@ -180,11 +176,7 @@ sub __merge_menu_file
       #$menu->{ $item_name }{ 'LABEL' } ||= $item_name;
       $menu->{ $item_name }{ '_ORDER' } = ++ $opt->{ '_ORDER' };
 
-      if( de_debug() )
-        {
-        $menu->{ $item_name }{ 'DEBUG::ORIGIN' } ||= [];
-        push @{ $menu->{ $item_name }{ 'DEBUG::ORIGIN' } }, $origin;
-        }
+      push @{ $menu->{ $item_name }{ '__DEBUG_ORIGIN' } }, $origin; # file/line for error messages, same key as table descriptions
       next;
       }
 
@@ -201,6 +193,7 @@ sub __merge_menu_file
         {
         de_log( "error: menu: unknown attribute key [$key] for menu [$menu_name] item [$item_name] at [$fname at $ln]" );
         $menu->{ $item_name }{ '__INVALID' }++;
+        next;
         }
 
       if( $value =~ /^(['"])(.*?)\1/ )
@@ -235,6 +228,7 @@ sub __merge_menu_file
       next;
       }
 
+    boom "invalid line [$line] in menu [$menu_name] at [$fname at $ln]";
     }
   close( $inf );
 
@@ -245,13 +239,13 @@ sub __merge_menu_hash
 {
   my $menu      = shift;
   my $menu_name = uc shift;
+  my $opt       = shift || {}; # shared by all merged files, keeps _ORDER running (as in Loader::Table)
 
   return de_log( "error: invalid MENU name [$menu_name]" ) unless de_check_name( $menu_name );
 
   my @menus_files = loader_files( 'menus', $menu_name );
 
   my $c = 0;
-  my $opt = {};
   for my $file ( @menus_files )
     {
     $c++;
@@ -269,13 +263,13 @@ sub __postprocess_menu_hash
 
   return de_log( "error: missing MENU (load error) for menu name [$menu_name]" ) unless $menu;
 
-  # postprocessing TABLE (self) ---------------------------------------------
+  # postprocessing MENU (self) ----------------------------------------------
   my @items  = sort { $menu->{ $a }{ '_ORDER' } <=> $menu->{ $b }{ '_ORDER' } } keys %{ $menu };
 
   # convert grant/deny list to access tree
   loader_grant_deny_tree( $menu->{ '@' } );
 
-  # add empty keys to table description before locking
+  # add empty keys to menu description before locking
   for my $attr ( keys %{ $MENU_ATTRS{ '@' } } )
     {
     next if exists $menu->{ '@' }{ $attr };
@@ -284,13 +278,9 @@ sub __postprocess_menu_hash
 
   # more postprocessing work
   $menu->{ '@' }{ '_MENU_NAME'   } = $menu_name;
-  $menu->{ '@' }{ '_ITEMS_LIST'  } = \@items;
-
-  $menu->{ '@' }{ 'GRANT' } = {} unless $menu->{ '@' }{ 'GRANT' };
-  $menu->{ '@' }{ 'DENY'  } = {} unless $menu->{ '@' }{ 'DENY'  };
 
   #print STDERR "MENU DES AFTER SELF PP [$menu_name]:" . Dumper( $menu );
-  # postprocessing FIELDs ---------------------------------------------------
+  # postprocessing ITEMs ----------------------------------------------------
 
   for my $item ( @items )
     {
@@ -311,7 +301,7 @@ sub __postprocess_menu_hash
     
     $type = $MENU_TYPE_ALIASES{ $type } || $type;
 
-    my @debug_origin = exists $item_des->{ 'DEBUG::ORIGIN' } ? @{ $item_des->{ 'DEBUG::ORIGIN' } } : ();
+    my @debug_origin = exists $item_des->{ '__DEBUG_ORIGIN' } ? @{ $item_des->{ '__DEBUG_ORIGIN' } } : ();
 
     # "high" level types
     if( $type eq 'SUBMENU' )
@@ -333,17 +323,18 @@ sub __postprocess_menu_hash
     elsif( $type =~ /^(GRID|INSERT|EDIT|VIEW)$/ )
       {
       my $table = shift @type;
-      my $des = load_table( $table );
+      my $des = des_exists( $table ) ? load_table( $table ) : undef; # des_exists() never booms, also after preload
       if( ! $des )
         {
-        de_log( "error: menu: unknown table [$table] in menu [$menu_name] item [$item] from [@debug_origin]" );
+        de_log( $table eq '' ? "error: menu: missing table name for type [$type] in menu [$menu_name] item [$item] from [@debug_origin]"
+                             : "error: menu: unknown table [$table] in menu [$menu_name] item [$item] from [@debug_origin]" );
         # remove item pointing to unknown table
         #delete $menu->{ $item };
         #next;
         # FIXME: add hint that this menu has problems
         }
       $item_des->{ 'TABLE' }   = $table;
-      $item_des->{ 'LABEL' } ||= $des->get_label();
+      $item_des->{ 'LABEL' } ||= $des ? des_table_label( $des ) : uc( substr( $item, 0, 1 ) ) . lc( substr( $item, 1 ) ); # unknown table, item is kept with default label
       }
     elsif( $type =~ /^(URL)$/ )
       {
@@ -357,8 +348,23 @@ sub __postprocess_menu_hash
       }
     elsif( $type =~ /^(DO)$/ )
       {
-      $item_des->{ 'TABLE' } = shift @type;
-      $item_des->{ 'DO'    } = shift @type;
+      my $table = shift @type;
+      my $do    = shift @type;
+      if( ! des_exists( $table ) )
+        {
+        de_log( "error: menu: unknown table [$table] in menu [$menu_name] item [$item] from [@debug_origin]" );
+        }
+      elsif( $do eq '' )
+        {
+        de_log( "error: menu: missing DO name for table [$table] in menu [$menu_name] item [$item] from [@debug_origin]" );
+        }
+      elsif( ! des_exists_category( 'DO', $table, $do ) )
+        {
+        de_log( "error: menu: unknown DO [$do] in table [$table] in menu [$menu_name] item [$item] from [@debug_origin]" );
+        }
+      # item is kept, same as for unknown tables above
+      $item_des->{ 'TABLE' } = $table;
+      $item_des->{ 'DO'    } = $do;
       }
     else
       {
@@ -384,8 +390,8 @@ sub __postprocess_menu_hash
         }
       }
 
-    # add empty keys to fields description before locking
-    my $menu_attrs = $MENU_ATTRS{ $item eq '@' ? '@' : 'ITEMS' };
+    # add empty keys to item description before locking
+    my $menu_attrs = $MENU_ATTRS{ 'ITEMS' }; # '@' is skipped above
     for my $attr ( keys %$menu_attrs )
       {
       next if exists $item_des->{ $attr };
@@ -394,6 +400,9 @@ sub __postprocess_menu_hash
 
     $item_des->{ 'LABEL' } ||= $item;
     }
+
+  # items list is built after invalid items were removed above, '@' (self) is included
+  $menu->{ '@' }{ '_ITEMS_LIST' } = [ grep { exists $menu->{ $_ } } @items ];
 
   #print STDERR "MENU DES POST PROCESSSED [$menu_name]:" . Dumper( $menu );
 
@@ -424,9 +433,10 @@ sub __load_menu
   tie %$menu, 'Tie::IxHash';
 
   my $rc;
-  $rc = __merge_menu_hash( $menu, '_DE_UNIVERSAL' );
+  my $opt = {};
+  $rc = __merge_menu_hash( $menu, '_DE_UNIVERSAL', $opt );
   # zero $rc for UNIVERSAL is ok
-  $rc = __merge_menu_hash( $menu, $menu_name );
+  $rc = __merge_menu_hash( $menu, $menu_name, $opt );
   return undef unless $rc > 0;
   __postprocess_menu_hash( $menu, $menu_name );
 
@@ -458,7 +468,7 @@ sub load_menus_preload
     {
     de_log_debug2( "preloading MENU for menu name [$menu_name]" );
     load_menu( $menu_name );
-    };
+    }
 
   $MENU_CACHE_PRELOADED = 1;
 }

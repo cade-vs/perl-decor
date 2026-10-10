@@ -11,6 +11,7 @@
 use strict;
 use lib ( map { die "invalid DECOR_CORE_ROOT dir [$_]\n" unless -d; ( "$_/core/lib", "$_/shared/lib" ) } ( $ENV{ 'DECOR_CORE_ROOT' } || '/usr/local/decor' ) );
 use Decor::Core::Env;
+use Decor::Core::Boot;
 use Decor::Core::Debug;
 use Decor::Core::DSN;
 use Decor::Core::Log;
@@ -63,38 +64,38 @@ while( @ARGV )
     push @args, @ARGV;
     last;
     }
-  if( /-r(r)?/ )
+  if( /^-r(r)?$/ )
     {
     $DE_LOG_TO_STDERR = 1;
     $DE_LOG_TO_FILES  = $1 ? 1 : 0;
     print "option: forwarding logs to STDERR\n";
     next;
     }
-  if( /^-d/ )
+  if( /^-d$/ )
     {
     my $level = de_debug_inc();
     print "option: debug level raised, now is [$level]\n";
     next;
     }
-  if( /^-y/ )
+  if( /^-y$/ )
     {
     $opt_all_yes = 1;
     print "option: assuming 'yes' to all questions\n";
     next;
     }
-  if( /^-t/ )
+  if( /^-t$/ )
     {
     $smail_queue_table = shift;
     print "option: smail queue table: $smail_queue_table\n";
     next;
     }
-  if( /^-z/ )
+  if( /^-z$/ )
     {
     $opt_daemonize++;
     print "option: daemonize\n";
     next;
     }
-  if( /^-v/ )
+  if( /^-v$/ )
     {
     $opt_verbose = 1;
     next;
@@ -125,7 +126,7 @@ de_set_log_prefix( 'decor-smail-queue' );
 
 setup_signals();
 
-de_init( APP_NAME => $opt_app_name );
+de_boot( APP_NAME => $opt_app_name );
 
 my $pid_root = de_root() . "/var/core/$opt_app_name\_$</pid/process/smail/$smail_queue_table";
 

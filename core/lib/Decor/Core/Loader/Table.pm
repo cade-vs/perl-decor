@@ -16,31 +16,20 @@
 ##############################################################################
 package Decor::Core::Loader::Table;
 use strict;
-use open ':std', ':encoding(UTF-8)';
+use open ':encoding(UTF-8)';
 
 use Storable qw( dclone );
 use Data::Dumper;
 use Exception::Sink;
 use Data::Tools 1.09;
 use Tie::IxHash;
-use Data::Lock qw( dlock dunlock );
+use Data::Lock qw( dlock );
 
 use Decor::Shared::Types;
-use Decor::Shared::Describe_old;
 use Decor::Shared::Utils;
-use Decor::Core::Env;
-use Decor::Core::Debug;
 use Decor::Core::Log;
 use Decor::Core::Loader;
 use Decor::Shared::Describe;
-#use Decor::Core::Config;
-
-#use Decor::Core::Table::Description;
-#use Decor::Core::Table::Category::Description;
-#use Decor::Core::Table::Category::Self::Description;
-#use Decor::Core::Table::Category::Field::Description;
-#use Decor::Core::Table::Category::Do::Description;
-#use Decor::Core::Table::Category::Action::Description;
 
 use Exporter;
 our @ISA    = qw( Exporter );
@@ -370,8 +359,6 @@ sub __merge_table_des_file
   my $fname  = shift;
   my $opt    = shift || {};
 
-  my $order = 0;
-
   my $inf;
   open( $inf, "<", $fname ) or boom "cannot open table description file [$fname]";
 
@@ -380,7 +367,7 @@ sub __merge_table_des_file
   my $sect_name = '@'; # self :) should be more like 0
   my $category  = '@';
   $des->{ $category }{ $sect_name } ||= {};
-  push @{ $des->{ $category }{ $sect_name }{ '__DEBUG_ORIGIN' } }, "$fname at 0" if de_debug();
+  push @{ $des->{ $category }{ $sect_name }{ '__DEBUG_ORIGIN' } }, "$fname at 0"; # file/line for error messages
   # keep LABEL set by previous files, replace only the default one (previous file name, _DE_UNIVERSAL first)
   my $prev_name = $des->{ $category }{ $sect_name }{ 'NAME' };
   $des->{ $category }{ $sect_name }{ 'NAME'  } = $table;
@@ -451,7 +438,7 @@ sub __merge_table_des_file
 #        $des->{ $category }{ $sect_name }{ $_ } = $des->{ '@' }{ '@' }{ $_ } for keys %{ $COPY_CATEGORY_ATTRS{ $category } };
 #        }
 
-      push @{ $des->{ $category }{ $sect_name }{ '__DEBUG_ORIGIN' } }, $origin if de_debug();
+      push @{ $des->{ $category }{ $sect_name }{ '__DEBUG_ORIGIN' } }, $origin; # file/line for error messages
 
       next;
       }
@@ -518,8 +505,19 @@ sub __merge_table_des_file
         {
         while( my ( $k, $v ) = each %{ $isa->{ '@' }{ '@' } } )
           {
-          next if $k =~ /^(NAME|LABEL)$/;
+          next if $k =~ /^(NAME|LABEL|__DEBUG_ORIGIN)$/; # origin stays the current table's files
+          if( $k eq '_MTIME' )
+            {
+            # keep the latest modification time of both tables
+            $des->{ '@' }{ '@' }{ '_MTIME' } = $v if $des->{ '@' }{ '@' }{ '_MTIME' } < $v;
+            next;
+            }
           $des->{ '@' }{ '@' }{ $k } = ref( $v ) ? dclone( $v ) : $v;
+          }
+        if( exists $isa->{ '@' }{ '@' }{ '__GRANT_DENY_ACCUMULATOR' } )
+          {
+          # inherited self policy replaced the universal one above, table's own grant/deny lines given above @isa are kept after it
+          push @{ $des->{ '@' }{ '@' }{ '__GRANT_DENY_ACCUMULATOR' } }, @{ $opt->{ '_SELF_GRANT_DENY_OWN' } || [] };
           }
         }
 
@@ -535,6 +533,7 @@ sub __merge_table_des_file
 
         $des->{ 'FIELD' }{ $isa_field }{ '_ORDER' } = ++ $opt->{ '_ORDER' };
         $des->{ 'FIELD' }{ $isa_field }{ '__ISA'  } = 1;
+        push @{ $des->{ 'FIELD' }{ $isa_field }{ '__DEBUG_ORIGIN' } }, "$fname at $ln (\@isa)"; # where the field was pulled in
         }
 
       next;
@@ -644,6 +643,7 @@ sub __merge_table_des_file
           }
 
         push @{ $des->{ $category }{ $sect_name }{ '__GRANT_DENY_ACCUMULATOR' } }, "$key  $value";
+        push @{ $opt->{ '_SELF_GRANT_DENY_OWN' } }, "$key  $value" if $category eq '@' and $table ne '_DE_UNIVERSAL'; # table's own self policy, re-appended after @isa ** (see above)
         next;
         }
 
@@ -960,7 +960,7 @@ sub __postprocess_table_raw_description
       $idx->{ 'REM'    } = 'AUTO INDEX';
       $idx->{ 'UNIQUE' } = $fld_des->{ 'UNIQUE' };
 
-      $idx->{ '_ORDER' } = '1001';
+      $idx->{ '_ORDER' } = 1000 + $fld_des->{ '_ORDER' }; # after the explicit indexes, in field order
       }
 
     }
@@ -968,6 +968,10 @@ sub __postprocess_table_raw_description
   # more postprocessing TABLE (self) 2/2 see above--------------------------------
   my @indexes = sort { $des->{ 'INDEX'  }{ $a }{ '_ORDER' } <=> $des->{ 'INDEX'  }{ $b }{ '_ORDER' } } keys %{ $des->{ 'INDEX'  } };
   $des->{ '@' }{ '_INDEXES_LIST' } = \@indexes;
+
+  # back reference to the table, as for fields, DOs and ACTIONs
+  $des->{ 'INDEX'  }{ $_ }{ 'TABLE' } = $table for @indexes;
+  $des->{ 'FILTER' }{ $_ }{ 'TABLE' } = $table for keys %{ $des->{ 'FILTER' } || {} };
 
   for my $do ( @dos )
     {
@@ -1005,8 +1009,6 @@ sub __postprocess_table_raw_description
 
   # print STDERR "TABLE DES POST PROCESSSED [$table]($des):" . Dumper( $des );
 
-############  bless $des, 'Decor::Core::Table::Description';
-############  dlock $des;
   #hash_lock_recursive( $des );
 
 #print STDERR "=====(FINAL) $table: " . Dumper( $des );
@@ -1056,7 +1058,7 @@ sub __check_table_des
     my $fld_des = $des->{ 'FIELD' }{ $field };
 
     my $type  = $fld_des->{ 'TYPE' }{ 'NAME' };
-    my $table = $fld_des->get_table_name();
+    my $table = des_item_table( $fld_des );
 
     # "high" level types
     if( $type eq 'LINK' )
@@ -1081,9 +1083,8 @@ sub load_table
     }
   elsif( $DES_CACHE_PRELOADED )
     {
-    # table must be loaded, if here, then something wrong did happen :)
-    my $tables_dirs = loader_dirs( 'tables' );
-    boom "missing preload description for table [$table] dirs [@$tables_dirs]";
+    # all existing tables are preloaded, so this one is unknown (same as not found below)
+    return undef;
     }
 
   my $des = __load_table_raw_description( $table );
@@ -1095,17 +1096,11 @@ sub load_table
   else
     {
     my $tables_dirs = loader_dirs( 'tables' );
-    de_log( "error: cannot find/load description for table [$table] dirs [@$tables_dirs]" );
+    de_log_debug( "debug: cannot find/load description for table [$table] dirs [@$tables_dirs]" );
     return undef;
     }
 
-  bless_description_tree( $des, 'Decor::Core', qw( FIELD DO ACTION ) );
-
-  $des->__set_describe_callback( sub { return load_table( @_ ) } );
-  $des->{ 'CACHE' } = {};
-
-  dlock( $des );
-  dunlock( $des->{ 'CACHE' } );
+  dlock( $des ); # plain description tree, read with Decor::Shared::Describe des_*() functions
 
   $DES_CACHE{ 'TABLE_DES' }{ $table } = $des;
   # NOTE! check MUST be done after TABLE_DES cache is filled with current table description!

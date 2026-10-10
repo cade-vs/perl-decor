@@ -14,6 +14,7 @@ use Data::Dumper;
 use Exception::Sink;
 use Data::Lock qw( dlock dunlock );
 use Decor::Core::Log;
+use Decor::Shared::Describe;
 use parent 'Decor::Core::System::Table::Rebuild';
 
 ##############################################################################
@@ -222,7 +223,7 @@ sub sequence_create
   my $des    = shift;
   my $start  = shift || 1;
 
-  my $db_seq   = $des->get_db_sequence_name();
+  my $db_seq   = des_db_sequence_name( $des );
   my $sql_stmt = "CREATE SEQUENCE $db_seq INCREMENT BY 1 START WITH $start";
   de_log_debug( "debug: sequence_create: sql: [$sql_stmt]" );
 
@@ -238,7 +239,7 @@ sub sequence_drop
   my $des    = shift;
   my $start  = shift || 1;
 
-  my $db_seq   = $des->get_db_sequence_name();
+  my $db_seq   = des_db_sequence_name( $des );
   my $sql_stmt = "DROP SEQUENCE $db_seq";
   de_log_debug( "debug: sequence_drop: sql: [$sql_stmt]" );
 
@@ -253,7 +254,7 @@ sub sequence_get_current_value
   my $self   = shift;
   my $des    = shift;
 
-  my $db_seq   = $des->get_db_sequence_name();
+  my $db_seq   = des_db_sequence_name( $des );
   
   return $self->select_field_first1( $db_seq, "LAST_VALUE" );
 }

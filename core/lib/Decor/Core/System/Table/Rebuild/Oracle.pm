@@ -13,6 +13,8 @@ use strict;
 use Data::Dumper;
 use Exception::Sink;
 use Data::Lock qw( dlock dunlock );
+use Decor::Core::Log;
+use Decor::Shared::Describe;
 
 use parent 'Decor::Core::System::Table::Rebuild';
 
@@ -220,7 +222,7 @@ sub sequence_create
   my $des    = shift;
   my $start  = shift || 1;
 
-  my $db_seq   = $des->get_db_sequence_name();
+  my $db_seq   = des_db_sequence_name( $des );
   my $sql_stmt = "CREATE SEQUENCE $db_seq INCREMENT BY 1 START WITH $start ORDER";
   de_log_debug( "debug: sequence_create: sql: [$sql_stmt]" );
 
@@ -236,7 +238,7 @@ sub sequence_drop
   my $des    = shift;
   my $start  = shift || 1;
 
-  my $db_seq = $des->get_db_sequence_name();
+  my $db_seq = des_db_sequence_name( $des );
   my $sql_stmt = "DROP SEQUENCE $db_seq"; # cc declared before use
   de_log_debug( "debug: sequence_drop: sql: [$sql_stmt]" ); # cc
 
@@ -251,9 +253,9 @@ sub sequence_get_current_value
   my $self   = shift;
   my $des    = shift;
 
-  my $table     = $des->get_table_name();
-  my $table_des = $des->get_table_des();
-  my $db_seq   = $des->get_db_sequence_name();
+  my $table     = des_table_name( $des );
+  my $table_des = des_table_des( $des );
+  my $db_seq   = des_db_sequence_name( $des );
   my $schema    = $table_des->{ 'SCHEMA' };
 
   my $seq_db_des = $self->describe_db_sequence( $table, $schema );

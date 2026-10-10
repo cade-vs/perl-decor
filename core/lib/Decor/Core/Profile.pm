@@ -22,7 +22,6 @@ use Data::Dumper;
 
 use Decor::Shared::Utils;
 use Decor::Core::Log;
-use Decor::Core::Loader::Table;
 use Decor::Shared::Describe;
 use Decor::Core::DB::IO;
 
@@ -89,8 +88,10 @@ sub add_groups_from_user
 
 ### ACCESS TREES #############################################################
 
-# out-of-band rules before the grant/deny trees:
-# root has access to all, 966 allows read globally, 967 restricts all modifications
+# out-of-band rules before the grant/deny trees, must match the client side
+# mapping in Decor::Core::Subs::__replace_grant_deny():
+# root has access to all, 966 allows READ, CROSS and ACCESS globally,
+# 967 denies INSERT, UPDATE, DELETE and EXECUTE
 sub allows
 {
   my $self = shift;
@@ -99,8 +100,8 @@ sub allows
 
   return 1 if $self->has_root_access();
 
-  return 1 if $oper eq 'READ' and exists $self->{ 'GROUPS' }{ 966 };
-  return 0 if $oper ne 'READ' and exists $self->{ 'GROUPS' }{ 967 };
+  return 1 if $oper =~ /^(READ|CROSS|ACCESS)$/            and exists $self->{ 'GROUPS' }{ 966 };
+  return 0 if $oper =~ /^(INSERT|UPDATE|DELETE|EXECUTE)$/ and exists $self->{ 'GROUPS' }{ 967 };
 
   return $self->SUPER::allows( $des, $oper );
 }
@@ -187,8 +188,7 @@ sub check_access_table_category
     return $cache->{ $oper };
     }
 
-  my $tdes = load_table( $table );
-  my $cdes = $tdes->get_category_des( $cat, $item );
+  my $cdes = des_category_des( $table, $cat, $item ); # booms for unknown table/item
 
   return $cache->{ $oper } = $self->allows( $cdes, $oper ) ? 1 : 0;
 }
@@ -196,6 +196,9 @@ sub check_access_table_category
 ### ROW ACCESS ###############################################################
 
 # FIXME: server-only, to be moved out of the profile into a core function
+# same rules as the SQL row filter in Decor::Core::DB::IO::__get_row_access_where_list():
+# _OWNER* fields are always checked, then _<OPER>* fields, each group of fields
+# passes if any field matches (or there are no such fields), 961 ignores ownership
 sub check_access_row
 {
   my $self = shift;
@@ -206,26 +209,33 @@ sub check_access_row
   my $table = uc $_[1];
   my $dsrc  =    $_[2]; # data source, hashref or record object
 
-  return 1 if $oper eq 'READ' and exists $self->{ 'GROUPS' }{ 966 };
+  return 1 if $self->check_access( 961 ); # ignore ownership globally
   return 0 if $oper ne 'READ' and exists $self->{ 'GROUPS' }{ 967 };
 
+  my @opers = ( 'OWNER' );
+  push @opers, $oper unless $oper eq 'OWNER' or ( $oper eq 'READ' and exists $self->{ 'GROUPS' }{ 966 } ); # 966 reads all rows
+
   my $fields = des_fields_list( $table );
-  my $sccnt = 0; # security checks count
-#print STDERR "--------------------------------check access row [$oper] [$table] [$dsrc] [---] ($sccnt)\n";
-  for my $field ( @$fields )
+  for my $op ( @opers )
     {
-    next unless $field =~ /^_${oper}([_0-9][A-Z_0-9]*)?$/; # _OWNER, _OWNER2, _OWNER_X but not _OWNERSHIP, same as in Describe.pm and DB/IO.pm
+    my $sccnt = 0; # security checks count
+    my $ok;
+    for my $field ( @$fields )
+      {
+      next unless $field =~ /^_${op}([_0-9][A-Z_0-9]*)?$/; # _OWNER, _OWNER2, _OWNER_X but not _OWNERSHIP, same as in Loader/Table.pm and DB/IO.pm
 
-    $sccnt++;
-    my $grp = ref( $dsrc ) eq 'HASH' ? $dsrc->{ $field } : $dsrc->read( $field );
-    my $res = $self->check_access( $grp );
-
-#print STDERR "--------------------------------check access row [$oper] [$table] [$dsrc] [$field]=>[$grp]==OK?[$res] SCCNT($sccnt)\n";
-
-    return 1 if $res;
+      $sccnt++;
+      my $grp = ref( $dsrc ) eq 'HASH' ? $dsrc->{ $field } : $dsrc->read( $field );
+      if( $self->check_access( $grp ) )
+        {
+        $ok = 1;
+        last;
+        }
+      }
+    return 0 if $sccnt > 0 and ! $ok; # fields exist for this operation but none matches
     }
 
-  return $sccnt > 0 ? 0 : 1; # return 1/allow if no security checks are performed at all
+  return 1; # also when no security checks are performed at all
 }
 
 sub check_access_row_boom
