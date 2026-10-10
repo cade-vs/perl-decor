@@ -17,9 +17,10 @@ use Data::Tools::Process 1.51;
 use Data::Tools::Socket::Protocols;
 
 use Decor::Core::Env;
+use Decor::Core::Debug;
 use Decor::Core::Log;
 use Decor::Core::DSN;
-use Decor::Core::Describe;
+use Decor::Core::Loader::Table;
 use Decor::Core::Net::Server::App;
 use Decor::Shared::Utils;
 
@@ -241,7 +242,7 @@ my %srv_opt = (
 if( $opt_preload )
   {
   de_init( APP_NAME => $opt_app_name );
-  preload_all_tables_descriptions();
+  load_tables_preload();
   }
 socket_protocols_allow( $opt_net_protocols );
 

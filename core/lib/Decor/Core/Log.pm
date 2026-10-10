@@ -20,6 +20,7 @@ use Data::Tools;
 use Data::Tools::Math;
 
 use Decor::Core::Env;
+use Decor::Core::Debug;
 
 use Exporter;
 our @ISA    = qw( Exporter );
@@ -109,7 +110,7 @@ sub de_log
 
     my @msg_types;
     @msg_types = ( $msg_in_type ) unless $DE_LOG_TO_FILES == 2;
-    push @msg_types, 'global' if $DE_LOG_TO_FILES and de_init_done();
+    push @msg_types, 'global' if $DE_LOG_TO_FILES and de_env_exists( 'LOG_DIR' );
 
     my $ti = Time::HiRes::time();
     my $tm = strftime( "%Y%m%d-%H%M%S", localtime( $ti ) );
@@ -133,8 +134,8 @@ sub de_log
       if( $DE_LOG_TO_FILES )
         {
         my $fh = $de_log_files{ $msg_type };
-        my $log_dir = de_log_dir();
-        if( de_init_done() and $DE_LOG_TO_FILES and -d $log_dir and ! $fh ) # cc
+        my $log_dir = de_env_exists( 'LOG_DIR' ) ? de_log_dir() : undef; # log dir is set by de_boot()
+        if( $log_dir and $DE_LOG_TO_FILES and -d $log_dir and ! $fh ) # cc
           {
           open( $fh, '>>', "$log_dir/$msg_type.log" ); # cc
           $de_log_files{ $msg_type } = $fh;

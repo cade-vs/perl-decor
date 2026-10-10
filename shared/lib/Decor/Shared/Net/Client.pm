@@ -23,7 +23,7 @@ use Data::Dumper;
 use MIME::Base64;
 use Data::Lock qw( dlock dunlock );
 
-use Decor::Shared::Describe;
+use Decor::Shared::Describe_old;
 use Decor::Shared::Utils;
 
 sub new

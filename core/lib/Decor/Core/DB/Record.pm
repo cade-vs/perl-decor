@@ -19,7 +19,8 @@ use MIME::Base64;
 use Decor::Shared::Types;
 use Decor::Shared::Utils;
 use Decor::Core::DSN;
-use Decor::Core::Describe;
+use Decor::Core::Loader::Table;
+use Decor::Shared::Describe;
 use Decor::Core::Log;
 use Decor::Core::DB::IO;
 use Decor::Core::Code;
@@ -50,7 +51,7 @@ sub __reshape
   my $self   = shift;
   my $table  = shift;
   
-  my $tdes   = describe_table( $table );
+  my $tdes   = load_table( $table );
   my $ttype  = $tdes->get_table_type();
   
   my $reshape_class_name = "Decor::Core::DB::Record";
@@ -213,7 +214,7 @@ sub load
   $self->reset();
 
   # FIXME: try to load record first
-  my %data = map { $_ => '' } @{ des_table_get_fields_list( $table ) };
+  my %data = map { $_ => '' } @{ des_fields_list( $table ) };
 
   my $dbio = $self->{ 'DB::IO' };
 
@@ -338,7 +339,7 @@ sub __create_empty_data
 
   my %data; # FIXME: populate with defaults
 
-  my $tdes = describe_table( $table );
+  my $tdes = load_table( $table );
   for my $field ( @{ $tdes->get_fields_list() } )
     {
     my $fdes = $tdes->get_field_des( $field );
@@ -376,7 +377,7 @@ sub get_fields_list
 
   my $base_table = $self->{ 'BASE_TABLE' };
 
-  my $des = describe_table( $base_table );
+  my $des = load_table( $base_table );
   return $des->get_fields_list();
 }
 
@@ -406,7 +407,7 @@ sub __read_formatted
   my $self     = shift;
   my $data_key = shift;
   
-  my $tdes = describe_table( $self->table() );
+  my $tdes = load_table( $self->table() );
   
   my @res;
   my @fields = ( @_ == 1 and $_[0] eq '*' ) ? @{ $self->get_fields_list() } : @_;
@@ -547,7 +548,7 @@ sub write
 #print Dumper( '--------oper: ', $oper, $dst_table, $dst_field );
       $profile->check_access_table_field_boom( $oper, $dst_table, $dst_field );
 
-      my $dst_fdes = describe_table_field( $dst_table, $dst_field );
+      my $dst_fdes = des_field_des( $dst_table, $dst_field );
     
       LINKCHECK: while( $dst_fdes->is_linked() or $dst_fdes->is_widelinked() )
         {
@@ -651,7 +652,7 @@ sub __resolve_field
       boom "cannot resolve table/field [$current_table/$current_field]" unless des_exists( $current_table, $current_field );
       return ( $current_table, $current_field, $current_id );
       }
-    my $field_des = describe_table_field( $current_table, $current_field );
+    my $field_des = des_field_des( $current_table, $current_field );
     my $field_type_name = $field_des->{ 'TYPE' }{ 'NAME' };
 
     boom "cannot resolve table/field [$current_table/$current_field] it is not a link field" unless $field_des->is_linked();
@@ -895,7 +896,7 @@ sub select
     $dbio->taint_mode_on( 'ROWS' ) if $self->taint_mode_get( 'ROWS' );
     }
 
-  my $fields = des_table_get_fields_list( $table );
+  my $fields = des_fields_list( $table );
   return $dbio->select( $table, $fields, $where, $opt );
 }
 
@@ -995,7 +996,7 @@ sub savepoint
   my $self    = shift;
   my $sp_name = shift;
 
-  my $des = describe_table( $self->table() );
+  my $des = load_table( $self->table() );
   my $dsn = $des->get_dsn_name();
   dsn_savepoint( $sp_name, $dsn );
 }
@@ -1012,7 +1013,7 @@ sub rollback_to_savepoint
   my $self    = shift;
   my $sp_name = shift;
 
-  my $des = describe_table( $self->table() );
+  my $des = load_table( $self->table() );
   my $dsn = $des->get_dsn_name();
   dsn_rollback_to_savepoint( $sp_name, $dsn );
 }
@@ -1027,7 +1028,7 @@ sub select_backlinked_records
 
   my ( $dst_table, $dst_field, $dst_id ) = $self->__resolve_field( $field );
   
-  my $fdes = describe_table_field( $dst_table, $dst_field );
+  my $fdes = des_field_des( $dst_table, $dst_field );
   my $ftype_name = $fdes->{ 'TYPE' }{ 'NAME' };
   
   boom "cannot select backlinked records of [$field] it is not a BACKLINK field" unless $ftype_name eq 'BACKLINK';
@@ -1049,7 +1050,7 @@ sub get_linked_record
 
   my ( $dst_table, $dst_field, $dst_id ) = $self->__resolve_field( $field );
 
-  my $fdes = describe_table_field( $dst_table, $dst_field );
+  my $fdes = des_field_des( $dst_table, $dst_field );
   my $ftype_name = $fdes->{ 'TYPE' }{ 'NAME' };
   
   # TODO: support for WIDELINKs
@@ -1085,7 +1086,7 @@ sub count_backlinked_records
 
   my ( $dst_table, $dst_field, $dst_id ) = $self->__resolve_field( $field );
   
-  my $fdes = describe_table_field( $dst_table, $dst_field );
+  my $fdes = des_field_des( $dst_table, $dst_field );
   my $ftype_name = $fdes->{ 'TYPE' }{ 'NAME' };
   
   boom "cannot select backlinked records of [$field] it is not a BACKLINK field" unless $ftype_name eq 'BACKLINK';
@@ -1104,7 +1105,7 @@ sub select_map_far_records
 
   my ( $dst_table, $dst_field, $dst_id ) = $self->__resolve_field( $field );
   
-  my $fdes = describe_table_field( $dst_table, $dst_field );
+  my $fdes = des_field_des( $dst_table, $dst_field );
   my $ftype_name = $fdes->{ 'TYPE' }{ 'NAME' };
   
   boom "cannot select map records of [$field] it is not a MAP field" unless $ftype_name eq 'MAP';

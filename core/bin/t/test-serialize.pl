@@ -22,7 +22,7 @@ use Data::Tools;
 use Decor::Core::Env;
 use Decor::Shared::Config;
 use Decor::Core::Profile;
-use Decor::Core::Describe;
+use Decor::Core::Loader::Table;
 
 use Storable qw( nfreeze thaw dclone );
 use BSON;
@@ -43,8 +43,8 @@ $Data::Dumper::Indent   = 3;
 
 de_init( APP_NAME => 'app1' );
 
-my $tables_list = des_get_tables_list();
-my $des = describe_table( 'test1' );
+my $tables_list = load_tables_list();
+my $des = load_table( 'test1' );
 
 $des = { %$des };
 hash_unlock_recursive( $des );

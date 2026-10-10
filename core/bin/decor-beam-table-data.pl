@@ -28,9 +28,10 @@ use MIME::Base64;
 use Data::HexDump;
 
 use Decor::Core::Env;
+use Decor::Core::Debug;
 use Decor::Shared::Config;
 use Decor::Core::Profile;
-use Decor::Core::Describe;
+use Decor::Core::Loader::Table;
 use Decor::Core::Log;
 use Decor::Core::DB::IO;
 

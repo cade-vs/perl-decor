@@ -16,7 +16,7 @@ use Exception::Sink;
 
 use Decor::Core::Env;
 use Decor::Core::Utils;
-use Decor::Core::Describe;
+use Decor::Core::Loader::Table;
 use Decor::Shared::Utils;
 use Decor::Shared::Types;
 
@@ -103,7 +103,7 @@ sub __form_process_item
     }
   elsif( $rec )
     {  
-    my $tdes = describe_table( $rec->table() );
+    my $tdes = load_table( $rec->table() );
     my ( $bfdes, $lfdes ) = $tdes->resolve_path( $name );
 
     if( $lfdes->is_backlinked() )

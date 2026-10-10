@@ -7,7 +7,14 @@
 ##  LICENSE: GPLv2
 ##
 ##############################################################################
-package Decor::Core::Describe;
+##
+##  core table descriptions loader: reads tables/*.def files from core,
+##  bundles and app dirs, merges them, builds grant/deny access trees,
+##  caches, preloads; registered as description source for
+##  Decor::Shared::Describe des_* functions
+##
+##############################################################################
+package Decor::Core::Loader::Table;
 use strict;
 use open ':std', ':encoding(UTF-8)';
 
@@ -19,10 +26,13 @@ use Tie::IxHash;
 use Data::Lock qw( dlock dunlock );
 
 use Decor::Shared::Types;
-use Decor::Shared::Describe;
+use Decor::Shared::Describe_old;
 use Decor::Shared::Utils;
 use Decor::Core::Env;
+use Decor::Core::Debug;
 use Decor::Core::Log;
+use Decor::Core::Loader;
+use Decor::Shared::Describe;
 #use Decor::Core::Config;
 
 #use Decor::Core::Table::Description;
@@ -35,44 +45,16 @@ use Decor::Core::Log;
 use Exporter;
 our @ISA    = qw( Exporter );
 our @EXPORT = qw(
-                des_reset
+                load_tables_reset
 
-                des_get_tables_list
-                describe_table
-                describe_table_field
-                preload_all_tables_descriptions
-
-                des_exists
-                des_exists_boom
-                des_exists_category
-
-                des_table_get_fields_list
-
-                describe_parse_access_line
-                describe_preprocess_grant_deny
+                load_tables_list
+                load_table
+                load_tables_preload
                 );
 
 # TODO: FIXME: handle LOOP errors!
 
 ### TABLE DESCRIPTIONS #######################################################
-
-my %OPERS = (
-                      'READ'    => 1,
-                      'INSERT'  => 1,
-                      'UPDATE'  => 1,
-                      'DELETE'  => 1,
-                      'EXECUTE' => 1,
-                      'ACCESS'  => 1,
-                      'CROSS'   => 1,
-                 );
-my @OPERS = keys %OPERS;
-
-my %GROUP_ALIASES = (
-                      'ALL'    => 999,
-                      'NOBODY' => 900,
-                      'NOONE'  => 900,
-                      'GUEST'  => 901,
-);
 
 my %TYPE_ATTRS = (
                       'NAME'   => undef,
@@ -354,58 +336,20 @@ my %INLINE_METHODS = (
 my %DES_CACHE;
 my $DES_CACHE_PRELOADED;
 
-sub des_reset
+sub load_tables_reset
 {
   %DES_CACHE = ();
   $DES_CACHE_PRELOADED = 0;
+  loader_reset();
 
   return 1;
 }
 
 #-----------------------------------------------------------------------------
 
-sub __get_tables_dirs
+sub load_tables_list
 {
-  return $DES_CACHE{ 'TABLES_DIRS_AR' } if exists $DES_CACHE{ 'TABLES_DIRS_AR' };
-
-  my $root         = de_root();
-  my $app_dir      = de_app_dir();
-  my $bundles_dirs = de_bundles_dirs();
-
-  my @dirs;
-  push @dirs, "$root/core/tables";
-  push @dirs, "$_/tables" for reverse @$bundles_dirs;
-  push @dirs, "$app_dir/tables";
-
-  $DES_CACHE{ 'TABLES_DIRS_AR' } = \@dirs;
-
-  return \@dirs;
-}
-
-#-----------------------------------------------------------------------------
-
-sub des_get_tables_list
-{
-  return $DES_CACHE{ 'TABLES_LIST_AR' } if exists $DES_CACHE{ 'TABLES_LIST_AR' };
-
-  my $tables_dirs = __get_tables_dirs();
-
-  #print STDERR 'TABLE DES DIRS:' . Dumper( $tables_dirs );
-
-  my @tables;
-
-  for my $dir ( @$tables_dirs )
-    {
-    #print STDERR "$dir/*.def\n";
-    push @tables, ( sort( glob_tree( "$dir/*.def" ) ) );
-    }
-
-  s/^.*?\/([^\/]+)\.def$/uc($1)/ie for @tables;
-  @tables = sort keys %{ { map { $_ => 1 } grep { ! /^_+/ } @tables } };
-
-  $DES_CACHE{ 'TABLES_LIST_AR' } = \@tables;
-
-  return \@tables;
+  return $DES_CACHE{ 'TABLES_LIST_AR' } ||= loader_names( 'tables' );
 }
 
 #-----------------------------------------------------------------------------
@@ -766,13 +710,7 @@ sub __merge_table_des_files
 
   boom "invalid TABLE name [$table]" unless de_check_name( $table );
 
-  my $tables_dirs = __get_tables_dirs();
-
-  #print STDERR 'TABLE DES DIRS:' . Dumper( $tables_dirs );
-
-  my $table_fname = lc $table;
-  my @table_files;
-  push @table_files, glob_tree( "$_/$table_fname.def" ) for @$tables_dirs;
+  my @table_files = loader_files( 'tables', $table );
 
   my $c = 0;
   for my $file ( @table_files )
@@ -805,7 +743,7 @@ sub __postprocess_table_raw_description
     }
 
   # convert grant/deny list to access tree
-  describe_preprocess_grant_deny( $des->{ '@' } );
+  loader_grant_deny_tree( $des->{ '@' } );
 
   # add empty keys to table description before locking
   for my $attr ( keys %{ $DES_ATTRS{ '@' } } )
@@ -820,6 +758,7 @@ sub __postprocess_table_raw_description
   my @actions = sort { $des->{ 'ACTION' }{ $a }{ '_ORDER' } <=> $des->{ 'ACTION' }{ $b }{ '_ORDER' } } keys %{ $des->{ 'ACTION' } };
 
   $des->{ '@' }{ '_TABLE_NAME'   } = $table;
+  $des->{ '@' }{ 'TABLE'         } = $table; # back reference, as in fields, DOs and ACTIONs
   $des->{ '@' }{ '_FIELDS_LIST'  } = \@fields;
   $des->{ '@' }{ '_DOS_LIST'     } = \@dos;
   $des->{ '@' }{ '_ACTIONS_LIST' } = \@actions;
@@ -970,7 +909,7 @@ sub __postprocess_table_raw_description
       {
       # WIDELINK without own grant/deny starts from the table ones, preprocess adds deny insert update # cc20261008
       $fld_des->{ '__GRANT_DENY_ACCUMULATOR' } ||= [ @{ $des->{ '@' }{ '__GRANT_DENY_ACCUMULATOR' } || [] } ]; # cc20261008
-      describe_preprocess_grant_deny( $fld_des );
+      loader_grant_deny_tree( $fld_des );
       }
     else
       {
@@ -1032,12 +971,14 @@ sub __postprocess_table_raw_description
 
   for my $do ( @dos )
     {
-    describe_preprocess_grant_deny( $des->{ 'DO' }{ $do } );
+    $des->{ 'DO' }{ $do }{ 'TABLE' } = $table; # back reference to the table
+    loader_grant_deny_tree( $des->{ 'DO' }{ $do } );
     }
 
   for my $act ( @actions )
     {
-    describe_preprocess_grant_deny( $des->{ 'ACTION' }{ $act } );
+    $des->{ 'ACTION' }{ $act }{ 'TABLE' } = $table; # back reference to the table
+    loader_grant_deny_tree( $des->{ 'ACTION' }{ $act } );
     }
 
   # add empty keys to fields description before locking
@@ -1130,7 +1071,7 @@ sub __check_table_des
 }
 #-----------------------------------------------------------------------------
 
-sub describe_table
+sub load_table
 {
   my $table = uc shift;
 
@@ -1141,7 +1082,7 @@ sub describe_table
   elsif( $DES_CACHE_PRELOADED )
     {
     # table must be loaded, if here, then something wrong did happen :)
-    my $tables_dirs = __get_tables_dirs();
+    my $tables_dirs = loader_dirs( 'tables' );
     boom "missing preload description for table [$table] dirs [@$tables_dirs]";
     }
 
@@ -1153,14 +1094,14 @@ sub describe_table
     }
   else
     {
-    my $tables_dirs = __get_tables_dirs();
+    my $tables_dirs = loader_dirs( 'tables' );
     de_log( "error: cannot find/load description for table [$table] dirs [@$tables_dirs]" );
     return undef;
     }
 
   bless_description_tree( $des, 'Decor::Core', qw( FIELD DO ACTION ) );
 
-  $des->__set_describe_callback( sub { return describe_table( @_ ) } );
+  $des->__set_describe_callback( sub { return load_table( @_ ) } );
   $des->{ 'CACHE' } = {};
 
   dlock( $des );
@@ -1170,21 +1111,21 @@ sub describe_table
   # NOTE! check MUST be done after TABLE_DES cache is filled with current table description!
   ########__check_table_des( $des ); # TODO: FIXME: check if correct?
 
-#print STDERR "describe_table [$table] " . Dumper( $des );
+#print STDERR "load_table [$table] " . Dumper( $des );
 
   return $des;
 }
 
 #-----------------------------------------------------------------------------
 
-sub preload_all_tables_descriptions
+sub load_tables_preload
 {
-  my $tables = des_get_tables_list();
+  my $tables = load_tables_list();
 
   for my $table ( @$tables )
     {
     de_log_debug( "preloading description for table [$table]" );
-    my $des = describe_table( $table );
+    my $des = load_table( $table );
     __check_table_des( $des ); # do it only when preloading
     }
 
@@ -1196,215 +1137,6 @@ sub preload_all_tables_descriptions
 
 #-----------------------------------------------------------------------------
 
-sub describe_table_field
-{
-  my $table = shift;
-  my $field = shift;
-
-  my $des = describe_table( $table ) or boom "unknown table [$table]"; # describe_table() returns undef for unknown table if not preloaded
-  return $des->get_table_des() if $field eq '@'; # shortcut to self
-  return $des->get_field_des( $field );
-}
-
-#-----------------------------------------------------------------------------
-
-sub describe_preprocess_grant_deny
-{
-  my $hr = shift;
-
-  my %access = ( 'GRANT' => {}, 'DENY' => {} );
-
-  if( exists $hr->{ 'TYPE' } and ref( $hr->{ 'TYPE' } ) eq 'HASH' and exists $hr->{ 'TYPE' }{ 'NAME' } and $hr->{ 'TYPE' }{ 'NAME' } eq 'WIDELINK' )
-    {
-    # WIDELINKs are system and are forbidden for insert and update
-    $hr->{ '__GRANT_DENY_ACCUMULATOR' } = [ @{ $hr->{ '__GRANT_DENY_ACCUMULATOR' } }, 'deny insert update'     ];
-    }
-
-  for my $line ( @{ $hr->{ '__GRANT_DENY_ACCUMULATOR' } } )
-    {
-    my ( $ty, $ta, $ac, $op )  = describe_parse_access_line( $line, $hr );
-
-    for my $o ( @$op )
-      {
-      if( $ta )
-        {
-        # add mode, do not remove previous permissions
-        $access{ $ty }{ $o } = [] unless defined $access{ $ty }{ $o };
-        $access{ $ty }{ $o } = [ [ $access{ $ty }{ $o } ] ] unless ref( $access{ $ty }{ $o } );
-        $ac->{ $o } = [ [ $ac->{ $o } ] ] unless ref( $ac->{ $o } );
-        push @{ $access{ $ty }{ $o } }, @{ $ac->{ $o } };
-        }
-      else
-        {
-        # set mode, remove previous permissions
-        $access{ $ty }{ $o } = $ac->{ $o };
-        }
-      my $rty = { GRANT => 'DENY', DENY => 'GRANT' }->{ $ty };
-      delete $access{ $rty }{ $o };
-      }
-    }
-  $hr->{ 'GRANT' } = $access{ 'GRANT' };
-  $hr->{ 'DENY'  } = $access{ 'DENY'  };
-
-#  print Dumper( "describe_preprocess_grant_deny DEBUG:", $hr->{ 'NAME' }, $hr->{ '__GRANT_DENY_ACCUMULATOR' }, $hr->{ 'GRANT' }, $hr->{ 'DENY' } );
-}
-
-#-----------------------------------------------------------------------------
-
-sub describe_parse_access_line
-{
-  my $line = uc shift;
-  my $hr   = shift; # currently preprocessed field description, used for debug origin
-
-  my @debug_origin = exists $hr->{ '__DEBUG_ORIGIN' } ? @{ $hr->{ '__DEBUG_ORIGIN' } } : ();
-
-  $line =~ s/^\s*//;
-  $line =~ s/\s*$//;
-
-  # TODO: FIXME: make RE simpler!
-  boom "invalid access line [$line] expected [grant|deny <op> <op> <op> to <grp>; <grp> + <grp>; <grp> + !<grp>] at [@debug_origin]"
-        unless $line =~ /^\s*(GRANT|DENY)\s*((\+)?|\s)\s*([A-Z_0-9;,\s]+?)(\s+TO\s+([A-Z0-9!+;,\s]+))?\s*$/;
-
-  my $type_line   = $1;
-  my $type_add    = $3;
-  my $opers_line  = $4;
-  my $groups_line = $5 ? $6 : 'ALL';
-  $groups_line =~ s/\s*//g;
-
-#print "ACCESS DEBUG LINE [$line] OPER [$opers_line] GROUPS [$groups_line]\n";
-#  boom "invalid access line, keywords must not be separated by whitespace [$line]" if $line =~ /[a-z_0-9]\s+[a-z_0-9]/i;
-
-#  $line =~ s/\s*//g;
-#print "ACCESS DEBUG LINE [$line]\n";
-
-###  my @line = split /[;,]/, $line;
-
-###  my $ops = shift @line;
-  my @opers  = split /[\s;,]+/, $opers_line;
-  my @groups = split /\s*[;,]\s*/, $groups_line;
-
-  # replace aliases in each group of a set ( GUEST+5 ), keep leading ! ( !GUEST )
-  $_ = join '+', map { /^(!?)(.*)$/; $1 . ( $GROUP_ALIASES{ $2 } || $2 ) } split /[+]/ for @groups;
-
-  my @valid_opers;
-  for my $op ( @opers )
-    {
-    if( $op eq 'ALL' )
-      {
-      @valid_opers = @OPERS;
-      last;
-      }
-    if( ! $OPERS{ $op } )
-      {
-      de_log( "error: unknown operation [$op] in line [$line] at one of [@debug_origin]" );
-      next;
-      }
-    push @valid_opers, $op;
-    }
-  @opers = @valid_opers; # unknown operations are skipped, not added to the access tree
-
-  my %access;
-
-  for my $op ( @opers )
-    {
-    if( @groups == 1 and $groups[ 0 ] =~ /^\d+$/ and $groups[ 0 ] > 0 )
-      {
-      $access{ $op } = $groups[ 0 ];
-      }
-    else
-      {
-      $access{ $op } = [ map { [ split /[+]/ ] } @groups ];
-      }
-    }
-
-
-#print Dumper( $line, $opers_line, $groups_line, \%access );
-  return ( $type_line, $type_add, \%access, \@opers );
-}
-
-#-----------------------------------------------------------------------------
-
-sub des_exists_boom
-{
-  my $msg = shift;
-  boom "error: $msg: unknown TABLE:FIELD:ATTRIBUTE [@_]" unless des_exists( @_ );
-}
-
-sub des_exists
-{
-  return des_exists_category( 'FIELD', @_ );
-}
-
-sub des_exists_category
-{
-  my $category = uc shift;
-  boom "invalid category [$category]" unless exists $DES_CATEGORIES{ $category };
-  boom "invalid number of arguments, expected (table,field,attr)" unless @_ > 0 and @_ < 4;
-
-  # FIXME: TODO: check logic?
-
-  my $table = uc $_[0]; # cache keys are upper case, as in describe_table()
-
-  return 0 unless de_check_name( $table );
-
-  # check/load table
-  if( exists $DES_CACHE{ 'TABLE_DES' }{ $table } )
-    {
-    # table exists and is loaded, no fields given
-    return 1 if @_ == 1;
-    }
-  elsif( $DES_CACHE_PRELOADED )
-    {
-    # table does not exists and all tables are loaded already
-    return 0;
-    }
-  else
-    {
-    # table not loaded, unsure if exists
-    my $des = describe_table( $table );
-    return 1 if   $des and @_ == 1;
-    return 0 if ! $des;
-    }
-
-  # table exists, but field check is expected
-  my $field = uc $_[1];
-  return 0 unless de_check_name( $field );
-
-  return 0 unless exists $DES_CACHE{ 'TABLE_DES' }{ $table }{ $category };
-
-  if( exists $DES_CACHE{ 'TABLE_DES' }{ $table }{ $category }{ $field } )
-    {
-    return 2 if @_ == 2;
-    }
-  else
-    {
-    return 0;
-    }
-
-  # table and field exist, but attribute check is expected
-  my $attr = uc $_[2];
-
-  if( exists $DES_CACHE{ 'TABLE_DES' }{ $table }{ $category }{ $field }{ $attr } )
-    {
-    return 3 if @_ == 3;
-    }
-  else
-    {
-    return 0;
-    }
-
-  return 0; # catch-all, should be unreachable
-}
-
-#--- helpers -----------------------------------------------------------------
-
-sub des_table_get_fields_list
-{
-  my $table = shift;
-
-  my $des = describe_table( $table ) or boom "unknown table [$table]"; # describe_table() returns undef for unknown table if not preloaded
-  return $des->get_fields_list();
-}
 
 ### EOF ######################################################################
 1;

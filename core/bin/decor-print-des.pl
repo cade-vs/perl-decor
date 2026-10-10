@@ -14,15 +14,17 @@ use lib ( map { die "invalid DECOR_CORE_ROOT dir [$_]\n" unless -d; ( "$_/core/l
 
 use Time::HR;
 
-use Storable qw( dclone );
+use Clone qw( clone ); # description tree may hold code refs, Storable cannot clone them
 use Data::Lock qw( dlock dunlock );
 use Data::Tools 1.09;
 
 use Data::Dumper;
-use Decor::Core::Env;
+use Decor::Core::Boot;
+use Decor::Core::Debug;
 #use Decor::Core::Config;
 use Decor::Core::Profile;
-use Decor::Core::Describe;
+use Decor::Core::Loader::Table;
+use Decor::Shared::Describe;
 use Decor::Core::Log;
 
 $Data::Dumper::Sortkeys = 1;
@@ -82,17 +84,18 @@ while( @ARGV )
 
 my $opt_app_name = shift @args;
 
-de_init( APP_NAME => $opt_app_name );
+de_boot( APP_NAME => $opt_app_name );
 
 $_ = uc $_ for @args;
 
 my $t = shift @args;
 
-my $des = describe_table( $t ) or die "unknwon table [$t]\n"; # TODO: suggest similar existing table names
+die "unknown table [$t]\n" unless des_exists( $t ); # TODO: suggest similar existing table names
+my $des = load_table( $t );
 
 if( $opt_verbose )
   {
-  $des = dclone( $des );
+  $des = clone( $des );
   dunlock( $des );
   dunlock( $des->{ '@' } );
   my $self = $des->{ '@' };
@@ -100,6 +103,7 @@ if( $opt_verbose )
   $des->{ '@' }{ '@' } = $self;
   for my $cat ( keys %$des )
     {
+    next unless ref( $des->{ $cat } ) eq 'HASH'; # skip non-category keys, i.e. callbacks (code refs)
     for my $entry ( sort { $des->{ $cat }{ $a }{ '_ORDER' } <=> $des->{ $cat }{ $b }{ '_ORDER' } } keys %{ $des->{ $cat } } )
       {
       dunlock( $des->{ $cat }{ $entry } );
@@ -122,15 +126,15 @@ if( @args )
   if( @args == 1 and $args[0] eq '@' )
     {
     print "--- TABLE [$t] SELF [@]" . "-" x 42 . "\n";
-    print Dumper( $des->{ '@' } );
+    print Dumper( $opt_verbose ? $des->{ '@' } : des_table_des( $t ) );
     @args = ();
     }
   for my $f ( @args )
     {
     print "--- TABLE [$t] FIELD [$f]" . "-" x 42 . "\n";
-    if( exists $des->{ 'FIELD' }{ $f } )
+    if( des_exists( $t, $f ) )
       {
-      print Dumper( $des->{ 'FIELD' }{ $f } );
+      print Dumper( $opt_verbose ? $des->{ 'FIELD' }{ $f } : des_field_des( $t, $f ) );
       }
     else
       {
@@ -146,13 +150,14 @@ else
   push @des, [ qw( _ORDER FIELD LABEL TYPE LEN DOT ) ];
   
   my $c;
-  for my $field ( sort { $des->{ 'FIELD' }{ $a }{ '_ORDER' } <=> $des->{ 'FIELD' }{ $b }{ '_ORDER' } } keys %{ $des->{ 'FIELD' } } )
+  for my $field ( @{ des_fields_list( $t ) } )
     {
-    my $order = $des->{ 'FIELD' }{ $field }{ '_ORDER' };
-    my $label = $des->{ 'FIELD' }{ $field }{ 'LABEL' };
-    my $type  = $des->{ 'FIELD' }{ $field }{ 'TYPE' }{ 'NAME' };
-    my $dot   = $des->{ 'FIELD' }{ $field }{ 'TYPE' }{ 'DOT'  };
-    my $len   = $des->{ 'FIELD' }{ $field }{ 'TYPE' }{ 'LEN'  };
+    my $fdes  = des_field_des( $t, $field );
+    my $order = $fdes->{ '_ORDER' };
+    my $label = $fdes->{ 'LABEL' };
+    my $type  = des_type_name( $fdes );
+    my $dot   = $fdes->{ 'TYPE' }{ 'DOT'  };
+    my $len   = $fdes->{ 'TYPE' }{ 'LEN'  };
     push @des, [ $order, $field, $label, $type, $len, $dot ]
     }
 
@@ -160,9 +165,10 @@ else
   
   my @idx;
   push @idx, [ qw( _ORDER NAME FIELDS UNIQUE REM ) ];
-  for my $idx ( sort { $des->{ 'INDEX' }{ $a }{ '_ORDER' } <=> $des->{ 'INDEX' }{ $b }{ '_ORDER' } } keys %{ $des->{ 'INDEX' } } )
+  for my $idx ( @{ des_indexes_list( $t ) } )
     {
-    push @idx, [ map { $des->{ 'INDEX' }{ $idx }{ $_ } } qw( _ORDER NAME FIELDS UNIQUE REM ) ]
+    my $ides = des_index_des( $t, $idx );
+    push @idx, [ map { $ides->{ $_ } } qw( _ORDER NAME FIELDS UNIQUE REM ) ]
     }
   print "\n[ INDEXES ]\n", format_ascii_table( \@idx );
   

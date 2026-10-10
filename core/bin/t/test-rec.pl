@@ -18,7 +18,8 @@ use Time::HR;
 
 use Data::Dumper;
 use Decor::Core::Env; 
-use Decor::Core::Describe; 
+use Decor::Core::Debug;
+use Decor::Core::Loader::Table;
 use Decor::Core::DB::Record;
 
 $Data::Dumper::Sortkeys = 1;
@@ -32,7 +33,7 @@ my $root = de_root();
 
 print "root is: $root\n";
 
-my $tdes = describe_table( 'test1' );
+my $tdes = load_table( 'test1' );
 
 my $rec = new Decor::Core::DB::Record;
 $rec->create( 'TEST1' );

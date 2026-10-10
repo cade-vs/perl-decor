@@ -21,7 +21,7 @@ use Data::Dumper;
 use Decor::Core::Env;
 use Decor::Shared::Config;
 use Decor::Core::Profile;
-use Decor::Core::Describe;
+use Decor::Core::Loader::Table;
 use Decor::Core::DB::IO;
 
 $Data::Dumper::Sortkeys = 1;

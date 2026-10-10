@@ -23,8 +23,9 @@ use Decor::Core::Log;
 use Decor::Core::DB::Record;
 use Decor::Core::Subs::Env;
 use Decor::Core::Profile;
-use Decor::Core::Describe;
-use Decor::Core::Menu;
+use Decor::Core::Loader::Table;
+use Decor::Shared::Describe;
+use Decor::Core::Loader::Menu;
 use Decor::Core::Code;
 use Decor::Core::DSN;
 use Decor::Core::Utils;
@@ -186,7 +187,7 @@ sub sub_caps
   if( $app_name )
     {
     boom "invalid APP_NAME [$app_name]" unless de_check_name( $app_name );
-    de_init( APP_NAME => $app_name );
+    boom "mismatched APP_NAME expected [@{[ de_app_name() ]}] got [$app_name]" unless de_app_name() eq $app_name; # environment is set by de_boot()
     }
 
   $mo->{ 'VER'   } = de_version();
@@ -845,7 +846,7 @@ sub __replace_grant_deny
       {
 # my $res = $profile->__check_access_tree( $op, $hrd->{ $grant_deny } );
 # print STDERR "=====(@_)======+++++ [$res] <- $op, $grant_deny, " . Dumper( $hrd );
-      $hrn->{ $grant_deny }{ $op } = $profile->__check_access_tree( $op, $hrd->{ $grant_deny } );
+      $hrn->{ $grant_deny }{ $op } = $profile->match_tree( $hrd->{ $grant_deny }, $op );
       }
     }
 
@@ -886,7 +887,7 @@ sub sub_describe
 
   my $profile = subs_get_current_profile();
 
-  my $des = describe_table( $table ) or boom "E_UNKNOWN: Unknown table [$table]";
+  my $des = load_table( $table ) or boom "E_UNKNOWN: Unknown table [$table]";
 
   my $new = clone( { %$des } );
 
@@ -932,14 +933,14 @@ sub sub_menu
 
   my $profile = subs_get_current_profile();
 
-  my $menu = de_menu_get( $menu_name );
+  my $menu = load_menu( $menu_name );
 
   # work on a copy, $menu is the shared cached menu, it must not be modified per user
   my $new = clone( { %$menu } );
 
   if( ( $profile->has_root_access() or $profile->check_access( 966 ) ) and $menu_name eq '_DE_ALL_TABLES' )
     {
-    my $tables = des_get_tables_list();
+    my $tables = load_tables_list();
 
     my $o = 1;
     for my $table ( sort @$tables )
@@ -1086,7 +1087,7 @@ sub sub_select
 
   if( des_exists_category( 'FILTER', $table, 'DEFAULT_SELECT' ) )
     {
-    my $tdes = describe_table( $table );
+    my $tdes = load_table( $table );
     my $filter_name_sql = $tdes->{ 'FILTER' }{ 'DEFAULT_SELECT' }{ 'SQL_WHERE' };
     push @where, $filter_name_sql if $filter_name_sql;
     }
@@ -1095,7 +1096,7 @@ sub sub_select
     {
     if( des_exists_category( 'FILTER', $table, $filter_name ) )
       {
-      my $tdes = describe_table( $table );
+      my $tdes = load_table( $table );
       my $filter_name_sql = $tdes->{ 'FILTER' }{ $filter_name }{ 'SQL_WHERE' };
       if( $filter_name_sql )
         {
@@ -1234,7 +1235,7 @@ sub __exec_inline_method
   my $method = uc shift;
 
   my $table = $rec->table();
-  my $des   = describe_table( $table );
+  my $des   = load_table( $table );
   my $sdes  = $des->get_table_des();
 
   my $fields = $sdes->{ "ON_$method" };
@@ -1669,7 +1670,7 @@ sub sub_file_save
   $rec->set_profile_locked( $profile );
   $rec->taint_mode_enable_all();
 
-  my $des = describe_table( $table );
+  my $des = load_table( $table );
   boom "E_ACCESS: FILE_SAVE access denied, table [$table] is not of type FILE" unless $des->get_table_type() eq 'FILE';
 
   if( $id ne '' )
@@ -1766,7 +1767,7 @@ sub sub_file_load
   $rec->set_profile_locked( $profile );
   $rec->taint_mode_enable_all();
 
-  my $des = describe_table( $table );
+  my $des = load_table( $table );
   boom "E_ACCESS: FILE_LOAD access denied, table [$table] is not of type FILE" unless $des->get_table_type() eq 'FILE';
 
   boom "E_ACCESS: FILE_LOAD access denied oper [READ] for table [$table]" unless $profile->check_access_table( 'READ', $table );

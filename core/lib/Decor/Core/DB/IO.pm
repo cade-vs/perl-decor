@@ -19,7 +19,8 @@ use Encode qw( is_utf8 encode decode );
 use Decor::Shared::Utils;
 use Decor::Core::Env;
 use Decor::Core::DSN;
-use Decor::Core::Describe;
+use Decor::Core::Loader::Table;
+use Decor::Shared::Describe;
 use Decor::Core::Log;
 
 ##############################################################################
@@ -131,7 +132,7 @@ sub select
 
   $fields = '*' if $fields eq '';
   
-  my $table_des = describe_table( $table );
+  my $table_des = load_table( $table );
   my $db_table  = $table_des->get_db_table_name();
   my @fields;
   
@@ -352,7 +353,7 @@ sub __select_resolve_field
       return ( $alias_now, $table_now, $field_now );
       } 
 
-    my $fld_des = describe_table_field( $table_now, $field_now );
+    my $fld_des = des_field_des( $table_now, $field_now );
     boom "cannot resolve field, current position is NOT A LINK [$table_now:$field_now] in field path [$field]" unless $fld_des->is_linked();
 
     my $table_next = $fld_des->{ 'LINKED_TABLE' };
@@ -367,7 +368,7 @@ sub __select_resolve_field
       my $alias_counter = sprintf( "%04d", ++ $self->{ 'SELECT' }{ 'TABLES_ALIASES_COUNT' } );
       boom "__select_resolve_field(): table alias limit of 9999 is already reached" unless $alias_counter < 9998;
       $join_tree->{ 'TABLE'       } = $table_next;
-      my $db_table_next = $join_tree->{ 'DB_TABLE'    } = describe_table( $table_next )->get_db_table_name();
+      my $db_table_next = $join_tree->{ 'DB_TABLE'    } = load_table( $table_next )->get_db_table_name();
       $alias_next       = $join_tree->{ 'TABLE_ALIAS' } = "_TABLE_ALIAS_$alias_counter";
 
       my $join_type = "INNER "; # to be precise :)
@@ -511,7 +512,7 @@ sub __get_row_access_where_list
 
   my $groups_string = $profile->get_groups_string();
 
-  my $table_des = describe_table( $table );
+  my $table_des = load_table( $table );
   my $fields    = $table_des->get_fields_list();
   my $db_table  = $table_des->get_db_table_name();
   
@@ -644,7 +645,7 @@ sub insert
     $profile->check_access_table_boom( 'INSERT', $table );
     }
 
-  my $table_des = describe_table( $table );
+  my $table_des = load_table( $table );
   
   return 1 if $table_des->is_virtual();
 
@@ -725,7 +726,7 @@ sub update
   my @where;
   my @bind;
 
-  my $table_des = describe_table( $table );
+  my $table_des = load_table( $table );
   my $db_table  = $table_des->get_db_table_name();
 
   return 1 if $table_des->is_virtual();
@@ -842,7 +843,7 @@ sub delete
   my @where;
   my @bind;
 
-  my $table_des = describe_table( $table );
+  my $table_des = load_table( $table );
   my $db_table  = $table_des->get_db_table_name();
 
   return 1 if $table_des->is_virtual();
@@ -929,7 +930,7 @@ sub get_next_table_id
 
   $self->__reshape( $table );
 
-  my $table_des = describe_table( $table );
+  my $table_des = load_table( $table );
   my $db_seq    = $table_des->get_db_sequence_name();
   my $dsn       = $table_des->get_dsn_name();
 

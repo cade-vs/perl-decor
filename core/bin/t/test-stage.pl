@@ -18,6 +18,7 @@ use Time::HR;
 
 use Data::Dumper;
 use Decor::Core::Env;
+use Decor::Core::Debug;
 use Decor::Core::Config;
 use Decor::Core::Stage;
 use Decor::Core::Profile;
@@ -34,8 +35,8 @@ $stage->init( $root );
 
 print STDERR Dumper( $stage );
 
-my $des = $stage->describe_table( 'test1' );
-my $des = $stage->describe_table( 'test1' );
+my $des = $stage->load_table( 'test1' );
+my $des = $stage->load_table( 'test1' );
 
 print STDERR '='x80;
 

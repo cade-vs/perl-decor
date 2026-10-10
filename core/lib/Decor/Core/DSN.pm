@@ -20,7 +20,7 @@ use Data::Dumper;
 
 use Decor::Shared::Config;
 use Decor::Core::Env;
-use Decor::Core::Describe;
+use Decor::Core::Loader::Table;
 use Decor::Core::Log;
 
 use Exporter;
@@ -185,7 +185,7 @@ sub dsn_get_dbh_by_table
     return $DSN_TABLE_DBH_CACHE{ $table };
     }
   
-  my $des = describe_table( $table );
+  my $des = load_table( $table );
   my $dsn = $des->{ '@' }{ 'DSN' };
 
   my $dbh = dsn_get_dbh_by_name( $dsn );
@@ -203,7 +203,7 @@ sub dsn_get_db_name_by_table
     return $DSN_TABLE_DB_NAME_CACHE{ $table };
     }
   
-  my $des = describe_table( $table );
+  my $des = load_table( $table );
   boom "unknown table [$table]" unless $des;
   my $db_name = dsn_get_db_name( $des->get_dsn_name() );
 

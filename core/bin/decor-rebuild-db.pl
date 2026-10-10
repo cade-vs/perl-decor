@@ -17,8 +17,9 @@ use Exception::Sink;
 use Data::Dumper;
 
 use Decor::Core::Env;
+use Decor::Core::Debug;
 #use Decor::Core::Config;
-use Decor::Core::Describe;
+use Decor::Core::Loader::Table;
 use Decor::Core::DSN;
 use Decor::Core::Profile;
 use Decor::Core::Log;
@@ -116,7 +117,7 @@ my $root = de_root();
 #Decor::Core::DSN::__dsn_parse_config();
 
 my @tables = @args;
-@tables = @{ des_get_tables_list() } unless @tables > 0;
+@tables = @{ load_tables_list() } unless @tables > 0;
 
 @tables = grep { ! /^DE_/i } @tables if ! $opt_inc_decor_tables;
 
@@ -139,7 +140,7 @@ for my $table ( sort @tables )
   $cc++;
   my $prc = sprintf "%6.2f", 100*$cc/$ac;
   print "rebuilding table: ($cc/$ac/$prc%) $table\n";
-  my $des = describe_table( $table );
+  my $des = load_table( $table );
   my $dbh = dsn_get_dbh_by_table( $table );
   my $db_name = dsn_get_db_name( $des->get_dsn_name() );
 
@@ -274,7 +275,7 @@ sub rebuild_table
   if( ! $base_io->read_first1_by_id_hashref( $table, 0, { MANUAL => 1 } ) )
     {
     de_log( "info: missing base record in table [$table], will recreate it" );
-    my $des = describe_table( $table );
+    my $des = load_table( $table );
     my $fields = $des->get_fields_list();
 
     my %base_data;

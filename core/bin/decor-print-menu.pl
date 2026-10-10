@@ -19,9 +19,10 @@ use Data::Lock qw( dlock dunlock );
 use Data::Tools 1.09;
 
 use Data::Dumper;
-use Decor::Core::Env;
+use Decor::Core::Boot;
+use Decor::Core::Debug;
 use Decor::Core::Profile;
-use Decor::Core::Menu;
+use Decor::Core::Loader::Menu;
 use Decor::Core::Log;
 use Decor::Shared::Config;
 
@@ -32,7 +33,7 @@ my $opt_app_name;
 my $opt_verbose;
 
 our $help_text = <<END;
-usage: $0 <options> application_name table fields
+usage: $0 <options> application_name [menu_name]
 options:
     -v        -- verbose output
     -d        -- debug mode, can be used multiple times to rise debug level
@@ -41,6 +42,7 @@ options:
     --        -- end of options
 notes:
   * first argument is application name and it is mandatory!
+  * without menu name, list of all menus is printed
   * options cannot be grouped: -rd is invalid, correct is: -r -d
 END
 
@@ -82,11 +84,17 @@ while( @ARGV )
 
 my $opt_app_name = shift @args;
 
-de_init( APP_NAME => $opt_app_name );
+de_boot( APP_NAME => $opt_app_name );
 
 $_ = uc $_ for @args;
 
 my $m = shift @args;
 
-my $des = de_menu_get( $m );
+if( $m eq '' )
+  {
+  print "$_\n" for @{ load_menus_list() };
+  exit;
+  }
+
+my $des = load_menu( $m ) or die "unknown menu [$m]\n";
 print Dumper( $des );

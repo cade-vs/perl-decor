@@ -17,7 +17,8 @@ use Time::HR;
 
 use Data::Dumper;
 use Decor::Core::Env; 
-use Decor::Core::Describe; 
+use Decor::Core::Debug;
+use Decor::Core::Loader::Table;
 
 $Data::Dumper::Sortkeys = 1;
 $Data::Dumper::Indent   = 3;
@@ -30,6 +31,6 @@ my $root = de_root();
 
 print "root is: $root\n";
 
-my $tdes = describe_table( 'test1' );
+my $tdes = load_table( 'test1' );
 
 print Dumper( "table [test1] description", $tdes );

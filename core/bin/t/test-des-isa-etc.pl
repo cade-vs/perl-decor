@@ -20,9 +20,10 @@ use Data::Tools 1.09;
 
 use Data::Dumper;
 use Decor::Core::Env;
+use Decor::Core::Debug;
 use Decor::Shared::Config;
 use Decor::Core::Profile;
-use Decor::Core::Describe;
+use Decor::Core::Loader::Table;
 use Decor::Core::Log;
 
 $Data::Dumper::Sortkeys = 1;
@@ -90,7 +91,7 @@ my $t = shift @args;
 
 for my $t ( @args )
 {
-my $des = describe_table( $t );
+my $des = load_table( $t );
 if( ! $opt_verbose )
   {
   $des = dclone( $des );

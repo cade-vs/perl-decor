@@ -19,8 +19,9 @@ use Data::Tools;
 use Time::Progress;
 
 use Decor::Core::Env;
+use Decor::Core::Debug;
 #use Decor::Core::Config;
-use Decor::Core::Describe;
+use Decor::Core::Loader::Table;
 use Decor::Core::DSN;
 use Decor::Core::Profile;
 use Decor::Core::Log;
@@ -111,7 +112,7 @@ my $app_dir = de_app_dir();
 #Decor::Core::DSN::__dsn_parse_config();
 
 my @tables = @args;
-@tables = @{ des_get_tables_list() } unless @tables > 0;
+@tables = @{ load_tables_list() } unless @tables > 0;
 
 @tables = grep { ! /^DE_/i } @tables;
 @tables = grep { ! /_FT(W|M)$/i } @tables;
@@ -149,7 +150,7 @@ sub update_fts_data
 {
   my $table = shift;
   
-  my $des = describe_table( $table );
+  my $des = load_table( $table );
   my $dbh = dsn_get_dbh_by_table( $table );
   my $db_name = dsn_get_db_name( $des->get_dsn_name() );
 

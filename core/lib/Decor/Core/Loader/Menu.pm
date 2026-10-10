@@ -7,7 +7,12 @@
 ##  LICENSE: GPLv2
 ##
 ##############################################################################
-package Decor::Core::Menu;
+##
+##  core menus loader: reads menus/*.def files from core, bundles and app
+##  dirs, merges them, builds grant/deny access trees, caches, preloads
+##
+##############################################################################
+package Decor::Core::Loader::Menu;
 use strict;
 use open ':std', ':encoding(UTF-8)';
 
@@ -19,8 +24,10 @@ use Data::Lock qw( dlock dunlock );
 
 use Decor::Shared::Utils;
 use Decor::Core::Env;
+use Decor::Core::Debug;
 use Decor::Core::Log;
-use Decor::Core::Describe;
+use Decor::Core::Loader;
+use Decor::Core::Loader::Table;
 #use Decor::Core::Config;
 use Decor::Core::Description::Table;
 
@@ -28,12 +35,12 @@ use Exporter;
 our @ISA    = qw( Exporter );
 our @EXPORT = qw(
 
-                de_menu_reset
+                load_menus_reset
 
-                preload_all_menus
+                load_menus_preload
 
-                de_get_menus_list
-                de_menu_get
+                load_menus_list
+                load_menu
 
                 );
 
@@ -107,58 +114,20 @@ my %MENU_ATTRS = (
 my %MENU_CACHE;
 my $MENU_CACHE_PRELOADED;
 
-sub de_menu_reset
+sub load_menus_reset
 {
   %MENU_CACHE = ();
   $MENU_CACHE_PRELOADED = 0;
+  loader_reset();
 
   return 1;
 }
 
 #-----------------------------------------------------------------------------
 
-sub __get_menus_dirs
+sub load_menus_list
 {
-  return $MENU_CACHE{ 'MENUS_DIRS_AR' } if exists $MENU_CACHE{ 'MENUS_DIRS_AR' };
-
-  my $root         = de_root();
-  my $app_dir     = de_app_dir();
-  my $bundles_dirs = de_bundles_dirs();
-
-  my @dirs;
-  push @dirs, "$root/core/menus";
-  push @dirs, "$_/menus" for reverse @$bundles_dirs;
-  push @dirs, "$app_dir/menus";
-
-  $MENU_CACHE{ 'MENUS_DIRS_AR' } = \@dirs;
-
-  return \@dirs;
-}
-
-#-----------------------------------------------------------------------------
-
-sub de_get_menus_list
-{
-  return $MENU_CACHE{ 'MENUS_LIST_AR' } if exists $MENU_CACHE{ 'MENUS_LIST_AR' };
-
-  my $menus_dirs = __get_menus_dirs();
-
-  #print STDERR 'TABLE MENU DIRS:' . Dumper( $menus_dirs );
-
-  my @menus;
-
-  for my $dir ( @$menus_dirs )
-    {
-    print STDERR "$dir/*.def\n";
-    push @menus, ( sort( glob_tree( "$dir/*.def" ) ) );
-    }
-
-  s/^.*?\/([^\/]+)\.def$/uc($1)/ie for @menus;
-  @menus = keys %{ { map { $_ => 1 } grep { ! /^_+/ } @menus } };
-
-  $MENU_CACHE{ 'MENUS_LIST_AR' } = \@menus;
-
-  return \@menus;
+  return $MENU_CACHE{ 'MENUS_LIST_AR' } ||= loader_names( 'menus' );
 }
 
 #-----------------------------------------------------------------------------
@@ -279,13 +248,7 @@ sub __merge_menu_hash
 
   return de_log( "error: invalid MENU name [$menu_name]" ) unless de_check_name( $menu_name );
 
-  my $menus_dirs = __get_menus_dirs();
-
-  #print STDERR 'MENUS DIRS:' . Dumper( $menus_dirs );
-
-  my $menu_fname = lc $menu_name;
-  my @menus_files;
-  push @menus_files, glob_tree( "$_/$menu_fname.def" ) for @$menus_dirs;
+  my @menus_files = loader_files( 'menus', $menu_name );
 
   my $c = 0;
   my $opt = {};
@@ -310,7 +273,7 @@ sub __postprocess_menu_hash
   my @items  = sort { $menu->{ $a }{ '_ORDER' } <=> $menu->{ $b }{ '_ORDER' } } keys %{ $menu };
 
   # convert grant/deny list to access tree
-  describe_preprocess_grant_deny( $menu->{ '@' } );
+  loader_grant_deny_tree( $menu->{ '@' } );
 
   # add empty keys to table description before locking
   for my $attr ( keys %{ $MENU_ATTRS{ '@' } } )
@@ -370,7 +333,7 @@ sub __postprocess_menu_hash
     elsif( $type =~ /^(GRID|INSERT|EDIT|VIEW)$/ )
       {
       my $table = shift @type;
-      my $des = describe_table( $table );
+      my $des = load_table( $table );
       if( ! $des )
         {
         de_log( "error: menu: unknown table [$table] in menu [$menu_name] item [$item] from [@debug_origin]" );
@@ -407,7 +370,7 @@ sub __postprocess_menu_hash
     $item_des->{ 'TYPE' } = $type;
 
     # convert grant/deny list to access tree
-    describe_preprocess_grant_deny( $item_des );
+    loader_grant_deny_tree( $item_des );
 #print Dumper( '-'x20, $menu_name, $item, $item_des );
 
     for my $grant_deny ( qw( GRANT DENY ) )
@@ -472,7 +435,7 @@ sub __load_menu
   return $menu;
 }
 
-sub de_menu_get
+sub load_menu
 {
   my $menu_name = uc shift;
 
@@ -480,21 +443,21 @@ sub de_menu_get
 
   if( ! $menu )
     {
-    my $menus_dirs = __get_menus_dirs();
+    my $menus_dirs = loader_dirs( 'menus' );
     return de_log( "error: cannot find/load MENU for menu name [$menu_name] dirs [@$menus_dirs]" );
     }
 
   return $menu;
 }
 
-sub preload_all_menus
+sub load_menus_preload
 {
-  my $menus = de_get_menus_list();
+  my $menus = load_menus_list();
 
   for my $menu_name ( @$menus )
     {
     de_log_debug2( "preloading MENU for menu name [$menu_name]" );
-    de_menu_get( $menu_name );
+    load_menu( $menu_name );
     };
 
   $MENU_CACHE_PRELOADED = 1;

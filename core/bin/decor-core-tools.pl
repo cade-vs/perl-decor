@@ -12,9 +12,10 @@ use strict;
 use lib ( map { die "invalid DECOR_CORE_ROOT dir [$_]\n" unless -d; ( "$_/core/lib", "$_/shared/lib" ) } ( $ENV{ 'DECOR_CORE_ROOT' } || '/usr/local/decor' ) );
 use Term::ReadKey;
 use Decor::Core::Env;
+use Decor::Core::Debug;
 use Decor::Core::DSN;
 use Decor::Core::Log;
-use Decor::Core::Describe;
+use Decor::Core::Loader::Table;
 use Decor::Core::DB::Record;
 use Decor::Core::DB::IO;
 use Decor::Core::Shop;
@@ -520,11 +521,11 @@ sub user_set_active_groups
 sub ubc
 {
   my @tables = @_;
-  @tables = @{ des_get_tables_list() } unless @tables > 0;
+  @tables = @{ load_tables_list() } unless @tables > 0;
 
   for my $t ( @tables )
     {
-    my $des = describe_table( $t );
+    my $des = load_table( $t );
     my $fields = $des->get_fields_list();
     for my $f ( @$fields )
       {
@@ -551,7 +552,7 @@ sub set_wal
 {
   my $log = shift() ? 'LOGGED' : 'UNLOGGED';
   my @tables = @_;
-  @tables = @{ des_get_tables_list() } unless @tables > 0;
+  @tables = @{ load_tables_list() } unless @tables > 0;
 
   for my $t ( @tables )
     {

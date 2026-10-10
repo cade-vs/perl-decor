@@ -22,6 +22,7 @@ use Exception::Sink;
 
 use Data::Dumper;
 use Decor::Core::Env;
+use Decor::Core::Debug;
 use Decor::Core::DSN;
 use Decor::Core::Profile;
 use Decor::Core::Log;

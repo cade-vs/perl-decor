@@ -15,9 +15,10 @@ use open ':std', ':encoding(UTF-8)';
 
 use Term::ReadKey;
 use Decor::Core::Env;
+use Decor::Core::Debug;
 use Decor::Core::DSN;
 use Decor::Core::Log;
-use Decor::Core::Describe;
+use Decor::Core::Loader::Table;
 use Decor::Core::DB::Record;
 use Decor::Core::DB::IO;
 use Decor::Shared::Utils;
@@ -112,7 +113,7 @@ de_set_log_prefix( 'decor-load-static' );
 de_init( APP_NAME => $opt_app_name );
 
 my @objects = @args;
-@objects = sort @{ des_get_tables_list() } if ! $use_files and ! @objects;
+@objects = sort @{ load_tables_list() } if ! $use_files and ! @objects;
 @objects = sort @objects if $use_files;
 
 if( ! @objects )
@@ -178,9 +179,9 @@ sub import_data
   my $table = uc shift;
   my $data  = shift;
   
-  my $tdes = describe_table( $table );
+  my $tdes = load_table( $table );
 
-  my $des = describe_table( $table );
+  my $des = load_table( $table );
   my $fields = $des->get_fields_list();
   my %data_default;
   for my $field ( @$fields )
