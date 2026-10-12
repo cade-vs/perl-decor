@@ -88,10 +88,11 @@ while( @ARGV )
     print "option: debug level raised, now is [$level] \n";
     next;
     }
-  if( /^-r(r)?$/ )
+  if( /^-r(r)?(c)?$/ )
     {
     $DE_LOG_TO_STDERR = 1;
     $DE_LOG_TO_FILES  = $1 ? 1 : 0;
+    $DE_LOG_STDERR_COLORS = $2 ? 1 : 0;
     print "option: forwarding logs to STDERR\n";
     next;
     }
@@ -149,7 +150,7 @@ for my $table ( sort @tables )
   my $dbo = get_rebuild_obj( des_dsn_name( $des ), $db_name, $dbh );
 
   #print Dumper( $des, $db_name );
-  
+
   rebuild_table( $dbo, $des );
   }
 
@@ -167,19 +168,19 @@ sub get_rebuild_obj
 
   de_check_name_boom( $dsn_name, "invalid DSN NAME [$dsn_name]" );
   de_check_name_boom( $db_name,  "invalid DB  NAME [$db_name]" );
-  
+
   return $REBUILD_OBJ_CACHE{ $dsn_name } if exists $REBUILD_OBJ_CACHE{ $dsn_name };
 
   my $rebuild_class_name = "Decor::Core::System::Table::Rebuild::$db_name";
-  
+
   my $rebuild_file_name = perl_package_to_file( $rebuild_class_name );
   require $rebuild_file_name;
   my $rebuild = $rebuild_class_name->new( $dbh );
-  
+
   #print Dumper( $db_name, $rebuild_class_name );
-  
+
   $REBUILD_OBJ_CACHE{ $dsn_name } = $rebuild;
-  
+
   return $rebuild;
 }
 
@@ -190,15 +191,15 @@ sub rebuild_table
 {
   my $dbo  = shift;
   my $des  = shift;
-  
+
   my $table     = des_table_name( $des );
   my $db_table  = des_db_table_name( $des );
   my $table_des = des_table_des( $des );
   my $schema    = $table_des->{ 'SCHEMA' };
-  
+
   # handle tables -------------------------------
   my $table_db_des = $dbo->describe_db_table( $table, $schema );
-  
+
   if( des_is_virtual( $des ) )
     {
     de_log( "status: table [$table] is VIRTUAL: will be skipped!" );
@@ -222,7 +223,7 @@ sub rebuild_table
     {
     # table does exist, try to alter
     table_alter( $dbo, $des, $table_db_des );
-    }  
+    }
 
   # handle table sequence -------------------------------
   my $seq_db_des   = $dbo->describe_db_sequence( $table, $schema );
@@ -241,8 +242,8 @@ sub rebuild_table
     {
     # sequence does exist, try to sync
     sequence_alter( $dbo, $des, $start_with );
-    }  
-  
+    }
+
   # handle table indexes -------------------------------
   my $index_db_des = $dbo->describe_db_indexes( $table, $schema );
 
@@ -256,14 +257,14 @@ sub rebuild_table
     my $idx_des = des_index_des( $des, $index );
     my $unique =    $idx_des->{ 'UNIQUE' };
     my $fields = uc $idx_des->{ 'FIELDS' };
-    
+
     my @fields = split /[\s,]+/, $fields;
     # FIXME: check if $fields are already known in this table
     $fields = join ',', @fields;
 
     my $dx_name = "DX_$index";
     next if exists $index_db_des->{ $dx_name };
-    
+
     my $unique_str = 'UNIQUE' if $unique; # no op for now, already in table creation
     my $sql_stmt = "CREATE $unique_str INDEX $dx_name ON $db_table ( $fields )";
     de_log( "info: creating $unique_str index [$dx_name] on table [$table] db table [$db_table] fields [$fields]" );
@@ -289,7 +290,7 @@ sub rebuild_table
       $base_data{ $field } = $type_name eq 'CHAR' ? '' : 0;
       }
     $base_data{ "_ID" } = 0;
-    $base_io->insert( $table, \%base_data );  
+    $base_io->insert( $table, \%base_data );
     }
 }
 
@@ -299,10 +300,10 @@ sub table_drop
 {
   my $dbo  = shift;
   my $des  = shift;
-  
+
   my $table    = des_table_name( $des );
   my $db_table = des_db_table_name( $des );
-  
+
   my $dbh = $dbo->get_dbh();
   my $sql_stmt = "DROP TABLE $db_table";
   de_log( "info: drop table [$table] db table [$db_table]" );
@@ -314,7 +315,7 @@ sub table_create
 {
   my $dbo  = shift;
   my $des  = shift;
-  
+
   my $table    = des_table_name( $des );
   my $db_table = des_db_table_name( $des );
 
@@ -330,25 +331,25 @@ sub table_create
     my $dot  = $fld_des->{ 'TYPE' }{ 'DOT'  };
 
     my $column_args;
-    
+
     $column_args .= " PRIMARY KEY" if $fld_des->{ 'PRIMARY_KEY' };
     $column_args .= " NOT NULL"    if $fld_des->{ 'NOT_NULL' };
     $column_args .= " UNIQUE"      if $fld_des->{ 'UNIQUE' };
-    
+
     my $native_type = $dbo->get_native_type( $fld_des->{ 'TYPE' } );
-    
+
     #print Dumper( $field, $fld_des->{ 'TYPE' }, $native_type );
-    
+
     push @sql_columns, "$field $native_type $column_args";
     }
-    
+
   my $sql_columns = join ', ', @sql_columns;
 
   my $sql_stmt = "CREATE TABLE $db_table ( $sql_columns )";
-  
+
   de_log( "info: create table [$table] db table [$db_table]" );
   de_log_debug( "debug: sql: [$sql_stmt]" );
-  
+
   my $dbh = $dbo->get_dbh();
   $dbh->do( $sql_stmt );
 }
@@ -358,9 +359,9 @@ sub table_alter
   my $dbo  = shift;
   my $des  = shift;
   my $table_db_des = shift;
-  
+
   #print Dumper( $table_db_des );
-  
+
   my $table    = des_table_name( $des );
   my $db_table = des_db_table_name( $des );
 
@@ -393,15 +394,15 @@ sub table_alter
       }
 
     my $column_args;
-    
+
     $column_args .= " PRIMARY KEY" if $fld_des->{ 'PRIMARY_KEY' };
     $column_args .= " NOT NULL"    if $fld_des->{ 'NOT_NULL'    };
     $column_args .= " UNIQUE"      if $fld_des->{ 'UNIQUE'      };
-    
+
     #print Dumper( $field, $fld_des->{ 'TYPE' }, $native_type );
-    
+
     my $zero_data = $type_name eq 'CHAR' ? "''" : 0;
-    
+
     push @sql_columns, "$field $native_type $column_args";
     push @sql_zero, "$field = $zero_data";
     $add_columns++;
@@ -415,18 +416,18 @@ sub table_alter
     {
     de_log( "info: alter table [$table] db table [$db_table] no changes found" );
     return 0;
-    }  
-    
+    }
+
   my $sql_stmt = $dbo->table_alter_sql( $db_table, \@sql_columns );
-  
+
   de_log_debug( "debug: sql: [$sql_stmt]" );
-  
+
   my $dbh = $dbo->get_dbh();
   $dbh->do( $sql_stmt );
-  
+
   my $sql_zero = "UPDATE $table SET " . join( ',', @sql_zero );
   $dbh->do( $sql_zero );
-  
+
   return 1;
 }
 
@@ -437,13 +438,13 @@ sub sequence_create
   my $dbo  = shift;
   my $des  = shift;
   my $start_with = shift;
-  
+
   my $table    = des_table_name( $des );
   my $db_seq   = des_db_sequence_name( $des );
 
   $dbo->sequence_create( $des, $start_with );
   de_log( "info: create sequence for table [$table] db sequence [$db_seq] start with [$start_with]" );
-  
+
   return 1;
 }
 
@@ -451,10 +452,10 @@ sub sequence_drop
 {
   my $dbo  = shift;
   my $des  = shift;
-  
+
   my $table    = des_table_name( $des );
   my $db_seq   = des_db_sequence_name( $des );
-  
+
   $dbo->sequence_drop( $des );
   de_log( "info: drop sequence for table [$table] db sequence [$db_seq]" );
 
@@ -471,7 +472,7 @@ sub sequence_alter
   my $db_seq   = des_db_sequence_name( $des );
 
   my $current = $dbo->sequence_get_current_value( $des );
-  
+
   if( $current >= $start_with )
     {
     de_log( "info: alter sequence [$db_seq] for table [$table] current value [$current] no change needed" );
@@ -481,7 +482,7 @@ sub sequence_alter
   de_log( "info: alter sequence [$db_seq] for table [$table] current value [$current] needs to be restarted with [$start_with]" );
   sequence_drop( $dbo, $des );
   sequence_create( $dbo, $des, $start_with );
-  
+
   return 1;
 }
 

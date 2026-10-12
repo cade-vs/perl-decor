@@ -135,8 +135,13 @@ sub keygen
   my $pvt_pem = $pk->export_key_pem( 'private' );
   my $pub_pem = $pk->export_key_pem( 'public'  );
   
+  my $old_umask = umask( 0077 ); # private key must not be readable by others even briefly
   file_save( $pem_pvt_fn, $pvt_pem ) or die "cannot save PRIVATE key [$pem_pvt_fn]\n";
+  umask( $old_umask );
   file_save( $pem_pub_fn, $pub_pem ) or die "cannot save PUBLIC  key [$pem_pub_fn]\n";
+
+  chmod( 0600, $pem_pvt_fn ) or die "cannot set mode 0600 on PRIVATE key [$pem_pvt_fn]\n";
+  chmod( 0655, $pem_pub_fn ) or die "cannot set mode 0655 on PUBLIC  key [$pem_pub_fn]\n";
 
   print "done. keys saved: $keydir/$name-*.key\n";
 }

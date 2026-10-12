@@ -450,6 +450,7 @@ sub __sub_find_and_check_user_pass
 
   die "E_LOGIN: ANONYMOUS login is forbidden" if $user_rec->id() == 909; # anonymous account is id 909, regardless of its name, checked before the password
 
+  # FIXME: key name "pass" must be configurable
   $pass = de_decrypt( 'pass', $pass );
 
   die "E_LOGIN: User [$user] not active"              unless $user_rec->is_active();
