@@ -49,7 +49,7 @@ sub map_tomtom
 
   if( $allow_nav )
     {
-    $location_form        = new Web::Reactor::HTML::Form( REO_REACTOR => $reo );
+    $location_form        = new Web::Reactor::HTML::Form( $reo );
     $location_form_begin .= $location_form->begin( NAME => "form_location", DEFAULT_BUTTON => 'SELECT', CLASS => 'button act-button' );
     $location_form_id     = $location_form->get_id();
     }

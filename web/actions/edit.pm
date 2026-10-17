@@ -472,7 +472,7 @@ sub edit_get_field_control_info
                                          MAXLEN   => $field_maxlen,
                                          DISABLED => $field_disabled,
                                          ARGS     => $input_tag_args,
-                                         CLEAR    => $clear_icon,
+                                         # cc20261017 CLEAR removed, textarea() has no CLEAR
                                          );
         }
       else
@@ -597,7 +597,7 @@ sub edit_get_field_control_info
         # auto-select single item if field is required
         if( $fdes->{ 'REQUIRED' } and @combo_data == 2 )
           {
-          $sel_hr->{ $combo_data[1]{ 'KEY' } } = 1;
+          $sel_hr->{ $combo_data[1]{ 'VALUE' } } = 1; # cc20261017 SELECTED matches VALUE, KEY is '*'
           }
 
         my $fmt_class;
@@ -606,7 +606,8 @@ sub edit_get_field_control_info
           $fmt_class .= " fmt-mono";
           }
 
-        my $recalc_on_change = 'http_form_submit( this.form, null, null )' if des_get_attr( $fdes, qw( WEB RECALC_ON_CHANGE ) );
+        my $recalc_on_change; # cc20261017 no "my ... if", it may keep the previous field's value
+        $recalc_on_change = 'http_form_submit( this.form, null, null )' if des_get_attr( $fdes, qw( WEB RECALC_ON_CHANGE ) ); # cc20261017
 
         if( $search )
           {
@@ -633,7 +634,7 @@ sub edit_get_field_control_info
                                                CLASS    => $fmt_class, 
                                                DATA     => \@combo_data, 
                                                SELECTED => $sel_hr,
-                                               RADIO    => $radio,
+                                               # cc20261017 RADIO removed, Form select() has no radio mode
                                                SUBMIT_ON_CHANGE => $recalc_on_change,
                                                DISABLED  => $field_disabled,
                                                );
@@ -802,7 +803,7 @@ sub edit_get_field_control_info
     elsif( $type_name eq 'DATE' )
       {
       my $date_picker_div = "<div id='$field_id:DATE_SELECT_DIV'></div>";
-      my $row_vec_handle = html_popup_layer( $reo, VALUE => $date_picker_div, CLASS => 'popup-layer', TYPE => 'CONTEXT' );
+      my %row_vec_attrs = html_popup_layer_attrs( $reo, VALUE => $date_picker_div, CLASS => 'popup-layer', TYPE => 'CONTEXT' );
 
       # $field_input_ctrl .= qq( <input type=image class=icon src=i/set-time.svg $row_vec_handle> );
 
@@ -813,13 +814,13 @@ sub edit_get_field_control_info
                                        SIZE     => 32,
                                        MAXLEN   => 64,
                                        DISABLED => $field_disabled,
-                                       EXTRA    => $row_vec_handle,
+                                       ATTRS    => \%row_vec_attrs,
                                        CLEAR    => $clear_icon,
                                        PHI      => $field_data_placeholder_info,
                                        );
       my $hl_handle = html_hover_layer( $reo, VALUE => "[~Set current date]", DELAY => 250 );
       my $date_format = type_get_format( $type );
-      $field_input_ctrl .= qq( <input type=image class=icon src=i/set-time.svg $hl_handle  onClick='set_value( "$field_id", current_date( "$date_format" ) ); return false;'> );
+      $field_input_ctrl .= qq( <input type=image class=icon src=i/set-time.svg onmouseover='$hl_handle' onClick='set_value( "$field_id", current_date( "$date_format" ) ); return false;'> );
 
       my $date_picker_div = "<div id='$field_id:DATE_SELECT_DIV:ICON'></div>";
       my $row_vec_handle = html_popup_layer( $reo, VALUE => $date_picker_div, CLASS => 'popup-layer', TYPE => 'CLICK' );
@@ -842,12 +843,12 @@ sub edit_get_field_control_info
                                        PHI      => $field_data_placeholder_info,
                                        );
       my $hl_handle = html_hover_layer( $reo, VALUE => "[~Set current time]", DELAY => 250 );
-      $field_input_ctrl .= qq( <input type=image class=icon src=i/set-time.svg $hl_handle onClick='set_value( "$field_id", current_time() ); return false;'>);
+      $field_input_ctrl .= qq( <input type=image class=icon src=i/set-time.svg onmouseover='$hl_handle' onClick='set_value( "$field_id", current_time() ); return false;'>);
       }
     elsif( $type_name eq 'UTIME' )
       {
       my $date_picker_div = "<div id='$field_id:UTIME_SELECT_DIV'></div>";
-      my $row_vec_handle = html_popup_layer( $reo, VALUE => $date_picker_div, CLASS => 'popup-layer', TYPE => 'CONTEXT' );
+      my %row_vec_attrs = html_popup_layer_attrs( $reo, VALUE => $date_picker_div, CLASS => 'popup-layer', TYPE => 'CONTEXT' );
 
       $field_input .= $edit_form->input(
                                        NAME     => "F:$field",
@@ -856,13 +857,13 @@ sub edit_get_field_control_info
                                        SIZE     => 32,
                                        MAXLEN   => 64,
                                        DISABLED => $field_disabled,
-                                       EXTRA    => $row_vec_handle,
+                                       ATTRS    => \%row_vec_attrs,
                                        CLEAR    => $clear_icon,
                                        PHI      => $field_data_placeholder_info,
                                        );
       my $hl_handle = html_hover_layer( $reo, VALUE => "[~Set current date+time]", DELAY => 250 );
       my $date_format = type_get_format( $type );
-      $field_input_ctrl .= qq(<input type=image class=icon src=i/set-time.svg $hl_handle onClick='set_value( "$field_id", current_utime( "$date_format" ) ); return false;'>);
+      $field_input_ctrl .= qq(<input type=image class=icon src=i/set-time.svg onmouseover='$hl_handle' onClick='set_value( "$field_id", current_utime( "$date_format" ) ); return false;'>);
 
       my $date_picker_div = "<div id='$field_id:UTIME_SELECT_DIV:ICON'></div>";
       my $row_vec_handle = html_popup_layer( $reo, VALUE => $date_picker_div, CLASS => 'popup-layer', TYPE => 'CLICK' );

@@ -685,7 +685,7 @@ sub main
 
     my $nav_keys_help = $reo->pre->load_file( undef, 'grid_nav_keys_help' );
     my $hl_nav_handle = html_hover_layer( $reo, VALUE => $nav_keys_help, DELAY => 300 );
-    $text_grid_navi_mid .= " <span $hl_nav_handle>(?)</span>";
+    $text_grid_navi_mid .= " <span onmouseover='$hl_nav_handle'>(?)</span>";
     
     $text_grid_navi_right .= de_html_alink( $reo, 'new', "(&darr;)",     { HINT => '[~Download data as CSV]' }, ACTION => 'grid_export', TABLE => $table );
 

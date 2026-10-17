@@ -51,15 +51,9 @@ sub de_html_form_button_redirect
   my $hint     = $opt->{ 'HINT'     };
   my $disabled = $opt->{ 'DISABLED' };
 
-  my $hl_handle = html_hover_layer( $reo, VALUE => $hint, DELAY => 1000 ) if $hint;
-
   my $ps = $reo->get_page_session();
 
   $ps->{ 'BUTTON_REDIRECT' }{ $button_id } = [ $type, %args ];
-
-  my $args;
-
-  $args .= " $hl_handle ";
 
   my $btype = $opt->{ 'BTYPE' };
   $btype = "$btype-button" if $btype;
@@ -68,11 +62,11 @@ sub de_html_form_button_redirect
 
   if( $value =~ /([a-z_0-9]+\.(png|jpg|jpeg|gif|svg))/ )
     {
-    $text .= $form->image_button( NAME => "REDIRECT:$button_id", SRC => "i/$value", CLASS => "icon $btype", DISABLED => $disabled, ARGS => $args );
+    $text .= $form->image_button( NAME => "REDIRECT:$button_id", SRC => "i/$value", CLASS => "icon $btype", DISABLED => $disabled, HINT => $hint );
     }
   else
     {
-    $text .= $form->button( NAME => "REDIRECT:$button_id", VALUE => $value, CLASS => "button $btype", DISABLED => $disabled, ARGS => $args );
+    $text .= $form->button( NAME => "REDIRECT:$button_id", VALUE => $value, CLASS => "button $btype", DISABLED => $disabled, HINT => $hint );
     }
 
   return $text;

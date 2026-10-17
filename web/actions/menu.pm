@@ -53,10 +53,9 @@ sub sub_menu
     my $label = $item->{ 'LABEL' } || $key;
     my $type  = $item->{ 'TYPE'  };
 
-    my $confirm = $item->{ 'CONFIRM' };
+    my $confirm_js = html_confirm_js( $item->{ 'CONFIRM' } ); # 1 asks the default question
     my $menu_args;
-    $confirm = "[~Are you sure?]" if $confirm == 1;
-    $menu_args .= '  ' . qq( onclick="return confirm('$confirm');" ) if $confirm =~ /^([^"']+)$/;
+    $menu_args .= "  onclick='" . Data::Tools::str_html_escape_attr( $confirm_js ) . "'" if $confirm_js;
 
     if( $type eq 'SUBMENU' )
       {

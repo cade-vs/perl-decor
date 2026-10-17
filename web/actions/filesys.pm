@@ -58,6 +58,8 @@ sub main
   return "<#e_internal>" unless $tdes;
 
 
+  my $root_dir = $path_dir; # cc20261017 were undeclared, from the PATH_DIR/PATH_ID params
+  my $root_id  = $path_id;  # cc20261017
   if( $root_dir and $root_id <= 0 )
     {
     $root_id = __resolve_path( $core, $table, $root_dir );

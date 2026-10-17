@@ -112,6 +112,29 @@ sub main
 #        $label .= "<span class=details-text>/</span>$llabel";
 #        }
 
+      # a multiple select with more than one selected value comes as "@F:FIELD" (array of values)
+      my $input_multi = $ui_si{ "\@F:$field" };
+      if( ref( $input_multi ) eq 'ARRAY' )
+        {
+        my @in = grep { $_ ne '' } @$input_multi; # the empty option means "any"
+        $filter_data->{ $field_out } = \@in;
+        next unless @in;
+
+        push @field_filter, { OP => 'IN', VALUE => \@in, };
+
+        my @in_f = @in;
+        if( des_is_linked( $bfdes ) )
+          {
+          my ( $linked_table, $linked_field ) = des_link_details( $bfdes );
+          @in_f = map { $core->read_field( $linked_table, $linked_field, $_ ) } @in;
+          }
+        $filter_des .= qq[ * $label [~is one of] ] . join( ', ', map { qq["$_"] } @in_f ) . qq[ <br> ];
+        $filter_cnt++;
+
+        $filter_rules->{ $field_out } = \@field_filter;
+        next;
+        }
+
       next unless exists $ui_si{ "F:$field" };
       
       my $input_data = $ui_si{ "F:$field" };
@@ -271,8 +294,9 @@ sub main
 #      }
 
     my $input_data = $ui_si{ "F:$field" } || ( $rs->{ 'FILTERS' }{ 'ACTIVE' } ? $rs->{ 'FILTERS' }{ 'ACTIVE' }{ 'DATA' }{ $base_field } : undef );
-    # FIXME: support multi-select linked fields
-    my @input_data = $ui_si{ "\@F:$field" } || [];
+    # several selected values: "@F:FIELD" from the input, or an arrayref kept in the active filter data
+    my @input_data = @{ $ui_si{ "\@F:$field" } || ( ref( $input_data ) eq 'ARRAY' ? $input_data : [] ) };
+    $input_data = undef if ref( $input_data ) eq 'ARRAY';
 
     my $field_error;
 
@@ -358,7 +382,7 @@ sub main
       my $combo_orderby = des_get_attr( $bfdes, qw( WEB COMBO ORDERBY ) ) || join( ',', @spf_fld );
       my $combo_select  = $core->select( $linked_table, $lfields, { FILTER => $combo_filter, ORDER_BY => $combo_orderby } );
       
-      push @combo_data, { KEY => '*', VALUE => '', LABEL => '&empty;' };
+      push @combo_data, { KEY => '*', VALUE => '', LABEL => '&#8709;' }; # cc20261017-item-85 numeric &empty;, also a search datalist decodes it
       
 #$text .= "my $combo_select = $core->select( $linked_table, $lfields )<br>";
       while( my $hr = $core->fetch( $combo_select ) )
@@ -388,8 +412,7 @@ sub main
         $field_input = $filter_form->input(
                                              NAME      => "F:$field",
                                              ID        => $field_id,
-                                             VALUE     => $selected_search_value,
-                                             KEY       => $input_data,
+                                             DATALIST_SELECTED_VALUE => $input_data, # cc20261017 was VALUE/KEY, ignored with DATALIST
                                              EMPTY_KEY => 0,
                                              DATALIST  => \@combo_data,
                                              );

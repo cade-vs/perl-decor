@@ -438,10 +438,10 @@ sub main
       my $upload_cue = des_get_attr( $sdes, qw( WEB GRID UPLOAD_CUE ) ) || "[~Re-Upload file]";
       #$text .= de_html_alink_button( $reo, 'new', "(&uarr;) $upload_cue", '[~Replace current file with new one]',   BTYPE => 'act', ACTION => 'file_up', TABLE => $table, ID => $id, );
 
-      my $up_form = new Web::Reactor::HTML::Form( REO_REACTOR => $reo );
+      my $up_form = new Web::Reactor::HTML::Form( $reo );
       $text .= $up_form->begin( NAME => "form_up_$table" );
-      $text .= $up_form->file_upload( NAME     => "UPLOAD_FILE", ID => "upload_file_input", ARGS => qq{ onChange="this.form.submit();" style="display: none" } );
-      $text .= $up_form->button( NAME => "UPLOAD_FILE_OK", VALUE => $upload_cue, CLASS => "button mod-button", ARGS => qq{ onClick='document.getElementById("upload_file_input").click();return false;'} );
+      $text .= $up_form->file_upload( NAME     => "UPLOAD_FILE", ID => "upload_file_input", ATTRS => { onChange => 'this.form.submit();', style => 'display: none' } );
+      $text .= $up_form->button( NAME => "UPLOAD_FILE_OK", VALUE => $upload_cue, CLASS => "button mod-button", ATTRS => { onClick => 'document.getElementById("upload_file_input").click();return false;' } );
       $text .= $up_form->end();
       }
     }
