@@ -203,8 +203,8 @@ sub de_web_format_field
       $data_fmt = [ "<img src=i/check-view-0.svg>", "<img src=i/check-view-1.svg>" ]->[ !! $field_data ];
       my $new_val = !!! $field_data || 0; # cap and reverse
       # FIXME: use reactor_none_href to avoid session creation?
-      #$data_fmt = "<div class=vframe><a reactor_new_href=?_an=set_val&table=$table&fname=$fname&id=$id&value=$new_val&vtype=$vtype>$data_fmt</a></div>";
-      $data_fmt = "<a reactor_here_href=?update_record_with_id=$id&F:$fname=$new_val>$data_fmt</a>";
+      #$data_fmt = "<div class=vframe><reactor_new_a=?_an=set_val&table=$table&fname=$fname&id=$id&value=$new_val&vtype=$vtype>$data_fmt</a></div>";
+      $data_fmt = "<reactor_here_a=?update_record_with_id=$id&F:$fname=$new_val>$data_fmt</a>";
       }
     else
       {

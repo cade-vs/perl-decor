@@ -510,7 +510,7 @@ sub edit_get_field_control_info
         $field_input_ctrl .= de_html_form_button_redirect( $reo, 'new', $edit_form, "file_dn.svg", "[~Download current file]",           ACTION => 'file_dn', TABLE => $linked_table, ID => $field_data ) if de_web_profile()->allows( $ltdes, 'READ' );
 
         # FIXME: TODO: set option
-        $field_input .= qq( <iframe reactor_src="?action=file_dn&table=$linked_table&id=$field_data" width="100%" height="700px"></iframe><p> );
+        $field_input .= qq( <reactor_iframe="?action=file_dn&table=$linked_table&id=$field_data" width="100%" height="700px"></iframe><p> );
         }
 
       $field_input .= "[~Upload new file:] " . $edit_form->file_upload( NAME     => "F:$field", ID => $field_id, );
@@ -753,7 +753,7 @@ sub edit_get_field_control_info
 
         $field_input = "<b class=hi>$count</b> records from <b class=hi>$linked_table_label</b>";
         }  
-      # EXPERIMENT: :)) $field_input .= "<p><div class=vframe><a reactor_new_href=?action=grid&table=$backlinked_table>show</a></div>";
+      # EXPERIMENT: :)) $field_input .= "<p><div class=vframe><reactor_new_a=?action=grid&table=$backlinked_table>show</a></div>";
       }
     elsif( $type_name eq 'WIDELINK' )
       {

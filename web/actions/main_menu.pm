@@ -27,7 +27,7 @@ sub main
 
   my @left;
   my @right;
-  
+
   for my $key ( sort { $menu->{ $a }{ '_ORDER' } <=> $menu->{ $b }{ '_ORDER' } } keys %$menu )
     {
     next if $key eq '@';
@@ -41,26 +41,23 @@ sub main
 
     $label = "<&user_info><#page_expire_hint>" if lc $label eq '!username';
 
-    my $confirm_js = html_confirm_js( $item->{ 'CONFIRM' } ); # 1 asks the default question
-    my $menu_args;
-    $menu_args .= "  onclick='" . Data::Tools::str_html_escape_attr( $confirm_js ) . "'" if $confirm_js;
+    my $menu_args = html_confirm_js( $item->{ 'CONFIRM' } ); # data-confirm and onclick attributes, 1 asks the default question
 
     my $link;
     if( $type eq 'SUBMENU' )
       {
       my $submenu_name = $item->{ 'SUBMENU_NAME'  };
-#      $link = "<a class=main-menu reactor_none_href=?action=menu&menu=$submenu_name>$label</a>";
+#      $link = "<reactor_none_a=?action=menu&menu=$submenu_name class=main-menu>$label</a>";
       if( $submenu_name =~ /^_DE_/ )
         {
-        $link = "<a $menu_args reactor_none_href=?action=menu&menu=$submenu_name>= $label</a>";
+        $link = "<reactor_none_a=?action=menu&menu=$submenu_name>= $label</a>";
         }
       else
-        {  
-        $link = "<a $menu_args reactor_none_href=?action=menu&menu=$submenu_name>$label</a>";
+        {
         my $menu_ar = sub_menu( $reo, $core, $submenu_name );
         my $menu_item_text   = html_ftree( $menu_ar, 'ARGS' => 'class=menu cellpadding=0 width=100% border=0', 'ARGS_TR' => 'class=menu', 'ARGS_TD' => 'class=menu menu-popup' );
         my $menu_item_handle = html_popup_layer( $reo, VALUE => $menu_item_text, CLASS => 'popup-layer popup-layer-inline', TYPE => 'CLICK', TIMEOUT => 1000, SINGLE => 1 );
-        $link = "<a $menu_args reactor_none_href=?action=menu&menu=$submenu_name $menu_item_handle>+ $label</a>";
+        $link = "<reactor_none_a=?action=menu&menu=$submenu_name $menu_item_handle>+ $label</a>";
         }
       }
     elsif( $type eq 'GRID' )
@@ -69,8 +66,8 @@ sub main
       my $filter_name   = $item->{ 'FILTER_NAME'   };
       my $filter_method = $item->{ 'FILTER_METHOD' };
       my $order_by      = $item->{ 'ORDER_BY'      };
-      my $href = $reo->args_type( 
-                                  'none', 
+      my $href = $reo->args_type(
+                                  'none',
                                   ACTION        => 'grid',
                                   TABLE         => $table,
                                   FILTER_NAME   => $filter_name,
@@ -82,17 +79,17 @@ sub main
     elsif( $type eq 'INSERT' )
       {
       my $table  = $item->{ 'TABLE'  };
-      $link = "<a $menu_args reactor_none_href=?action=edit&table=$table&id=-1>$label</a>";
+      $link = "<reactor_none_a=?action=edit&table=$table&id=-1 $menu_args>$label</a>";
       }
     elsif( $type eq 'EDIT' )
       {
       my $table  = $item->{ 'TABLE'  };
-      $link = "<a $menu_args reactor_none_href=?action=edit&table=$table&id=0>$label</a>";
+      $link = "<reactor_none_a=?action=edit&table=$table&id=0 $menu_args>$label</a>";
       }
     elsif( $type eq 'VIEW' )
       {
       my $table  = $item->{ 'TABLE'  };
-      $link = "<a $menu_args reactor_none_href=?action=view&table=$table>$label</a>";
+      $link = "<reactor_none_a=?action=view&table=$table $menu_args>$label</a>";
       }
     elsif( $type eq 'URL' )
       {
@@ -103,18 +100,18 @@ sub main
       {
       my $table  = $item->{ 'TABLE'  };
       my $do     = $item->{ 'DO'     };
-      $link = "<a $menu_args reactor_none_href=?action=do&table=$table&do=$do>$label</a>";
+      $link = "<reactor_none_a=?action=do&table=$table&do=$do $menu_args>$label</a>";
       }
     elsif( $type eq 'ACTION' )
       {
       my $action  = $item->{ 'ACTION'  };
-      $link = "<a $menu_args reactor_new_href=?action=$action>$label</a>";
+      $link = "<reactor_new_a=?action=$action $menu_args>$label</a>";
       }
     else
       {
       $reo->log( "error: main-menu: invalid item [$key] type [$type]" );
       next;
-      }  
+      }
 
   $link = "<div class=main-menu-item>$link</div>";
   if( $item->{ 'RIGHT' } )
@@ -123,7 +120,7 @@ sub main
     }
   else
     {
-    push    @left,  $link;   
+    push    @left,  $link;
     }
   }
 
@@ -163,9 +160,7 @@ sub sub_menu
     my $label = $item->{ 'LABEL' } || $key;
     my $type  = $item->{ 'TYPE'  };
 
-    my $confirm_js = html_confirm_js( $item->{ 'CONFIRM' } ); # 1 asks the default question
-    my $menu_args;
-    $menu_args .= "  onclick='" . Data::Tools::str_html_escape_attr( $confirm_js ) . "'" if $confirm_js;
+    my $menu_args = html_confirm_js( $item->{ 'CONFIRM' } ); # data-confirm and onclick attributes, 1 asks the default question
 
     if( $type eq 'SUBMENU' )
       {
@@ -179,8 +174,8 @@ sub sub_menu
       my $filter_name   = $item->{ 'FILTER_NAME'   };
       my $filter_method = $item->{ 'FILTER_METHOD' };
       my $order_by      = $item->{ 'ORDER_BY'      };
-      my $href = $reo->args_type( 
-                                  'none', 
+      my $href = $reo->args_type(
+                                  'none',
                                   ACTION        => 'grid',
                                   TABLE         => $table,
                                   FILTER_NAME   => $filter_name,
@@ -192,18 +187,18 @@ sub sub_menu
     elsif( $type eq 'INSERT' )
       {
       my $table  = $item->{ 'TABLE'  };
-      push @res, "<a class=menu reactor_none_href=?action=edit&table=$table&id=-1 $menu_args><img src=i/menu-item-insert.svg class=icon> $label</a>";
+      push @res, "<reactor_none_a=?action=edit&table=$table&id=-1 class=menu $menu_args><img src=i/menu-item-insert.svg class=icon> $label</a>";
       }
     elsif( $type eq 'EDIT' )
       {
       my $table  = $item->{ 'TABLE'  };
-      push @res, "<a class=menu reactor_none_href=?action=edit&table=$table&id=0 $menu_args><img src=i/menu-item-insert.svg class=icon> $label</a>";
+      push @res, "<reactor_none_a=?action=edit&table=$table&id=0 class=menu $menu_args><img src=i/menu-item-insert.svg class=icon> $label</a>";
       }
     elsif( $type eq 'DO' )
       {
       my $table  = $item->{ 'TABLE'  };
       my $do     = $item->{ 'DO'     };
-      push @res, "<a class=menu reactor_none_href=?action=do&table=$table&do=$do $menu_args><img src=i/menu-item-do.svg class=icon> $label</a>";
+      push @res, "<reactor_none_a=?action=do&table=$table&do=$do class=menu $menu_args><img src=i/menu-item-do.svg class=icon> $label</a>";
       }
     elsif( $type eq 'URL' )
       {
@@ -214,9 +209,9 @@ sub sub_menu
       {
       my $action  = $item->{ 'ACTION'  };
       my $icon    = $item->{ 'ICON'    };
-      $icon = 'menu-item-action.svg' unless $icon =~ /[a-z0-9_\-]+\.[a-z]+/i; 
+      $icon = 'menu-item-action.svg' unless $icon =~ /[a-z0-9_\-]+\.[a-z]+/i;
       #### DOES NOT WORK WITH ANON SESSIONS: next if $reo->is_logged_in() and uc $action =~ /(\[~)?LOGIN(\])?/; # root hack
-      push @res, "<a class=menu reactor_new_href=?action=$action $menu_args><img src=i/$icon class=icon> $label</a>";
+      push @res, "<reactor_new_a=?action=$action class=menu $menu_args><img src=i/$icon class=icon> $label</a>";
       }
     else
       {

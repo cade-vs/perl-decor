@@ -120,7 +120,7 @@ $file_body = Encode::decode_utf8( $file_body );
 =cut
   $text .= "<p>";
   $text .= de_html_alink_button( $reo, 'back', "&lArr; [~Continue]", "[~Return and continue on previous screen]" );
-  $text .= "<a class=button href='javascript:window.print()'><~Print this text></a>" if des_get_attr( $dodes, 'WEB', 'PRINT' );
+  $text .= "<a class=button href='#' onclick='window.print(); return false;'><~Print this text></a>" if des_get_attr( $dodes, 'WEB', 'PRINT' ); # cc20261025-rm-href-js
   
   return $text;
 }

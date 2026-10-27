@@ -53,9 +53,7 @@ sub sub_menu
     my $label = $item->{ 'LABEL' } || $key;
     my $type  = $item->{ 'TYPE'  };
 
-    my $confirm_js = html_confirm_js( $item->{ 'CONFIRM' } ); # 1 asks the default question
-    my $menu_args;
-    $menu_args .= "  onclick='" . Data::Tools::str_html_escape_attr( $confirm_js ) . "'" if $confirm_js;
+    my $menu_args = html_confirm_js( $item->{ 'CONFIRM' } ); # data-confirm and onclick attributes, 1 asks the default question
 
     if( $type eq 'SUBMENU' )
       {
@@ -82,13 +80,13 @@ sub sub_menu
     elsif( $type eq 'INSERT' )
       {
       my $table  = $item->{ 'TABLE'  };
-      push @res, "<a class=menu reactor_none_href=?action=edit&table=$table&id=-1 $menu_args><img src=i/menu-item-insert.svg class=icon> $label</a>";
+      push @res, "<reactor_none_a=?action=edit&table=$table&id=-1 class=menu $menu_args><img src=i/menu-item-insert.svg class=icon> $label</a>";
       }
     elsif( $type eq 'DO' )
       {
       my $table  = $item->{ 'TABLE'  };
       my $do     = $item->{ 'DO'     };
-      push @res, "<a class=menu reactor_none_href=?action=do&table=$table&do=$do $menu_args><img src=i/menu-item-do.svg class=icon> $label</a>";
+      push @res, "<reactor_none_a=?action=do&table=$table&do=$do class=menu $menu_args><img src=i/menu-item-do.svg class=icon> $label</a>";
       }
     elsif( $type eq 'URL' )
       {

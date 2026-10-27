@@ -212,7 +212,7 @@ sub main
             $data_ctrl .= de_html_alink_icon( $reo, 'new', 'file_dn.svg',  "[~Download current file]",           ACTION => 'file_dn', ID => $data_base, TABLE => $linked_table );
 
             # FIXME: TODO: set option
-            $field_details .= qq( <iframe reactor_src="?action=file_dn&table=$linked_table&id=$data_base" width="100%" height="700px"></iframe> );
+            $field_details .= qq( <reactor_iframe="?action=file_dn&table=$linked_table&id=$data_base" width="100%" height="700px"></iframe> );
             }
           else
             {

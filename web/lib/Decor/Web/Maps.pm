@@ -103,16 +103,16 @@ sub map_tomtom
 
 END_OF_HTML
 
-my $text_zoom_ctrl .= <<END_OF_HTML;
+my $text_zoom_ctrl .= <<END_OF_HTML; # cc20261025-rm-href-js
       zoom to 
-      <a href='javascript:zoom_to_country_level();'>country</a>
+      <a href='#' onclick='zoom_to_country_level(); return false;'>country</a>
       |
-      <a href='javascript:zoom_to_city_level();'>city</a>
+      <a href='#' onclick='zoom_to_city_level(); return false;'>city</a>
       |
-      <a href='javascript:zoom_to_street_level();'>street</a>
+      <a href='#' onclick='zoom_to_street_level(); return false;'>street</a>
       level
       |
-      <a href='javascript:marker_recenter();'>&raquo;&laquo;</a>
+      <a href='#' onclick='marker_recenter(); return false;'>&raquo;&laquo;</a>
 END_OF_HTML
 
 if( $allow_nav )

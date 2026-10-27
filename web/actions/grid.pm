@@ -387,7 +387,7 @@ sub main
                                        LABELS   => [ "<img class='checkbox' src=i/check-edit-0.svg>", "<img class='checkbox' src=i/check-edit-1.svg>" ],
                                        HINT     => '[~Select this record]',
                                        );
-      $vec_ctrl_popup .= qq[ <a class='button act-button' href='javascript:reactor_form_multi_checkbox_toggle_by_id( "VECB:$cb_id" );'>(&radic;) Toggle record</a> ];
+      $vec_ctrl_popup .= qq[ <a class='button act-button' href='#' onclick='reactor_form_multi_checkbox_toggle_by_id( "VECB:$cb_id" ); return false;'>(&radic;) Toggle record</a> ]; # cc20261025-rm-href-js
       }
 
     $vec_ctrl_popup = "<div class='popup-menu-buttons'>$vec_ctrl_popup</div>";
@@ -652,12 +652,12 @@ sub main
     $offset_prev = 0 if $offset_prev < 0;
     $offset_last = 0 if $offset_last < 0;
 
-    $text_grid_navi_mid .= $offset > 0 ? "<a id=a-nav-page-first reactor_here_href=?offset=0><img src=i/page-prev.svg> [~first]</a> | " : "<img src=i/page-prev.svg> [~first] | ";
-    $text_grid_navi_mid .= $offset > 0 ? "<a id=a-nav-page-prev  reactor_here_href=?offset=$offset_prev><img src=i/page-prev.svg> previous</a> | " : "<img src=i/page-prev.svg> [~previous] | ";
-    $text_grid_navi_mid .= $offset_next < $scount ? "<a id=a-nav-page-next reactor_here_href=?offset=$offset_next>[~next] <img src=i/page-next.svg></a> | " : "[~next] <img src=i/page-next.svg> | ";
-    $text_grid_navi_mid .= $offset_next < $scount ? "<a id=a-nav-page-last reactor_here_href=?offset=$offset_last>[~last] <img src=i/page-next.svg></a> | " : "[~last] <img src=i/page-next.svg> | ";
+    $text_grid_navi_mid .= $offset > 0 ? "<reactor_here_a=?offset=0 id=a-nav-page-first><img src=i/page-prev.svg> [~first]</a> | " : "<img src=i/page-prev.svg> [~first] | ";
+    $text_grid_navi_mid .= $offset > 0 ? "<reactor_here_a=?offset=$offset_prev id=a-nav-page-prev><img src=i/page-prev.svg> previous</a> | " : "<img src=i/page-prev.svg> [~previous] | ";
+    $text_grid_navi_mid .= $offset_next < $scount ? "<reactor_here_a=?offset=$offset_next id=a-nav-page-next>[~next] <img src=i/page-next.svg></a> | " : "[~next] <img src=i/page-next.svg> | ";
+    $text_grid_navi_mid .= $offset_next < $scount ? "<reactor_here_a=?offset=$offset_last id=a-nav-page-last>[~last] <img src=i/page-next.svg></a> | " : "[~last] <img src=i/page-next.svg> | ";
 
-    #$text_grid_navi .= "<a reactor_here_href=?offset=$offset_prev><img src=i/page-prev.svg> previous page</a> | <a reactor_here_href=?offset=$offset_next>next page <img src=i/page-next.svg> </a>";
+    #$text_grid_navi .= "<reactor_here_a=?offset=$offset_prev><img src=i/page-prev.svg> previous page</a> | <reactor_here_a=?offset=$offset_next>next page <img src=i/page-next.svg> </a>";
     my $page_more = int( $page_size * 2 );
     my $page_less = int( $page_size / 2 );
     my $link_page_more = de_html_alink( $reo, 'here', "+",       { HINT => '[~Show more rows per page]', ID => 'a-nav-page-more' },   PAGE_SIZE => $page_more );
