@@ -45,30 +45,30 @@ our @args;
 while( @ARGV )
   {
   $_ = shift;
-  if( /^--+$/io )
+  if( /^--+\z/io )
     {
     push @args, @ARGV;
     last;
     }
-  if( /^-d$/ )
+  if( /^-d\z/ )
     {
     my $level = ++$DEBUG;
     print "option: debug level raised, now is [$level] \n";
     next;
     }
-  if( /^-t$/ )
+  if( /^-t\z/ )
     {
     my $opt_tdir = shift;
     print "option: target directory set to [$opt_tdir] \n";
     next;
     }
     
-  if( /^-v$/ )
+  if( /^-v\z/ )
     {
     $opt_verbose = 1;
     next;
     }
-  if( /^(--?h(elp)?|help)$/io )
+  if( /^(--?h(elp)?|help)\z/io )
     {
     print $help_text;
     exit;
@@ -80,7 +80,7 @@ my $opt_app_name =    shift @args;
 my $opt_lang     = lc shift @args;
 
 die $help_text unless de_check_name( $opt_app_name ) and -d "$ROOT/apps/$opt_app_name";
-die $help_text unless $opt_lang =~ /^[a-z][a-z]$/;
+die $help_text unless $opt_lang =~ /^[a-z][a-z]\z/;
 
 my $TDIR = $opt_tdir || "$ROOT/apps/$opt_app_name/web/trans/";
 $TDIR .= "/$opt_lang";

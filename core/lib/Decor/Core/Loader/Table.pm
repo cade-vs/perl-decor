@@ -131,8 +131,8 @@ my %DES_ATTRS = (
 
                            DSN         => 1, # database connection name from the DSN config, MAIN by default
 
-                           # ON_INIT, ON_RECALC, ON_INSERT etc. are not table attributes, # cc20261008
-                           # in '@' they hold lists of fields with such inline methods # cc20261008
+                           # ON_INIT, ON_RECALC, ON_INSERT etc. are not table attributes,
+                           # in '@' they hold lists of fields with such inline methods
 
                            NO_AUTOCOMPLETE => 3, # disable interface autocomplete
 
@@ -234,6 +234,7 @@ my %DES_ATTRS = (
                            UPDATE_LINK_CUE   => 3,
                            DETACH_LINK_CUE   => 3,
                            ATTACH_LINK_CUE   => 3,
+                           SELECT_LINK_CUE   => 3, # select a linked record button (edit, grid filter)
                            UPLOAD_LINK_CUE   => 3,
                            DOWNLOAD_LINK_CUE => 3,
                            MAP_EDIT_CUE      => 3,
@@ -393,13 +394,13 @@ sub __merge_table_des_file
 
     chomp( $line );
     $line =~ s/^\s*//;
-    $line =~ s/\s*$//;
+    $line =~ s/\s*\z//;
     last if $line =~ /^__(STATIC(:(CSV|XML|JSON))?|END|DATA)__/;
     next unless $line =~ /\S/;       # skip whitespace
     next if $line =~ /^([#;]|\/\/)/; # skip comments
     de_log_debug2( "        line: [$line]" );
 
-    if( $line =~ /^\s*(=+\s*|_)(([a-zA-Z_][a-zA-Z_0-9]*):+\s*)?([a-zA-Z_][a-zA-Z_0-9]*)\s*(.*?)\s*$/ )
+    if( $line =~ /^\s*(=+\s*|_)(([a-zA-Z_][a-zA-Z_0-9]*):+\s*)?([a-zA-Z_][a-zA-Z_0-9]*)\s*(.*?)\s*\z/ )
       {
       $key_prefix_pin = undef; # remove key pin
 
@@ -420,7 +421,7 @@ sub __merge_table_des_file
         # copy template field definition if field name matches, only when first opened, later files merge into it
         $des->{ $category }{ $sect_name } = dclone( $field_templates->{ $category }{ $sect_name } );
         }
-      elsif( $sect_name =~ /^_(OWNER|UPDATE|DELETE)([_0-9][A-Z_0-9]*)?$/ and ! exists $des->{ $category }{ $sect_name } ) # _OWNER, _OWNER2, _OWNER_X but not _OWNERSHIP, _UPDATED
+      elsif( $sect_name =~ /^_(OWNER|UPDATE|DELETE)([_0-9][A-Z_0-9]*)?\z/ and ! exists $des->{ $category }{ $sect_name } ) # _OWNER, _OWNER2, _OWNER_X but not _OWNERSHIP, _UPDATED
         {
         # make it special, link to groups, system use only by default, only when first opened, later files merge into it
         $des->{ $category }{ $sect_name }{ 'TYPE' }                     = 'link  de_groups   name';
@@ -448,7 +449,7 @@ sub __merge_table_des_file
       $line = "\@isa _DE_$1 **";
       }
 
-    if( $line =~ /^\s*@(isa|include)\s+([a-zA-Z_0-9]+)\s*(.*?)\s*$/i )
+    if( $line =~ /^\s*@(isa|include)\s+([a-zA-Z_0-9]+)\s*(.*?)\s*\z/i )
       {
       my $name = $2;
       my $args = $3; # options/arguments, FIXME: upcase/lowcase?
@@ -482,7 +483,7 @@ sub __merge_table_des_file
           {
           if( $arg =~ s/\*/\.*?/g )
             {
-            delete $isa_fields{ $_ } for grep { $_ ne '_ID' } grep { /^$arg$/ } keys %{ $isa->{ 'FIELD' } };
+            delete $isa_fields{ $_ } for grep { $_ ne '_ID' } grep { /^$arg\z/ } keys %{ $isa->{ 'FIELD' } };
             }
           else
             {
@@ -491,7 +492,7 @@ sub __merge_table_des_file
           }
         elsif( $arg =~ s/\*/\.*?/g )
           {
-          $isa_fields{ $_ } = 1 for grep { /^$arg$/ } keys %{ $isa->{ 'FIELD' } };
+          $isa_fields{ $_ } = 1 for grep { /^$arg\z/ } keys %{ $isa->{ 'FIELD' } };
           }
         else
           {
@@ -505,7 +506,7 @@ sub __merge_table_des_file
         {
         while( my ( $k, $v ) = each %{ $isa->{ '@' }{ '@' } } )
           {
-          next if $k =~ /^(NAME|LABEL|__DEBUG_ORIGIN)$/; # origin stays the current table's files
+          next if $k =~ /^(NAME|LABEL|__DEBUG_ORIGIN)\z/; # origin stays the current table's files
           if( $k eq '_MTIME' )
             {
             # keep the latest modification time of both tables
@@ -539,7 +540,7 @@ sub __merge_table_des_file
       next;
       }
 
-    if( $line =~ /^\s*@(remove)\s*(.*?)\s*$/i )
+    if( $line =~ /^\s*@(remove)\s*(.*?)\s*\z/i )
       {
       my $args = $2; # options/arguments, FIXME: upcase/lowcase?
 
@@ -550,18 +551,18 @@ sub __merge_table_des_file
       for my $arg ( @args )
         {
         $arg =~ s/\*/\.*?/g;
-        delete $des->{ 'FIELD' }{ $_ } for grep { $_ ne '_ID' } grep { /^$arg$/ } keys %{ $des->{ 'FIELD' } };
+        delete $des->{ 'FIELD' }{ $_ } for grep { $_ ne '_ID' } grep { /^$arg\z/ } keys %{ $des->{ 'FIELD' } };
         }
 
       next;
       }
 
-    if( $line =~ /^([a-zA-Z\-_0-9\.]+)\s*(.*?)\s*$/ )
+    if( $line =~ /^([a-zA-Z\-_0-9\.]+)\s*(.*?)\s*\z/ )
       {
       my $key   = uc $1;
       my $value =    $2;
 
-      if( $key =~ /\.$/ )
+      if( $key =~ /\.\z/ )
         {
         $key_prefix_pin = $key;
         next;
@@ -579,7 +580,7 @@ sub __merge_table_des_file
 
       my $key_path;
 
-      if( $key =~ /^(([A-Z_0-9]+\.)*)([A-Z_0-9]+)$/ )
+      if( $key =~ /^(([A-Z_0-9]+\.)*)([A-Z_0-9]+)\z/ )
         {
         $key_path = $1;
         $key = $3;
@@ -666,7 +667,7 @@ sub __merge_table_des_file
       if( $key eq 'SP' )
         {
         # singular and plural forms of the items contained in the table
-        boom "invalid SP [$value] expected exactly two words: <singular> <plural> $error_location" unless $value =~ /^(\S+)\s+(\S+)$/;
+        boom "invalid SP [$value] expected exactly two words: <singular> <plural> $error_location" unless $value =~ /^(\S+)\s+(\S+)\z/;
         $des->{ $category }{ $sect_name }{ 'S' } = $1;
         $des->{ $category }{ $sect_name }{ 'P' } = $2;
         next;
@@ -864,7 +865,7 @@ sub __postprocess_table_raw_description
       {
       my $spec = shift( @type );
       $spec = '.4' if $spec eq ''; # default spec, FIXME: get from config?
-      if( $spec =~ /^(\d*)(\.(\d*))?$/ )
+      if( $spec =~ /^(\d*)(\.(\d*))?\z/ )
         {
         my $len = $1;
         my $dot = $3;
@@ -894,7 +895,7 @@ sub __postprocess_table_raw_description
       my $dot = 0;
       if( $spec ne '' )
         {
-        boom "invalid FIELD type SPEC [$spec] for type [$type] in table [$table] field [$field] from [@debug_origin] expected .0 .. .9" unless $spec =~ /^\.(\d)$/;
+        boom "invalid FIELD type SPEC [$spec] for type [$type] in table [$table] field [$field] from [@debug_origin] expected .0 .. .9" unless $spec =~ /^\.(\d)\z/;
         $dot = $1;
         }
       $type_des->{ 'DOT' } = $dot;
@@ -905,10 +906,10 @@ sub __postprocess_table_raw_description
     # convert grant/deny list to access tree
 #print STDERR "=====(GRANT DENY)==PRE+++ $table $field: " . Dumper( $des->{ 'FIELD' }{ $field } );
 
-    if( exists $fld_des->{ '__GRANT_DENY_ACCUMULATOR' } or $type_des->{ 'NAME' } eq 'WIDELINK' ) # cc20261008
+    if( exists $fld_des->{ '__GRANT_DENY_ACCUMULATOR' } or $type_des->{ 'NAME' } eq 'WIDELINK' )
       {
-      # WIDELINK without own grant/deny starts from the table ones, preprocess adds deny insert update # cc20261008
-      $fld_des->{ '__GRANT_DENY_ACCUMULATOR' } ||= [ @{ $des->{ '@' }{ '__GRANT_DENY_ACCUMULATOR' } || [] } ]; # cc20261008
+      # WIDELINK without own grant/deny starts from the table ones, preprocess adds deny insert update
+      $fld_des->{ '__GRANT_DENY_ACCUMULATOR' } ||= [ @{ $des->{ '@' }{ '__GRANT_DENY_ACCUMULATOR' } || [] } ];
       loader_grant_deny_tree( $fld_des );
       }
     else
@@ -1003,8 +1004,8 @@ sub __postprocess_table_raw_description
   # mark self inline methods list
   for my $im ( keys %INLINE_METHODS )
     {
-    # always set, description is locked and Subs.pm reads all of them # cc20261008
-    $des->{ '@' }{ $im } = [ keys %{ $des->{ '@' }{ $im } || {} } ]; # cc20261008
+    # always set, description is locked and Subs.pm reads all of them
+    $des->{ '@' }{ $im } = [ keys %{ $des->{ '@' }{ $im } || {} } ];
     }
 
   # print STDERR "TABLE DES POST PROCESSSED [$table]($des):" . Dumper( $des );

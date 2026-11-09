@@ -51,7 +51,7 @@ sub add_groups_from_user
     # record with loaded record from DE_USERS
     $user_id = $user->id();
     }
-  elsif( $user =~ /^\d+$/ )
+  elsif( $user =~ /^\d+\z/ )
     {
     # user id (number)
     $user_id = $user;
@@ -100,8 +100,8 @@ sub allows
 
   return 1 if $self->has_root_access();
 
-  return 1 if $oper =~ /^(READ|CROSS|ACCESS)$/            and exists $self->{ 'GROUPS' }{ 966 };
-  return 0 if $oper =~ /^(INSERT|UPDATE|DELETE|EXECUTE)$/ and exists $self->{ 'GROUPS' }{ 967 };
+  return 1 if $oper =~ /^(READ|CROSS|ACCESS)\z/            and exists $self->{ 'GROUPS' }{ 966 };
+  return 0 if $oper =~ /^(INSERT|UPDATE|DELETE|EXECUTE)\z/ and exists $self->{ 'GROUPS' }{ 967 };
 
   return $self->SUPER::allows( $des, $oper );
 }
@@ -222,7 +222,7 @@ sub check_access_row
     my $ok;
     for my $field ( @$fields )
       {
-      next unless $field =~ /^_${op}([_0-9][A-Z_0-9]*)?$/; # _OWNER, _OWNER2, _OWNER_X but not _OWNERSHIP, same as in Loader/Table.pm and DB/IO.pm
+      next unless $field =~ /^_${op}([_0-9][A-Z_0-9]*)?\z/; # _OWNER, _OWNER2, _OWNER_X but not _OWNERSHIP, same as in Loader/Table.pm and DB/IO.pm
 
       $sccnt++;
       my $grp = ref( $dsrc ) eq 'HASH' ? $dsrc->{ $field } : $dsrc->read( $field );

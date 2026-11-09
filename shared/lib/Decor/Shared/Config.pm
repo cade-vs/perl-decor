@@ -133,12 +133,12 @@ sub de_config_merge_file
 
     chomp( $line );
     $line =~ s/^\s*//;
-    $line =~ s/\s*$//;
+    $line =~ s/\s*\z//;
     next unless $line =~ /\S/;
     next if $line =~ /^([#;]|\/\/)/;
 #    de_debug( "        line: [$line]" );  
 
-    if( $line =~ /^=(([a-zA-Z_][a-zA-Z_0-9]*):\s*)?([a-zA-Z_][a-zA-Z_0-9]*)\s*(.*?)\s*$/ )
+    if( $line =~ /^=(([a-zA-Z_][a-zA-Z_0-9]*):\s*)?([a-zA-Z_][a-zA-Z_0-9]*)\s*(.*?)\s*\z/ )
       {
          $category  = uc( $2 || $opt->{ 'DEFAULT_CATEGORY' } || '*' );    
          $sect_name = uc( $3 );
@@ -163,7 +163,7 @@ sub de_config_merge_file
       next;
       }
 
-    if( $line =~ /^@(isa|include)\s*([a-zA-Z_0-9]+)\s*(.*?)\s*$/ )
+    if( $line =~ /^@(isa|include)\s*([a-zA-Z_0-9]+)\s*(.*?)\s*\z/ )
       {
       my $name = $2;
       my $opts = $3; # options/arguments, FIXME: upcase/lowcase?
@@ -205,7 +205,7 @@ sub de_config_merge_file
       next;
       }
 
-    if( $line =~ /^([a-zA-Z_0-9\:]+)\s*(.*?)\s*$/ )
+    if( $line =~ /^([a-zA-Z_0-9\:]+)\s*(.*?)\s*\z/ )
       {
       my $key   = uc $1;
       my $value =    $2;

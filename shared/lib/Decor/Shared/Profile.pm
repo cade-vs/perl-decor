@@ -247,7 +247,7 @@ sub match_tree
     my $c = 0;
     for my $group ( @$sets )
       {
-      if( $group =~ /^!\s*([0-9]+)$/ )
+      if( $group =~ /^!\s*([0-9]+)\z/ )
         {
         next if exists $groups->{ 909 };
         my $grp = int( $1 );

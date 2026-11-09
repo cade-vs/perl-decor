@@ -159,13 +159,13 @@ sub __merge_menu_file
 
     chomp( $line );
     $line =~ s/^\s*//;
-    $line =~ s/\s*$//;
+    $line =~ s/\s*\z//;
     next unless $line =~ /\S/;
     next if $line =~ /^([#;]|\/\/)/;
     de_log_debug2( "        line: [$line]" );
 
 #    if( $line =~ /^=+\s*([a-zA-Z_][a-zA-Z_0-9]*)\s*(.*?)\s*$/ )
-    if( $line =~ /^=+\s*([a-z_0-9]+?)\s*$/i )
+    if( $line =~ /^=+\s*([a-z_0-9]+?)\s*\z/i )
       {
          $item_name = uc( $1 );
       my $item_opts =     $2; # fixme: upcase/locase?
@@ -180,7 +180,7 @@ sub __merge_menu_file
       next;
       }
 
-    if( $line =~ /^([a-zA-Z\-_0-9\.]+)\s*(.*?)\s*$/ )
+    if( $line =~ /^([a-zA-Z\-_0-9\.]+)\s*(.*?)\s*\z/ )
       {
       my $key   = uc $1;
       my $value =    $2;
@@ -327,7 +327,7 @@ sub __postprocess_menu_hash
       $item_des->{ 'SUBMENU_NAME' } = $submenu;
       $item_des->{ 'LABEL' } ||= uc( substr( $item, 0, 1 ) ) . lc( substr( $item, 1 ) );
       }
-    elsif( $type =~ /^(GRID|INSERT|EDIT|VIEW)$/ )
+    elsif( $type =~ /^(GRID|INSERT|EDIT|VIEW)\z/ )
       {
       my $table = shift @type;
       my $des = des_exists( $table ) ? load_table( $table ) : undef; # des_exists() never booms, also after preload
@@ -343,17 +343,17 @@ sub __postprocess_menu_hash
       $item_des->{ 'TABLE' }   = $table;
       $item_des->{ 'LABEL' } ||= $des ? des_table_label( $des ) : uc( substr( $item, 0, 1 ) ) . lc( substr( $item, 1 ) ); # unknown table, item is kept with default label
       }
-    elsif( $type =~ /^(URL)$/ )
+    elsif( $type =~ /^(URL)\z/ )
       {
       my $url = shift @type;
       $item_des->{ 'URL' } = $url;
       }
-    elsif( $type =~ /^(ACTION)$/ )
+    elsif( $type =~ /^(ACTION)\z/ )
       {
       my $action = shift @type;
       $item_des->{ 'ACTION' } = $action;
       }
-    elsif( $type =~ /^(DO)$/ )
+    elsif( $type =~ /^(DO)\z/ )
       {
       my $table = shift @type;
       my $do    = shift @type;

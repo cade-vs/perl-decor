@@ -59,48 +59,48 @@ our @args;
 while( @ARGV )
   {
   $_ = shift;
-  if( /^--+$/io )
+  if( /^--+\z/io )
     {
     push @args, @ARGV;
     last;
     }
-  if( /^-r(r)?$/ )
+  if( /^-r(r)?\z/ )
     {
     $DE_LOG_TO_STDERR = 1;
     $DE_LOG_TO_FILES  = $1 ? 1 : 0;
     print "option: forwarding logs to STDERR\n";
     next;
     }
-  if( /^-d$/ )
+  if( /^-d\z/ )
     {
     my $level = de_debug_inc();
     print "option: debug level raised, now is [$level]\n";
     next;
     }
-  if( /^-y$/ )
+  if( /^-y\z/ )
     {
     $opt_all_yes = 1;
     print "option: assuming 'yes' to all questions\n";
     next;
     }
-  if( /^-t$/ )
+  if( /^-t\z/ )
     {
     $smail_queue_table = shift;
     print "option: smail queue table: $smail_queue_table\n";
     next;
     }
-  if( /^-z$/ )
+  if( /^-z\z/ )
     {
     $opt_daemonize++;
     print "option: daemonize\n";
     next;
     }
-  if( /^-v$/ )
+  if( /^-v\z/ )
     {
     $opt_verbose = 1;
     next;
     }
-  if( /^(--?h(elp)?|help)$/io )
+  if( /^(--?h(elp)?|help)\z/io )
     {
     print $help_text;
     exit;
@@ -110,7 +110,7 @@ while( @ARGV )
 
 my $opt_app_name = lc shift @args;
 
-if( $opt_app_name =~ /^[A-Z_0-9]+$/i )
+if( $opt_app_name =~ /^[A-Z_0-9]+\z/i )
   {
   print "info: application name in use [$opt_app_name]\n";
   }

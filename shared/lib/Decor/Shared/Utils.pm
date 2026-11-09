@@ -57,7 +57,7 @@ sub de_check_name
 {
   my $name = shift;
   
-  return $name =~ /^[a-zA-Z_0-9]+$/o ? 1 : 0;
+  return $name =~ /^[a-zA-Z_0-9]+\z/o ? 1 : 0;
 }
 
 sub de_check_name_boom
@@ -72,7 +72,7 @@ sub de_check_name_ext
 {
   my $name = shift;
   
-  return $name =~ /^[a-zA-Z_0-9\-]+$/o ? 1 : 0;
+  return $name =~ /^[a-zA-Z_0-9\-]+\z/o ? 1 : 0;
 }
 
 sub de_check_name_ext_boom
@@ -87,7 +87,7 @@ sub de_check_pkg_name
 {
   my $name = shift;
   
-  return $name =~ /^[a-zA-Z_0-9]+(::[a-zA-Z_0-9]+)*$/o ? 1 : 0;
+  return $name =~ /^[a-zA-Z_0-9]+(::[a-zA-Z_0-9]+)*\z/o ? 1 : 0;
 }
 
 sub de_check_pkg_name_boom
@@ -102,7 +102,7 @@ sub de_check_id
 {
   my $id = shift;
 
-  return $id =~ /^[0-9]+$/o and $id > 0;
+  return $id =~ /^[0-9]+\z/o and $id > 0;
 }
 
 sub de_check_id_boom
@@ -118,7 +118,7 @@ sub de_check_fname
   my $fname = shift;
 
   # this will not handle all file names! it is intentionally restrictive!
-  return $fname =~ /^[a-zA-Z_0-9\-]+(\.[a-zA-Z_0-9\-]+)?$/o ? 1 : 0;
+  return $fname =~ /^[a-zA-Z_0-9\-]+(\.[a-zA-Z_0-9\-]+)?\z/o ? 1 : 0;
 }
 
 sub de_check_fname_boom
@@ -134,7 +134,7 @@ sub de_check_fpath
   my $fpath = shift;
 
   # this will not handle all file names/paths! it is intentionally restrictive!
-  return $fpath =~ /^\/?([a-zA-Z_0-9\-]+(\.[a-zA-Z_0-9\-]+)?\/)*[a-zA-Z_0-9\-]+(\.[a-zA-Z_0-9\-]+)?$/o ? 1 : 0;
+  return $fpath =~ /^\/?([a-zA-Z_0-9\-]+(\.[a-zA-Z_0-9\-]+)?\/)*[a-zA-Z_0-9\-]+(\.[a-zA-Z_0-9\-]+)?\z/o ? 1 : 0;
 }
 
 sub de_check_fpath_boom
@@ -149,14 +149,14 @@ sub de_check_user_login_name
 {
   my $name = shift;
   
-  return $name =~ /^[a-zA-Z_0-9\-\.\,\@\:]+$/o ? 1 : 0;
+  return $name =~ /^[a-zA-Z_0-9\-\.\,\@\:]+\z/o ? 1 : 0;
 }
 
 sub de_check_user_pass_digest
 {
   my $name = uc shift;
   
-  return $name =~ /^[a-fA-F0-9]+$/o ? 1 : 0;
+  return $name =~ /^[a-fA-F0-9]+\z/o ? 1 : 0;
 }
 
 sub de_reload_config

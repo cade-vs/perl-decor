@@ -60,12 +60,12 @@ our @args;
 while( @ARGV )
   {
   $_ = shift;
-  if( /^--+$/io )
+  if( /^--+\z/io )
     {
     push @args, @ARGV;
     last;
     }
-  if( /^-f(s)?$/ )
+  if( /^-f(s)?\z/ )
     {
     $opt_recreate = 1;
     $opt_confirm_first = 1;
@@ -76,19 +76,19 @@ while( @ARGV )
     print "option: will consider and DECOR system tables\n";
     next;
     }
-  if( /^-o$/ )
+  if( /^-o\z/ )
     {
     $opt_confirm_first = 1;
     print "option: ask confirmation before executing tasks\n";
     next;
     }
-  if( /^-d$/ )
+  if( /^-d\z/ )
     {
     my $level = de_debug_inc();
     print "option: debug level raised, now is [$level] \n";
     next;
     }
-  if( /^-r(r)?(c)?$/ )
+  if( /^-r(r)?(c)?\z/ )
     {
     $DE_LOG_TO_STDERR = 1;
     $DE_LOG_TO_FILES  = $1 ? 1 : 0;
@@ -96,7 +96,7 @@ while( @ARGV )
     print "option: forwarding logs to STDERR\n";
     next;
     }
-  if( /^(--?h(elp)?|help)$/io )
+  if( /^(--?h(elp)?|help)\z/io )
     {
     print $help_text;
     exit;
@@ -254,7 +254,8 @@ sub rebuild_table
   my $indexes = des_indexes_list( $des );
   for my $index ( @$indexes )
     {
-    my $idx_des = des_index_des( $des, $index );
+#-    my $idx_des = des_index_des( $des, $index ); # cc20261029-4
+    my $idx_des = des_idx( $des, $index ); # cc20261029-4
     my $unique =    $idx_des->{ 'UNIQUE' };
     my $fields = uc $idx_des->{ 'FIELDS' };
 
@@ -284,7 +285,8 @@ sub rebuild_table
     my %base_data;
     for my $field ( @$fields )
       {
-      my $fdes = des_field_des( $des, $field );
+#-      my $fdes = des_field_des( $des, $field ); # cc20261029-4
+      my $fdes = des_fld( $des, $field ); # cc20261029-4
       my $type_name = $fdes->{ 'TYPE' }{ 'NAME' };
       # TODO: is it enough to check for non-CHAR and set them to zero?
       $base_data{ $field } = $type_name eq 'CHAR' ? '' : 0;
@@ -324,7 +326,8 @@ sub table_create
   my $fields = des_fields_list( $des );
   for my $field ( @$fields )
     {
-    my $fld_des = des_field_des( $des, $field );
+#-    my $fld_des = des_field_des( $des, $field ); # cc20261029-4
+    my $fld_des = des_fld( $des, $field ); # cc20261029-4
 
     my $type = $fld_des->{ 'TYPE' }{ 'NAME' };
     my $len  = $fld_des->{ 'TYPE' }{ 'LEN'  };
@@ -372,7 +375,8 @@ sub table_alter
   my $add_columns = 0;
   for my $field ( @$fields )
     {
-    my $fld_des = des_field_des( $des, $field );
+#-    my $fld_des = des_field_des( $des, $field ); # cc20261029-4
+    my $fld_des = des_fld( $des, $field ); # cc20261029-4
 
     my $type      = $fld_des->{ 'TYPE' };
     my $type_name = $type->{ 'NAME' };

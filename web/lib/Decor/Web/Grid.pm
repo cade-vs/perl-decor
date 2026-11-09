@@ -15,6 +15,7 @@ use Time::JulianDay;
 use Data::Tools::Time;
 
 use Decor::Shared::Types;
+use Decor::Shared::Describe;
 use Decor::Web::HTML::Utils;
 use Decor::Web::Utils;
 
@@ -45,8 +46,8 @@ sub de_web_grid_backlink_detach_attach_icon
 
   my $tdes = $core->describe( $table );
   
-  my ( $detach_link_cue, $detach_link_cue_hint ) = de_web_get_cue( $tdes->{ 'FIELD' }{ $fname }, qw( WEB GRID DETACH_LINK_CUE   ) );
-  my ( $attach_link_cue, $attach_link_cue_hint ) = de_web_get_cue( $tdes->{ 'FIELD' }{ $fname }, qw( WEB GRID ATTACH_LINK_CUE   ) );
+  my ( $detach_link_cue, $detach_link_cue_hint ) = des_cue( des_fld( $tdes, $fname ), qw( WEB GRID DETACH_LINK_CUE   ) );
+  my ( $attach_link_cue, $attach_link_cue_hint ) = des_cue( des_fld( $tdes, $fname ), qw( WEB GRID ATTACH_LINK_CUE   ) );
 
   my $text; 
 

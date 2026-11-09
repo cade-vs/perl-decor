@@ -25,7 +25,7 @@ die $USAGE unless @ARGV == 3;
   
 # bit nonsense but keeping it to be the same in all tools
 my $root = shift();
-$root = ( strip_script_name( $0 ) . "/../" || '/usr/local/decor/' ) if $root =~ /^a(uto)?$/;
+$root = ( strip_script_name( $0 ) . "/../" || '/usr/local/decor/' ) if $root =~ /^a(uto)?\z/;
 $root = abs_path( "$root/" );
 
 print "USING DECOR ROOT FOR SETUP: $root\n";
@@ -86,7 +86,7 @@ print "\nDONE.\n";
 sub strip_script_name
 {
   my $s = shift;
-  $s =~ s/[^\/]+$//;
+  $s =~ s/[^\/]+\z//;
   return $s;
 }
 

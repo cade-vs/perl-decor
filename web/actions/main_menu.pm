@@ -10,6 +10,8 @@
 package decor::actions::main_menu;
 use strict;
 use Web::Reactor::HTML::Utils;
+use Web::Reactor::HTML; # elements, attributes, escaping, no longer exported by HTML::Utils
+use Web::Reactor::HTML::More; # extended elements, hover and popup layers, no longer exported by HTML::Utils
 use Data::Dumper;
 
 sub main
@@ -74,7 +76,7 @@ sub main
                                   FILTER_METHOD => $filter_method,
                                   ORDER_BY      => $order_by,
                                 );
-      $link = "<a $menu_args href=?_=$href>$label</a>";
+      $link = html_element( 'a', $label, href => "?_=$href", html_confirm_attrs( $item->{ 'CONFIRM' } ) );
       }
     elsif( $type eq 'INSERT' )
       {
@@ -94,7 +96,7 @@ sub main
     elsif( $type eq 'URL' )
       {
       my $url  = $item->{ 'URL'  };
-      $link = "<a $menu_args target=_blank href=$url>$label</a>";
+      $link = html_element( 'a', $label, target => '_blank', href => $url, html_confirm_attrs( $item->{ 'CONFIRM' } ) ); # url is escaped, a bad scheme is blanked
       }
     elsif( $type eq 'DO' )
       {
@@ -182,7 +184,7 @@ sub sub_menu
                                   FILTER_METHOD => $filter_method,
                                   ORDER_BY      => $order_by,
                                 );
-      push @res, "<a class=menu href=?_=$href $menu_args><img src=i/menu-item-grid.svg class=icon> $label</a>";
+      push @res, html_element( 'a', "<img src=i/menu-item-grid.svg class=icon> $label", class => 'menu', href => "?_=$href", html_confirm_attrs( $item->{ 'CONFIRM' } ) );
       }
     elsif( $type eq 'INSERT' )
       {
@@ -203,7 +205,7 @@ sub sub_menu
     elsif( $type eq 'URL' )
       {
       my $url  = $item->{ 'URL'  };
-      push @res, "<a class=menu target=_blank href=$url $menu_args><img src=i/menu-item-url.svg class=icon> $label</a>";
+      push @res, html_element( 'a', "<img src=i/menu-item-url.svg class=icon> $label", class => 'menu', target => '_blank', href => $url, html_confirm_attrs( $item->{ 'CONFIRM' } ) ); # url is escaped, a bad scheme is blanked
       }
     elsif( $type eq 'ACTION' )
       {

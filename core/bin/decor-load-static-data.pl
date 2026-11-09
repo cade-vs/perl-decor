@@ -62,36 +62,36 @@ our @args;
 while( @ARGV )
   {
   $_ = shift;
-  if( /^--+$/io )
+  if( /^--+\z/io )
     {
     push @args, @ARGV;
     last;
     }
-  if( /^-d$/ )
+  if( /^-d\z/ )
     {
     my $level = de_debug_inc();
     print "option: debug level raised, now is [$level] \n";
     next;
     }
-  if( /^-t$/ )
+  if( /^-t\z/ )
     {
     $use_files = 0;
     print "option: using TABLE names\n";
     next;
     }
-  if( /^-i$/ )
+  if( /^-i\z/ )
     {
     $use_files = 1;
     print "option: using FILE names\n";
     next;
     }
     
-  if( /^-v$/ )
+  if( /^-v\z/ )
     {
     $opt_verbose = 1;
     next;
     }
-  if( /^-r(r)?(c)?$/ )
+  if( /^-r(r)?(c)?\z/ )
     {
     $DE_LOG_TO_STDERR = 1;
     $DE_LOG_TO_FILES  = $1 ? 1 : 0;
@@ -100,7 +100,7 @@ while( @ARGV )
     print "status: using ANSI colors in logs\n" if $DE_LOG_STDERR_COLORS;
     next;
     }
-  if( /^(--?h(elp)?|help)$/io )
+  if( /^(--?h(elp)?|help)\z/io )
     {
     print $help_text;
     exit;
@@ -188,7 +188,8 @@ sub import_data
   my %data_default;
   for my $field ( @$fields )
     {
-    my $fdes      = des_field_des( $des, $field );
+#-    my $fdes      = des_field_des( $des, $field ); # cc20261029-4
+    my $fdes      = des_fld( $des, $field ); # cc20261029-4
     my $type_name = $fdes->{ 'TYPE' }{ 'NAME' };
     $data_default{ $field } = $type_name eq 'CHAR' ? '' : 0;
     }
@@ -254,7 +255,7 @@ sub load_data_file
 
   open( my $if, '<', $fname ) or die "cannot open static data file [$fname]\n";
 
-  my $data = $fname =~ /\.def$/ ? 0 : 1;
+  my $data = $fname =~ /\.def\z/ ? 0 : 1;
   
   my $c;
   my @fields;
@@ -262,7 +263,7 @@ sub load_data_file
     {
     chomp;
     s/^\s*//;
-    s/\s*$//;
+    s/\s*\z//;
     next unless /\S/;
     
     $data = 1, next if ! $data and /__STATIC(:(CSV|XML|JSON))?__/; # FIXME: TODO: handle xml, json, etc. formats

@@ -74,7 +74,7 @@ sub __form_process_item
   my $item_align = '<';
   
   $item =~ s/^\s*//;
-  $item =~ s/\s*$//;
+  $item =~ s/\s*\z//;
   
 #  my ( $name, $fmt ) = split $type eq 'T' ? /\s*;+\s*/ : /\s+/, $item, 2;
 

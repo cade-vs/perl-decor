@@ -31,7 +31,7 @@ sub get_file_name
   my $id     =    $self->id();
   my $name   = $self->read( 'NAME' );
   my $sfname = $self->read( 'SYS_FNAME' );
-  my $ext    = $1 if $name =~ s/\.([a-z_0-9]+)$//i;
+  my $ext    = $1 if $name =~ s/\.([a-z_0-9]+)\z//i;
 
   # FIXME: absolute SYS_FNAME: second value is NAME without extension, not the short name, and wantarray is ignored,
   #        sub_file_save() then saves SYS_FNAME as the bare NAME, sub_file_load() (scalar context) gets the bare NAME as file path

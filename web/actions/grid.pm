@@ -16,6 +16,8 @@ use Data::Dumper;
 use Data::Tools 1.21;
 
 use Web::Reactor::HTML::Utils;
+use Web::Reactor::HTML; # elements, attributes, escaping, no longer exported by HTML::Utils
+use Web::Reactor::HTML::More; # extended elements, hover and popup layers, no longer exported by HTML::Utils
 use Web::Reactor::HTML::Layout;
 
 use Decor::Shared::Types;
@@ -49,7 +51,7 @@ sub main
   my $text;
 
   my $grid_mode  = $reo->param( 'GRID_MODE'  ) || 'NORMAL';
-  my $grid_mode_select = 1 if $grid_mode eq 'SELECT';
+  my $grid_mode_select = $grid_mode eq 'SELECT' ? 1 : 0; # no "my ... if"
 
   my $si = $reo->get_safe_input();
   my $ui = $reo->get_user_input();
@@ -64,29 +66,41 @@ sub main
   my $filter_param = $reo->param( 'FILTER' );
   my $page_size = $reo->param( 'PAGE_SIZE' );
 
+  my $return_data_from;
+  my $return_data_to;
+  my $select_key_data;
+
+  if( $grid_mode_select )
+    {
+    $return_data_from = $reo->param( 'RETURN_DATA_FROM' );
+    $return_data_to   = $reo->param( 'RETURN_DATA_TO'   );
+    $select_key_data  = $reo->param( 'SELECT_KEY_DATA'  );
+    }
+
   my $core = $reo->de_connect();
   my $tdes = $core->describe( $table );
   my $sdes = des_table_des( $tdes ); # table "Self" description
 
   my $table_label = des_table_label( $tdes );
-  my $table_type  = $sdes->{ 'TYPE' };
+  my $table_type  = des_table_type( $tdes );
 
   my ( $browser_window_title, $browser_window_hint ) = $reo->ps_path_add_by_cue( $sdes, 'GRID' );
 
-  return "<#e_internal>" unless $tdes;
+  # no "unless $tdes" check here: describe() booms for an unknown table, never returns false
 
   if( $button eq 'DO' and $button_id )
     {
     # FIXME: check if exists
     my $do = $ps->{ ':DO_NAME_MAP' }{ $button_id };
     #return "<#e_access>" unless $do;
-    
+
     my @do_ids;
     while( my ( $k, $v ) = each %$ui )
       {
-      next unless $k =~ s/^VECB://;
+      next unless $k =~ /^VECB:(.*)\z/;
+      my $cb_id = $1;
       next unless $v > 0;
-      push @do_ids, $ps->{ ':VECB_NAME_MAP' }{ $k } if exists $ps->{ ':VECB_NAME_MAP' }{ $k };
+      push @do_ids, $ps->{ ':VECB_NAME_MAP' }{ $cb_id } if exists $ps->{ ':VECB_NAME_MAP' }{ $cb_id };
       }
     # $text .= "[@do_ids][$do]";
     return $reo->forward_new( ACTION => 'do', DO => $do, IDS => \@do_ids, TABLE => $table ) if @do_ids;
@@ -98,20 +112,22 @@ sub main
   my $filter_name        = $reo->param( 'FILTER_NAME' );
   my $filter_bind        = $reo->param( 'FILTER_BIND' );
   my $filter_method      = $reo->param( 'FILTER_METHOD' );
-  my $order_by           = $reo->param( 'ORDER_BY' ) || $tdes->{ '@' }{ 'ORDER_BY' };
+  my $order_by           = $reo->param( 'ORDER_BY' ) || des_attr( $sdes, 'ORDER_BY' );
 
 
   $filter_bind = [ $filter_bind ] unless ref $filter_bind;
 #  print STDERR Dumper( $tdes );
 
+  # the table page size is only the default, the user's PAGE_SIZE (more/less/all/reset links) wins
+  my $page_size_default = des_attr( $sdes, qw( WEB GRID PAGE_SIZE ) ) || 15;
+  $page_size = $page_size_default unless $page_size > 0; # PAGE_SIZE 0 (the reset link) gives the default
+
   $page_size =   15 if $page_size <=    0;
   $page_size = 1000 if $page_size >  1000;
   $offset    =    0 if $offset    <     0;
 
-  $page_size             = des_get_attr( $sdes, qw( WEB GRID PAGE_SIZE ) ) || $page_size;
-
   my @fields;
-  my $fields_list = uc des_get_attr( $sdes, qw( WEB GRID FIELDS_LIST ) );
+  my $fields_list = uc des_attr( $sdes, qw( WEB GRID FIELDS_LIST ) );
   @fields = list_uniq( '_ID', split( /[\s\,\;]+/, $fields_list ) ) if $fields_list;
   @fields = @{ des_fields_list_by_oper( $tdes, 'READ', de_web_profile() ) } unless @fields > 0;
 
@@ -124,12 +140,12 @@ sub main
   my %basef; # base fields map, return base field NAME by field path
 
   de_web_expand_resolve_fields_in_place( \@fields, $tdes, \%bfdes, \%lfdes, \%basef );
-  
+
   # FIXME: cleanup the following grep!
 #  my $fields = join ',', grep { $link_field_disable ? ( $_ ne $link_field_disable and $_ !~ /^$link_field_disable\./ ) : 1 } @fields, values %basef;
   my $fields = join ',', @fields, values %basef;
 
-#print STDERR "=======================>>>>>>>>>>>>>>>>>>>>>>>> "  . Dumper( \@fields, \%basef, $fields );  
+#print STDERR "=======================>>>>>>>>>>>>>>>>>>>>>>>> "  . Dumper( \@fields, \%basef, $fields );
 
   return "<#e_no_fields>" unless $fields; # TODO: <#access_denied>
 
@@ -152,7 +168,7 @@ sub main
   if( $last_filter and $reo->param_peek( 'USE_LAST_FILTER' ) )
     {
     $ps->{ 'FILTERS' }{ 'ACTIVE' } = $last_filter;
-    }  
+    }
 
   my $active_filter = $ps->{ 'FILTERS' }{ 'ACTIVE' };
   if( $active_filter and $reo->param_peek( 'REMOVE_ACTIVE_FILTER' ) )
@@ -161,7 +177,7 @@ sub main
     delete $ps->{ 'FILTERS' }{ 'ACTIVE' };
     $active_filter = undef;
     }
-  
+
   my $filter;
 
   if( $active_filter )
@@ -179,26 +195,29 @@ sub main
   my $active_sort = $ps->{ 'SORTS' }{ 'ACTIVE' };
   if( $active_sort )
     {
-    $order_by = $active_sort->{ 'SQL' };
-    }
-  if( $active_sort and $reo->param_peek( 'REMOVE_ACTIVE_SORT' ) )
-    {
-    $ps->{ 'SORTS' }{ 'LAST' } = $ps->{ 'SORTS' }{ 'ACTIVE' };
-    delete $ps->{ 'SORTS' }{ 'ACTIVE' };
-    $active_sort = undef;
+    if( $reo->param_peek( 'REMOVE_ACTIVE_SORT' ) )
+      {
+      $ps->{ 'SORTS' }{ 'LAST' } = $active_sort;
+      delete $ps->{ 'SORTS' }{ 'ACTIVE' };
+      $active_sort = undef;
+      }
+    else
+      {
+      $order_by = $active_sort->{ 'SQL' };
+      }
     }
 
-  my $select = $core->select( $table, $fields, { FILTER => $filter, FILTER_NAME => $filter_name, FILTER_BIND => $filter_bind, FILTER_METHOD => $filter_method, OFFSET => $offset, LIMIT => $page_size, ORDER_BY => ( $order_by || '._ID DESC' ) } ) if $fields;
+  my $select = $core->select( $table, $fields, { FILTER => $filter, FILTER_NAME => $filter_name, FILTER_BIND => $filter_bind, FILTER_METHOD => $filter_method, OFFSET => $offset, LIMIT => $page_size, ORDER_BY => ( $order_by || '._ID DESC' ) } ); # $fields is always set here (return above when there are none)
   return "<#access_denied>" unless $select;
-  my $scount = $core->count( $table,           { FILTER => $filter, FILTER_NAME => $filter_name, FILTER_BIND => $filter_bind } ) if $select and ! $filter_method;
+  my $scount = ! $filter_method ? $core->count( $table,           { FILTER => $filter, FILTER_NAME => $filter_name, FILTER_BIND => $filter_bind } ) : undef; # no "my ... if", it may keep the previous request count; $select is always set here
   my $scount_s = str_num_comma( $scount );
 
-  $browser_window_hint .= "<span class=details-text>:</span> $scount_s [~rec(s)]";
+  $browser_window_hint .= "<span class=details-text>:</span> $scount_s [~rec(s)]" if defined $scount; # no count with FILTER_METHOD, the hint shows no empty count
   $browser_window_hint .= "<span class=details-text>,</span> [~filtered]" if $filter;
-  $browser_window_hint .= "<span class=details-text>,</span> [~sorted]"   if $order_by;
+  $browser_window_hint .= "<span class=details-text>,</span> [~sorted]"   if $active_sort or $reo->param( 'ORDER_BY' ); # not for the table's default ORDER_BY
   $reo->set_browser_window_title( $browser_window_hint );
 
-  $ps->{ 'GRID_EXPORT' } = $fields ? [ $table, $fields, { FILTER => $filter, FILTER_NAME => $filter_name, FILTER_BIND => $filter_bind, FILTER_METHOD => $filter_method, OFFSET => 0, LIMIT => 8192, ORDER_BY => ( $order_by || '._ID DESC' ) } ] : undef;
+  $ps->{ 'GRID_EXPORT' } = [ $table, $fields, { FILTER => $filter, FILTER_NAME => $filter_name, FILTER_BIND => $filter_bind, FILTER_METHOD => $filter_method, OFFSET => 0, LIMIT => 8192, ORDER_BY => ( $order_by || '._ID DESC' ) } ]; # $fields is always set here
 
 #  $text .= "<br>";
 #  $text .= "<p>";
@@ -215,7 +234,7 @@ sub main
   my $text_grid_navi_mid;
 
   my %insert_new_opts;
-  
+
   if( $link_field_disable )
     {
     $insert_new_opts{ 'LINK_FIELD_DISABLE'    } = $link_field_disable;
@@ -223,13 +242,13 @@ sub main
     $insert_new_opts{ "F:$link_field_disable" } = $link_field_id;
     }
 
-  my ( $view_cue,   $view_cue_hint   ) = de_web_get_cue( $sdes, qw( WEB GRID VIEW_CUE   ) );
-  my ( $insert_cue, $insert_cue_hint ) = de_web_get_cue( $sdes, qw( WEB GRID INSERT_CUE ) );
-  my ( $update_cue, $update_cue_hint ) = de_web_get_cue( $sdes, qw( WEB GRID UPDATE_CUE ) );
-  my ( $upload_cue, $upload_cue_hint ) = de_web_get_cue( $sdes, qw( WEB GRID UPLOAD_CUE ) );
-  my ( $copy_cue,   $copy_cue_hint   ) = de_web_get_cue( $sdes, qw( WEB GRID COPY_CUE   ) );
-  my ( $download_file_cue, $download_file_cue_hint ) = de_web_get_cue( $sdes, qw( WEB GRID DOWNLOAD_FILE_CUE ) );
-  
+  my ( $view_cue,   $view_cue_hint   ) = des_cue( $sdes, qw( WEB GRID VIEW_CUE   ) );
+  my ( $insert_cue, $insert_cue_hint ) = des_cue( $sdes, qw( WEB GRID INSERT_CUE ) );
+  my ( $update_cue, $update_cue_hint ) = des_cue( $sdes, qw( WEB GRID UPDATE_CUE ) );
+  my ( $upload_cue, $upload_cue_hint ) = des_cue( $sdes, qw( WEB GRID UPLOAD_CUE ) );
+  my ( $copy_cue,   $copy_cue_hint   ) = des_cue( $sdes, qw( WEB GRID COPY_CUE   ) );
+  my ( $download_file_cue, $download_file_cue_hint ) = des_cue( $sdes, qw( WEB GRID DOWNLOAD_FILE_CUE ) );
+
   $text_grid_navi_left .= de_html_alink_button( $reo, 'back', "&lArr; [~back]", "[~Go back to the previous screen]", BTYPE => 'nav'   ) if $rs;
 
   if( ! $grid_mode_select )
@@ -237,7 +256,7 @@ sub main
     $text_grid_navi_left .= de_html_alink_button( $reo, 'new', "(+) $insert_cue",      $insert_cue_hint,  BTYPE => 'act', ACTION => 'edit',        TABLE => $table, ID => -1, %insert_new_opts ) if de_web_profile()->allows( $tdes, 'INSERT' );
     $text_grid_navi_left .= de_html_alink_button( $reo, 'new', "(&uarr;) $upload_cue", $upload_cue_hint,  BTYPE => 'act', ACTION => 'file_up',     TABLE => $table, ID => -1, MULTI => 1       ) if de_web_profile()->allows( $tdes, 'INSERT' ) and $table_type eq 'FILE';
     }
-  
+
   $text_grid_navi_left .= de_html_alink_button( $reo, 'new', "(&asymp;) [~Filter]",    '[~Filter records]',        ACTION => 'grid_filter', TABLE => $table           ) unless $active_filter;
   # $text_grid_navi_left .= de_html_alink_button( $reo, 'here', "(x) [~Remove filter]",           '[~Remove current filter]',   REMOVE_ACTIVE_FILTER => 1 ) if $active_filter;
   $text_grid_navi_left .= de_html_alink_button( $reo, 'here', "(&lt;) [~Last filter]",   '[~Enable last used filter]', USE_LAST_FILTER => 1      ) if $last_filter and ! $active_filter;
@@ -246,7 +265,7 @@ sub main
   my $custom_css = lc "css_$table";
   $text .= "<#$custom_css>";
 
-  $text_grid_head .= "<table class=grid cellspacing=0 cellpadding=0>";
+  $text_grid_head .= "<table class=grid>"; # cellspacing/cellpadding had no effect: table.grid collapses its borders and all its cells have css padding
   $text_grid_head .= "<tr class=grid-header>";
   $text_grid_head .= "<td class='fmt-left'>[~Ctrl]</td>";
 
@@ -256,26 +275,22 @@ sub main
     {
     my $bfdes      = $bfdes{ $field };
     my $lfdes      = $lfdes{ $field };
-    my $type_name  = $lfdes->{ 'TYPE' }{ 'NAME' };
-    my $type_lname = $lfdes->{ 'TYPE' }{ 'NAME' };
-    my $fmt_class  = $FMT_CLASS_ALIGN{ $type_lname } || $FMT_CLASS_ALIGN{ $type_name } || 'fmt-left';
+    my $type_name  = des_type_name( $lfdes );
+    my $fmt_class  = $FMT_CLASS_ALIGN{ $type_name } || 'fmt-left'; # same as the body cells, both names read TYPE.NAME of the linked field
 
-    my $base_field = $bfdes->{ 'NAME' };
+    my $base_field = des_item_name( $bfdes );
 
     next if $link_field_disable and $base_field eq $link_field_disable;
-    next if des_get_attr( $bfdes, qw( WEB GRID HIDE ) );
+    next if des_attr( $bfdes, qw( WEB GRID HIDE ) );
 
-    my $label     = des_get_attr( $bfdes, qw( WEB GRID LABEL ) );
+    my $label     = des_attr( $bfdes, qw( WEB GRID LABEL ) );
 
 #    my $label     = "$blabel";
 #    if( ! $enum and $bfdes ne $lfdes )
 #      {
-#      my $llabel     = des_get_attr( $lfdes, qw( WEB GRID LABEL ) );
+#      my $llabel     = des_attr( $lfdes, qw( WEB GRID LABEL ) );
 #      $label .= "<span class=details-text>/</span>$llabel";
 #      }
-
-    my $ltdes     = $core->describe( des_item_table( $lfdes ) );
-    my $enum      = des_table_type( $ltdes ) eq 'ENUM';
 
     $text_grid_head .= "<td class='$fmt_class'>$label</td>";
     }
@@ -288,7 +303,6 @@ sub main
     {
     for my $do ( @{ des_category_list_by_oper( $tdes, 'DO', 'EXECUTE', de_web_profile() ) }  )
       {
-      my $dodes   = des_category_des( $tdes, 'DO', $do );
       push @dos, $do;
       }
 
@@ -296,7 +310,7 @@ sub main
       {
       push @actions, $act;
       }
-    }  
+    }
 
   my $grid_form = new Web::Reactor::HTML::Form( $reo );
   my $grid_form_begin;
@@ -305,25 +319,24 @@ sub main
 
   delete $ps->{ ':VECB_NAME_MAP' };
 
+  my $ld_fdes = $link_field_disable && des_exists_category( 'FIELD', $tdes, $link_field_disable ) ? des_fld( $tdes, $link_field_disable ) : undef;
+
   my $row_counter;
   while( my $row_data = $core->fetch( $select ) )
     {
     $row_counter++;
-    
+
     my $id = $row_data->{ '_ID' };
     my $link_field_value = $row_data->{ $link_field_disable };
 
-    my $row_class;# = $row_counter % 2 ? 'grid-1' : 'grid-2';
-    $text_grid_body .= qq( <tr class="grid-data"> );
+    my $row_cells; # the <tr> is built after its cells: its context menu gets the "List the same" items of all fields
+    my $vec_ctrl_list_same; # "List the same" buttons of the row fields, for the row context menu
 
     my $vec_ctrl;
     my $vec_ctrl_popup;
 
     if( $grid_mode_select )
       {
-      my $return_data_from = $reo->param( 'RETURN_DATA_FROM' );
-      my $return_data_to   = $reo->param( 'RETURN_DATA_TO'   );
-      my $select_key_data  = $reo->param( 'SELECT_KEY_DATA'  );
       my @return_args;
 
       if( $return_data_from and $return_data_to )
@@ -332,33 +345,33 @@ sub main
         }
 
       my $select_icon = "select-to.svg";
-      my $select_hint = 'Select this record';
+      my $select_hint = '[~Select this record]';
       if( $select_key_data ne '' and $row_data->{ $return_data_from } eq $select_key_data )
         {
         $select_icon = "select-to-selected.svg";
-        $select_hint = 'This is the currently selected record';
+        $select_hint = '[~This is the currently selected record]';
         }
       $vec_ctrl       .= de_html_alink( $reo,        'back', $select_icon, $select_hint, @return_args );
-      $vec_ctrl_popup .= de_html_alink_button( $reo, 'back', "(<) Select this record",        undef, @return_args );
+      $vec_ctrl_popup .= de_html_alink_button( $reo, 'back', "(<) [~Select this record]",        undef, @return_args );
       }
 
 
     for my $act ( @actions )
       {
       my $actdes   = des_category_des( $tdes, 'ACTION', $act );
-      my $label  = $actdes->{ 'LABEL'  };
-      my $target = $actdes->{ 'TARGET' } || $actdes->{ 'NAME' };
-      my $icon   = lc( $actdes->{ 'ICON'   } );
-      $icon = $icon =~ /^[a-z_0-9]+$/ ? "action_$icon.svg" : "action_generic.svg";
+      my $label  = des_attr( $actdes, 'LABEL'  );
+      my $target = des_attr( $actdes, 'TARGET' ) || des_attr( $actdes, 'NAME' );
+      my $icon   = lc( des_attr( $actdes, 'ICON' ) );
+      $icon = $icon =~ /^[a-z_0-9]+\z/ ? "action_$icon.svg" : "action_generic.svg";
       my @return_args = ( ACTION => $target, ID => $id, TABLE => $table );
       $vec_ctrl       .= de_html_alink_icon(   $reo, 'new',        $icon, $label, @return_args );
       $vec_ctrl_popup .= de_html_alink_button( $reo, 'new', "(*) $label",  undef, @return_args );
       }
 
 #    print STDERR Dumper( '**------*******---'x 10, $link_field_disable, $link_field_value, Dumper( $row_data ) );
-    if( $link_field_disable and exists $tdes->{ 'FIELD' }{ $link_field_disable } and de_web_profile()->allows( $tdes->{ 'FIELD' }{ $link_field_disable }, 'UPDATE' ) )
+    if( $ld_fdes and de_web_profile()->allows( $ld_fdes, 'UPDATE' ) )
       {
-      my ( $detach_link_cue, $detach_link_cue_hint ) = de_web_get_cue( $tdes->{ 'FIELD' }{ $link_field_disable }, qw( WEB GRID DETACH_LINK_CUE   ) );
+      my ( $detach_link_cue, $detach_link_cue_hint ) = des_cue( $ld_fdes, qw( WEB GRID DETACH_LINK_CUE   ) );
       # FIXME: check if this is only for backlinked data!?
       # $vec_ctrl .= de_html_alink_icon( $reo, 'here', "detach.svg",  { CLASS => 'plain', HINT => $detach_link_cue_hint, CONFIRM => '[~Are you sure you want to DETACH this record from the parent record?]' }, ITYPE => 'mod', DETACH_FIELD => $link_field_disable, DETACH_ID => $id );
       $vec_ctrl .= '<div class=vframe>' . de_web_grid_backlink_detach_attach_icon( $reo, $core, $table, $link_field_disable, $id, $link_field_id, $link_field_value, ) . "</div>";
@@ -367,13 +380,13 @@ sub main
 
     $vec_ctrl .= de_html_alink_icon( $reo, 'new', "view.svg",    $view_cue_hint,          ACTION => 'view',    ID => $id, TABLE => $table, LINK_FIELD_DISABLE => $link_field_disable  );
     $vec_ctrl .= de_html_alink_icon( $reo, 'new', "edit.svg",    $update_cue_hint,        ACTION => 'edit',    ID => $id, TABLE => $table                 ) if de_web_profile()->allows( $tdes, 'UPDATE' );
-    $vec_ctrl .= de_html_alink_icon( $reo, 'new', "copy.svg",    $copy_cue_hint,          ACTION => 'edit',    ID =>  -1, TABLE => $table, COPY_ID => $id ) if de_web_profile()->allows( $tdes, 'INSERT' ) and ! $tdes->{ '@' }{ 'NO_COPY' };
+    $vec_ctrl .= de_html_alink_icon( $reo, 'new', "copy.svg",    $copy_cue_hint,          ACTION => 'edit',    ID =>  -1, TABLE => $table, COPY_ID => $id ) if de_web_profile()->allows( $tdes, 'INSERT' ) and ! des_attr( $sdes, 'NO_COPY' );
     $vec_ctrl .= de_html_alink_icon( $reo, 'new', 'file_dn.svg', $download_file_cue_hint, ACTION => 'file_dn', ID => $id, TABLE => $table                 ) if $table_type eq 'FILE';
-    
-    $vec_ctrl_popup .= de_html_alink_button( $reo, 'new', "(v) View record",        undef, BTYPE => 'act', ACTION => 'view',    ID => $id, TABLE => $table, LINK_FIELD_DISABLE => $link_field_disable  );
-    $vec_ctrl_popup .= de_html_alink_button( $reo, 'new', "(e) Edit record",        undef, BTYPE => 'mod', ACTION => 'edit',    ID => $id, TABLE => $table                 ) if de_web_profile()->allows( $tdes, 'UPDATE' );
-    $vec_ctrl_popup .= de_html_alink_button( $reo, 'new', "(+) Copy record as new", undef, BTYPE => 'nav', ACTION => 'edit',    ID =>  -1, TABLE => $table, COPY_ID => $id ) if de_web_profile()->allows( $tdes, 'INSERT' ) and ! $tdes->{ '@' }{ 'NO_COPY' };
-    $vec_ctrl_popup .= de_html_alink_button( $reo, 'new', '(v) Download file',      undef, BTYPE => 'act', ACTION => 'file_dn', ID => $id, TABLE => $table                 ) if $table_type eq 'FILE';
+
+    $vec_ctrl_popup .= de_html_alink_button( $reo, 'new', "(v) [~View record]",        undef, BTYPE => 'act', ACTION => 'view',    ID => $id, TABLE => $table, LINK_FIELD_DISABLE => $link_field_disable  );
+    $vec_ctrl_popup .= de_html_alink_button( $reo, 'new', "(e) [~Edit record]",        undef, BTYPE => 'mod', ACTION => 'edit',    ID => $id, TABLE => $table                 ) if de_web_profile()->allows( $tdes, 'UPDATE' );
+    $vec_ctrl_popup .= de_html_alink_button( $reo, 'new', "(+) [~Copy record as new]", undef, BTYPE => 'nav', ACTION => 'edit',    ID =>  -1, TABLE => $table, COPY_ID => $id ) if de_web_profile()->allows( $tdes, 'INSERT' ) and ! des_attr( $sdes, 'NO_COPY' );
+    $vec_ctrl_popup .= de_html_alink_button( $reo, 'new', '(v) [~Download file]',      undef, BTYPE => 'act', ACTION => 'file_dn', ID => $id, TABLE => $table                 ) if $table_type eq 'FILE';
 
     if( @dos )
       {
@@ -387,26 +400,26 @@ sub main
                                        LABELS   => [ "<img class='checkbox' src=i/check-edit-0.svg>", "<img class='checkbox' src=i/check-edit-1.svg>" ],
                                        HINT     => '[~Select this record]',
                                        );
-      $vec_ctrl_popup .= qq[ <a class='button act-button' href='#' onclick='reactor_form_multi_checkbox_toggle_by_id( "VECB:$cb_id" ); return false;'>(&radic;) Toggle record</a> ]; # cc20261025-rm-href-js
+      $vec_ctrl_popup .= ' ' . html_element( 'a', '(&radic;) [~Toggle record]', class => 'button act-button', href => '#', onclick => 'reactor_form_multi_checkbox_toggle_by_id( ' . html_js_str( "VECB:$cb_id" ) . ' ); return false;' ) . ' ';
       }
 
     $vec_ctrl_popup = "<div class='popup-menu-buttons'>$vec_ctrl_popup</div>";
 
-    $text_grid_body .= "<td class='grid-data fmt-ctrl fmt-mono'>$vec_ctrl</td>";
+    $row_cells .= "<td class='grid-data fmt-ctrl fmt-mono'>$vec_ctrl</td>";
     for my $field ( @fields )
       {
       my $bfdes      = $bfdes{ $field };
       my $lfdes      = $lfdes{ $field };
-      my $type_name  = $lfdes->{ 'TYPE' }{ 'NAME' };
+      my $type_name  = des_type_name( $lfdes );
       my $type_lname = $lfdes->{ 'TYPE' }{ 'LNAME' };
       my $fmt_class  = ( $FMT_CLASS_ALIGN{ $type_name } || 'fmt-left' ) . ' ' . $FMT_CLASS_TYPE{ $type_name };
 
-      next if des_get_attr( $bfdes, qw( WEB GRID HIDE ) );
-      my $allow_wrap = des_get_attr( $bfdes, qw( WEB GRID ALLOW_WRAP ) );
-      my $label      = des_get_attr( $bfdes, qw( WEB GRID LABEL ) );
-      my $editable   = des_get_attr( $bfdes, qw( WEB GRID EDITABLE ) );
+      next if des_attr( $bfdes, qw( WEB GRID HIDE ) );
+      my $allow_wrap = des_attr( $bfdes, qw( WEB GRID ALLOW_WRAP ) );
+      my $label      = des_attr( $bfdes, qw( WEB GRID LABEL ) );
+      my $editable   = des_attr( $bfdes, qw( WEB GRID EDITABLE ) );
 
-      my $lpassword = des_get_attr( $lfdes, 'PASSWORD' ) ? 1 : 0;
+      my $lpassword = des_attr( $lfdes, 'PASSWORD' ) ? 1 : 0;
 
       my $base_field = exists $basef{ $field } ? $basef{ $field } : $field;
 
@@ -415,16 +428,12 @@ sub main
 
       my ( $data_fmt, $fmt_class_fld ) = de_web_format_field( $data, $lfdes, 'GRID', { ID => $id, REO => $reo, CORE => $core } );
       my $data_ctrl;
-      $fmt_class .= $fmt_class_fld;
-      $fmt_class .= "fmt-wrap" if $allow_wrap;
 
-      my $row_vec_handle;
-      my $vec_ctrl_field_popup = $vec_ctrl_popup;
-      if( ! des_is_unique( $bfdes ) and ! des_is_backlinked( $bfdes ) and ! des_is_widelinked( $bfdes ) )
+      if( ! des_is_unique( $bfdes ) and ! des_is_backlinked( $bfdes ) and ! des_is_widelinked( $bfdes ) and ! ( $link_field_disable and $base_field eq $link_field_disable ) ) # the hidden link field column (skipped below) gives no row menu item
         {
-        $vec_ctrl_field_popup .= de_html_alink_button( $reo, 'new', "(&cong;) [~List the same] <b>$label</b>: $data_fmt",  undef, ACTION => 'grid',                   TABLE => $table, FILTER => { $base_field => $data_base } );
+        # html_alink() with the de_html_alink_button() classes: de_html_alink_button() turns any name.svg/png text in the label (the data) into an icon
+        $vec_ctrl_list_same .= html_alink( $reo, 'new', "(&cong;) [~List the same] <b>$label</b>: $data_fmt", { HINT => undef, CLASS => 'button ' }, ACTION => 'grid',                   TABLE => $table, FILTER => { $base_field => $data_base } );
         }
-      $row_vec_handle = html_popup_layer( $reo, VALUE => $vec_ctrl_field_popup, CLASS => 'popup-layer', TYPE => 'CONTEXT' );
 
       if( des_is_linked( $bfdes ) or des_is_widelinked( $bfdes ) )
         {
@@ -434,12 +443,12 @@ sub main
           }
         else
           {
-          my $view_cue   = des_get_attr( $bfdes, qw( WEB GRID VIEW_CUE   ) ) || "[~View linked record]";
-          my $edit_cue   = des_get_attr( $bfdes, qw( WEB GRID EDIT_CUE   ) ) || "[~Edit linked record]";
-          my $insert_cue = des_get_attr( $bfdes, qw( WEB GRID INSERT_CUE ) ) || "[~Insert and link a new record]";
-          
+          my $view_cue   = des_attr( $bfdes, qw( WEB GRID VIEW_CUE   ) ) || "[~View linked record]";
+          my $edit_cue   = des_attr( $bfdes, qw( WEB GRID EDIT_CUE   ) ) || "[~Edit linked record]";
+          my $insert_cue = des_attr( $bfdes, qw( WEB GRID INSERT_CUE ) ) || "[~Insert and link a new record]";
+
           my ( $linked_table, $linked_id, $linked_field );
-          if( des_is_linked( $bfdes ) ) 
+          if( des_is_linked( $bfdes ) )
             {
             ( $linked_table, $linked_field ) = des_link_details( $bfdes );
             $linked_id = $data_base;
@@ -455,39 +464,39 @@ sub main
             else
               {
               $data_fmt   = "&empty;";
-              }  
-            }  
-          
+              }
+            }
+
           if( $linked_table )
             {
             my $ltdes = $core->describe( $linked_table );
             my $enum  = des_table_type( $ltdes ) eq 'ENUM';
-            
+
             my $linked_table_label = des_table_label( $ltdes );
             if( des_is_widelinked( $bfdes ) )
               {
               if( $linked_field )
                 {
                 $data_fmt = $core->read_field( $linked_table, $linked_field, $linked_id );
-                my $lfdes = des_field_des( $ltdes, $linked_field );
-                $data_fmt  = de_web_format_field( $data_fmt, $lfdes, 'VIEW', { ID => $linked_id } );
+                my $wl_fdes = des_fld( $ltdes, $linked_field ); # widelinked field description, no longer shadows the loop $lfdes
+                ( $data_fmt, $fmt_class_fld ) = de_web_format_field( $data_fmt, $wl_fdes, 'GRID', { ID => $linked_id, REO => $reo, CORE => $core } ); # GRID format with REO/CORE like the other cells
                 }
               else
                 {
                 $data_fmt = "[~Linked to a record from:] $linked_table_label";
-                }  
+                }
               }
             else
               {
-              if( des_get_attr( $bfdes, 'WEB', 'GRID', 'EDITABLE' ) and de_web_profile()->allows( $bfdes, 'UPDATE' ) )
+              if( des_attr( $bfdes, 'WEB', 'GRID', 'EDITABLE' ) and de_web_profile()->allows( $bfdes, 'UPDATE' ) )
                 {
                 ( $data_fmt, $fmt_class_fld ) = de_web_format_field( $linked_id, $bfdes, 'GRID', { ID => $id, REO => $reo, CORE => $core } );
                 }
               else
                 {
                 ( $data_fmt, $fmt_class_fld ) = de_web_format_field( $data, $lfdes, 'GRID', { ID => $id, REO => $reo, CORE => $core } );
-                }  
-              }  
+                }
+              }
 
 ###### WHY??????????            ## $data_fmt =~ s/\./&#46;/g;
             if( des_table_type( $ltdes ) eq 'FILE' )
@@ -497,7 +506,7 @@ sub main
               $data_ctrl .= "<br>\n";
               }
             else
-              {  
+              {
               $data_fmt   = de_html_alink( $reo, 'new', "$data_fmt",  $view_cue, ACTION => 'view', ID => $linked_id, TABLE => $linked_table ) unless $enum or $linked_id < 1 or $editable;
               }
 
@@ -520,8 +529,8 @@ sub main
                 $data_ctrl .= de_html_alink_button_fill( $reo, 'new', "(+) $insert_cue", undef, BTYPE => 'act', ACTION => 'edit', ID => -1,         TABLE => $linked_table, LINK_TO_TABLE => $table, LINK_TO_FIELD => $base_field, LINK_TO_ID => $id );
                 $data_ctrl .= "<br>\n";
                 }
-              } # if ! enum  
-            } # if $linked_table  
+              } # if ! enum
+            } # if $linked_table
           }
         }
       elsif( des_is_backlinked( $bfdes ) )
@@ -529,47 +538,47 @@ sub main
         my ( $backlinked_table, $backlinked_field ) = des_backlink_details( $bfdes );
         my $bltdes = $core->describe( $backlinked_table );
         my $blsdes = des_table_des( $bltdes ); # backlinked table "Self" description
-    
+
         if( de_web_profile()->allows( $bltdes, 'INSERT' ) )
           {
-          ### my ( $insert_link_cue, $insert_link_cue_hint ) = de_web_get_cue( $bfdes, qw( WEB GRID INSERT_LINK_CUE ) );
-          my ( $insert_link_cue, $insert_link_cue_hint ) = de_web_get_cue( $blsdes, qw( WEB GRID INSERT_CUE ) );
+          ### my ( $insert_link_cue, $insert_link_cue_hint ) = des_cue( $bfdes, qw( WEB GRID INSERT_LINK_CUE ) );
+          my ( $insert_link_cue, $insert_link_cue_hint ) = des_cue( $blsdes, qw( WEB GRID INSERT_CUE ) );
           $data_ctrl .= de_html_alink_button_fill( $reo, 'new', "(+) $insert_link_cue", $insert_link_cue_hint, BTYPE => 'act', ACTION => 'edit', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, LINK_FIELD_DISABLE => $backlinked_field );
 #          $data_ctrl .= "<br>\n";
 
           if( des_table_type( $bltdes ) eq 'FILE' )
             {
-            my ( $upload_link_cue, $upload_link_cue_hint ) = de_web_get_cue( $bfdes, qw( WEB GRID UPLOAD_LINK_CUE ) );
+            my ( $upload_link_cue, $upload_link_cue_hint ) = des_cue( $bfdes, qw( WEB GRID UPLOAD_LINK_CUE ) );
             $data_ctrl .= de_html_alink_button( $reo, 'new', "(&uarr;) $upload_link_cue", $upload_link_cue_hint, BTYPE => 'act', ACTION => 'file_up', ID => -1, TABLE => $backlinked_table, "F:$backlinked_field" => $id, LINK_FIELD_DISABLE => $backlinked_field, MULTI => 1 );
 #            $data_ctrl .= "<br>\n";
             }
-          }  
+          }
 
         $data_fmt = ""; # TODO: hide count, which is currently unsupported
-        my $bcnt = $data || 'n/a';
-        if( uc( des_get_attr( $bfdes, 'WEB', 'GRID', 'BACKLINK_GRID_MODE' ) ) eq 'ALL' )
+        my $bcnt = $data; # the 'n/a' fallback was never shown, the count below always replaced it
+        if( uc( des_attr( $bfdes, 'WEB', 'GRID', 'BACKLINK_GRID_MODE' ) ) eq 'ALL' )
           {
-          my $view_all_cue   = des_get_attr( $bfdes, qw( WEB GRID VIEW_ALL_CUE   ) ) || "[~View all records]";
+          my $view_all_cue   = des_attr( $bfdes, qw( WEB GRID VIEW_ALL_CUE   ) ) || "[~View all records]";
           $data_ctrl .= de_html_alink_button( $reo, 'new', "(*) $view_all_cue",           undef,                 ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => $id, FILTER => { $backlinked_field => [ { OP => 'IN', VALUE => [ $id, 0 ] } ] } );
 #          $data_ctrl .= "<br>\n";
-          
+
           # TODO: option to avoid count
           #$bcnt = $core->count( $backlinked_table, { FILTER => { $backlinked_field => [ { OP => 'IN', VALUE => [ $id, 0 ] } ] } } );
-          
+
           # FIXME: URGENT: fix all the backlink-grid-mode mess!!!!!!!!!!!!!!!!!!!!
-          
+
           $bcnt = $core->count( $backlinked_table, { FILTER => { $backlinked_field => [ { OP => 'IN', VALUE => [ $id ] } ] } } );
           }
         else
-          {  
-          my $view_attached_cue   = des_get_attr( $bfdes, qw( WEB GRID VIEW_ATTACHED_CUE   ) ) || "[~View attached records]";
+          {
+          my $view_attached_cue   = des_attr( $bfdes, qw( WEB GRID VIEW_ATTACHED_CUE   ) ) || "[~View attached records]";
           $data_ctrl .= de_html_alink_button( $reo, 'new', "(=) $view_attached_cue",           undef,                 ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => $id, FILTER => { $backlinked_field => $id }, MASTER_RECORD => "$table:$id" );
 #         $data_ctrl .= "<br>\n";
 
-          my $view_unattached_cue   = des_get_attr( $bfdes, qw( WEB GRID VIEW_UNATTACHED_CUE   ) ) || "[~View unattached records]";
+          my $view_unattached_cue   = des_attr( $bfdes, qw( WEB GRID VIEW_UNATTACHED_CUE   ) ) || "[~View unattached records]";
           $data_ctrl .= de_html_alink_button( $reo, 'new', "(+) $view_unattached_cue",          undef,                 ACTION => 'grid', TABLE => $backlinked_table, LINK_FIELD_DISABLE => $backlinked_field, LINK_FIELD_ID => $id, LINK_FIELD_VALUE => 0, FILTER => { $backlinked_field => 0 } );
 #          $data_ctrl .= "<br>\n";
-          
+
           # TODO: option to avoid count
 
           $bcnt = $core->count( $backlinked_table, { FILTER => { $backlinked_field => $id } } ) unless $bcnt > 0;
@@ -578,7 +587,7 @@ sub main
           }
         if( $bcnt > 0 )
           {
-          my $view_attached_cue   = des_get_attr( $bfdes, qw( WEB GRID VIEW_ATTACHED_CUE   ) ) || "[~View attached records]";
+          my $view_attached_cue   = des_attr( $bfdes, qw( WEB GRID VIEW_ATTACHED_CUE   ) ) || "[~View attached records]";
           $bcnt = str_num_comma( $bcnt );
           #my $recs_s = str_countable( $bcnt, 'rec', 'recs' );
           #$recs_s = des_table_label( $bltdes );
@@ -588,6 +597,10 @@ sub main
         $data_fmt = $bcnt || '';
         }
 
+      # after the link branches: they replace $fmt_class_fld with the linked field format class
+      $fmt_class .= " $fmt_class_fld";
+      $fmt_class .= " fmt-wrap" if $allow_wrap;
+
       if( $lpassword )
         {
         $data_fmt = $data_fmt ? "(*****)" : "([~empty])";
@@ -595,25 +608,26 @@ sub main
 
       if( $type_name eq 'CHAR' and $type_lname eq 'LOCATION' )
         {
-        $data_fmt = de_html_alink( $reo, 'new', " <img class=icon +++ src=i/map_location.svg> $data_fmt", "[~View map location]", ACTION => 'map_location', LL => $data );
+        $data_fmt = de_html_alink( $reo, 'new', "map_location.svg $data_fmt", "[~View map location]", ACTION => 'map_location', LL => $data ); # bare icon name, de_html_alink() makes the <img>
         }
 
       if( $data_ctrl )
         {
         $data_ctrl = de_html_popup_icon( $reo, 'more.svg', "<div class=popup-menu-buttons>$data_ctrl</div>", { CLASS => 'popup-layer' } );
-        $data_fmt = "<table cellspacing=0 cellpadding=0 width=100%><tr><td class='$fmt_class' width=100%>$data_fmt</td><td align=right>&nbsp;$data_ctrl</td></tr></table>";
+        $data_fmt = "<table style='width: 100%; border-spacing: 0'><tr><td class='$fmt_class' style='width: 100%; padding: 0'>$data_fmt</td><td style='text-align: right; padding: 0'>&nbsp;$data_ctrl</td></tr></table>";
         }
 
       my $base_field_class = lc "css_grid_class_$base_field";
-      $text_grid_body .= "<td class='grid-data $fmt_class  $base_field_class' $row_vec_handle >$data_fmt</td>\n";
-      
+      $row_cells .= html_element( 'td', $data_fmt, class => "grid-data $fmt_class $base_field_class" ) . "\n";
+
       # end of fields loop
       }
-    $text_grid_body .= "</tr>\n\n\n";
+    # one context menu layer per row (was one per cell, each with the whole row menu): the row menu and the "List the same" items of all fields
+    $text_grid_body .= html_element_x( 'tr', $row_cells, class => 'grid-data', -ctxmenu => $vec_ctrl_popup . $vec_ctrl_list_same, -reo => $reo ) . "\n\n\n";
 
     # end of record row loop
     }
-  
+
   $text_grid_foot .= "</table>";
 
   my @infos;
@@ -653,47 +667,49 @@ sub main
     $offset_last = 0 if $offset_last < 0;
 
     $text_grid_navi_mid .= $offset > 0 ? "<reactor_here_a=?offset=0 id=a-nav-page-first><img src=i/page-prev.svg> [~first]</a> | " : "<img src=i/page-prev.svg> [~first] | ";
-    $text_grid_navi_mid .= $offset > 0 ? "<reactor_here_a=?offset=$offset_prev id=a-nav-page-prev><img src=i/page-prev.svg> previous</a> | " : "<img src=i/page-prev.svg> [~previous] | ";
-    $text_grid_navi_mid .= $offset_next < $scount ? "<reactor_here_a=?offset=$offset_next id=a-nav-page-next>[~next] <img src=i/page-next.svg></a> | " : "[~next] <img src=i/page-next.svg> | ";
-    $text_grid_navi_mid .= $offset_next < $scount ? "<reactor_here_a=?offset=$offset_last id=a-nav-page-last>[~last] <img src=i/page-next.svg></a> | " : "[~last] <img src=i/page-next.svg> | ";
+    $text_grid_navi_mid .= $offset > 0 ? "<reactor_here_a=?offset=$offset_prev id=a-nav-page-prev><img src=i/page-prev.svg> [~previous]</a> | " : "<img src=i/page-prev.svg> [~previous] | ";
+    # no count with FILTER_METHOD: a full page means there may be more rows, the last page is unknown
+    my $has_next = defined $scount ? $offset_next < $scount : $row_counter >= $page_size;
+    $text_grid_navi_mid .= $has_next ? "<reactor_here_a=?offset=$offset_next id=a-nav-page-next>[~next] <img src=i/page-next.svg></a> | " : "[~next] <img src=i/page-next.svg> | ";
+    $text_grid_navi_mid .= defined $scount && $offset_next < $scount ? "<reactor_here_a=?offset=$offset_last id=a-nav-page-last>[~last] <img src=i/page-next.svg></a> | " : "[~last] <img src=i/page-next.svg> | ";
 
     #$text_grid_navi .= "<reactor_here_a=?offset=$offset_prev><img src=i/page-prev.svg> previous page</a> | <reactor_here_a=?offset=$offset_next>next page <img src=i/page-next.svg> </a>";
     my $page_more = int( $page_size * 2 );
-    my $page_less = int( $page_size / 2 );
+    my $page_less = int( $page_size / 2 ) || 1; # never 0, PAGE_SIZE 0 resets to the default page size
     my $link_page_more = de_html_alink( $reo, 'here', "+",       { HINT => '[~Show more rows per page]', ID => 'a-nav-page-more' },   PAGE_SIZE => $page_more );
     my $link_page_less = de_html_alink( $reo, 'here', "&mdash;", { HINT => '[~Show less rows per page]', ID => 'a-nav-page-less' },   PAGE_SIZE => $page_less );
-    my $link_page_all  = $scount <= 1021 ? de_html_alink( $reo, 'here', "*", { HINT => '[~Show all rows in one page]', ID => 'a-nav-page-all' }, PAGE_SIZE => $scount, OFFSET => 0 ) : '';
+    my $link_page_all  = defined $scount && $scount <= 1000 ? de_html_alink( $reo, 'here', "*", { HINT => '[~Show all rows in one page]', ID => 'a-nav-page-all' }, PAGE_SIZE => $scount, OFFSET => 0 ) : ''; # needs the count (none with FILTER_METHOD), the page size limit is 1000
     $link_page_all = "/$link_page_all" if $link_page_all;
 
-    my $link_page_reset = de_html_alink( $reo, 'here', "=",       { HINT => '[~Reset default page size]', ID => 'a-nav-page-reset' },   PAGE_SIZE => 0 ) if $page_size > 15;
+    my $link_page_reset = $page_size != $page_size_default ? de_html_alink( $reo, 'here', "=",       { HINT => '[~Reset default page size]', ID => 'a-nav-page-reset' },   PAGE_SIZE => 0 ) : ''; # no "my ... if", shown when off the default
     $link_page_reset = "/$link_page_reset" if $link_page_reset;
 
     my $offset_from = $offset + 1;
     my $offset_to   = $offset + $row_counter;
-    if( $scount < 5 )
+    if( defined $scount and $scount < 5 ) # no count with FILTER_METHOD, use the long form
       {
       $text_grid_navi_mid .= "[~rows]: $scount";
       }
-    else  
+    else
       {
       my $scount_s      = str_num_comma( $scount );
       my $offset_from_s = str_num_comma( $offset_from );
       my $offset_to_s   = str_num_comma( $offset_to );
-      $text_grid_navi_mid .= "[~rows]: $offset_from_s .. $offset_to_s ($page_size/$link_page_more/$link_page_less$link_page_all$link_page_reset) of $scount_s";
+      $text_grid_navi_mid .= "[~rows]: $offset_from_s .. $offset_to_s ($page_size/$link_page_more/$link_page_less$link_page_all$link_page_reset)";
+      $text_grid_navi_mid .= " [~of] $scount_s" if defined $scount; # no count with FILTER_METHOD
       }
 
 
     my $nav_keys_help = $reo->pre->load_file( undef, 'grid_nav_keys_help' );
-    my $hl_nav_handle = html_hover_layer( $reo, VALUE => $nav_keys_help, DELAY => 300 );
-    $text_grid_navi_mid .= " <span onmouseover='$hl_nav_handle'>(?)</span>";
-    
+    $text_grid_navi_mid .= ' ' . html_element_x( 'span', '(?)', -hint => $nav_keys_help, -hint_delay => 300, -reo => $reo );
+
     $text_grid_navi_right .= de_html_alink( $reo, 'new', "(&darr;)",     { HINT => '[~Download data as CSV]' }, ACTION => 'grid_export', TABLE => $table );
 
     # FIXME: use function!
-    my $text_grid_navi = "<table width=100% class=grid-navi><tr><td align=left width=1%>$text_grid_navi_left</td><td align=center>$text_grid_navi_mid</td><td align=right width=1%>$text_grid_navi_right</td></tr></table>";
+    my $text_grid_navi = "<table class=grid-navi style='width: 100%'><tr><td style='text-align: left; width: 1%'>$text_grid_navi_left</td><td style='text-align: center'>$text_grid_navi_mid</td><td style='text-align: right; width: 1%'>$text_grid_navi_right</td></tr></table>";
 
     $text .= $grid_form_begin;
-    
+
     $text .= $text_grid_navi;
     $text .= $text_grid_head;
     $text .= $text_grid_body;
@@ -704,17 +720,17 @@ sub main
     for my $do ( @dos )
       {
       my $dodes   = des_category_des( $tdes, 'DO', $do );
-      next if  des_get_attr( $dodes, qw( WEB GRID HIDE  ) );
-      my $dolabel = des_get_attr( $dodes, qw( WEB GRID LABEL ) );
-      my $confirm = des_get_attr( $dodes, qw( CONFIRM ) );
+      next if  des_attr( $dodes, qw( WEB GRID HIDE  ) );
+      my $dolabel = des_attr( $dodes, qw( WEB GRID LABEL ) );
+      my $confirm = des_attr( $dodes, qw( CONFIRM ) );
       # FIXME: map DOs through $ps
       my $do_id = ++ $ps->{ ':DO_NAME_MAP' }{ '*' };
       $ps->{ ':DO_NAME_MAP' }{ $do_id } = $do;
       $text .= $grid_form->button( NAME => "DO:$do_id", VALUE => "$dolabel &sect;", CONFIRM => $confirm );
       }
-    
+
     $text .= $grid_form->end();
-    
+
     }
 
   $text .= "<#grid_js>"; # grid keyboard navigation and more

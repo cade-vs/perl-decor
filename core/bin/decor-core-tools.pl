@@ -66,25 +66,25 @@ our @args;
 while( @ARGV )
   {
   $_ = shift;
-  if( /^--+$/io )
+  if( /^--+\z/io )
     {
     push @args, @ARGV;
     last;
     }
-  if( /^-r(r)?$/ )
+  if( /^-r(r)?\z/ )
     {
     $DE_LOG_TO_STDERR = 1;
     $DE_LOG_TO_FILES  = $1 ? 1 : 0;
     print "option: forwarding logs to STDERR\n";
     next;
     }
-  if( /^-d$/ )
+  if( /^-d\z/ )
     {
     my $level = de_debug_inc();
     print "option: debug level raised, now is [$level] \n";
     next;
     }
-  if( /^(--?h(elp)?|help)$/io )
+  if( /^(--?h(elp)?|help)\z/io )
     {
     print $help_text;
     exit;
@@ -94,7 +94,7 @@ while( @ARGV )
 
 $opt_app_name = lc shift @args;
 
-if( $opt_app_name =~ /^[A-Z_0-9]+$/i )
+if( $opt_app_name =~ /^[A-Z_0-9]+\z/i )
   {
   print "info: application name in use [$opt_app_name]\n";
   }
@@ -288,7 +288,7 @@ sub find_user
 
   my $user_rec = new Decor::Core::DB::Record;
 
-  if( $user =~ /^\d+$/ )
+  if( $user =~ /^\d+\z/ )
     {
     if( $user <= 0 or ! $user_rec->load( 'DE_USERS', $user ) )
       {
@@ -312,7 +312,7 @@ sub find_group
 
   my $grp_rec = new Decor::Core::DB::Record;
 
-  if( $grp =~ /^\d+$/ )
+  if( $grp =~ /^\d+\z/ )
     {
     if( $grp <= 0 or ! $grp_rec->load( 'DE_GROUPS', $grp ) )
       {
@@ -336,7 +336,7 @@ sub cmd_list_users
 {
   my @args = @_;
   
-  my @ids   = grep { $_ =~ /^\d+$/ } @args;
+  my @ids   = grep { $_ =~ /^\d+\z/ } @args;
   my @names = grep { $_ =~ /\D/ } @args;
 
   my @where;
@@ -374,7 +374,7 @@ sub cmd_list_users
       {
       next if $field eq 'NAME'; # already on top
       my $value = $user_rec->read_formatted( $field );
-      $value = "length <".length($value).">" if $field =~ /^(PASS|PASS_SALT)$/;
+      $value = "length <".length($value).">" if $field =~ /^(PASS|PASS_SALT)\z/;
       if( $field eq 'GROUPS' )
         {
         my @gg;
@@ -516,7 +516,8 @@ sub ubc
     my $fields = des_fields_list( $t );
     for my $f ( @$fields )
       {
-      my $fld_des = des_field_des( $t, $f );
+#-      my $fld_des = des_field_des( $t, $f ); # cc20261029-4
+      my $fld_des = des_fld( $t, $f ); # cc20261029-4
       next unless $fld_des->{ 'TYPE' }{ 'NAME' } eq 'BACKLINK';
       my $bt = $fld_des->{ 'BACKLINKED_TABLE' };
       my $bk = $fld_des->{ 'BACKLINKED_KEY'   };

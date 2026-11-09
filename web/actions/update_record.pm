@@ -26,7 +26,7 @@ sub main
 
   while( my ( $k, $v ) = each %ui_si )
     {
-    next unless $k =~ /^F:([A-Z_0-9]+)$/;
+    next unless $k =~ /^F:([A-Z_0-9]+)\z/;
     $data{ $1 } = $v;
     }
 

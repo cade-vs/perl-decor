@@ -79,11 +79,11 @@ sub main
       my $bfdes     = $bfdes{ $field };
       my $lfdes     = $lfdes{ $field };
       my $type      = $lfdes->{ 'TYPE' };
-      my $type_name = $type->{ 'NAME' };
+      my $type_name = des_type_name( $lfdes );
 
-      next if des_get_attr( $bfdes, qw( WEB GRID HIDE ) );
+      next if des_attr( $bfdes, qw( WEB GRID HIDE ) );
 
-      my $lpassword = des_get_attr( $lfdes, 'PASSWORD' ) ? 1 : 0;
+      my $lpassword = des_attr( $lfdes, 'PASSWORD' ) ? 1 : 0;
 
       my $base_field = exists $basef{ $field } ? $basef{ $field } : $field;
 
@@ -127,7 +127,7 @@ sub main
               if( $linked_field )
                 {
                 $data_fmt = $core->read_field( $linked_table, $linked_field, $linked_id );
-                my $lfdes = des_field_des( $ltdes, $linked_field );
+                my $lfdes = des_fld( $ltdes, $linked_field );
                 $data_fmt  = de_web_format_field( $data_fmt, $lfdes, 'VIEW', { ID => $linked_id } );
                 }
               else
@@ -158,7 +158,7 @@ sub main
 
         $data_fmt = ""; # TODO: hide count, which is currently unsupported
         my $bcnt = 'n/a';
-        if( uc( des_get_attr( $bfdes, 'WEB', 'GRID', 'BACKLINK_GRID_MODE' ) ) eq 'ALL' )
+        if( uc( des_attr( $bfdes, 'WEB', 'GRID', 'BACKLINK_GRID_MODE' ) ) eq 'ALL' )
           {
           $bcnt = $core->count( $backlinked_table, { FILTER => { $backlinked_field => [ { OP => 'IN', VALUE => [ $id, 0 ] } ] } } );
           }

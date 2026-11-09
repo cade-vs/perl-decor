@@ -4,6 +4,8 @@ use Data::Dumper;
 use Data::Tools;
 use Decor::Web::HTML::Utils;
 use Web::Reactor::HTML::Utils;
+use Web::Reactor::HTML; # elements, attributes, escaping, no longer exported by HTML::Utils
+use Web::Reactor::HTML::More; # extended elements, hover and popup layers, no longer exported by HTML::Utils
 
 sub main
 {
@@ -38,8 +40,8 @@ sub main
     if( $path_count <= 0 )
       {
       # current page session
-      $text .= " <b>&raquo;</b>  <img class=icon-disabled src=i/$icon> $title";
-      $menu_item_text_last = " <b>&raquo;</b>  <img class=icon-disabled src=i/$icon> $title";
+      $text .= " <b>&raquo;</b>  " . html_element( 'img', undef, class => 'icon-disabled', src => "i/$icon" ) . " $title";
+      $menu_item_text_last = " <b>&raquo;</b>  " . html_element( 'img', undef, class => 'icon-disabled', src => "i/$icon" ) . " $title";
       }
     else
       {
@@ -55,8 +57,7 @@ sub main
 #  $text = "[~History]: <b>$pc</b> $pc_str $text";
   $text = "[$pc] $text";
 
-  my $menu_item_handle = html_popup_layer( $reo, VALUE => $menu_item_text, CLASS => 'popup-layer popup-layer-inline', TYPE => 'CLICK', TIMEOUT => 250, SINGLE => 1 );
-  $text = "<span class=main-menu $menu_item_handle>$menu_item_text_last</span>";
+  $text = html_element( 'span', $menu_item_text_last, class => 'main-menu', html_popup_layer_attrs( $reo, VALUE => $menu_item_text, CLASS => 'popup-layer popup-layer-inline', TYPE => 'CLICK', TIMEOUT => 250, SINGLE => 1 ) );
   
   # TODO: make it drop-down menu with previous steps!
 

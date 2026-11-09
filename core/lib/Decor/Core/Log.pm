@@ -135,9 +135,9 @@ sub de_log
         {
         my $fh = $de_log_files{ $msg_type };
         my $log_dir = de_env_exists( 'LOG_DIR' ) ? de_log_dir() : undef; # log dir is set by de_boot()
-        if( $log_dir and $DE_LOG_TO_FILES and -d $log_dir and ! $fh ) # cc
+        if( $log_dir and $DE_LOG_TO_FILES and -d $log_dir and ! $fh )
           {
-          if( open( $fh, '>>', "$log_dir/$msg_type.log" ) ) # cc
+          if( open( $fh, '>>', "$log_dir/$msg_type.log" ) )
             {
             $de_log_files{ $msg_type } = $fh;
             }

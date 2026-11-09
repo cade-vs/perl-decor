@@ -64,7 +64,7 @@ sub de_debug_from_env
 {
   my $name = shift || 'DECOR_DEBUG';
 
-  $DEBUG = $ENV{ $name } if defined $ENV{ $name } and $ENV{ $name } =~ /^\d+$/;
+  $DEBUG = $ENV{ $name } if defined $ENV{ $name } and $ENV{ $name } =~ /^\d+\z/;
   return $DEBUG;
 }
 

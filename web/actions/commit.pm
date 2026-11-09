@@ -12,8 +12,10 @@ use strict;
 use Decor::Shared::Describe;
 use Data::Dumper;
 use Exception::Sink;
+use Encode; # moved from the sub body
 
 use Web::Reactor::HTML::Utils;
+use Web::Reactor::HTML; # elements, attributes, escaping, no longer exported by HTML::Utils
 use Decor::Web::HTML::Utils;
 use Decor::Web::View;
 
@@ -22,17 +24,17 @@ sub main
   my $reo = shift;
 
 ###  return unless $reo->is_logged_in();
-  
+
   my $text;
 
-  # FIXME: invalidate session first!!!
+  # the page session is invalidated below, before the write
   my $ps = $reo->get_page_session();
   my $rs = $reo->get_page_session( 1 );
 
   my $table   = $ps->{ 'TABLE'   };
   my $id      = $ps->{ 'ID'      };
 
-  return "<#e_data> $table|$id" unless $table and $id;
+  return "<#e_data>" unless $table and $id;
 
   my $core = $reo->de_connect();
   my $tdes = $core->describe( $table );
@@ -55,7 +57,7 @@ sub main
   my $res;
   my $opt = {};
   $opt->{ 'EDIT_SID' } = $ps->{ 'EDIT_SID' } if $ps->{ 'EDIT_SID' };
-  
+
   if( $edit_mode_insert )
     {
     my $lt_table = $reo->param( 'LINK_TO_TABLE' );
@@ -68,15 +70,15 @@ sub main
       $opt->{ 'LINK_TO_FIELD' } = $lt_field;
       $opt->{ 'LINK_TO_ID'    } = $lt_id;
       }
-    
+
     $res = $core->insert( $table, \%write_data, $id, $opt );
     }
   else
     {
     $opt->{ 'ID' } = $id;
-    
+
     $res = $core->update( $table, \%write_data, $opt );
-    }  
+    }
 
 #print STDERR Dumper( $res, $row_data, \%write_data );
 #print STDERR Dumper( $res, $core );
@@ -84,41 +86,41 @@ sub main
   if( $res )
     {
     # no error, return to caller unless DO is specified to confirm or provide more information!!!!!!!!!!!!!!!!!
-    
-    $reo->forward( '_R' => $rs->{ ':ID' }, ACTION => 'DO', TABLE => $table, ID => $id, DO => 'POST_INSERT' ) if   $edit_mode_insert and des_exists_category( 'DO', $tdes, 'POST_INSERT' );
-    $reo->forward( '_R' => $rs->{ ':ID' }, ACTION => 'DO', TABLE => $table, ID => $id, DO => 'POST_UPDATE' ) if ! $edit_mode_insert and des_exists_category( 'DO', $tdes, 'POST_UPDATE' );
 
     my $return_data_from = $reo->param( 'RETURN_DATA_FROM' );
     my $return_data_to   = $reo->param( 'RETURN_DATA_TO'   );
 
     my @return_args;
-    
+
     if( $return_data_from and $return_data_to )
       {
       $row_data->{ '_ID' } = $id;
       push @return_args, ( "F:$return_data_to" => $row_data->{ $return_data_from } );
       }
- 
+
+    # the return data goes through the DO, its Continue button returns it to the caller
+    # FIXME: needs review: forward() does not return, with a POST_INSERT/POST_UPDATE DO the return file and VIEW_ON_INSERT below are skipped
+    $reo->forward( '_R' => $rs->{ ':ID' }, ACTION => 'DO', TABLE => $table, ID => $id, DO => 'POST_INSERT', RETURN_ARGS => { @return_args } ) if   $edit_mode_insert and des_exists_category( 'DO', $tdes, 'POST_INSERT' );
+    $reo->forward( '_R' => $rs->{ ':ID' }, ACTION => 'DO', TABLE => $table, ID => $id, DO => 'POST_UPDATE', RETURN_ARGS => { @return_args } ) if ! $edit_mode_insert and des_exists_category( 'DO', $tdes, 'POST_UPDATE' );
+
     my ( $file_body, $file_mime ) = $core->get_return_file_body_mime();
 
-    # FIXME: URGENT: ONLY FOR TEXT MIMEs
-    use Encode;
-    $file_body = Encode::decode_utf8( $file_body );
-    
+    $file_body = Encode::decode_utf8( $file_body ) if $file_mime eq 'text/plain' or $file_mime eq 'text/html'; # only text bodies are decoded
+
     if( $file_mime eq '' )
       {
-      # no return, text, forward to VIEW screen as requested 
-      return $reo->forward( '_R' => $rs->{ ':ID' }, ACTION => 'VIEW', TABLE => $table, ID => $id ) if $edit_mode_insert and des_get_attr( $sdes, qw( WEB VIEW_ON_INSERT ) );
+      # no return, text, forward to VIEW screen as requested
+      return $reo->forward( '_R' => $rs->{ ':ID' }, ACTION => 'VIEW', TABLE => $table, ID => $id ) if $edit_mode_insert and des_attr( $sdes, qw( WEB VIEW_ON_INSERT ) );
 
       # no return file, go back now
       return $reo->forward_back( @return_args );
       }
-    else  
+    else
       {
       my $html_file;
       if( $file_mime eq 'text/plain' )
         {
-        $html_file .= "<xmp>$file_body</xmp>";
+        $html_file .= html_element_e( 'pre', $file_body );
         }
       elsif( $file_mime eq 'text/html' )
         {
@@ -126,33 +128,34 @@ sub main
         }
       else
         {
-        $html_file .= "*** UNSUPPORTED DATA TYPE ***";
-        }  
+        $html_file .= "*** [~Unsupported data type] ***"; # translated
+        }
       $reo->html_hold_set( 'for_printer' => $html_file );
       $text .= "<p>";
       $text .= $html_file;
       $text .= "<p><br>";
       $text .= de_html_alink_button( $reo, 'back', "[~Continue] &crarr;", "[~Operation done, continue...]"       );
-      }  
+      }
     return $text;
     }
   else
     {
-    # error occured, allow page reload (repeat action)
+    # error occurred, allow page reload (repeat action)
     delete $ps->{ ':INVALID' };
-    }  
+    }
 
-  my $res_msg   = $res ? "Success" : "Error!<p>Please, report this error reference to the administrators: " . $core->status_ref() . "";
-  my $res_class = $res ? "info-text" : "error-text";
+  # only the error case gets here, success returns above
 
   $text .= "<p>";
-  $text .= "<div class=$res_class><h3>Operation result: $res_msg</h3></div>";
+  my $status_ref = $core->status_ref();
+  my $ref_text   = $status_ref ne '' ? '[~Please, report this error reference to the administrators:] ' . html_escape( $status_ref ) : ''; # no reference (e.g. connection error), no dangling text
+  $text .= "<div class=error-text><h3>[~Operation result:] [~Error!]</h3>$ref_text</div>"; # translated, no <p> inside <h3>
   $text .= "<p>";
 
 #  my $ok_hint = $edit_mode_insert ? "Confirm new record insert" : "Confirm record update";
-  
+
   $text .= "<br>";
-  $text .= de_html_alink_button( $reo, 'here', "[~Edit] &uArr;",   "[~Back to data edit screen]", BTYPE => 'mod', ACTION => 'edit'   );
+  $text .= de_html_alink_button( $reo, 'here', "[~Edit] &uArr;",   { HINT => "[~Back to data edit screen]", BTYPE => 'mod' }, ACTION => 'edit'   ); # BTYPE in the options, not a link arg
   $text .= de_html_alink_button( $reo, 'back', "[~Continue] &crarr;", "[~Operation done, continue...]"       );
 #  $text .= de_html_alink_button( $reo, 'new',  "OK",     $ok_hint,                   ACTION => 'commit' );
 

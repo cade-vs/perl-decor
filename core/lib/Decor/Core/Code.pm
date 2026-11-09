@@ -66,7 +66,7 @@ sub de_code_get_map
     {
     #print "$k $v\n";
     next unless $k =~ /^on_/i;
-    boom "found TRIGGER [$k] with invalid name for code type [$ctype] name [$name] file [$file]" unless $k =~ /^on_[a-z0-9][a-z_0-9]+$/;
+    boom "found TRIGGER [$k] with invalid name for code type [$ctype] name [$name] file [$file]" unless $k =~ /^on_[a-z0-9][a-z_0-9]+\z/;
     my $code = \&{ "decor::${ctype}::${name}::$k" };
     $k = uc $k;
     boom "duplicate TRIGGER [$k] found in code type [$ctype] name [$name] file [$file]" if exists $map{ $k };

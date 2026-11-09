@@ -19,6 +19,7 @@ use Decor::Web::HTML::Utils;
 use Decor::Web::Utils;
 use Decor::Web::View;
 use Web::Reactor::HTML::Utils;
+use Web::Reactor::HTML; # elements, attributes, escaping, no longer exported by HTML::Utils
 use Web::Reactor::HTML::Layout;
 
 my $clear_icon = 'i/input-clear.svg';
@@ -39,7 +40,6 @@ sub main
   my $rs = $reo->get_page_session( 1 );
 
   my $button    = $reo->get_input_button();
-  my $button_id = $reo->get_input_button_id();
 
   my $core = $reo->de_connect();
   my $tdes = $core->describe( $table );
@@ -50,16 +50,12 @@ sub main
 
 #print STDERR Dumper( "READ fields: ", \@fields );
 
-  my $browser_window_title = qq([~Filter records from] "<b>$table_label</b>");
-  $reo->ps_path_add( 'filter', $browser_window_title );
+  my $browser_window_title = qq([~Sort records from] "<b>$table_label</b>"); # the sort page, not the filter one
 
 #print STDERR Dumper( "error:", \@fields, $ps->{ 'ROW_DATA' }, 'insert', $edit_mode_insert, 'allow', de_web_profile()->allows( $tdes, 'UPDATE' ) );
 
   return "<#access_denied>" unless @fields > 0;
-
-  my $fields = join ',', @fields;
-
-  my %ui_si = ( %$ui, %$si ); # merge inputs, SAFE_INPUT has priority
+  $reo->ps_path_add( 'sorting', $browser_window_title ); # after the rights check, sorting.svg icon
 
   # handle redirects here
   de_web_handle_redirect_buttons( $reo );
@@ -81,8 +77,9 @@ sub main
     for( @sort )
       {
       next unless /^(S:\S*)\s+(\d)/ and exists $ps->{ 'SORT_MAP' }{ $1 };
-      $text .= $ps->{ 'SORT_MAP' }{ $1 };
-      $sort{ $ps->{ 'SORT_MAP' }{ $1 } } = $2;
+      my ( $sfield, $stage ) = ( $ps->{ 'SORT_MAP' }{ $1 }, $2 );
+      delete $sort{ $sfield }; # the last click sets the priority, stage 0 is no sort
+      $sort{ $sfield } = $stage if $stage == 1 or $stage == 2;
       }
 
     my @sort_sql;
@@ -91,17 +88,17 @@ sub main
     for( keys %sort )
       {
       my $bfdes = $bfdes{ $_ };
-      my $label = des_get_attr( $bfdes, qw( WEB GRID LABEL ) );
+      my $label = des_attr( $bfdes, qw( WEB GRID LABEL ) );
       
       if( $sort{ $_ } == 1 )
         {
         push @sort_des, "$label <img class='icon' src=i/sort-dn.svg>";
-        push @sort_sql, ".$_ ASC"
+        push @sort_sql, ".$_ ASC";
         }
       else
         {
         push @sort_des, "$label <img class='icon' src=i/sort-up.svg>";
-        push @sort_sql, ".$_ DESC"
+        push @sort_sql, ".$_ DESC";
         }  
       }
     
@@ -111,14 +108,14 @@ sub main
     return $reo->forward_back();
     }
 
-  my $filter_form = new Web::Reactor::HTML::Form( $reo );
-  my $filter_form_begin;
-  $filter_form_begin .= $filter_form->begin( NAME => "form_filter_$table", DEFAULT_BUTTON => 'OK' );
-  my $form_id = $filter_form->get_id();
-  $filter_form_begin .= "<p>";
+  my $sort_form = new Web::Reactor::HTML::Form( $reo ); # sort names, the code was copied from grid_filter
+  my $sort_form_begin;
+  $sort_form_begin .= $sort_form->begin( NAME => "form_sort_$table", DEFAULT_BUTTON => 'OK' );
+  my $form_id = $sort_form->get_id();
+  $sort_form_begin .= "<p>";
 
-  $text .= $filter_form_begin;
-  $text .= "<input type='hidden' name='sort-order-input' id='sort-order-input' value='' form='$form_id'>";
+  $text .= $sort_form_begin;
+  $text .= html_element( 'input', undef, type => 'hidden', name => 'sort-order-input', id => 'sort-order-input', value => '', form => $form_id );
 
 
   $text .= "<div class='record-table'>";
@@ -138,30 +135,27 @@ sub main
     {
     my $bfdes     = $bfdes{ $field };
     my $lfdes     = $lfdes{ $field };
-    my $type      = $lfdes->{ 'TYPE'  };
-    my $type_name = $lfdes->{ 'TYPE'  }{ 'NAME' };
+    my $type_name = des_type_name( $lfdes );
 
-    my $base_field = $bfdes->{ 'NAME' };
+    my $base_field = des_item_name( $bfdes );
 
     # skip hidden, backlinks, widelinks
-    next if des_get_attr( $bfdes, 'WEB', 'HIDE' );
+    next if des_attr( $bfdes, 'WEB', 'HIDE' );
     next if $type_name eq 'BACKLINK'; 
     next if $type_name eq 'WIDELINK'; 
 
-    my $label    = des_get_attr( $bfdes, qw( WEB GRID LABEL ) );
+    my $label    = des_attr( $bfdes, qw( WEB GRID LABEL ) );
 
 #    my $label     = "$blabel";
 #    if( $bfdes ne $lfdes )
 #      {
-#      my $llabel     = des_get_attr( $lfdes, qw( WEB GRID LABEL ) );
+#      my $llabel     = des_attr( $lfdes, qw( WEB GRID LABEL ) );
 #      $label .= "/$llabel";
 #      }
 
-    my $input_data = $ui_si{ "F:$field" } || ( $rs->{ 'FILTERS' }{ 'ACTIVE' } ? $rs->{ 'FILTERS' }{ 'ACTIVE' }{ 'DATA' }{ $base_field } : undef );
+    # no $input_data (filter data, not used here) and no $field_error (never used)
 
-    my $field_error;
-
-    my $field_control_id   = uc $reo->create_uniq_id( 1 );
+    my $field_control_id   = uc $reo->create_uniq_id(); # it takes no arguments
     my $field_control_name = "S:" . $field_control_id;
     $ps->{ 'SORT_MAP' }{ $field_control_name } = $field;
 
@@ -171,7 +165,7 @@ sub main
     $field_input .= html_element( "input", undef, type => 'hidden', name => $field_control_name, id => $field_control_name, value => '', form => $form_id );
     $field_input .= html_element( "span", $labels_spans, 'data-stages' => 3, 'data-checkbox-input-id' => $field_control_name, onclick => 'reactor_form_sort_toggle(this,"sort-order-input")' );
 
-    my $divider = des_get_attr( $bfdes, 'WEB', 'DIVIDER' );
+    my $divider = des_attr( $bfdes, 'WEB', 'DIVIDER' );
     if( $divider )
       {
       $text .= "<div class='view-divider view-sep record-sep fmt-center'>$divider</div>";
@@ -188,9 +182,9 @@ sub main
 
   $text .= "<br>";
   $text .= de_html_alink_button( $reo, 'back', "&lArr; [~Cancel]", "[~Cancel this operation]"   );
-  $text .= $filter_form->button( NAME => 'OK', VALUE => "[~OK] &rArr;" );
+  $text .= $sort_form->button( NAME => 'OK', VALUE => "[~OK] &rArr;" );
 #  $text .= de_html_form_button( $reo, 'here', $filter_form, 'OK', "[~OK] &rArr;", "Filter records now" );
-  $text .= $filter_form->end();
+  $text .= $sort_form->end();
 
   return $text;
 }

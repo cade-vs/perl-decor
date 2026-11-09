@@ -12,7 +12,7 @@
 INIT { $|++; }
 s/^\[.+?\] \[.+?\] \[.+?\] (\[.+?\] )?(\w\w\d{5}: )?//;
 s/,\s*referer:.+//;
-s/: \/\S*$//;
+s/: \/\S*(?=\n?\z)//; # -p keeps the newline in $_
 s/\\x([0-9A-F][0-9A-F])/chr(hex($1))/gie;
 s/stderr from [^:]+: //;
 

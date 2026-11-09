@@ -15,7 +15,7 @@ sub main
 
   my $text;
 
-  if( $action =~ /^[a-z_0-9]+$/ )
+  if( $action =~ /^[a-z_0-9]+\z/ )
     {
     $ps->{ 'ACTION' } = $action unless exists $ps->{ 'ACTION' } and $ps->{ 'ACTION' } eq $action; # avoid writing to session storage
 

@@ -26,6 +26,7 @@ our @EXPORT = qw(
                   type_format_human
                   type_revert
                   type_default
+                  type_is_empty
 
                   type_convert
                   type_utime2time
@@ -414,7 +415,7 @@ sub type_format
    }
   elsif ( $type_name eq "REAL" )
    {
-   return undef unless $data =~ /^([-+])?(\d+)?(\.(\d+)?)?$/o;
+   return undef unless $data =~ /^([-+])?(\d+)?(\.(\d+)?)?\z/o;
 
    my $sign = $1;
    my $int  = $2 || '0';
@@ -487,20 +488,20 @@ sub type_revert
 
   if( $type_name eq "DATE" )
     {
-    return undef if $data =~ m/^\s*(n\/a|\(?empty\)?)\s*$/;
+    return undef if $data =~ m/^\s*(n\/a|\(?empty\)?)\s*\z/;
 
     my $fmt_name = $FORMATS{ 'DATE' };
     $fmt_name = __check_format( $type_name, $type->{ 'FMT' } ) if $type->{ 'FMT' };
     $data = __canonize_date_str( $data, $fmt_name );
 
-    my ( $y, $m, $d ) = ( $1, $2, $3 ) if $data =~ /^(\d\d\d\d)[\.\/\-](\d\d?)[\.\/\-](\d\d?)$/o;
+    my ( $y, $m, $d ) = ( $1, $2, $3 ) if $data =~ /^(\d\d\d\d)[\.\/\-](\d\d?)[\.\/\-](\d\d?)\z/o;
 
     return undef if $y == 0 or $m == 0 or $y == 0;
     return julian_day( $y, $m, $d );
     }
   elsif ( $type_name eq "TIME" )
     {
-    $data =~ /^(\d+)(:(\d\d?)(:(\d\d?)(\.(\d+))?)?(\s*(AM|PM))?)?$/io || return undef;
+    $data =~ /^(\d+)(:(\d\d?)(:(\d\d?)(\.(\d+))?)?(\s*(AM|PM))?)?\z/io || return undef;
     my $h = $1;
     my $m = $3;
     my $s = $5;
@@ -521,7 +522,7 @@ sub type_revert
     my $fmt_name = $FORMATS{ 'UTIME' };
     $fmt_name = __check_format( $type_name, $type->{ 'FMT' } ) if $type->{ 'FMT' };
     $data = __canonize_date_str( $data, $fmt_name );
-    my $time_frac = $2 if $data =~ s/(\d\d?:\d\d?:\d\d?)(\.\d*)([^\.]*)$/$1/;
+    my $time_frac = $2 if $data =~ s/(\d\d?:\d\d?:\d\d?)(\.\d*)([^\.]*)\z/$1/;
     $time_frac = undef if $time_frac eq '.';
 
     my @data = ( $data );
@@ -533,14 +534,14 @@ sub type_revert
     {
     return undef if $data eq '';
     $data =~ s/[\s_\'\`]//go; # '
-    return undef unless $data =~ /^[\-\+]?\d*(\.(\d+)?)?$/o;
+    return undef unless $data =~ /^[\-\+]?\d*(\.(\d+)?)?\z/o;
     return $data;
     }
   elsif ( $type_name eq 'INT' )
     {
     return undef if $data eq '';
     $data =~ s/[\s_\'\`]//go; # '
-    return undef unless $data =~ /^([\-\+]?\d*)(\.(\d+)?)?$/o;
+    return undef unless $data =~ /^([\-\+]?\d*)(\.(\d+)?)?\z/o;
     return $1;
     }
   else
@@ -560,6 +561,15 @@ sub type_default
 
   boom "unknown type [$type_name]" unless exists $TYPE_DEFAULTS{ $type_name };
   return $TYPE_DEFAULTS{ $type_name };
+}
+
+# empty value for the type: CHAR is empty on '', all other types on 0 (or undef)
+sub type_is_empty
+{
+  my $type_name = shift;
+  my $data      = shift;
+
+  return $type_name eq 'CHAR' ? $data eq '' : $data == 0;
 }
 
 # convert decor internal data from one type to another
@@ -643,7 +653,7 @@ sub type_widelink_parse
     }
   
   $data = "$1:$2:" if $data =~ /([A-Z_0-9]+)\[(\d+)\]/; # FIXME: compatibility, must be removed in the future
-  boom "type_widelink_parse: invalid WIDELINK data [$data]" unless $data =~ /^([a-zA-Z_0-9]+):([0-9]+):([a-zA-Z_0-9]+)?$/;
+  boom "type_widelink_parse: invalid WIDELINK data [$data]" unless $data =~ /^([a-zA-Z_0-9]+):([0-9]+):([a-zA-Z_0-9]+)?\z/;
 
   return ( $1, $2, $3 ) if wantarray;
   

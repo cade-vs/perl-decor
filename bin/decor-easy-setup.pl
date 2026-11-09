@@ -90,7 +90,7 @@ END
 sub strip_script_name
 {
   my $s = shift;
-  $s =~ s/[^\/]+$//;
+  $s =~ s/[^\/]+\z//;
   $s ||= './';
   return $s;
 }

@@ -55,36 +55,36 @@ our @args;
 while( @ARGV )
   {
   $_ = shift;
-  if( /^--+$/io )
+  if( /^--+\z/io )
     {
     push @args, @ARGV;
     last;
     }
-  if( /^-d$/ )
+  if( /^-d\z/ )
     {
     my $level = de_debug_inc();
     print "option: debug level raised, now is [$level] \n";
     next;
     }
-  if( /^-z$/ )
+  if( /^-z\z/ )
     {
     $opt_daemonize++;
     print "option: daemonize\n";
     next;
     }
-  if( /^-v$/ )
+  if( /^-v\z/ )
     {
     $opt_verbose = 1;
     next;
     }
-  if( /^-r(r)?$/ )
+  if( /^-r(r)?\z/ )
     {
     $DE_LOG_TO_STDERR = 1;
     $DE_LOG_TO_FILES  = $1 ? 1 : 0;
     print "option: forwarding logs to STDERR\n";
     next;
     }
-  if( /^(--?h(elp)?|help)$/io )
+  if( /^(--?h(elp)?|help)\z/io )
     {
     print $help_text;
     exit;
@@ -111,7 +111,7 @@ de_boot( APP_NAME => $opt_app_name );
 my $pkg = shift @args;
 my $trigger = 'main';
 
-( $pkg, $trigger ) = ( $1, $3 ) if $pkg =~ /^([a-z_0-9\-]+)(:([a-z_0-9\-]+))$/;
+( $pkg, $trigger ) = ( $1, $3 ) if $pkg =~ /^([a-z_0-9\-]+)(:([a-z_0-9\-]+))\z/;
 
 die "$0: missing or unknown process package:trigger [$pkg:$trigger]\n" unless de_code_exists( 'PROCESSES', $pkg, $trigger );
 

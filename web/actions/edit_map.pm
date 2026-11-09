@@ -32,11 +32,11 @@ sub main
   my $core = $reo->de_connect();
 
   my $tdes  = $core->describe( $table );
-  my $fdes  = des_field_des( $tdes, $field );
+  my $fdes  = des_fld( $tdes, $field );
   my ( $map_table, $map_near_field, $map_far_field ) = des_map_details( $fdes );
 
   my $map_tdes = $core->describe( $map_table );
-  my $map_fdes = des_field_des( $map_tdes, $map_far_field );
+  my $map_fdes = des_fld( $map_tdes, $map_far_field );
   my ( $far_field_linked_table, $far_field_linked_field ) = des_link_details( $map_fdes );
 
   my ( $far_ar, $far_field ) = de_web_read_map_far_table_data( $core, $table, $field, $far_field_linked_field );
@@ -99,8 +99,8 @@ sub main
     return $field_input;
     };
     
-   my $map_edit_cue = des_get_attr( $fdes, qw( WEB EDIT MAP_EDIT_CUE ) ) || "[~Edit map]";
-  $text .= de_data_grid( $core, $far_field_linked_table, des_get_attr( $fdes, qw[ WEB EDIT FAR_DETAILS ] ) || $far_field_linked_field, { CLASS => 'grid view record', TITLE => "$map_edit_cue", CTRL_CB => $sub_de_data_grid_cb } );
+   my $map_edit_cue = des_attr( $fdes, qw( WEB EDIT MAP_EDIT_CUE ) ) || "[~Edit map]";
+  $text .= de_data_grid( $core, $far_field_linked_table, des_attr( $fdes, qw[ WEB EDIT FAR_DETAILS ] ) || $far_field_linked_field, { CLASS => 'grid view record', TITLE => "$map_edit_cue", CTRL_CB => $sub_de_data_grid_cb } );
 
 =for removal
   $text .= "<div class='record-table'>";

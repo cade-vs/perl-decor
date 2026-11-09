@@ -21,6 +21,7 @@ use Decor::Web::HTML::Utils;
 use Decor::Web::Utils;
 
 use Web::Reactor::HTML::Layout;
+use Web::Reactor::HTML;
 
 use Exporter;
 our @ISA    = qw( Exporter );
@@ -93,7 +94,7 @@ sub de_web_format_phones
   return undef unless @phones;
   
   s/^\s*// for @phones;
-  s/\s*$// for @phones;
+  s/\s*\z// for @phones;
 
   s{((\+|\*|00)?[\s\d]+)}{<a href='tel:$1'>$1</a>} for @phones;
 
@@ -119,18 +120,18 @@ sub de_web_format_field
   my $type_name  = $fdes->{ 'TYPE' }{ 'NAME'  };
   my $type_lname = $fdes->{ 'TYPE' }{ 'LNAME' };
 
-  my $editable = $opts->{ 'NO_EDIT' } ? undef : des_get_attr( $fdes, 'WEB', $vtype, 'EDITABLE' );
+  my $editable = $opts->{ 'NO_EDIT' } ? undef : des_attr( $fdes, 'WEB', $vtype, 'EDITABLE' );
 
   my $data_fmt;
   my $fmt_class;
 
-  my $password = ( des_get_attr( $fdes, 'PASSWORD' ) or $fname =~ /^PWD_/ ) ? 1 : 0;
+  my $password = ( des_attr( $fdes, 'PASSWORD' ) or $fname =~ /^PWD_/ ) ? 1 : 0;
 
-  my $web_display = des_get_attr( $fdes, 'WEB', $vtype, 'DISPLAY' );
+  my $web_display = des_attr( $fdes, 'WEB', $vtype, 'DISPLAY' );
 
-  if( $type_name =~ /^(CHAR|INT|REAL)$/ and $web_display =~ /^progress(-bar)?/i )
+  if( $type_name =~ /^(CHAR|INT|REAL)\z/ and $web_display =~ /^progress(-bar)?/i )
     {
-    my $maxlen = des_get_attr( $fdes, 'WEB', $vtype, 'MAXLEN' );
+    my $maxlen = des_attr( $fdes, 'WEB', $vtype, 'MAXLEN' );
     $data_fmt = de_progress_bar( $field_data, $maxlen );
     }
   elsif( $type_name eq 'CHAR' )
@@ -140,7 +141,7 @@ sub de_web_format_field
 
     $data_fmt = "[~(hidden)]" if $password and $data_fmt ne '';
     
-    my $maxlen = des_get_attr( $fdes, 'WEB', $vtype, 'MAXLEN' );
+    my $maxlen = des_attr( $fdes, 'WEB', $vtype, 'MAXLEN' );
     if( $maxlen )
       {
       $maxlen = 16 if $maxlen == 0 and $maxlen == 1; # default
@@ -148,7 +149,7 @@ sub de_web_format_field
         {
         if( $maxlen == 1 )
           {
-          $data_fmt = [ "<img src=i/check-view-0.svg>", "<img src=i/check-view-1.svg>" ]->[ !! ( length( $data_fmt ) > 0 ) ];
+          $data_fmt = [ map { html_element( 'img', undef, src => "i/check-view-$_.svg" ) } 0, 1 ]->[ !! ( length( $data_fmt ) > 0 ) ];
           }
         elsif( $maxlen > 0  )
           {
@@ -180,8 +181,8 @@ sub de_web_format_field
 
     $data_fmt = "&empty;" if $data_fmt eq '';
       
-    my $fmt_mono = des_get_attr( $fdes, 'WEB', $vtype, 'MONO' );
-    my $fmt_code = des_get_attr( $fdes, 'WEB', $vtype, 'CODE' );
+    my $fmt_mono = des_attr( $fdes, 'WEB', $vtype, 'MONO' );
+    my $fmt_code = des_attr( $fdes, 'WEB', $vtype, 'CODE' );
     if( $fmt_mono or $fmt_code )
       {
       $fmt_class .= " fmt-mono";
@@ -200,7 +201,7 @@ sub de_web_format_field
     $data_fmt = $field_data > 0 ? '[&radic;]' : '[&nbsp;]';
     if( $editable )
       {
-      $data_fmt = [ "<img src=i/check-view-0.svg>", "<img src=i/check-view-1.svg>" ]->[ !! $field_data ];
+      $data_fmt = [ map { html_element( 'img', undef, src => "i/check-view-$_.svg" ) } 0, 1 ]->[ !! $field_data ];
       my $new_val = !!! $field_data || 0; # cap and reverse
       # FIXME: use reactor_none_href to avoid session creation?
       #$data_fmt = "<div class=vframe><reactor_new_a=?_an=set_val&table=$table&fname=$fname&id=$id&value=$new_val&vtype=$vtype>$data_fmt</a></div>";
@@ -208,7 +209,7 @@ sub de_web_format_field
       }
     else
       {
-      $data_fmt = [ "<img src=i/check-view-0.svg>", "<img src=i/check-view-1.svg>" ]->[ !! $field_data ];
+      $data_fmt = [ map { html_element( 'img', undef, src => "i/check-view-$_.svg" ) } 0, 1 ]->[ !! $field_data ];
       }  
     $fmt_class .= " fmt-center";
     }
@@ -216,13 +217,13 @@ sub de_web_format_field
     {
     #$fmt_class .= $field_data > 0 ? " hi" : ""; # FIXME: move to field options
     $data_fmt = type_format( $field_data, $fdes->{ 'TYPE' } );
-    $data_fmt = type_format_human( $data_fmt, $fdes->{ 'TYPE' } ) unless des_get_attr( $fdes, 'WEB', $vtype, 'NO_HUMAN_FMT' );
+    $data_fmt = type_format_human( $data_fmt, $fdes->{ 'TYPE' } ) unless des_attr( $fdes, 'WEB', $vtype, 'NO_HUMAN_FMT' );
     }
   elsif( $type_name eq 'UTIME' or $type_name eq 'DATE' )
     {
     return '&empty;' if $field_data == 0;
     $data_fmt = type_format( $field_data, $fdes->{ 'TYPE' } );
-    my $details = des_get_attr( $fdes, 'WEB', $vtype, 'DETAILS' );
+    my $details = des_attr( $fdes, 'WEB', $vtype, 'DETAILS' );
 
     my $ud = $type_name eq 'UTIME' ? time() - $field_data : gm_julian_day(time()) - $field_data; # time delta
     if( $details )
@@ -252,7 +253,7 @@ sub de_web_format_field
       $data_fmt .= " <span class=details-text>$sep $diff</span>";
       }
     
-    if( $ud > 0 and des_get_attr( $fdes, 'WEB', $vtype, 'OVERDUE' ) )
+    if( $ud > 0 and des_attr( $fdes, 'WEB', $vtype, 'OVERDUE' ) )
       {
       $data_fmt = "<span class=warning>[~DUE]</span> " . $data_fmt;
       }
@@ -262,15 +263,15 @@ sub de_web_format_field
     {
     my ( $linked_table, $linked_field ) = des_link_details( $fdes );
     my $ltdes = $core->describe( $linked_table );
-    my $lfdes = des_field_des( $ltdes, $linked_field );
+    my $lfdes = des_fld( $ltdes, $linked_field );
 
     my $linked_data = $core->read_field( $linked_table, $linked_field, $field_data );
     $data_fmt = $field_data > 0 ? type_format( $linked_data, $lfdes->{ 'TYPE' } ) : '&empty;';
 
-    my $select_filter_name = des_get_attr( $fdes, 'WEB', 'SELECT_FILTER' );
+    my $select_filter_name = des_attr( $fdes, 'WEB', 'SELECT_FILTER' );
 
-    my $combo = des_get_attr( $fdes, qw( WEB COMBO ) );
-    my $radio = des_get_attr( $fdes, qw( WEB RADIO ) );
+    my $combo = des_attr( $fdes, qw( WEB COMBO ) );
+    my $radio = des_attr( $fdes, qw( WEB RADIO ) );
 
     my $spf_fmt;
     my @spf_fld;
@@ -298,7 +299,7 @@ sub de_web_format_field
 
     my $lfields = join ',', '_ID', @lfields, values %basef;
 
-    my $combo_orderby = des_get_attr( $fdes, qw( WEB COMBO ORDERBY ) ) || join( ',', @spf_fld );
+    my $combo_orderby = des_attr( $fdes, qw( WEB COMBO ORDERBY ) ) || join( ',', @spf_fld );
     my $combo_select = $core->select( $linked_table, $lfields, { 'FILTER_NAME' => $select_filter_name, ORDER_BY => $combo_orderby } );
 
 
@@ -309,7 +310,7 @@ sub de_web_format_field
     $combo_form->state( 'UPDATE_RECORD_WITH_ID' => $id );
 
     my @combo_data;
-    push @combo_data, { KEY => '*', VALUE => 0, LABEL => '&empty;' };
+    push @combo_data, { KEY => '*', VALUE => 0, LABEL => '&#8709;' }; # numeric reference, the label decoder has no &empty;
     while( my $hr = $core->fetch( $combo_select ) )
       {
       my @value = map { $hr->{ $_ } } @spf_fld;
@@ -320,7 +321,7 @@ sub de_web_format_field
 
 #print STDERR "**************************************************************: " . Dumper( \@combo_data );
 
-    if( des_get_attr( $fdes, 'WEB', 'EDIT', 'MONO' ) )
+    if( des_attr( $fdes, 'WEB', 'EDIT', 'MONO' ) )
       {
       $fmt_class .= " fmt-mono";
       }
@@ -353,7 +354,7 @@ sub de_web_format_field
         if( $linked_field )
           {
           $data_fmt = $core->read_field( $linked_table, $linked_field, $linked_id );
-          my $lfdes = des_field_des( $ltdes, $linked_field );
+          my $lfdes = des_fld( $ltdes, $linked_field );
           $data_fmt  = de_web_format_field( $data_fmt, $lfdes, 'VIEW', { ID => $linked_id } );
           }
         else
@@ -370,7 +371,7 @@ sub de_web_format_field
       {
       ( $linked_table, $linked_field ) = des_link_details( $fdes );
       my $ldes = $core->describe( $linked_table );
-      my ( $linked_field_x, $linked_field_x_des ) = des_field_des( $ldes, $linked_field )->expand_field_path();
+      my ( $linked_field_x, $linked_field_x_des ) = des_field_expand_path( des_fld( $ldes, $linked_field ) ); # the des_* function, descriptions have no methods
 
       if( $field_data > 0 )
         {
@@ -466,7 +467,7 @@ sub de_data_grid
   
   $text .= "<tr class=grid-header>";
   
-  $text .= "<td class='grid-header fmt-left'><img src=i/ctrl.svg></td>" if $ctrl_cb;
+  $text .= html_element( 'td', html_element( 'img', undef, src => 'i/ctrl.svg' ), class => 'grid-header fmt-left' ) if $ctrl_cb;
 
   for my $field ( @fields )
     {
@@ -479,11 +480,11 @@ sub de_data_grid
 
     my $base_field = $bfdes->{ 'NAME' };
 
-    my $blabel    = des_get_attr( $bfdes, qw( WEB GRID LABEL ) );
+    my $blabel    = des_attr( $bfdes, qw( WEB GRID LABEL ) );
     my $label     = "$blabel";
     if( $bfdes ne $lfdes )
       {
-      my $llabel     = des_get_attr( $lfdes, qw( WEB GRID LABEL ) );
+      my $llabel     = des_attr( $lfdes, qw( WEB GRID LABEL ) );
       $label .= "/$llabel";
       }
 
@@ -517,14 +518,14 @@ sub de_data_grid
       my $type_name = $lfdes->{ 'TYPE' }{ 'NAME' };
       my $fmt_class = $FMT_CLASSES{ $type_name } || 'fmt-left';
 
-      my $lpassword = des_get_attr( $lfdes, 'PASSWORD' ) ? 1 : 0;
+      my $lpassword = des_attr( $lfdes, 'PASSWORD' ) ? 1 : 0;
 
       my $base_field = exists $basef{ $field } ? $basef{ $field } : $field;
 
       my $data = $row_data->{ $field };
       my $data_base = $row_data->{ $basef{ $field } } if exists $basef{ $field };
 
-      $sums{ $field } += $data if $sums and $type_name =~ /^(INT|REAL|TIME)$/;
+      $sums{ $field } += $data if $sums and $type_name =~ /^(INT|REAL|TIME)\z/;
 
       my ( $data_fmt, $fmt_class_fld ) = de_web_format_field( $data, $lfdes, 'GRID', { ID => $id, CORE => $core } );
       my $data_ctrl;
@@ -556,13 +557,13 @@ sub de_data_grid
       my $fmt_class  = $FMT_CLASSES{ $type_name } || 'fmt-left';
 
       my ( $data_fmt, $fmt_class_fld );
-      if( $ltype_name =~ /^(BOOL)$/ )
+      if( $ltype_name =~ /^(BOOL)\z/ )
         {
         ( $data_fmt, $fmt_class_fld ) = ( $sums{ $field } . ' of ' . $sums{'*'} );
         }
       else
         {  
-        ( $data_fmt, $fmt_class_fld ) = $type_name =~ /^(INT|REAL|TIME)$/ ? de_web_format_field( $sums{ $field }, $lfdes, 'GRID' ) : ();
+        ( $data_fmt, $fmt_class_fld ) = $type_name =~ /^(INT|REAL|TIME)\z/ ? de_web_format_field( $sums{ $field }, $lfdes, 'GRID' ) : ();
         }
       $text .= "<td class='grid-header $fmt_class'>$data_fmt</td>";
       }
@@ -633,9 +634,9 @@ sub de_data_view
     my $type_name  = $lfdes->{ 'TYPE' }{ 'NAME'  };
     my $type_lname = $lfdes->{ 'TYPE' }{ 'LNAME' };
 
-    my $lpassword = des_get_attr( $lfdes, 'PASSWORD' ) ? 1 : 0;
+    my $lpassword = des_attr( $lfdes, 'PASSWORD' ) ? 1 : 0;
 
-    my $label     = des_get_attr( $bfdes, qw( WEB VIEW LABEL ) );
+    my $label     = des_attr( $bfdes, qw( WEB VIEW LABEL ) );
 
     my $base_field = exists $basef{ $field } ? $basef{ $field } : $field;
 
@@ -646,7 +647,7 @@ sub de_data_view
     my $field_details;
     my $no_layout_ctrls = 0;
 
-    my $overflow  = des_get_attr( $bfdes, qw( WEB VIEW OVERFLOW ) );
+    my $overflow  = des_attr( $bfdes, qw( WEB VIEW OVERFLOW ) );
     if( $overflow )
       {
       $data_fmt = str_html_escape( $data_fmt );
@@ -664,7 +665,7 @@ sub de_data_view
       # $data_fmt = de_html_alink_button( $reo, 'new', " <img src=i/map_location.svg> $data_fmt", "[~View map location]", ACTION => 'map_location', LL => $data );
       }
 
-    my $divider = des_get_attr( $bfdes, 'WEB', 'DIVIDER' );
+    my $divider = des_attr( $bfdes, 'WEB', 'DIVIDER' );
     if( $divider )
       {
       $text .= "<div class='view-divider view-sep record-sep fmt-center'>$divider</div>";
@@ -709,7 +710,7 @@ sub de_master_record_view
   my $tdes = $core->describe( $master_record_table );
   my $sdes = des_table_des( $tdes ); # table "Self" description
   my $table_label = des_table_label( $tdes );
-  my $master_fields = uc des_get_attr( $sdes, qw( WEB MASTER_FIELDS ) ) or return undef;
+  my $master_fields = uc des_attr( $sdes, qw( WEB MASTER_FIELDS ) ) or return undef;
 
   #return de_data_grid( $core, $linked_table, $master_fields, { FILTER => { '_ID' => $link_id }, LIMIT => 1, CLASS => 'grid view record', TITLE => "[~Master record from] $linked_table_label" } ) if $master_fields;
   my $title = des_table_s( $tdes ) || "[~Master record from] $table_label";
@@ -740,7 +741,7 @@ sub de_progress_bar
 
   # $p2 = "Complete" if $prc == 100;
   
-  my $wd = " ;width: ${width}em; " if $width =~ /^\d+$/ and $width > 0;
+  my $wd = " ;width: ${width}em; " if $width =~ /^\d+\z/ and $width > 0;
   
   return "<div class=progress-div style='$wd'><div class=progress-bar style='width: $prc%; $d1'>$p2</div><div class=progress-empty style='width: $pn%; $d2'>$p1</div></div>";
 }

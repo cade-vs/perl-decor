@@ -47,31 +47,31 @@ our @args;
 while( @ARGV )
   {
   $_ = shift;
-  if( /^--+$/io )
+  if( /^--+\z/io )
     {
     push @args, @ARGV;
     last;
     }
-  if( /^-d$/ )
+  if( /^-d\z/ )
     {
     my $level = de_debug_inc();
     print "option: debug level raised, now is [$level] \n";
     next;
     }
     
-  if( /^-v$/ )
+  if( /^-v\z/ )
     {
     $opt_verbose = 1;
     next;
     }
-  if( /^-r(r)?$/ )
+  if( /^-r(r)?\z/ )
     {
     $DE_LOG_TO_STDERR = 1;
     $DE_LOG_TO_FILES  = $1 ? 1 : 0;
     print "option: forwarding logs to STDERR\n";
     next;
     }
-  if( /^(--?h(elp)?|help)$/io )
+  if( /^(--?h(elp)?|help)\z/io )
     {
     print $help_text;
     exit;
@@ -137,7 +137,8 @@ if( @args )
     print "--- TABLE [$t] FIELD [$f]" . "-" x 42 . "\n";
     if( des_exists( $t, $f ) )
       {
-      print Dumper( $opt_verbose ? $des->{ 'FIELD' }{ $f } : des_field_des( $t, $f ) );
+#-      print Dumper( $opt_verbose ? $des->{ 'FIELD' }{ $f } : des_field_des( $t, $f ) ); # cc20261029-4
+      print Dumper( $opt_verbose ? $des->{ 'FIELD' }{ $f } : des_fld( $t, $f ) ); # cc20261029-4
       }
     else
       {
@@ -155,7 +156,8 @@ else
   my $c;
   for my $field ( @{ des_fields_list( $t ) } )
     {
-    my $fdes  = des_field_des( $t, $field );
+#-    my $fdes  = des_field_des( $t, $field ); # cc20261029-4
+    my $fdes  = des_fld( $t, $field ); # cc20261029-4
     my $order = $fdes->{ '_ORDER' };
     my $label = $fdes->{ 'LABEL' };
     my $type  = des_type_name( $fdes );
@@ -170,7 +172,8 @@ else
   push @idx, [ qw( _ORDER NAME FIELDS UNIQUE REM ) ];
   for my $idx ( @{ des_indexes_list( $t ) } )
     {
-    my $ides = des_index_des( $t, $idx );
+#-    my $ides = des_index_des( $t, $idx ); # cc20261029-4
+    my $ides = des_idx( $t, $idx ); # cc20261029-4
     push @idx, [ map { $ides->{ $_ } } qw( _ORDER NAME FIELDS UNIQUE REM ) ]
     }
   print "\n[ INDEXES ]\n", format_ascii_table( \@idx );

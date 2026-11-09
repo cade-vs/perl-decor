@@ -83,7 +83,7 @@ print "\nDONE.\n";
 sub strip_script_name
 {
   my $s = shift;
-  $s =~ s/[^\/]+$//;
+  $s =~ s/[^\/]+\z//;
   return $s;
 }
 

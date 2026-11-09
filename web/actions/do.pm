@@ -12,11 +12,13 @@ use strict;
 use Decor::Shared::Describe;
 use Decor::Web::Utils;
 use Web::Reactor::HTML::Utils;
+use Web::Reactor::HTML; # elements, attributes, escaping, no longer exported by HTML::Utils
 use Web::Reactor::HTML::Layout;
 use Decor::Web::HTML::Utils;
 use Decor::Web::View;
 use Data::Dumper;
 use MIME::Base64;
+use Encode;
 
 sub main
 {
@@ -30,97 +32,69 @@ sub main
   my $id     = $reo->param( 'ID'    );
   my $ids    = $reo->param( 'IDS'   );
   my $do     = $reo->param( 'DO'    );
+  my $return_args = $reo->param( 'RETURN_ARGS' ) || {}; # from commit POST_INSERT/POST_UPDATE, e.g. the new record ID for the caller form
 
   my $core = $reo->de_connect();
   my $tdes = $core->describe( $table );
 
   my $table_label = des_table_label( $tdes );
 
-  $reo->ps_path_add( 'do', qq( Do work on "<b>$table_label</b>" ) );
-
   my $dodes   = des_category_des( $tdes, 'DO', $do );
   
   return "<#access_denied>" unless de_web_profile()->allows( $dodes, 'EXECUTE' );
+  $reo->ps_path_add( 'do', qq( [~Do work on] "<b>$table_label</b>" ) );
   
   my @ids;
   push @ids, $id   if $id   > 0;
   push @ids, @$ids if $ids and @$ids > 0;
 
   my $html_file;
-  if( @ids > 0 )
+  # one DO run per record, or one run without a record, all results are shown the same way
+  for my $do_id ( @ids > 0 ? @ids : ( undef ) )
     {
-    for my $id ( @ids )
+    if( ! $core->do( $table, $do, {}, $do_id ) )
       {
-      $core->do( $table, $do, {}, $id );
-      
-      my ( $file_body, $file_mime ) = $core->get_return_file_body_mime();
+      my $status_ref = $core->status_ref();
+      my $ref_text   = $status_ref ne '' ? ' [~Please, report this error reference to the administrators:] ' . html_escape( $status_ref ) : ''; # no reference (e.g. connection error), no dangling text
+      $html_file .= "<div class=error-text>[~Error!]$ref_text</div>";
+      next;
+      }
 
-## FIXME: URGENT: ONLY FOR TEXT MIMEs
-#use Encode;
-#$file_body = Encode::decode_utf8( $file_body );
-      
-      if( $file_mime ne '' )
-        {
-        if( $file_mime eq 'text/plain' )
-          {
-          $html_file .= "<xmp>$file_body</xmp>";
-          }
-        elsif( $file_mime eq 'text/html' )
-          {
-          $html_file .= $file_body;
-          }
-        elsif( $file_mime eq 'application/pdf' )
-          {
-          my $base64data = encode_base64( $file_body );
-          $text .= qq[
-          
-                     <object data="data:application/pdf;base64,$base64data" type="application/pdf" width="80%" height="780px">
-                       <p>Unable to display PDF file. <a href="3f281f29132dddd14fded85bfc.pdf">Download</a> instead.</p>
-                     </object>
-          
-                    ];
-          }
-        else
-          {
-          $html_file .= "*** UNSUPPORTED DATA TYPE ***";
-          }  
-        }  
+    my ( $file_body, $file_mime ) = $core->get_return_file_body_mime();
+    next if $file_mime eq '';
+
+    $file_body = Encode::decode_utf8( $file_body ) if $file_mime eq 'text/plain' or $file_mime eq 'text/html'; # only text bodies are decoded
+
+    if( $file_mime eq 'text/plain' )
+      {
+      $html_file .= html_element_e( 'pre', $file_body );
+      }
+    elsif( $file_mime eq 'text/html' )
+      {
+      $html_file .= $file_body;
+      }
+    elsif( $file_mime eq 'application/pdf' )
+      {
+      my $base64data = encode_base64( $file_body, '' ); # one line, it is also used in the download link href
+      my $download   = html_element( 'a', '[~Download the PDF file]', href => "data:application/pdf;base64,$base64data", download => 'document.pdf' ); # the same pdf data, no placeholder file
+      $text .= qq[<object data="data:application/pdf;base64,$base64data" type="application/pdf" width="80%" height="780px"><p>[~Unable to display the PDF file here.] $download</p></object>];
+      }
+    else
+      {
+      $html_file .= "*** [~Unsupported data type] ***";
       }
     }
-  else
-    {
-# $text .= "[@ids]";
 
-    $core->do( $table, $do );
-    my ( $file_body, $file_mime ) = $core->get_return_file_body_mime();
-# FIXME: URGENT: ONLY FOR TEXT MIMEs
-use Encode;
-$file_body = Encode::decode_utf8( $file_body );
-    $html_file .= $file_body;
-    }  
-  
-=pod
-  if( $file_mime eq 'application/pdf' )
+  $html_file = "*** [~Done] ***" if $html_file eq '' and $text eq ''; # nothing returned
+  if( $html_file ne '' )
     {
-    my $base64data = encode_base64( $file_body );
-    $text .= qq[
-    
-               <object data="data:application/pdf;base64,$base64data" type="application/pdf" width="100%" height="600px">
-                 <p>Unable to display PDF file. <a href="3f281f29132dddd14fded85bfc.pdf">Download</a> instead.</p>
-               </object>
-    
-              ];
-    }
-  else
-    {  
-    $html_file ||= "*** DONE ***"; # FIXME: must be more meaningful text :)
     $text .= "<div class=report-text>$html_file</div>";
     $reo->html_hold_set( 'for_printer' => $html_file );
     }
-=cut
+  
   $text .= "<p>";
-  $text .= de_html_alink_button( $reo, 'back', "&lArr; [~Continue]", "[~Return and continue on previous screen]" );
-  $text .= "<a class=button href='#' onclick='window.print(); return false;'><~Print this text></a>" if des_get_attr( $dodes, 'WEB', 'PRINT' ); # cc20261025-rm-href-js
+  $text .= de_html_alink_button( $reo, 'back', "&lArr; [~Continue]", "[~Return and continue on previous screen]", %$return_args ); # the record is written even if the DO failed, so the data is always returned
+  $text .= html_element( 'a', '[~Print this text]', class => 'button', href => '#', onclick => 'window.print(); return false;' ) if des_attr( $dodes, 'WEB', 'PRINT' );
   
   return $text;
 }

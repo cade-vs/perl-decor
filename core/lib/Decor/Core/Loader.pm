@@ -58,7 +58,7 @@ sub loader_dirs
 {
   my $kind = lc shift;
 
-  boom "invalid loader kind [$kind]" unless $kind =~ /^[a-z_0-9]+$/;
+  boom "invalid loader kind [$kind]" unless $kind =~ /^[a-z_0-9]+\z/;
 
   return $LOADER_CACHE{ 'DIRS' }{ $kind } if exists $LOADER_CACHE{ 'DIRS' }{ $kind };
 
@@ -85,7 +85,7 @@ sub loader_names
   my @names;
   push @names, glob_tree( "$_/*.def" ) for @{ loader_dirs( $kind ) };
 
-  s/^.*?\/([^\/]+)\.def$/$1/ for @names;
+  s/^.*?\/([^\/]+)\.def\z/$1/ for @names;
   # loader_files() looks for lower case file names only
   de_log( "error: definition file name [$_.def] is not lower case and cannot be loaded, skipped" ) for grep { $_ ne lc $_ } @names;
   @names = sort keys %{ { map { uc $_ => 1 } grep { $_ eq lc $_ and ! /^_+/ } @names } };
@@ -243,11 +243,11 @@ sub loader_parse_access_line
   my @debug_origin = exists $hr->{ '__DEBUG_ORIGIN' } ? @{ $hr->{ '__DEBUG_ORIGIN' } } : ();
 
   $line =~ s/^\s*//;
-  $line =~ s/\s*$//;
+  $line =~ s/\s*\z//;
 
   # TODO: FIXME: make RE simpler!
   boom "invalid access line [$line] expected [grant|deny <op> <op> <op> to <grp>; <grp> + <grp>; <grp> + !<grp>] at [@debug_origin]"
-        unless $line =~ /^\s*(GRANT|DENY)\s*((\+)?|\s)\s*([A-Z_0-9;,\s]+?)(\s+TO\s+([A-Z0-9!+;,\s]+))?\s*$/;
+        unless $line =~ /^\s*(GRANT|DENY)\s*((\+)?|\s)\s*([A-Z_0-9;,\s]+?)(\s+TO\s+([A-Z0-9!+;,\s]+))?\s*\z/;
 
   my $type_line   = $1;
   my $type_add    = $3;
@@ -268,7 +268,7 @@ sub loader_parse_access_line
   my @groups = split /\s*[;,]\s*/, $groups_line;
 
   # replace aliases in each group of a set ( GUEST+5 ), keep leading ! ( !GUEST )
-  $_ = join '+', map { /^(!?)(.*)$/; $1 . ( $GROUP_ALIASES{ $2 } || $2 ) } split /[+]/ for @groups;
+  $_ = join '+', map { /^(!?)(.*)\z/; $1 . ( $GROUP_ALIASES{ $2 } || $2 ) } split /[+]/ for @groups;
 
   my @valid_opers;
   for my $op ( @opers )
@@ -291,7 +291,7 @@ sub loader_parse_access_line
 
   for my $op ( @opers )
     {
-    if( @groups == 1 and $groups[ 0 ] =~ /^\d+$/ and $groups[ 0 ] > 0 )
+    if( @groups == 1 and $groups[ 0 ] =~ /^\d+\z/ and $groups[ 0 ] > 0 )
       {
       $access{ $op } = $groups[ 0 ];
       }

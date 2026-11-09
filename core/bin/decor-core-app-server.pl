@@ -85,36 +85,36 @@ our @args;
 while( @ARGV )
   {
   $_ = shift;
-  if( /^--+$/io )
+  if( /^--+\z/io )
     {
     push @args, @ARGV;
     last;
     }
-  if( /^-f$/ )
+  if( /^-f\z/ )
     {
     $opt_no_fork = 1;
     print "status: option: run in foreground (no fork) mode\n";
     next;
     }
-  if( /^-k$/ )
+  if( /^-k\z/ )
     {
     $opt_prefork = shift;
     print "status: option: run in prefork mode, spawning initial $opt_prefork processes\n";
     next;
     }
-  if( /^-x$/ )
+  if( /^-x\z/ )
     {
     $opt_maxfork = shift;
     print "status: option: max fork $opt_maxfork processes\n";
     next;
     }
-  if( /^-p(\d+)?$/ )
+  if( /^-p(\d+)?\z/ )
     {
     $opt_listen_port = $1 || shift;
     print "status: option: listening on port [$opt_listen_port]\n";
     next;
     }
-  if( /^-u$/ )
+  if( /^-u\z/ )
     {
     die "-e must be specified before -u!\n" unless $opt_preload;
     $server_module = shift;
@@ -123,7 +123,7 @@ while( @ARGV )
     print "status: option: using server module [$DEFAULT_SERVER_MODULE_PREFIX$server_module]\n";
     next;
     }
-  if( /^-r(r)?(c)?$/ )
+  if( /^-r(r)?(c)?\z/ )
     {
     # FIXME: cleanup logic
     $DE_LOG_TO_STDERR = 1;
@@ -132,19 +132,19 @@ while( @ARGV )
     print "status: option: forwarding logs to STDERR\n";
     next;
     }
-  if( /^-g$/ )
+  if( /^-g\z/ )
     {
     # FIXME: cleanup logic
     $DE_LOG_TO_FILES  = 2;
     next;
     }
-  if( /^-t$/ )
+  if( /^-t\z/ )
     {
     $opt_net_protocols = shift;
     print "status: option: allowed network protocols [$opt_net_protocols]\n";
     next;
     }
-  if( /^-sc$/ )
+  if( /^-sc\z/ )
     {
     die "error: SSL not available: $no_ssl" if $no_ssl;
     $opt_ssl{ 'SSL_cert_file' } = shift;
@@ -153,7 +153,7 @@ while( @ARGV )
     $opt_ssl{ 'SSL' } = 1;
     next;
     }
-  if( /^-sk$/ )
+  if( /^-sk\z/ )
     {
     die "error: SSL not available: $no_ssl" if $no_ssl;
     $opt_ssl{ 'SSL_key_file' } = shift;
@@ -162,7 +162,7 @@ while( @ARGV )
     $opt_ssl{ 'SSL' } = 1;
     next;
     }
-  if( /^-su$/ )
+  if( /^-su\z/ )
     {
     die "error: SSL not available: $no_ssl" if $no_ssl;
     $opt_ssl{ 'SSL_ca_file' } = shift;
@@ -172,39 +172,39 @@ while( @ARGV )
     $opt_ssl{ 'SSL' } = 1;
     next;
     }
-  if( /^-e$/ )
+  if( /^-e\z/ )
     {
     $opt_preload  = 1;
     $opt_app_name = lc shift @ARGV;
     print "status: option: preload application, will serve single app\n";
     next;
     }
-  if( /^-d$/ )
+  if( /^-d\z/ )
     {
     my $level = de_debug_inc();
     print "status: option: debug level raised, now is [$level] \n";
     next;
     }
-  if( /^-z$/ )
+  if( /^-z\z/ )
     {
     $opt_daemonize++;
     print "status: option: going daemon... :>\n";
     next;
     }
-  if( /^-stop$/ )
+  if( /^-stop\z/ )
     {
     $opt_stop++;
     print "status: option: server STOP is requested.\n";
     next;
     }
-  if( /^-restart$/ )
+  if( /^-restart\z/ )
     {
     $opt_stop++;
     $opt_restart++;
     print "status: option: server RESTART is requested.\n";
     next;
     }
-  if( /^(--?h(elp)?|help)$/io )
+  if( /^(--?h(elp)?|help)\z/io )
     {
     print $help_text;
     exit;
@@ -215,7 +215,7 @@ while( @ARGV )
 
 if( $opt_preload )
   {
-  if( $opt_app_name =~ /^[A-Z_0-9]+$/i )
+  if( $opt_app_name =~ /^[A-Z_0-9]+\z/i )
     {
     print "info: application name in use [$opt_app_name]\n";
     }

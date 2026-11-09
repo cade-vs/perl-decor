@@ -13,6 +13,8 @@ use strict;
 use Exception::Sink;
 use Data::Tools;
 use Web::Reactor::HTML::Utils;
+use Web::Reactor::HTML; # elements, attributes, escaping, no longer exported by HTML::Utils
+use Web::Reactor::HTML::More; # extended elements, hover and popup layers, no longer exported by HTML::Utils
 
 use Exporter;
 our @ISA    = qw( Exporter );
@@ -81,12 +83,12 @@ sub __value_image_fix
   if( $value =~ /[a-z_\-0-9]+\.svg#[a-z_\-0-9]+/ )
     {
     # external svg sprite pack
-    $value = "<svg class='$class'><use href='i/$value'></svg>";
+    $value = html_element( 'svg', html_element( 'use', '', href => "i/$value" ), class => $class );
     }
   else
     {  
     # regular img html image element
-    $value =~ s/([a-z_\-0-9]+\.(png|jpg|jpeg|gif|svg))/<img class='$class' src=i\/$1>/gio;
+    $value =~ s{([a-z_\-0-9]+\.(png|jpg|jpeg|gif|svg))}{html_element( 'img', undef, class => $class, src => "i/$1" )}gioe;
     }
   return $value;
 }
@@ -193,8 +195,7 @@ sub de_html_popup
     }
   else
     {
-    my $handle = html_popup_layer( $reo, VALUE => $popup, TYPE => 'CLICK', %$opt );
-    return "<div $handle>$value</div>";
+    return html_element( 'div', $value, html_popup_layer_attrs( $reo, VALUE => $popup, TYPE => 'CLICK', %$opt ) );
     }  
 }
 
@@ -212,8 +213,7 @@ sub de_html_popup_icon
     }
   else
     {
-    my $handle = html_popup_layer( $reo, VALUE => $popup, TYPE => 'CLICK', %$opt );
-    return "<img class='icon' src='i/$value' $handle>";
+    return html_element( 'img', undef, class => 'icon', src => "i/$value", html_popup_layer_attrs( $reo, VALUE => $popup, TYPE => 'CLICK', %$opt ) );
     }  
 }
 

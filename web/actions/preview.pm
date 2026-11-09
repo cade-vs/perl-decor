@@ -17,6 +17,7 @@ use Data::Tools 1.21;
 use Exception::Sink;
 
 use Web::Reactor::HTML::Utils;
+use Web::Reactor::HTML; # elements, attributes, escaping, no longer exported by HTML::Utils
 
 use Decor::Shared::Types;
 use Decor::Web::HTML::Utils;
@@ -48,8 +49,6 @@ sub main
   my @fields           = @{ $ps->{ 'FIELDS_WRITE_AR'  } };
   my $edit_mode_insert = $ps->{ 'EDIT_MODE_INSERT' };
   
-  my $edit_mode        = $edit_mode_insert ? 'INSERT' : 'UPDATE';
-
   #push @fields, @{ des_fields_list_by_oper( $tdes, 'READ', de_web_profile() ) };
   @fields = des_sort_fields_by_order( $tdes, list_uniq( @fields ) );
   
@@ -57,21 +56,17 @@ sub main
 
   return "<#access_denied>" unless @fields;
 
-  my $edit_mode_insert = $ps->{ 'EDIT_MODE_INSERT' };
-
   my $browser_window_title;
   if( $edit_mode_insert )
     {
-    $browser_window_title = qq(Preview data for the new record into "<b>$table_label</b>");
+    $browser_window_title = qq([~Preview data for the new record into] "<b>$table_label</b>"); # translated
     $reo->ps_path_add( 'insert', $browser_window_title );
     }
   else
     {
-    $browser_window_title = qq(Preview modified data from "<b>$table_label</b>");
+    $browser_window_title = qq([~Preview modified data from] "<b>$table_label</b>"); # translated
     $reo->ps_path_add( 'edit', $browser_window_title );
     }
-
-  my $text;
 
   $text .= "<p>";
   $text .= de_master_record_view( $reo );
@@ -94,6 +89,7 @@ sub main
   if( $calc_out )
     {
     $ps->{ 'ROW_DATA'      } = $calc_out;
+    $row_data                = $calc_out; # show the recalculated data, the same that will be committed
     }
   else
     {
@@ -106,7 +102,7 @@ sub main
     if( $calc_merrs->{ '*' } )
       {
       $text .= "<div class=error-text>";
-      $text .= "$_<br>\n" for @{ $calc_merrs->{ '*' } };
+      $text .= html_escape( $_ ) . "<br>\n" for @{ $calc_merrs->{ '*' } }; # method messages are text, not html
       $text .= "</div>";
       $text .= "<br>";
       }
@@ -114,22 +110,23 @@ sub main
 
   $text .= "<br>";
 
-  @fields = grep { /^_/ ? $reo->user_has_group( 1 ) ? 1 : 0 : 1 } @fields;
-
   my %advise = map { $_ => 1 } @{ des_fields_list_by_oper( $tdes, 'READ', de_web_profile() ) };
 
+  @fields = list_uniq( @fields, keys %advise );
+  @fields = grep { /^_/ ? $reo->user_has_group( 1 ) ? 1 : 0 : 1 } @fields; # after the readable fields are added, they had the underscore fields back
+
   my $record_first = 1;
-  for my $field ( des_sort_fields_by_order( $tdes, list_uniq( @fields, keys %advise ) ) )
+  for my $field ( des_sort_fields_by_order( $tdes, @fields ) )
     {
-    my $fdes      = $tdes->{ 'FIELD' }{ $field };
-    my $bfdes     = $fdes; # keep sync code with view/grid, bfdes is begin/origin-field
-    my $type_name = $fdes->{ 'TYPE'  }{ 'NAME' };
-    my $label     = des_get_attr( $fdes, qw( WEB PREVIEW LABEL ) );
+    my $fdes      = des_fld( $tdes, $field );
+    # no $bfdes, preview has no linked field paths, the begin/origin field is the field itself
+    my $type_name = des_type_name( $fdes );
+    my $label     = des_attr( $fdes, qw( WEB PREVIEW LABEL ) );
     
 
-    next if des_get_attr( $fdes, qw( WEB HIDDEN       ) );
-    next if des_get_attr( $fdes, qw( WEB PREVIEW HIDE ) );
-    next if des_get_attr( $fdes, qw( NO_PREVIEW ) );
+    next if des_attr( $fdes, qw( WEB HIDE         ) ); # HIDDEN is no description attribute, it was always undef
+    next if des_attr( $fdes, qw( WEB PREVIEW HIDE ) );
+    next if des_attr( $fdes, qw( NO_PREVIEW ) );
 
     #my $advise = $fdes->{ 'ADVISE' };
     #next unless $advise eq $edit_mode or $advise eq 'ALL';
@@ -137,79 +134,27 @@ sub main
     my $base_field = $field;
 
     my $data = $row_data->{ $field };
-    next if des_get_attr( $fdes, qw( WEB VIEW HIDE_IF_EMPTY ) ) and ( ( $type_name eq 'CHAR' and $data eq '' ) or ( $type_name ne 'CHAR' and $data == 0 ) ); # FIXME: move to func
+    next if des_attr( $fdes, qw( WEB VIEW HIDE_IF_EMPTY ) ) and type_is_empty( $type_name, $data );
 
     my $data_fmt = de_web_format_field( $data, $fdes, 'PREVIEW', { CORE => $core, NO_EDIT => 1, ID => $id } );
     my $field_error;
     
-    $field_error .= "$_<br>\n" for @{ $calc_merrs->{ $field } };
+    $field_error .= html_escape( $_ ) . "<br>\n" for @{ $calc_merrs->{ $field } }; # method messages are text, not html
 
-=pod
-    # FIXME: remove this and replace with plain de_web_format_field
-    if( des_is_linked( $bfdes ) or des_is_widelinked( $bfdes ) )
-      {
-      my ( $linked_table, $linked_id, $linked_field );
-      if( des_is_widelinked( $bfdes ) ) 
-        {
-        ( $linked_table, $linked_id, $linked_field ) = type_widelink_parse2( $data );
+    # the old linked/backlinked formatting (=pod block, already disabled) is removed, de_web_format_field() above does it
 
-        my $ltdes = $core->describe( $linked_table );
-        if( $ltdes )
-          {
-          my $linked_table_label = des_table_label( $ltdes );
-          if( $linked_field )
-            {
-            $data_fmt = $core->read_field( $linked_table, $linked_field, $linked_id );
-            my $lfdes = des_field_des( $ltdes, $linked_field );
-            $data_fmt  = de_web_format_field( $data_fmt, $lfdes, 'VIEW', { ID => $linked_id } );
-            }
-          else
-            {
-            $data_fmt = "[~Linked to a record from:] $linked_table_label";
-            }  
-          } # ltdes  
-        else
-          {
-          $data_fmt = "&empty; ( $linked_table | $linked_id | $linked_field ) $data";
-          }  
-        }
-      else
-        {
-        ( $linked_table, $linked_field ) = des_link_details( $bfdes );
-        my $ldes = $core->describe( $linked_table );
-        my ( $linked_field_x, $linked_field_x_des ) = des_field_des( $ldes, $linked_field )->expand_field_path();
-
-        my $linked_field_x_data = $core->read_field( $linked_table, $linked_field_x, $data );
-
-        $data_fmt = de_web_format_field( $linked_field_x_data, $linked_field_x_des, 'PREVIEW' );
-        }  
-      }
-    elsif( des_is_backlinked( $bfdes ) )
-      {
-      my ( $backlinked_table, $backlinked_field ) = des_backlink_details( $bfdes );
-      
-      my $bltdes = $core->describe( $backlinked_table );
-      my $linked_table_label = des_table_label( $bltdes );
-
-      my $count = $core->count( $backlinked_table, { FILTER => { $backlinked_field => $id } });
-      $count = 'Unknown' if $count eq '';
-
-      $data_fmt = qq( <b class=hi>$count</b> [~records from] <b class=hi>$linked_table_label</b> );
-      }
-=cut
-
-    my $divider = des_get_attr( $bfdes, 'WEB', 'DIVIDER' );
+    my $divider = des_attr( $fdes, 'WEB', 'DIVIDER' );
     if( $divider )
       {
       $text .= "<div class='$edit_mode_class_prefix-divider record-sep fmt-center'>$divider</div>";
       $record_first = 1;
       }
 
-    $field_error = "<div class=warning align=right>$field_error</div>" if $field_error;
+    $field_error = html_element( 'div', $field_error, class => 'warning', style => 'text-align: right;' ) if $field_error; # no obsolete align attribute
 
     my $base_field_class = lc "css_preview_class_$base_field";
 
-    my $record_first_class = 'record-first' if $record_first;
+    my $record_first_class = $record_first ? 'record-first' : ''; # no "my ... if", it may keep the value from the previous loop pass
     $record_first = 0;
     $text .= "<div class='record-field-value'>
                 <div class='$edit_mode_class_prefix-field record-field $record_first_class $base_field_class' >$label$field_error</div>

@@ -148,7 +148,7 @@ sub select
     {
     for( split /[\s,]+/, $fields )
       {
-      if( /^\*$/ )
+      if( /^\*\z/ )
         {
         my @fglob = @{ des_fields_list( $table_des ) };
         if( $profile and $self->taint_mode_get( 'FIELDS' ) and ! $profile->check_access( 966 ) )
@@ -203,7 +203,7 @@ sub select
       push @select_fields, $field;
       next;
       }
-    elsif( $field =~ /^(COUNT|SUM|MIN|MAX|AVG)\(([A-Z_0-9]+)\)$/ )
+    elsif( $field =~ /^(COUNT|SUM|MIN|MAX|AVG)\(([A-Z_0-9]+)\)\z/ )
       {
       # special case AF(FIELD)
       $af = $1;
@@ -352,7 +352,7 @@ sub __select_resolve_field
       return ( $alias_now, $table_now, $field_now );
       } 
 
-    my $fld_des = des_field_des( $table_now, $field_now );
+    my $fld_des = des_fld( $table_now, $field_now );
     boom "cannot resolve field, current position is NOT A LINK [$table_now:$field_now] in field path [$field]" unless des_is_linked( $fld_des );
 
     my $table_next = $fld_des->{ 'LINKED_TABLE' };
@@ -459,8 +459,8 @@ sub __resolve_fields_list
    for( @fields )
      {
      s/^\s+//;
-     s/\s+$//;
-     boom "invalid field list item [$_] in [$fields]" unless /^(?:(COUNT|SUM|MIN|MAX|AVG)\(\s*([A-Z_0-9\.]+)\s*\)|([A-Z_0-9\.]+))(\s+(?:ASC|DESC))?$/i;
+     s/\s+\z//;
+     boom "invalid field list item [$_] in [$fields]" unless /^(?:(COUNT|SUM|MIN|MAX|AVG)\(\s*([A-Z_0-9\.]+)\s*\)|([A-Z_0-9\.]+))(\s+(?:ASC|DESC))?\z/i;
      my ( $af, $field, $dir ) = ( $1, ( $2 || $3 ), uc $4 );
      $_ = $self->__resolve_single_field( $table, $af, $field, $opt ) . $dir;
      }
@@ -482,7 +482,7 @@ sub __resolve_found_fields
    #$str =~ s/((?<![A-Z_0-9])|^)((\.[A-Z_0-9]+)+)/$self->__resolve_single_field( $table, $2, $opt )/gie;
    $ld = $ld ? "" : "?";
    $str =~ s/
-              (((?<![A-Z_0-9])|^)\.$ld([A-Z_0-9\.]+)((?![(A-Z_0-9\.])|$))
+              (((?<![A-Z_0-9])|^)\.$ld([A-Z_0-9\.]+)((?![(A-Z_0-9\.])|\z))
               |
               ((COUNT|SUM|MIN|MAX|AVG)\(\s*\.?([A-Z_0-9\.]+)\s*\))
            /$self->__resolve_single_field( $table, $6, ( $3 | $7 ), $opt )/giex;
@@ -518,14 +518,14 @@ sub __get_row_access_where_list
   my @where;
   for my $oper ( @_ )
     {
-    boom "invalid row access operator [$oper]" unless $oper =~ /^(OWNER|READ|UPDATE|DELETE|LINK)$/;
+    boom "invalid row access operator [$oper]" unless $oper =~ /^(OWNER|READ|UPDATE|DELETE|LINK)\z/;
     next if $oper eq 'READ' and $profile->check_access( 966 ); # 966 reads all rows, same as Decor::Core::Profile::check_access_row( 'READ' )
     my $sccnt = 0; # security checks count
     my @oper_where;
     for my $field ( @$fields )
       {
 #print STDERR "+++++++++++++++++++++++++++ [$oper][$field]\n";
-      next unless $field =~ /^_${oper}([_0-9][A-Z_0-9]*)?$/; # _OWNER, _OWNER2, _OWNER_X but not _OWNERSHIP, same as in Describe.pm
+      next unless $field =~ /^_${oper}([_0-9][A-Z_0-9]*)?\z/; # _OWNER, _OWNER2, _OWNER_X but not _OWNERSHIP, same as in Describe.pm
 
       push @oper_where, "( $db_table.$field IN ( $groups_string ) )";
 #print STDERR "+++++++++++++++++++++++++++ ( $db_table.$field IN ( $groups_string ) )\n";
@@ -672,7 +672,7 @@ sub insert
       $profile->check_access_table_field_boom( 'INSERT', $table, $field );
       }
 
-    my $fld_des = des_field_des( $table_des, $field );
+    my $fld_des = des_fld( $table_des, $field );
     my $field_type_name = $fld_des->{ 'TYPE' }{ 'NAME' };
     
     $value = 0 if $field_type_name ne 'CHAR' and $value == 0;
@@ -765,7 +765,7 @@ sub update
       $profile->check_access_table_field_boom( 'INSERT', $table, $field );
       }
 
-    my $fld_des = des_field_des( $table_des, $field );
+    my $fld_des = des_fld( $table_des, $field );
     my $field_type_name = $fld_des->{ 'TYPE' }{ 'NAME' };
     
     # TODO: FIXME: stupid :)

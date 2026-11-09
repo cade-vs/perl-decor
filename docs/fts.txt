@@ -6,7 +6,7 @@
 
   FULL TEXT SEARCHING
   
-  FTS allows interfaces (including WEB) to to find records matching set of
+  FTS allows interfaces (including WEB) to find records matching set of
   words, found inside multiple fields in a record.
   
   All fields, which should be included in FTS on this table must be marked
@@ -14,6 +14,8 @@
   
   
       # table is named PERSONS (persons.def file)
+      
+      web.fts
       
       =NAME
           type CHAR   64
@@ -25,21 +27,72 @@
           label Personal address
           fts
           
+  The field 'FTS' attribute only marks the field for indexing. The table
+  attribute 'WEB.FTS' (in the table self section, before the first field)
+  enables the "Find records containing" input in the WEB grid filter screen.
+  Without it the index is built but the WEB interface does not offer FTS.
+
   After marking required fields with 'FTS', supporting tables and the actual
   FTS index must be rebuilt:
   
+  export DECOR_CORE_ROOT=/usr/local/decor   # this is the default
   cd decor/core/bin
   ./decor-update-fts.pl  app1  persons
   
+  Without table names all application tables with FTS fields are handled
+  (DE_* system tables and the *_FTW/*_FTM tables themselves are skipped).
+
+  Options:
+
+      -f        -- ask for confirmation (data is always flushed, see below)
+      -o        -- ask for confirmation before executing tasks
+      -d        -- debug mode, can be used multiple times
+      -r        -- log to STDERR
+      -rr       -- log to both files and STDERR
+
   This will write required support tables:
   
-  decor/apps/app1/tables/__auto__/fts/persons_ftw.def
-  decor/apps/app1/tables/__auto__/fts/persons_ftm.def
+  <app dir>/tables/__auto__/fts/persons_ftw.def
+  <app dir>/tables/__auto__/fts/persons_ftm.def
   
-  There are the word index and map index.
-  Then decor-update-fts.pl will rebuild database for these two tables and
-  start rebuilding FTS index by reading all records' NAME and ADDR fields
-  (those marked with FTS).
-  
-  NOTE: currently all FTS marked fields will be considered FTS grid filters
-        and used as such. this will be changed with an option.
+  These are the word index and map index:
+
+      PERSONS_FTW  -- W  (char 92, indexed) the word,
+                      L  (int) the word length
+      PERSONS_FTM  -- WL (link to PERSONS_FTW, indexed) the word,
+                      RL (link to PERSONS, indexed) the record
+
+  Then decor-update-fts.pl will rebuild database for these two tables (by
+  running decor-rebuild-db.pl) and start rebuilding FTS index by reading all
+  records' NAME and ADDR fields (those marked with FTS). Existing index data
+  is always deleted and fully rebuilt.
+
+  Words are lower case sequences of at least 2 word characters (letters,
+  digits, underscore). Words longer than 92 characters cannot be stored.
+
+  SEARCHING
+
+  The search text is split into words the same way. A record matches only
+  if it contains ALL words, each as a whole word (no prefix or partial
+  match). Shorter than 2 characters words are ignored.
+
+  Clients pass the search text as the special '__FTS__' filter key:
+
+      $core->select( 'PERSONS', '*', { FILTER => { __FTS__ => 'james max' } } );
+
+  which the core turns into one pair of joins on PERSONS_FTM/PERSONS_FTW per
+  word:
+
+      SELECT P.* FROM PERSONS P
+          INNER JOIN PERSONS_FTM M1 ON P._ID = M1.RL
+          INNER JOIN PERSONS_FTW W1 ON W1._ID = M1.WL
+          INNER JOIN PERSONS_FTM M2 ON P._ID = M2.RL
+          INNER JOIN PERSONS_FTW W2 ON W2._ID = M2.WL
+      WHERE W1.W = 'james' AND W2.W = 'max'
+
+  NOTE: the FTS index is NOT updated on record insert, update or delete.
+        decor-update-fts.pl must be run again (e.g. periodically) to make
+        new or changed data searchable.
+
+  NOTE: decor-update-fts.pl currently supports only PostgreSQL (it uses
+        "ALTER TABLE ... SET UNLOGGED" on the index tables).

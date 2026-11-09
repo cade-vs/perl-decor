@@ -44,19 +44,19 @@ sub new
   $class = ref( $class ) || $class;
 
   my $ROOT     = $cfg->{ 'DECOR_CORE_ROOT' } || '/usr/local/decor';
-  $ROOT =~ s/\/+$//;
+  $ROOT =~ s/\/+\z//;
 
   boom "ROOT path does not exist [$ROOT]" unless -d $ROOT;
 
   my $APP_NAME = lc $cfg->{ 'APP_NAME' };
 
-  boom "missing APP_NAME" unless $APP_NAME =~ /^[a-z_0-9]+$/;
+  boom "missing APP_NAME" unless $APP_NAME =~ /^[a-z_0-9]+\z/;
 
   my $APP_ROOT  = $cfg->{ 'APP_ROOT' } || de_reo_app_dir( $ROOT, $APP_NAME ) or boom "APP_ROOT path does not exist [$ROOT] app name [$APP_NAME]";
 
   my $lang = lc $cfg->{ 'LANG' } || 'en';
 
-  boom "invalid LANG specified, got [$lang]" unless $lang =~ /^[a-z][a-z]$/;
+  boom "invalid LANG specified, got [$lang]" unless $lang =~ /^[a-z][a-z]\z/;
 
   my %cfg = (
             'DEBUG'          => 0,
@@ -144,8 +144,8 @@ sub __de_connect
   my $de_core_host    = $cfg->{ 'DECOR_CORE_HOST'      };
   my $de_core_timeout = $cfg->{ 'DECOR_CORE_TIMEOUT'   } || 64;
 
-  $de_core_host  = 'localhost' . $de_core_host unless $de_core_host =~ /^[^:]+(:|\s*$)/; # adds host if not specified
-  $de_core_host .= ':42000' unless $de_core_host =~ /:\d+$/; # adds port if not specified
+  $de_core_host  = 'localhost' . $de_core_host unless $de_core_host =~ /^[^:]+(:|\s*\z)/; # adds host if not specified
+  $de_core_host .= ':42000' unless $de_core_host =~ /:\d+\z/; # adds port if not specified
 
   my $user_shr = $self->get_user_session();
   my $remote   = $self->get_client_ip();
@@ -154,11 +154,11 @@ sub __de_connect
 
   my $client = Decor::Shared::Net::Client->new( TIMEOUT => $de_core_timeout );
 
-  $self->log_debug( "debug: {$client} about to connect to [$de_core_host] app [$de_core_app]" ); # cc20261008
+  $self->log_debug( "debug: {$client} about to connect to [$de_core_host] app [$de_core_app]" );
 
   if( ! $client->connect( $de_core_host, $de_core_app ) )
     {
-    $self->log( "error: connect FAILED to host [$de_core_host] application [$de_core_app]" ); # cc20261008
+    $self->log( "error: connect FAILED to host [$de_core_host] application [$de_core_app]" );
     return ( undef, 'e_connect', 0 );
     }
 
@@ -245,7 +245,7 @@ sub de_load_cfg
   my $self = shift;
 
   my $fn = shift;
-  boom "invalid config file name" unless $fn =~ /^[a-zA-Z0-9_]+$/;
+  boom "invalid config file name" unless $fn =~ /^[a-zA-Z0-9_]+\z/;
 
   my $app_root = $self->get_app_root();
 
@@ -275,7 +275,7 @@ sub ps_path_add
   my @ps_path = @{ $rs->{ 'PS_PATH' } || [] };
   $ps->{ 'PS_PATH' } = \@ps_path;
 
-  $icon .= '.svg' unless $icon =~ /\.(svg|png|gif|jpg|jpeg)$/i;
+  $icon .= '.svg' unless $icon =~ /\.(svg|png|gif|jpg|jpeg)\z/i;
 
   push @ps_path, { PS_ID => $ps_id, ICON => $icon, TITLE => $title };
 
@@ -291,7 +291,7 @@ sub ps_path_add_by_cue
   my $action = uc shift; # also icon
   my $data   =    shift;
 
-  my ( $title, $hint ) = de_web_get_cue( $des, 'WEB', $action, "${action}_CUE" );
+  my ( $title, $hint ) = des_cue( $des, 'WEB', $action, "${action}_CUE" );
   $title =~ s|\$(\w+)|$data->{uc $1}|gie;
   $hint  =~ s|\$(\w+)|$data->{uc $1}|gie;
   $title = str_html_escape( $title );

@@ -341,7 +341,7 @@ sub __create_empty_data
   my $tdes = des_describe( $table );
   for my $field ( @{ des_fields_list( $tdes ) } )
     {
-    my $fdes = des_field_des( $tdes, $field );
+    my $fdes = des_fld( $tdes, $field );
     $data{ $field } = type_default( $fdes->{ 'TYPE' }{ 'NAME' } );
     }
 
@@ -352,7 +352,7 @@ sub __create_empty_data
     my $active_group = $profile->get_primary_group();
     for my $field ( @{ des_fields_list( $tdes ) } )
       {
-      next unless $field =~ /^_(OWNER|READ|UPDATE|DELETE|LINK)(_|$)/;
+      next unless $field =~ /^_(OWNER|READ|UPDATE|DELETE|LINK)(_|\z)/;
       $data{ $field } = $active_group;
       }
     }
@@ -547,7 +547,7 @@ sub write
 #print Dumper( '--------oper: ', $oper, $dst_table, $dst_field );
       $profile->check_access_table_field_boom( $oper, $dst_table, $dst_field );
 
-      my $dst_fdes = des_field_des( $dst_table, $dst_field );
+      my $dst_fdes = des_fld( $dst_table, $dst_field );
     
       LINKCHECK: while( des_is_linked( $dst_fdes ) or des_is_widelinked( $dst_fdes ) )
         {
@@ -651,7 +651,7 @@ sub __resolve_field
       boom "cannot resolve table/field [$current_table/$current_field]" unless des_exists( $current_table, $current_field );
       return ( $current_table, $current_field, $current_id );
       }
-    my $field_des = des_field_des( $current_table, $current_field );
+    my $field_des = des_fld( $current_table, $current_field );
     my $field_type_name = $field_des->{ 'TYPE' }{ 'NAME' };
 
     boom "cannot resolve table/field [$current_table/$current_field] it is not a link field" unless des_is_linked( $field_des );
@@ -1027,7 +1027,7 @@ sub select_backlinked_records
 
   my ( $dst_table, $dst_field, $dst_id ) = $self->__resolve_field( $field );
   
-  my $fdes = des_field_des( $dst_table, $dst_field );
+  my $fdes = des_fld( $dst_table, $dst_field );
   my $ftype_name = $fdes->{ 'TYPE' }{ 'NAME' };
   
   boom "cannot select backlinked records of [$field] it is not a BACKLINK field" unless $ftype_name eq 'BACKLINK';
@@ -1049,7 +1049,7 @@ sub get_linked_record
 
   my ( $dst_table, $dst_field, $dst_id ) = $self->__resolve_field( $field );
 
-  my $fdes = des_field_des( $dst_table, $dst_field );
+  my $fdes = des_fld( $dst_table, $dst_field );
   my $ftype_name = $fdes->{ 'TYPE' }{ 'NAME' };
   
   # TODO: support for WIDELINKs
@@ -1085,7 +1085,7 @@ sub count_backlinked_records
 
   my ( $dst_table, $dst_field, $dst_id ) = $self->__resolve_field( $field );
   
-  my $fdes = des_field_des( $dst_table, $dst_field );
+  my $fdes = des_fld( $dst_table, $dst_field );
   my $ftype_name = $fdes->{ 'TYPE' }{ 'NAME' };
   
   boom "cannot select backlinked records of [$field] it is not a BACKLINK field" unless $ftype_name eq 'BACKLINK';
@@ -1104,7 +1104,7 @@ sub select_map_far_records
 
   my ( $dst_table, $dst_field, $dst_id ) = $self->__resolve_field( $field );
   
-  my $fdes = des_field_des( $dst_table, $dst_field );
+  my $fdes = des_fld( $dst_table, $dst_field );
   my $ftype_name = $fdes->{ 'TYPE' }{ 'NAME' };
   
   boom "cannot select map records of [$field] it is not a MAP field" unless $ftype_name eq 'MAP';

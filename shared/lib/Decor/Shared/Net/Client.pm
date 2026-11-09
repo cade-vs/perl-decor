@@ -174,6 +174,9 @@ sub tx_msg
   $self->{ 'STATUS'      } = 'E_MSG';
   $self->{ 'STATUS_MSG'  } = 'Communication error';
   $self->{ 'STATUS_REF'  } = undef;
+  # each reply has its own return file, or none, never the previous one
+  $self->{ 'RETURN_FILE_BODY' } = undef;
+  $self->{ 'RETURN_FILE_MIME' } = undef;
 
   my $send_file_hand = $mi->{ '___SEND_FILE_HAND' };
   my $send_file_size = $mi->{ '___SEND_FILE_SIZE' };
@@ -950,7 +953,7 @@ sub select_backlinked_records
   my $id    = shift;
   my $opt    = shift;
   
-  my ( $backlink_table, $backlink_field ) = des_backlink_details( des_field_des( $self->describe( $table ), $field ) );
+  my ( $backlink_table, $backlink_field ) = des_backlink_details( des_fld( $self->describe( $table ), $field ) );
   
   return $self->select( $backlink_table, '*', { FILTER => { $backlink_field => $id }, %$opt } );
 }

@@ -11,6 +11,7 @@ package decor::actions::menu;
 use strict;
 use Data::Dumper;
 use Web::Reactor::HTML::Utils;
+use Web::Reactor::HTML; # elements, attributes, escaping, no longer exported by HTML::Utils
 
 sub main
 {
@@ -75,7 +76,7 @@ sub sub_menu
                                   FILTER_METHOD => $filter_method,
                                   ORDER_BY      => $order_by,
                                 );
-      push @res, "<a class=menu href=?_=$href $menu_args><img src=i/menu-item-grid.svg class=icon> $label</a>";
+      push @res, html_element( 'a', "<img src=i/menu-item-grid.svg class=icon> $label", class => 'menu', href => "?_=$href", html_confirm_attrs( $item->{ 'CONFIRM' } ) );
       }
     elsif( $type eq 'INSERT' )
       {
@@ -91,7 +92,7 @@ sub sub_menu
     elsif( $type eq 'URL' )
       {
       my $url  = $item->{ 'URL'  };
-      push @res, "<a class=menu target=_blank href=$url $menu_args><img src=i/menu-item-url.svg class=icon> $label</a>";
+      push @res, html_element( 'a', "<img src=i/menu-item-url.svg class=icon> $label", class => 'menu', target => '_blank', href => $url, html_confirm_attrs( $item->{ 'CONFIRM' } ) ); # url is escaped, a bad scheme is blanked
       }
     else
       {

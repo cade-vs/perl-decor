@@ -38,7 +38,7 @@ sub main
 
   my $data = $core->read_field( $table, $fname, $id );
 
-  my $fdes = des_field_des( $tdes, $fname );
+  my $fdes = des_fld( $tdes, $fname );
   my $fname_ex = des_field_expand_path( $fdes );
 
   my %bfdes; # base/begin/origin field descriptions, indexed by field path

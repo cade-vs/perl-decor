@@ -12,6 +12,7 @@ use strict;
 use Data::Dumper;
 
 use Decor::Web::HTML::Utils;
+use Web::Reactor::HTML;
 
 use Exporter;
 our @ISA    = qw( Exporter );
@@ -103,7 +104,7 @@ sub map_tomtom
 
 END_OF_HTML
 
-my $text_zoom_ctrl .= <<END_OF_HTML; # cc20261025-rm-href-js
+my $text_zoom_ctrl .= <<END_OF_HTML;
       zoom to 
       <a href='#' onclick='zoom_to_country_level(); return false;'>country</a>
       |
@@ -118,7 +119,7 @@ END_OF_HTML
 if( $allow_nav )
 {
 
-my $text_select_button = $allow_map_select ? "<button form=$location_form_id name=BUTTON:SELECT class='button act-button'><img src=i/map_location.svg> Select location</button>" : "&nbsp;";
+my $text_select_button = $allow_map_select ? html_element( 'button', "<img src=i/map_location.svg> Select location", form => $location_form_id, name => 'BUTTON:SELECT', class => 'button act-button' ) : "&nbsp;";
 
 $text .= <<END_OF_HTML;
 <tr>

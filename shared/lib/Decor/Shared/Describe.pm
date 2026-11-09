@@ -34,6 +34,8 @@ use Data::Tools;
 
 use Exporter;
 our @ISA    = qw( Exporter );
+# des_get_attr and des_get_cue exports renamed to des_attr and des_cue
+# des_field_des and des_index_des exports renamed to des_fld and des_idx
 our @EXPORT = qw(
 
                 des_set_source
@@ -56,9 +58,9 @@ our @EXPORT = qw(
                 des_dsn_name
 
                 des_table_des
-                des_field_des
+                des_fld
                 des_category_des
-                des_index_des
+                des_idx
 
                 des_fields_list
                 des_dos_list
@@ -76,8 +78,8 @@ our @EXPORT = qw(
                 des_is_self_category
                 des_self_des
                 des_top_des
-                des_get_attr
-                des_get_cue
+                des_attr
+                des_cue
 
                 des_type_name
                 des_is_linked
@@ -131,7 +133,7 @@ sub des_describe
   boom "description source is not set, use des_set_source() first" unless $DES_SOURCE;
 
   my $table = uc $t;
-  boom "invalid table name [$t]" unless $table =~ /^[A-Z_0-9]+$/;
+  boom "invalid table name [$t]" unless $table =~ /^[A-Z_0-9]+\z/;
 
   my $tdes = $DES_SOURCE->( $table ) or boom "unknown table [$table]";
 
@@ -144,7 +146,7 @@ sub __des_describe_soft
   my $t = shift;
 
   return $t if ref( $t ) and reftype( $t ) eq 'HASH'; # plain or (still) blessed description
-  return undef unless uc( $t ) =~ /^[A-Z_0-9]+$/;
+  return undef unless uc( $t ) =~ /^[A-Z_0-9]+\z/;
 
   my $tdes = eval { des_describe( $t ) };
   die $@ if ! $tdes and $@ !~ /unknown table/; # real error (load error in a .def, source not set), must not look like unknown table
@@ -279,7 +281,8 @@ sub des_table_des
   return des_describe( shift )->{ '@' };
 }
 
-sub des_field_des
+# field description of table $t, booms for an unknown field (was des_field_des())
+sub des_fld
 {
   my $t     = shift;
   my $field = shift;
@@ -305,7 +308,8 @@ sub des_category_des
   return $tdes->{ $cat }{ $item };
 }
 
-sub des_index_des
+# index description of table $t, booms for an unknown index (was des_index_des())
+sub des_idx
 {
   my $t     = shift;
   my $index = shift;
@@ -430,9 +434,10 @@ sub des_top_des
   return des_describe( des_item_table( shift ) );
 }
 
-# des_get_attr( $des, 'WEB', 'GRID', 'LABEL' )
+# des_attr( $des, 'WEB', 'GRID', 'LABEL' )
+# item attribute by path (was des_get_attr())
 # looks for WEB.GRID.LABEL, then WEB.LABEL, then LABEL
-sub des_get_attr
+sub des_attr
 {
   my $des  = shift;
   my @path = @_;
@@ -453,15 +458,15 @@ sub des_get_attr
 
 # cue (label; hint) from item attribute, falls back to table self '@' item,
 # %t is replaced with item label, returns ( label, hint ) or label
-# (was de_web_get_cue() in web/lib/Decor/Web/Utils.pm)
-sub des_get_cue
+# (was de_web_get_cue() in web/lib/Decor/Web/Utils.pm, then des_get_cue())
+sub des_cue
 {
   my $des = shift;
 
-  my $cue = des_get_attr( $des, @_ );
+  my $cue = des_attr( $des, @_ );
   if( ! $cue and ! des_is_self_category( $des ) )
     {
-    $cue = des_get_attr( des_self_des( $des ), @_ );
+    $cue = des_attr( des_self_des( $des ), @_ );
     }
 
   my @cue = split /\s*;\s*/, $cue;
@@ -555,7 +560,7 @@ sub des_map_details
     boom "map details requested for table [$fdes->{ 'TABLE' }] field [$fdes->{ 'NAME' }] but this is not a MAP field";
     }
 
-  my $mffdes = des_field_des( $fdes->{ 'MAP_TABLE' }, $fdes->{ 'MAP_FAR_FIELD' } );
+  my $mffdes = des_fld( $fdes->{ 'MAP_TABLE' }, $fdes->{ 'MAP_FAR_FIELD' } );
   my ( $far_table, $far_field ) = des_link_details( $mffdes );
   # TODO: FIXME: move to table description loading postprocessing!
 
@@ -590,7 +595,7 @@ sub des_resolve
   my @path = split /\./, $path;
 
   my $f     = shift @path;
-  my $bfdes = des_field_des( $tdes, $f );
+  my $bfdes = des_fld( $tdes, $f );
   my $cfdes = $bfdes;
 
   while( @path )
@@ -600,7 +605,7 @@ sub des_resolve
 
     my ( $table ) = des_link_details( $cfdes );
     $f     = shift @path;
-    $cfdes = des_field_des( $table, $f );
+    $cfdes = des_fld( $table, $f );
     }
 
   return wantarray ? ( $bfdes, $cfdes ) : $cfdes;

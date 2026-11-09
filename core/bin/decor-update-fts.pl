@@ -60,38 +60,38 @@ our @args;
 while( @ARGV )
   {
   $_ = shift;
-  if( /^--+$/io )
+  if( /^--+\z/io )
     {
     push @args, @ARGV;
     last;
     }
-  if( /^-f$/ )
+  if( /^-f\z/ )
     {
     $opt_recreate = 1;
     $opt_confirm_first = 1;
     print "option: recreate FTS data\n";
     next;
     }
-  if( /^-o$/ )
+  if( /^-o\z/ )
     {
     $opt_confirm_first = 1;
     print "option: ask confirmation before executing tasks\n";
     next;
     }
-  if( /^-d$/ )
+  if( /^-d\z/ )
     {
     my $level = de_debug_inc();
     print "option: debug level raised, now is [$level] \n";
     next;
     }
-  if( /^-r(r)?$/ )
+  if( /^-r(r)?\z/ )
     {
     $DE_LOG_TO_STDERR = 1;
     $DE_LOG_TO_FILES  = $1 ? 1 : 0;
     print "option: forwarding logs to STDERR\n";
     next;
     }
-  if( /^(--?h(elp)?|help)$/io )
+  if( /^(--?h(elp)?|help)\z/io )
     {
     print $help_text;
     exit;
@@ -117,7 +117,7 @@ my @tables = @args;
 @tables = @{ load_tables_list() } unless @tables > 0;
 
 @tables = grep { ! /^DE_/i } @tables;
-@tables = grep { ! /_FT(W|M)$/i } @tables;
+@tables = grep { ! /_FT(W|M)\z/i } @tables;
 
 $_ = uc $_ for @tables;
 
@@ -161,7 +161,8 @@ sub update_fts_data
   my $fields = des_fields_list( $des );
   for my $f ( @$fields )
     {
-    my $fld_des = des_field_des( $des, $f );
+#-    my $fld_des = des_field_des( $des, $f ); # cc20261029-4
+    my $fld_des = des_fld( $des, $f ); # cc20261029-4
     next unless $fld_des->{ 'FTS' };
     push @fields, $f;
     }

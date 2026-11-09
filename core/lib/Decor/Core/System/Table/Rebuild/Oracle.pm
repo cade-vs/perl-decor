@@ -239,8 +239,8 @@ sub sequence_drop
   my $start  = shift || 1;
 
   my $db_seq = des_db_sequence_name( $des );
-  my $sql_stmt = "DROP SEQUENCE $db_seq"; # cc declared before use
-  de_log_debug( "debug: sequence_drop: sql: [$sql_stmt]" ); # cc
+  my $sql_stmt = "DROP SEQUENCE $db_seq"; # declared before use
+  de_log_debug( "debug: sequence_drop: sql: [$sql_stmt]" );
 
   my $dbh = $self->get_dbh();
   my $res = $dbh->do( $sql_stmt );

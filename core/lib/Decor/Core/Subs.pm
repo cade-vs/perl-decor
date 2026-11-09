@@ -975,7 +975,7 @@ sub __filter_to_where
   while( my ( $f, $v ) = each %$filter )
     {
     $f = uc $f;
-    boom "invalid FILTER FIELD [$f]"  unless $f =~ /^[A-Z_0-9\.]+$/o;
+    boom "invalid FILTER FIELD [$f]"  unless $f =~ /^[A-Z_0-9\.]+\z/o;
     next if $f eq '__FTS__';
 
     my $vref = ref( $v );
@@ -1065,11 +1065,11 @@ sub sub_select
   # FIXME: TODO: Subs/MessageCheck TABLE ID FIELDS LIMIT OFFSET FILTER validate_hash()
   boom "invalid TABLE name [$table]"    unless de_check_name( $table );
   boom "unknown TABLE [$table]"         unless des_exists( $table );
-  boom "invalid FIELDS list [$fields]"  unless $fields   =~ /^([A-Z_0-9\.\,\*()]+|COUNT|\(\*\)|\*)$/o; # FIXME: more aggregate funcs
-  boom "invalid ORDER BY [$order_by]"   unless $order_by =~ /^([A-Z_0-9\.\, ()]*)$/o;
-  boom "invalid GROUP BY [$group_by]"   unless $group_by =~ /^([A-Z_0-9\.\, ]*)$/o;
-  boom "invalid LIMIT [$limit]"         unless $limit    =~ /^[0-9]*$/o;
-  boom "invalid OFFSET [$offset]"       unless $offset   =~ /^[0-9]*$/o;
+  boom "invalid FIELDS list [$fields]"  unless $fields   =~ /^([A-Z_0-9\.\,\*()]+|COUNT|\(\*\)|\*)\z/o; # FIXME: more aggregate funcs
+  boom "invalid ORDER BY [$order_by]"   unless $order_by =~ /^([A-Z_0-9\.\, ()]*)\z/o;
+  boom "invalid GROUP BY [$group_by]"   unless $group_by =~ /^([A-Z_0-9\.\, ]*)\z/o;
+  boom "invalid LIMIT [$limit]"         unless $limit    =~ /^[0-9]*\z/o;
+  boom "invalid OFFSET [$offset]"       unless $offset   =~ /^[0-9]*\z/o;
   boom "invalid FILTER [$filter]"       unless ref( $filter ) eq 'HASH';
   boom "invalid FILTER_NAME name [$filter_name]"  unless $filter_name eq '' or de_check_name( $filter_name );
   boom "invalid FILTER_METHOD name [$filter_method]"  unless $filter_method eq '' or de_check_name( $filter_method );
@@ -1241,7 +1241,7 @@ sub __exec_inline_method
 
   for my $field ( @$fields )
     {
-    my $fdes  = des_field_des( $table, $field );
+    my $fdes  = des_fld( $table, $field );
     my $ftype = $fdes->{ 'TYPE' }{ 'NAME' };
     my $value = __inline_method_value( $ftype, $fdes->{ "ON_$method" }, $rec );
 

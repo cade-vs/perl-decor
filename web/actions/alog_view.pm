@@ -60,14 +60,14 @@ sub main
       my $fr = $last_data->{ $f };
       my $to =      $data->{ $f };
 
-      my $fdes = des_field_des( $tdes, $f );
+      my $fdes = des_fld( $tdes, $f );
       
       $fr = de_web_format_field( $fr, $fdes, 'VIEW', { ID => $oid, CORE => $core } );
       $to = de_web_format_field( $to, $fdes, 'VIEW', { ID => $oid, CORE => $core } );
 
       next if $fr eq $to;
 
-      my $label = des_get_attr( $fdes, qw( WEB VIEW LABEL ) );
+      my $label = des_attr( $fdes, qw( WEB VIEW LABEL ) );
       
       $text .= "<div class='record-field-value'>
                   <div class='view-field record-field' >$label</div>

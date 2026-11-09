@@ -74,7 +74,7 @@ sub set_env
   my $name  = uc shift;
   my $value = shift;
 
-  boom "invalid environment setting name [$name]" unless $name =~ /^[A-Z_0-9]+$/;
+  boom "invalid environment setting name [$name]" unless $name =~ /^[A-Z_0-9]+\z/;
   boom "environment is locked, cannot set [$name]" if $ENV_LOCKED;
   boom "environment setting [$name] is already set" if exists $ENV_SETTINGS{ $name };
 
