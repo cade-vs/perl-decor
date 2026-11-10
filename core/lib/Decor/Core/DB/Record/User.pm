@@ -15,6 +15,7 @@ use Crypt::Argon2 qw( argon2id_pass argon2_verify );
 use Decor::Core::DB::Record;
 use Exception::Sink;
 use Data::Tools;
+use Decor::Shared::Utils; # de_create_random_id() # cc20261110-1
 
 use parent 'Decor::Core::DB::Record';
 
@@ -70,7 +71,8 @@ sub set_password
   my $pass   = shift;
 
   # Hash a password
-  my $salt    = create_random_id( 16 );
+#-  my $salt    = create_random_id( 16 ); # cc20261110-1
+  my $salt    = de_create_random_id( 16 ); # cc20261110-1
   my $encoded = argon2id_pass( $pass, $salt,  32, '32M', 1, 32 );
   # TODO: a tool to calibrate parameters for the local machine
 

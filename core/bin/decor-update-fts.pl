@@ -151,13 +151,13 @@ print "\ndone.\n";
 sub update_fts_data
 {
   my $table = shift;
-  
+
   my $des = load_table( $table );
   my $dbh = dsn_get_dbh_by_table( $table );
   my $db_name = dsn_get_db_name( des_dsn_name( $des ) );
 
   my @fields;
-  
+
   my $fields = des_fields_list( $des );
   for my $f ( @$fields )
     {
@@ -204,7 +204,7 @@ sub update_fts_data
   my $r;
   my $lc = $io->count( $table );
   my $pr = Time::Progress->new( min => 0, max => $lc );
-  
+
   $io->select( $table, [ '_ID', @fields ], "" );
   while( my $hr = $io->fetch() )
     {
@@ -212,10 +212,10 @@ sub update_fts_data
     my $data = lc join ' ', @$hr{@fields};
 #    print "$rid -- [$data]\n";
 
-    for my $w ( $data =~ /\w{2,}/g )
+    for my $w ( $data =~ /\w{2,73}/g )
       {
 #      print "        [$w]\n";
-      
+
       my $wwid; # currently matched word ID
       if( ! exists $W{ $w } )
         {
@@ -228,16 +228,15 @@ sub update_fts_data
       else
         {
         $wwid = $W{ $w };
-        }  
+        }
 #      print "        --> [$wid]\n\n";
-        
-      $mid++;  
+
+      $mid++;
       fast_insert( $dbh, $sthm, $mid, $wwid, $rid );
       }
 
-    $re->commit() if $r % 4096 == 0;
+    $re->commit() if ++$r % 4096 == 0;
 
-    $r++;
     my $rs = str_num_comma( $r );
     my $ls = str_num_comma( $lc );
     print $pr->report( "\r   EPS=$rs of $ls %30b %p %s/sec (%S) %L ETA: %E -- %f", $r ) if $r % 317 == 0;
@@ -271,15 +270,15 @@ sub load_dict
   my $v = shift;
 
   print "LOADING DICT: $t: $k => $v\n";
-  
+
   my %d;
-  
+
   my $io = io_new();
   $io->select( $t, [ $k, $v ] );
   while( my $hr = $io->fetch() )
     {
     $d{ $hr->{ $k } } = $hr->{ $v };
     }
-  
+
   return \%d;
 }

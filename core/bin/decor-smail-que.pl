@@ -118,7 +118,9 @@ else
   {
   print "error: invalid application name [$opt_app_name]\n";
   exit 1;
-  }  
+  }
+
+daemonize() if $opt_daemonize;
 
 de_set_log_prefix( 'decor-smail-queue' );
 
@@ -210,7 +212,7 @@ sub process_smail_queue
     $rc++;
     }
   $rec->finish();
-  
+
   $rec->commit();
   return $rc;
 }
@@ -241,10 +243,10 @@ use Decor::Shared::Config;
   my $pass = $smcfg->{ 'PASS' };
   my $sdbg = $smcfg->{ 'DEBUG' };
   my $to   = r $rec 'RCPT';
-  my $cc   = r $rec 'CC'; 
-  my $bcc  = r $rec 'BCC'; 
-  my $subj = r $rec 'SUBJ'; 
-  my $body = r $rec 'BODY'; 
+  my $cc   = r $rec 'CC';
+  my $bcc  = r $rec 'BCC';
+  my $subj = r $rec 'SUBJ';
+  my $body = r $rec 'BODY';
 
   use Email::Simple;
   use Net::SMTP;
@@ -281,7 +283,7 @@ use Decor::Shared::Config;
                     Subject => 'Testing RDX Notify',
                     Message => "[RDX] $subj"
                   ],
-        
+
         body   => $body . "\n\n---\nTIMESTAMP: " . scalar localtime,
     );
 
@@ -302,7 +304,7 @@ use Decor::Shared::Config;
     {
     de_log( "error: smail id [$id] sent OK" );
     $rec->w( STATUS => 1, STATUS_DES => 'OK', MTIME => time() );
-    }  
+    }
   $rec->save();
   $rec->commit();
   return 1;

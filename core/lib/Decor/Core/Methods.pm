@@ -109,28 +109,16 @@ sub create_user
   # create user record
   my $user_rec = new Decor::Core::DB::Record;
   $user_rec->create( 'DE_USERS' );
-  
-  my $user_salt     = create_random_id( 128 );
-  my $user_pass_hex = de_password_salt_hash( $pass, $user_salt ); 
 
-  $user_rec->write( 
+  $user_rec->write(
                     NAME      => $name, 
                     ACTIVE    => 1,
                     DISABLED  => 0,
                   );
 
   # setup password if specified, otherwise user will not be able to login
-  if( $pass ne '' )
-    {
-    my $user_salt     = create_random_id( 128 );
-    my $user_pass_hex = de_password_salt_hash( $pass, $user_salt ); 
+  $user_rec->set_password( $pass ) if $pass ne ''; # argon2, the same as login verify_password()
 
-    $user_rec->write( 
-                      PASS      => $user_pass_hex,
-                      PASS_SALT => $user_salt,
-                    );
-    }
-  
   $pigrp ||= $pvt_grp_rec->id();
   
   $user_rec->write( 'PRIMARY_GROUP' => $pigrp             );
@@ -215,15 +203,10 @@ sub set_user_pass
   return undef unless $user_rec;
   return undef unless $pass ne '';
 
-  my $user_salt     = create_random_id( 128 );
-  my $user_pass_hex = de_password_salt_hash( $pass, $user_salt ); 
+  $user_rec->set_password( $pass ); # argon2, the same as login verify_password()
+  $user_rec->save(); # found by name, the caller has no record to save, callers with a record may have saved already
 
-  $user_rec->write( 
-                    PASS      => $user_pass_hex,
-                    PASS_SALT => $user_salt,
-                  );
-  
-  return 1;                
+  return 1;
 }
 
 sub backlink_count

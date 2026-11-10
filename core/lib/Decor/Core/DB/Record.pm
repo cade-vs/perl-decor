@@ -49,10 +49,10 @@ sub __reshape
 {
   my $self   = shift;
   my $table  = shift;
-  
+
   my $tdes   = des_describe( $table );
   my $ttype  = des_table_type( $tdes );
-  
+
   my $reshape_class_name = "Decor::Core::DB::Record";
   if( $ttype ne 'GENERIC' )
     {
@@ -61,12 +61,12 @@ sub __reshape
     }
 
   return 0 if ref( $self ) eq $reshape_class_name;
-  
+
   de_log_debug2( "debug: Decor::Core::DB::Record: $self reshaped as '$reshape_class_name'" );
   my $reshape_file_name = perl_package_to_file( $reshape_class_name );
   require $reshape_file_name;
   bless $self, $reshape_class_name;
-  
+
   1;
 }
 
@@ -93,7 +93,7 @@ sub set_read_only
   my $state = shift;
 
   # once set read-only, record cannot be brought back to read-write state
-  $state = ( $self->{ 'READ_ONLY' } || 1 ) if $state < 1; 
+  $state = ( $self->{ 'READ_ONLY' } || 1 ) if $state < 1;
 
   $self->{ 'READ_ONLY' } = $state;
 
@@ -385,7 +385,7 @@ sub __read
   my $self = shift;
 
   boom "record is empty, cannot be read" if $self->is_empty();
-  
+
   my $data_key = shift() ? 'RECORD_DATA_DB' : 'RECORD_DATA';
 
   my @res;
@@ -400,17 +400,17 @@ sub __read
 
   return wantarray ? @res : shift( @res );
 }
-    
+
 sub __read_formatted
 {
   my $self     = shift;
   my $data_key = shift;
-  
+
   my $tdes = des_describe( $self->table() );
-  
+
   my @res;
   my @fields = ( @_ == 1 and $_[0] eq '*' ) ? @{ $self->get_fields_list() } : @_;
-  
+
   for my $field ( @fields )
     {
     $field =~ s/^-//; # allows: $value = read $record -NAME
@@ -435,7 +435,7 @@ sub read
 sub read_formatted
 {
   my $self = shift;
-  
+
   return $self->__read_formatted( 0, @_ );
 }
 
@@ -532,7 +532,7 @@ sub write
     my $value = shift( @data );
 
     $field =~ s/^-//; # allows: write $record -NAME => $value
-    
+
     boom "cannot write reference value [$value] for field [$field]" if ref $value;
 
     my ( $dst_table, $dst_field, $dst_id, $dst_fdes ) = $self->__resolve_field( $field, { WRITE => 1 } );
@@ -548,12 +548,12 @@ sub write
       $profile->check_access_table_field_boom( $oper, $dst_table, $dst_field );
 
       my $dst_fdes = des_fld( $dst_table, $dst_field );
-    
+
       LINKCHECK: while( des_is_linked( $dst_fdes ) or des_is_widelinked( $dst_fdes ) )
         {
         my $linked_table;
         my $linked_id;
-        
+
         if( des_is_linked( $dst_fdes ) )
           {
           $linked_table = $dst_fdes->{ 'LINKED_TABLE' };
@@ -580,8 +580,8 @@ sub write
             $linked_id = 'x';
             last LINKCHECK;
             }
-          }  
-        
+          }
+
 # print STDERR "LINK-------------------------------CHECK--------------------- $dst_table, $dst_field, $dst_id => $linked_table:$field=$value\n";
 
         # TODO: should we check also TABLE access?
@@ -598,12 +598,12 @@ sub write
 
         my $reserved_io = new Decor::Core::DB::IO;
         last LINKCHECK if $reserved_io->read_field( 'DE_RESERVED_IDS', '_ID', 'USR = ? AND SESS = ? AND RESERVED_TABLE = ? AND RESERVED_ID = ? AND ACTIVE = ?', { BIND => [ $user_id, $sess_id, $linked_table, $linked_id, 1 ] } );
-        
+
         my $table = $self->table();
         boom "E_ACCESS: Record::write(): LINK field [$table:$field=$value] points to a forbidden or invalid record [$dst_table:_ID:$value]";
         }
       }
-    
+
     # FIXME: check for number values
     next if $self->{ 'RECORD_DATA' }{ $dst_table }{ $dst_id }{ $dst_field } eq $value;
     # FIXME: IMPORTANT: check for DB data read for update records!
@@ -663,14 +663,14 @@ sub __resolve_field
       $linked_table = $field_des->{ 'LINKED_TABLE' };
       $next_id      = $self->{ 'RECORD_DATA'  }{ $current_table }{ $current_id }{ $current_field };
       }
-    elsif( $field_type_name eq 'WIDELINK' )  
+    elsif( $field_type_name eq 'WIDELINK' )
       {
       ( $linked_table, $next_id ) = type_widelink_parse( $self->{ 'RECORD_DATA'  }{ $current_table }{ $current_id }{ $current_field } );
       }
     else
       {
       boom "cannot resolve field, current position is NOT A LINK or WIDELINK [$current_table:$current_field] in field path [$field]";
-      }  
+      }
 
     boom "cannot resolve table/field [$current_table/$current_field] invalid linked table [$linked_table]" unless des_exists( $linked_table );
 
@@ -692,10 +692,14 @@ sub __resolve_field
           }
         if( $self->taint_mode_get( 'ROWS' ) )
           {
+          # the row that gets the new link, from the db (pending writes cannot pass their own check), current data only for not yet inserted rows # cc20261109-5
+          my $row_data = $current_insert ? $self->{ 'RECORD_DATA' }{ $current_table }{ $current_id } : $self->{ 'RECORD_DATA_DB' }{ $current_table }{ $current_id }; # cc20261109-5
           # check if owner(s) is ok
-          $profile->check_access_row_boom( 'OWNER',  $current_table, $self );
+#-          $profile->check_access_row_boom( 'OWNER',  $current_table, $self ); # cc20261109-5
+          $profile->check_access_row_boom( 'OWNER',  $current_table, $row_data ); # cc20261109-5
           # check for UPDATE access, but only for non-insert records
-          $profile->check_access_row_boom( 'UPDATE', $current_table, $self ) unless $current_insert;
+#-          $profile->check_access_row_boom( 'UPDATE', $current_table, $self ) unless $current_insert; # cc20261109-5
+          $profile->check_access_row_boom( 'UPDATE', $current_table, $row_data ) unless $current_insert; # cc20261109-5
           }
         }
 
@@ -779,8 +783,12 @@ sub save
 
           if( $self->taint_mode_get( 'ROWS' ) )
             {
-            $profile->check_access_row_boom( 'OWNER',  $table, $self );
-            $profile->check_access_row_boom( 'UPDATE', $table, $self );
+            # this row as loaded from the db, not the base record and not the pending writes (a written _OWNER cannot pass its own check) # cc20261109-5
+            my $row_data_db = $self->{ 'RECORD_DATA_DB' }{ $table }{ $id }; # cc20261109-5
+#-            $profile->check_access_row_boom( 'OWNER',  $table, $self ); # cc20261109-5
+#-            $profile->check_access_row_boom( 'UPDATE', $table, $self ); # cc20261109-5
+            $profile->check_access_row_boom( 'OWNER',  $table, $row_data_db ); # cc20261109-5
+            $profile->check_access_row_boom( 'UPDATE', $table, $row_data_db ); # cc20261109-5
             }
           }
 
@@ -802,7 +810,7 @@ sub copy
   boom "cannot copy fields with odd number of arguments" if @_ % 2;
 
   my %map  = @_;
-  
+
   while( my ( $k, $v ) = each %map )
     {
     $self->write( $k, $self->read( $v ) );
@@ -812,9 +820,9 @@ sub copy
 sub copy_from_rec
 {
   my $self    = shift;
-  
+
   my $src_rec = shift;
-  
+
   $self->write( $src_rec->read_hash( @_ ) );
 }
 
@@ -827,16 +835,16 @@ sub copy_from_rec
 sub inc
 {
   my $self    = shift;
-  
+
   my @data = shift;
   while( @data )
     {
     my $f = shift;
     my $v = shift || 1;
-    
+
     my $vo = $self->read( $f );
     $self->write( $f, $vo + $v );
-    
+
     return $vo unless @data;
     }
 
@@ -851,16 +859,16 @@ sub inc
 sub dec
 {
   my $self    = shift;
-  
+
   my @data = shift;
   while( @data )
     {
     my $f = shift;
     my $v = shift || 1;
-    
+
     my $vo = $self->read( $f );
     $self->write( $f, $vo - $v );
-    
+
     return $vo unless @data;
     }
 
@@ -958,8 +966,8 @@ sub count
 {
   my $self = shift;
   my $where = shift;
-  my $opts  = shift; 
-  
+  my $opts  = shift;
+
   my $dbio  = $self->{ 'DB::IO' };
   my $table = $self->table();
 
@@ -973,9 +981,9 @@ sub delete
   my $self = shift;
 
   my $db_io = $self->{ 'DB::IO' };
-  
+
   my $rc = $db_io->delete_id( $self->table(), $self->id() );
-  
+
   $self->reset() if $rc;
 
   return $rc;
@@ -1026,19 +1034,19 @@ sub select_backlinked_records
   my $opts  = shift || {};
 
   my ( $dst_table, $dst_field, $dst_id ) = $self->__resolve_field( $field );
-  
+
   my $fdes = des_fld( $dst_table, $dst_field );
   my $ftype_name = $fdes->{ 'TYPE' }{ 'NAME' };
-  
+
   boom "cannot select backlinked records of [$field] it is not a BACKLINK field" unless $ftype_name eq 'BACKLINK';
-  
+
   my ( $backlinked_table, $backlinked_field ) = des_backlink_details( $fdes );
   my $base_id = $self->id();
-  
+
   my $srec = new Decor::Core::DB::Record;
-  
+
   $srec->select( $backlinked_table, "$backlinked_field = ?", { BIND => [ $dst_id ], %$opts } );
-  
+
   return $srec;
 }
 
@@ -1051,14 +1059,14 @@ sub get_linked_record
 
   my $fdes = des_fld( $dst_table, $dst_field );
   my $ftype_name = $fdes->{ 'TYPE' }{ 'NAME' };
-  
+
   # TODO: support for WIDELINKs
   boom "cannot get linked record of [$field] it is not a LINK field" unless $ftype_name eq 'LINK';
 
   my ( $linked_table, $linked_field ) = des_link_details( $fdes );
-  
+
   my $id;
-  if( $field =~ /\./ ) 
+  if( $field =~ /\./ )
     {
     # there is path
     my $prec = new Decor::Core::DB::Record;
@@ -1070,8 +1078,8 @@ sub get_linked_record
     # no path, this is the same record (self)
     $id = $self->read( $field );
     }
-  
-  
+
+
   my $lrec = new Decor::Core::DB::Record;
   $lrec->load( $linked_table, $id ) or return undef;
   return $lrec;
@@ -1084,12 +1092,12 @@ sub count_backlinked_records
   my $opts  = shift || {};
 
   my ( $dst_table, $dst_field, $dst_id ) = $self->__resolve_field( $field );
-  
+
   my $fdes = des_fld( $dst_table, $dst_field );
   my $ftype_name = $fdes->{ 'TYPE' }{ 'NAME' };
-  
+
   boom "cannot select backlinked records of [$field] it is not a BACKLINK field" unless $ftype_name eq 'BACKLINK';
-  
+
   my ( $backlinked_table, $backlinked_field ) = des_backlink_details( $fdes );
 
   my $sio  = new Decor::Core::DB::IO;
@@ -1103,10 +1111,10 @@ sub select_map_far_records
   my $opts  = shift || {};
 
   my ( $dst_table, $dst_field, $dst_id ) = $self->__resolve_field( $field );
-  
+
   my $fdes = des_fld( $dst_table, $dst_field );
   my $ftype_name = $fdes->{ 'TYPE' }{ 'NAME' };
-  
+
   boom "cannot select map records of [$field] it is not a MAP field" unless $ftype_name eq 'MAP';
 
   my ( $map_table, $map_near_field, $map_far_field, $far_table, $far_field ) = des_map_details( $fdes );
@@ -1162,7 +1170,7 @@ sub exists
 {
   my $self  = shift;
   my $field = shift;
-  
+
   return des_exists( $self->table(), $field );
 }
 
@@ -1185,14 +1193,14 @@ sub __client_io_disable
 sub __check_client_io
 {
   my $self = shift;
-  
+
   boom "this record has CLIENT ID DISABLED so no api methods can be called" unless $self->{ 'CLIENT:IO:ENABLED' };
 }
 
 sub __check_edit_cache_sid
 {
   my $self = shift;
-  
+
   boom "this record does not have EDIT_CACHE_SID so cache data is disabled" unless $self->{ 'EDIT_CACHE_SID' };
 }
 
@@ -1282,7 +1290,7 @@ sub inject_return_file_into_mo
 {
   my $self = shift;
   my $mo   = shift;
-  
+
   return unless $self->{ 'CLIENT:IO:FILE:BODY' } ne '' and $self->{ 'CLIENT:IO:FILE:MIME' };
 
   $mo->{ 'RETURN_FILE_BODY' } = encode_base64( Encode::is_utf8( $self->{ 'CLIENT:IO:FILE:BODY' } ) ? Encode::encode_utf8( $self->{ 'CLIENT:IO:FILE:BODY' } ) : $self->{ 'CLIENT:IO:FILE:BODY' } );
@@ -1299,7 +1307,7 @@ sub form_gen_data
   my $form_name = shift;
   my $data      = shift;
   my $opts      = shift;
-  
+
   return de_form_gen_rec_data( $form_name, $self, $data, $opts );
 }
 
@@ -1308,9 +1316,9 @@ sub form_gen_data
 sub __edit_cache_set_key
 {
   my $self      = shift;
-  
+
   my $ec_sid = shift;
-  
+
   # FIXME: encode base64 if non-printable?
   $self->{ 'EDIT_CACHE_SID' } = $ec_sid;
 }
@@ -1318,10 +1326,10 @@ sub __edit_cache_set_key
 sub edit_cache_get
 {
   my $self      = shift;
-  
+
   $self->__check_edit_cache_sid();
   $self->{ 'EDIT_CACHE_SID:MODIFIED' }++;
-  
+
   my $ec_sid = $self->{ 'EDIT_CACHE_SID'      };
 
   my $dbio  = $self->{ 'DB::IO' };
@@ -1335,7 +1343,7 @@ sub edit_cache_get
   else
     {
     $chr = {};
-    }  
+    }
   $self->{ 'EDIT_CACHE_SID:DATA' } = $chr;
 
   return $chr;
@@ -1344,8 +1352,8 @@ sub edit_cache_get
 sub edit_cache_save
 {
   my $self      = shift;
-  
-  return undef unless $self->{ 'EDIT_CACHE_SID' };
+
+#- already checked in check_edit_cache_sid  return undef unless $self->{ 'EDIT_CACHE_SID' };
   $self->__check_edit_cache_sid();
   return unless $self->{ 'EDIT_CACHE_SID:MODIFIED' } > 0;
   $self->{ 'EDIT_CACHE_SID:MODIFIED' } = 0;
@@ -1354,7 +1362,7 @@ sub edit_cache_save
   my $ec_fdt = $self->{ 'EDIT_CACHE_SID:DATA' };
 
   my $dbio  = $self->{ 'DB::IO' };
-  
+
   my $res = $dbio->update( 'DE_EDIT_CACHE', { 'CACHE_DATA' => ref_freeze( $ec_fdt ), MTIME => time() }, 'CACHE_KEY = ?', { BIND => [ $ec_sid ] } );
   if( $res < 1 )
     {
@@ -1374,12 +1382,12 @@ sub write_widelink
   my $table  = shift;
   my $id     = shift;
   my $lfield = shift;
-  
+
   my $data = type_widelink_construct( TABLE => $table, ID => $id, FIELD => $lfield );
 
   # if $data is constructed then all are checked, check for existing table
   boom "rec::write_widelink: TABLE [$table] does not exist" unless des_exists( $table );
-  
+
   return $self->write( $field => $data );
 }
 

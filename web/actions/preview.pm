@@ -85,7 +85,9 @@ sub main
 
   my $row_id = $row_data->{ '_ID' };
 
-  my ( $calc_out, $calc_merrs )= $core->recalc( $table, $row_data, $row_id, $ps->{ 'EDIT_MODE_INSERT' }, { 'EDIT_SID' => $ps->{ 'EDIT_SID' } } );
+#-  my ( $calc_out, $calc_merrs )= $core->recalc( $table, $row_data, $row_id, $ps->{ 'EDIT_MODE_INSERT' }, { 'EDIT_SID' => $ps->{ 'EDIT_SID' } } ); # cc20261109-2
+  my $calc_in = { map { $_ => $row_data->{ $_ } } @{ $ps->{ 'FIELDS_WRITE_AR' } } }; # only writable fields, the same as edit.pm, the core checks field access # cc20261109-2
+  my ( $calc_out, $calc_merrs )= $core->recalc( $table, $calc_in, $row_id, $ps->{ 'EDIT_MODE_INSERT' }, { 'EDIT_SID' => $ps->{ 'EDIT_SID' } } ); # cc20261109-2
   if( $calc_out )
     {
     $ps->{ 'ROW_DATA'      } = $calc_out;

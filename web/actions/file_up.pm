@@ -49,7 +49,8 @@ sub main
 
   my $text;
 
-  my $file_uploads = $ui->{ 'FILE_UPLOAD:UPLOADS' };
+#-  my $file_uploads = $ui->{ 'FILE_UPLOAD:UPLOADS' }; # cc20261109-6
+  my $file_uploads = [ grep { $_->filename ne '' and $_->size > 0 } @{ $reo->get_user_uploads()->{ 'FILE_UPLOAD' } || [] } ]; # Plack::Request::Upload objects, without empty file inputs # cc20261109-6
 
   if( $file_uploads and @$file_uploads > 0 )
     {
@@ -59,9 +60,12 @@ sub main
 
     for my $upload ( @$file_uploads )
       {
-      my $upload_fn = file_name_ext( $upload->{ 'filename' } );
-      my $mime   = $upload->{ 'headers' }{ 'content-type' };
-      my $new_id = $core->file_save( $upload->{ 'tempname' }, $table, $upload_fn, $id, { DES => $file_des, MIME => $mime } );
+#-      my $upload_fn = file_name_ext( $upload->{ 'filename' } ); # cc20261109-6
+#-      my $mime   = $upload->{ 'headers' }{ 'content-type' }; # cc20261109-6
+#-      my $new_id = $core->file_save( $upload->{ 'tempname' }, $table, $upload_fn, $id, { DES => $file_des, MIME => $mime } ); # cc20261109-6
+      my $upload_fn = file_name_ext( $upload->filename ); # cc20261109-6
+      my $mime   = $upload->content_type; # cc20261109-6
+      my $new_id = $core->file_save( $upload->path, $table, $upload_fn, $id, { DES => $file_des, MIME => $mime } ); # cc20261109-6
       
       my @fields = grep s/^F://, keys %$si;
       if( @fields > 0 )

@@ -335,7 +335,8 @@ sub __session_save_with_new_sid
   my $ss_time = time();
   while(4)
     {
-    my $sid = create_random_id( 61 );
+#-    my $sid = create_random_id( 61 ); # cc20261110-1
+    my $sid = de_create_random_id(); # cc20261110-1
     $session_rec->write( 'SID' => $sid );
     my $sp_name = 'BEGIN_NEW_SESSION';
     $session_rec->savepoint( $sp_name );
@@ -1488,9 +1489,11 @@ sub sub_init
   boom "invalid TABLE name [$table]"    unless de_check_name( $table ) and des_exists( $table );
   boom "invalid ID [$id]"               if $id ne '' and ! de_check_id( $id );
 
+  my $profile = subs_get_current_profile();
+  boom "E_ACCESS: access denied oper [INSERT] for table [$table]" unless $profile->check_access_table( 'INSERT', $table ); # INIT prepares an insert, the same check as sub_insert()
+
   my $rec = new Decor::Core::DB::Record;
 
-  my $profile = subs_get_current_profile();
   $rec->set_profile_locked( $profile );
 
   $rec->create_read_only( $table, $id );
@@ -1499,7 +1502,9 @@ sub sub_init
 
   __exec_inline_method( $rec, 'INIT' );
   $rec->method( 'INIT' );
-  $mo->{ 'RDATA' } = $rec->read_hash_all();
+  my $rdata = $rec->read_hash_all();
+  # INIT runs untainted and may fill any field, return only what the user may fill on insert
+  $mo->{ 'RDATA' } = { map { $_ => $rdata->{ $_ } } grep { $_ eq '_ID' or $profile->check_access_table_field( 'INSERT', $table, $_ ) } keys %$rdata };
   $mo->{ 'XS'    } = 'OK';
 }
 
@@ -1511,17 +1516,24 @@ sub sub_recalc
   my $table  = uc   $mi->{ 'TABLE'  };
   my $data   =      $mi->{ 'DATA'   };
   my $id     =      $mi->{ 'ID'     };
-  my $insert = 1 if $mi->{ 'INSERT' };
+#-  my $insert = 1 if $mi->{ 'INSERT' }; # cc20261109-2
+  my $insert =      $mi->{ 'INSERT' } ? 1 : 0; # cc20261109-2
 
   boom "invalid TABLE name [$table]"    unless de_check_name( $table ) and des_exists( $table );
   boom "invalid ID [$id]"               if $id ne '' and ! de_check_id( $id );
+  boom "invalid DATA [$data]"           unless ref( $data ) eq 'HASH'; # cc20261109-2
 
-  my $rec = new Decor::Core::DB::Record;
-
+#-  my $rec = new Decor::Core::DB::Record; # cc20261109-2
   my $profile = subs_get_current_profile();
+  my $oper    = $insert ? 'INSERT' : 'UPDATE'; # cc20261109-2
+  boom "E_ACCESS: access denied oper [$oper] for table [$table]" unless $profile->check_access_table( $oper, $table ); # cc20261109-2
+
+  my $rec = new Decor::Core::DB::Record; # cc20261109-2
+
   $rec->set_profile_locked( $profile );
 
-  $rec->taint_mode_on( 'TABLE', 'ROWS' );
+#-  $rec->taint_mode_on( 'TABLE', 'ROWS' ); # cc20261109-2
+  $rec->taint_mode_enable_all(); # client DATA is written with field and LINK checks, as in sub_insert()/sub_update() # cc20261109-2
 
   if( $insert )
     {
@@ -1530,6 +1542,8 @@ sub sub_recalc
   else
     {
     $rec->load( $table, $id );
+    boom "E_ACCESS: UPDATE is not allowed for requested record TABLE [$table] ID [$id]" # cc20261109-2
+        unless $profile->check_access_row( 'UPDATE', $rec->table(), $rec ); # cc20261109-2
     }
 
   $rec->write( %$data );
@@ -1550,7 +1564,10 @@ sub sub_recalc
 
   my $merrs = $rec->method_get_errors_hashref();
   $mo->{ 'MERRS' } = $merrs if $merrs;
-  $mo->{ 'RDATA' } = $rec->read_hash_all();
+#-  $mo->{ 'RDATA' } = $rec->read_hash_all(); # cc20261109-2
+  my $rdata = $rec->read_hash_all(); # cc20261109-2
+  # methods run untainted, return only what the user may read or write (the web keeps the writable fields for commit) # cc20261109-2
+  $mo->{ 'RDATA' } = { map { $_ => $rdata->{ $_ } } grep { $_ eq '_ID' or $profile->check_access_table_field( 'READ', $table, $_ ) or $profile->check_access_table_field( $oper, $table, $_ ) } keys %$rdata }; # cc20261109-2
   $mo->{ 'XS'    } = 'OK';
 }
 
@@ -1652,7 +1669,8 @@ sub sub_file_save
   my $mime   =    $mi->{ 'MIME'   };
   my $size   =    $mi->{ 'SIZE'   };
   my $fdes   =    $mi->{ 'DES'    };
-  my $data   =    $mi->{ 'DATA'   };
+#-  my $data   =    $mi->{ 'DATA'   }; # cc20261109-3
+  my $data   =    $mi->{ 'DATA'   } || {}; # optional extra fields, clients send only NAME/MIME/DES # cc20261109-3
 
   boom "invalid TABLE name [$table]"    unless de_check_name( $table ) and des_exists( $table );
   boom "invalid ID [$id]"               if $id ne '' and ! de_check_id( $id );
@@ -1685,9 +1703,11 @@ sub sub_file_save
     $rec->create( $table );
     }
 
+  $rec->write( %$data ); # client fields, written with taint on: field access and LINK checks # cc20261109-3
+
   $rec->taint_mode_disable_all();
   $rec->write( NAME => $name, MIME => $mime, SIZE => $size, DES => $fdes );
-  $rec->write( %$data );
+#-  $rec->write( %$data ); # cc20261109-3
 
   my ( $fname, $fname_short ) = $rec->get_file_name();
   my $fname_part = $fname . '.part';
@@ -1720,17 +1740,20 @@ sub sub_file_save
   my $buf_size = 1024*1024;
   my $read;
   my $file_size = $size;
+  my $write_err; # first write error, the incoming data is still read to the end, keeps the protocol in sync # cc20261109-7
   while(4)
     {
     my $data;
     my $read_size = $file_size > $buf_size ? $buf_size : $file_size;
     $read = socket_read( $socket, \$data, $read_size );
-    print $fo $data if $fo;
+#-    print $fo $data if $fo; # cc20261109-7
+    $write_err ||= "$!" if $fo and $read > 0 and ! print $fo $data; # cc20261109-7
     last unless $read > 0;
     $file_size -= $read;
     last if $file_size <= 0;
     }
-  close( $fo ) if $fo;
+#-  close( $fo ) if $fo; # cc20261109-7
+  $write_err ||= "$!" if $fo and ! close( $fo ); # buffered data is written on close, it can fail too # cc20261109-7
 
   boom "E_IO: FILE_SAVE cannot write file [$fname_part] [$open_err], TABLE [$table] ID [$id]" if $open_err;
 
@@ -1741,13 +1764,33 @@ sub sub_file_save
     boom "E_IO: FILE_SAVE incomplete upload, received [" . ( $size - $file_size ) . "] of [$size] bytes, TABLE [$table] ID [$id]";
     }
 
-  # FIXME: TODO: __exec_inline_method( $rec, 'INSERT' );
-  $rec->method( 'FILE_SAVE' );
-  $rec->save();
-  $rec->method( 'POST_FILE_SAVE' );
-  $rec->save();
+  if( $write_err ) # cc20261109-7
+    { # cc20261109-7
+    unlink( $fname_part ); # cc20261109-7
+    boom "E_IO: FILE_SAVE cannot write file [$fname_part] [$write_err], TABLE [$table] ID [$id]"; # cc20261109-7
+    } # cc20261109-7
 
-  rename( $fname_part, $fname );
+  # FIXME: TODO: __exec_inline_method( $rec, 'INSERT' );
+#-  $rec->method( 'FILE_SAVE' ); # cc20261109-7
+#-  $rec->save(); # cc20261109-7
+#-  $rec->method( 'POST_FILE_SAVE' ); # cc20261109-7
+#-  $rec->save(); # cc20261109-7
+  eval # the record is rolled back on error, the part file must go too # cc20261109-7
+    { # cc20261109-7
+    $rec->method( 'FILE_SAVE' ); # cc20261109-7
+    $rec->save(); # cc20261109-7
+    $rec->method( 'POST_FILE_SAVE' ); # cc20261109-7
+    $rec->save(); # cc20261109-7
+    1; # cc20261109-7
+    } or do { my $err = $@; unlink( $fname_part ); die $err; }; # rethrown as is, E_* codes are kept # cc20261109-7
+
+#-  rename( $fname_part, $fname ); # cc20261109-7
+  if( ! rename( $fname_part, $fname ) ) # cc20261109-7
+    { # cc20261109-7
+    my $err = "$!"; # cc20261109-7
+    unlink( $fname_part ); # cc20261109-7
+    boom "E_IO: FILE_SAVE cannot rename [$fname_part] to [$fname] [$err], TABLE [$table] ID [$id]"; # boom rolls the record back # cc20261109-7
+    } # cc20261109-7
 
   $mo->{ 'ID'   } = $rec->id();
   $mo->{ 'XS'   } = 'OK';

@@ -14,7 +14,7 @@ use parent 'Decor::Core::DB';
 use Exception::Sink;
 use Data::Lock qw( dlock );
 use Data::Dumper;
-use Encode qw( is_utf8 encode decode );    
+use Encode qw( is_utf8 encode decode );
 
 use Decor::Shared::Utils;
 use Decor::Core::Env;
@@ -36,7 +36,7 @@ use Decor::Core::Log;
 sub __init
 {
   my $self = shift;
-  
+
   1;
 }
 
@@ -47,7 +47,7 @@ sub reset
   delete $self->{ 'TABLE'   };
   delete $self->{ 'SELECT'  };
   delete $self->{ 'VIRTUAL' };
-  
+
   1;
 }
 
@@ -57,17 +57,17 @@ sub __reshape
 {
   my $self   = shift;
   my $table  = shift;
-  
+
   my $db_name = dsn_get_db_name_by_table( $table );
   my $reshape_class_name = "Decor::Core::DB::IO::$db_name";
 
   return 0 if ref( $self ) eq $reshape_class_name;
-  
+
   de_log_debug2( "$self reshaped as '$reshape_class_name'" );
   my $reshape_file_name = perl_package_to_file( $reshape_class_name );
   require $reshape_file_name;
   bless $self, $reshape_class_name;
-  
+
   1;
 }
 
@@ -130,17 +130,17 @@ sub select
     }
 
   $fields = '*' if $fields eq '';
-  
+
   my $table_des = des_describe( $table );
   my $db_table  = des_db_table_name( $table_des );
   my @fields;
-  
+
   my $fields_ref = ref( $fields );
   if( $fields_ref eq 'ARRAY' )
     {
     @fields = @$fields;
     }
-  elsif( $fields_ref eq 'HASH' )  
+  elsif( $fields_ref eq 'HASH' )
     {
     @fields = keys %$fields;
     }
@@ -166,7 +166,7 @@ sub select
       {
       boom "empty fields list! requested was [$fields]";
       }
-    }  
+    }
 
   s/^\.// for @fields; # remove leading anchor (syntax sugar really)
 
@@ -190,7 +190,7 @@ sub select
   my $check_row_access = $opts->{ 'CHECK_ROW_ACCESS' } || [ 'READ' ];
 
   push @where, $self->__get_row_access_where_list( $table, 'OWNER', @$check_row_access );
-  
+
   # resolve fields in select
   my @select_fields;
   for my $field ( @fields )
@@ -212,8 +212,8 @@ sub select
     else
       {
       $ff = $field;
-      }  
-    
+      }
+
     my ( $resolved_alias, $resolved_table, $resolved_field ) = $self->__select_resolve_field( $table, $ff );
     push @select_fields, $af ? "$af($resolved_alias.$resolved_field)" : "$resolved_alias.$resolved_field";
     }
@@ -221,7 +221,7 @@ sub select
   if( $opts->{ 'FTS' } )
     {
     my @val = lc( $opts->{ 'FTS' } ) =~ /\w{2,}/g;
-    
+
     my $ftsj;
     for my $v ( @val )
       {
@@ -252,10 +252,10 @@ sub select
 
   push @where, keys %{ $self->{ 'SELECT' }{ 'RESOLVE_WHERE' } };
   delete $self->{ 'SELECT' }{ 'RESOLVE_WHERE' };
-  
+
   my $limit  = $opts->{ 'LIMIT'  };
   my $offset = $opts->{ 'OFFSET' };
-  
+
   my $limit_clause    = $self->__select_limit_clause( $limit   ) . "\n" if $limit  > 0;
   my $offset_clause   = $self->__select_offset_clause( $offset ) . "\n" if $offset > 0;
   my $locking_clause  = $self->__select_for_update_clause(     ) . "\n" if $opts->{ 'LOCK' }; # FIXME: support more locking clauses
@@ -280,10 +280,10 @@ sub select
     $select_tables .= join "\n", @joins;
     $select_tables .= "\n";
     }
-  
+
   my $select_fields = join ",\n    ", @select_fields;
   my $select_where  = "WHERE\n    " . join( "\n    AND ", @where );
-  
+
   my $sql_stmt = "SELECT\n    $distinct_clause$select_fields\nFROM\n    $select_tables\n$select_where\n$group_by\n$order_by\n$limit_clause$offset_clause$locking_clause\n";
 
   de_log_debug( "sql: ".__PACKAGE__."::select:\n---BEGIN SQL---\n$sql_stmt\n---SQL BIND ARGS---\n@bind\n---END SQL---" );
@@ -340,17 +340,17 @@ sub __select_resolve_field
 
     if( ! $opt->{ 'UNTAINT_FIELDS' } and $profile and $self->taint_mode_get( 'FIELDS' ) )
       {
-      boom "cannot get across field, READ/CROSS denied [$table:$field] current position is [$table_now:$field_now]" 
+      boom "cannot get across field, READ/CROSS denied [$table:$field] current position is [$table_now:$field_now]"
           unless
              $profile->check_access_table_field( 'READ',  $table_now, $field_now )
-          or 
+          or
              $profile->check_access_table_field( 'CROSS', $table_now, $field_now );
       }
 
     if( @field == 0 )
       {
       return ( $alias_now, $table_now, $field_now );
-      } 
+      }
 
     my $fld_des = des_fld( $table_now, $field_now );
     boom "cannot resolve field, current position is NOT A LINK [$table_now:$field_now] in field path [$field]" unless des_is_linked( $fld_des );
@@ -376,7 +376,7 @@ sub __select_resolve_field
       $join_tree->{ 'ON'   } = "ON $alias_now.$field_now = $alias_next._ID";
       }
     else
-      {  
+      {
       $join_tree  = $join_tree->{ 'NEXT' }{ $field_now };
       $alias_next = $join_tree->{ 'TABLE_ALIAS' };
       }
@@ -409,8 +409,8 @@ sub __explain_join_tree
     $text .= $next;
     $text .= "$padding$on\n";
     }
-  
-  return $text;  
+
+  return $text;
 }
 
 sub __resolve_single_field
@@ -442,7 +442,7 @@ sub __resolve_fields_scan
 #print Dumper( "__resolve_clause_fields = [$table] [$clause]" );
 
    $clause =~ s/((?<![A-Z_0-9])|^)(((\.[A-Z_0-9]+)+)|(COUNT|SUM|MIN|MAX|AVG)\(([A-Z_0-9\.]+)\))/$self->__resolve_single_field( $table, $5, ( $3 || $6 ), $opt )/gie;
-  
+
    return $clause;
 }
 
@@ -450,7 +450,7 @@ sub __resolve_fields_list
 {
    my $self   = shift;
    my $table  = shift;
-   my $fields = shift; 
+   my $fields = shift;
    my $opt    = shift || {};
 
    # each item must be exactly: field, path or aggregate, optionally followed by ASC or DESC,
@@ -464,7 +464,7 @@ sub __resolve_fields_list
      my ( $af, $field, $dir ) = ( $1, ( $2 || $3 ), uc $4 );
      $_ = $self->__resolve_single_field( $table, $af, $field, $opt ) . $dir;
      }
-  
+
   return join( ',', @fields );
 }
 
@@ -485,10 +485,10 @@ sub __resolve_found_fields
               (((?<![A-Z_0-9])|^)\.$ld([A-Z_0-9\.]+)((?![(A-Z_0-9\.])|\z))
               |
               ((COUNT|SUM|MIN|MAX|AVG)\(\s*\.?([A-Z_0-9\.]+)\s*\))
-           /$self->__resolve_single_field( $table, $6, ( $3 | $7 ), $opt )/giex;
+           /$self->__resolve_single_field( $table, $6, ( $3 || $7 ), $opt )/giex;
 
 # print Dumper( "__resolve_found_fields = <<<< [$str]" );
-  
+
    return $str;
 }
 
@@ -507,14 +507,14 @@ sub __get_row_access_where_list
   else
     {
     return ();
-    }  
+    }
 
   my $groups_string = $profile->get_groups_string();
 
   my $table_des = des_describe( $table );
   my $fields    = des_fields_list( $table_des );
   my $db_table  = des_db_table_name( $table_des );
-  
+
   my @where;
   for my $oper ( @_ )
     {
@@ -533,10 +533,10 @@ sub __get_row_access_where_list
     next unless @oper_where > 0;
     my $oper_where = join ' OR ', @oper_where;
     push @where, "( $oper_where )";
-    } 
+    }
 
-  
-  return @where;  
+
+  return @where;
 }
 
 #-----------------------------------------------------------------------------
@@ -546,7 +546,7 @@ sub __get_row_access_where_list
 sub get_select_fields
 {
   my $self = shift;
-  
+
   return $self->{ 'SELECT' }{ 'FIELDS' };
 }
 
@@ -558,7 +558,7 @@ sub fetch_array
 
   return undef if $self->{ 'VIRTUAL' };
   return undef if $self->{ 'SELECT' }{ 'EOD' };
-  
+
   my $sth = $self->{ 'SELECT' }{ 'STH' };
   boom "missing SELECT::STH! call select() before fetch()" unless $sth;
 
@@ -571,8 +571,8 @@ sub fetch_array
     $self->{ 'SELECT' }{ 'EOD' } = 1; # end of data
     return undef;
     }
-    
-  return \@data;  
+
+  return \@data;
 }
 
 sub fetch_hash
@@ -582,7 +582,7 @@ sub fetch_hash
   my $data = $self->fetch_array() or return undef;
 
   my $select_fields = $self->{ 'SELECT' }{ 'FIELDS' };
-  
+
   my %data;
   my $c = 0;
   for my $field ( @$select_fields )
@@ -605,7 +605,7 @@ sub finish
   # FIXME: $self->get_sth();
   my $sth = $self->{ 'SELECT' }{ 'STH' };
   $sth->finish() if $sth;
-  
+
   $self->{ 'SELECT' }{ 'FIELDS' } = undef;
 
   $self->reset();
@@ -646,13 +646,13 @@ sub insert
     }
 
   my $table_des = des_describe( $table );
-  
+
   return 1 if des_is_virtual( $table_des );
 
   if( ! exists $data->{ "_ID" } )
     {
     # detach from the caller and fill ID field
-    $data = { %$data }; 
+    $data = { %$data };
     $data->{ "_ID" } ||= $self->get_next_table_id( $table );
     }
 
@@ -664,8 +664,8 @@ sub insert
   my @values;
   for my $field ( sort keys %$data ) # optimize prepare_chached...
     {
-    my $value = $data->{ $field }; 
-    
+    my $value = $data->{ $field };
+
     $field = uc $field;
     if( $profile and $self->taint_mode_get( 'FIELDS' ) )
       {
@@ -674,11 +674,11 @@ sub insert
 
     my $fld_des = des_fld( $table_des, $field );
     my $field_type_name = $fld_des->{ 'TYPE' }{ 'NAME' };
-    
+
     $value = 0 if $field_type_name ne 'CHAR' and $value == 0;
     $columns .= "$field,";
     $values  .= "?,";
-#print "$field [$value]\n";    
+#print "$field [$value]\n";
     push @values, $value;
     }
   chop( $columns );
@@ -762,15 +762,16 @@ sub update
     $field = uc $field;
     if( $profile and $self->taint_mode_get( 'FIELDS' ) )
       {
-      $profile->check_access_table_field_boom( 'INSERT', $table, $field );
+#-      $profile->check_access_table_field_boom( 'INSERT', $table, $field ); # cc20261109-4
+      $profile->check_access_table_field_boom( 'UPDATE', $table, $field ); # update() writes existing rows # cc20261109-4
       }
 
     my $fld_des = des_fld( $table_des, $field );
     my $field_type_name = $fld_des->{ 'TYPE' }{ 'NAME' };
-    
+
     # TODO: FIXME: stupid :)
     $value = 0 if $field_type_name ne 'CHAR' and $field_type_name ne 'WIDELINK' and $value == 0;
-    
+
     $columns .= "$field=?,";
     push @values, $value;
     }
@@ -935,7 +936,7 @@ sub get_next_table_id
   my $dsn       = des_dsn_name( $table_des );
 
   return 1 if des_is_virtual( $table_des );
-  
+
   my $new_id = $self->get_next_sequence( $db_seq, $dsn );
   de_log_debug( "debug: get_next_table_id: for table [$table] new val [$new_id]" );
   return $new_id;
@@ -948,12 +949,12 @@ sub read_first1_hashref
   my $self  = shift;
   my $table = shift;
   my $where = shift;
-  my $opts  = shift; 
+  my $opts  = shift;
 
   $self->select( $table, '*', $where, $opts );
   my $data = $self->fetch();
   $self->finish();
-  
+
   return $data;
 }
 
@@ -962,7 +963,7 @@ sub read_first1_by_id_hashref
   my $self  = shift;
   my $table = shift;
   my $id    = shift;
-  my $opts  = shift() || {}; 
+  my $opts  = shift() || {};
 
   return $self->read_first1_hashref( $table, '._ID = ?', { %$opts, BIND => [ $id ] } );
 }
@@ -972,17 +973,17 @@ sub read_all_hashrefs
   my $self  = shift;
   my $table = shift;
   my $where = shift;
-  my $opts  = shift; 
+  my $opts  = shift;
 
   my @data;
-  
+
   $self->select( $table, '*', $where, $opts );
   while( my $data = $self->fetch() )
     {
     push @data, $data;
     }
   $self->finish();
-  
+
   return \@data;
 }
 
@@ -992,12 +993,12 @@ sub read_field
   my $table = shift;
   my $field = shift;
   my $where = shift;
-  my $opts  = shift; 
-  
+  my $opts  = shift;
+
   $self->select( $table, $field, $where, $opts );
   my $data = $self->fetch();
   $self->finish();
-  
+
   return $data ? $data->{ $field } : undef;
 }
 
@@ -1007,17 +1008,17 @@ sub read_all_fields
   my $table = shift;
   my $field = shift;
   my $where = shift;
-  my $opts  = shift; 
-  
+  my $opts  = shift;
+
   my @data;
-  
+
   $self->select( $table, $field, $where, $opts );
   while( my $data = $self->fetch() )
     {
     push @data, $data->{ $field };
     }
   $self->finish();
-  
+
   return @data ? \@data : undef;
 }
 
@@ -1026,12 +1027,12 @@ sub count
   my $self  = shift;
   my $table = shift;
   my $where = shift;
-  my $opts  = shift; 
+  my $opts  = shift;
 
   $self->select( $table, 'COUNT(*)', $where, $opts );
   my $data = $self->fetch();
   $self->finish();
-  
+
   return $data->{ 'COUNT(*)' };
 }
 
@@ -1041,12 +1042,12 @@ sub sum
   my $table = shift;
   my $field = uc shift;
   my $where = shift;
-  my $opts  = shift; 
+  my $opts  = shift;
 
   $self->select( $table, "SUM($field)", $where, $opts );
   my $data = $self->fetch();
   $self->finish();
-  
+
   return $data->{ "SUM($field)" };
 }
 

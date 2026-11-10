@@ -64,14 +64,19 @@ sub main
 
   return "<#access_denied>" unless @fields;
 
-  if( $ui->{ "UPLOAD_FILE" } )
+#-  if( $ui->{ "UPLOAD_FILE" } ) # cc20261109-6
+  my $upload = ( $reo->get_user_uploads()->{ "UPLOAD_FILE" } || [] )->[0]; # Plack::Request::Upload, the onChange submit sends only the file input # cc20261109-6
+  if( $upload and $upload->filename ne '' and $upload->size > 0 ) # cc20261109-6
     {
-    my $upload = $ui->{ "UPLOAD_FILE:UPLOAD" };
+#-    my $upload = $ui->{ "UPLOAD_FILE:UPLOAD" }; # cc20261109-6
 
-    my $upload_fn = file_name_ext( $upload->{ 'filename' } );
-    my $mime      = $upload->{ 'headers' }{ 'content-type' };
+#-    my $upload_fn = file_name_ext( $upload->{ 'filename' } ); # cc20261109-6
+#-    my $mime      = $upload->{ 'headers' }{ 'content-type' }; # cc20261109-6
+    my $upload_fn = file_name_ext( $upload->filename ); # cc20261109-6
+    my $mime      = $upload->content_type; # cc20261109-6
 
-    my $new_id    = $core->file_save( $upload->{ 'tempname' }, $table, $upload_fn, $id, { MIME => $mime } );
+#-    my $new_id    = $core->file_save( $upload->{ 'tempname' }, $table, $upload_fn, $id, { MIME => $mime } ); # cc20261109-6
+    my $new_id    = $core->file_save( $upload->path, $table, $upload_fn, $id, { MIME => $mime } ); # cc20261109-6
     }
 
 #  push @fields, 'USR.ACTIVE';

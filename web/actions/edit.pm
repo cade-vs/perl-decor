@@ -47,7 +47,8 @@ sub main
   my $ps = $reo->get_page_session();
   my $us = $reo->get_user_session();
 
-  $ps->{ 'EDIT_SID' } = $us->{ ':ID' } . '.' . $ps->{ ':ID' } . '.' . create_random_id( 64 ) unless $ps->{ 'EDIT_SID' };
+#-  $ps->{ 'EDIT_SID' } = $us->{ ':ID' } . '.' . $ps->{ ':ID' } . '.' . create_random_id( 64 ) unless $ps->{ 'EDIT_SID' }; # cc20261110-1
+  $ps->{ 'EDIT_SID' } = $us->{ ':ID' } . '.' . $ps->{ ':ID' } . '.' . de_create_random_id() unless $ps->{ 'EDIT_SID' }; # cc20261110-1
 
   my $button    = $reo->get_input_button();
   my $button_id = $reo->get_input_button_id();
@@ -164,11 +165,13 @@ sub main
     }
 
   my %upload_errors; # field => [ messages ], reported with the recalc field errors
+  my $uploads = $reo->get_user_uploads(); # file inputs are never in the user input, see Web::Reactor get_user_uploads() # cc20261109-6
 
   # input data
   for my $field ( @$fields_ar )
     {
-    next unless exists $ui_si{ "F:$field" };
+#-    next unless exists $ui_si{ "F:$field" }; # cc20261109-6
+    next unless exists $ui_si{ "F:$field" } or exists $uploads->{ "F:$field" }; # cc20261109-6
     my $input_data = $ui_si{ "F:$field" };
 
     $input_data =~ s/^\s*//;
@@ -179,18 +182,27 @@ sub main
     my $type_name  = des_type_name( $fdes );
     my $type_lname = $fdes->{ 'TYPE'  }{ 'LNAME' };
 
+    my $pass_type  = ( des_attr( $fdes, 'PASSWORD' ) or $field =~ /^PASSWORD/ );
+    # password inputs are rendered empty, empty input means "not changed", keep the current value
+    next if $pass_type and $input_data eq '';
+
     if( $type_name eq 'LINK' and $type_lname eq 'FILE' )
       {
-      my $upload = $ui_si{ "F:$field:UPLOADS" } || [];
-      next unless @$upload;
-      $upload = shift @$upload;
+#-      my $upload = $ui_si{ "F:$field:UPLOADS" } || []; # cc20261109-6
+#-      next unless @$upload; # cc20261109-6
+#-      $upload = shift @$upload; # cc20261109-6
+      my $upload = ( $uploads->{ "F:$field" } || [] )->[0]; # Plack::Request::Upload, the list is cached in $reo, not shifted # cc20261109-6
+      next unless $upload and $upload->filename ne '' and $upload->size > 0; # no file chosen, keep the current one # cc20261109-6
 
       my ( $linked_table, $linked_field ) = des_link_details( $fdes );
 
-      my $upload_fn = file_name_ext( $upload->{ 'filename' } );
-      my $mime      = $upload->{ 'headers' }{ 'content-type' };
+#-      my $upload_fn = file_name_ext( $upload->{ 'filename' } ); # cc20261109-6
+#-      my $mime      = $upload->{ 'headers' }{ 'content-type' }; # cc20261109-6
+      my $upload_fn = file_name_ext( $upload->filename ); # cc20261109-6
+      my $mime      = $upload->content_type; # cc20261109-6
 
-      my $new_id    = $core->file_save( $upload->{ 'tempname' }, $linked_table, $upload_fn, undef, { MIME => $mime } );
+#-      my $new_id    = $core->file_save( $upload->{ 'tempname' }, $linked_table, $upload_fn, undef, { MIME => $mime } ); # cc20261109-6
+      my $new_id    = $core->file_save( $upload->path, $linked_table, $upload_fn, undef, { MIME => $mime } ); # cc20261109-6
 
       # file_save() gives undef on failure: keep the current file, report the upload
       if( $new_id > 0 )
@@ -207,7 +219,7 @@ sub main
     my $raw_input_data = type_revert( $input_data, $type );
 
     # TODO: handle passwords
-    if( des_attr( $fdes, 'PASSWORD' ) or $field =~ /^PASSWORD/ )
+    if( $pass_type )
       {
       ## $ps->{ 'PASS_SALT' } ||= create_random_id( 128 );
       ## # TODO: check for pass strength here

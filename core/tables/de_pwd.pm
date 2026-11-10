@@ -73,7 +73,8 @@ sub on_insert
   
   my ( $errors, $pass1 ) = on_recalc( $r );
   
-  return if $errors;
+  # the preview shows these errors and disables OK, here they abort the insert: rollback, client gets E_DATA, nothing is saved
+  die "E_DATA: password not changed, [$errors] error(s)\n" if $errors;
 
   my $user = subs_get_current_user();
   $user->set_password( $pass1 );

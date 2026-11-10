@@ -24,6 +24,7 @@ use Net::Waiter 1.02;
 use Decor::Core::DSN;
 use Decor::Core::Log;
 use Decor::Core::Subs::Env;
+use Decor::Shared::Utils; # de_create_random_id() # cc20261110-1
 
 use parent qw( Net::Waiter );
 
@@ -178,7 +179,8 @@ sub on_process
 
     if( $xs ne 'OK' )
       {
-      my $err_ref = create_random_id( 4, 'ABCDEFGHJKLMNPQRTVWXY0123456789' ) . '-' . create_random_id( 4, 'ABCDEFGHJKLMNPQRTVWXY0123456789' ); # print read safe
+#-      my $err_ref = create_random_id( 4, 'ABCDEFGHJKLMNPQRTVWXY0123456789' ) . '-' . create_random_id( 4, 'ABCDEFGHJKLMNPQRTVWXY0123456789' ); # print read safe # cc20261110-1
+      my $err_ref = de_create_random_id( 4, 'ABCDEFGHJKLMNPQRTVWXY0123456789' ) . '-' . de_create_random_id( 4, 'ABCDEFGHJKLMNPQRTVWXY0123456789' ); # print read safe # cc20261110-1
       $mo->{ 'XS_REF' } = $err_ref;
       de_log( "error: XTYPE [$xt] XSTATUS [$xs] XREF [$err_ref]" );
       de_log( "error: DBI::errstr [$DBI::errstr]" ) if DBI::errstr;

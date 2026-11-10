@@ -13,6 +13,7 @@ use strict;
 use Exception::Sink;
 
 use Data::Tools;
+use Crypt::PRNG; # cryptographic random, the same as Web::Reactor::Sessions # cc20261110-1
 
 use Exporter;
 our @ISA    = qw( Exporter );
@@ -46,6 +47,8 @@ our @EXPORT = qw(
                 perl_package_to_file
                 
                 de_password_salt_hash
+
+                de_create_random_id
 
                 tr_hash_save
                 tr_hash_load
@@ -202,6 +205,18 @@ sub de_password_salt_hash
   
   return wp_hex( $salt . $pass );
 }
+
+# create_random_id() replacement, Data::Tools uses rand(), which is predictable # cc20261110-1
+# args:
+#       len     -- id length, default 53
+#       letters -- allowed characters, default A-Z, a-z, 0-9
+sub de_create_random_id # cc20261110-1
+{ # cc20261110-1
+  my $len = shift() || 53; # cc20261110-1
+  my $let = shift() || 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'; # cc20261110-1
+
+  return Crypt::PRNG::random_string_from( $let, $len ); # cc20261110-1
+} # cc20261110-1
 
 #-----------------------------------------------------------------------------
 
