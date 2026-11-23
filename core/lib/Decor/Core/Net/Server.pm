@@ -21,6 +21,7 @@ use Data::Tools::Socket 1.55;
 use Data::Tools::Socket::Protocols 1.55;
 use Data::Tools::Socket::Err 1.55;
 use Net::Waiter 1.02;
+use Socket qw( IPPROTO_TCP TCP_NODELAY );
 
 use Decor::Core::DSN;
 use Decor::Core::Log;
@@ -47,6 +48,9 @@ sub on_accept_ok
   my $self = shift;
   my $sock = shift;
   binmode( $sock );
+  # messages are written as length + data, without TCP_NODELAY Nagle and the
+  # delayed ACK stall every message for ~40ms
+  setsockopt( $sock, IPPROTO_TCP, TCP_NODELAY, 1 );
   my $peerhost = $sock->peerhost();
   my $peerport = $sock->peerport();
   de_log( "status: client connected from $peerhost:$peerport" );

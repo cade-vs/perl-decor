@@ -15,6 +15,7 @@ use Exception::Sink;
 use Hash::Util   qw( lock_ref_keys unlock_ref_keys );
 #use Scalar::Util qw( weaken );
 use IO::Socket::INET;
+use Socket qw( IPPROTO_TCP TCP_NODELAY );
 use Data::Tools 1.47;
 use Data::Tools::Socket 1.55;
 use Data::Tools::Socket::Protocols 1.55;
@@ -30,16 +31,16 @@ sub new
 {
   my $class = shift;
   $class = ref( $class ) || $class;
-  
+
   my %args = @_;
-  
+
   my $self = {
              %args # FIXME: check and/or filter
              };
   bless $self, $class;
 
   $self->{ 'TIMEOUT' } = 20*60 if $self->{ 'TIMEOUT' } < 1;
-  
+
   de_obj_add_debug_info( $self );
   $self->__init();
   return $self;
@@ -59,7 +60,7 @@ sub __lock_self_keys
     next if exists $self->{ $key };
     $self->{ $key } = undef;
     }
-  lock_ref_keys( $self );  
+  lock_ref_keys( $self );
 }
 
 sub DESTROY
@@ -73,28 +74,28 @@ sub DESTROY
 sub status
 {
   my $self = shift;
-  
+
   return $self->{ 'STATUS'  };
 }
 
 sub status_ref
 {
   my $self = shift;
-  
+
   return $self->{ 'STATUS_REF'  };
 }
 
 sub is_connected
 {
   my $self = shift;
-  
+
   return $self->{ 'SOCKET' } ? 1 : 0;
 }
 
 sub check_connected
 {
   my $self = shift;
-  
+
   boom "not connected" unless $self->is_connected();
 }
 
@@ -106,11 +107,14 @@ sub connect
   my $opt         = shift || {};
 
   my $socket = IO::Socket::INET->new( PeerAddr => $server_addr, Timeout => 2.0 );
-  
+
   if( $socket )
     {
     binmode( $socket );
     $socket->autoflush( 1 );
+    # messages are written as length + data, without TCP_NODELAY Nagle and the
+    # delayed ACK stall every message for ~40ms
+    setsockopt( $socket, IPPROTO_TCP, TCP_NODELAY, 1 );
     $self->{ 'SERVER_ADDR' } = $server_addr;
     $self->{ 'SOCKET'      } = $socket;
 
@@ -126,8 +130,8 @@ sub connect
     {
     $self->reset();
     return undef;
-    }  
-  
+    }
+
   return 1;
 }
 
@@ -170,7 +174,7 @@ sub tx_msg
 
   my $socket  = $self->{ 'SOCKET'  };
   my $timeout = $self->{ 'TIMEOUT' };
-  
+
   $self->{ 'STATUS'      } = 'E_MSG';
   $self->{ 'STATUS_MSG'  } = 'Communication error';
   $self->{ 'STATUS_REF'  } = undef;
@@ -184,7 +188,7 @@ sub tx_msg
   delete $mi->{ '___SEND_FILE_HAND' };
   delete $mi->{ '___SEND_FILE_SIZE' };
   delete $mi->{ '___RECV_FILE_HAND' };
-  
+
   my $ptype = 's'; # FIXME: config?
 
   my $mi_res = socket_protocol_write_message( $socket, $ptype, $mi, $timeout );
@@ -277,23 +281,23 @@ sub __setup_client_env
   $self->{ 'USER_REALNAME'         } = $mo->{ 'URN'   };
   $self->{ 'USER_ID'               } = $mo->{ 'UID'   };
   $self->{ 'USER_DATA_ID'          } = $mo->{ 'UDID'  };
-  
+
   return 1;
 }
 
 sub begin
 {
   my $self = shift;
-  
+
   my $user_sid = shift;
   my $remote   = shift;
- 
+
   my %mi;
 
   $mi{ 'XT'       } = 'B';
   $mi{ 'USER_SID' } = $user_sid;
   $mi{ 'REMOTE'   } = $remote;
-  
+
   my $mo = $self->tx_msg( \%mi ) or return undef;
   # FIXME: TODO: if failed then disconnect?
 
@@ -305,7 +309,7 @@ sub begin
 sub login
 {
   my $self = shift;
-  
+
   my $user   = shift;
   my $pass   = shift;
   my $remote = shift;
@@ -317,7 +321,7 @@ sub login
   $mi{ 'USER'   } = $user;
   $mi{ 'PASS'   } = $pass;
   $mi{ 'REMOTE' } = $remote;
-  
+
   my $mo = $self->tx_msg( \%mi ) or return undef;
   # FIXME: TODO: if failed then disconnect?
 
@@ -329,7 +333,7 @@ sub login
 sub logout
 {
   my $self = shift;
- 
+
   my %mi;
 
   $mi{ 'XT'    } = 'LO';
@@ -337,7 +341,7 @@ sub logout
   delete $self->{ 'DECOR_CORE_SESSION_ID' };
   delete $self->{ 'CORE_SESSION_XTIME'    };
   delete $self->{ 'USER_GROUPS'           };
-  
+
   my $mo = $self->tx_msg( \%mi ) or return undef;
 
   return 1;
@@ -346,7 +350,7 @@ sub logout
 sub end
 {
   my $self = shift;
- 
+
   my %mi;
 
   $mi{ 'XT'    } = 'E';
@@ -354,7 +358,7 @@ sub end
   delete $self->{ 'DECOR_CORE_SESSION_ID' };
   delete $self->{ 'CORE_SESSION_XTIME' };
   delete $self->{ 'USER_GROUPS'        };
-  
+
   my $mo = $self->tx_msg( \%mi ) or return undef;
 
   return 1;
@@ -365,7 +369,7 @@ sub end
 sub check_user_password
 {
   my $self = shift;
-  
+
   my $user = shift;
   my $pass = shift; # encrypted for the core, the same as for login()
 
@@ -438,9 +442,9 @@ sub select
   my $table  = uc shift;
   my $fields = shift;
   my $opt    = shift || {};
-  
+
   my $filter   = $opt->{ 'FILTER' } || {};
-  
+
   $fields = join( ',',      @$fields ) if ref( $fields ) eq 'ARRAY';
   $fields = join( ',', keys %$fields ) if ref( $fields ) eq 'HASH';
 
@@ -451,14 +455,14 @@ sub select
   $mi{ 'FIELDS'   } = uc $fields;
   $mi{ 'FILTER'   } = $filter;
 
-  $mi{ $_ } = $opt->{ $_ } for qw( LIMIT OFFSET LOCK ORDER_BY GROUP_BY DISTINCT CHECK_ROW_LINK_ACCESS );  
+  $mi{ $_ } = $opt->{ $_ } for qw( LIMIT OFFSET LOCK ORDER_BY GROUP_BY DISTINCT CHECK_ROW_LINK_ACCESS );
 
   my $filter_bind = $opt->{ 'FILTER_BIND'   } || [];
   for( @$filter_bind )
     {
     s/[\n\r;]//g;
     }
-  
+
   $mi{ 'FILTER_NAME'   } = $opt->{ 'FILTER_NAME'   };
   $mi{ 'FILTER_BIND'   } = $filter_bind;
   $mi{ 'FILTER_METHOD' } = $opt->{ 'FILTER_METHOD' };
@@ -486,7 +490,7 @@ sub fetch
   $mi{ 'FETCH_ARRAY'    } = 1 if $opt->{ 'FETCH_ARRAY' };
 
   my $mo;
-  
+
   my $limit = 1_000_000; # ENEXT is limited to 1M
   while(4)
     {
@@ -533,7 +537,7 @@ sub next_id
   my $self = shift;
 
   my $table  = uc shift;
-  
+
   my %mi;
 
   $mi{ 'XT' } = 'N';
@@ -552,7 +556,7 @@ sub insert
   my $data   = shift;
   my $id     = shift;
   my $opt    = shift || {};
-  
+
   my %mi;
 
   $mi{ 'XT'     } = 'I';
@@ -563,7 +567,7 @@ sub insert
   $mi{ 'EDIT_SID' } = $opt->{ 'EDIT_SID' } if exists $opt->{ 'EDIT_SID' };
 
 #print STDERR Dumper( $opt );
-  
+
   for( qw( LINK_TO_TABLE LINK_TO_FIELD LINK_TO_ID ) )
     {
     next unless exists $opt->{ $_ };
@@ -582,7 +586,7 @@ sub update
   my $table  = uc shift;
   my $data   = shift;
   my $opt    = shift;
-  
+
   my $filter = $opt->{ 'FILTER' } || {};
   my $id     = $opt->{ 'ID'     } || $data->{ '_ID' };
   my $lock   = $opt->{ 'LOCK'   };
@@ -619,13 +623,13 @@ sub init
   my $table  = uc shift;
   my $id     = shift;
   my $opt    = shift || {};
-  
+
   my %mi;
 
   $mi{ 'XT'     } = '1';
   $mi{ 'TABLE'  } = $table;
   $mi{ 'ID'     } = $id;
-  
+
   my $mo = $self->tx_msg( \%mi ) or return undef;
 
   return $mo->{ 'RDATA' };
@@ -642,7 +646,7 @@ sub recalc
   my $id     = shift;
   my $insert = shift;
   my $opt    = shift || {};
-  
+
   my %mi;
 
   $mi{ 'XT'     } = 'L';
@@ -650,7 +654,7 @@ sub recalc
   $mi{ 'DATA'   } = $data;
   $mi{ 'ID'     } = $id;
   $mi{ 'INSERT' } = 1 if $insert;
-  
+
   $mi{ $_ } = $opt->{ $_ } for ( 'EDIT_SID', 'PASS_SALT' );
 
   my $mo = $self->tx_msg( \%mi ) or return undef;
@@ -669,7 +673,7 @@ sub do
   my $data   = shift || {};
   my $id     = shift;
   my $opt    = shift || {};
-  
+
   my %mi;
 
   $mi{ 'XT'     } = 'O';
@@ -681,7 +685,7 @@ sub do
   my $mo = $self->tx_msg( \%mi ) or return undef;
 
   return undef unless exists $mo->{ 'DATA' } and ref $mo->{ 'DATA' } eq 'HASH';
-  
+
   return $mo->{ 'DATA' };
 }
 
@@ -691,10 +695,10 @@ sub file_save
 {
   my $self   = shift;
   my $fname  = shift;
-  
+
   open my $fh, '<', $fname;
   binmode( $fh );
-  
+
   return $self->file_save_fh( $fh, @_ );
 }
 
@@ -706,14 +710,14 @@ sub file_save_fh
   my $name   = shift;
   my $id     = shift;
   my $opt    = shift;
-  
+
   my %mi = ref( $opt ) eq 'HASH' ? %$opt : ();
 
   binmode( $fh );
   seek( $fh, 0, 2 );
   my $fsize = tell( $fh );
   seek( $fh, 0, 0 );
-  
+
   $mi{ 'XT'    } = 'FS';
   $mi{ 'TABLE' } = $table;
   $mi{ 'ID'    } = $id if $id > 0;
@@ -724,7 +728,7 @@ sub file_save_fh
   $mi{ '___SEND_FILE_SIZE' } = $fsize;
 
   my $mo = $self->tx_msg( \%mi ) or return undef;
-  
+
   return $mo->{ 'ID' } > 0 ? $mo->{ 'ID' } : undef;
 }
 
@@ -737,7 +741,7 @@ sub access
   my $oper   = uc shift;
   my $table  = uc shift;
   my $id     =    shift;
-  
+
   my %mi;
 
   $mi{ 'XT'    } = 'X';
@@ -764,12 +768,12 @@ sub file_load
   $mi{ 'XT'    } = 'FL';
   $mi{ 'TABLE' } = $table;
   $mi{ 'ID'    } = $id;
-  
+
   binmode( $fh );
   $mi{ '___RECV_FILE_HAND' } = $fh;
 
   my $mo = $self->tx_msg( \%mi ) or return undef;
-  
+
   return $mo->{ 'ID' } > 0 ? $mo->{ 'ID' } : undef;
 }
 
@@ -826,7 +830,7 @@ sub select_first1_by_id
   my $select   = $self->select( $table, $fields, { LIMIT => 1, FILTER => { '_ID' => $id } } ) or return undef;
   my $row_data = $self->fetch( $select ) or return undef;
                  $self->finish( $select );
-  
+
   return $row_data;
 }
 
@@ -840,7 +844,7 @@ sub read_field
   my $select   = $self->select( $table, $field, { LIMIT => 1, FILTER => { '_ID' => $id } } ) or return undef;
   my $row_data = $self->fetch( $select ) or return undef;
                  $self->finish( $select );
-  
+
   return $row_data->{ $field };
 }
 
@@ -854,7 +858,7 @@ sub read_fields_by_id
   my $select   = $self->select( $table, $fields, { LIMIT => 1, FILTER => { '_ID' => $id } } ) or return undef;
   my $row_data = $self->fetch_array( $select ) or return undef;
                  $self->finish( $select );
-  
+
   return @$row_data;
 }
 
@@ -868,7 +872,7 @@ sub select_first1
   my $select   = $self->select( $table, $fields, { %$opt, LIMIT => 1 } ) or return undef;
   my $row_data = $self->fetch( $select ) or return undef;
                  $self->finish( $select );
-  
+
   return $row_data;
 }
 
@@ -880,7 +884,7 @@ sub select_first1_field
   my $opt   = shift || {};
 
   my $row_data = $self->select_first1( $table, $field, $opt ) or return undef;
-  
+
   return $row_data->{ $field };
 }
 
@@ -925,7 +929,7 @@ sub count
   my $select   = $self->select( $table, 'COUNT(*)', $opt ) or return undef;
   my $row_data = $self->fetch( $select ) or return undef;
                  $self->finish( $select );
-  
+
   return $row_data->{ 'COUNT(*)' };
 }
 
@@ -945,9 +949,9 @@ sub select_backlinked_records
   my $field = shift;
   my $id    = shift;
   my $opt    = shift;
-  
+
   my ( $backlink_table, $backlink_field ) = des_backlink_details( des_fld( $self->describe( $table ), $field ) );
-  
+
   return $self->select( $backlink_table, '*', { FILTER => { $backlink_field => $id }, %$opt } );
 }
 
