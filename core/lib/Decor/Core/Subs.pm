@@ -13,7 +13,7 @@ use strict;
 use Data::Dumper;
 use Exception::Sink;
 use Data::Tools;
-use Data::Tools::Socket;
+use Data::Tools::Socket 1.55;
 use Data::Structure::Util qw( unbless );
 use Scalar::Util qw( reftype );
 use Time::JulianDay qw( gm_julian_day ); # ON_<method> NOW for DATE fields

@@ -14,7 +14,7 @@ use open ':std', ':encoding(UTF-8)';
 
 use Data::Tools;
 use Data::Tools::Process 1.51;
-use Data::Tools::Socket::Protocols;
+use Data::Tools::Socket::Protocols 1.55;
 
 use Decor::Core::Env;
 use Decor::Core::Boot;
@@ -38,7 +38,7 @@ my $opt_preload = 0;
 my $opt_stop    = 0;
 my $opt_restart = 0;
 my $opt_listen_port = 42000;
-my $opt_net_protocols = '*';
+my $opt_net_protocols = 'bjs'; # TODO: configuring the network server protocols (only -t now, no config file setting, see socket_protocols_allow())
 my $server_module = $DEFAULT_SERVER_MODULE;
 my %opt_ssl;
 
@@ -55,7 +55,10 @@ options:
     -k cnt     -- run in prefork mode, start initial 'cnt' processes.
     -x cnt     -- fork maximum 'cnt' processes (also for prefork mode)
     -e app     -- preload application (will serve only single app)
-    -t psj     -- allow network protocol formats (p=storable,s=stacker,j=json)
+    -t types   -- allowed network protocol types (default $opt_net_protocols)
+                  j=json s=stacker e=sereal h=hash2str H=hash2str_url
+                  b=binary p=storable (unsafe, trusted clients only)
+                  * = all except p, *p = all
     -d         -- increase DEBUG level (can be used multiple times)
     -r         -- log to STDERR
     -rr        -- log to both files and STDERR

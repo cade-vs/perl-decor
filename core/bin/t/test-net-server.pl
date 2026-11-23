@@ -13,7 +13,7 @@ use lib ( map { die "invalid DECOR_CORE_ROOT dir [$_]\n" unless -d; ( "$_/core/l
 use Data::Dumper;
 use IO::Socket::INET;
 use Decor::Shared::Utils;
-use Data::Tools::Socket::Protocols;
+use Data::Tools::Socket::Protocols 1.55;
 
 my $host = ( shift() || 'localhost:4243' );
 my $socket = IO::Socket::INET->new( PeerAddr => $host )

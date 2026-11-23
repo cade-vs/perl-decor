@@ -17,8 +17,9 @@ use Data::Dumper;
 use Exception::Sink;
 use Data::Tools;
 use Data::Tools::Process;
-use Data::Tools::Socket;
-use Data::Tools::Socket::Protocols;
+use Data::Tools::Socket 1.55;
+use Data::Tools::Socket::Protocols 1.55;
+use Data::Tools::Socket::Err 1.55;
 use Net::Waiter 1.02;
 
 use Decor::Core::DSN;
@@ -96,12 +97,18 @@ sub on_process
     server_idle_begin();
 
     my $ptype;
-    my $nerr;
-    ( $mi, $ptype, $nerr ) = socket_protocol_read_message( $socket );
+    ( $mi, $ptype ) = socket_protocol_read_message( $socket );
 
-    if( $nerr eq 'E_EOF' )
+    if( ! defined $mi )
       {
-      de_log_debug( "debug: end of communication channel" );
+      if( $SOCK_ERR == SOCK_E_EOF )
+        {
+        de_log_debug( "debug: end of communication channel" );
+        }
+      else
+        {
+        de_log( "error: cannot read incoming XTYPE message: $SOCK_ERRSTR" );
+        }
       return;
       }
 
@@ -199,9 +206,9 @@ sub on_process
 
     my $mo_res = socket_protocol_write_message( $socket, $ptype, $mo );
 
-    if( $mo_res == 0 )
+    if( ! $mo_res )
       {
-      de_log( "error: error sending outgoing XTYPE message, breaking main loop..." );
+      de_log( "error: error sending outgoing XTYPE message: $SOCK_ERRSTR, breaking main loop..." );
       return;
       #$self->break_main_loop();
       #next;

@@ -16,8 +16,8 @@ use Hash::Util   qw( lock_ref_keys unlock_ref_keys );
 #use Scalar::Util qw( weaken );
 use IO::Socket::INET;
 use Data::Tools 1.47;
-use Data::Tools::Socket;
-use Data::Tools::Socket::Protocols;
+use Data::Tools::Socket 1.55;
+use Data::Tools::Socket::Protocols 1.55;
 use Exception::Sink;
 use Data::Dumper;
 use MIME::Base64;
@@ -188,7 +188,7 @@ sub tx_msg
   my $ptype = 's'; # FIXME: config?
 
   my $mi_res = socket_protocol_write_message( $socket, $ptype, $mi, $timeout );
-  if( $mi_res == 0 )
+  if( ! $mi_res )
     {
     $self->disconnect();
     return undef;
