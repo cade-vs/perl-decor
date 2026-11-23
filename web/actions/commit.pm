@@ -148,7 +148,8 @@ sub main
 
   $text .= "<p>";
   my $status_ref = $core->status_ref();
-  my $ref_text   = $status_ref ne '' ? '[~Please, report this error reference to the administrators:] ' . html_escape( $status_ref ) : ''; # no reference (e.g. connection error), no dangling text
+#-  my $ref_text   = $status_ref ne '' ? '[~Please, report this error reference to the administrators:] ' . html_escape( $status_ref ) : ''; # no reference (e.g. connection error), no dangling text # cc20261110-4
+  my $ref_text   = $status_ref ne '' ? '[~Please, report this error reference to the administrators:] ' . html_text( $status_ref ) : ''; # no reference (e.g. connection error), no dangling text # cc20261110-4
   $text .= "<div class=error-text><h3>[~Operation result:] [~Error!]</h3>$ref_text</div>"; # translated, no <p> inside <h3>
   $text .= "<p>";
 

@@ -119,6 +119,8 @@ END_OF_HTML
 if( $allow_nav )
 {
 
+my $xyz_input = html_element( 'input', undef, form => $location_form_id, id => 'marker_location_xyz', name => 'marker_location_xyz' ); # cc20261110-5
+my $xyz_go    = html_element( 'input', undef, form => $location_form_id, type => 'submit', value => 'Go to X,Y', class => 'button nav-button' ); # cc20261110-5
 my $text_select_button = $allow_map_select ? html_element( 'button', "<img src=i/map_location.svg> Select location", form => $location_form_id, name => 'BUTTON:SELECT', class => 'button act-button' ) : "&nbsp;";
 
 $text .= <<END_OF_HTML;
@@ -127,10 +129,10 @@ $text .= <<END_OF_HTML;
        $location_form_begin$back_button
    </td>
    <td align=right>
-       <input  form=$location_form_id id=marker_location_xyz name=marker_location_xyz>
+       $xyz_input
    </td>
    <td align=left>
-       <input  form=$location_form_id type=submit value='Go to X,Y' class='button nav-button'>
+       $xyz_go
    </td>
    <td>
    </td>
@@ -156,12 +158,11 @@ $text .= $location_form->end();
 }
 
 my $map_td_colspan = $allow_nav ? 4 : 1;
+my $map_td = html_element( 'td', "\n    <div id='map' class='map'></div>\n    ", colspan => $map_td_colspan, class => 'map-layout' ); # cc20261110-5
 
 $text .= <<END_OF_HTML;
 <tr>
-    <td colspan=$map_td_colspan class=map-layout>
-    <div id='map' class='map'></div>
-    </td>
+    $map_td
 </tr>
 </table>
 

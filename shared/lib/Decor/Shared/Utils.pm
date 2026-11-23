@@ -17,7 +17,7 @@ use Crypt::PRNG; # cryptographic random, the same as Web::Reactor::Sessions # cc
 
 use Exporter;
 our @ISA    = qw( Exporter );
-our @EXPORT = qw( 
+our @EXPORT = qw(
 
                 de_check_name
                 de_check_name_boom
@@ -32,20 +32,20 @@ our @EXPORT = qw(
                 de_check_fname_boom
                 de_check_fpath
                 de_check_fpath_boom
-                
+
                 de_check_user_login_name
                 de_check_user_pass_digest
-                
+
                 de_reload_config
 
                 de_obj_add_debug_info
-                
+
                 de_check_ref
                 de_check_ref_hash
                 de_check_ref_array
-                
+
                 perl_package_to_file
-                
+
                 de_password_salt_hash
 
                 de_create_random_id
@@ -59,7 +59,7 @@ our @EXPORT = qw(
 sub de_check_name
 {
   my $name = shift;
-  
+
   return $name =~ /^[a-zA-Z_0-9]+\z/o ? 1 : 0;
 }
 
@@ -67,14 +67,14 @@ sub de_check_name_boom
 {
   my $name = shift;
   my $msg  = shift || "invalid NAME [$name]";
-  
+
   de_check_name( $name ) or boom $msg;
 }
 
 sub de_check_name_ext
 {
   my $name = shift;
-  
+
   return $name =~ /^[a-zA-Z_0-9\-]+\z/o ? 1 : 0;
 }
 
@@ -82,14 +82,14 @@ sub de_check_name_ext_boom
 {
   my $name = shift;
   my $msg  = shift || "invalid NAME [$name]";
-  
+
   de_check_name_ext( $name ) or boom $msg;
 }
 
 sub de_check_pkg_name
 {
   my $name = shift;
-  
+
   return $name =~ /^[a-zA-Z_0-9]+(::[a-zA-Z_0-9]+)*\z/o ? 1 : 0;
 }
 
@@ -97,7 +97,7 @@ sub de_check_pkg_name_boom
 {
   my $name = shift;
   my $msg  = shift || "invalid PKG NAME [$name]";
-  
+
   de_check_pkg_name( $name ) or boom $msg;
 }
 
@@ -105,14 +105,15 @@ sub de_check_id
 {
   my $id = shift;
 
-  return $id =~ /^[0-9]+\z/o and $id > 0;
+#-  return $id =~ /^[0-9]+\z/o and $id > 0; # cc20261110-2
+  return ( $id =~ /^[0-9]+\z/o and $id > 0 ) ? 1 : 0; # parens: "return ... and" returned before the > 0 check, so 0 passed # cc20261110-2
 }
 
 sub de_check_id_boom
 {
   my $id  = shift;
   my $msg = shift || "invalid ID [$id]";
-  
+
   de_check_id( $id ) or boom $msg;
 }
 
@@ -128,7 +129,7 @@ sub de_check_fname_boom
 {
   my $fname = shift;
   my $msg   = shift || "invalid FILE NAME [$fname]";
-  
+
   de_check_fname( $fname ) or boom $msg;
 }
 
@@ -144,21 +145,21 @@ sub de_check_fpath_boom
 {
   my $fpath = shift;
   my $msg   = shift || "invalid FILE PATH/NAME [$fpath]";
-  
+
   de_check_fpath( $fpath ) or boom $msg;
 }
 
 sub de_check_user_login_name
 {
   my $name = shift;
-  
+
   return $name =~ /^[a-zA-Z_0-9\-\.\,\@\:]+\z/o ? 1 : 0;
 }
 
 sub de_check_user_pass_digest
 {
   my $name = uc shift;
-  
+
   return $name =~ /^[a-fA-F0-9]+\z/o ? 1 : 0;
 }
 
@@ -181,7 +182,7 @@ sub de_check_ref
   my $ref   = shift;
   my $class = shift;
   my $msg   = shift;
-  
+
   my $got = ref( $ref );
   $msg ||= "expected reference of class [$class] got [$got]";
   boom $msg unless $got eq $class;
@@ -202,7 +203,7 @@ sub de_password_salt_hash
 {
   my $pass = shift;
   my $salt = shift;
-  
+
   return wp_hex( $salt . $pass );
 }
 
@@ -220,38 +221,27 @@ sub de_create_random_id # cc20261110-1
 
 #-----------------------------------------------------------------------------
 
+# this follows data tools but may keep order if needed in the future
+
+# TODO: tr save/load should always preserve the order of the lines on the disk, # cc20261113-4
+#       also when new lines are added (new keys appended at the end, existing # cc20261113-4
+#       ones stay in place); until then the keys are saved sorted, still stable # cc20261113-4
+
 sub tr_hash_save
 {
   my $fn = shift;
   my $tr = shift;
-  
-  my $data;
-  for my $k ( sort keys %$tr )
-    {
-    my $v = $tr->{ $k };
-    $k =~ s/=/\\=/g;
-    $v =~ s/\\/\\\\/g;
-    $v =~ s/\n/\\n/g;
-    $data .= "$k=$v\n";
-    }
-  return file_text_save( $fn, $data );
+
+#-  return hash_save( $fn, $tr ); # cc20261113-4
+  # sorted keys, stable .tr files in git; text save (UTF-8), as the old code # cc20261113-4
+  return file_text_save( $fn, hash2str_keys( $tr, sort keys %$tr ) ); # cc20261113-4
 }
 
 sub tr_hash_load
 {
   my $fn = shift;
-  my %tr;
 
-  for( split /\n/, file_text_load( $fn ) )
-    {
-    my ( $k, $v ) = split /=/, $_, 2;
-    $k =~ s/\\=/=/g;
-    $v =~ s/\\\\/\\/g;
-    $v =~ s/\\n/\n/g;
-    $tr{ $k } = $v;
-    }
-    
-  return \%tr;
+  return hash_load( $fn );
 }
 
 ### EOF ######################################################################

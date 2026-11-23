@@ -96,7 +96,16 @@ sub de_web_format_phones
   s/^\s*// for @phones;
   s/\s*\z// for @phones;
 
-  s{((\+|\*|00)?[\s\d]+)}{<a href='tel:$1'>$1</a>} for @phones;
+#-  s{((\+|\*|00)?[\s\d]+)}{<a href='tel:$1'>$1</a>} for @phones; # cc20261110-3
+  for( @phones ) # cc20261110-3
+    { # cc20261110-3
+    # database text: numbers become tel: links, the text between them is escaped # cc20261110-3
+    # (escaping first would not work, numeric entities as &#39; hold digits the number pattern matches) # cc20261110-3
+    my @parts = split /((?:\+|\*|00)?[\s\d]+)/, $_, -1; # captured numbers at the odd indexes # cc20261110-3
+#-    $_ = join '', map { $_ % 2 ? "<a href='tel:$parts[$_]'>$parts[$_]</a>" : str_html_escape( $parts[$_] ) } 0 .. $#parts; # cc20261110-3 # cc20261110-4
+#-    $_ = join '', map { $_ % 2 ? "<a href='tel:$parts[$_]'>$parts[$_]</a>" : html_text( $parts[$_] ) } 0 .. $#parts; # cc20261110-3 # cc20261110-4 # cc20261110-5
+    $_ = join '', map { $_ % 2 ? html_element( 'a', $parts[$_], href => "tel:$parts[$_]" ) : html_text( $parts[$_] ) } 0 .. $#parts; # cc20261110-5
+    } # cc20261110-3
 
   return join $wide ? ', ' : "<br><br>\n", @phones;
 }
@@ -137,7 +146,8 @@ sub de_web_format_field
   elsif( $type_name eq 'CHAR' )
     {
     $data_fmt = type_format( $field_data, $fdes->{ 'TYPE' } );
-    $data_fmt = str_html_escape( $data_fmt );
+#-    $data_fmt = str_html_escape( $data_fmt ); # cc20261110-4
+    $data_fmt = html_text( $data_fmt ); # database text # cc20261110-4
 
     $data_fmt = "[~(hidden)]" if $password and $data_fmt ne '';
     
@@ -166,17 +176,24 @@ sub de_web_format_field
       }
     
     # logical types
-    if( $type_lname eq 'EMAIL' )  
+#-    if( $type_lname eq 'EMAIL' )   # cc20261113-2
+    if( $type_lname eq 'EMAIL' and ! $password ) # a password keeps its mask, as PHONE # cc20261113-2
       {
-      my @data_fmt = split /\s*[,;]\s*/, $data_fmt;
-      $data_fmt = undef;
-      $data_fmt .= join '; ', map { "<a href='mailto:$_'>$_</a>" } @data_fmt;
+#-      my @data_fmt = split /\s*[,;]\s*/, $data_fmt; # cc20261113-2
+#-      $data_fmt = undef; # cc20261113-2
+#-      $data_fmt .= join '; ', map { "<a href='mailto:$_'>$_</a>" } @data_fmt; # cc20261110-5
+#-      $data_fmt .= join '; ', map { html_element( 'a', $_, href => \ "mailto:$_" ) } @data_fmt; # $_ is escaped already, a scalar ref is not escaped again # cc20261110-5 # cc20261113-2
+      # split the raw text, $data_fmt is escaped already and its entities (&#39;) hold the ";" separator # cc20261113-2
+      my @emails = grep { $_ ne '' } split /\s*[,;]\s*/, type_format( $field_data, $fdes->{ 'TYPE' } ); # cc20261113-2
+      $data_fmt = join '; ', map { html_element( 'a', html_text( $_ ), href => "mailto:$_" ) } @emails; # href raw, html_attrs() escapes the url # cc20261113-2
       }
-    elsif( $type_lname eq 'PHONE' )  
+#-    elsif( $type_lname eq 'PHONE' )   # cc20261110-3
+    elsif( $type_lname eq 'PHONE' and ! $password ) # a password keeps its mask # cc20261110-3
       {
-      my @field_data = split /\s*[,;]\s*/, $field_data;
-      $data_fmt = undef;
-      $data_fmt .= join '; ', map { "<a href='tel:$_'>" . de_web_format_phones( $_, 1 ) . "</a>" } @field_data;
+#-      my @field_data = split /\s*[,;]\s*/, $field_data; # cc20261110-3
+#-      $data_fmt = undef; # cc20261110-3
+#-      $data_fmt .= join '; ', map { "<a href='tel:$_'>" . de_web_format_phones( $_, 1 ) . "</a>" } @field_data; # cc20261110-3
+      $data_fmt = de_web_format_phones( $field_data, 1 ); # escapes the text, numbers become tel: links, no outer anchor # cc20261110-3
       }
 
     $data_fmt = "&empty;" if $data_fmt eq '';
@@ -386,7 +403,8 @@ sub de_web_format_field
     }
   elsif( des_is_map( $fdes ) )
     {
-    $data_fmt = join '', map { "* $_<br>" } @{ de_get_selected_map_names( $core, $fdes, $id ) };
+#-    $data_fmt = join '', map { "* $_<br>" } @{ de_get_selected_map_names( $core, $fdes, $id ) }; # cc20261110-5
+    $data_fmt = join '', map { '* ' . html_text( $_ ) . '<br>' } @{ de_get_selected_map_names( $core, $fdes, $id ) }; # map names are data, as in edit.pm # cc20261110-5
     }
   elsif( des_is_backlinked( $fdes ) )
     {
@@ -459,15 +477,20 @@ sub de_data_grid
 
   if( $title )
     {
-    my $c = @fields + 1 * ( defined $ctrl_cb );
-    $text .= "<div class='fmt-right' colspan=$c>//$title</div>";
+#-    my $c = @fields + 1 * ( defined $ctrl_cb ); # cc20261116-4
+#-    $text .= "<div class='fmt-right' colspan=$c>//$title</div>"; # cc20261110-5
+#-    $text .= html_element( 'div', "//$title", class => 'fmt-right', colspan => $c ); # cc20261110-5 # cc20261116-4
+    $text .= html_element( 'div', "//$title", class => 'fmt-right' ); # a div has no colspan # cc20261116-4
     }
 
-  $text .= "<table class='$class' cellspacing=0 cellpadding=0>";
+#-  $text .= "<table class='$class' cellspacing=0 cellpadding=0>"; # cc20261110-5
+  my $table_html; # the rows, wrapped into the table at the end # cc20261110-5
   
-  $text .= "<tr class=grid-header>";
+#-  $text .= "<tr class=grid-header>"; # cc20261110-5
+  $table_html .= "<tr class=grid-header>"; # cc20261110-5
   
-  $text .= html_element( 'td', html_element( 'img', undef, src => 'i/ctrl.svg' ), class => 'grid-header fmt-left' ) if $ctrl_cb;
+#-  $text .= html_element( 'td', html_element( 'img', undef, src => 'i/ctrl.svg' ), class => 'grid-header fmt-left' ) if $ctrl_cb; # cc20261110-5
+  $table_html .= html_element( 'td', html_element( 'img', undef, src => 'i/ctrl.svg' ), class => 'grid-header fmt-left' ) if $ctrl_cb; # cc20261110-5
 
   for my $field ( @fields )
     {
@@ -488,9 +511,11 @@ sub de_data_grid
       $label .= "/$llabel";
       }
 
-    $text .= "<td class='grid-header $fmt_class'>$label</td>";
+#-    $text .= "<td class='grid-header $fmt_class'>$label</td>"; # cc20261110-5
+    $table_html .= html_element( 'td', $label, class => "grid-header $fmt_class" ); # cc20261110-5
     }
-  $text .= "</tr>";
+#-  $text .= "</tr>"; # cc20261110-5
+  $table_html .= "</tr>"; # cc20261110-5
 
   my %sums;
 
@@ -501,12 +526,14 @@ sub de_data_grid
     my $id = $row_data->{ '_ID' };
 
     my $row_class = $row_counter++ % 2 ? 'grid-1' : 'grid-2';
-    $text .= "<tr class=$row_class>";
+#-    $text .= "<tr class=$row_class>"; # cc20261110-5
+    my $row_html; # cc20261110-5
 
     if( $ctrl_cb )
       {
       my $vec_ctrl = $ctrl_cb->( $id, $row_data );
-      $text .= "<td class='grid-data fmt-ctrl fmt-mono'>$vec_ctrl</td>";
+#-      $text .= "<td class='grid-data fmt-ctrl fmt-mono'>$vec_ctrl</td>"; # cc20261110-5
+      $row_html .= "<td class='grid-data fmt-ctrl fmt-mono'>$vec_ctrl</td>"; # cc20261110-5
       }
 
     for my $field ( @fields )
@@ -537,14 +564,17 @@ sub de_data_grid
         }
 
       my $base_field_class = lc "css_grid_class_$base_field";
-      $text .= "<td class='grid-data $fmt_class  $base_field_class'>$data_fmt</td>";
+#-      $text .= "<td class='grid-data $fmt_class  $base_field_class'>$data_fmt</td>"; # cc20261110-5
+      $row_html .= html_element( 'td', $data_fmt, class => "grid-data $fmt_class $base_field_class" ); # cc20261110-5
       }
-    $text .= "</tr>";
+#-    $text .= "</tr>"; # cc20261110-5
+    $table_html .= html_element( 'tr', $row_html, class => $row_class ); # cc20261110-5
     }
     
   if( $sums )  
     {
-    $text .= "<td class='grid-header fmt-left'>&sum; $sums{'*'}</td>";
+#-    $text .= "<td class='grid-header fmt-left'>&sum; $sums{'*'}</td>"; # cc20261110-5
+    my $sums_html = "<td class='grid-header fmt-left'>&sum; $sums{'*'}</td>"; # cc20261110-5
 
     for my $field ( @fields )
       {
@@ -565,12 +595,15 @@ sub de_data_grid
         {  
         ( $data_fmt, $fmt_class_fld ) = $type_name =~ /^(INT|REAL|TIME)\z/ ? de_web_format_field( $sums{ $field }, $lfdes, 'GRID' ) : ();
         }
-      $text .= "<td class='grid-header $fmt_class'>$data_fmt</td>";
+#-      $text .= "<td class='grid-header $fmt_class'>$data_fmt</td>"; # cc20261110-5
+      $sums_html .= html_element( 'td', $data_fmt, class => "grid-header $fmt_class" ); # cc20261110-5
       }
-    $text .= "</tr>";
+#-    $text .= "</tr>"; # cc20261110-5
+    $table_html .= html_element( 'tr', $sums_html ); # also gives the sums row its missing <tr> (item 224) # cc20261110-5
     }
     
-  $text .= "</table>";
+#-  $text .= "</table>"; # cc20261110-5
+  $text .= html_element( 'table', $table_html, class => $class, cellspacing => 0, cellpadding => 0 ); # cc20261110-5
   
 #  return wantarray ? ( $text, $row_counter, $scount ) : $text;
   return wantarray ? ( $text, $row_counter ) : $text;
@@ -650,8 +683,12 @@ sub de_data_view
     my $overflow  = des_attr( $bfdes, qw( WEB VIEW OVERFLOW ) );
     if( $overflow )
       {
-      $data_fmt = str_html_escape( $data_fmt );
-      $data_fmt = "<form><input value='$data_fmt' style='width: 96%' readonly></form>";
+#-      $data_fmt = str_html_escape( $data_fmt ); # cc20261110-4
+      # $data_fmt is already html, the input value gets the plain formatted value, escaped once # cc20261110-4
+#-      $data_fmt = html_text( type_format( $data, $lfdes->{ 'TYPE' } ) ); # cc20261110-4 # cc20261110-5
+#-      $data_fmt = "<form><input value='$data_fmt' style='width: 96%' readonly></form>"; # cc20261110-5
+#-      $data_fmt = "<form>" . html_element( 'input', undef, value => \ html_text( type_format( $data, $lfdes->{ 'TYPE' } ) ), style => 'width: 96%', readonly => undef ) . "</form>"; # data as \ html_text() # cc20261110-5 # cc20261115-12
+      $data_fmt = "<form>" . html_element( 'input', undef, value => \ html_text( type_format( $data, $lfdes->{ 'TYPE' } ) ), style => 'width: 96%', readonly => \ undef ) . "</form>"; # data as \ html_text() # cc20261110-5 # cc20261115-12 bare, undef leaves it out
       }
 
     if( $lpassword )
@@ -661,7 +698,7 @@ sub de_data_view
 
     if( $type_name eq 'CHAR' and $type_lname eq 'LOCATION' )
       {
-      $data_fmt = str_html_escape( $data_fmt );
+#-      $data_fmt = str_html_escape( $data_fmt ); # cc20261110-4
       # $data_fmt = de_html_alink_button( $reo, 'new', " <img src=i/map_location.svg> $data_fmt", "[~View map location]", ACTION => 'map_location', LL => $data );
       }
 
@@ -672,15 +709,21 @@ sub de_data_view
       $record_first = 1;
       }
 
-    my $data_layout = $no_layout_ctrls ? $data_fmt : html_layout_2lr( $data_fmt, $data_ctrl, '<==1>' );
+#-    my $data_layout = $no_layout_ctrls ? $data_fmt : html_layout_2lr( $data_fmt, $data_ctrl, '<==1>' ); # cc20261116-2
+    my $data_layout = $no_layout_ctrls ? $data_fmt : html_hbox( '<100,1n>', \ $data_fmt, \ $data_ctrl ); # html cells as \ $html, the new Layout escapes plain values # cc20261116-2
     my $base_field_class = lc "css_view_class_$base_field";
 
-    my $record_first_class = 'record-first' if $record_first;
+#-    my $record_first_class = 'record-first' if $record_first; # cc20261113-3
+    my $record_first_class = $record_first ? 'record-first' : ''; # no "my ... if", it may keep the value from the previous loop pass # cc20261113-3
     $record_first = 0;
-    $text .= "<div class='record-field-value'>
-                <div class='view-field record-field $record_first_class $base_field_class                ' >$label</div>
-                <div class='view-value record-value $record_first_class $base_field_class $data_fmt_class' >$data_layout</div>
-              </div>";
+#-    $text .= "<div class='record-field-value'> # cc20261110-5
+#-                <div class='view-field record-field $record_first_class $base_field_class                ' >$label</div> # cc20261110-5
+#-                <div class='view-value record-value $record_first_class $base_field_class $data_fmt_class' >$data_layout</div> # cc20261110-5
+#-              </div>"; # cc20261110-5
+    $text .= html_element( 'div', "\n" # cc20261110-5
+                . html_element( 'div', $label,       class => "view-field record-field $record_first_class $base_field_class" ) . "\n" # cc20261110-5
+                . html_element( 'div', $data_layout, class => "view-value record-value $record_first_class $base_field_class $data_fmt_class" ) . "\n", # cc20261110-5
+              class => 'record-field-value' ); # cc20261110-5
     if( $field_details )
       {
       $text .= "<div class='view-details record-details'>$field_details</div>";
@@ -724,9 +767,11 @@ sub de_progress_bar
 
   my $prc;
   my $val;
-  ( $prc, $val ) = ( 100*$1/$2, " ($value)" ) if ! $prc and $value =~ /(\d+)\/(\d+)/ and $1 < $2 and $2 > 0; # allow string with xx/nn
+#-  ( $prc, $val ) = ( 100*$1/$2, " ($value)" ) if ! $prc and $value =~ /(\d+)\/(\d+)/ and $1 < $2 and $2 > 0; # allow string with xx/nn # cc20261110-5
+  ( $prc, $val ) = ( 100*$1/$2, " (" . html_text( $value ) . ")" ) if ! $prc and $value =~ /(\d+)\/(\d+)/ and $1 < $2 and $2 > 0; # allow string with xx/nn, raw CHAR data # cc20261110-5
   $prc = $1        if ! $prc and $value =~ /(\d+(\.\d+)?)%?/; # or string with xx.nn%
-  $prc = $value    if ! $prc; # assumed a number
+#-  $prc = $value    if ! $prc; # assumed a number # cc20261113-1
+  # no digits at all here, the raw text is not a number and went into the style attribute (css injection) # cc20261113-1
 
   $prc =   0 if $prc <   0 or ! $prc;
   $prc = 100 if $prc > 100;
@@ -743,7 +788,11 @@ sub de_progress_bar
   
   my $wd = " ;width: ${width}em; " if $width =~ /^\d+\z/ and $width > 0;
   
-  return "<div class=progress-div style='$wd'><div class=progress-bar style='width: $prc%; $d1'>$p2</div><div class=progress-empty style='width: $pn%; $d2'>$p1</div></div>";
+#-  return "<div class=progress-div style='$wd'><div class=progress-bar style='width: $prc%; $d1'>$p2</div><div class=progress-empty style='width: $pn%; $d2'>$p1</div></div>"; # cc20261110-5
+  return html_element( 'div', html_element( 'div', $p2, class => 'progress-bar',   style => "width: $prc%; $d1" ) # cc20261110-5
+                            . html_element( 'div', $p1, class => 'progress-empty', style => "width: $pn%; $d2" ), # cc20261110-5
+#-                       class => 'progress-div', ( $wd ? ( style => $wd ) : () ) ); # cc20261110-5 # cc20261116-4
+                       class => 'progress-div', style => $wd ); # undef leaves the attribute out # cc20261116-4
 }
 
 1;

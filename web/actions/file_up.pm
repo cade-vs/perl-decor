@@ -10,6 +10,7 @@
 package decor::actions::file_up;
 use strict;
 use Web::Reactor::HTML::Utils;
+use Web::Reactor::HTML; # elements, attributes, escaping, no longer exported by HTML::Utils # cc20261110-5
 use Web::Reactor::HTML::Layout;
 use Decor::Web::HTML::Utils;
 use Decor::Web::View;
@@ -74,7 +75,8 @@ sub main
         my $res = $core->update( $table, \%data, { FILTER => { _ID => $new_id } } );
         if( ! $res )
           {
-          $errors .= "<p>$upload_fn: error updating file information!";
+#-          $errors .= "<p>$upload_fn: error updating file information!"; # cc20261110-5
+          $errors .= "<p>" . html_text( $upload_fn ) . ": error updating file information!"; # the file name comes from the client # cc20261110-5
           }
         }
       
@@ -87,7 +89,8 @@ sub main
             my $res = $core->update( $lt_table, { $lt_field => $new_id }, { FILTER => { _ID => $lt_id } } );
             if( ! $res )
               {
-              $errors .= "<p>$upload_fn: error updating file information!";
+#-              $errors .= "<p>$upload_fn: error updating file information!"; # cc20261110-5
+              $errors .= "<p>" . html_text( $upload_fn ) . ": error updating file information!"; # cc20261110-5
               }
             }
           $ret_opt{ "F:$rt_field" } = $new_id if $rt_field;

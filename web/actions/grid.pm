@@ -292,7 +292,8 @@ sub main
 #      $label .= "<span class=details-text>/</span>$llabel";
 #      }
 
-    $text_grid_head .= "<td class='$fmt_class'>$label</td>";
+#-    $text_grid_head .= "<td class='$fmt_class'>$label</td>"; # cc20261110-5
+    $text_grid_head .= html_element( 'td', $label, class => $fmt_class ); # cc20261110-5
     }
   $text_grid_head .= "</tr>";
 
@@ -329,8 +330,9 @@ sub main
     my $id = $row_data->{ '_ID' };
     my $link_field_value = $row_data->{ $link_field_disable };
 
-    my $row_cells; # the <tr> is built after its cells: its context menu gets the "List the same" items of all fields
-    my $vec_ctrl_list_same; # "List the same" buttons of the row fields, for the row context menu
+#-    my $row_cells; # the <tr> is built after its cells: its context menu gets the "List the same" items of all fields # cc20261116-6
+    my $row_cells; # the <tr> cells, each with its own context menu # cc20261116-6
+#-    my $vec_ctrl_list_same; # "List the same" buttons of the row fields, for the row context menu # cc20261116-6
 
     my $vec_ctrl;
     my $vec_ctrl_popup;
@@ -403,9 +405,11 @@ sub main
       $vec_ctrl_popup .= ' ' . html_element( 'a', '(&radic;) [~Toggle record]', class => 'button act-button', href => '#', onclick => 'reactor_form_multi_checkbox_toggle_by_id( ' . html_js_str( "VECB:$cb_id" ) . ' ); return false;' ) . ' ';
       }
 
-    $vec_ctrl_popup = "<div class='popup-menu-buttons'>$vec_ctrl_popup</div>";
+#-    $vec_ctrl_popup = "<div class='popup-menu-buttons'>$vec_ctrl_popup</div>"; # cc20261116-5
+    # wrapped below, together with the "List the same" items: one column of buttons # cc20261116-5
 
-    $row_cells .= "<td class='grid-data fmt-ctrl fmt-mono'>$vec_ctrl</td>";
+    $row_cells .= "<td class='grid-data fmt-ctrl fmt-mono'>$vec_ctrl</td>"; # the ctrl column has no context menu # cc20261116-7
+#-    $row_cells .= html_element_x( 'td', $vec_ctrl, class => 'grid-data fmt-ctrl fmt-mono', -ctxmenu => "<div class=popup-menu-buttons>$vec_ctrl_popup</div>", -reo => $reo ); # the row menu only, no field here # cc20261116-6 # cc20261116-7
     for my $field ( @fields )
       {
       my $bfdes      = $bfdes{ $field };
@@ -428,11 +432,13 @@ sub main
 
       my ( $data_fmt, $fmt_class_fld ) = de_web_format_field( $data, $lfdes, 'GRID', { ID => $id, REO => $reo, CORE => $core } );
       my $data_ctrl;
+      my $cell_list_same; # the "List the same" item of this cell only, for its context menu # cc20261116-6
 
-      if( ! des_is_unique( $bfdes ) and ! des_is_backlinked( $bfdes ) and ! des_is_widelinked( $bfdes ) and ! ( $link_field_disable and $base_field eq $link_field_disable ) ) # the hidden link field column (skipped below) gives no row menu item
+      if( ! des_is_unique( $bfdes ) and ! des_is_backlinked( $bfdes ) and ! des_is_widelinked( $bfdes ) and ! ( $link_field_disable and $base_field eq $link_field_disable ) ) # the hidden link field column (skipped below) gives no menu item # cc20261116-6
         {
         # html_alink() with the de_html_alink_button() classes: de_html_alink_button() turns any name.svg/png text in the label (the data) into an icon
-        $vec_ctrl_list_same .= html_alink( $reo, 'new', "(&cong;) [~List the same] <b>$label</b>: $data_fmt", { HINT => undef, CLASS => 'button ' }, ACTION => 'grid',                   TABLE => $table, FILTER => { $base_field => $data_base } );
+#-        $vec_ctrl_list_same .= html_alink( $reo, 'new', "(&cong;) [~List the same] <b>$label</b>: $data_fmt", { HINT => undef, CLASS => 'button ' }, ACTION => 'grid',                   TABLE => $table, FILTER => { $base_field => $data_base } ); # cc20261116-6
+        $cell_list_same = html_alink( $reo, 'new', "(&cong;) [~List the same] <b>$label</b>: $data_fmt", { HINT => undef, CLASS => 'button ' }, ACTION => 'grid', TABLE => $table, FILTER => { $base_field => $data_base } ); # cc20261116-6
         }
 
       if( des_is_linked( $bfdes ) or des_is_widelinked( $bfdes ) )
@@ -614,16 +620,20 @@ sub main
       if( $data_ctrl )
         {
         $data_ctrl = de_html_popup_icon( $reo, 'more.svg', "<div class=popup-menu-buttons>$data_ctrl</div>", { CLASS => 'popup-layer' } );
-        $data_fmt = "<table style='width: 100%; border-spacing: 0'><tr><td class='$fmt_class' style='width: 100%; padding: 0'>$data_fmt</td><td style='text-align: right; padding: 0'>&nbsp;$data_ctrl</td></tr></table>";
+#-        $data_fmt = "<table style='width: 100%; border-spacing: 0'><tr><td class='$fmt_class' style='width: 100%; padding: 0'>$data_fmt</td><td style='text-align: right; padding: 0'>&nbsp;$data_ctrl</td></tr></table>"; # cc20261110-5
+        $data_fmt = "<table style='width: 100%; border-spacing: 0'><tr>" . html_element( 'td', $data_fmt, class => $fmt_class, style => 'width: 100%; padding: 0' ) . "<td style='text-align: right; padding: 0'>&nbsp;$data_ctrl</td></tr></table>"; # cc20261110-5
         }
 
       my $base_field_class = lc "css_grid_class_$base_field";
-      $row_cells .= html_element( 'td', $data_fmt, class => "grid-data $fmt_class $base_field_class" ) . "\n";
+#-      $row_cells .= html_element( 'td', $data_fmt, class => "grid-data $fmt_class $base_field_class" ) . "\n"; # cc20261116-6
+      $row_cells .= html_element_x( 'td', $data_fmt, class => "grid-data $fmt_class $base_field_class", -ctxmenu => "<div class=popup-menu-buttons>$vec_ctrl_popup$cell_list_same</div>", -reo => $reo ) . "\n"; # the row menu and the "List the same" item of this cell # cc20261116-6
 
       # end of fields loop
       }
-    # one context menu layer per row (was one per cell, each with the whole row menu): the row menu and the "List the same" items of all fields
-    $text_grid_body .= html_element_x( 'tr', $row_cells, class => 'grid-data', -ctxmenu => $vec_ctrl_popup . $vec_ctrl_list_same, -reo => $reo ) . "\n\n\n";
+#-    # one context menu layer per row (was one per cell, each with the whole row menu): the row menu and the "List the same" items of all fields # cc20261116-6
+#-    $text_grid_body .= html_element_x( 'tr', $row_cells, class => 'grid-data', -ctxmenu => $vec_ctrl_popup . $vec_ctrl_list_same, -reo => $reo ) . "\n\n\n"; # cc20261116-5
+#-    $text_grid_body .= html_element_x( 'tr', $row_cells, class => 'grid-data', -ctxmenu => "<div class=popup-menu-buttons>$vec_ctrl_popup$vec_ctrl_list_same</div>", -reo => $reo ) . "\n\n\n"; # all items in one popup-menu-buttons div, the "List the same" items were outside it and rendered inline # cc20261116-5 # cc20261116-6
+    $text_grid_body .= html_element( 'tr', $row_cells, class => 'grid-data' ) . "\n\n\n"; # the context menus are on the cells: "List the same" of the hit cell only # cc20261116-6
 
     # end of record row loop
     }
@@ -637,7 +647,8 @@ sub main
     my $filter_rmv;
     $filter_rmv .= de_html_alink_button( $reo, 'new', "(&asymp;) [~Modify]",  '[~Filter records]',          ACTION => 'grid_filter', TABLE => $table );
     $filter_rmv .= de_html_alink_button( $reo, 'here', "(x) [~Remove]",       '[~Remove current filter]',   BTYPE => 'mod', REMOVE_ACTIVE_FILTER => 1 );
-    my $filter_dez = html_layout_2lr( $filter_des, $filter_rmv, '<==1>' );
+#-    my $filter_dez = html_layout_2lr( $filter_des, $filter_rmv, '<==1>' ); # cc20261116-2
+    my $filter_dez = html_hbox( '<100,1n>', \ $filter_des, \ $filter_rmv ); # html cells as \ $html, the new Layout escapes plain values # cc20261116-2
     push @infos, $filter_dez;
     }
 
@@ -647,11 +658,14 @@ sub main
     my $sort_rmv;
     $sort_rmv .= de_html_alink_button( $reo, 'new', "(&asymp;) [~Modify]",  '[~Sort records]',       ACTION => 'grid_sort', TABLE => $table );
     $sort_rmv .= de_html_alink_button( $reo, 'here', "(x) [~Remove]",       '[~Remove sort order]',  BTYPE => 'mod', REMOVE_ACTIVE_SORT => 1 );
-    my $sort_dez = html_layout_2lr( "[~Ordered by]: " . $sort_des, $sort_rmv, '<==1>' );
+#-    my $sort_dez = html_layout_2lr( "[~Ordered by]: " . $sort_des, $sort_rmv, '<==1>' ); # cc20261116-2
+    my $sort_dez = html_hbox( '<100,1n>', \ ( "[~Ordered by]: " . $sort_des ), \ $sort_rmv ); # html cells as \ $html, the new Layout escapes plain values # cc20261116-2
     push @infos, $sort_dez;
     }
 
-  $text .= "<div class=info-text>". html_layout_2lr( $infos[0], $infos[1], '<==>' ) ."</div><p>" if @infos;
+#-  $text .= "<div class=info-text>". html_layout_2lr( $infos[0], $infos[1], '<==>' ) ."</div><p>" if @infos; # cc20261116-2
+#-  $text .= "<div class=info-text>". html_hbox( '<n,>n', \ $infos[0], \ $infos[1] ) ."</div><p>" if @infos; # html cells as \ $html, the new Layout escapes plain values # cc20261116-2 # cc20261116-4
+  $text .= "<div class=info-text>". html_hbox( '<,>', \ $infos[0], \ $infos[1] ) ."</div><p>" if @infos; # no nowrap, white-space is inherited, the filter and sort descriptions inside must wrap # cc20261116-4
 
   if( $row_counter == 0 )
     {

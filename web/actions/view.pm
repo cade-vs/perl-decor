@@ -375,7 +375,8 @@ sub main
       {
       # long data scrolls in a read-only input, the value is the data, html_element() escapes it
       # NOTE: it is the raw field data, for a linked field the link id, not the linked text (the old block ran before the formatting and always showed an empty input)
-      $data_fmt = "<form>" . html_element( 'input', undef, value => $data, style => 'width: 96%', readonly => undef ) . "</form>";
+#-      $data_fmt = "<form>" . html_element( 'input', undef, value => $data, style => 'width: 96%', readonly => undef ) . "</form>"; # cc20261115-12
+      $data_fmt = "<form>" . html_element( 'input', undef, value => $data, style => 'width: 96%', readonly => \ undef ) . "</form>"; # cc20261115-12 bare, undef leaves it out
       }
 
     if( $type_name eq 'CHAR' and $type_lname eq 'LOCATION' )
@@ -391,7 +392,8 @@ sub main
       }
 
 #    my $data_layout = $no_layout_ctrls ? $data_fmt : html_layout_2lr_flex( $data_fmt, $data_ctrl, '<==1>' );
-    my $data_layout = $no_layout_ctrls ? $data_fmt : html_hbox( '<100,1n>', $data_fmt, $data_ctrl );
+#-    my $data_layout = $no_layout_ctrls ? $data_fmt : html_hbox( '<100,1n>', $data_fmt, $data_ctrl ); # cc20261116-2
+    my $data_layout = $no_layout_ctrls ? $data_fmt : html_hbox( '<100,1n>', \ $data_fmt, \ $data_ctrl ); # html cells as \ $html, the new Layout escapes plain values # cc20261116-2
     my $base_field_class = lc "css_view_class_$base_field";
 #    $text .= "<tr class=view>";
 #    $text .= "<td class='view-field record-field $base_field_class                ' >$label</td>";
@@ -400,10 +402,14 @@ sub main
 
     my $record_first_class = $record_first ? 'record-first' : ''; # no "my ... if"
     $record_first = 0;
-    $text .= "<div class='record-field-value'>
-                <div class='view-field record-field $record_first_class $base_field_class                ' ><div>$label</div></div>
-                <div class='view-value record-value $record_first_class $base_field_class $data_fmt_class' ><div>$data_layout</div></div>
-              </div>";
+#-    $text .= "<div class='record-field-value'> # cc20261110-5
+#-                <div class='view-field record-field $record_first_class $base_field_class                ' ><div>$label</div></div> # cc20261110-5
+#-                <div class='view-value record-value $record_first_class $base_field_class $data_fmt_class' ><div>$data_layout</div></div> # cc20261110-5
+#-              </div>"; # cc20261110-5
+    $text .= html_element( 'div', "\n" # cc20261110-5
+                . html_element( 'div', "<div>$label</div>",       class => "view-field record-field $record_first_class $base_field_class" ) . "\n" # cc20261110-5
+                . html_element( 'div', "<div>$data_layout</div>", class => "view-value record-value $record_first_class $base_field_class $data_fmt_class" ) . "\n", # cc20261110-5
+              class => 'record-field-value' ); # cc20261110-5
 
     if( $field_details )
       {

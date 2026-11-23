@@ -6,6 +6,7 @@ use Data::Tools;
 use Decor::Web::HTML::Utils;
 use Web::Reactor::HTML::Utils;
 use Web::Reactor::HTML::Layout;
+use Web::Reactor::HTML; # html_text() # cc20261116-3
 use Decor::Web::Utils;
 use Decor::Web::View;
 
@@ -117,9 +118,11 @@ sub main
                                      );
                                      
     # FIXME: format field!
-    my $far_field_linked_field_data = $row->{ $far_field_linked_field };
+#-    my $far_field_linked_field_data = $row->{ $far_field_linked_field }; # cc20261116-3
+    my $far_field_linked_field_data = html_text( $row->{ $far_field_linked_field } ); # record data, escaped, it goes into an html cell # cc20261116-3
 
-    my $input_layout = html_layout_2lr( $field_input, "<div style='white-space: normal; padding: 0.5em;'><small>$far_field_linked_field_data</small></div>", '<1==<' );
+#-    my $input_layout = html_layout_2lr( $field_input, "<div style='white-space: normal; padding: 0.5em;'><small>$far_field_linked_field_data</small></div>", '<1==<' ); # cc20261116-2
+    my $input_layout = html_hbox( '<0n,<=', \ $field_input, \ "<div style='white-space: normal; padding: 0.5em;'><small>$far_field_linked_field_data</small></div>" ); # html cells as \ $html, the new Layout escapes plain values # cc20261116-2
     $text .= "<div class='record-field-value'>
                 <div class='view-field record-field fmt-right'>$label</div>
                 <div class='view-value record-value fmt-left' >$input_layout</div>

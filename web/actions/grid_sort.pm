@@ -171,7 +171,8 @@ sub main
       $text .= "<div class='view-divider view-sep record-sep fmt-center'>$divider</div>";
       }
 
-    my $input_layout = html_layout_2lr( $field_input, $field_input_ctrl, '<==1>' );
+#-    my $input_layout = html_layout_2lr( $field_input, $field_input_ctrl, '<==1>' ); # cc20261116-2
+    my $input_layout = html_hbox( '<100,1n>', \ $field_input, \ $field_input_ctrl ); # html cells as \ $html, the new Layout escapes plain values # cc20261116-2
 
     $text .= "<div class='record-field-value'>
                 <div class='view-field record-field fmt-right'>$label</div>

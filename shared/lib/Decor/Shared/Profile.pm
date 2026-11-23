@@ -143,7 +143,8 @@ sub set_primary_group
   my $self = shift;
   my $group = shift || 0;
 
-  de_check_id_boom( $group, "invalid group id [$group] expected number" );
+#-  de_check_id_boom( $group, "invalid group id [$group] expected number" ); # cc20261110-2
+  de_check_id_boom( $group, "invalid group id [$group] expected number" ) if $group; # 0 is "no primary group", the user PRIMARY_GROUP link may be empty # cc20261110-2
   $group = int( $group );
 
   $self->{ 'PRIMARY_GROUP' } = $group;

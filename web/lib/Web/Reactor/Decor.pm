@@ -9,7 +9,8 @@
 ##############################################################################
 package Web::Reactor::Decor;
 use strict;
-use Web::Reactor 3.33;
+#-use Web::Reactor 3.33; # cc20261116-4
+use Web::Reactor 4.01; # new Layout (html_hbox \ $html cells), undef/\ undef attributes, reactor.css # cc20261116-4
 use Exception::Sink;
 use Data::Tools;
 use Data::Dumper;
@@ -20,6 +21,7 @@ use Decor::Shared::Utils;
 use Decor::Shared::Config;
 use Decor::Shared::Types;
 use Decor::Web::Utils;
+use Web::Reactor::HTML qw( html_text ); # only the escaping, the other html_* would become methods of this class # cc20261110-4
 
 use parent 'Web::Reactor';
 
@@ -294,8 +296,10 @@ sub ps_path_add_by_cue
   my ( $title, $hint ) = des_cue( $des, 'WEB', $action, "${action}_CUE" );
   $title =~ s|\$(\w+)|$data->{uc $1}|gie;
   $hint  =~ s|\$(\w+)|$data->{uc $1}|gie;
-  $title = str_html_escape( $title );
-  $hint  = str_html_escape( $hint  );
+#-  $title = str_html_escape( $title ); # cc20261110-4
+#-  $hint  = str_html_escape( $hint  ); # cc20261110-4
+  $title = html_text( $title ); # holds $FIELD data from the record # cc20261110-4
+  $hint  = html_text( $hint  ); # cc20261110-4
   $title =~ s|\*(.+?)\*|<b>$1</b>|g;
   $hint  =~ s|\*(.+?)\*|<b>$1</b>|g;
   $self->ps_path_add( $action, $title );

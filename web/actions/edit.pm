@@ -92,7 +92,8 @@ sub main
 
       $id = $core->next_id( $table );
       my $status_ref = $core->status_ref();
-      return "<#e_internal>[$status_ref]" unless $id > 0;
+#-      return "<#e_internal>[$status_ref]" unless $id > 0; # cc20261110-5
+      return "<#e_internal>[" . html_text( $status_ref ) . "]" unless $id > 0; # cc20261110-5
 
       $fields_ar = des_fields_list_by_oper( $tdes, 'INSERT', de_web_profile() );
 
@@ -303,7 +304,8 @@ sub main
   if( $button and $calc_merrs->{ '*' } )
     {
     $text .= "<div class=error-text>";
-    $text .= html_escape( $_ ) . "<br>\n" for @{ $calc_merrs->{ '*' } }; # method messages are text, not html
+#-    $text .= html_escape( $_ ) . "<br>\n" for @{ $calc_merrs->{ '*' } }; # method messages are text, not html # cc20261110-4
+    $text .= html_text( $_ ) . "<br>\n" for @{ $calc_merrs->{ '*' } }; # method messages are text, not html # cc20261110-4
     $text .= "</div>";
     $text .= "<br>";
     }
@@ -327,7 +329,8 @@ sub main
 #  $text .= "</tr>";
 
   $text .= "<div class='record-table'>";
-  $text .= "<div class='$edit_mode_class_prefix-header record-sep fmt-center'>$browser_window_title</div>";
+#-  $text .= "<div class='$edit_mode_class_prefix-header record-sep fmt-center'>$browser_window_title</div>"; # cc20261110-5
+  $text .= html_element( 'div', $browser_window_title, class => "$edit_mode_class_prefix-header record-sep fmt-center" ); # cc20261110-5
 
 ###  my $row_data = $core->fetch( $select );
 ###  my $row_id = $row_data->{ '_ID' };
@@ -357,7 +360,8 @@ sub main
 
     if( $button )
       {
-      $field_error .= html_escape( $_ ) . "<br>\n" for @{ $calc_merrs->{ $field } }; # method messages are text, not html
+#-      $field_error .= html_escape( $_ ) . "<br>\n" for @{ $calc_merrs->{ $field } }; # method messages are text, not html # cc20261110-4
+      $field_error .= html_text( $_ ) . "<br>\n" for @{ $calc_merrs->{ $field } }; # method messages are text, not html # cc20261110-4
       }
 
     my ( $field_input, $field_input_ctrl, $field_details, $backlinks_text );
@@ -386,14 +390,16 @@ sub main
     my $divider = des_attr( $fdes, 'WEB', 'DIVIDER' );
     if( $divider )
       {
-      push @parts, "<div class='$edit_mode_class_prefix-divider record-sep fmt-center'>$divider</div>";
+#-      push @parts, "<div class='$edit_mode_class_prefix-divider record-sep fmt-center'>$divider</div>"; # cc20261110-5
+      push @parts, html_element( 'div', $divider, class => "$edit_mode_class_prefix-divider record-sep fmt-center" ); # cc20261110-5
       $record_first = 1;
       }
 
     $field_error = html_element( 'div', $field_error, class => 'warning', style => 'text-align: left;' ) if $field_error; # no obsolete align attribute
 
 #    my $input_layout = html_layout_2lr( $field_input, '&nbsp;&nbsp;' . $field_input_ctrl, '<==1>' );
-    my $input_layout = html_hbox( '<100,1n>', $field_input, $field_input_ctrl );
+#-    my $input_layout = html_hbox( '<100,1n>', $field_input, $field_input_ctrl ); # cc20261116-2
+    my $input_layout = html_hbox( '<100,1n>', \ $field_input, \ $field_input_ctrl ); # html cells as \ $html, the new Layout escapes plain values # cc20261116-2
     my $base_field_class = lc "css_edit_class_$base_field";
 
 #    $text .= "<tr class=view>\n";
@@ -409,7 +415,8 @@ sub main
 
     if( $field_details )
       {
-      push @parts, "<div class='$edit_mode_class_prefix-details record-details'>$field_details</div>";
+#-      push @parts, "<div class='$edit_mode_class_prefix-details record-details'>$field_details</div>"; # cc20261110-5
+      push @parts, html_element( 'div', $field_details, class => "$edit_mode_class_prefix-details record-details" ); # cc20261110-5
 
 #      $text .= "<tr class=view>";
 #      $text .= "<td colspan=2 class='details-fields' >$field_details</td>";

@@ -11,6 +11,7 @@ package decor::actions::alog_view;
 use strict;
 use Decor::Shared::Describe;
 use Web::Reactor::HTML::Utils;
+use Web::Reactor::HTML; # elements, attributes, escaping, no longer exported by HTML::Utils # cc20261110-4
 use Web::Reactor::HTML::Layout;
 use Decor::Web::HTML::Utils;
 use Decor::Web::View;
@@ -39,10 +40,12 @@ sub main
   while( my $row_data = $core->fetch( $select ) )
     {
     my $user       = $row_data->{ 'USR' };
-    my $username   = $row_data->{ 'USR.NAME' };
+#-    my $username   = $row_data->{ 'USR.NAME' }; # cc20261110-4
+    my $username   = html_text( $row_data->{ 'USR.NAME' } ); # database text, goes into the header html # cc20261110-4
     my $sess       = $row_data->{ 'SESS' };
     my $sess_ctime = type_format( $row_data->{ 'SESS.CTIME' }, 'UTIME' );
-    my $oper       = $row_data->{ 'OPER' };
+#-    my $oper       = $row_data->{ 'OPER' }; # cc20261110-4
+    my $oper       = html_text( $row_data->{ 'OPER' } ); # cc20261110-4
     my $ctime      = type_format( $row_data->{ 'CTIME' }, 'UTIME' );
     my $data       = ref_thaw( $row_data->{ 'DATA' } );
     

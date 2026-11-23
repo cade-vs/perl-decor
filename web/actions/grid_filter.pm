@@ -129,7 +129,8 @@ sub main
           my ( $linked_table, $linked_field ) = des_link_details( $bfdes );
           @in_f = map { $core->read_field( $linked_table, $linked_field, $_ ) } @in;
           }
-        $filter_des .= qq[ * $label [~is one of] ] . join( ', ', map { '"' . html_escape( $_ ) . '"' } @in_f ) . qq[ <br> ]; # values are escaped, the description is html
+#-        $filter_des .= qq[ * $label [~is one of] ] . join( ', ', map { '"' . html_escape( $_ ) . '"' } @in_f ) . qq[ <br> ]; # values are escaped, the description is html # cc20261110-4
+        $filter_des .= qq[ * $label [~is one of] ] . join( ', ', map { '"' . html_text( $_ ) . '"' } @in_f ) . qq[ <br> ]; # values are escaped, the description is html # cc20261110-4
         $filter_cnt++;
 
         $filter_rules->{ $field_out } = \@field_filter;
@@ -184,7 +185,8 @@ sub main
           {  
           push @field_filter, { OP => '==', VALUE => $input_data, };
           }
-        $filter_des .= qq[ * [~Searching for] "] . html_escape( $input_data ) . qq[" [~in] <b>$label</b> <br> ]; # escaped user input
+#-        $filter_des .= qq[ * [~Searching for] "] . html_escape( $input_data ) . qq[" [~in] <b>$label</b> <br> ]; # escaped user input # cc20261110-4
+        $filter_des .= qq[ * [~Searching for] "] . html_text( $input_data ) . qq[" [~in] <b>$label</b> <br> ]; # escaped user input # cc20261110-4
         $filter_cnt++;
         }  
       else
@@ -202,8 +204,10 @@ sub main
           $to = type_revert( $to, $type );
 
           ( $fr, $to, $fr_txt, $to_txt ) = ( $to, $fr, $to_txt, $fr_txt ) if $fr ne '' and $to ne '' and $fr > $to; # compare the reverted values, not the text
-          $fr_txt = html_escape( $fr_txt );
-          $to_txt = html_escape( $to_txt );
+#-          $fr_txt = html_escape( $fr_txt ); # cc20261110-4
+          $fr_txt = html_text( $fr_txt ); # cc20261110-4
+#-          $to_txt = html_escape( $to_txt ); # cc20261110-4
+          $to_txt = html_text( $to_txt ); # cc20261110-4
 
           push @field_filter, { OP => '>=', VALUE => $fr, } if $fr ne '';
           push @field_filter, { OP => '<=', VALUE => $to, } if $to ne '';
@@ -224,7 +228,8 @@ sub main
             my ( $linked_table, $linked_field ) = des_link_details( $bfdes );
             $input_data_f = $core->read_field( $linked_table, $linked_field, $input_data );
             }
-          $filter_des .= qq[ * $label [~is] "] . html_escape( $input_data_f ) . qq[" <br> ]; # escaped
+#-          $filter_des .= qq[ * $label [~is] "] . html_escape( $input_data_f ) . qq[" <br> ]; # escaped # cc20261110-4
+          $filter_des .= qq[ * $label [~is] "] . html_text( $input_data_f ) . qq[" <br> ]; # escaped # cc20261110-4
           $filter_cnt++;
           }
         }  
@@ -465,7 +470,8 @@ sub main
       $text .= "<div class='view-divider view-sep record-sep fmt-center'>$divider</div>";
       }
 
-    my $input_layout = html_layout_2lr( $field_input, $field_input_ctrl, '<==1>' );
+#-    my $input_layout = html_layout_2lr( $field_input, $field_input_ctrl, '<==1>' ); # cc20261116-2
+    my $input_layout = html_hbox( '<100,1n>', \ $field_input, \ $field_input_ctrl ); # html cells as \ $html, the new Layout escapes plain values # cc20261116-2
 
     $text .= "<div class='record-field-value'>
                 <div class='view-field record-field fmt-right'>$label</div>

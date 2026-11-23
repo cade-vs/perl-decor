@@ -81,7 +81,8 @@ sub main
   return "<#no_data>" unless $row_data;
 
   $text .= "<div class='record-table'>";
-  $text .= "<div class='$edit_mode_class_prefix-header record-sep fmt-center'>$browser_window_title</div>";
+#-  $text .= "<div class='$edit_mode_class_prefix-header record-sep fmt-center'>$browser_window_title</div>"; # cc20261110-5
+  $text .= html_element( 'div', $browser_window_title, class => "$edit_mode_class_prefix-header record-sep fmt-center" ); # cc20261110-5
 
   my $row_id = $row_data->{ '_ID' };
 
@@ -104,7 +105,8 @@ sub main
     if( $calc_merrs->{ '*' } )
       {
       $text .= "<div class=error-text>";
-      $text .= html_escape( $_ ) . "<br>\n" for @{ $calc_merrs->{ '*' } }; # method messages are text, not html
+#-      $text .= html_escape( $_ ) . "<br>\n" for @{ $calc_merrs->{ '*' } }; # method messages are text, not html # cc20261110-4
+      $text .= html_text( $_ ) . "<br>\n" for @{ $calc_merrs->{ '*' } }; # method messages are text, not html # cc20261110-4
       $text .= "</div>";
       $text .= "<br>";
       }
@@ -141,14 +143,16 @@ sub main
     my $data_fmt = de_web_format_field( $data, $fdes, 'PREVIEW', { CORE => $core, NO_EDIT => 1, ID => $id } );
     my $field_error;
     
-    $field_error .= html_escape( $_ ) . "<br>\n" for @{ $calc_merrs->{ $field } }; # method messages are text, not html
+#-    $field_error .= html_escape( $_ ) . "<br>\n" for @{ $calc_merrs->{ $field } }; # method messages are text, not html # cc20261110-4
+    $field_error .= html_text( $_ ) . "<br>\n" for @{ $calc_merrs->{ $field } }; # method messages are text, not html # cc20261110-4
 
     # the old linked/backlinked formatting (=pod block, already disabled) is removed, de_web_format_field() above does it
 
     my $divider = des_attr( $fdes, 'WEB', 'DIVIDER' );
     if( $divider )
       {
-      $text .= "<div class='$edit_mode_class_prefix-divider record-sep fmt-center'>$divider</div>";
+#-      $text .= "<div class='$edit_mode_class_prefix-divider record-sep fmt-center'>$divider</div>"; # cc20261110-5
+      $text .= html_element( 'div', $divider, class => "$edit_mode_class_prefix-divider record-sep fmt-center" ); # cc20261110-5
       $record_first = 1;
       }
 
@@ -158,10 +162,14 @@ sub main
 
     my $record_first_class = $record_first ? 'record-first' : ''; # no "my ... if", it may keep the value from the previous loop pass
     $record_first = 0;
-    $text .= "<div class='record-field-value'>
-                <div class='$edit_mode_class_prefix-field record-field $record_first_class $base_field_class' >$label$field_error</div>
-                <div class='$edit_mode_class_prefix-value record-value $record_first_class $base_field_class' >$data_fmt</div>
-              </div>";
+#-    $text .= "<div class='record-field-value'> # cc20261110-5
+#-                <div class='$edit_mode_class_prefix-field record-field $record_first_class $base_field_class' >$label$field_error</div> # cc20261110-5
+#-                <div class='$edit_mode_class_prefix-value record-value $record_first_class $base_field_class' >$data_fmt</div> # cc20261110-5
+#-              </div>"; # cc20261110-5
+    $text .= html_element( 'div', "\n" # cc20261110-5
+                . html_element( 'div', "$label$field_error", class => "$edit_mode_class_prefix-field record-field $record_first_class $base_field_class" ) . "\n" # cc20261110-5
+                . html_element( 'div', $data_fmt,            class => "$edit_mode_class_prefix-value record-value $record_first_class $base_field_class" ) . "\n", # cc20261110-5
+              class => 'record-field-value' ); # cc20261110-5
 
     }
   $text .= "</div>";

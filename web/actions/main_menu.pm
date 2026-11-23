@@ -213,7 +213,8 @@ sub sub_menu
       my $icon    = $item->{ 'ICON'    };
       $icon = 'menu-item-action.svg' unless $icon =~ /[a-z0-9_\-]+\.[a-z]+/i;
       #### DOES NOT WORK WITH ANON SESSIONS: next if $reo->is_logged_in() and uc $action =~ /(\[~)?LOGIN(\])?/; # root hack
-      push @res, "<reactor_new_a=?action=$action class=menu $menu_args><img src=i/$icon class=icon> $label</a>";
+#-      push @res, "<reactor_new_a=?action=$action class=menu $menu_args><img src=i/$icon class=icon> $label</a>"; # cc20261110-5
+      push @res, "<reactor_new_a=?action=$action class=menu $menu_args>" . html_element( 'img', undef, src => "i/$icon", class => 'icon' ) . " $label</a>"; # the template link stays, the reactor rewrites it # cc20261110-5
       }
     else
       {

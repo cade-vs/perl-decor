@@ -81,6 +81,13 @@ if( ! -e 'js/vframe.js' )
   symlink( "$easy_dir/js-vframe/vframe.js", 'js/vframe.js' ) or die $!;
   }
 
+mkdir( 'css' ) unless -d 'css'; # cc20261116-2 the Layout classes (rx-*), header_css.html loads it
+
+if( ! -e 'css/reactor.css' ) # cc20261116-2
+  { # cc20261116-2
+  symlink( "$easy_dir/perl-web-reactor/htdocs/reactor.css", 'css/reactor.css' ) or die $!; # cc20261116-2
+  } # cc20261116-2
+
 print "\nDONE.\n";
 
 sub strip_script_name

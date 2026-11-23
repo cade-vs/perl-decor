@@ -55,7 +55,8 @@ sub main
     if( ! $core->do( $table, $do, {}, $do_id ) )
       {
       my $status_ref = $core->status_ref();
-      my $ref_text   = $status_ref ne '' ? ' [~Please, report this error reference to the administrators:] ' . html_escape( $status_ref ) : ''; # no reference (e.g. connection error), no dangling text
+#-      my $ref_text   = $status_ref ne '' ? ' [~Please, report this error reference to the administrators:] ' . html_escape( $status_ref ) : ''; # no reference (e.g. connection error), no dangling text # cc20261110-4
+      my $ref_text   = $status_ref ne '' ? ' [~Please, report this error reference to the administrators:] ' . html_text( $status_ref ) : ''; # no reference (e.g. connection error), no dangling text # cc20261110-4
       $html_file .= "<div class=error-text>[~Error!]$ref_text</div>";
       next;
       }
@@ -76,7 +77,10 @@ sub main
     elsif( $file_mime eq 'application/pdf' )
       {
       my $base64data = encode_base64( $file_body, '' ); # one line, it is also used in the download link href
-      my $download   = html_element( 'a', '[~Download the PDF file]', href => "data:application/pdf;base64,$base64data", download => 'document.pdf' ); # the same pdf data, no placeholder file
+#-      my $download   = html_element( 'a', '[~Download the PDF file]', href => "data:application/pdf;base64,$base64data", download => 'document.pdf' ); # the same pdf data, no placeholder file # cc20261116-1
+      # by hand, as the <object> below: html_attrs() blanks data: urls in href (only data:image in src/poster), # cc20261116-1
+      # this one is built here from a fixed mime type and base64 text (A-Z a-z 0-9 + / =), nothing to escape # cc20261116-1
+      my $download   = qq[<a href="data:application/pdf;base64,$base64data" download="document.pdf">[~Download the PDF file]</a>]; # cc20261116-1
       $text .= qq[<object data="data:application/pdf;base64,$base64data" type="application/pdf" width="80%" height="780px"><p>[~Unable to display the PDF file here.] $download</p></object>];
       }
     else
